@@ -4,9 +4,10 @@ import {
   readdirSync,
   readFileSync,
   rmSync,
+  statSync,
   writeFileSync,
 } from "node:fs";
-import { isAbsolute, join, parse, relative, resolve } from "node:path";
+import { isAbsolute, join, parse, relative, resolve, sep } from "node:path";
 import { styleText } from "node:util";
 import { build as buildWithRolldown, VERSION as ROLLDOWN_VERSION } from "rolldown";
 import {
@@ -92,15 +93,15 @@ type ProjectSource = {
   // gasMockSources: string[];
 };
 
-function recursiveCollectFiles(dir: string, targetExts: string[], excludeDirs: string[]) {
+function recursiveCollectFiles(dir: string, excludeDirs?: string[]) {
   const filePaths: string[] = [];
   const entryDir = readdirSync(dir, { withFileTypes: true });
   entryDir.forEach((entry) => {
     const absolutePath = resolve(join(entry.parentPath, entry.name));
-    if (entry.isFile() && targetExts.includes(parse(absolutePath).ext)) {
+    if (entry.isFile()) {
       filePaths.push(absolutePath);
-    } else if (entry.isDirectory() && !excludeDirs.includes(entry.name)) {
-      recursiveCollectFiles(absolutePath, targetExts, excludeDirs).forEach((filePath) =>
+    } else if (entry.isDirectory() && !excludeDirs?.includes(entry.name)) {
+      recursiveCollectFiles(absolutePath, excludeDirs).forEach((filePath) =>
         filePaths.push(filePath),
       );
     }
@@ -111,9 +112,15 @@ function recursiveCollectFiles(dir: string, targetExts: string[], excludeDirs: s
 
 function collectSources(userConfig: ResolvedUserConfig): ProjectSource {
   const excludeDirs = ["node_modules", ".git"];
-  const webSources = recursiveCollectFiles(userConfig.webDir, [".ts", ".tsx"], excludeDirs);
-  const serverSources = recursiveCollectFiles(userConfig.serverDir, [".ts"], excludeDirs);
-  // const gasMockSources = recursiveCollectFiles(userConfig.gasMockDir, [".ts"], excludeDirs);
+  const webSources = recursiveCollectFiles(userConfig.webDir, excludeDirs).filter((filePath) =>
+    [".ts", ".tsx"].includes(parse(filePath).ext),
+  );
+  const serverSources = recursiveCollectFiles(userConfig.serverDir, excludeDirs).filter(
+    (filePath) => parse(filePath).ext === ".ts",
+  );
+  // const gasMockSources = recursiveCollectFiles(userConfig.gasMockDir, excludeDirs).filter(
+  //   (filePath) => [".ts"].includes(parse(filePath).ext),
+  // );
 
   return {
     webSources,
@@ -283,14 +290,65 @@ function generateManifest(config: ResolvedUserConfig) {
   });
 }
 
+type BuildArtifact = {
+  path: string;
+  size: number;
+};
+
+function collectArtifacts(outDir: string): BuildArtifact[] {
+  return recursiveCollectFiles(outDir).map((filePath) => {
+    const size = statSync(filePath).size;
+    const relativePath = relative(outDir, filePath);
+    return { path: relativePath, size };
+  });
+}
+
 function printBanner() {
   const vegasId = styleText("cyan", `vegas v${VEGAS_VERSION}`);
   const byVite = styleText("magenta", `vite v${VITE_VERSION}`);
   const byRolldown = styleText("red", `rolldown v${ROLLDOWN_VERSION}`);
   const message = styleText("green", "building client environment for production...");
-  const poweredBy = `${styleText("dim", "> powered by")} ${byVite} ${styleText("dim", "and")} ${byRolldown}`;
+  const poweredBy = `${styleText("dim", "> powered by")} ${byVite} ${styleText("dim", "and")} ${byRolldown}\n`;
   console.log(vegasId, message);
   console.log(poweredBy);
+}
+
+function formatSize(bytes: number): string {
+  const units = ["B", "kB", "mB"];
+  let size = bytes;
+  let unit = 0;
+
+  while (size >= 1024 && unit < units.length - 1) {
+    size /= 1024;
+    unit++;
+  }
+
+  return `${size.toFixed(2)} ${units[unit].padStart(2)}`;
+}
+
+function printReport(config: ResolvedUserConfig, artifacts: BuildArtifact[], durationMs: number) {
+  const basePath = styleText("dim", `${relative(config.root, config.output.dir)}${sep}`);
+
+  const rows = artifacts.map((artifact) => ({
+    path: artifact.path,
+    size: formatSize(artifact.size),
+  }));
+
+  const maxPathLength = Math.max(...rows.map((artifact) => artifact.path.length));
+  const maxSizeLength = Math.max(...rows.map((artifact) => artifact.size.toString().length));
+
+  const lines = rows.map(({ path: filePath, size }) => {
+    const paddedPath = filePath.padEnd(maxPathLength);
+    const paddedSize = size.padStart(maxSizeLength);
+
+    const coloredPath = `${styleText("dim", basePath)}${styleText("green", paddedPath)}`;
+    const coloredSize = `${styleText(["dim", "bold"], paddedSize)}`;
+
+    return `${coloredPath}  ${coloredSize}`;
+  });
+
+  console.log(lines.join("\n"));
+  console.log(styleText("green", `\n✓ built in ${durationMs.toFixed(0)}ms`));
 }
 
 export async function runBuild(root?: string) {
@@ -300,12 +358,12 @@ export async function runBuild(root?: string) {
   const resolvedUserConfig = resolveConfig(userConfig);
   const projectSource = collectSources(resolvedUserConfig);
   const projectEntry = detectEntries(projectSource);
+  const startTime = performance.now();
   await buildApp(resolvedUserConfig, projectEntry);
   generateManifest(resolvedUserConfig);
-
-  console.log("it works!");
-  console.log(`root is ${resolvedRoot}`);
-  console.log(resolvedUserConfig);
-  console.log(projectSource);
-  console.log(projectEntry);
+  const endTime = performance.now();
+  const artifacts = collectArtifacts(resolvedUserConfig.output.dir).sort((a, b) =>
+    a.path.localeCompare(b.path),
+  );
+  printReport(resolvedUserConfig, artifacts, endTime - startTime);
 }
