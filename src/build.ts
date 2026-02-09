@@ -1,7 +1,7 @@
 import { existsSync, mkdtempDisposableSync, readdirSync, readFileSync, rmSync } from "node:fs";
-import { isAbsolute, join, parse, resolve } from "node:path";
+import { isAbsolute, join, parse, relative, resolve } from "node:path";
 import { build as buildWithRolldown } from "rolldown";
-import { build as buildWithVite, parseSync } from "vite";
+import { build as buildWithVite, HtmlTagDescriptor, parseSync, Plugin } from "vite";
 
 import { ResolvedUserConfig, UserConfig } from "./lib";
 
@@ -135,12 +135,86 @@ function detectEntries(projectSource: ProjectSource): ProjectEntry {
   return { webEntries, serverEntry };
 }
 
+type VirtualHTMLOption = {
+  webDir: string;
+  webEntry: string;
+};
+
+function virtualHTML(option: VirtualHTMLOption): Plugin {
+  return {
+    name: "vite-plugin-virtualhtml",
+
+    configResolved(config) {
+      const relativeDirname = relative(option.webDir, parse(option.webEntry).dir);
+      const htmlPath = relativeDirname
+        ? `${relativeDirname}.html`
+        : join(relativeDirname, "index.html");
+      config.build.rolldownOptions.input = htmlPath;
+    },
+
+    resolveId(source, _importer, _options) {
+      if (source.endsWith(".html")) {
+        return source;
+      }
+    },
+
+    load(id, _options) {
+      if (id.endsWith(".html")) {
+        return `<script type="module" src="${option.webEntry}"></script>`;
+      }
+    },
+
+    transformIndexHtml(_html, ctx) {
+      const bundle = ctx.bundle;
+      if (!bundle) {
+        return;
+      }
+      const injectTags: HtmlTagDescriptor[] = [];
+      Object.keys(bundle).forEach((key) => {
+        const output = bundle[key];
+        const name = output.fileName;
+        if (output.type === "asset") {
+          if (name.endsWith(".css")) {
+            injectTags.push({
+              tag: "style",
+              children: output.source.toString(),
+              injectTo: "head",
+            });
+            delete bundle[key];
+          } else {
+            console.log(`no processing: ${JSON.stringify(name)}`);
+          }
+        } else if (output.type === "chunk") {
+          if (name.endsWith(".js")) {
+            injectTags.push({
+              tag: "script",
+              children: output.code,
+              attrs: { type: "module" },
+              injectTo: "body",
+            });
+            delete bundle[key];
+          } else {
+            console.log(`no processing: ${JSON.stringify(name)}`);
+          }
+        } else {
+          console.log(`no processing: ${JSON.stringify(name)}`);
+        }
+      });
+
+      return {
+        html: `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body><div id="root"></div></body></html>`,
+        tags: injectTags,
+      };
+    },
+  };
+}
+
 function buildWebApp(config: ResolvedUserConfig, webEntries: string[]) {
   return webEntries.map((entry) => {
     return buildWithVite({
       root: config.root,
       configFile: false,
-      plugins: config.plugins,
+      plugins: [...config.plugins, virtualHTML({ webDir: config.webDir, webEntry: entry })],
       build: {
         rolldownOptions: {
           input: entry,
