@@ -1,9 +1,16 @@
-import { existsSync, mkdtempDisposableSync, readdirSync, readFileSync, rmSync } from "node:fs";
+import {
+  existsSync,
+  mkdtempDisposableSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import { isAbsolute, join, parse, relative, resolve } from "node:path";
 import { build as buildWithRolldown } from "rolldown";
 import { build as buildWithVite, HtmlTagDescriptor, parseSync, Plugin } from "vite";
 
-import { ResolvedUserConfig, UserConfig } from "./lib";
+import { GASManifest, ResolvedUserConfig, UserConfig } from "./lib";
 
 function resolvePath(rawPath?: string) {
   const absolutePath = rawPath ? (isAbsolute(rawPath) ? rawPath : resolve(rawPath)) : process.cwd();
@@ -56,8 +63,19 @@ function resolveConfig(userConfig: UserConfig): ResolvedUserConfig {
   const output = {
     dir: userConfig.output?.dir ?? "dist",
   };
+  const gas: GASManifest = {
+    dependencies: userConfig.gas?.dependencies,
+    exceptionLogging: userConfig.gas?.exceptionLogging ?? "STACKDRIVER",
+    oauthScopes: userConfig.gas?.oauthScopes,
+    runtimeVersion: userConfig.gas?.runtimeVersion ?? "V8",
+    timeZone: userConfig.gas?.timeZone ?? "UTC",
+    webapp: {
+      access: "MYSELF",
+      executeAs: "USER_ACCESSING",
+    },
+  };
 
-  return { root, webDir, serverDir, plugins, output };
+  return { root, webDir, serverDir, plugins, output, gas };
 }
 
 type ProjectSource = {
@@ -251,6 +269,12 @@ async function buildApp(config: ResolvedUserConfig, projectEntry: ProjectEntry) 
   await Promise.all(promiseBuilds);
 }
 
+function generateManifest(config: ResolvedUserConfig) {
+  writeFileSync(join(config.output.dir, "appsscript.json"), JSON.stringify(config.gas, null, 2), {
+    encoding: "utf8",
+  });
+}
+
 export async function runBuild(root?: string) {
   const resolvedRoot = resolvePath(root);
   const userConfig = await loadConfig(resolvedRoot);
@@ -258,6 +282,7 @@ export async function runBuild(root?: string) {
   const projectSource = collectSources(resolvedUserConfig);
   const projectEntry = detectEntries(projectSource);
   await buildApp(resolvedUserConfig, projectEntry);
+  generateManifest(resolvedUserConfig);
 
   console.log("it works!");
   console.log(`root is ${resolvedRoot}`);
