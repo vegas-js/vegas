@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "target": "es2023",
+    "module": "esnext",
+
+    /* Bundler mode */
+    "moduleResolution": "bundler",
+
+    /* Linting */
+    "strict": true
+  },
+  "include": ["src"]
+}
