@@ -2,6 +2,7 @@
 import { cac } from "cac";
 
 import pkg from "../package.json";
+import { runBuild } from "./build";
 
 const cli = cac("vegas");
 cli.version(pkg.version);
@@ -11,15 +12,12 @@ cli
   .command("[root]")
   .alias("serve")
   .alias("dev")
-  .action((root?: string) => {
-    console.log("it works!");
-    console.log(`root is ${root}`);
+  .action((_root?: string) => {
+    console.log("This feature is under development!");
   });
 
 // build
-cli.command("build [root]").action((_root?: string) => {
-  console.log("This feature is under development!");
-});
+cli.command("build [root]").action(runBuild);
 
 // preview
 cli.command("preview [root]").action((_root?: string) => {
