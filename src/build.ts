@@ -1,7 +1,7 @@
-import { existsSync, mkdtempDisposableSync, readdirSync, readFileSync } from "node:fs";
+import { existsSync, mkdtempDisposableSync, readdirSync, readFileSync, rmSync } from "node:fs";
 import { isAbsolute, join, parse, resolve } from "node:path";
-import { build } from "rolldown";
-import { parseSync } from "vite";
+import { build as buildWithRolldown } from "rolldown";
+import { build as buildWithVite, parseSync } from "vite";
 
 import { ResolvedUserConfig, UserConfig } from "./lib";
 
@@ -18,7 +18,7 @@ async function transpileConfig(root: string, outputDir: string) {
   if (!existsSync(configPath)) {
     throw new Error("vegas.config.ts is required.");
   }
-  const result = await build({
+  const result = await buildWithRolldown({
     input: configPath,
     external: () => true,
     cwd: root,
@@ -50,11 +50,14 @@ function resolveConfig(userConfig: UserConfig): ResolvedUserConfig {
       : resolve(userConfig.root)
     : process.cwd();
   const webDir = resolve(join(root, userConfig.webDir ?? join("src", "web")));
-  const serverDir = resolve(join(root, userConfig.webDir ?? join("src", "server")));
+  const serverDir = resolve(join(root, userConfig.serverDir ?? join("src", "server")));
   // const gasMockDir = resolve(join(root, userConfig.webDir ?? "mock"));
   const plugins = userConfig.plugins ?? [];
+  const output = {
+    dir: userConfig.output?.dir ?? "dist",
+  };
 
-  return { root, webDir, serverDir, plugins };
+  return { root, webDir, serverDir, plugins, output };
 }
 
 type ProjectSource = {
@@ -132,12 +135,55 @@ function detectEntries(projectSource: ProjectSource): ProjectEntry {
   return { webEntries, serverEntry };
 }
 
+function buildWebApp(config: ResolvedUserConfig, webEntries: string[]) {
+  return webEntries.map((entry) => {
+    return buildWithVite({
+      root: config.root,
+      configFile: false,
+      plugins: config.plugins,
+      build: {
+        rolldownOptions: {
+          input: entry,
+        },
+        outDir: config.output.dir,
+        emptyOutDir: false,
+      },
+      logLevel: "silent",
+    });
+  });
+}
+
+function buildServerApp(config: ResolvedUserConfig, serverEntry: string) {
+  return buildWithRolldown({
+    cwd: config.root,
+    input: serverEntry,
+    output: {
+      entryFileNames: "Code.ts",
+      format: "iife",
+      name: "GASApp",
+      exports: "named",
+      dir: config.output.dir,
+    },
+  });
+}
+
+async function buildApp(config: ResolvedUserConfig, projectEntry: ProjectEntry) {
+  rmSync(config.output.dir, { recursive: true, force: true });
+  const promiseBuilds = buildWebApp(config, projectEntry.webEntries);
+  if (projectEntry.serverEntry) {
+    promiseBuilds.push(buildServerApp(config, projectEntry.serverEntry));
+  }
+
+  await Promise.all(promiseBuilds);
+}
+
 export async function runBuild(root?: string) {
   const resolvedRoot = resolvePath(root);
   const userConfig = await loadConfig(resolvedRoot);
   const resolvedUserConfig = resolveConfig(userConfig);
   const projectSource = collectSources(resolvedUserConfig);
   const projectEntry = detectEntries(projectSource);
+  await buildApp(resolvedUserConfig, projectEntry);
 
   console.log("it works!");
   console.log(`root is ${resolvedRoot}`);
