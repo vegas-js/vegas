@@ -7,9 +7,17 @@ import {
   writeFileSync,
 } from "node:fs";
 import { isAbsolute, join, parse, relative, resolve } from "node:path";
-import { build as buildWithRolldown } from "rolldown";
-import { build as buildWithVite, HtmlTagDescriptor, parseSync, Plugin } from "vite";
+import { styleText } from "node:util";
+import { build as buildWithRolldown, VERSION as ROLLDOWN_VERSION } from "rolldown";
+import {
+  build as buildWithVite,
+  HtmlTagDescriptor,
+  parseSync,
+  Plugin,
+  version as VITE_VERSION,
+} from "vite";
 
+import { version as VEGAS_VERSION } from "../package.json";
 import { GASManifest, ResolvedUserConfig, UserConfig } from "./lib";
 
 function resolvePath(rawPath?: string) {
@@ -275,7 +283,18 @@ function generateManifest(config: ResolvedUserConfig) {
   });
 }
 
+function printBanner() {
+  const vegasId = styleText("cyan", `vegas v${VEGAS_VERSION}`);
+  const byVite = styleText("magenta", `vite v${VITE_VERSION}`);
+  const byRolldown = styleText("red", `rolldown v${ROLLDOWN_VERSION}`);
+  const message = styleText("green", "building client environment for production...");
+  const poweredBy = `${styleText("dim", "> powered by")} ${byVite} ${styleText("dim", "and")} ${byRolldown}`;
+  console.log(vegasId, message);
+  console.log(poweredBy);
+}
+
 export async function runBuild(root?: string) {
+  printBanner();
   const resolvedRoot = resolvePath(root);
   const userConfig = await loadConfig(resolvedRoot);
   const resolvedUserConfig = resolveConfig(userConfig);
