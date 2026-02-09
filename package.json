@@ -6,6 +6,12 @@
     "vegas": "./dist/vegas.js"
   },
   "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/lib.d.ts",
+      "import": "./dist/lib.js"
+    }
+  },
   "scripts": {
     "build": "tsdown"
   },
@@ -15,6 +21,8 @@
     "oxfmt": "^0.28.0",
     "oxlint": "^1.43.0",
     "oxlint-tsgolint": "^0.11.5",
-    "tsdown": "^0.20.3"
+    "rolldown": "^1.0.0-rc.3",
+    "tsdown": "^0.20.3",
+    "vite": "=8.0.0-beta.11"
   }
 }

@@ -2,6 +2,7 @@
   "compilerOptions": {
     "target": "es2023",
     "module": "esnext",
+    "types": ["node", "rolldown", "vite"],
 
     /* Bundler mode */
     "moduleResolution": "bundler",
