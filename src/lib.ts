@@ -1,3 +1,4 @@
+/// <reference types="vite/client" />
 import { PluginOption } from "vite";
 
 type BaseConfig = {
@@ -42,6 +43,61 @@ export type GASManifest = {
   timeZone?: string;
   webapp?: GASWebapp;
 };
+
+type GASFunction<T> = {
+  [K in keyof T]: T[K] extends (...args: infer A) => infer R
+    ? (...args: A) => Promise<Awaited<R>>
+    : never;
+};
+declare global {
+  namespace google {
+    namespace script {
+      const run: any;
+    }
+  }
+}
+
+interface GASHandler<T> {
+  withSuccessHandler(callback: (result: T) => void): GASClient<T>;
+  withFailureHandler(callback: (error: any) => void): GASClient<T>;
+}
+
+type GASClient<T> = GASHandler<T> & GASFunction<T>;
+
+export function createGASClient<T extends object>() {
+  const handler: ProxyHandler<object> = {
+    get(_, property) {
+      if (import.meta.env.DEV) {
+        return async (...args: any[]) => {
+          try {
+            const response = await fetch(`/@vegas/${property as string}`, {
+              method: "POST",
+              body: JSON.stringify(args),
+              headers: { "Content-Type": "application/json" },
+            });
+            if (!response.ok) {
+              const errorData = await response.json();
+              throw new Error(
+                `Mock function ${property as string} failed with status ${response.status}. Message: ${errorData.error}`,
+              );
+            }
+            return await response.json();
+          } catch (error) {
+            throw new Error(error as any);
+          }
+        };
+      }
+      return (...args: any[]) =>
+        new Promise((resolve, reject) => {
+          google.script.run
+            .withSuccessHandler(resolve)
+            .withFailureHandler(reject)
+            [property](...args);
+        });
+    },
+  };
+  return new Proxy({}, handler) as GASClient<T>;
+}
 
 export type UserConfig = BaseConfig & { output?: OutputConfig; gas?: GASManifest };
 
