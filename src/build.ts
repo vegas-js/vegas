@@ -70,7 +70,7 @@ function resolveConfig(userConfig: UserConfig): ResolvedUserConfig {
   // const gasMockDir = resolve(join(root, userConfig.webDir ?? "mock"));
   const plugins = userConfig.plugins ?? [];
   const output = {
-    dir: userConfig.output?.dir ?? "dist",
+    dir: resolve(join(root, userConfig.output?.dir ?? "dist")),
   };
   const gas: GASManifest = {
     dependencies: userConfig.gas?.dependencies,
@@ -97,7 +97,7 @@ function recursiveCollectFiles(dir: string, excludeDirs?: string[]) {
   const filePaths: string[] = [];
   const entryDir = readdirSync(dir, { withFileTypes: true });
   entryDir.forEach((entry) => {
-    const absolutePath = resolve(join(entry.parentPath, entry.name));
+    const absolutePath = resolve(join(dir, entry.name));
     if (entry.isFile()) {
       filePaths.push(absolutePath);
     } else if (entry.isDirectory() && !excludeDirs?.includes(entry.name)) {
@@ -130,7 +130,7 @@ function collectSources(userConfig: ResolvedUserConfig): ProjectSource {
 }
 
 function detectWebEntries(webSources: string[]) {
-  return webSources.filter((source) => parse(source).base === "main.tsx");
+  return webSources.filter((source) => /^main\.tsx?$/.test(parse(source).base));
 }
 
 function detectServerEntry(webSources: string[], serverSources: string[]) {
@@ -169,13 +169,12 @@ function detectServerEntry(webSources: string[], serverSources: string[]) {
           } else if (declaration?.type === "VariableDeclaration") {
             declaration.declarations.forEach((decl) => {
               if (decl.id.type === "Identifier" && decl.id.name === "doGet") {
+                const init = decl.init;
                 if (
-                  decl.init?.type === "FunctionExpression" ||
-                  decl.init?.type === "ArrowFunctionExpression"
+                  init?.type === "FunctionExpression" ||
+                  init?.type === "ArrowFunctionExpression"
                 ) {
-                  if (decl.init.id?.name === "doGet") {
-                    serverEntries.push(serverSource);
-                  }
+                  serverEntries.push(serverSource);
                 }
               }
             });
