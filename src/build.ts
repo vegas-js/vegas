@@ -149,16 +149,56 @@ function detectServerEntry(webSources: string[], serverSources: string[]) {
     });
   });
 
+  if (serverEntries.length === 0) {
+    serverSources.forEach((serverSource) => {
+      const { program } = parseSync(serverSource, readFileSync(serverSource, { encoding: "utf8" }));
+      program.body.forEach((node) => {
+        if (node.type === "ExportDefaultDeclaration") {
+          const declaration = node.declaration;
+          if (declaration.type === "FunctionDeclaration") {
+            if (declaration.id?.name === "doGet") {
+              serverEntries.push(serverSource);
+            }
+          }
+        } else if (node.type === "ExportNamedDeclaration") {
+          const declaration = node.declaration;
+          if (declaration?.type === "FunctionDeclaration") {
+            if (declaration.id?.name === "doGet") {
+              serverEntries.push(serverSource);
+            }
+          } else if (declaration?.type === "VariableDeclaration") {
+            declaration.declarations.forEach((decl) => {
+              if (decl.id.type === "Identifier" && decl.id.name === "doGet") {
+                if (
+                  decl.init?.type === "FunctionExpression" ||
+                  decl.init?.type === "ArrowFunctionExpression"
+                ) {
+                  if (decl.init.id?.name === "doGet") {
+                    serverEntries.push(serverSource);
+                  }
+                }
+              }
+            });
+          }
+        }
+      });
+    });
+  }
+
   if (serverEntries.length > 1) {
     throw new Error("Duplicate server entry.");
   }
 
-  return serverEntries.length === 1 ? serverEntries[0] : null;
+  if (serverEntries.length === 0) {
+    throw new Error("No server entry found.");
+  }
+
+  return serverEntries[0];
 }
 
 type ProjectEntry = {
   webEntries: string[];
-  serverEntry: string | null;
+  serverEntry: string;
 };
 
 function detectEntries(projectSource: ProjectSource): ProjectEntry {
@@ -265,7 +305,7 @@ function buildServerApp(config: ResolvedUserConfig, serverEntry: string) {
     cwd: config.root,
     input: serverEntry,
     output: {
-      entryFileNames: "Code.ts",
+      entryFileNames: "Code.js",
       format: "iife",
       name: "GASApp",
       exports: "named",
