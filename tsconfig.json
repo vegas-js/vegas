@@ -3,6 +3,7 @@
     "target": "es2023",
     "module": "esnext",
     "types": ["node", "rolldown", "vite"],
+    "skipLibCheck": true,
 
     /* Bundler mode */
     "moduleResolution": "bundler",
