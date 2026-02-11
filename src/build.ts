@@ -9,7 +9,11 @@ import {
 } from "node:fs";
 import { isAbsolute, join, parse, relative, resolve, sep } from "node:path";
 import { styleText } from "node:util";
-import { build as buildWithRolldown, VERSION as ROLLDOWN_VERSION } from "rolldown";
+import {
+  build as buildWithRolldown,
+  Plugin as RolldownPlugin,
+  VERSION as ROLLDOWN_VERSION,
+} from "rolldown";
 import {
   build as buildWithVite,
   HtmlTagDescriptor,
@@ -140,49 +144,17 @@ function detectServerEntry(webSources: string[], serverSources: string[]) {
     program.body.forEach((node) => {
       if (node.type === "ImportDeclaration") {
         const sourceDir = parse(webSource).dir;
-        const importPath = node.source.value;
-        const importAbsolutePath = `${resolve(sourceDir, importPath)}.ts`;
+        const importPath = resolve(sourceDir, node.source.value);
+        const importAbsolutePath = importPath.endsWith(".ts") ? importPath : `${importPath}.ts`;
         if (serverSources.includes(importAbsolutePath)) {
+          if (parse(importAbsolutePath).base !== "Code.ts") {
+            throw new Error("The only file that can be imported from the server side is Code.ts");
+          }
           serverEntries.push(importAbsolutePath);
         }
       }
     });
   });
-
-  if (serverEntries.length === 0) {
-    serverSources.forEach((serverSource) => {
-      const { program } = parseSync(serverSource, readFileSync(serverSource, { encoding: "utf8" }));
-      program.body.forEach((node) => {
-        if (node.type === "ExportDefaultDeclaration") {
-          const declaration = node.declaration;
-          if (declaration.type === "FunctionDeclaration") {
-            if (declaration.id?.name === "doGet") {
-              serverEntries.push(serverSource);
-            }
-          }
-        } else if (node.type === "ExportNamedDeclaration") {
-          const declaration = node.declaration;
-          if (declaration?.type === "FunctionDeclaration") {
-            if (declaration.id?.name === "doGet") {
-              serverEntries.push(serverSource);
-            }
-          } else if (declaration?.type === "VariableDeclaration") {
-            declaration.declarations.forEach((decl) => {
-              if (decl.id.type === "Identifier" && decl.id.name === "doGet") {
-                const init = decl.init;
-                if (
-                  init?.type === "FunctionExpression" ||
-                  init?.type === "ArrowFunctionExpression"
-                ) {
-                  serverEntries.push(serverSource);
-                }
-              }
-            });
-          }
-        }
-      });
-    });
-  }
 
   if (serverEntries.length > 1) {
     throw new Error("Duplicate server entry.");
@@ -299,16 +271,36 @@ function buildWebApp(config: ResolvedUserConfig, webEntries: string[]) {
   });
 }
 
+function gasExport(): RolldownPlugin {
+  return {
+    name: "rolldown-plugin-gasexport",
+
+    renderChunk(_code, _chunk, outputOptions, meta) {
+      const magicString = meta.magicString;
+      if (!magicString) {
+        return;
+      }
+
+      magicString.append(`\nObject.assign(globalThis, ${outputOptions.name});`);
+
+      return { code: magicString.toString() };
+    },
+  };
+}
+
 function buildServerApp(config: ResolvedUserConfig, serverEntry: string) {
   return buildWithRolldown({
     cwd: config.root,
     input: serverEntry,
+    plugins: [gasExport()],
     output: {
-      entryFileNames: "Code.js",
       format: "iife",
       name: "GASApp",
       exports: "named",
       dir: config.output.dir,
+    },
+    experimental: {
+      nativeMagicString: true,
     },
   });
 }
