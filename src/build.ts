@@ -58,7 +58,7 @@ function virtualHTML(option: VirtualHTMLOption): Plugin {
           if (name.endsWith(".css")) {
             injectTags.push({
               tag: "style",
-              children: output.source.toString(),
+              children: Buffer.from(output.source).toString("utf8"),
               injectTo: "head",
             });
             delete bundle[key];
