@@ -18,12 +18,12 @@
     "build": "tsdown"
   },
   "devDependencies": {
-    "@types/node": "^25.2.2",
+    "@types/node": "^25.2.3",
     "cac": "^6.7.14",
-    "oxfmt": "^0.28.0",
-    "oxlint": "^1.43.0",
-    "oxlint-tsgolint": "^0.11.5",
-    "rolldown": "^1.0.0-rc.3",
+    "oxfmt": "^0.31.0",
+    "oxlint": "^1.46.0",
+    "oxlint-tsgolint": "^0.12.0",
+    "rolldown": "^1.0.0-rc.4",
     "tsdown": "^0.20.3",
     "vite": "=8.0.0-beta.11"
   },
