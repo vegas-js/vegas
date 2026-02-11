@@ -9,11 +9,7 @@ import {
 } from "node:fs";
 import { isAbsolute, join, parse, relative, resolve, sep } from "node:path";
 import { styleText } from "node:util";
-import {
-  build as buildWithRolldown,
-  Plugin as RolldownPlugin,
-  VERSION as ROLLDOWN_VERSION,
-} from "rolldown";
+import { build as buildWithRolldown, VERSION as ROLLDOWN_VERSION } from "rolldown";
 import {
   build as buildWithVite,
   HtmlTagDescriptor,
@@ -271,33 +267,17 @@ function buildWebApp(config: ResolvedUserConfig, webEntries: string[]) {
   });
 }
 
-function gasExport(): RolldownPlugin {
-  return {
-    name: "rolldown-plugin-gasexport",
-
-    renderChunk(_code, _chunk, outputOptions, meta) {
-      const magicString = meta.magicString;
-      if (!magicString) {
-        return;
-      }
-
-      magicString.append(`\nObject.assign(globalThis, ${outputOptions.name});`);
-
-      return { code: magicString.toString() };
-    },
-  };
-}
-
 function buildServerApp(config: ResolvedUserConfig, serverEntry: string) {
+  const iifeName = "GASApp";
   return buildWithRolldown({
     cwd: config.root,
     input: serverEntry,
-    plugins: [gasExport()],
     output: {
       format: "iife",
-      name: "GASApp",
+      name: iifeName,
       exports: "named",
       dir: config.output.dir,
+      footer: `Object.assign(globalThis, ${iifeName});`,
     },
     experimental: {
       nativeMagicString: true,
