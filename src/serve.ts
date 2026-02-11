@@ -157,7 +157,7 @@ function vegasServe(
         const spreadModules: string[] = [];
 
         projectSource.serverSources.forEach((entry, index) => {
-          importModules.push(`import * as mod${index} from '${resolve("./", entry)}';`);
+          importModules.push(`import * as mod${index} from '${resolve(entry)}';`);
           spreadModules.push(`...mod${index}`);
         });
 
