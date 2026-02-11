@@ -54,8 +54,8 @@ export function resolveConfig(userConfig: UserConfig): ResolvedUserConfig {
     runtimeVersion: userConfig.gas?.runtimeVersion ?? "V8",
     timeZone: userConfig.gas?.timeZone ?? "UTC",
     webapp: {
-      access: "MYSELF",
-      executeAs: "USER_ACCESSING",
+      access: userConfig.gas?.webapp?.access ?? "MYSELF",
+      executeAs: userConfig.gas?.webapp?.executeAs ?? "USER_ACCESSING",
     },
   };
 
