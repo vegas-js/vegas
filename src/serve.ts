@@ -95,12 +95,57 @@ function vegasServe(
 <html>
 <head>
   <meta charset="UTF-8">
+  <script>
+    class GASRun {
+      constructor(scb, fcb) {
+        this.scb = scb;
+        this.fcb = fcb;
+      }
+
+      __exec(func, ...args) {
+        try {
+          fetch("/@vegas/" + func, {
+            method: "POST",
+            body: JSON.stringify(args),
+            headers: { "Content-Type": "application/json" },
+          }).then((response) => {
+            if (!response.ok) {
+              response.json().then((errorData) => {
+                this.fcb("Mock function " + errorData + " failed with status " + response.status + ". Message: " + errorData.error);
+              });
+            }
+
+            response.json().then((json) => this.scb(json));
+          });
+        } catch (error) {
+          this.fcb(error);
+        }
+      }
+
+      withSuccessHandler(callback) {
+        return new GASRun(callback, this.fcb);
+      }
+      withFailureHandler(callback) {
+        return new GASRun(this.scb, callback);
+      }
+
+      ${Object.keys(module.__merged)
+        .map((func) => `${func}(...args) { this.__exec("${func}", args); }`)
+        .join("\n      ")}
+    };
+    google = {
+      script: {
+        run: new GASRun(null, null),
+      },
+    };
+  </script>
 </head>
 <body>
   <div id="root"></div>
   <script type="module" src="${entry.entryPath}"></script>
 </body>
 </html>`;
+
               const html = await server.transformIndexHtml(url.href, rawHtml);
               response.statusCode = 200;
               response.setHeader("Content-Type", "text/html");

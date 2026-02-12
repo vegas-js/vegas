@@ -67,26 +67,6 @@ type GASClient<T> = GASHandler<T> & GASFunction<T>;
 export function createGASClient<T extends object>() {
   const handler: ProxyHandler<object> = {
     get(_, property) {
-      if (import.meta.env.DEV) {
-        return async (...args: any[]) => {
-          try {
-            const response = await fetch(`/@vegas/${property as string}`, {
-              method: "POST",
-              body: JSON.stringify(args),
-              headers: { "Content-Type": "application/json" },
-            });
-            if (!response.ok) {
-              const errorData = await response.json();
-              throw new Error(
-                `Mock function ${property as string} failed with status ${response.status}. Message: ${errorData.error}`,
-              );
-            }
-            return await response.json();
-          } catch (error) {
-            throw new Error(error as any);
-          }
-        };
-      }
       return (...args: any[]) =>
         new Promise((resolve, reject) => {
           google.script.run
