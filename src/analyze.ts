@@ -87,6 +87,9 @@ export type ProjectEntry = {
 
 export function detectEntries(projectSource: ProjectSource): ProjectEntry {
   const webEntries = detectWebEntries(projectSource.webSources);
+  if (webEntries.length === 0) {
+    throw new Error("No web entry found. Place main.ts or main.tsx under webDir.");
+  }
   const serverEntry = detectServerEntry(projectSource.webSources, projectSource.serverSources);
 
   return { webEntries, serverEntry };
