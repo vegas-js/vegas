@@ -13,11 +13,7 @@ import { loadConfig, resolveConfig } from "./config";
 import { ResolvedUserConfig } from "./lib";
 import { resolvePath } from "./path";
 
-function vegasServe(
-  config: ResolvedUserConfig,
-  projectSource: ProjectSource,
-  projectIOMap: ProjectIOMap[],
-): Plugin {
+function vegasServe(projectSource: ProjectSource, projectIOMap: ProjectIOMap[]): Plugin {
   const VIRTUAL_ID: string = "virtual:vegasserve";
 
   return {
@@ -229,7 +225,7 @@ async function serveApp(
   const server = await createServer({
     root: config.root,
     configFile: false,
-    plugins: [...config.plugins, vegasServe(config, projectSource, projectIOMap)],
+    plugins: [...config.plugins, vegasServe(projectSource, projectIOMap)],
     customLogger: createLogger("info", { prefix: "[vegas]" }),
     cacheDir: join(config.root, "node_modules", ".vegas"),
   });
