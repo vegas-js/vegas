@@ -26,28 +26,29 @@ function vegasServe(
     configureServer(server) {
       server.middlewares.use(async (request, response, next) => {
         if (request.url) {
-          const matches = request.url.match(/^(\/[^?]*)(.*)/) ?? [""];
-          const urlPath = matches[1];
-          const urlParams = matches[2] ?? "";
-          if (urlPath === "/") {
+          const scheme = server.config.server.https ? "https" : "http";
+          const host =
+            server.config.server.host !== undefined
+              ? typeof server.config.server.host === "boolean"
+                ? server.config.server.host
+                  ? "0.0.0.0"
+                  : "localhost"
+                : server.config.server.host
+              : "localhost";
+          const port = server.config.server.port;
+          const baseUrl = `${scheme}://${host}:${port}`;
+          const url = new URL(request.url, baseUrl);
+          if (url.pathname === "/") {
             // redirect to iframe
             response.statusCode = 301;
-            response.setHeader("Location", `/dev${urlParams}`);
+            response.setHeader("Location", `/dev${url.search}`);
             response.end();
             return;
           } else if (
-            /^\/(exec|dev)/.test(urlPath) &&
+            /^\/(exec|dev)/.test(url.pathname) &&
             request.headers["sec-fetch-dest"] !== "iframe"
           ) {
             // response iframe
-            const urlSubPathAndParams = urlPath.match(/^\/(exec|dev)\/(.*)$/)?.[2] ?? "";
-            console.log(urlSubPathAndParams);
-            const host =
-              server.config.server.host !== undefined
-                ? typeof server.config.server.host === "boolean"
-                  ? "0.0.0.0"
-                  : server.config.server.host
-                : "localhost";
             const iframeHtml = `<!DOCTYPE html>
 <html>
 <head>
@@ -66,7 +67,7 @@ function vegasServe(
   </style>
 </head>
 <body>
-  <iframe id="sandboxFrame" title="sample" allow="accelerometer *; ambient-light-sensor *; autoplay *; camera *; clipboard-read *; clipboard-write *; encrypted-media *; fullscreen *; geolocation *; gyroscope *; local-network-access *; magnetometer *; microphone *; midi *; payment *; picture-in-picture *; screen-wake-lock *; speaker *; sync-xhr *; usb *; vibrate *; vr *; web-share *" sandbox="allow-downloads allow-forms allow-modals allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts allow-top-navigation-by-user-activation allow-storage-access-by-user-activation" src="http://${host}:${server.config.server.port}/userCodeAppPanel">
+  <iframe id="sandboxFrame" title="sample" allow="accelerometer *; ambient-light-sensor *; autoplay *; camera *; clipboard-read *; clipboard-write *; encrypted-media *; fullscreen *; geolocation *; gyroscope *; local-network-access *; magnetometer *; microphone *; midi *; payment *; picture-in-picture *; screen-wake-lock *; speaker *; sync-xhr *; usb *; vibrate *; vr *; web-share *" sandbox="allow-downloads allow-forms allow-modals allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts allow-top-navigation-by-user-activation allow-storage-access-by-user-activation" src="${baseUrl}/userCodeAppPanel">
 </iframe>
 </body>
 </html>`;
@@ -77,7 +78,7 @@ function vegasServe(
             return;
           } else if (
             request.headers["sec-fetch-dest"] === "iframe" &&
-            urlPath === "/userCodeAppPanel"
+            url.pathname === "/userCodeAppPanel"
           ) {
             // response content at requested by iframe
             const module = await server.ssrLoadModule(VIRTUAL_ID);
@@ -88,8 +89,6 @@ function vegasServe(
 
             // TODO: HTML create from HTMLOutput
             const result = await targetFunc();
-            const subUrl = request.url.slice(urlPath.length);
-            console.log(subUrl);
             const entry = projectIOMap.find((ioMap) => ioMap.outputPath === `${result}.html`);
             if (entry) {
               const rawHtml = `<!DOCTYPE html>
@@ -102,15 +101,15 @@ function vegasServe(
   <script type="module" src="${entry.entryPath}"></script>
 </body>
 </html>`;
-              const html = await server.transformIndexHtml(subUrl, rawHtml);
+              const html = await server.transformIndexHtml(url.href, rawHtml);
               response.statusCode = 200;
               response.setHeader("Content-Type", "text/html");
               response.end(html);
               return;
             }
-          } else if (urlPath.startsWith("/@vegas/")) {
+          } else if (url.pathname.startsWith("/@vegas/")) {
             // response at requested by GAS client
-            const functionName = urlPath.replace("/@vegas/", "");
+            const functionName = url.pathname.replace("/@vegas/", "");
 
             const args = await new Promise<any[]>((resolve) => {
               let body = "";
