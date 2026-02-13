@@ -4,7 +4,7 @@ import { styleText } from "node:util";
 import { build as buildWithRolldown, VERSION as ROLLDOWN_VERSION } from "rolldown";
 import { build as buildWithVite, HtmlTagDescriptor, Plugin, version as VITE_VERSION } from "vite";
 
-import { version as VEGAS_VERSION } from "../package.json";
+import { version as VEGAS_VERSION } from "../../package.json";
 import {
   BuildArtifact,
   collectArtifacts,
@@ -12,8 +12,7 @@ import {
   detectEntries,
   ProjectEntry,
 } from "./analyze";
-import { loadConfig, resolveConfig } from "./config";
-import { ResolvedUserConfig } from "./lib";
+import { loadConfig, resolveConfig, ResolvedUserConfig } from "./config";
 import { resolvePath } from "./path";
 
 type VirtualHTMLOption = {

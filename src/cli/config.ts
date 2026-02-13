@@ -2,7 +2,12 @@ import { existsSync, mkdtempDisposableSync } from "node:fs";
 import { isAbsolute, join, resolve } from "node:path";
 import { build } from "rolldown";
 
-import { GASManifest, ResolvedUserConfig, UserConfig } from "./lib";
+import { BaseConfig, GASManifest, OutputConfig, UserConfig } from "../shared/config";
+
+export type ResolvedUserConfig = Required<BaseConfig> & {
+  output: Required<OutputConfig>;
+  gas: GASManifest;
+};
 
 async function transpileConfig(root: string, outputDir: string) {
   const configPath = join(root, "vegas.config.ts");

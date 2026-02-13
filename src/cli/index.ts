@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { cac } from "cac";
 
-import pkg from "../package.json";
+import pkg from "../../package.json";
 import { runBuild } from "./build";
 import { runServe } from "./serve";
 

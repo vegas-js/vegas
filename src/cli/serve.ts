@@ -9,8 +9,7 @@ import {
   ProjectEntry,
   ProjectIOMap,
 } from "./analyze";
-import { loadConfig, resolveConfig } from "./config";
-import { ResolvedUserConfig } from "./lib";
+import { loadConfig, resolveConfig, ResolvedUserConfig } from "./config";
 import { resolvePath } from "./path";
 
 function vegasServe(projectEntry: ProjectEntry, projectIOMap: ProjectIOMap[]): Plugin {

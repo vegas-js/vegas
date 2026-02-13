@@ -2,7 +2,7 @@ import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join, parse, relative, resolve } from "node:path";
 import { parseSync } from "vite";
 
-import { ResolvedUserConfig } from "./lib";
+import { ResolvedUserConfig } from "./config";
 
 export type ProjectSource = {
   webSources: string[];
