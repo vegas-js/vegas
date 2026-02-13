@@ -1,4 +1,4 @@
-import { join, resolve } from "node:path";
+import { join } from "node:path";
 import { createLogger, createServer } from "vite";
 import { Plugin } from "vite";
 
@@ -6,14 +6,14 @@ import {
   collectSources,
   detectEntries,
   mappingProjectIO,
+  ProjectEntry,
   ProjectIOMap,
-  ProjectSource,
 } from "./analyze";
 import { loadConfig, resolveConfig } from "./config";
 import { ResolvedUserConfig } from "./lib";
 import { resolvePath } from "./path";
 
-function vegasServe(projectSource: ProjectSource, projectIOMap: ProjectIOMap[]): Plugin {
+function vegasServe(projectEntry: ProjectEntry, projectIOMap: ProjectIOMap[]): Plugin {
   const VIRTUAL_ID: string = "virtual:vegasserve";
 
   return {
@@ -193,23 +193,11 @@ function vegasServe(projectSource: ProjectSource, projectIOMap: ProjectIOMap[]):
 
     load(id, _options) {
       if (id === `\0${VIRTUAL_ID}`) {
-        const importModules: string[] = [];
-        const spreadModules: string[] = [];
-
-        projectSource.serverSources.forEach((entry, index) => {
-          importModules.push(`import * as mod${index} from '${resolve(entry)}';`);
-          spreadModules.push(`...mod${index}`);
-        });
-
-        const virtualModule = `
-      ${importModules.join("\n")}
-      export const __merged = {};
-      [${projectSource.serverSources.map((_, index) => `mod${index}`).join(", ")}].forEach(module => {
-        Object.keys(module).forEach((key) => {
-          __merged[key] = module[key];
-        });
-      });
-      `;
+        const virtualModule = `import * as module from '${projectEntry.serverEntry}'
+export const __merged = {};
+Object.keys(module).forEach((key) => {
+  __merged[key] = module[key];
+});`;
 
         return virtualModule;
       }
@@ -219,13 +207,13 @@ function vegasServe(projectSource: ProjectSource, projectIOMap: ProjectIOMap[]):
 
 async function serveApp(
   config: ResolvedUserConfig,
-  projectSource: ProjectSource,
+  projectEntry: ProjectEntry,
   projectIOMap: ProjectIOMap[],
 ) {
   const server = await createServer({
     root: config.root,
     configFile: false,
-    plugins: [...config.plugins, vegasServe(projectSource, projectIOMap)],
+    plugins: [...config.plugins, vegasServe(projectEntry, projectIOMap)],
     customLogger: createLogger("info", { prefix: "[vegas]" }),
     cacheDir: join(config.root, "node_modules", ".vegas"),
   });
@@ -243,5 +231,5 @@ export async function runServe(root?: string) {
   const projectEntry = detectEntries(projectSource);
   const projectIOMap = mappingProjectIO(resolvedUserConfig, projectEntry);
 
-  await serveApp(resolvedUserConfig, projectSource, projectIOMap);
+  await serveApp(resolvedUserConfig, projectEntry, projectIOMap);
 }
