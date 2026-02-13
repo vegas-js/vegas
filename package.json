@@ -15,7 +15,10 @@
   "scripts": {
     "lint": "oxlint --type-aware --type-check --deny-warnings ./packages",
     "format": "oxfmt --write",
-    "build": "tsdown"
+    "build": "tsdown",
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs"
   },
   "devDependencies": {
     "@types/node": "^25.2.3",
@@ -25,7 +28,8 @@
     "oxlint-tsgolint": "^0.12.0",
     "rolldown": "^1.0.0-rc.4",
     "tsdown": "^0.20.3",
-    "vite": "=8.0.0-beta.11"
+    "vite": "=8.0.0-beta.11",
+    "vitepress": "^2.0.0-alpha.16"
   },
   "engines": {
     "node": "^20.19.0 || >=22.12.0"
