@@ -2,10 +2,29 @@
 import { PluginOption } from "vite";
 
 type BaseConfig = {
+  /**
+   * Project root directory. Can be an absolute path, or a path relative from the location of the config file itself.
+   * @default process.cwd()
+   */
   root?: string;
+  /**
+   * Frontend source directory. Both absolute and relative paths are resolved starting from the project root directory.
+   * @default 'src/web'
+   */
   webDir?: string;
+  /**
+   * GAS source directory. Both absolute and relative paths are resolved starting from the project root directory.
+   * @default 'src/server'
+   */
   serverDir?: string;
+  /**
+   * GAS API mock source directory. Both absolute and relative paths are resolved starting from the project root directory.
+   * @default 'mock'
+   */
   // gasMockDir?: string;
+  /**
+   * Array of vite plugins to use. (passthrough)
+   */
   plugins?: PluginOption[];
 };
 type OutputConfig = {
