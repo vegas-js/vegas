@@ -1,8 +1,9 @@
 import { existsSync, mkdtempDisposableSync } from "node:fs";
-import { isAbsolute, join, resolve } from "node:path";
+import { join, resolve } from "node:path";
 import { build } from "rolldown";
 
 import { BaseConfig, GASManifest, OutputConfig, UserConfig } from "../shared/config";
+import { resolvePath } from "./path";
 
 export type ResolvedUserConfig = Required<BaseConfig> & {
   output: Required<OutputConfig>;
@@ -40,11 +41,7 @@ export async function loadConfig(root: string): Promise<UserConfig> {
 }
 
 export function resolveConfig(userConfig: UserConfig): ResolvedUserConfig {
-  const root = userConfig.root
-    ? isAbsolute(userConfig.root)
-      ? userConfig.root
-      : resolve(userConfig.root)
-    : process.cwd();
+  const root = resolvePath(userConfig.root);
   const webDir = resolve(join(root, userConfig.webDir ?? join("src", "web")));
   const serverDir = resolve(join(root, userConfig.serverDir ?? join("src", "server")));
   // const gasMockDir = resolve(join(root, userConfig.webDir ?? "mock"));
