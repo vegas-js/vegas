@@ -13,7 +13,7 @@
     }
   },
   "scripts": {
-    "lint": "oxlint --type-aware --type-check --deny-warnings ./packages",
+    "lint": "oxlint --type-aware --type-check --deny-warnings",
     "format": "oxfmt --write",
     "build": "tsdown",
     "docs:dev": "vitepress dev docs",
