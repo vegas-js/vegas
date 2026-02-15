@@ -2,11 +2,11 @@ import { Plugin } from "vite";
 
 import { ProjectEntry, ProjectIOMap } from "../../analyze";
 
-export function vegasServe(projectEntry: ProjectEntry, projectIOMap: ProjectIOMap[]): Plugin {
-  const VIRTUAL_ID: string = "virtual:vegasserve";
+export function userContentFrame(projectEntry: ProjectEntry, projectIOMap: ProjectIOMap[]): Plugin {
+  const VIRTUAL_ID: string = "virtual:usercontentframe";
 
   return {
-    name: "vite-plugin-vegasserve",
+    name: "vite-plugin-usercontentframe",
 
     configureServer(server) {
       server.middlewares.use(async (request, response, next) => {
@@ -23,53 +23,7 @@ export function vegasServe(projectEntry: ProjectEntry, projectIOMap: ProjectIOMa
           const port = server.config.server.port;
           const baseUrl = `${scheme}://${host}:${port}`;
           const url = new URL(request.url, baseUrl);
-          if (url.pathname === "/") {
-            // redirect to iframe
-            response.statusCode = 301;
-            response.setHeader("Location", `/dev${url.search}`);
-            response.end();
-            return;
-          } else if (
-            /^\/(exec|dev)/.test(url.pathname) &&
-            request.headers["sec-fetch-dest"] !== "iframe"
-          ) {
-            // response iframe
-            const iframeHtml = `<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8">
-  <style>
-    html, body, iframe#sandboxFrame {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      width: 100%;
-    }
-    iframe#sandboxFrame {
-      border: none;
-      display: block;
-    }
-  </style>
-</head>
-<body>
-  <iframe
-    id="sandboxFrame"
-    title="sample"
-    allow="accelerometer *; ambient-light-sensor *; autoplay *; camera *; clipboard-read *; clipboard-write *; encrypted-media *; fullscreen *; geolocation *; gyroscope *; local-network-access *; magnetometer *; microphone *; midi *; payment *; picture-in-picture *; screen-wake-lock *; speaker *; sync-xhr *; usb *; vibrate *; vr *; web-share *"
-    sandbox="allow-downloads allow-forms allow-modals allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts allow-top-navigation-by-user-activation allow-storage-access-by-user-activation" src="${baseUrl}/userCodeAppPanel"
-  >
-</iframe>
-</body>
-</html>`;
-
-            response.statusCode = 200;
-            response.setHeader("Content-Type", "text/html");
-            response.end(iframeHtml);
-            return;
-          } else if (
-            request.headers["sec-fetch-dest"] === "iframe" &&
-            url.pathname === "/userCodeAppPanel"
-          ) {
+          if (url.pathname === "/userCodeAppPanel") {
             // response content at requested by iframe
             const module = await server.ssrLoadModule(VIRTUAL_ID);
             const targetFunc = module.__merged["doGet"];

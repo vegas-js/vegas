@@ -10,24 +10,34 @@ import {
 } from "../analyze";
 import { loadConfig, resolveConfig, ResolvedUserConfig } from "../config";
 import { resolvePath } from "../path";
-import { vegasServe } from "./plugins/vegasserve";
+import { hostFrame } from "./plugins/hostframe";
+import { userContentFrame } from "./plugins/usercontentframe";
 
 async function serveApp(
   config: ResolvedUserConfig,
   projectEntry: ProjectEntry,
   projectIOMap: ProjectIOMap[],
 ) {
-  const server = await createServer({
+  const hostServer = await createServer({
     root: config.root,
     configFile: false,
-    plugins: [...config.plugins, vegasServe(projectEntry, projectIOMap)],
+    plugins: [hostFrame()],
     customLogger: createLogger("info", { prefix: "[vegas]" }),
-    cacheDir: join(config.root, "node_modules", ".vegas"),
+    cacheDir: join(config.root, "node_modules", ".vegas-host"),
+  });
+  const contentServer = await createServer({
+    root: config.root,
+    configFile: false,
+    plugins: [...config.plugins, userContentFrame(projectEntry, projectIOMap)],
+    server: { port: hostServer.config.server.port + 1 },
+    customLogger: createLogger("info", { prefix: "[vegas]" }),
+    cacheDir: join(config.root, "node_modules", ".vegas-content"),
   });
 
-  await server.listen();
-  server.printUrls();
-  server.bindCLIShortcuts({ print: true });
+  await hostServer.listen();
+  await contentServer.listen();
+  hostServer.printUrls();
+  hostServer.bindCLIShortcuts({ print: true });
 }
 
 export async function runServe(root?: string) {
