@@ -61,8 +61,8 @@ export function hostFrame(): Plugin {
             response.end(iframeHtml);
             return;
           }
-          next();
         }
+        next();
       });
     },
   };

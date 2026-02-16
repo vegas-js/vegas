@@ -24,6 +24,14 @@ export function userContentFrame(projectEntry: ProjectEntry, projectIOMap: Proje
           const baseUrl = `${scheme}://${host}:${port}`;
           const url = new URL(request.url, baseUrl);
           if (url.pathname === "/userCodeAppPanel") {
+            if (request.headers["sec-fetch-dest"] !== "iframe") {
+              const blankHtml = `<!DOCTYPE html><html><head><meta http-equiv="X-UA-Compatible" content="IE=edge"></head><body></body></html>\n`;
+
+              response.statusCode = 200;
+              response.setHeader("Content-Type", "text/html");
+              response.end(blankHtml);
+              return;
+            }
             // response content at requested by iframe
             const module = await server.ssrLoadModule(VIRTUAL_ID);
             const targetFunc = module.__merged["doGet"];
@@ -128,8 +136,8 @@ export function userContentFrame(projectEntry: ProjectEntry, projectIOMap: Proje
             response.end(JSON.stringify(result ?? null));
             return;
           }
-          next();
         }
+        next();
       });
     },
 
