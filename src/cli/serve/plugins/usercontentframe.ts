@@ -1,3 +1,4 @@
+import vm from "node:vm";
 import { Plugin } from "vite";
 
 import { ProjectEntry, ProjectIOMap } from "../../analyze";
@@ -8,7 +9,13 @@ export function userContentFrame(projectEntry: ProjectEntry, projectIOMap: Proje
   return {
     name: "vite-plugin-usercontentframe",
 
-    configureServer(server) {
+    async configureServer(server) {
+      const module = await server.ssrLoadModule(VIRTUAL_ID);
+      const rawContext: Record<string, any> = {};
+      Object.entries(module).forEach(([key, value]) => {
+        rawContext[key] = value;
+      });
+
       server.middlewares.use(async (request, response, next) => {
         if (request.url) {
           const scheme = server.config.server.https ? "https" : "http";
@@ -33,8 +40,8 @@ export function userContentFrame(projectEntry: ProjectEntry, projectIOMap: Proje
               return;
             }
             // response content at requested by iframe
-            const module = await server.ssrLoadModule(VIRTUAL_ID);
-            const targetFunc = module.__merged["doGet"];
+            const context = vm.createContext(rawContext);
+            const targetFunc = context["doGet"];
             if (typeof targetFunc !== "function") {
               throw new Error("Function doGet not found in mock server module.");
             }
@@ -81,7 +88,7 @@ export function userContentFrame(projectEntry: ProjectEntry, projectIOMap: Proje
         return new GASRun(this.scb, callback);
       }
 
-      ${Object.keys(module.__merged)
+      ${Object.keys(module)
         .map((func) => `${func}(...args) { this.__exec("${func}", args); }`)
         .join("\n      ")}
     };
@@ -123,8 +130,8 @@ export function userContentFrame(projectEntry: ProjectEntry, projectIOMap: Proje
             });
 
             // call mock function
-            const module = await server.ssrLoadModule(VIRTUAL_ID);
-            const targetFunc = module.__merged[functionName];
+            const context = vm.createContext(rawContext);
+            const targetFunc = context[functionName];
             if (typeof targetFunc !== "function") {
               throw new Error(`Function ${functionName} not found in mock server module.`);
             }
@@ -149,13 +156,7 @@ export function userContentFrame(projectEntry: ProjectEntry, projectIOMap: Proje
 
     load(id, _options) {
       if (id === `\0${VIRTUAL_ID}`) {
-        const virtualModule = `import * as module from '${projectEntry.serverEntry}'
-export const __merged = {};
-Object.keys(module).forEach((key) => {
-  __merged[key] = module[key];
-});`;
-
-        return virtualModule;
+        return `export * from "${projectEntry.serverEntry}";`;
       }
     },
   };
