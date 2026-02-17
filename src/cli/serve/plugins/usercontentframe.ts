@@ -51,15 +51,16 @@ export function userContentFrame(
               return;
             }
             // response content at requested by iframe
-            const context = vm.createContext(rawContext);
-            const targetFunc = context["doGet"];
-            if (typeof targetFunc !== "function") {
-              throw new Error("Function doGet not found in mock server module.");
-            }
+            // const context = vm.createContext(rawContext);
+            // const targetFunc = context["doGet"];
+            // if (typeof targetFunc !== "function") {
+            //   throw new Error("Function doGet not found in mock server module.");
+            // }
 
             // TODO: HTML create from HTMLOutput
-            const result = await targetFunc();
-            const entry = projectIOMap.find((ioMap) => ioMap.outputPath === `${result}.html`);
+            // const result = await targetFunc();
+            // const entry = projectIOMap.find((ioMap) => ioMap.outputPath === `${result}.html`);
+            const entry = projectIOMap.find((ioMap) => ioMap.outputPath === "index.html");
             if (entry) {
               const rawHtml = `<!DOCTYPE html>
 <html>
