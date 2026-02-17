@@ -36,17 +36,15 @@ function buildWebApp(config: ResolvedUserConfig, webEntries: string[]) {
 }
 
 function buildServerApp(config: ResolvedUserConfig, serverEntry: string) {
-  const iifeName = "GASApp";
   return buildWithRolldown({
     cwd: config.root,
     input: serverEntry,
     plugins: [exportBridge(serverEntry)],
     output: {
       format: "iife",
-      name: iifeName,
+      name: "GASApp",
       exports: "named",
       dir: config.output.dir,
-      footer: `Object.assign(globalThis, ${iifeName});\n`,
     },
     experimental: {
       nativeMagicString: true,

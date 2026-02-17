@@ -7,16 +7,21 @@ export function exportBridge(serverEntry: string): Plugin {
   return {
     name: "vite-plugin-exportbridge",
 
-    generateBundle(_outputOptions, bundle, _isWrite) {
+    generateBundle(outputOptions, bundle, _isWrite) {
       const key = `${parse(serverEntry).name}.js`;
       const entry = bundle[key];
       if (entry && entry.type === "chunk") {
-        entry.code += "\n/* Function bridge for GAS Client */\n";
+        const bridgeCodes: string[] = ["\n\n/* Function bridge for GAS Client */"];
         entry.exports.forEach((expo) => {
           if (!(excludesGASUserFunctionNames as readonly string[]).includes(expo)) {
-            entry.code += `function ${expo}(...args) { return globalThis.${expo}(args); };\n`;
+            bridgeCodes.push(
+              `function ${expo}(...args) { return ${outputOptions.name ?? "globalThis"}.${expo}(args); };`,
+            );
           }
         });
+        if (bridgeCodes.length > 1) {
+          entry.code += bridgeCodes.join("\n");
+        }
       }
     },
   };
