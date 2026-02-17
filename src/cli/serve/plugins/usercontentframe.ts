@@ -20,6 +20,7 @@ export function userContentFrame(
         rawContext[key] = value;
       });
 
+      // Regular HMR cannot handle the addition of GAS functions, so restart the server.
       server.watcher.on("change", async (file) => {
         if (file.startsWith(serverDir)) {
           await server.restart();
