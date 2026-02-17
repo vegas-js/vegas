@@ -1,3 +1,5 @@
+import { excludesGASUserFunctionNames } from "../shared/gas";
+
 declare namespace google {
   namespace script {
     type ScriptRun = {
@@ -16,13 +18,7 @@ type GASUserFunction<T> = {
     : never;
 };
 
-type ExcludeGASUserFunction =
-  | "onOpen"
-  | "onInstall"
-  | "onEdit"
-  | "onSelectionChange"
-  | "doGet"
-  | "doPost";
+type ExcludeGASUserFunction = (typeof excludesGASUserFunctionNames)[number];
 
 type GASFunction<T> = Omit<GASUserFunction<T>, ExcludeGASUserFunction>;
 

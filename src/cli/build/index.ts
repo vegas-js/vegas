@@ -14,6 +14,7 @@ import {
 } from "../analyze";
 import { loadConfig, resolveConfig, ResolvedUserConfig } from "../config";
 import { resolvePath } from "../path";
+import { exportBridge } from "./plugins/exportbridge";
 import { virtualHTML } from "./plugins/virtualhtml";
 
 function buildWebApp(config: ResolvedUserConfig, webEntries: string[]) {
@@ -39,12 +40,13 @@ function buildServerApp(config: ResolvedUserConfig, serverEntry: string) {
   return buildWithRolldown({
     cwd: config.root,
     input: serverEntry,
+    plugins: [exportBridge(serverEntry)],
     output: {
       format: "iife",
       name: iifeName,
       exports: "named",
       dir: config.output.dir,
-      footer: `Object.assign(globalThis, ${iifeName});`,
+      footer: `Object.assign(globalThis, ${iifeName});\n`,
     },
     experimental: {
       nativeMagicString: true,
