@@ -11,13 +11,12 @@ export function exportBridge(serverEntry: string): Plugin {
       const key = `${parse(serverEntry).name}.js`;
       const entry = bundle[key];
       if (entry && entry.type === "chunk") {
-        entry.code += "\n/* Function bridge for GAS Client */";
+        entry.code += "\n/* Function bridge for GAS Client */\n";
         entry.exports.forEach((expo) => {
           if (!(excludesGASUserFunctionNames as readonly string[]).includes(expo)) {
-            entry.code += `\nfunction ${expo}(...args) { return globalThis.${expo}(args); };`;
+            entry.code += `function ${expo}(...args) { return globalThis.${expo}(args); };\n`;
           }
         });
-        entry.code += "\n";
       }
     },
   };
