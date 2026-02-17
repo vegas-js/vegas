@@ -3,7 +3,11 @@ import { Plugin } from "vite";
 
 import { ProjectEntry, ProjectIOMap } from "../../analyze";
 
-export function userContentFrame(projectEntry: ProjectEntry, projectIOMap: ProjectIOMap[]): Plugin {
+export function userContentFrame(
+  serverDir: string,
+  projectEntry: ProjectEntry,
+  projectIOMap: ProjectIOMap[],
+): Plugin {
   const VIRTUAL_ID: string = "virtual:usercontentframe";
 
   return {
@@ -14,6 +18,12 @@ export function userContentFrame(projectEntry: ProjectEntry, projectIOMap: Proje
       const rawContext: Record<string, any> = {};
       Object.entries(module).forEach(([key, value]) => {
         rawContext[key] = value;
+      });
+
+      server.watcher.on("change", async (file) => {
+        if (file.startsWith(serverDir)) {
+          await server.restart();
+        }
       });
 
       server.middlewares.use(async (request, response, next) => {

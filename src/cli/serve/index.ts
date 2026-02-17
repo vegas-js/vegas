@@ -28,7 +28,7 @@ async function serveApp(
   const contentServer = await createServer({
     root: config.root,
     configFile: false,
-    plugins: [...config.plugins, userContentFrame(projectEntry, projectIOMap)],
+    plugins: [...config.plugins, userContentFrame(config.serverDir, projectEntry, projectIOMap)],
     server: { port: hostServer.config.server.port + 1 },
     customLogger: createLogger("info", { prefix: "[vegas]" }),
     cacheDir: join(config.root, "node_modules", ".vegas-content"),
