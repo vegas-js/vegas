@@ -1,4 +1,5 @@
 import { parse } from "node:path";
+
 import { Plugin } from "vite";
 
 import { excludesGASUserFunctionNames } from "../../../shared/gas";
@@ -15,7 +16,7 @@ export function exportBridge(serverEntry: string): Plugin {
         entry.exports.forEach((expo) => {
           if (!(excludesGASUserFunctionNames as readonly string[]).includes(expo)) {
             bridgeCodes.push(
-              `function ${expo}(...args) { return ${outputOptions.name ?? "globalThis"}.${expo}(args); };`,
+              `function ${expo}(...args) { return ${outputOptions.name ?? "globalThis"}.${expo}(...args); };`,
             );
           }
         });
