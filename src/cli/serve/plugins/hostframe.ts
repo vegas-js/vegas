@@ -22,7 +22,7 @@ export function hostFrame(): Plugin {
           if (url.pathname === "/") {
             // redirect to iframe
             const basePath = server.config.mode === "production" ? "/exec" : "/dev";
-            response.statusCode = 301;
+            response.statusCode = 307;
             response.setHeader("Location", `${basePath}${url.search}`);
             response.end();
             return;
