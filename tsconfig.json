@@ -2,7 +2,7 @@
   "compilerOptions": {
     "target": "es2023",
     "module": "esnext",
-    "types": ["node", "rolldown", "vite"],
+    "types": ["node", "parse5", "rolldown", "vite"],
     "skipLibCheck": true,
 
     /* Bundler mode */

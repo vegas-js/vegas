@@ -4,7 +4,7 @@ export default defineConfig([
   {
     entry: "./src/cli/index.ts",
     external: ["vite"],
-    inlineOnly: ["@rolldown/pluginutils", "cac", "rolldown"],
+    inlineOnly: ["@rolldown/pluginutils", "cac", "entities", "parse5", "rolldown"],
     outputOptions: {
       entryFileNames: "vegas.js",
       chunkFileNames: "chunks/[name].js",
