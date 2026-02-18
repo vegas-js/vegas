@@ -1,5 +1,6 @@
 import vm from "node:vm";
 
+import { defaultTreeAdapter, html, serialize } from "parse5";
 import { Plugin } from "vite";
 
 import { ProjectEntry, ProjectIOMap } from "../../analyze";
@@ -63,11 +64,21 @@ export function userContentFrame(
             // const entry = projectIOMap.find((ioMap) => ioMap.outputPath === `${result}.html`);
             const entry = projectIOMap.find((ioMap) => ioMap.outputPath === "index.html");
             if (entry) {
-              const rawHtml = `<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8">
-  <script>
+              const document = defaultTreeAdapter.createDocument();
+              defaultTreeAdapter.setDocumentType(document, "html", "", "");
+              const htmlTag = defaultTreeAdapter.createElement("html", html.NS.HTML, []);
+              const headTag = defaultTreeAdapter.createElement("head", html.NS.HTML, []);
+              const scriptTag = defaultTreeAdapter.createElement("script", html.NS.HTML, []);
+              defaultTreeAdapter.insertText(
+                scriptTag,
+                `    const proxyHandler = {
+      get(target, property, receiver) {
+        if (target[property]) {
+          return (...args) => target[property](...args);
+        }
+        target.fcb(new Error(property + " is not function."));
+      },
+    };
     class GASRun {
       constructor(scb, fcb) {
         this.scb = scb;
@@ -81,9 +92,9 @@ export function userContentFrame(
             body: JSON.stringify(args),
             headers: { "Content-Type": "application/json" },
           }).then((response) => {
-            if (!response.ok) {
-              response.json().then((errorData) => {
-                this.fcb("Mock function " + errorData + " failed with status " + response.status + ". Message: " + errorData.error);
+            if (response.status !== 200) {
+              response.text().then((errorMessage) => {
+                this.fcb("Mock function [" + func + "] failed with status " + response.status + ". Message: " + errorMessage);
               });
             }
 
@@ -95,10 +106,10 @@ export function userContentFrame(
       }
 
       withSuccessHandler(callback) {
-        return new GASRun(callback, this.fcb);
+        return new Proxy(new GASRun(callback, this.fcb), proxyHandler);
       }
       withFailureHandler(callback) {
-        return new GASRun(this.scb, callback);
+        return new Proxy(new GASRun(this.scb, callback), proxyHandler);
       }
 
       ${Object.keys(module)
@@ -107,21 +118,34 @@ export function userContentFrame(
     };
     google = {
       script: {
-        run: new GASRun(null, null),
+        run: new Proxy(new GASRun(null, null), proxyHandler),
       },
-    };
-  </script>
-</head>
-<body>
-  <div id="root"></div>
-  <script type="module" src="${entry.entryPath}"></script>
-</body>
-</html>`;
+    };`,
+              );
+              defaultTreeAdapter.appendChild(headTag, scriptTag);
 
-              const html = await server.transformIndexHtml(url.href, rawHtml);
+              const bodyTag = defaultTreeAdapter.createElement("body", html.NS.HTML, []);
+              const divRootTag = defaultTreeAdapter.createElement("div", html.NS.HTML, [
+                { name: "id", value: "root" },
+              ]);
+              defaultTreeAdapter.appendChild(bodyTag, divRootTag);
+              const scriptModuleTag = defaultTreeAdapter.createElement("script", html.NS.HTML, [
+                { name: "type", value: "module" },
+                { name: "src", value: entry.entryPath },
+              ]);
+              defaultTreeAdapter.appendChild(bodyTag, scriptModuleTag);
+
+              defaultTreeAdapter.appendChild(htmlTag, headTag);
+              defaultTreeAdapter.appendChild(htmlTag, bodyTag);
+              defaultTreeAdapter.appendChild(document, htmlTag);
+
+              const transFormedHtml = await server.transformIndexHtml(
+                url.href,
+                serialize(document),
+              );
               response.statusCode = 200;
               response.setHeader("Content-Type", "text/html");
-              response.end(html);
+              response.end(transFormedHtml);
               return;
             }
           } else if (url.pathname.startsWith("/@vegas/")) {
@@ -144,17 +168,24 @@ export function userContentFrame(
 
             // call mock function
             const context = vm.createContext(rawContext);
-            const targetFunc = context[functionName];
-            if (typeof targetFunc !== "function") {
-              throw new Error(`Function ${functionName} not found in mock server module.`);
+            try {
+              const targetFunc = context[functionName];
+              if (typeof targetFunc !== "function") {
+                throw new Error(`Function ${functionName} not found in mock server module.`);
+              }
+
+              const result = await targetFunc(...args);
+
+              response.statusCode = 200;
+              response.setHeader("Content-Type", "application/json");
+              response.end(JSON.stringify(result ?? null));
+              return;
+            } catch (error: any) {
+              response.statusCode = 500;
+              response.setHeader("Content-Type", "text/plain");
+              response.end(error.message);
+              return;
             }
-
-            const result = await targetFunc(...args);
-
-            response.statusCode = 200;
-            response.setHeader("Content-Type", "application/json");
-            response.end(JSON.stringify(result ?? null));
-            return;
           }
         }
         next();
