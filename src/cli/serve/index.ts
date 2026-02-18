@@ -1,4 +1,5 @@
 import { join } from "node:path";
+
 import { createLogger, createServer } from "vite";
 
 import {
@@ -25,6 +26,8 @@ async function serveApp(
     customLogger: createLogger("info", { prefix: "[vegas]" }),
     cacheDir: join(config.root, "node_modules", ".vegas-host"),
   });
+  await hostServer.listen();
+
   const contentServer = await createServer({
     root: config.root,
     configFile: false,
@@ -33,9 +36,8 @@ async function serveApp(
     customLogger: createLogger("info", { prefix: "[vegas]" }),
     cacheDir: join(config.root, "node_modules", ".vegas-content"),
   });
-
-  await hostServer.listen();
   await contentServer.listen();
+
   hostServer.printUrls();
   hostServer.bindCLIShortcuts({ print: true });
 }
