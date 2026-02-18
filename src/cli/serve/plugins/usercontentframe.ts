@@ -1,4 +1,5 @@
 import vm from "node:vm";
+
 import { Plugin } from "vite";
 
 import { ProjectEntry, ProjectIOMap } from "../../analyze";
@@ -101,7 +102,7 @@ export function userContentFrame(
       }
 
       ${Object.keys(module)
-        .map((func) => `${func}(...args) { this.__exec("${func}", args); }`)
+        .map((func) => `${func}(...args) { this.__exec("${func}", ...args); }`)
         .join("\n      ")}
     };
     google = {
