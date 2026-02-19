@@ -22,7 +22,7 @@ async function serveApp(
   const hostServer = await createServer({
     root: config.root,
     configFile: false,
-    plugins: [hostFrame()],
+    plugins: [hostFrame(config, projectEntry)],
     customLogger: createLogger("info", { prefix: "[vegas]" }),
     cacheDir: join(config.root, "node_modules", ".vegas-host"),
   });

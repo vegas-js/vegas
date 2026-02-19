@@ -1,7 +1,12 @@
 import { defaultTreeAdapter, html, serialize } from "parse5";
-import { Plugin } from "vite";
+import { RolldownOutput } from "rolldown";
+import { build, Plugin } from "vite";
 
-export function hostFrame(): Plugin {
+import { ProjectEntry } from "../../analyze";
+import { virtualHTML } from "../../build/plugins/virtualhtml";
+import { ResolvedUserConfig } from "../../config";
+
+export function hostFrame(config: ResolvedUserConfig, projectEntry: ProjectEntry): Plugin {
   return {
     name: "vite-plugin-hostframe",
 
@@ -33,6 +38,11 @@ export function hostFrame(): Plugin {
             defaultTreeAdapter.setDocumentType(document, "html", "", "");
             const htmlTag = defaultTreeAdapter.createElement("html", html.NS.HTML, []);
             const headTag = defaultTreeAdapter.createElement("head", html.NS.HTML, []);
+            const scriptInitTag = defaultTreeAdapter.createElement("script", html.NS.HTML, [
+              { name: "src", value: "/@vegas/script/init" },
+            ]);
+            defaultTreeAdapter.appendChild(headTag, scriptInitTag);
+
             const styleTag = defaultTreeAdapter.createElement("style", html.NS.HTML, []);
             defaultTreeAdapter.insertText(
               styleTag,
@@ -57,6 +67,41 @@ export function hostFrame(): Plugin {
             ]);
             defaultTreeAdapter.appendChild(bodyTag, iframeTag);
 
+            const scriptEntryTag = defaultTreeAdapter.createElement("script", html.NS.HTML, []);
+            const result = await build({
+              root: config.root,
+              configFile: false,
+              plugins: [
+                ...config.plugins,
+                virtualHTML({ webDir: config.webDir, webEntry: projectEntry.webEntries[0] }),
+              ],
+              build: {
+                rolldownOptions: {
+                  input: projectEntry.webEntries[0],
+                },
+                outDir: config.output.dir,
+                emptyOutDir: false,
+                write: false,
+              },
+              logLevel: "silent",
+            });
+
+            const output = Array.isArray(result)
+              ? result[0].output
+              : (result as RolldownOutput).output;
+            const asset = output.filter((out) => out.type === "asset")[0];
+            const outputHtml = Buffer.from(asset.source).toString("utf8");
+            const initStrings = [];
+            initStrings.push(`functionNames:getName`);
+            defaultTreeAdapter.insertText(
+              scriptEntryTag,
+              `const iframe = document.getElementById("sandboxFrame");
+iframe.onload = function() {
+  vegas.script.init("functionNames:,${outputHtml.replaceAll("\n", "\\x0a").replaceAll('"', "\\x22").replaceAll("'", "\\x27").replaceAll("<", "\\x3c").replaceAll(">", "\\x3e")}");
+}`,
+            );
+            defaultTreeAdapter.appendChild(bodyTag, scriptEntryTag);
+
             defaultTreeAdapter.appendChild(htmlTag, headTag);
             defaultTreeAdapter.appendChild(htmlTag, bodyTag);
             defaultTreeAdapter.appendChild(document, htmlTag);
@@ -64,6 +109,20 @@ export function hostFrame(): Plugin {
             response.statusCode = 200;
             response.setHeader("Content-Type", "text/html");
             response.end(serialize(document));
+            return;
+          } else if (url.pathname === "/@vegas/script/init") {
+            const script = `window.vegas = {
+  script: {
+    init(iframeDocument) {
+      const iframe = document.getElementById("sandboxFrame");
+      iframe.contentWindow.postMessage(iframeDocument, "${contentBaseUrl}");
+    }
+  }
+}`;
+
+            response.statusCode = 200;
+            response.setHeader("Content-Type", "text/javascript");
+            response.end(script);
             return;
           }
         }

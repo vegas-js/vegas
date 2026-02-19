@@ -122,6 +122,12 @@ export function userContentFrame(
               defaultTreeAdapter.setDocumentType(document, "html", "", "");
               const htmlTag = defaultTreeAdapter.createElement("html", html.NS.HTML, []);
               const headTag = defaultTreeAdapter.createElement("head", html.NS.HTML, []);
+              const styleTag = defaultTreeAdapter.createElement("style", html.NS.HTML, []);
+              defaultTreeAdapter.insertText(
+                styleTag,
+                "html, body, iframe {border: 0; display: block; height: 100%; margin: 0; padding: 0; width: 100%;}iframe#userHtmlFrame {overflow-y: scroll; -webkit-overflow-scrolling: touch;}",
+              );
+              defaultTreeAdapter.appendChild(headTag, styleTag);
               const scriptVegasModuleTag = defaultTreeAdapter.createElement(
                 "script",
                 html.NS.HTML,
@@ -140,7 +146,14 @@ export function userContentFrame(
     newScript.textContent = data.script;
     document.head.appendChild(newScript);
   });
-}`,
+}
+window.addEventListener("message", (event) => {
+  const iframe = document.createElement("iframe");
+  iframe.id = "userHtmlFrame";
+  document.body.appendChild(iframe);
+  const data = event.data;
+  iframe.contentWindow.document.write(data);
+});`,
               );
               defaultTreeAdapter.appendChild(headTag, scriptVegasModuleTag);
               const scriptVegasGASRunTag = defaultTreeAdapter.createElement(
@@ -202,19 +215,9 @@ export function userContentFrame(
     };`,
               );
               defaultTreeAdapter.appendChild(headTag, scriptVegasGASRunTag);
+              defaultTreeAdapter.appendChild(htmlTag, headTag);
 
               const bodyTag = defaultTreeAdapter.createElement("body", html.NS.HTML, []);
-              const divRootTag = defaultTreeAdapter.createElement("div", html.NS.HTML, [
-                { name: "id", value: "root" },
-              ]);
-              defaultTreeAdapter.appendChild(bodyTag, divRootTag);
-              const scriptModuleTag = defaultTreeAdapter.createElement("script", html.NS.HTML, [
-                { name: "type", value: "module" },
-                { name: "src", value: entry.entryPath },
-              ]);
-              defaultTreeAdapter.appendChild(bodyTag, scriptModuleTag);
-
-              defaultTreeAdapter.appendChild(htmlTag, headTag);
               defaultTreeAdapter.appendChild(htmlTag, bodyTag);
               defaultTreeAdapter.appendChild(document, htmlTag);
 
