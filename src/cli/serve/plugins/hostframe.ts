@@ -91,13 +91,22 @@ export function hostFrame(config: ResolvedUserConfig, projectEntry: ProjectEntry
               : (result as RolldownOutput).output;
             const asset = output.filter((out) => out.type === "asset")[0];
             const outputHtml = Buffer.from(asset.source).toString("utf8");
-            const initStrings = [];
-            initStrings.push(`functionNames:getName`);
+            const initRecord: Record<string, any> = {};
+            initRecord["functionNames"] = ["getName"];
+            initRecord["userHtml"] = outputHtml.replaceAll('"', "\\x22");
+            const initArgString = JSON.stringify(initRecord)
+              .replaceAll("\\r", "")
+              .replaceAll("\\n", "")
+              .replaceAll("\\x22", "\\\\x22")
+              .replaceAll('"', "\\x22")
+              .replaceAll("'", "\\x27")
+              .replaceAll("<", "\\x3c")
+              .replaceAll(">", "\\x3e");
             defaultTreeAdapter.insertText(
               scriptEntryTag,
               `const iframe = document.getElementById("sandboxFrame");
 iframe.onload = function() {
-  vegas.script.init("functionNames:,${outputHtml.replaceAll("\n", "\\x0a").replaceAll('"', "\\x22").replaceAll("'", "\\x27").replaceAll("<", "\\x3c").replaceAll(">", "\\x3e")}");
+  vegas.script.init("${initArgString}");
 }`,
             );
             defaultTreeAdapter.appendChild(bodyTag, scriptEntryTag);
@@ -113,9 +122,9 @@ iframe.onload = function() {
           } else if (url.pathname === "/@vegas/script/init") {
             const script = `window.vegas = {
   script: {
-    init(iframeDocument) {
+    init(args) {
       const iframe = document.getElementById("sandboxFrame");
-      iframe.contentWindow.postMessage(iframeDocument, "${contentBaseUrl}");
+      iframe.contentWindow.postMessage(args, "${contentBaseUrl}");
     }
   }
 }`;

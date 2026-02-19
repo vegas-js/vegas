@@ -151,8 +151,8 @@ window.addEventListener("message", (event) => {
   const iframe = document.createElement("iframe");
   iframe.id = "userHtmlFrame";
   document.body.appendChild(iframe);
-  const data = event.data;
-  iframe.contentWindow.document.write(data);
+  const data = JSON.parse(event.data);
+  iframe.contentWindow.document.write(data.userHtml);
 });`,
               );
               defaultTreeAdapter.appendChild(headTag, scriptVegasModuleTag);
