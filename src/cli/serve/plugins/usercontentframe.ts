@@ -15,22 +15,76 @@ export function userContentFrame(
   return {
     name: "vite-plugin-usercontentframe",
 
-    async configureServer(server) {
-      const module = await server.ssrLoadModule(VIRTUAL_ID);
-      const rawContext: Record<string, any> = {};
-      Object.entries(module).forEach(([key, value]) => {
-        rawContext[key] = value;
-      });
-
-      // Regular HMR cannot handle the addition of GAS functions, so restart the server.
-      server.watcher.on("change", async (file) => {
-        if (file.startsWith(serverDir)) {
-          await server.restart();
+    async handleHotUpdate(ctx) {
+      if (ctx.file.startsWith(serverDir)) {
+        const module = await ctx.server.ssrLoadModule(VIRTUAL_ID);
+        const functions: string[] = [];
+        Object.keys(module).forEach((key) => {
+          functions.push(key);
+        });
+        ctx.server.ws.send("vegas:initvegasrun", {
+          script: `    window.vegasGASRunProxyHandler = {
+      get(target, property, receiver) {
+        if (target[property]) {
+          return (...args) => target[property](...args);
         }
-      });
+        target.fcb(new Error(property + " is not function."));
+      },
+    };
+    window.vegasGASRun = class {
+      constructor(scb, fcb) {
+        this.scb = scb;
+        this.fcb = fcb;
+      }
 
+      __exec(func, ...args) {
+        try {
+          fetch("/@vegas/" + func, {
+            method: "POST",
+            body: JSON.stringify(args),
+            headers: { "Content-Type": "application/json" },
+          }).then((response) => {
+            if (response.status !== 200) {
+              response.text().then((errorMessage) => {
+                this.fcb("Mock function [" + func + "] failed with status " + response.status + ". Message: " + errorMessage);
+              });
+            }
+
+            response.json().then((json) => this.scb(json));
+          });
+        } catch (error) {
+          this.fcb(error);
+        }
+      }
+
+      withSuccessHandler(callback) {
+        return new Proxy(new vegasGASRun(callback, this.fcb), vegasGASRunProxyHandler);
+      }
+      withFailureHandler(callback) {
+        return new Proxy(new vegasGASRun(this.scb, callback), vegasGASRunProxyHandler);
+      }
+
+      ${functions
+        .map((func) => `${func}(...args) { this.__exec("${func}", ...args); }`)
+        .join("\n      ")}
+    };
+    window.google = {
+      script: {
+        run: new Proxy(new vegasGASRun(null, null), vegasGASRunProxyHandler),
+      },
+    };`,
+        });
+      }
+    },
+
+    async configureServer(server) {
       server.middlewares.use(async (request, response, next) => {
         if (request.url) {
+          const module = await server.ssrLoadModule(VIRTUAL_ID);
+          const rawContext: Record<string, any> = {};
+          Object.entries(module).forEach(([key, value]) => {
+            rawContext[key] = value;
+          });
           const scheme = server.config.server.https ? "https" : "http";
           const host =
             server.config.server.host !== undefined
@@ -68,10 +122,35 @@ export function userContentFrame(
               defaultTreeAdapter.setDocumentType(document, "html", "", "");
               const htmlTag = defaultTreeAdapter.createElement("html", html.NS.HTML, []);
               const headTag = defaultTreeAdapter.createElement("head", html.NS.HTML, []);
-              const scriptTag = defaultTreeAdapter.createElement("script", html.NS.HTML, []);
+              const scriptVegasModuleTag = defaultTreeAdapter.createElement(
+                "script",
+                html.NS.HTML,
+                [{ name: "type", value: "module" }],
+              );
               defaultTreeAdapter.insertText(
-                scriptTag,
-                `    const proxyHandler = {
+                scriptVegasModuleTag,
+                `if (import.meta.hot) {
+  import.meta.hot.on('vegas:initvegasrun', (data) => {
+    const oldScript = document.getElementById('vegasrun');
+    if (oldScript) {
+      document.head.removeChild(oldScript);
+    }
+    const newScript = document.createElement('script');
+    newScript.id = 'vegasrun';
+    newScript.textContent = data.script;
+    document.head.appendChild(newScript);
+  });
+}`,
+              );
+              defaultTreeAdapter.appendChild(headTag, scriptVegasModuleTag);
+              const scriptVegasGASRunTag = defaultTreeAdapter.createElement(
+                "script",
+                html.NS.HTML,
+                [{ name: "id", value: "vegasrun" }],
+              );
+              defaultTreeAdapter.insertText(
+                scriptVegasGASRunTag,
+                `    window.vegasGASRunProxyHandler = {
       get(target, property, receiver) {
         if (target[property]) {
           return (...args) => target[property](...args);
@@ -79,7 +158,7 @@ export function userContentFrame(
         target.fcb(new Error(property + " is not function."));
       },
     };
-    class GASRun {
+    window.vegasGASRun = class {
       constructor(scb, fcb) {
         this.scb = scb;
         this.fcb = fcb;
@@ -106,23 +185,23 @@ export function userContentFrame(
       }
 
       withSuccessHandler(callback) {
-        return new Proxy(new GASRun(callback, this.fcb), proxyHandler);
+        return new Proxy(new vegasGASRun(callback, this.fcb), vegasGASRunProxyHandler);
       }
       withFailureHandler(callback) {
-        return new Proxy(new GASRun(this.scb, callback), proxyHandler);
+        return new Proxy(new vegasGASRun(this.scb, callback), vegasGASRunProxyHandler);
       }
 
       ${Object.keys(module)
         .map((func) => `${func}(...args) { this.__exec("${func}", ...args); }`)
         .join("\n      ")}
     };
-    google = {
+    window.google = {
       script: {
-        run: new Proxy(new GASRun(null, null), proxyHandler),
+        run: new Proxy(new vegasGASRun(null, null), vegasGASRunProxyHandler),
       },
     };`,
               );
-              defaultTreeAdapter.appendChild(headTag, scriptTag);
+              defaultTreeAdapter.appendChild(headTag, scriptVegasGASRunTag);
 
               const bodyTag = defaultTreeAdapter.createElement("body", html.NS.HTML, []);
               const divRootTag = defaultTreeAdapter.createElement("div", html.NS.HTML, [
