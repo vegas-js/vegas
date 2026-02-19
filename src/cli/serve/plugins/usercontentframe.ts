@@ -151,8 +151,7 @@ window.addEventListener("message", (event) => {
   const iframe = document.createElement("iframe");
   iframe.id = "userHtmlFrame";
   document.body.appendChild(iframe);
-  const data = JSON.parse(event.data);
-  iframe.contentWindow.document.write(data.userHtml);
+  iframe.contentWindow.document.write(event.data.userHtml);
 });`,
               );
               defaultTreeAdapter.appendChild(headTag, scriptVegasModuleTag);
@@ -164,53 +163,53 @@ window.addEventListener("message", (event) => {
               defaultTreeAdapter.insertText(
                 scriptVegasGASRunTag,
                 `    window.vegasGASRunProxyHandler = {
-      get(target, property, receiver) {
-        if (target[property]) {
+      get: (target, property, receiver) => {
+        if (property === "withSuccessHandler") {
+          return (callback) => new Proxy({
+            successHandler: callback,
+            failureHandler: target.failureHandler,
+
+            __invoke: target.__invoke,
+          }, receiver);
+        } else if (property === "withFailureHandler") {
+          return (callback) => new Proxy({
+            successHandler: target.successHandler,
+            failureHandler: callback,
+
+            __invoke: target.__invoke,
+          }, receiver);
+        } else if (target[property]) {
           return (...args) => target[property](...args);
         }
-        target.fcb(new Error(property + " is not function."));
       },
-    };
-    window.vegasGASRun = class {
-      constructor(scb, fcb) {
-        this.scb = scb;
-        this.fcb = fcb;
-      }
-
-      __exec(func, ...args) {
-        try {
-          fetch("/@vegas/" + func, {
-            method: "POST",
-            body: JSON.stringify(args),
-            headers: { "Content-Type": "application/json" },
-          }).then((response) => {
-            if (response.status !== 200) {
-              response.text().then((errorMessage) => {
-                this.fcb("Mock function [" + func + "] failed with status " + response.status + ". Message: " + errorMessage);
-              });
-            }
-
-            response.json().then((json) => this.scb(json));
-          });
-        } catch (error) {
-          this.fcb(error);
-        }
-      }
-
-      withSuccessHandler(callback) {
-        return new Proxy(new vegasGASRun(callback, this.fcb), vegasGASRunProxyHandler);
-      }
-      withFailureHandler(callback) {
-        return new Proxy(new vegasGASRun(this.scb, callback), vegasGASRunProxyHandler);
-      }
-
-      ${Object.keys(module)
-        .map((func) => `${func}(...args) { this.__exec("${func}", ...args); }`)
-        .join("\n      ")}
-    };
+    }
     window.google = {
       script: {
-        run: new Proxy(new vegasGASRun(null, null), vegasGASRunProxyHandler),
+        run: new Proxy({
+          successHandler() {},
+          failureHandler() {},
+
+          __invoke(func, ...args) {
+            console.log("invoke " + func);
+            try {
+              fetch("/@vegas/" + func, {
+                method: "POST",
+                body: JSON.stringify(args),
+                headers: { "Content-Type": "application/json" },
+              }).then((response) => {
+                if (response.status !== 200) {
+                  response.text().then((errorMessage) => {
+                    this.failureHandler("Mock function [" + func + "()] failed with status " + response.status + ". Message: " + errorMessage);
+                  });
+                }
+
+                response.json().then((json) => this.successHandler(json));
+              });
+            } catch (error) {
+              this.failureHandler(error);
+            }
+          },
+        }, window.vegasGASRunProxyHandler),
       },
     };`,
               );

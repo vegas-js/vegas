@@ -93,20 +93,13 @@ export function hostFrame(config: ResolvedUserConfig, projectEntry: ProjectEntry
             const outputHtml = Buffer.from(asset.source).toString("utf8");
             const initRecord: Record<string, any> = {};
             initRecord["functionNames"] = ["getName"];
-            initRecord["userHtml"] = outputHtml.replaceAll('"', "\\x22");
-            const initArgString = JSON.stringify(initRecord)
-              .replaceAll("\\r", "")
-              .replaceAll("\\n", "")
-              .replaceAll("\\x22", "\\\\x22")
-              .replaceAll('"', "\\x22")
-              .replaceAll("'", "\\x27")
-              .replaceAll("<", "\\x3c")
-              .replaceAll(">", "\\x3e");
+            initRecord["userHtml"] = outputHtml;
+            const initArgString = Buffer.from(JSON.stringify(initRecord)).toString("base64");
             defaultTreeAdapter.insertText(
               scriptEntryTag,
               `const iframe = document.getElementById("sandboxFrame");
 iframe.onload = function() {
-  vegas.script.init("${initArgString}");
+  vegas.script.init(JSON.parse(new TextDecoder().decode(Uint8Array.fromBase64("${initArgString}"))));
 }`,
             );
             defaultTreeAdapter.appendChild(bodyTag, scriptEntryTag);
