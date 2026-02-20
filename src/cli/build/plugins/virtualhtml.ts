@@ -1,4 +1,5 @@
 import { join, parse, relative } from "node:path";
+
 import { HtmlTagDescriptor, Plugin } from "vite";
 
 type VirtualHTMLOption = {
@@ -68,7 +69,7 @@ export function virtualHTML(option: VirtualHTMLOption): Plugin {
       });
 
       return {
-        html: `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body><div id="root"></div></body></html>`,
+        html: `<!DOCTYPE html><html><head></head><body><div id="root"></div></body></html>`,
         tags: injectTags,
       };
     },

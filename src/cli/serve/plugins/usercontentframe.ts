@@ -15,67 +15,67 @@ export function userContentFrame(
   return {
     name: "vite-plugin-usercontentframe",
 
-    async handleHotUpdate(ctx) {
-      if (ctx.file.startsWith(serverDir)) {
-        const module = await ctx.server.ssrLoadModule(VIRTUAL_ID);
-        const functions: string[] = [];
-        Object.keys(module).forEach((key) => {
-          functions.push(key);
-        });
-        ctx.server.ws.send("vegas:initvegasrun", {
-          script: `    window.vegasGASRunProxyHandler = {
-      get(target, property, receiver) {
-        if (target[property]) {
-          return (...args) => target[property](...args);
-        }
-        target.fcb(new Error(property + " is not function."));
-      },
-    };
-    window.vegasGASRun = class {
-      constructor(scb, fcb) {
-        this.scb = scb;
-        this.fcb = fcb;
-      }
+    // async handleHotUpdate(ctx) {
+    //   if (ctx.file.startsWith(serverDir)) {
+    //     const module = await ctx.server.ssrLoadModule(VIRTUAL_ID);
+    //     const functions: string[] = [];
+    //     Object.keys(module).forEach((key) => {
+    //       functions.push(key);
+    //     });
+    //     ctx.server.ws.send("vegas:initvegasrun", {
+    //       script: `    window.vegasGASRunProxyHandler = {
+    //   get(target, property, receiver) {
+    //     if (target[property]) {
+    //       return (...args) => target[property](...args);
+    //     }
+    //     target.fcb(new Error(property + " is not function."));
+    //   },
+    // };
+    // window.vegasGASRun = class {
+    //   constructor(scb, fcb) {
+    //     this.scb = scb;
+    //     this.fcb = fcb;
+    //   }
 
-      __exec(func, ...args) {
-        try {
-          fetch("/@vegas/" + func, {
-            method: "POST",
-            body: JSON.stringify(args),
-            headers: { "Content-Type": "application/json" },
-          }).then((response) => {
-            if (response.status !== 200) {
-              response.text().then((errorMessage) => {
-                this.fcb("Mock function [" + func + "] failed with status " + response.status + ". Message: " + errorMessage);
-              });
-            }
+    //   __exec(func, ...args) {
+    //     try {
+    //       fetch("/@vegas/" + func, {
+    //         method: "POST",
+    //         body: JSON.stringify(args),
+    //         headers: { "Content-Type": "application/json" },
+    //       }).then((response) => {
+    //         if (response.status !== 200) {
+    //           response.text().then((errorMessage) => {
+    //             this.fcb("Mock function [" + func + "] failed with status " + response.status + ". Message: " + errorMessage);
+    //           });
+    //         }
 
-            response.json().then((json) => this.scb(json));
-          });
-        } catch (error) {
-          this.fcb(error);
-        }
-      }
+    //         response.json().then((json) => this.scb(json));
+    //       });
+    //     } catch (error) {
+    //       this.fcb(error);
+    //     }
+    //   }
 
-      withSuccessHandler(callback) {
-        return new Proxy(new vegasGASRun(callback, this.fcb), vegasGASRunProxyHandler);
-      }
-      withFailureHandler(callback) {
-        return new Proxy(new vegasGASRun(this.scb, callback), vegasGASRunProxyHandler);
-      }
+    //   withSuccessHandler(callback) {
+    //     return new Proxy(new vegasGASRun(callback, this.fcb), vegasGASRunProxyHandler);
+    //   }
+    //   withFailureHandler(callback) {
+    //     return new Proxy(new vegasGASRun(this.scb, callback), vegasGASRunProxyHandler);
+    //   }
 
-      ${functions
-        .map((func) => `${func}(...args) { this.__exec("${func}", ...args); }`)
-        .join("\n      ")}
-    };
-    window.google = {
-      script: {
-        run: new Proxy(new vegasGASRun(null, null), vegasGASRunProxyHandler),
-      },
-    };`,
-        });
-      }
-    },
+    //   ${functions
+    //     .map((func) => `${func}(...args) { this.__exec("${func}", ...args); }`)
+    //     .join("\n      ")}
+    // };
+    // window.google = {
+    //   script: {
+    //     run: new Proxy(new vegasGASRun(null, null), vegasGASRunProxyHandler),
+    //   },
+    // };`,
+    //     });
+    //   }
+    // },
 
     async configureServer(server) {
       server.middlewares.use(async (request, response, next) => {
@@ -98,14 +98,14 @@ export function userContentFrame(
           const baseUrl = `${scheme}://${host}:${port}`;
           const url = new URL(request.url, baseUrl);
           if (url.pathname === "/userCodeAppPanel") {
-            if (request.headers["sec-fetch-dest"] !== "iframe") {
-              const blankHtml = `<!DOCTYPE html><html><head><meta http-equiv="X-UA-Compatible" content="IE=edge"></head><body></body></html>\n`;
+            // if (request.headers["sec-fetch-dest"] !== "iframe") {
+            //   const blankHtml = `<!DOCTYPE html><html><head><meta http-equiv="X-UA-Compatible" content="IE=edge"></head><body></body></html>\n`;
 
-              response.statusCode = 200;
-              response.setHeader("Content-Type", "text/html");
-              response.end(blankHtml);
-              return;
-            }
+            //   response.statusCode = 200;
+            //   response.setHeader("Content-Type", "text/html");
+            //   response.end(blankHtml);
+            //   return;
+            // }
             // response content at requested by iframe
             // const context = vm.createContext(rawContext);
             // const targetFunc = context["doGet"];
@@ -148,10 +148,10 @@ export function userContentFrame(
   });
 }
 window.addEventListener("message", (event) => {
-  const iframe = document.createElement("iframe");
-  iframe.id = "userHtmlFrame";
-  document.body.appendChild(iframe);
+  const iframe = document.getElementById("userHtmlFrame");
+  iframe.contentWindow.document.open();
   iframe.contentWindow.document.write(event.data.userHtml);
+  iframe.contentWindow.document.close();
 });`,
               );
               defaultTreeAdapter.appendChild(headTag, scriptVegasModuleTag);
@@ -217,6 +217,17 @@ window.addEventListener("message", (event) => {
               defaultTreeAdapter.appendChild(htmlTag, headTag);
 
               const bodyTag = defaultTreeAdapter.createElement("body", html.NS.HTML, []);
+              const iframeTag = defaultTreeAdapter.createElement("iframe", html.NS.HTML, [
+                { name: "id", value: "userHtmlFrame" },
+                {
+                  name: "allow",
+                  value:
+                    "accelerometer *; ambient-light-sensor *; autoplay *; camera *; clipboard-read *; clipboard-write *; encrypted-media *; fullscreen *; geolocation *; gyroscope *; local-network-access *; magnetometer *; microphone *; midi *; payment *; picture-in-picture *; screen-wake-lock *; speaker *; sync-xhr *; usb *; vibrate *; vr *; web-share *",
+                },
+              ]);
+
+              defaultTreeAdapter.appendChild(bodyTag, iframeTag);
+
               defaultTreeAdapter.appendChild(htmlTag, bodyTag);
               defaultTreeAdapter.appendChild(document, htmlTag);
 
