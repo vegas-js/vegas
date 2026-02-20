@@ -2,23 +2,13 @@ import { join } from "node:path";
 
 import { createLogger, createServer } from "vite";
 
-import {
-  collectSources,
-  detectEntries,
-  mappingProjectIO,
-  ProjectEntry,
-  ProjectIOMap,
-} from "../analyze";
+import { collectSources, detectEntries, ProjectEntry } from "../analyze";
 import { loadConfig, resolveConfig, ResolvedUserConfig } from "../config";
 import { resolvePath } from "../path";
 import { hostFrame } from "./plugins/hostframe";
 import { userContentFrame } from "./plugins/usercontentframe";
 
-async function serveApp(
-  config: ResolvedUserConfig,
-  projectEntry: ProjectEntry,
-  projectIOMap: ProjectIOMap[],
-) {
+async function serveApp(config: ResolvedUserConfig, projectEntry: ProjectEntry) {
   const hostServer = await createServer({
     root: config.root,
     configFile: false,
@@ -31,7 +21,7 @@ async function serveApp(
   const contentServer = await createServer({
     root: config.root,
     configFile: false,
-    plugins: [...config.plugins, userContentFrame(config.serverDir, projectEntry, projectIOMap)],
+    plugins: [...config.plugins, userContentFrame(projectEntry)],
     server: { port: hostServer.config.server.port + 1 },
     customLogger: createLogger("info", { prefix: "[vegas]" }),
     cacheDir: join(config.root, "node_modules", ".vegas-content"),
@@ -48,7 +38,6 @@ export async function runServe(root?: string) {
   const resolvedUserConfig = resolveConfig(userConfig);
   const projectSource = collectSources(resolvedUserConfig);
   const projectEntry = detectEntries(projectSource);
-  const projectIOMap = mappingProjectIO(resolvedUserConfig, projectEntry);
 
-  await serveApp(resolvedUserConfig, projectEntry, projectIOMap);
+  await serveApp(resolvedUserConfig, projectEntry);
 }

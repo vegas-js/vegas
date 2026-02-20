@@ -3,85 +3,19 @@ import vm from "node:vm";
 import { defaultTreeAdapter, html, serialize } from "parse5";
 import { Plugin } from "vite";
 
-import { ProjectEntry, ProjectIOMap } from "../../analyze";
+import { ProjectEntry } from "../../analyze";
 
-export function userContentFrame(
-  serverDir: string,
-  projectEntry: ProjectEntry,
-  projectIOMap: ProjectIOMap[],
-): Plugin {
+export function userContentFrame(projectEntry: ProjectEntry): Plugin {
   const VIRTUAL_ID: string = "virtual:usercontentframe";
 
   return {
     name: "vite-plugin-usercontentframe",
 
-    // async handleHotUpdate(ctx) {
-    //   if (ctx.file.startsWith(serverDir)) {
-    //     const module = await ctx.server.ssrLoadModule(VIRTUAL_ID);
-    //     const functions: string[] = [];
-    //     Object.keys(module).forEach((key) => {
-    //       functions.push(key);
-    //     });
-    //     ctx.server.ws.send("vegas:initvegasrun", {
-    //       script: `    window.vegasGASRunProxyHandler = {
-    //   get(target, property, receiver) {
-    //     if (target[property]) {
-    //       return (...args) => target[property](...args);
-    //     }
-    //     target.fcb(new Error(property + " is not function."));
-    //   },
-    // };
-    // window.vegasGASRun = class {
-    //   constructor(scb, fcb) {
-    //     this.scb = scb;
-    //     this.fcb = fcb;
-    //   }
-
-    //   __exec(func, ...args) {
-    //     try {
-    //       fetch("/@vegas/" + func, {
-    //         method: "POST",
-    //         body: JSON.stringify(args),
-    //         headers: { "Content-Type": "application/json" },
-    //       }).then((response) => {
-    //         if (response.status !== 200) {
-    //           response.text().then((errorMessage) => {
-    //             this.fcb("Mock function [" + func + "] failed with status " + response.status + ". Message: " + errorMessage);
-    //           });
-    //         }
-
-    //         response.json().then((json) => this.scb(json));
-    //       });
-    //     } catch (error) {
-    //       this.fcb(error);
-    //     }
-    //   }
-
-    //   withSuccessHandler(callback) {
-    //     return new Proxy(new vegasGASRun(callback, this.fcb), vegasGASRunProxyHandler);
-    //   }
-    //   withFailureHandler(callback) {
-    //     return new Proxy(new vegasGASRun(this.scb, callback), vegasGASRunProxyHandler);
-    //   }
-
-    //   ${functions
-    //     .map((func) => `${func}(...args) { this.__exec("${func}", ...args); }`)
-    //     .join("\n      ")}
-    // };
-    // window.google = {
-    //   script: {
-    //     run: new Proxy(new vegasGASRun(null, null), vegasGASRunProxyHandler),
-    //   },
-    // };`,
-    //     });
-    //   }
-    // },
-
     async configureServer(server) {
       server.middlewares.use(async (request, response, next) => {
         if (request.url) {
-          const module = await server.ssrLoadModule(VIRTUAL_ID);
           const rawContext: Record<string, any> = {};
+          const module = await server.ssrLoadModule(VIRTUAL_ID);
           Object.entries(module).forEach(([key, value]) => {
             rawContext[key] = value;
           });
@@ -106,36 +40,22 @@ export function userContentFrame(
             //   response.end(blankHtml);
             //   return;
             // }
-            // response content at requested by iframe
-            // const context = vm.createContext(rawContext);
-            // const targetFunc = context["doGet"];
-            // if (typeof targetFunc !== "function") {
-            //   throw new Error("Function doGet not found in mock server module.");
-            // }
-
-            // TODO: HTML create from HTMLOutput
-            // const result = await targetFunc();
-            // const entry = projectIOMap.find((ioMap) => ioMap.outputPath === `${result}.html`);
-            const entry = projectIOMap.find((ioMap) => ioMap.outputPath === "index.html");
-            if (entry) {
-              const document = defaultTreeAdapter.createDocument();
-              defaultTreeAdapter.setDocumentType(document, "html", "", "");
-              const htmlTag = defaultTreeAdapter.createElement("html", html.NS.HTML, []);
-              const headTag = defaultTreeAdapter.createElement("head", html.NS.HTML, []);
-              const styleTag = defaultTreeAdapter.createElement("style", html.NS.HTML, []);
-              defaultTreeAdapter.insertText(
-                styleTag,
-                "html, body, iframe {border: 0; display: block; height: 100%; margin: 0; padding: 0; width: 100%;}iframe#userHtmlFrame {overflow-y: scroll; -webkit-overflow-scrolling: touch;}",
-              );
-              defaultTreeAdapter.appendChild(headTag, styleTag);
-              const scriptVegasModuleTag = defaultTreeAdapter.createElement(
-                "script",
-                html.NS.HTML,
-                [{ name: "type", value: "module" }],
-              );
-              defaultTreeAdapter.insertText(
-                scriptVegasModuleTag,
-                `if (import.meta.hot) {
+            const document = defaultTreeAdapter.createDocument();
+            defaultTreeAdapter.setDocumentType(document, "html", "", "");
+            const htmlTag = defaultTreeAdapter.createElement("html", html.NS.HTML, []);
+            const headTag = defaultTreeAdapter.createElement("head", html.NS.HTML, []);
+            const styleTag = defaultTreeAdapter.createElement("style", html.NS.HTML, []);
+            defaultTreeAdapter.insertText(
+              styleTag,
+              "html, body, iframe {border: 0; display: block; height: 100%; margin: 0; padding: 0; width: 100%;}iframe#userHtmlFrame {overflow-y: scroll; -webkit-overflow-scrolling: touch;}",
+            );
+            defaultTreeAdapter.appendChild(headTag, styleTag);
+            const scriptVegasModuleTag = defaultTreeAdapter.createElement("script", html.NS.HTML, [
+              { name: "type", value: "module" },
+            ]);
+            defaultTreeAdapter.insertText(
+              scriptVegasModuleTag,
+              `if (import.meta.hot) {
   import.meta.hot.on('vegas:initvegasrun', (data) => {
     const oldScript = document.getElementById('vegasrun');
     if (oldScript) {
@@ -148,98 +68,84 @@ export function userContentFrame(
   });
 }
 window.addEventListener("message", (event) => {
+  const vegasGASRunProxyHandler = {
+    get: (target, property, receiver) => {
+      if (property === "withSuccessHandler") {
+        return (callback) => new Proxy({
+          successHandler: callback,
+          failureHandler: target.failureHandler,
+
+          __invoke: target.__invoke,
+        }, vegasGASRunProxyHandler);
+      } else if (property === "withFailureHandler") {
+        return (callback) => new Proxy({
+          successHandler: target.successHandler,
+          failureHandler: callback,
+
+          __invoke: target.__invoke,
+        }, vegasGASRunProxyHandler);
+      } else {
+        return (...args) => target.__invoke(property, ...args);
+      }
+    },
+  }
   const iframe = document.getElementById("userHtmlFrame");
   iframe.contentWindow.document.open();
   iframe.contentWindow.document.write(event.data.userHtml);
+  iframe.contentWindow.google = {
+    script: {
+      run: new Proxy({
+        successHandler() {},
+        failureHandler() {},
+
+        __invoke(func, ...args) {
+          try {
+            fetch("/@vegas/" + func, {
+              method: "POST",
+              body: JSON.stringify(args),
+              headers: { "Content-Type": "application/json" },
+            }).then((response) => {
+              if (response.status !== 200) {
+                response.text().then((errorMessage) => {
+                  this.failureHandler("Mock function [" + func + "()] failed with status " + response.status + ". Message: " + errorMessage);
+                });
+              }
+
+              response.json().then((json) => this.successHandler(json));
+            });
+          } catch (error) {
+            this.failureHandler(error);
+          }
+        },
+      }, vegasGASRunProxyHandler),
+    },
+  };
   iframe.contentWindow.document.close();
 });`,
-              );
-              defaultTreeAdapter.appendChild(headTag, scriptVegasModuleTag);
-              const scriptVegasGASRunTag = defaultTreeAdapter.createElement(
-                "script",
-                html.NS.HTML,
-                [{ name: "id", value: "vegasrun" }],
-              );
-              defaultTreeAdapter.insertText(
-                scriptVegasGASRunTag,
-                `    window.vegasGASRunProxyHandler = {
-      get: (target, property, receiver) => {
-        if (property === "withSuccessHandler") {
-          return (callback) => new Proxy({
-            successHandler: callback,
-            failureHandler: target.failureHandler,
+            );
+            defaultTreeAdapter.appendChild(headTag, scriptVegasModuleTag);
+            defaultTreeAdapter.appendChild(htmlTag, headTag);
 
-            __invoke: target.__invoke,
-          }, receiver);
-        } else if (property === "withFailureHandler") {
-          return (callback) => new Proxy({
-            successHandler: target.successHandler,
-            failureHandler: callback,
+            const bodyTag = defaultTreeAdapter.createElement("body", html.NS.HTML, []);
+            const iframeTag = defaultTreeAdapter.createElement("iframe", html.NS.HTML, [
+              { name: "id", value: "userHtmlFrame" },
+              {
+                name: "allow",
+                value:
+                  "accelerometer *; ambient-light-sensor *; autoplay *; camera *; clipboard-read *; clipboard-write *; encrypted-media *; fullscreen *; geolocation *; gyroscope *; local-network-access *; magnetometer *; microphone *; midi *; payment *; picture-in-picture *; screen-wake-lock *; speaker *; sync-xhr *; usb *; vibrate *; vr *; web-share *",
+              },
+            ]);
 
-            __invoke: target.__invoke,
-          }, receiver);
-        } else if (target[property]) {
-          return (...args) => target[property](...args);
-        }
-      },
-    }
-    window.google = {
-      script: {
-        run: new Proxy({
-          successHandler() {},
-          failureHandler() {},
+            defaultTreeAdapter.appendChild(bodyTag, iframeTag);
 
-          __invoke(func, ...args) {
-            console.log("invoke " + func);
-            try {
-              fetch("/@vegas/" + func, {
-                method: "POST",
-                body: JSON.stringify(args),
-                headers: { "Content-Type": "application/json" },
-              }).then((response) => {
-                if (response.status !== 200) {
-                  response.text().then((errorMessage) => {
-                    this.failureHandler("Mock function [" + func + "()] failed with status " + response.status + ". Message: " + errorMessage);
-                  });
-                }
+            defaultTreeAdapter.appendChild(htmlTag, bodyTag);
+            defaultTreeAdapter.appendChild(document, htmlTag);
 
-                response.json().then((json) => this.successHandler(json));
-              });
-            } catch (error) {
-              this.failureHandler(error);
-            }
-          },
-        }, window.vegasGASRunProxyHandler),
-      },
-    };`,
-              );
-              defaultTreeAdapter.appendChild(headTag, scriptVegasGASRunTag);
-              defaultTreeAdapter.appendChild(htmlTag, headTag);
-
-              const bodyTag = defaultTreeAdapter.createElement("body", html.NS.HTML, []);
-              const iframeTag = defaultTreeAdapter.createElement("iframe", html.NS.HTML, [
-                { name: "id", value: "userHtmlFrame" },
-                {
-                  name: "allow",
-                  value:
-                    "accelerometer *; ambient-light-sensor *; autoplay *; camera *; clipboard-read *; clipboard-write *; encrypted-media *; fullscreen *; geolocation *; gyroscope *; local-network-access *; magnetometer *; microphone *; midi *; payment *; picture-in-picture *; screen-wake-lock *; speaker *; sync-xhr *; usb *; vibrate *; vr *; web-share *",
-                },
-              ]);
-
-              defaultTreeAdapter.appendChild(bodyTag, iframeTag);
-
-              defaultTreeAdapter.appendChild(htmlTag, bodyTag);
-              defaultTreeAdapter.appendChild(document, htmlTag);
-
-              const transFormedHtml = await server.transformIndexHtml(
-                url.href,
-                serialize(document),
-              );
-              response.statusCode = 200;
-              response.setHeader("Content-Type", "text/html");
-              response.end(transFormedHtml);
-              return;
-            }
+            const transFormedHtml = await server.transformIndexHtml(url.href, serialize(document));
+            response.statusCode = 200;
+            response.setHeader("Content-Type", "text/html");
+            response.end(transFormedHtml);
+            return;
           } else if (url.pathname.startsWith("/@vegas/")) {
             // response at requested by GAS client
             const functionName = url.pathname.replace("/@vegas/", "");
