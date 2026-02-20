@@ -38,10 +38,6 @@ export function hostFrame(config: ResolvedUserConfig, projectEntry: ProjectEntry
             defaultTreeAdapter.setDocumentType(document, "html", "", "");
             const htmlTag = defaultTreeAdapter.createElement("html", html.NS.HTML, []);
             const headTag = defaultTreeAdapter.createElement("head", html.NS.HTML, []);
-            const scriptInitTag = defaultTreeAdapter.createElement("script", html.NS.HTML, [
-              { name: "src", value: "/@vegas/script/init" },
-            ]);
-            defaultTreeAdapter.appendChild(headTag, scriptInitTag);
 
             const styleTag = defaultTreeAdapter.createElement("style", html.NS.HTML, []);
             defaultTreeAdapter.insertText(
@@ -98,10 +94,7 @@ export function hostFrame(config: ResolvedUserConfig, projectEntry: ProjectEntry
             initRecord["userHtml"] = outputHtml;
             defaultTreeAdapter.insertText(
               scriptEntryTag,
-              `const iframe = document.getElementById("sandboxFrame");
-iframe.onload = function() {
-  vegas.script.init("${encodeURIComponent(JSON.stringify(initRecord))}");
-}`,
+              `document.getElementById("sandboxFrame").onload = (event) => event.currentTarget.contentWindow.postMessage(JSON.parse(decodeURIComponent("${encodeURIComponent(JSON.stringify(initRecord))}")), "${contentBaseUrl}");`,
             );
             defaultTreeAdapter.appendChild(bodyTag, scriptEntryTag);
 
@@ -112,20 +105,6 @@ iframe.onload = function() {
             response.statusCode = 200;
             response.setHeader("Content-Type", "text/html");
             response.end(serialize(document));
-            return;
-          } else if (url.pathname === "/@vegas/script/init") {
-            const script = `window.vegas = {
-  script: {
-    init(args) {
-      const iframe = document.getElementById("sandboxFrame");
-      iframe.contentWindow.postMessage(JSON.parse(decodeURIComponent(args)), "${contentBaseUrl}");
-    }
-  }
-}`;
-
-            response.statusCode = 200;
-            response.setHeader("Content-Type", "text/javascript");
-            response.end(script);
             return;
           }
         }
