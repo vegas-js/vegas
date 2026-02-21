@@ -1,12 +1,20 @@
-import vm from "node:vm";
-
 import { defaultTreeAdapter, html, serialize } from "parse5";
-import { Plugin } from "vite";
+import { Plugin, ViteDevServer } from "vite";
 
-import { ProjectEntry } from "../../analyze";
-
-export function userContentFrame(projectEntry: ProjectEntry): Plugin {
-  const VIRTUAL_ID: string = "virtual:usercontentframe";
+export function userContentFrame(hostServer: ViteDevServer): Plugin {
+  const hostBaseUrl = (() => {
+    const scheme = hostServer.config.server.https ? "https" : "http";
+    const host =
+      hostServer.config.server.host !== undefined
+        ? typeof hostServer.config.server.host === "boolean"
+          ? hostServer.config.server.host
+            ? "0.0.0.0"
+            : "localhost"
+          : hostServer.config.server.host
+        : "localhost";
+    const port = hostServer.config.server.port;
+    return `${scheme}://${host}:${port}`;
+  })();
 
   return {
     name: "vite-plugin-usercontentframe",
@@ -14,11 +22,6 @@ export function userContentFrame(projectEntry: ProjectEntry): Plugin {
     async configureServer(server) {
       server.middlewares.use(async (request, response, next) => {
         if (request.url) {
-          const rawContext: Record<string, any> = {};
-          const module = await server.ssrLoadModule(VIRTUAL_ID);
-          Object.entries(module).forEach(([key, value]) => {
-            rawContext[key] = value;
-          });
           const scheme = server.config.server.https ? "https" : "http";
           const host =
             server.config.server.host !== undefined
@@ -56,71 +59,71 @@ export function userContentFrame(projectEntry: ProjectEntry): Plugin {
             defaultTreeAdapter.insertText(
               scriptVegasModuleTag,
               `if (import.meta.hot) {
-  import.meta.hot.on('vegas:initvegasrun', (data) => {
-    const oldScript = document.getElementById('vegasrun');
+  import.meta.hot.on("vegas:initvegasrun", (data) => {
+    const oldScript = document.getElementById("vegasrun");
     if (oldScript) {
       document.head.removeChild(oldScript);
     }
-    const newScript = document.createElement('script');
-    newScript.id = 'vegasrun';
+    const newScript = document.createElement("script");
+    newScript.id = "vegasrun";
     newScript.textContent = data.script;
     document.head.appendChild(newScript);
   });
 }
+window.vegas = {
+  requestMap: new Map(),
+};
 window.addEventListener("message", (event) => {
-  const vegasGASRunProxyHandler = {
-    get: (target, property, receiver) => {
-      if (property === "withSuccessHandler") {
-        return (callback) => new Proxy({
-          successHandler: callback,
-          failureHandler: target.failureHandler,
-
-          __invoke: target.__invoke,
-        }, vegasGASRunProxyHandler);
-      } else if (property === "withFailureHandler") {
-        return (callback) => new Proxy({
-          successHandler: target.successHandler,
-          failureHandler: callback,
-
-          __invoke: target.__invoke,
-        }, vegasGASRunProxyHandler);
-      } else {
-        return (...args) => target.__invoke(property, ...args);
-      }
-    },
-  }
-  const iframe = document.getElementById("userHtmlFrame");
-  iframe.contentWindow.document.open();
-  iframe.contentWindow.document.write(event.data.userHtml);
-  iframe.contentWindow.google = {
-    script: {
-      run: new Proxy({
-        successHandler() {},
-        failureHandler() {},
-
-        __invoke(func, ...args) {
-          try {
-            fetch("/@vegas/" + func, {
-              method: "POST",
-              body: JSON.stringify(args),
-              headers: { "Content-Type": "application/json" },
-            }).then((response) => {
-              if (response.status !== 200) {
-                response.text().then((errorMessage) => {
-                  this.failureHandler("Mock function [" + func + "()] failed with status " + response.status + ". Message: " + errorMessage);
-                });
+  if (event.data.type === "vegas:gasinit") {
+    const iframe = document.getElementById("userHtmlFrame");
+    iframe.contentWindow.document.open();
+    iframe.contentWindow.document.write(event.data.payload.userHtml);
+    iframe.contentWindow.google = {
+      script: {
+        run: {
+          __proto__: new Proxy({
+            withSuccessHandler: (callback) => {},
+            withFailureHandler: (callback) => {},
+          }, {
+            get: (target, property, receiver) => {
+              if (property === "withSuccessHandler") {
+                return (callback) => {
+                  return {
+                    successHandler: callback,
+                    __proto__: receiver,
+                  };
+                };
+              } else if (property === "withFailureHandler") {
+                return (callback) => {
+                  return {
+                    failureHandler: callback,
+                    __proto__: receiver,
+                  };
+                };
+              } else {
+                return (...args) => {
+                  let requestId = 0;
+                  do { requestId = Math.floor(Math.random() * 99999); } while (window.vegas.requestMap.has(requestId));
+                  window.vegas.requestMap.set(requestId, receiver);
+                  window.parent.postMessage({ type: "vegas:gascall", payload: { id: requestId, func: property, args: JSON.stringify(args) }}, "${hostBaseUrl}");
+                };
               }
-
-              response.json().then((json) => this.successHandler(json));
-            });
-          } catch (error) {
-            this.failureHandler(error);
-          }
+            },
+          }),
         },
-      }, vegasGASRunProxyHandler),
-    },
-  };
-  iframe.contentWindow.document.close();
+      },
+    };
+    iframe.contentWindow.document.close();
+  } else if (event.data.type === "vegas:gasreturn") {
+    const iframe = document.getElementById("userHtmlFrame");
+    const gasRun = window.vegas.requestMap.get(event.data.payload.id);
+    if (event.data.payload.status === "ok") {
+      gasRun.successHandler(JSON.parse(event.data.payload.result));
+    } else if (event.data.payload.status === "err") {
+      gasRun.failureHandler(event.data.payload.message);
+    }
+    window.vegas.requestMap.delete(event.data.payload.id);
+  }
 });`,
             );
             defaultTreeAdapter.appendChild(headTag, scriptVegasModuleTag);
@@ -146,60 +149,10 @@ window.addEventListener("message", (event) => {
             response.setHeader("Content-Type", "text/html");
             response.end(transFormedHtml);
             return;
-          } else if (url.pathname.startsWith("/@vegas/")) {
-            // response at requested by GAS client
-            const functionName = url.pathname.replace("/@vegas/", "");
-
-            const args = await new Promise<any[]>((resolve) => {
-              let body = "";
-              request.on("data", (chunk) => {
-                body += chunk;
-              });
-              request.on("end", () => {
-                try {
-                  resolve(JSON.parse(body));
-                } catch {
-                  resolve([]);
-                }
-              });
-            });
-
-            // call mock function
-            const context = vm.createContext(rawContext);
-            try {
-              const targetFunc = context[functionName];
-              if (typeof targetFunc !== "function") {
-                throw new Error(`Function ${functionName} not found in mock server module.`);
-              }
-
-              const result = await targetFunc(...args);
-
-              response.statusCode = 200;
-              response.setHeader("Content-Type", "application/json");
-              response.end(JSON.stringify(result ?? null));
-              return;
-            } catch (error: any) {
-              response.statusCode = 500;
-              response.setHeader("Content-Type", "text/plain");
-              response.end(error.message);
-              return;
-            }
           }
         }
         next();
       });
-    },
-
-    resolveId(source, _importer, _options) {
-      if (source === VIRTUAL_ID) {
-        return `\0${VIRTUAL_ID}`;
-      }
-    },
-
-    load(id, _options) {
-      if (id === `\0${VIRTUAL_ID}`) {
-        return `export * from "${projectEntry.serverEntry}";`;
-      }
     },
   };
 }

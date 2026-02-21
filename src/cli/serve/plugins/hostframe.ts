@@ -1,5 +1,6 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join, parse } from "node:path";
+import vm from "node:vm";
 
 import { defaultTreeAdapter, html, serialize } from "parse5";
 import { build, Plugin } from "vite";
@@ -160,6 +161,32 @@ export function hostFrame(config: ResolvedUserConfig, projectEntry: ProjectEntry
       globalThis["HtmlService"] = new GASHtmlService(cacheDir);
       context.module = await server.ssrLoadModule(VIRTUAL_ID);
 
+      server.ws.on("vegas:gascall", async (data, client) => {
+        const rawContext: Record<string, any> = {};
+        Object.entries(context.module).map(([key, value]) => {
+          rawContext[key] = value;
+        });
+        const ctx = vm.createContext(rawContext);
+        try {
+          const targetFunc = ctx[data.func];
+          if (typeof targetFunc !== "function") {
+            throw new Error(`Function ${data.payload.func} not found in mock server module.`);
+          }
+          const result = await targetFunc(...JSON.parse(data.args));
+          client.send("vegas:gasreturn", {
+            id: data.id,
+            status: "ok",
+            result: JSON.stringify(result),
+          });
+        } catch (error) {
+          client.send("vegas:gasreturn", {
+            id: data.id,
+            status: "err",
+            message: (error as any).message,
+          });
+        }
+      });
+
       server.middlewares.use(async (request, response, next) => {
         if (request.url) {
           const scheme = server.config.server.https ? "https" : "http";
@@ -212,7 +239,9 @@ export function hostFrame(config: ResolvedUserConfig, projectEntry: ProjectEntry
             ]);
             defaultTreeAdapter.appendChild(bodyTag, iframeTag);
 
-            const scriptEntryTag = defaultTreeAdapter.createElement("script", html.NS.HTML, []);
+            const scriptEntryTag = defaultTreeAdapter.createElement("script", html.NS.HTML, [
+              { name: "type", value: "module" },
+            ]);
             const initRecord: Record<string, any> = {};
             initRecord["functionNames"] = ["getName"];
             initRecord["sandboxHost"] =
@@ -221,7 +250,16 @@ export function hostFrame(config: ResolvedUserConfig, projectEntry: ProjectEntry
             initRecord["userHtml"] = context.module["doGet"]().getContent();
             defaultTreeAdapter.insertText(
               scriptEntryTag,
-              `document.getElementById("sandboxFrame").onload = (event) => event.currentTarget.contentWindow.postMessage(JSON.parse(decodeURIComponent("${encodeURIComponent(JSON.stringify(initRecord))}")), "${contentBaseUrl}");`,
+              `if (import.meta.hot) {
+  import.meta.hot.on("vegas:gasreturn", (data) => {
+    document.getElementById("sandboxFrame").contentWindow.postMessage({ type: "vegas:gasreturn", payload: data }, "${contentBaseUrl}");
+  });
+  window.addEventListener("message", (event) => {
+    if (event.origin !== "${contentBaseUrl}") return;
+    if (event.data.type === "vegas:gascall") import.meta.hot.send(event.data.type, event.data.payload);
+  });
+}
+document.getElementById("sandboxFrame").onload = (event) => event.currentTarget.contentWindow.postMessage({ type: "vegas:gasinit", payload: JSON.parse(decodeURIComponent("${encodeURIComponent(JSON.stringify(initRecord))}"))}, "${contentBaseUrl}");`,
             );
             defaultTreeAdapter.appendChild(bodyTag, scriptEntryTag);
 
@@ -229,9 +267,10 @@ export function hostFrame(config: ResolvedUserConfig, projectEntry: ProjectEntry
             defaultTreeAdapter.appendChild(htmlTag, bodyTag);
             defaultTreeAdapter.appendChild(document, htmlTag);
 
+            const transFormedHtml = await server.transformIndexHtml(url.href, serialize(document));
             response.statusCode = 200;
             response.setHeader("Content-Type", "text/html");
-            response.end(serialize(document));
+            response.end(transFormedHtml);
             return;
           }
         }
