@@ -53,24 +53,14 @@ export function userContentFrame(hostServer: ViteDevServer): Plugin {
               "html, body, iframe {border: 0; display: block; height: 100%; margin: 0; padding: 0; width: 100%;}iframe#userHtmlFrame {overflow-y: scroll; -webkit-overflow-scrolling: touch;}",
             );
             defaultTreeAdapter.appendChild(headTag, styleTag);
-            const scriptVegasModuleTag = defaultTreeAdapter.createElement("script", html.NS.HTML, [
-              { name: "type", value: "module" },
-            ]);
+            const scriptVegasModuleTag = defaultTreeAdapter.createElement(
+              "script",
+              html.NS.HTML,
+              [],
+            );
             defaultTreeAdapter.insertText(
               scriptVegasModuleTag,
-              `if (import.meta.hot) {
-  import.meta.hot.on("vegas:initvegasrun", (data) => {
-    const oldScript = document.getElementById("vegasrun");
-    if (oldScript) {
-      document.head.removeChild(oldScript);
-    }
-    const newScript = document.createElement("script");
-    newScript.id = "vegasrun";
-    newScript.textContent = data.script;
-    document.head.appendChild(newScript);
-  });
-}
-window.vegas = {
+              `window.vegas = {
   requestMap: new Map(),
 };
 window.addEventListener("message", (event) => {
@@ -78,41 +68,43 @@ window.addEventListener("message", (event) => {
     const iframe = document.getElementById("userHtmlFrame");
     iframe.contentWindow.document.open();
     iframe.contentWindow.document.write(event.data.payload.userHtml);
-    iframe.contentWindow.google = {
-      script: {
-        run: {
-          __proto__: new Proxy({
-            withSuccessHandler: (callback) => {},
-            withFailureHandler: (callback) => {},
-          }, {
-            get: (target, property, receiver) => {
-              if (property === "withSuccessHandler") {
-                return (callback) => {
-                  return {
-                    successHandler: callback,
-                    __proto__: receiver,
+    if (!iframe.contentWindow.google) {
+      iframe.contentWindow.google = {
+        script: {
+          run: {
+            __proto__: new Proxy({
+              withSuccessHandler: (callback) => {},
+              withFailureHandler: (callback) => {},
+            }, {
+              get: (target, property, receiver) => {
+                if (property === "withSuccessHandler") {
+                  return (callback) => {
+                    return {
+                      successHandler: callback,
+                      __proto__: receiver,
+                    };
                   };
-                };
-              } else if (property === "withFailureHandler") {
-                return (callback) => {
-                  return {
-                    failureHandler: callback,
-                    __proto__: receiver,
+                } else if (property === "withFailureHandler") {
+                  return (callback) => {
+                    return {
+                      failureHandler: callback,
+                      __proto__: receiver,
+                    };
                   };
-                };
-              } else {
-                return (...args) => {
-                  let requestId = 0;
-                  do { requestId = Math.floor(Math.random() * 99999); } while (window.vegas.requestMap.has(requestId));
-                  window.vegas.requestMap.set(requestId, receiver);
-                  window.parent.postMessage({ type: "vegas:gascall", payload: { id: requestId, func: property, args: JSON.stringify(args) }}, "${hostBaseUrl}");
-                };
-              }
-            },
-          }),
+                } else {
+                  return (...args) => {
+                    let requestId = 0;
+                    do { requestId = Math.floor(Math.random() * 99999); } while (window.vegas.requestMap.has(requestId));
+                    window.vegas.requestMap.set(requestId, receiver);
+                    window.parent.postMessage({ type: "vegas:gascall", payload: { id: requestId, func: property, args: JSON.stringify(args) }}, "${hostBaseUrl}");
+                  };
+                }
+              },
+            }),
+          },
         },
-      },
-    };
+      };
+    }
     iframe.contentWindow.document.close();
   } else if (event.data.type === "vegas:gasreturn") {
     const iframe = document.getElementById("userHtmlFrame");
