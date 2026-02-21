@@ -3,7 +3,8 @@ import { join, parse } from "node:path";
 import vm from "node:vm";
 
 import { defaultTreeAdapter, html, serialize } from "parse5";
-import { build, Plugin } from "vite";
+import { build as buildWithRolldown } from "rolldown";
+import { build as buildWithVite, Plugin } from "vite";
 
 import { ProjectEntry } from "../../analyze";
 import { virtualHTML } from "../../build/plugins/virtualhtml";
@@ -32,6 +33,7 @@ class GASHtmlService implements GoogleAppsScript.HTML.HtmlService {
     }
 
     class GASHtmlOutput implements GoogleAppsScript.HTML.HtmlOutput {
+      #title: string = "";
       #content: string = "";
 
       addMetaTag(_name: string, _content: string): GoogleAppsScript.HTML.HtmlOutput {
@@ -68,7 +70,7 @@ class GASHtmlService implements GoogleAppsScript.HTML.HtmlService {
         throw new Error("Method not implemented.");
       }
       getTitle(): string {
-        throw new Error("Method not implemented.");
+        return this.#title;
       }
       getWidth(): GoogleAppsScript.Integer {
         throw new Error("Method not implemented.");
@@ -86,8 +88,9 @@ class GASHtmlService implements GoogleAppsScript.HTML.HtmlService {
       setSandboxMode(_mode: GoogleAppsScript.HTML.SandboxMode): GoogleAppsScript.HTML.HtmlOutput {
         throw new Error("Method not implemented.");
       }
-      setTitle(_title: string): GoogleAppsScript.HTML.HtmlOutput {
-        throw new Error("Method not implemented.");
+      setTitle(title: string): GoogleAppsScript.HTML.HtmlOutput {
+        this.#title = title;
+        return this;
       }
       setWidth(_width: GoogleAppsScript.Integer): GoogleAppsScript.HTML.HtmlOutput {
         throw new Error("Method not implemented.");
@@ -123,24 +126,26 @@ class GASHtmlService implements GoogleAppsScript.HTML.HtmlService {
 
 export function hostFrame(config: ResolvedUserConfig, projectEntry: ProjectEntry): Plugin {
   const VIRTUAL_ID: string = "virtual:hostFrame";
-  const context: any = {};
 
   return {
     name: "vite-plugin-hostframe",
 
     async handleHotUpdate(ctx) {
       if (ctx.file.startsWith(config.serverDir)) {
-        context.module = await ctx.server.ssrLoadModule(VIRTUAL_ID);
+        const mod = ctx.server.moduleGraph.getModuleById(`\0${VIRTUAL_ID}`);
+        if (mod) {
+          ctx.server.moduleGraph.invalidateModule(mod);
+        }
         return [];
       }
     },
 
     async configureServer(server) {
       const cacheDir = join(server.config.cacheDir, "build");
-      await Promise.all(
+      await Promise.all([
         projectEntry.webEntries.map((webEntry) => {
           // oxlint-disable-next-line no-floating-promises
-          build({
+          buildWithVite({
             root: config.root,
             configFile: false,
             plugins: [
@@ -157,18 +162,28 @@ export function hostFrame(config: ResolvedUserConfig, projectEntry: ProjectEntry
             logLevel: "silent",
           });
         }),
-      );
-      globalThis["HtmlService"] = new GASHtmlService(cacheDir);
-      context.module = await server.ssrLoadModule(VIRTUAL_ID);
+        buildWithRolldown({
+          cwd: config.root,
+          input: projectEntry.serverEntry,
+          output: {
+            format: "iife",
+            name: "GASApp",
+            exports: "named",
+            dir: cacheDir,
+          },
+        }),
+      ]);
 
       server.ws.on("vegas:gascall", async (data, client) => {
-        const rawContext: Record<string, any> = {};
-        Object.entries(context.module).map(([key, value]) => {
-          rawContext[key] = value;
-        });
-        const ctx = vm.createContext(rawContext);
         try {
-          const targetFunc = ctx[data.func];
+          const script = new vm.Script(
+            readFileSync(join(cacheDir, "Code.js"), { encoding: "utf8" }),
+          );
+          const scriptContext = vm.createContext({
+            HtmlService: new GASHtmlService(cacheDir),
+          });
+          script.runInContext(scriptContext);
+          const targetFunc = scriptContext.GASApp[data.func];
           if (typeof targetFunc !== "function") {
             throw new Error(`Function ${data.payload.func} not found in mock server module.`);
           }
@@ -210,10 +225,26 @@ export function hostFrame(config: ResolvedUserConfig, projectEntry: ProjectEntry
             return;
           } else if (/^\/(exec|dev)/.test(url.pathname)) {
             // response iframe
+            const script = new vm.Script(
+              readFileSync(join(cacheDir, "Code.js"), { encoding: "utf8" }),
+            );
+            const scriptContext = vm.createContext({
+              HtmlService: new GASHtmlService(cacheDir),
+            });
+            script.runInContext(scriptContext);
+            const htmlOutput = scriptContext.GASApp["doGet"]();
+
             const document = defaultTreeAdapter.createDocument();
             defaultTreeAdapter.setDocumentType(document, "html", "", "");
             const htmlTag = defaultTreeAdapter.createElement("html", html.NS.HTML, []);
             const headTag = defaultTreeAdapter.createElement("head", html.NS.HTML, []);
+
+            const htmlOutputTitle = htmlOutput.getTitle();
+            if (htmlOutputTitle) {
+              const title = defaultTreeAdapter.createElement("title", html.NS.HTML, []);
+              defaultTreeAdapter.insertText(title, htmlOutputTitle);
+              defaultTreeAdapter.appendChild(headTag, title);
+            }
 
             const styleTag = defaultTreeAdapter.createElement("style", html.NS.HTML, []);
             defaultTreeAdapter.insertText(
@@ -244,10 +275,7 @@ export function hostFrame(config: ResolvedUserConfig, projectEntry: ProjectEntry
             ]);
             const initRecord: Record<string, any> = {};
             initRecord["functionNames"] = ["getName"];
-            initRecord["sandboxHost"] =
-              "https://n-fsh3x2pqq3gx6tou3rizqs5bu4mmjkamlunsm3i-0lu-script.googleusercontent.com";
-
-            initRecord["userHtml"] = context.module["doGet"]().getContent();
+            initRecord["userHtml"] = htmlOutput.getContent();
             defaultTreeAdapter.insertText(
               scriptEntryTag,
               `if (import.meta.hot) {
