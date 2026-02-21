@@ -34,6 +34,7 @@ class GASHtmlService implements GoogleAppsScript.HTML.HtmlService {
 
     class GASHtmlOutput implements GoogleAppsScript.HTML.HtmlOutput {
       #title: string = "";
+      #faviconUrl: string = "";
       #content: string = "";
 
       addMetaTag(_name: string, _content: string): GoogleAppsScript.HTML.HtmlOutput {
@@ -61,7 +62,7 @@ class GASHtmlService implements GoogleAppsScript.HTML.HtmlService {
         return this.#content;
       }
       getFaviconUrl(): string {
-        throw new Error("Method not implemented.");
+        return this.#faviconUrl;
       }
       getHeight(): GoogleAppsScript.Integer {
         throw new Error("Method not implemented.");
@@ -79,8 +80,9 @@ class GASHtmlService implements GoogleAppsScript.HTML.HtmlService {
         this.#content = content;
         return this;
       }
-      setFaviconUrl(_iconUrl: string): GoogleAppsScript.HTML.HtmlOutput {
-        throw new Error("Method not implemented.");
+      setFaviconUrl(iconUrl: string): GoogleAppsScript.HTML.HtmlOutput {
+        this.#faviconUrl = iconUrl;
+        return this;
       }
       setHeight(_height: GoogleAppsScript.Integer): GoogleAppsScript.HTML.HtmlOutput {
         throw new Error("Method not implemented.");
@@ -232,7 +234,7 @@ export function hostFrame(config: ResolvedUserConfig, projectEntry: ProjectEntry
               HtmlService: new GASHtmlService(cacheDir),
             });
             script.runInContext(scriptContext);
-            const htmlOutput = scriptContext.GASApp["doGet"]();
+            const htmlOutput: GoogleAppsScript.HTML.HtmlOutput = scriptContext.GASApp["doGet"]();
 
             const document = defaultTreeAdapter.createDocument();
             defaultTreeAdapter.setDocumentType(document, "html", "", "");
@@ -243,6 +245,16 @@ export function hostFrame(config: ResolvedUserConfig, projectEntry: ProjectEntry
             if (htmlOutputTitle) {
               const title = defaultTreeAdapter.createElement("title", html.NS.HTML, []);
               defaultTreeAdapter.insertText(title, htmlOutputTitle);
+              defaultTreeAdapter.appendChild(headTag, title);
+            }
+
+            const htmlOutputFaviconUrl = htmlOutput.getFaviconUrl();
+            if (htmlOutputFaviconUrl) {
+              const title = defaultTreeAdapter.createElement("link", html.NS.HTML, [
+                { name: "rel", value: "shortcut icon" },
+                { name: "type", value: "image/png" },
+                { name: "href", value: htmlOutputFaviconUrl },
+              ]);
               defaultTreeAdapter.appendChild(headTag, title);
             }
 
