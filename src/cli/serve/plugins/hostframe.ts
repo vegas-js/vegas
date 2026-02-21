@@ -1,20 +1,20 @@
-import { existsSync, readFileSync } from "node:fs";
-import { join, parse } from "node:path";
+import { parse } from "node:path";
 import vm from "node:vm";
 
 import { defaultTreeAdapter, html, serialize } from "parse5";
-import { build as buildWithRolldown } from "rolldown";
-import { build as buildWithVite, Plugin } from "vite";
+import { build as buildWithRolldownApi, OutputChunk, RolldownOutput } from "rolldown";
+import { build as buildWithViteApi, Plugin } from "vite";
 
 import { ProjectEntry } from "../../analyze";
+import { exportBridge } from "../../build/plugins/exportbridge";
 import { virtualHTML } from "../../build/plugins/virtualhtml";
 import { ResolvedUserConfig } from "../../config";
 
 class GASHtmlService implements GoogleAppsScript.HTML.HtmlService {
-  #cacheDir: string;
+  #webCodeMap: Map<string, string>;
 
-  constructor(cacheDir: string) {
-    this.#cacheDir = cacheDir;
+  constructor(webCodeMap: Map<string, string>) {
+    this.#webCodeMap = webCodeMap;
   }
 
   SandboxMode = {
@@ -107,13 +107,13 @@ class GASHtmlService implements GoogleAppsScript.HTML.HtmlService {
     return output.setContent(html);
   }
   createHtmlOutputFromFile(filename: string): GoogleAppsScript.HTML.HtmlOutput {
-    const parsedPath = parse(filename);
-    const outputPath = join(this.#cacheDir, `${parsedPath.name}.html`);
-    if (!existsSync(outputPath)) {
+    const filePath = `${parse(filename).name}.html`;
+    const html = this.#webCodeMap.get(filePath);
+    if (!html) {
       throw new Error(`No HTML file named ${filename} was found.`);
     }
 
-    return this.createHtmlOutput(readFileSync(outputPath, { encoding: "utf8" }));
+    return this.createHtmlOutput(html);
   }
   createTemplate(_html: unknown): GoogleAppsScript.HTML.HtmlTemplate {
     throw new Error("Method not implemented.");
@@ -126,65 +126,71 @@ class GASHtmlService implements GoogleAppsScript.HTML.HtmlService {
   }
 }
 
+function buildWithVite(config: ResolvedUserConfig, webEntry: string) {
+  return buildWithViteApi({
+    root: config.root,
+    configFile: false,
+    plugins: [...config.plugins, virtualHTML({ webDir: config.webDir, webEntry: webEntry })],
+    build: {
+      rolldownOptions: {
+        input: webEntry,
+      },
+      outDir: config.output.dir,
+      write: false,
+    },
+    logLevel: "silent",
+  });
+}
+
+function buildWithRolldown(config: ResolvedUserConfig, serverEntry: string) {
+  return buildWithRolldownApi({
+    cwd: config.root,
+    input: serverEntry,
+    plugins: [exportBridge(serverEntry)],
+    output: {
+      format: "iife",
+      name: "GASApp",
+      exports: "named",
+    },
+    write: false,
+  });
+}
+
 export function hostFrame(config: ResolvedUserConfig, projectEntry: ProjectEntry): Plugin {
-  const VIRTUAL_ID: string = "virtual:hostFrame";
+  const userCodes = { web: new Map<string, string>(), server: new vm.Script("") };
 
   return {
     name: "vite-plugin-hostframe",
 
     async handleHotUpdate(ctx) {
       if (ctx.file.startsWith(config.serverDir)) {
-        const mod = ctx.server.moduleGraph.getModuleById(`\0${VIRTUAL_ID}`);
-        if (mod) {
-          ctx.server.moduleGraph.invalidateModule(mod);
-        }
         return [];
       }
     },
 
     async configureServer(server) {
-      const cacheDir = join(server.config.cacheDir, "build");
-      await Promise.all([
-        projectEntry.webEntries.map((webEntry) => {
-          // oxlint-disable-next-line no-floating-promises
-          buildWithVite({
-            root: config.root,
-            configFile: false,
-            plugins: [
-              ...config.plugins,
-              virtualHTML({ webDir: config.webDir, webEntry: webEntry }),
-            ],
-            build: {
-              rolldownOptions: {
-                input: webEntry,
-              },
-              outDir: cacheDir,
-              emptyOutDir: false,
-            },
-            logLevel: "silent",
-          });
-        }),
-        buildWithRolldown({
-          cwd: config.root,
-          input: projectEntry.serverEntry,
-          output: {
-            format: "iife",
-            name: "GASApp",
-            exports: "named",
-            dir: cacheDir,
-          },
-        }),
-      ]);
+      const frontResult = await Promise.all(
+        projectEntry.webEntries.map((webEntry) => buildWithVite(config, webEntry)),
+      );
+      frontResult.flat().forEach((result) => {
+        (result as RolldownOutput).output.flat().forEach((out) => {
+          if (out.type === "asset") {
+            userCodes.web.set(out.fileName, Buffer.from(out.source).toString("utf8"));
+          }
+        });
+      });
+      const serverResult = await buildWithRolldown(config, projectEntry.serverEntry);
+      const serverOutput = serverResult.output.flat()[0] as OutputChunk;
+      userCodes.server = new vm.Script(serverOutput.code);
+
+      server.watcher.add([config.webDir, config.serverDir]);
 
       server.ws.on("vegas:gascall", async (data, client) => {
         try {
-          const script = new vm.Script(
-            readFileSync(join(cacheDir, "Code.js"), { encoding: "utf8" }),
-          );
           const scriptContext = vm.createContext({
-            HtmlService: new GASHtmlService(cacheDir),
+            HtmlService: new GASHtmlService(userCodes.web),
           });
-          script.runInContext(scriptContext);
+          userCodes.server.runInContext(scriptContext);
           const targetFunc = scriptContext.GASApp[data.func];
           if (typeof targetFunc !== "function") {
             throw new Error(`Function ${data.payload.func} not found in mock server module.`);
@@ -227,13 +233,10 @@ export function hostFrame(config: ResolvedUserConfig, projectEntry: ProjectEntry
             return;
           } else if (/^\/(exec|dev)/.test(url.pathname)) {
             // response iframe
-            const script = new vm.Script(
-              readFileSync(join(cacheDir, "Code.js"), { encoding: "utf8" }),
-            );
             const scriptContext = vm.createContext({
-              HtmlService: new GASHtmlService(cacheDir),
+              HtmlService: new GASHtmlService(userCodes.web),
             });
-            script.runInContext(scriptContext);
+            userCodes.server.runInContext(scriptContext);
             const htmlOutput: GoogleAppsScript.HTML.HtmlOutput = scriptContext.GASApp["doGet"]();
 
             const document = defaultTreeAdapter.createDocument();
@@ -316,18 +319,6 @@ document.getElementById("sandboxFrame").onload = (event) => event.currentTarget.
         }
         next();
       });
-    },
-
-    resolveId(source, _importer, _options) {
-      if (source === VIRTUAL_ID) {
-        return `\0${VIRTUAL_ID}`;
-      }
-    },
-
-    load(id, _options) {
-      if (id === `\0${VIRTUAL_ID}`) {
-        return `export * from "${projectEntry.serverEntry}";`;
-      }
     },
   };
 }
