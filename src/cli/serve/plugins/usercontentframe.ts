@@ -20,15 +20,13 @@ export function userContentFrame(): Plugin {
           const port = server.config.server.port;
           const baseUrl = `${scheme}://${host}:${port}`;
           const url = new URL(request.url, baseUrl);
-          if (url.pathname === "/userCodeAppPanel") {
-            // if (request.headers["sec-fetch-dest"] !== "iframe") {
-            //   const blankHtml = `<!DOCTYPE html><html><head><meta http-equiv="X-UA-Compatible" content="IE=edge"></head><body></body></html>\n`;
-
-            //   response.statusCode = 200;
-            //   response.setHeader("Content-Type", "text/html");
-            //   response.end(blankHtml);
-            //   return;
-            // }
+          if (url.pathname === "/blank") {
+            const blankHtml = `<!DOCTYPE html><html><head><meta http-equiv="X-UA-Compatible" content="IE=edge"></head><body></body></html>\n`;
+            response.statusCode = 200;
+            response.setHeader("Content-Type", "text/html");
+            response.end(blankHtml);
+            return;
+          } else if (url.pathname === "/userCodeAppPanel") {
             const document = defaultTreeAdapter.createDocument();
             defaultTreeAdapter.setDocumentType(document, "html", "", "");
             const htmlTag = defaultTreeAdapter.createElement("html", html.NS.HTML, []);
@@ -116,6 +114,7 @@ window.addEventListener("message", (event) => {
                 value:
                   "accelerometer *; ambient-light-sensor *; autoplay *; camera *; clipboard-read *; clipboard-write *; encrypted-media *; fullscreen *; geolocation *; gyroscope *; local-network-access *; magnetometer *; microphone *; midi *; payment *; picture-in-picture *; screen-wake-lock *; speaker *; sync-xhr *; usb *; vibrate *; vr *; web-share *",
               },
+              { name: "src", value: "/blank" },
             ]);
 
             defaultTreeAdapter.appendChild(bodyTag, iframeTag);

@@ -157,13 +157,41 @@ function buildWithRolldown(config: ResolvedUserConfig, serverEntry: string) {
 }
 
 export function hostFrame(config: ResolvedUserConfig, projectEntry: ProjectEntry): Plugin {
-  const userCodes = { web: new Map<string, string>(), server: new vm.Script("") };
+  const userCodes = {
+    web: { hrefs: [] as string[], map: new Map<string, string>() },
+    server: new vm.Script(""),
+  };
 
   return {
     name: "vite-plugin-hostframe",
 
     async handleHotUpdate(ctx) {
-      if (ctx.file.startsWith(config.serverDir)) {
+      if (ctx.file.startsWith(config.webDir)) {
+        const frontResult = await Promise.all(
+          projectEntry.webEntries.map((webEntry) => buildWithVite(config, webEntry)),
+        );
+        const newWeb = new Map<string, string>();
+        frontResult.flat().forEach((result) => {
+          (result as RolldownOutput).output.flat().forEach((out) => {
+            if (out.type === "asset") {
+              newWeb.set(out.fileName, Buffer.from(out.source).toString("utf8"));
+            }
+          });
+        });
+        userCodes.web.map = newWeb;
+        ctx.server.moduleGraph.invalidateAll();
+        for (const href of userCodes.web.hrefs) {
+          const mod = await ctx.server.moduleGraph.getModuleByUrl(href);
+          if (mod) {
+            ctx.server.moduleGraph.invalidateModule(mod);
+          }
+        }
+        ctx.server.ws.send({ type: "full-reload" });
+        return [];
+      } else if (ctx.file.startsWith(config.serverDir)) {
+        const serverResult = await buildWithRolldown(config, projectEntry.serverEntry);
+        const serverOutput = serverResult.output.flat()[0] as OutputChunk;
+        userCodes.server = new vm.Script(serverOutput.code);
         return [];
       }
     },
@@ -172,13 +200,15 @@ export function hostFrame(config: ResolvedUserConfig, projectEntry: ProjectEntry
       const frontResult = await Promise.all(
         projectEntry.webEntries.map((webEntry) => buildWithVite(config, webEntry)),
       );
+      const newMap = new Map<string, string>();
       frontResult.flat().forEach((result) => {
         (result as RolldownOutput).output.flat().forEach((out) => {
           if (out.type === "asset") {
-            userCodes.web.set(out.fileName, Buffer.from(out.source).toString("utf8"));
+            newMap.set(out.fileName, Buffer.from(out.source).toString("utf8"));
           }
         });
       });
+      userCodes.web.map = newMap;
       const serverResult = await buildWithRolldown(config, projectEntry.serverEntry);
       const serverOutput = serverResult.output.flat()[0] as OutputChunk;
       userCodes.server = new vm.Script(serverOutput.code);
@@ -188,7 +218,7 @@ export function hostFrame(config: ResolvedUserConfig, projectEntry: ProjectEntry
       server.ws.on("vegas:gascall", async (data, client) => {
         try {
           const scriptContext = vm.createContext({
-            HtmlService: new GASHtmlService(userCodes.web),
+            HtmlService: new GASHtmlService(userCodes.web.map),
           });
           userCodes.server.runInContext(scriptContext);
           const targetFunc = scriptContext.GASApp[data.func];
@@ -233,8 +263,11 @@ export function hostFrame(config: ResolvedUserConfig, projectEntry: ProjectEntry
             return;
           } else if (/^\/(exec|dev)/.test(url.pathname)) {
             // response iframe
+            if (!userCodes.web.hrefs.includes(url.href)) {
+              userCodes.web.hrefs.push(url.href);
+            }
             const scriptContext = vm.createContext({
-              HtmlService: new GASHtmlService(userCodes.web),
+              HtmlService: new GASHtmlService(userCodes.web.map),
             });
             userCodes.server.runInContext(scriptContext);
             const htmlOutput: GoogleAppsScript.HTML.HtmlOutput = scriptContext.GASApp["doGet"]();
@@ -289,7 +322,6 @@ export function hostFrame(config: ResolvedUserConfig, projectEntry: ProjectEntry
               { name: "type", value: "module" },
             ]);
             const initRecord: Record<string, any> = {};
-            initRecord["functionNames"] = ["getName"];
             initRecord["userHtml"] = htmlOutput.getContent();
             defaultTreeAdapter.insertText(
               scriptEntryTag,
