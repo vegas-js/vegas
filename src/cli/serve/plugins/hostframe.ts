@@ -1,4 +1,3 @@
-import { parse } from "node:path";
 import vm from "node:vm";
 
 import { defaultTreeAdapter, html, serialize } from "parse5";
@@ -9,158 +8,75 @@ import { ProjectEntry } from "../../analyze";
 import { exportBridge } from "../../build/plugins/exportbridge";
 import { virtualHTML } from "../../build/plugins/virtualhtml";
 import { ResolvedUserConfig } from "../../config";
+import { GASHtmlService } from "./htmlservice";
 
-// https://developers.google.com/apps-script/reference/html/html-output-meta-tag
-class GASHtmlOutputMetaTag implements GoogleAppsScript.HTML.HtmlOutputMetaTag {
-  readonly #name: string;
-  readonly #content: string;
+// https://developers.google.com/apps-script/reference/properties/properties
+class GASProperties implements GoogleAppsScript.Properties.Properties {
+  #properties: Record<string, string>;
 
-  constructor(name: string, content: string) {
-    this.#name = name;
-    this.#content = content;
+  constructor() {
+    this.#properties = {};
   }
 
-  getContent(): string {
-    return this.#content;
+  deleteAllProperties(): GoogleAppsScript.Properties.Properties {
+    this.#properties = {};
+    return this;
   }
-  getName(): string {
-    return this.#name;
+  deleteProperty(key: string): GoogleAppsScript.Properties.Properties {
+    delete this.#properties[key];
+    return this;
+  }
+  getKeys(): string[] {
+    return Object.keys(this.#properties);
+  }
+  getProperties(): { [key: string]: string } {
+    return this.#properties;
+  }
+  getProperty(key: string): string | null {
+    return this.#properties[key];
+  }
+  setProperties(
+    properties: object,
+    deleteAllOthers?: boolean,
+  ): GoogleAppsScript.Properties.Properties {
+    if (deleteAllOthers) {
+      this.#properties = {};
+    }
+    Object.entries(properties).forEach(([key, value]) => {
+      this.#properties[key] = value;
+    });
+    return this;
+  }
+  setProperty(key: string, value: string): GoogleAppsScript.Properties.Properties {
+    this.#properties[key] = value;
+    return this;
   }
 }
 
-// https://developers.google.com/apps-script/reference/html/html-output
-class GASHtmlOutput implements GoogleAppsScript.HTML.HtmlOutput {
-  #title: string = "";
-  #faviconUrl: string = "";
-  #content: string = "";
-  readonly #metaTags: GASHtmlOutputMetaTag[] = [];
-  readonly #allowedMetaTags: readonly string[] = [
-    "apple-mobile-web-app-capable",
-    "google-site-verification",
-    "mobile-web-app-capable",
-    "viewport",
-  ];
+// https://developers.google.com/apps-script/reference/properties/properties-service
+class GASPropertiesService implements GoogleAppsScript.Properties.PropertiesService {
+  #documentProperties: GASProperties;
+  #scriptProperties: GASProperties;
+  #userProperties: GASProperties;
 
-  addMetaTag(name: string, content: string): GoogleAppsScript.HTML.HtmlOutput {
-    if (this.#allowedMetaTags.includes(name)) {
-      this.#metaTags.push(new GASHtmlOutputMetaTag(name, content));
-    }
-    return this;
-  }
-  append(addedContent: string): GoogleAppsScript.HTML.HtmlOutput {
-    this.#content += addedContent;
-    return this;
-  }
-  appendUntrusted(addedContent: string): GoogleAppsScript.HTML.HtmlOutput {
-    // TODO: Need to brush up on logic
-    return this.append(addedContent.replaceAll("<", "&lt;").replaceAll(">", "&gt;"));
-  }
-  asTemplate(): GoogleAppsScript.HTML.HtmlTemplate {
-    throw new Error("Method not implemented.");
-  }
-  clear(): GoogleAppsScript.HTML.HtmlOutput {
-    this.#content = "";
-    return this;
-  }
-  getAs(_contentType: string): GoogleAppsScript.Base.Blob {
-    throw new Error("Method not implemented.");
-  }
-  getBlob(): GoogleAppsScript.Base.Blob {
-    throw new Error("Method not implemented.");
-  }
-  getContent(): string {
-    return this.#content;
-  }
-  getFaviconUrl(): string {
-    return this.#faviconUrl;
-  }
-  getHeight(): GoogleAppsScript.Integer {
-    // If published in a web app, it always returns null.
-    return null as unknown as GoogleAppsScript.Integer;
-  }
-  getMetaTags(): GoogleAppsScript.HTML.HtmlOutputMetaTag[] {
-    return this.#metaTags;
-  }
-  getTitle(): string {
-    return this.#title;
-  }
-  getWidth(): GoogleAppsScript.Integer {
-    // If published in a web app, it always returns null.
-    return null as unknown as GoogleAppsScript.Integer;
-  }
-  setContent(content: string): GoogleAppsScript.HTML.HtmlOutput {
-    this.#content = content;
-    return this;
-  }
-  setFaviconUrl(iconUrl: string): GoogleAppsScript.HTML.HtmlOutput {
-    this.#faviconUrl = iconUrl;
-    return this;
-  }
-  setHeight(_height: GoogleAppsScript.Integer): GoogleAppsScript.HTML.HtmlOutput {
-    // Calling this method has no effect when published in a web app.
-    return this;
-  }
-  setSandboxMode(_mode: GoogleAppsScript.HTML.SandboxMode): GoogleAppsScript.HTML.HtmlOutput {
-    // Only IFRAME mode is now supported.
-    return this;
-  }
-  setTitle(title: string): GoogleAppsScript.HTML.HtmlOutput {
-    this.#title = title;
-    return this;
-  }
-  setWidth(_width: GoogleAppsScript.Integer): GoogleAppsScript.HTML.HtmlOutput {
-    // Calling this method has no effect when published in a web app.
-    return this;
-  }
-  setXFrameOptionsMode(
-    _mode: GoogleAppsScript.HTML.XFrameOptionsMode,
-  ): GoogleAppsScript.HTML.HtmlOutput {
-    throw new Error("Method not implemented.");
-  }
-}
-
-// https://developers.google.com/apps-script/reference/html/html-service
-class GASHtmlService implements GoogleAppsScript.HTML.HtmlService {
-  readonly #webCodeMap: Map<string, string>;
-
-  constructor(webCodeMap: Map<string, string>) {
-    this.#webCodeMap = webCodeMap;
+  constructor(
+    documentProperties: GASProperties,
+    scriptPropeties: GASProperties,
+    userProperties: GASProperties,
+  ) {
+    this.#documentProperties = documentProperties;
+    this.#scriptProperties = scriptPropeties;
+    this.#userProperties = userProperties;
   }
 
-  SandboxMode = {
-    EMULATED: 0,
-    IFRAME: 1,
-    NATIVE: 2,
-  };
-  XFrameOptionsMode = {
-    ALLOWALL: 0,
-    DEFAULT: 1,
-  };
-
-  createHtmlOutput(html?: unknown): GoogleAppsScript.HTML.HtmlOutput {
-    if (typeof html !== "string") {
-      throw new Error("Method not implemented.");
-    }
-    const output = new GASHtmlOutput();
-    return output.setContent(html);
+  getDocumentProperties(): GoogleAppsScript.Properties.Properties {
+    return this.#documentProperties;
   }
-  createHtmlOutputFromFile(filename: string): GoogleAppsScript.HTML.HtmlOutput {
-    const filePath = `${parse(filename).name}.html`;
-    const html = this.#webCodeMap.get(filePath);
-    if (!html) {
-      throw new Error(`No HTML file named ${filename} was found.`);
-    }
-
-    return this.createHtmlOutput(html);
+  getScriptProperties(): GoogleAppsScript.Properties.Properties {
+    return this.#scriptProperties;
   }
-  createTemplate(_html: unknown): GoogleAppsScript.HTML.HtmlTemplate {
-    throw new Error("Method not implemented.");
-  }
-  createTemplateFromFile(_filename: string): GoogleAppsScript.HTML.HtmlTemplate {
-    throw new Error("Method not implemented.");
-  }
-  getUserAgent(): string {
-    throw new Error("Method not implemented.");
+  getUserProperties(): GoogleAppsScript.Properties.Properties {
+    return this.#userProperties;
   }
 }
 
@@ -198,6 +114,11 @@ export function hostFrame(config: ResolvedUserConfig, projectEntry: ProjectEntry
   const userCodes = {
     web: { hrefs: [] as string[], map: new Map<string, string>() },
     server: new vm.Script(""),
+  };
+  const inMemoryStore = {
+    documentProperties: new GASProperties(),
+    scriptProperties: new GASProperties(),
+    userPropertiesMap: new Map<string, GASProperties>(),
   };
 
   return {
@@ -257,6 +178,11 @@ export function hostFrame(config: ResolvedUserConfig, projectEntry: ProjectEntry
         try {
           const scriptContext = vm.createContext({
             HtmlService: new GASHtmlService(userCodes.web.map),
+            PropertiesService: new GASPropertiesService(
+              inMemoryStore.documentProperties,
+              inMemoryStore.scriptProperties,
+              new GASProperties(),
+            ),
           });
           userCodes.server.runInContext(scriptContext);
           const targetFunc = scriptContext.GASApp[data.func];
@@ -304,8 +230,23 @@ export function hostFrame(config: ResolvedUserConfig, projectEntry: ProjectEntry
             if (!userCodes.web.hrefs.includes(url.href)) {
               userCodes.web.hrefs.push(url.href);
             }
+            // const cookie = request.headers.cookie;
+            // if (cookie) {
+            //   console.log(cookie);
+            // } else {
+            //   let uuid = randomUUID();
+            //   while (inMemoryStore.userPropertiesMap.has(uuid)) {
+            //     uuid = randomUUID();
+            //   }
+            //   response.setHeader("Set-Cookie", `vegasUserId=${uuid}`);
+            // }
             const scriptContext = vm.createContext({
               HtmlService: new GASHtmlService(userCodes.web.map),
+              PropertiesService: new GASPropertiesService(
+                inMemoryStore.documentProperties,
+                inMemoryStore.scriptProperties,
+                new GASProperties(),
+              ),
             });
             userCodes.server.runInContext(scriptContext);
             const htmlOutput: GoogleAppsScript.HTML.HtmlOutput = scriptContext.GASApp["doGet"]();
