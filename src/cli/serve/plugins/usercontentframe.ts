@@ -1,21 +1,7 @@
 import { defaultTreeAdapter, html, serialize } from "parse5";
-import { Plugin, ViteDevServer } from "vite";
+import { Plugin } from "vite";
 
-export function userContentFrame(hostServer: ViteDevServer): Plugin {
-  const hostBaseUrl = (() => {
-    const scheme = hostServer.config.server.https ? "https" : "http";
-    const host =
-      hostServer.config.server.host !== undefined
-        ? typeof hostServer.config.server.host === "boolean"
-          ? hostServer.config.server.host
-            ? "0.0.0.0"
-            : "localhost"
-          : hostServer.config.server.host
-        : "localhost";
-    const port = hostServer.config.server.port;
-    return `${scheme}://${host}:${port}`;
-  })();
-
+export function userContentFrame(): Plugin {
   return {
     name: "vite-plugin-usercontentframe",
 
@@ -65,9 +51,10 @@ export function userContentFrame(hostServer: ViteDevServer): Plugin {
 };
 window.addEventListener("message", (event) => {
   if (event.data.type === "vegas:gasinit") {
+    window.vegas.host = event.data.payload.host;
     const iframe = document.getElementById("userHtmlFrame");
     iframe.contentWindow.document.open();
-    iframe.contentWindow.document.write(event.data.payload.userHtml);
+    iframe.contentWindow.document.write(event.data.payload.serverData.userHtml);
     if (!iframe.contentWindow.google) {
       iframe.contentWindow.google = {
         script: {
@@ -96,7 +83,7 @@ window.addEventListener("message", (event) => {
                     let requestId = 0;
                     do { requestId = Math.floor(Math.random() * 99999); } while (window.vegas.requestMap.has(requestId));
                     window.vegas.requestMap.set(requestId, receiver);
-                    window.parent.postMessage({ type: "vegas:gascall", payload: { id: requestId, func: property, args: JSON.stringify(args) }}, "${hostBaseUrl}");
+                    window.parent.postMessage({ type: "vegas:gascall", payload: { id: requestId, func: property, args: JSON.stringify(args) }}, window.vegas.host);
                   };
                 }
               },

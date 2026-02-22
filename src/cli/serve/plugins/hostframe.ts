@@ -302,7 +302,9 @@ export function hostFrame(config: ResolvedUserConfig, projectEntry: ProjectEntry
     if (event.data.type === "vegas:gascall") import.meta.hot.send(event.data.type, event.data.payload);
   });
 }
-document.getElementById("sandboxFrame").onload = (event) => event.currentTarget.contentWindow.postMessage({ type: "vegas:gasinit", payload: JSON.parse(decodeURIComponent("${encodeURIComponent(JSON.stringify(initRecord))}"))}, "${contentBaseUrl}");`,
+document.getElementById("sandboxFrame").onload = (event) => {
+  event.currentTarget.contentWindow.postMessage({ type: "vegas:gasinit", payload: { host: window.location.origin,serverData: JSON.parse(decodeURIComponent("${encodeURIComponent(JSON.stringify(initRecord))}"))}}, "${contentBaseUrl}");
+}`,
             );
             defaultTreeAdapter.appendChild(bodyTag, scriptEntryTag);
 
