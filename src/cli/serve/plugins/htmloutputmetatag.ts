@@ -8,10 +8,10 @@ export class GASHtmlOutputMetaTag implements GoogleAppsScript.HTML.HtmlOutputMet
     this.#content = content;
   }
 
-  getContent(): string {
+  getContent = () => {
     return this.#content;
-  }
-  getName(): string {
+  };
+  getName = () => {
     return this.#name;
-  }
+  };
 }

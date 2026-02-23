@@ -20,14 +20,14 @@ export class GASHtmlService implements GoogleAppsScript.HTML.HtmlService {
     DEFAULT: 1,
   };
 
-  createHtmlOutput(html?: unknown): GoogleAppsScript.HTML.HtmlOutput {
+  createHtmlOutput = (html?: unknown) => {
     if (typeof html !== "string") {
       throw new Error("Method not implemented.");
     }
     const output = new GASHtmlOutput();
     return output.setContent(html);
-  }
-  createHtmlOutputFromFile(filename: string): GoogleAppsScript.HTML.HtmlOutput {
+  };
+  createHtmlOutputFromFile = (filename: string) => {
     const filePath = `${parse(filename).name}.html`;
     const html = this.#webCodeMap.get(filePath);
     if (!html) {
@@ -35,14 +35,14 @@ export class GASHtmlService implements GoogleAppsScript.HTML.HtmlService {
     }
 
     return this.createHtmlOutput(html);
-  }
-  createTemplate(_html: unknown): GoogleAppsScript.HTML.HtmlTemplate {
+  };
+  createTemplate = (_html: unknown) => {
     throw new Error("Method not implemented.");
-  }
-  createTemplateFromFile(_filename: string): GoogleAppsScript.HTML.HtmlTemplate {
+  };
+  createTemplateFromFile = (_filename: string) => {
     throw new Error("Method not implemented.");
-  }
-  getUserAgent(): string {
+  };
+  getUserAgent = () => {
     throw new Error("Method not implemented.");
-  }
+  };
 }

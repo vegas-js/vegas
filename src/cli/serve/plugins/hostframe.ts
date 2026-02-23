@@ -8,7 +8,9 @@ import { ProjectEntry } from "../../analyze";
 import { exportBridge } from "../../build/plugins/exportbridge";
 import { virtualHTML } from "../../build/plugins/virtualhtml";
 import { ResolvedUserConfig } from "../../config";
+import { GASConsole } from "./console";
 import { GASHtmlService } from "./htmlservice";
+import { GASLogger } from "./logger";
 
 // https://developers.google.com/apps-script/reference/properties/properties
 class GASProperties implements GoogleAppsScript.Properties.Properties {
@@ -18,27 +20,24 @@ class GASProperties implements GoogleAppsScript.Properties.Properties {
     this.#properties = {};
   }
 
-  deleteAllProperties(): GoogleAppsScript.Properties.Properties {
+  deleteAllProperties = () => {
     this.#properties = {};
     return this;
-  }
-  deleteProperty(key: string): GoogleAppsScript.Properties.Properties {
+  };
+  deleteProperty = (key: string) => {
     delete this.#properties[key];
     return this;
-  }
-  getKeys(): string[] {
+  };
+  getKeys = () => {
     return Object.keys(this.#properties);
-  }
-  getProperties(): { [key: string]: string } {
+  };
+  getProperties = () => {
     return this.#properties;
-  }
-  getProperty(key: string): string | null {
+  };
+  getProperty = (key: string) => {
     return this.#properties[key];
-  }
-  setProperties(
-    properties: object,
-    deleteAllOthers?: boolean,
-  ): GoogleAppsScript.Properties.Properties {
+  };
+  setProperties = (properties: object, deleteAllOthers?: boolean) => {
     if (deleteAllOthers) {
       this.#properties = {};
     }
@@ -46,11 +45,11 @@ class GASProperties implements GoogleAppsScript.Properties.Properties {
       this.#properties[key] = value;
     });
     return this;
-  }
-  setProperty(key: string, value: string): GoogleAppsScript.Properties.Properties {
+  };
+  setProperty = (key: string, value: string) => {
     this.#properties[key] = value;
     return this;
-  }
+  };
 }
 
 // https://developers.google.com/apps-script/reference/properties/properties-service
@@ -69,15 +68,15 @@ class GASPropertiesService implements GoogleAppsScript.Properties.PropertiesServ
     this.#userProperties = userProperties;
   }
 
-  getDocumentProperties(): GoogleAppsScript.Properties.Properties {
+  getDocumentProperties = () => {
     return this.#documentProperties;
-  }
-  getScriptProperties(): GoogleAppsScript.Properties.Properties {
+  };
+  getScriptProperties = () => {
     return this.#scriptProperties;
-  }
-  getUserProperties(): GoogleAppsScript.Properties.Properties {
+  };
+  getUserProperties = () => {
     return this.#userProperties;
-  }
+  };
 }
 
 function buildWithVite(config: ResolvedUserConfig, webEntry: string) {
@@ -183,6 +182,8 @@ export function hostFrame(config: ResolvedUserConfig, projectEntry: ProjectEntry
               inMemoryStore.scriptProperties,
               new GASProperties(),
             ),
+            Logger: new GASLogger(),
+            console: new GASConsole(),
           });
           userCodes.server.runInContext(scriptContext);
           const targetFunc = scriptContext.GASApp[data.func];
@@ -237,6 +238,8 @@ export function hostFrame(config: ResolvedUserConfig, projectEntry: ProjectEntry
                 inMemoryStore.scriptProperties,
                 new GASProperties(),
               ),
+              Logger: new GASLogger(),
+              console: new GASConsole(),
             });
             userCodes.server.runInContext(scriptContext);
             const htmlOutput: GoogleAppsScript.HTML.HtmlOutput = scriptContext.GASApp["doGet"]();

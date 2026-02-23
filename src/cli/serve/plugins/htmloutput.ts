@@ -13,80 +13,78 @@ export class GASHtmlOutput implements GoogleAppsScript.HTML.HtmlOutput {
     "viewport",
   ];
 
-  addMetaTag(name: string, content: string): GoogleAppsScript.HTML.HtmlOutput {
+  addMetaTag = (name: string, content: string) => {
     if (this.#allowedMetaTags.includes(name)) {
       this.#metaTags.push(new GASHtmlOutputMetaTag(name, content));
     }
     return this;
-  }
-  append(addedContent: string): GoogleAppsScript.HTML.HtmlOutput {
+  };
+  append = (addedContent: string) => {
     this.#content += addedContent;
     return this;
-  }
-  appendUntrusted(addedContent: string): GoogleAppsScript.HTML.HtmlOutput {
+  };
+  appendUntrusted = (addedContent: string) => {
     // TODO: Need to brush up on logic
     return this.append(addedContent.replaceAll("<", "&lt;").replaceAll(">", "&gt;"));
-  }
-  asTemplate(): GoogleAppsScript.HTML.HtmlTemplate {
+  };
+  asTemplate = () => {
     throw new Error("Method not implemented.");
-  }
-  clear(): GoogleAppsScript.HTML.HtmlOutput {
+  };
+  clear = () => {
     this.#content = "";
     return this;
-  }
-  getAs(_contentType: string): GoogleAppsScript.Base.Blob {
+  };
+  getAs = (_contentType: string) => {
     throw new Error("Method not implemented.");
-  }
-  getBlob(): GoogleAppsScript.Base.Blob {
+  };
+  getBlob = () => {
     throw new Error("Method not implemented.");
-  }
-  getContent(): string {
+  };
+  getContent = () => {
     return this.#content;
-  }
-  getFaviconUrl(): string {
+  };
+  getFaviconUrl = () => {
     return this.#faviconUrl;
-  }
-  getHeight(): GoogleAppsScript.Integer {
+  };
+  getHeight = () => {
     // If published in a web app, it always returns null.
     return null as unknown as GoogleAppsScript.Integer;
-  }
-  getMetaTags(): GoogleAppsScript.HTML.HtmlOutputMetaTag[] {
+  };
+  getMetaTags = () => {
     return this.#metaTags;
-  }
-  getTitle(): string {
+  };
+  getTitle = () => {
     return this.#title;
-  }
-  getWidth(): GoogleAppsScript.Integer {
+  };
+  getWidth = () => {
     // If published in a web app, it always returns null.
     return null as unknown as GoogleAppsScript.Integer;
-  }
-  setContent(content: string): GoogleAppsScript.HTML.HtmlOutput {
+  };
+  setContent = (content: string) => {
     this.#content = content;
     return this;
-  }
-  setFaviconUrl(iconUrl: string): GoogleAppsScript.HTML.HtmlOutput {
+  };
+  setFaviconUrl = (iconUrl: string) => {
     this.#faviconUrl = iconUrl;
     return this;
-  }
-  setHeight(_height: GoogleAppsScript.Integer): GoogleAppsScript.HTML.HtmlOutput {
+  };
+  setHeight = (_height: GoogleAppsScript.Integer) => {
     // Calling this method has no effect when published in a web app.
     return this;
-  }
-  setSandboxMode(_mode: GoogleAppsScript.HTML.SandboxMode): GoogleAppsScript.HTML.HtmlOutput {
+  };
+  setSandboxMode = (_mode: GoogleAppsScript.HTML.SandboxMode) => {
     // Only IFRAME mode is now supported.
     return this;
-  }
-  setTitle(title: string): GoogleAppsScript.HTML.HtmlOutput {
+  };
+  setTitle = (title: string) => {
     this.#title = title;
     return this;
-  }
-  setWidth(_width: GoogleAppsScript.Integer): GoogleAppsScript.HTML.HtmlOutput {
+  };
+  setWidth = (_width: GoogleAppsScript.Integer) => {
     // Calling this method has no effect when published in a web app.
     return this;
-  }
-  setXFrameOptionsMode(
-    _mode: GoogleAppsScript.HTML.XFrameOptionsMode,
-  ): GoogleAppsScript.HTML.HtmlOutput {
+  };
+  setXFrameOptionsMode = (_mode: GoogleAppsScript.HTML.XFrameOptionsMode) => {
     throw new Error("Method not implemented.");
-  }
+  };
 }
