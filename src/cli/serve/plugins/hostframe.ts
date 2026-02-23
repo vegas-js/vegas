@@ -230,16 +230,6 @@ export function hostFrame(config: ResolvedUserConfig, projectEntry: ProjectEntry
             if (!userCodes.web.hrefs.includes(url.href)) {
               userCodes.web.hrefs.push(url.href);
             }
-            // const cookie = request.headers.cookie;
-            // if (cookie) {
-            //   console.log(cookie);
-            // } else {
-            //   let uuid = randomUUID();
-            //   while (inMemoryStore.userPropertiesMap.has(uuid)) {
-            //     uuid = randomUUID();
-            //   }
-            //   response.setHeader("Set-Cookie", `vegasUserId=${uuid}`);
-            // }
             const scriptContext = vm.createContext({
               HtmlService: new GASHtmlService(userCodes.web.map),
               PropertiesService: new GASPropertiesService(
