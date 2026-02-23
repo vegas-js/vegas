@@ -10,7 +10,7 @@ function getTimestamp() {
   return [hours, minutes, seconds].join(":").padEnd(10);
 }
 
-function getLogPrefix(title: string, level: string) {
+export function getLogPrefix(title: string, level: string) {
   const paddedTitle = title.padStart(title.length + 1).padEnd(title.length + 2);
 
   const paddedTimestamp =

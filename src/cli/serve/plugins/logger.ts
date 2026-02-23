@@ -1,4 +1,6 @@
-import { styleText } from "node:util";
+import { format } from "node:util";
+
+import { getLogPrefix } from "./console";
 
 function convertNumberOutput(num: number): string {
   const min = Math.floor(num);
@@ -8,16 +10,22 @@ function convertNumberOutput(num: number): string {
 
 // https://developers.google.com/apps-script/reference/base/logger
 export class GASLogger implements GoogleAppsScript.Base.Logger {
-  readonly #logFormat = `${styleText(["black", "bgGreenBright"], " Logger (GAS) ")}  %s%s`;
+  #outputLogs: string[];
+  readonly #logTitle: string;
+
+  constructor() {
+    this.#outputLogs = [];
+    this.#logTitle = "Logger (GAS)";
+  }
+
   output(dataOrFormat: string, values: unknown[]): void {
-    const date = new Date();
-    const hours = date.getHours().toString().padStart(2, "0");
-    const minutes = date.getMinutes().toString().padStart(2, "0");
-    const seconds = date.getSeconds().toString().padStart(2, "0");
-    const timestamp = [hours, minutes, seconds].join(":").padEnd(10);
-    const paddedTimestamp = timestamp.padEnd(10);
-    const paddedLevel = "Info".padEnd(10);
-    if (values.length > 0) {
+    let outputLog = getLogPrefix(this.#logTitle, "Info");
+    if (values.length === 0) {
+      const data =
+        typeof dataOrFormat === "number" ? convertNumberOutput(dataOrFormat) : dataOrFormat;
+      outputLog += data;
+      this.#outputLogs.push(data);
+    } else {
       const outValues = [];
       for (const value of values) {
         if (!value) {
@@ -42,28 +50,20 @@ export class GASLogger implements GoogleAppsScript.Base.Logger {
         }
       }
 
-      console.log(
-        `${this.#logFormat}${dataOrFormat.replace(/[^%]?%d/, "%s")}`,
-        paddedTimestamp,
-        paddedLevel,
-        ...outValues,
-      );
-    } else {
-      const data =
-        typeof dataOrFormat === "number" ? convertNumberOutput(dataOrFormat) : dataOrFormat;
-      console.log(`${this.#logFormat}${data}`, paddedTimestamp, paddedLevel);
+      outputLog += format(dataOrFormat.replace(/[^%]?%d/, "%s"), ...outValues);
+      this.#outputLogs.push(format(dataOrFormat.replace(/[^%]?%d/, "%s"), ...outValues));
     }
+    console.log(outputLog.replace(/\n/g, `\n${"".padEnd(36)}`));
   }
 
-  clear(): void {
-    throw new Error("Method not implemented.");
-  }
-  getLog(): string {
-    throw new Error("Method not implemented.");
-  }
-  log(data: unknown): GoogleAppsScript.Base.Logger;
-  log(format: string, ...values: unknown[]): GoogleAppsScript.Base.Logger {
+  clear = () => {
+    this.#outputLogs = [];
+  };
+  getLog = () => {
+    return this.#outputLogs.join("\n");
+  };
+  log = (format: string, ...values: unknown[]) => {
     this.output(format, values);
     return this;
-  }
+  };
 }
