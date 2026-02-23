@@ -8,6 +8,7 @@ export class GASSession implements GoogleAppsScript.Base.Session {
   readonly #activeUserLocale: string;
   readonly #effectiveUser: GASUser;
   readonly #scriptTimeZone: string;
+  readonly #temporaryActiveUserKey: string;
 
   constructor(config: ResolvedUserConfig, mock: MockGASSession) {
     this.#activeUser =
@@ -17,6 +18,9 @@ export class GASSession implements GoogleAppsScript.Base.Session {
     this.#activeUserLocale = mock.activeUserLocale ?? "en";
     this.#effectiveUser = this.#activeUser;
     this.#scriptTimeZone = config.gas.timeZone!;
+    this.#temporaryActiveUserKey =
+      mock.temporaryActiveUserKey ??
+      "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
   }
 
   getActiveUser(): GoogleAppsScript.Base.User {
@@ -32,7 +36,7 @@ export class GASSession implements GoogleAppsScript.Base.Session {
     return this.#scriptTimeZone;
   }
   getTemporaryActiveUserKey(): string {
-    throw new Error("Method not implemented.");
+    return this.#temporaryActiveUserKey;
   }
   /** @deprecated DO NOT USE */
   getTimeZone(): string {
