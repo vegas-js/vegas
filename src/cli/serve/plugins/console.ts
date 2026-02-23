@@ -124,8 +124,6 @@ export class GASConsole {
       let outputLog = getLogPrefix(this.#logTitle, "Debug");
       outputLog += format("%s: %dms", label, (endTime - startTime).toFixed(0));
       console.log(outputLog);
-    } else {
-      console.debug(getLogPrefix(this.#logTitle, "Info"));
     }
   };
   warn = (formatOrObject?: object, ...values: object[]) => {
