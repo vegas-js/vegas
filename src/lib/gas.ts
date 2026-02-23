@@ -1,4 +1,4 @@
-import { excludesGASUserFunctionNames } from "../shared/gas";
+import { excludesGASUserFunctionNames, MockGASSession, MockTarget } from "../shared/gas";
 
 declare namespace google {
   namespace script {
@@ -35,4 +35,15 @@ export function createGASClient<T extends object>() {
     },
   };
   return new Proxy({}, handler) as GASFunction<T>;
+}
+
+function mockGAS<T>(target: MockTarget, mock: T): T {
+  return {
+    target,
+    ...mock,
+  };
+}
+
+export function mockSession(mock: MockGASSession): MockGASSession {
+  return mockGAS(MockTarget.Session, mock);
 }

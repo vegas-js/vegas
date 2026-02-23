@@ -46,7 +46,7 @@ export function resolveConfig(userConfig: UserConfig): ResolvedUserConfig {
   const root = resolvePath(userConfig.root);
   const webDir = resolve(join(root, userConfig.webDir ?? join("src", "web")));
   const serverDir = resolve(join(root, userConfig.serverDir ?? join("src", "server")));
-  // const gasMockDir = resolve(join(root, userConfig.webDir ?? "mock"));
+  const gasMockDir = resolve(join(root, userConfig.webDir ?? "mock"));
   const plugins = userConfig.plugins ?? [];
   const output = {
     dir: resolve(join(root, userConfig.output?.dir ?? "dist")),
@@ -63,5 +63,5 @@ export function resolveConfig(userConfig: UserConfig): ResolvedUserConfig {
     },
   };
 
-  return { root, webDir, serverDir, plugins, output, gas };
+  return { root, webDir, serverDir, gasMockDir, plugins, output, gas };
 }

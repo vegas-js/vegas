@@ -4,6 +4,7 @@ import { defaultTreeAdapter, html, serialize } from "parse5";
 import { build as buildWithRolldownApi, OutputChunk, RolldownOutput } from "rolldown";
 import { build as buildWithViteApi, Plugin } from "vite";
 
+import { MockTarget } from "../../../shared/gas";
 import { ProjectEntry } from "../../analyze";
 import { exportBridge } from "../../build/plugins/exportbridge";
 import { virtualHTML } from "../../build/plugins/virtualhtml";
@@ -11,73 +12,9 @@ import { ResolvedUserConfig } from "../../config";
 import { GASConsole } from "./console";
 import { GASHtmlService } from "./htmlservice";
 import { GASLogger } from "./logger";
-
-// https://developers.google.com/apps-script/reference/properties/properties
-class GASProperties implements GoogleAppsScript.Properties.Properties {
-  #properties: Record<string, string>;
-
-  constructor() {
-    this.#properties = {};
-  }
-
-  deleteAllProperties = () => {
-    this.#properties = {};
-    return this;
-  };
-  deleteProperty = (key: string) => {
-    delete this.#properties[key];
-    return this;
-  };
-  getKeys = () => {
-    return Object.keys(this.#properties);
-  };
-  getProperties = () => {
-    return this.#properties;
-  };
-  getProperty = (key: string) => {
-    return this.#properties[key];
-  };
-  setProperties = (properties: object, deleteAllOthers?: boolean) => {
-    if (deleteAllOthers) {
-      this.#properties = {};
-    }
-    Object.entries(properties).forEach(([key, value]) => {
-      this.#properties[key] = value;
-    });
-    return this;
-  };
-  setProperty = (key: string, value: string) => {
-    this.#properties[key] = value;
-    return this;
-  };
-}
-
-// https://developers.google.com/apps-script/reference/properties/properties-service
-class GASPropertiesService implements GoogleAppsScript.Properties.PropertiesService {
-  #documentProperties: GASProperties;
-  #scriptProperties: GASProperties;
-  #userProperties: GASProperties;
-
-  constructor(
-    documentProperties: GASProperties,
-    scriptPropeties: GASProperties,
-    userProperties: GASProperties,
-  ) {
-    this.#documentProperties = documentProperties;
-    this.#scriptProperties = scriptPropeties;
-    this.#userProperties = userProperties;
-  }
-
-  getDocumentProperties = () => {
-    return this.#documentProperties;
-  };
-  getScriptProperties = () => {
-    return this.#scriptProperties;
-  };
-  getUserProperties = () => {
-    return this.#userProperties;
-  };
-}
+import { GASProperties } from "./properties";
+import { GASPropertiesService } from "./propertiesservice";
+import { GASSession } from "./session";
 
 function buildWithVite(config: ResolvedUserConfig, webEntry: string) {
   return buildWithViteApi({
@@ -109,15 +46,20 @@ function buildWithRolldown(config: ResolvedUserConfig, serverEntry: string) {
   });
 }
 
-export function hostFrame(config: ResolvedUserConfig, projectEntry: ProjectEntry): Plugin {
+export function hostFrame(
+  config: ResolvedUserConfig,
+  projectEntry: ProjectEntry,
+  gasMockSources: string[],
+): Plugin {
   const userCodes = {
     web: { hrefs: [] as string[], map: new Map<string, string>() },
     server: new vm.Script(""),
   };
+  const mockSeed: Record<string, any> = {};
   const inMemoryStore = {
     documentProperties: new GASProperties(),
     scriptProperties: new GASProperties(),
-    userPropertiesMap: new Map<string, GASProperties>(),
+    userPropertiesMap: new GASProperties(),
   };
 
   return {
@@ -170,6 +112,18 @@ export function hostFrame(config: ResolvedUserConfig, projectEntry: ProjectEntry
       const serverResult = await buildWithRolldown(config, projectEntry.serverEntry);
       const serverOutput = serverResult.output.flat()[0] as OutputChunk;
       userCodes.server = new vm.Script(serverOutput.code);
+      for (const source of gasMockSources) {
+        const mod = await server.ssrLoadModule(source);
+        const mock = mod.default;
+
+        switch (mock.target) {
+          case MockTarget.Session: {
+            mockSeed["Session"] = mock;
+            break;
+          }
+          // TODO
+        }
+      }
 
       server.watcher.add([config.webDir, config.serverDir]);
 
@@ -184,9 +138,10 @@ export function hostFrame(config: ResolvedUserConfig, projectEntry: ProjectEntry
             ),
             Logger: new GASLogger(),
             console: new GASConsole(),
+            Session: new GASSession(config, mockSeed["Session"]),
           });
           userCodes.server.runInContext(scriptContext);
-          const targetFunc = scriptContext.GASApp[data.func];
+          const targetFunc = scriptContext[data.func];
           if (typeof targetFunc !== "function") {
             throw new Error(`Function ${data.payload.func} not found in mock server module.`);
           }
@@ -240,6 +195,7 @@ export function hostFrame(config: ResolvedUserConfig, projectEntry: ProjectEntry
               ),
               Logger: new GASLogger(),
               console: new GASConsole(),
+              Session: new GASSession(config, mockSeed["Session"]),
             });
             userCodes.server.runInContext(scriptContext);
             const htmlOutput: GoogleAppsScript.HTML.HtmlOutput = scriptContext.GASApp["doGet"]();

@@ -1,5 +1,6 @@
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join, parse, relative, resolve } from "node:path";
+
 import { parseSync } from "vite";
 
 import { ResolvedUserConfig } from "./config";
@@ -7,7 +8,7 @@ import { ResolvedUserConfig } from "./config";
 export type ProjectSource = {
   webSources: string[];
   serverSources: string[];
-  // gasMockSources: string[];
+  gasMockSources: string[];
 };
 
 function recursiveCollectFiles(dir: string, excludeDirs?: string[]) {
@@ -35,14 +36,14 @@ export function collectSources(userConfig: ResolvedUserConfig): ProjectSource {
   const serverSources = recursiveCollectFiles(userConfig.serverDir, excludeDirs).filter(
     (filePath) => /(?!\.d)\.ts$/.test(filePath),
   );
-  // const gasMockSources = recursiveCollectFiles(userConfig.gasMockDir, excludeDirs).filter(
-  //   (filePath) => [".ts"].includes(parse(filePath).ext),
-  // );
+  const gasMockSources = recursiveCollectFiles(userConfig.gasMockDir, excludeDirs).filter(
+    (filePath) => /(?!\.d)\.ts$/.test(filePath),
+  );
 
   return {
     webSources,
     serverSources,
-    // gasMockSources,
+    gasMockSources,
   };
 }
 

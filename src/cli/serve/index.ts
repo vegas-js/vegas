@@ -8,11 +8,15 @@ import { resolvePath } from "../path";
 import { hostFrame } from "./plugins/hostframe";
 import { userContentFrame } from "./plugins/usercontentframe";
 
-async function serveApp(config: ResolvedUserConfig, projectEntry: ProjectEntry) {
+async function serveApp(
+  config: ResolvedUserConfig,
+  projectEntry: ProjectEntry,
+  gasMockSources: string[],
+) {
   const hostServer = await createServer({
     root: config.root,
     configFile: false,
-    plugins: [hostFrame(config, projectEntry)],
+    plugins: [hostFrame(config, projectEntry, gasMockSources)],
     customLogger: createLogger("info", { prefix: "[vegas]" }),
     cacheDir: join(config.root, "node_modules", ".vegas-host"),
   });
@@ -39,5 +43,5 @@ export async function runServe(root?: string) {
   const projectSource = collectSources(resolvedUserConfig);
   const projectEntry = detectEntries(projectSource);
 
-  await serveApp(resolvedUserConfig, projectEntry);
+  await serveApp(resolvedUserConfig, projectEntry, projectSource.gasMockSources);
 }
