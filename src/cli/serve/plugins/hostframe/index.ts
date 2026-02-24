@@ -9,12 +9,14 @@ import { ProjectEntry } from "../../../analyze";
 import { exportBridge } from "../../../build/plugins/exportbridge";
 import { virtualHTML } from "../../../build/plugins/virtualhtml";
 import { ResolvedUserConfig } from "../../../config";
-import { GASConsole } from "./gasapi/console";
+import { GASConsole } from "./gasapi/base/console";
+import { GASLogger } from "./gasapi/base/logger";
+import { GASSession } from "./gasapi/base/session";
+import { GASCache } from "./gasapi/cache";
+import { GASCacheService } from "./gasapi/cacheservice";
 import { GASHtmlService } from "./gasapi/htmlservice";
-import { GASLogger } from "./gasapi/logger";
 import { GASProperties } from "./gasapi/properties";
 import { GASPropertiesService } from "./gasapi/propertiesservice";
-import { GASSession } from "./gasapi/session";
 
 function buildWithVite(config: ResolvedUserConfig, webEntry: string) {
   return buildWithViteApi({
@@ -60,6 +62,9 @@ export function hostFrame(
     documentProperties: new GASProperties(),
     scriptProperties: new GASProperties(),
     userProperties: new GASProperties(),
+    documentCache: new GASCache(),
+    scriptCache: new GASCache(),
+    userCache: new GASCache(),
   };
 
   return {
@@ -118,14 +123,14 @@ export function hostFrame(
 
         console.log(mock.target);
         switch (mock.target) {
-          case MockTarget.Session: {
-            mockSeed[mock.target] = mock;
-            break;
-          }
           case MockTarget.Properties: {
             inMemoryStore.documentProperties.setProperties(mock?.documentProperties ?? {});
             inMemoryStore.scriptProperties.setProperties(mock?.scriptProperties ?? {});
             inMemoryStore.userProperties.setProperties(mock?.userProperties ?? {});
+            break;
+          }
+          case MockTarget.Session: {
+            mockSeed[mock.target] = mock;
             break;
           }
           // TODO
@@ -137,14 +142,19 @@ export function hostFrame(
       server.ws.on("vegas:gascall", async (data, client) => {
         try {
           const scriptContext = vm.createContext({
+            console: new GASConsole(),
+            Logger: new GASLogger(),
             HtmlService: new GASHtmlService(userCodes.web.map),
+            CacheService: new GASCacheService(
+              inMemoryStore.documentCache,
+              inMemoryStore.scriptCache,
+              inMemoryStore.userCache,
+            ),
             PropertiesService: new GASPropertiesService(
               inMemoryStore.documentProperties,
               inMemoryStore.scriptProperties,
               inMemoryStore.userProperties,
             ),
-            Logger: new GASLogger(),
-            console: new GASConsole(),
             Session: new GASSession(config, mockSeed["Session"]),
           });
           userCodes.server.runInContext(scriptContext);
@@ -194,14 +204,19 @@ export function hostFrame(
               userCodes.web.hrefs.push(url.href);
             }
             const scriptContext = vm.createContext({
+              console: new GASConsole(),
+              Logger: new GASLogger(),
               HtmlService: new GASHtmlService(userCodes.web.map),
+              CacheService: new GASCacheService(
+                inMemoryStore.documentCache,
+                inMemoryStore.scriptCache,
+                inMemoryStore.userCache,
+              ),
               PropertiesService: new GASPropertiesService(
                 inMemoryStore.documentProperties,
                 inMemoryStore.scriptProperties,
                 inMemoryStore.userProperties,
               ),
-              Logger: new GASLogger(),
-              console: new GASConsole(),
               Session: new GASSession(config, mockSeed["Session"]),
             });
             userCodes.server.runInContext(scriptContext);

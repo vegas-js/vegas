@@ -49,10 +49,10 @@ function mockGAS<T>(target: MockTarget, mock: T): T {
   };
 }
 
-export function mockSession(mock: MockSession): MockSession {
-  return mockGAS(MockTarget.Session, mock);
-}
-
 export function mockProperties(mock: MockProperties): MockProperties {
   return mockGAS(MockTarget.Properties, mock);
+}
+
+export function mockSession(mock: MockSession): MockSession {
+  return mockGAS(MockTarget.Session, mock);
 }

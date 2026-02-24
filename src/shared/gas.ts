@@ -8,6 +8,7 @@ export const excludesGASUserFunctionNames = [
 ] as const;
 
 export enum MockTarget {
+  Cache = "Cache",
   Properties = "Properties",
   Session = "Session",
   // TODO
