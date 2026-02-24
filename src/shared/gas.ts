@@ -8,12 +8,18 @@ export const excludesGASUserFunctionNames = [
 ] as const;
 
 export enum MockTarget {
-  Session,
-  Properties,
+  Properties = "Properties",
+  Session = "Session",
   // TODO
 }
 
-export interface MockGASSession {
+export interface MockProperties {
+  documentProperties?: Record<string, string>;
+  scriptProperties?: Record<string, string>;
+  userProperties?: Record<string, string>;
+}
+
+export interface MockSession {
   activeUserEmail?: string;
   activeUserLocale?: string;
   effectiveUserEmail?: string;

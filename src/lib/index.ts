@@ -1,2 +1,2 @@
 export { defineConfig } from "./config";
-export { createGASClient, mockSession } from "./gas";
+export { createGASClient, mockProperties, mockSession } from "./gas";

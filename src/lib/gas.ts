@@ -1,4 +1,9 @@
-import { excludesGASUserFunctionNames, MockGASSession, MockTarget } from "../shared/gas";
+import {
+  excludesGASUserFunctionNames,
+  MockProperties,
+  MockSession,
+  MockTarget,
+} from "../shared/gas";
 
 declare namespace google {
   namespace script {
@@ -44,6 +49,10 @@ function mockGAS<T>(target: MockTarget, mock: T): T {
   };
 }
 
-export function mockSession(mock: MockGASSession): MockGASSession {
+export function mockSession(mock: MockSession): MockSession {
   return mockGAS(MockTarget.Session, mock);
+}
+
+export function mockProperties(mock: MockProperties): MockProperties {
+  return mockGAS(MockTarget.Properties, mock);
 }

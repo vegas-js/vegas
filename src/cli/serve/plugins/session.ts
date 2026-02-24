@@ -1,4 +1,4 @@
-import { MockGASSession } from "../../../shared/gas";
+import { MockSession } from "../../../shared/gas";
 import { ResolvedUserConfig } from "../../config";
 import { GASUser } from "./user";
 
@@ -10,16 +10,16 @@ export class GASSession implements GoogleAppsScript.Base.Session {
   readonly #scriptTimeZone: string;
   readonly #temporaryActiveUserKey: string;
 
-  constructor(config: ResolvedUserConfig, mock: MockGASSession) {
+  constructor(config: ResolvedUserConfig, mock: MockSession) {
     this.#activeUser =
       config.gas.webapp!.executeAs === "USER_ACCESSING"
-        ? new GASUser(mock.activeUserEmail ?? "active@gmail.com")
-        : new GASUser(mock.effectiveUserEmail ?? "effective@gmail.com");
-    this.#activeUserLocale = mock.activeUserLocale ?? "en";
+        ? new GASUser(mock?.activeUserEmail ?? "active@gmail.com")
+        : new GASUser(mock?.effectiveUserEmail ?? "effective@gmail.com");
+    this.#activeUserLocale = mock?.activeUserLocale ?? "en";
     this.#effectiveUser = this.#activeUser;
     this.#scriptTimeZone = config.gas.timeZone!;
     this.#temporaryActiveUserKey =
-      mock.temporaryActiveUserKey ??
+      mock?.temporaryActiveUserKey ??
       "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
   }
 

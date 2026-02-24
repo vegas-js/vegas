@@ -21,7 +21,7 @@ export class GASProperties implements GoogleAppsScript.Properties.Properties {
     return this.#properties;
   };
   getProperty = (key: string) => {
-    return this.#properties[key];
+    return this.#properties[key] ?? null;
   };
   setProperties = (properties: object, deleteAllOthers?: boolean) => {
     if (deleteAllOthers) {

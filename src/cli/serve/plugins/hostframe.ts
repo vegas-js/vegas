@@ -116,9 +116,16 @@ export function hostFrame(
         const mod = await server.ssrLoadModule(source);
         const mock = mod.default;
 
+        console.log(mock.target);
         switch (mock.target) {
           case MockTarget.Session: {
-            mockSeed["Session"] = mock;
+            mockSeed[mock.target] = mock;
+            break;
+          }
+          case MockTarget.Properties: {
+            inMemoryStore.documentProperties.setProperties(mock?.documentProperties ?? {});
+            inMemoryStore.scriptProperties.setProperties(mock?.scriptProperties ?? {});
+            inMemoryStore.userProperties.setProperties(mock?.userProperties ?? {});
             break;
           }
           // TODO
