@@ -21,4 +21,11 @@ export default defineConfig([
       compilerOptions: { isolatedDeclarations: true },
     },
   },
+  {
+    entry: "./src/worker/index.ts",
+    outputOptions: {
+      entryFileNames: "worker.js",
+    },
+    dts: false,
+  },
 ]);

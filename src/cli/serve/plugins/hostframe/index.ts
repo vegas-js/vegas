@@ -17,6 +17,7 @@ import { GASCacheService } from "./gasapi/cacheservice";
 import { GASHtmlService } from "./gasapi/htmlservice";
 import { GASProperties } from "./gasapi/properties";
 import { GASPropertiesService } from "./gasapi/propertiesservice";
+import { GASUrlFetchApp } from "./gasapi/urlfetchapp";
 
 function buildWithVite(config: ResolvedUserConfig, webEntry: string) {
   return buildWithViteApi({
@@ -121,7 +122,6 @@ export function hostFrame(
         const mod = await server.ssrLoadModule(source);
         const mock = mod.default;
 
-        console.log(mock.target);
         switch (mock.target) {
           case MockTarget.Properties: {
             inMemoryStore.documentProperties.setProperties(mock?.documentProperties ?? {});
@@ -156,6 +156,7 @@ export function hostFrame(
               inMemoryStore.userProperties,
             ),
             Session: new GASSession(config, mockSeed["Session"]),
+            UrlFetchApp: new GASUrlFetchApp(),
           });
           userCodes.server.runInContext(scriptContext);
           const targetFunc = scriptContext[data.func];
@@ -218,6 +219,7 @@ export function hostFrame(
                 inMemoryStore.userProperties,
               ),
               Session: new GASSession(config, mockSeed["Session"]),
+              UrlFetchApp: new GASUrlFetchApp(),
             });
             userCodes.server.runInContext(scriptContext);
             const htmlOutput: GoogleAppsScript.HTML.HtmlOutput = scriptContext.GASApp["doGet"]();
