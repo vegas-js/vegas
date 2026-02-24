@@ -23,27 +23,27 @@ export class GASSession implements GoogleAppsScript.Base.Session {
       "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
   }
 
-  getActiveUser(): GoogleAppsScript.Base.User {
+  getActiveUser = () => {
     return this.#activeUser;
-  }
-  getActiveUserLocale(): string {
+  };
+  getActiveUserLocale = () => {
     return this.#activeUserLocale;
-  }
-  getEffectiveUser(): GoogleAppsScript.Base.User {
+  };
+  getEffectiveUser = () => {
     return this.#effectiveUser;
-  }
-  getScriptTimeZone(): string {
+  };
+  getScriptTimeZone = () => {
     return this.#scriptTimeZone;
-  }
-  getTemporaryActiveUserKey(): string {
+  };
+  getTemporaryActiveUserKey = () => {
     return this.#temporaryActiveUserKey;
-  }
+  };
   /** @deprecated DO NOT USE */
-  getTimeZone(): string {
+  getTimeZone = () => {
     throw new Error("Session#getTimeZone() is deprecated. Do not use.");
-  }
+  };
   /** @deprecated DO NOT USE */
-  getUser(): GoogleAppsScript.Base.User {
+  getUser = () => {
     throw new Error("Session#getUser() is deprecated. Do not use.");
-  }
+  };
 }

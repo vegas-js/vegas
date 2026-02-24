@@ -12,13 +12,13 @@ export class GASCacheService implements GoogleAppsScript.Cache.CacheService {
     this.#userCache = userCache;
   }
 
-  getDocumentCache(): GoogleAppsScript.Cache.Cache | null {
+  getDocumentCache = () => {
     return this.#documentCache;
-  }
-  getScriptCache(): GoogleAppsScript.Cache.Cache {
+  };
+  getScriptCache = () => {
     return this.#scriptCache;
-  }
-  getUserCache(): GoogleAppsScript.Cache.Cache {
+  };
+  getUserCache = () => {
     return this.#userCache;
-  }
+  };
 }

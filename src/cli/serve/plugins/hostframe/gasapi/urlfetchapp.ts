@@ -5,10 +5,7 @@ import { GASHttpResponse } from "./httpresponse";
 
 // https://developers.google.com/apps-script/reference/url-fetch/url-fetch-app
 export class GASUrlFetchApp implements GoogleAppsScript.URL_Fetch.UrlFetchApp {
-  fetch(
-    url: string,
-    params?: GoogleAppsScript.URL_Fetch.URLFetchRequestOptions,
-  ): GoogleAppsScript.URL_Fetch.HTTPResponse {
+  fetch = (url: string, params?: GoogleAppsScript.URL_Fetch.URLFetchRequestOptions) => {
     const worker = new Worker(join(import.meta.dirname, "worker.js"));
     const sharedBuffer = new SharedArrayBuffer(4);
     const int32Array = new Int32Array(sharedBuffer);
@@ -28,10 +25,8 @@ export class GASUrlFetchApp implements GoogleAppsScript.URL_Fetch.UrlFetchApp {
     const result = receiveMessageOnPort(port1);
     void worker.terminate();
     return new GASHttpResponse(result?.message);
-  }
-  fetchAll(
-    requests: Array<GoogleAppsScript.URL_Fetch.URLFetchRequest | string>,
-  ): GoogleAppsScript.URL_Fetch.HTTPResponse[] {
+  };
+  fetchAll = (requests: Array<GoogleAppsScript.URL_Fetch.URLFetchRequest | string>) => {
     return requests.map((request) => {
       if (typeof request === "string") {
         return this.fetch(request);
@@ -49,11 +44,8 @@ export class GASUrlFetchApp implements GoogleAppsScript.URL_Fetch.UrlFetchApp {
         });
       }
     });
-  }
-  getRequest(
-    _url: string,
-    _params?: GoogleAppsScript.URL_Fetch.URLFetchRequestOptions,
-  ): GoogleAppsScript.URL_Fetch.URLFetchRequest {
+  };
+  getRequest = (_url: string, _params?: GoogleAppsScript.URL_Fetch.URLFetchRequestOptions) => {
     throw new Error("Method not implemented.");
-  }
+  };
 }

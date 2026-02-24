@@ -10,26 +10,26 @@ export class GASHttpResponse implements GoogleAppsScript.URL_Fetch.HTTPResponse 
     this.#responseCode = response.responseCode;
   }
 
-  getAllHeaders(): object {
+  getAllHeaders = () => {
     throw new Error("Method not implemented.");
-  }
-  getAs(_contentType: string): GoogleAppsScript.Base.Blob {
+  };
+  getAs = (_contentType: string) => {
     throw new Error("Method not implemented.");
-  }
-  getBlob(): GoogleAppsScript.Base.Blob {
+  };
+  getBlob = () => {
     throw new Error("Method not implemented.");
-  }
-  getContent(): GoogleAppsScript.Byte[] {
+  };
+  getContent = () => {
     return this.#content;
-  }
-  getContentText(charset?: string): string {
+  };
+  getContentText = (charset?: string) => {
     const decoder = new TextDecoder(charset);
     return decoder.decode(Buffer.from(this.#content));
-  }
-  getHeaders(): GoogleAppsScript.URL_Fetch.HttpHeaders {
+  };
+  getHeaders = () => {
     return this.#headers;
-  }
-  getResponseCode(): GoogleAppsScript.Integer {
+  };
+  getResponseCode = () => {
     return this.#responseCode;
-  }
+  };
 }

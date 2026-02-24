@@ -62,8 +62,7 @@ function formatObject(object?: object) {
         return format(obj)
           .replace(/\[Function:[^\]]*\]/g, "[Function]")
           .replace(/^\{[^\w]*/, "{ ")
-          .replace(/\n\}$/, " }")
-          .replace(/^[^{]/gm, "".padEnd(37));
+          .replace(/\n\}$/, " }");
       };
       output = outputObject;
     }
@@ -92,7 +91,7 @@ export class GASConsole {
         ? formatObject(formatOrObject)
         : format(formatOrObject, ...values.map((val) => formatObject(val))),
     );
-    console.error(outputLog);
+    console.error(outputLog.replace(/\n/g, `\n${"".padEnd(36)}`));
   };
   info = (formatOrObject?: object, ...values: object[]) => {
     let outputLog = getLogPrefix(this.#logTitle, "Info");
@@ -102,7 +101,7 @@ export class GASConsole {
         ? formatObject(formatOrObject)
         : format(formatOrObject, ...values.map((val) => formatObject(val))),
     );
-    console.info(outputLog);
+    console.info(outputLog.replace(/\n/g, `\n${"".padEnd(36)}`));
   };
   log = (formatOrObject?: any, ...values: object[]) => {
     let outputLog = getLogPrefix(this.#logTitle, "Info");
@@ -112,7 +111,7 @@ export class GASConsole {
         ? formatObject(formatOrObject)
         : format(formatOrObject, ...values.map((val) => formatObject(val))),
     );
-    console.debug(outputLog);
+    console.debug(outputLog.replace(/\n/g, `\n${"".padEnd(36)}`));
   };
   time = (label: string) => {
     this.#timer.set(label, performance.now());
@@ -123,7 +122,7 @@ export class GASConsole {
     if (startTime) {
       let outputLog = getLogPrefix(this.#logTitle, "Debug");
       outputLog += format("%s: %dms", label, (endTime - startTime).toFixed(0));
-      console.log(outputLog);
+      console.log(outputLog.replace(/\n/g, `\n${"".padEnd(36)}`));
     }
   };
   warn = (formatOrObject?: object, ...values: object[]) => {
@@ -134,6 +133,6 @@ export class GASConsole {
         ? formatObject(formatOrObject)
         : format(formatOrObject, ...values.map((val) => formatObject(val))),
     );
-    console.warn(outputLog);
+    console.warn(outputLog.replace(/\n/g, `\n${"".padEnd(36)}`));
   };
 }

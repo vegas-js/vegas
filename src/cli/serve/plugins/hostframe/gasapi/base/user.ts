@@ -6,11 +6,11 @@ export class GASUser implements GoogleAppsScript.Base.User {
     this.#email = email;
   }
 
-  getEmail(): string {
+  getEmail = () => {
     return this.#email;
-  }
+  };
   /** @deprecated DO NOT USE */
-  getUserLoginId(): string {
+  getUserLoginId = () => {
     throw new Error("User#getUserLoginId() is deprecated. Do not use.");
-  }
+  };
 }
