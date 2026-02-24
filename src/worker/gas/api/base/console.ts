@@ -74,65 +74,62 @@ function formatObject(object?: object) {
 }
 
 // https://developers.google.com/apps-script/reference/base/console
-export class GASConsole {
-  readonly #logTitle: string;
-  readonly #timer: Map<string, number>;
+export function Console() {
+  const logTitle = "console(GAS)";
+  const timer = new Map<string, number>();
 
-  constructor() {
-    this.#logTitle = "console(GAS)";
-    this.#timer = new Map();
-  }
-
-  error = (formatOrObject?: object, ...values: object[]) => {
-    let outputLog = getLogPrefix(this.#logTitle, "Error");
-    outputLog += format(
-      styleText("red", "%s"),
-      values.length === 0
-        ? formatObject(formatOrObject)
-        : format(formatOrObject, ...values.map((val) => formatObject(val))),
-    );
-    console.error(outputLog.replace(/\n/g, `\n${"".padEnd(36)}`));
-  };
-  info = (formatOrObject?: object, ...values: object[]) => {
-    let outputLog = getLogPrefix(this.#logTitle, "Info");
-    outputLog += format(
-      "%s",
-      values.length === 0
-        ? formatObject(formatOrObject)
-        : format(formatOrObject, ...values.map((val) => formatObject(val))),
-    );
-    console.info(outputLog.replace(/\n/g, `\n${"".padEnd(36)}`));
-  };
-  log = (formatOrObject?: any, ...values: object[]) => {
-    let outputLog = getLogPrefix(this.#logTitle, "Info");
-    outputLog += format(
-      "%s",
-      values.length === 0
-        ? formatObject(formatOrObject)
-        : format(formatOrObject, ...values.map((val) => formatObject(val))),
-    );
-    console.debug(outputLog.replace(/\n/g, `\n${"".padEnd(36)}`));
-  };
-  time = (label: string) => {
-    this.#timer.set(label, performance.now());
-  };
-  timeEnd = (label: string) => {
-    const endTime = performance.now();
-    const startTime = this.#timer.get(label);
-    if (startTime) {
-      let outputLog = getLogPrefix(this.#logTitle, "Debug");
-      outputLog += format("%s: %dms", label, (endTime - startTime).toFixed(0));
-      console.log(outputLog.replace(/\n/g, `\n${"".padEnd(36)}`));
-    }
-  };
-  warn = (formatOrObject?: object, ...values: object[]) => {
-    let outputLog = getLogPrefix(this.#logTitle, "Warning");
-    outputLog += format(
-      styleText("yellow", "%s"),
-      values.length === 0
-        ? formatObject(formatOrObject)
-        : format(formatOrObject, ...values.map((val) => formatObject(val))),
-    );
-    console.warn(outputLog.replace(/\n/g, `\n${"".padEnd(36)}`));
+  return {
+    error: function (formatOrObject?: object, ...values: object[]) {
+      let outputLog = getLogPrefix(logTitle, "Error");
+      outputLog += format(
+        styleText("red", "%s"),
+        values.length === 0
+          ? formatObject(formatOrObject)
+          : format(formatOrObject, ...values.map((val) => formatObject(val))),
+      );
+      console.error(outputLog.replace(/\n/g, `\n${"".padEnd(36)}`));
+    },
+    info: function (formatOrObject?: object, ...values: object[]) {
+      let outputLog = getLogPrefix(logTitle, "Info");
+      outputLog += format(
+        "%s",
+        values.length === 0
+          ? formatObject(formatOrObject)
+          : format(formatOrObject, ...values.map((val) => formatObject(val))),
+      );
+      console.info(outputLog.replace(/\n/g, `\n${"".padEnd(36)}`));
+    },
+    log: function (formatOrObject?: any, ...values: object[]) {
+      let outputLog = getLogPrefix(logTitle, "Info");
+      outputLog += format(
+        "%s",
+        values.length === 0
+          ? formatObject(formatOrObject)
+          : format(formatOrObject, ...values.map((val) => formatObject(val))),
+      );
+      console.debug(outputLog.replace(/\n/g, `\n${"".padEnd(36)}`));
+    },
+    time: function (label: string) {
+      timer.set(label, performance.now());
+    },
+    timeEnd: function (label: string) {
+      const endTime = performance.now();
+      const startTime = timer.get(label);
+      if (startTime) {
+        let outputLog = getLogPrefix(logTitle, "Debug");
+        outputLog += format("%s: %dms", label, (endTime - startTime).toFixed(0));
+        console.log(outputLog.replace(/\n/g, `\n${"".padEnd(36)}`));
+      }
+    },
+    warn: function (formatOrObject?: object, ...values: object[]) {
+      let outputLog = getLogPrefix(logTitle, "Warning");
+      outputLog += format(
+        styleText("yellow", "%s"),
+        values.length === 0
+          ? formatObject(formatOrObject)
+          : format(formatOrObject, ...values.map((val) => formatObject(val))),
+      );
+      console.warn(outputLog.replace(/\n/g, `\n${"".padEnd(36)}`));
+    },
   };
 }

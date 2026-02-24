@@ -2,7 +2,7 @@ import { defineConfig } from "tsdown";
 
 export default defineConfig([
   {
-    entry: "./src/cli/index.ts",
+    entry: "./src/cli/index",
     external: ["vite"],
     inlineOnly: ["@rolldown/pluginutils", "cac", "entities", "parse5", "rolldown"],
     outputOptions: {
@@ -12,7 +12,7 @@ export default defineConfig([
     dts: false,
   },
   {
-    entry: "./src/lib/index.ts",
+    entry: "./src/lib/index",
     external: ["vite"],
     outputOptions: {
       entryFileNames: (chunk) => `${chunk.name.replace(/^index(\.d)?$/, "lib$1")}.js`,
@@ -22,9 +22,10 @@ export default defineConfig([
     },
   },
   {
-    entry: "./src/worker/index.ts",
+    entry: ["./src/worker/gas", "./src/worker/fetch"],
+    inlineOnly: ["entities", "parse5"],
     outputOptions: {
-      entryFileNames: "worker.js",
+      entryFileNames: "[name].js",
     },
     dts: false,
   },

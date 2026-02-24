@@ -2,8 +2,6 @@ import { parse } from "node:path";
 
 import { Plugin } from "vite";
 
-import { excludesGASUserFunctionNames } from "../../../shared/gas";
-
 export function exportBridge(serverEntry: string): Plugin {
   return {
     name: "vite-plugin-exportbridge",
@@ -14,11 +12,9 @@ export function exportBridge(serverEntry: string): Plugin {
       if (entry && entry.type === "chunk") {
         const bridgeCodes: string[] = ["\n\n/* Function bridge for GAS Client */"];
         entry.exports.forEach((expo) => {
-          if (!(excludesGASUserFunctionNames as readonly string[]).includes(expo)) {
-            bridgeCodes.push(
-              `function ${expo}(...args) { return ${outputOptions.name ?? "globalThis"}.${expo}(...args); };`,
-            );
-          }
+          bridgeCodes.push(
+            `function ${expo}(...args) { return ${outputOptions.name ?? "globalThis"}.${expo}(...args); };`,
+          );
         });
         if (bridgeCodes.length > 1) {
           entry.code += bridgeCodes.join("\n");

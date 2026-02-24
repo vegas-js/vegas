@@ -9,22 +9,17 @@ function convertNumberOutput(num: number): string {
 }
 
 // https://developers.google.com/apps-script/reference/base/logger
-export class GASLogger implements GoogleAppsScript.Base.Logger {
-  #outputLogs: string[];
-  readonly #logTitle: string;
+export function Logger(): GoogleAppsScript.Base.Logger {
+  const logTitle = "Logger (GAS)";
+  let _outputLogs: string[] = [];
 
-  constructor() {
-    this.#outputLogs = [];
-    this.#logTitle = "Logger (GAS)";
-  }
-
-  output(dataOrFormat: string, values: unknown[]): void {
-    let outputLog = getLogPrefix(this.#logTitle, "Info");
+  function output(dataOrFormat: string, values: unknown[]) {
+    let outputLog = getLogPrefix(logTitle, "Info");
     if (values.length === 0) {
       const data =
         typeof dataOrFormat === "number" ? convertNumberOutput(dataOrFormat) : dataOrFormat;
       outputLog += data;
-      this.#outputLogs.push(data);
+      _outputLogs.push(data);
     } else {
       const outValues = [];
       for (const value of values) {
@@ -51,19 +46,21 @@ export class GASLogger implements GoogleAppsScript.Base.Logger {
       }
 
       outputLog += format(dataOrFormat.replace(/[^%]?%d/, "%s"), ...outValues);
-      this.#outputLogs.push(format(dataOrFormat.replace(/[^%]?%d/, "%s"), ...outValues));
+      _outputLogs.push(format(dataOrFormat.replace(/[^%]?%d/, "%s"), ...outValues));
     }
     console.log(outputLog.replace(/\n/g, `\n${"".padEnd(36)}`));
   }
 
-  clear = () => {
-    this.#outputLogs = [];
-  };
-  getLog = () => {
-    return this.#outputLogs.join("\n");
-  };
-  log = (format: string, ...values: unknown[]) => {
-    this.output(format, values);
-    return this;
+  return {
+    clear: function () {
+      _outputLogs = [];
+    },
+    getLog: function () {
+      return _outputLogs.join("\n");
+    },
+    log: function (format: string, ...values: unknown[]) {
+      output(format, values);
+      return this;
+    },
   };
 }

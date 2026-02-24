@@ -6,7 +6,7 @@ import { GASHttpResponse } from "./httpresponse";
 // https://developers.google.com/apps-script/reference/url-fetch/url-fetch-app
 export class GASUrlFetchApp implements GoogleAppsScript.URL_Fetch.UrlFetchApp {
   fetch = (url: string, params?: GoogleAppsScript.URL_Fetch.URLFetchRequestOptions) => {
-    const worker = new Worker(join(import.meta.dirname, "worker.js"));
+    const worker = new Worker(join(import.meta.dirname, "gas.js"));
     const sharedBuffer = new SharedArrayBuffer(4);
     const int32Array = new Int32Array(sharedBuffer);
     const { port1, port2 } = new MessageChannel();
