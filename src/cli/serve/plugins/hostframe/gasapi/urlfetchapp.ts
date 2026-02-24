@@ -14,7 +14,7 @@ export class GASUrlFetchApp implements GoogleAppsScript.URL_Fetch.UrlFetchApp {
     const int32Array = new Int32Array(sharedBuffer);
     const { port1, port2 } = new MessageChannel();
 
-    worker.postMessage({ type: "fetch", url, params, sharedBuffer, port: port2 }, [port2]);
+    worker.postMessage({ url, params, sharedBuffer, port: port2 }, [port2]);
     Atomics.wait(int32Array, 0, 0);
     const result = receiveMessageOnPort(port1);
     void worker.terminate();
