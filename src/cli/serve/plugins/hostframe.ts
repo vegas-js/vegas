@@ -59,7 +59,7 @@ export function hostFrame(
   const inMemoryStore = {
     documentProperties: new GASProperties(),
     scriptProperties: new GASProperties(),
-    userPropertiesMap: new GASProperties(),
+    userProperties: new GASProperties(),
   };
 
   return {
@@ -134,7 +134,7 @@ export function hostFrame(
             PropertiesService: new GASPropertiesService(
               inMemoryStore.documentProperties,
               inMemoryStore.scriptProperties,
-              new GASProperties(),
+              inMemoryStore.userProperties,
             ),
             Logger: new GASLogger(),
             console: new GASConsole(),
@@ -191,7 +191,7 @@ export function hostFrame(
               PropertiesService: new GASPropertiesService(
                 inMemoryStore.documentProperties,
                 inMemoryStore.scriptProperties,
-                new GASProperties(),
+                inMemoryStore.userProperties,
               ),
               Logger: new GASLogger(),
               console: new GASConsole(),
