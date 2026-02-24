@@ -3,7 +3,7 @@ import { parentPort } from "node:worker_threads";
 parentPort?.on("message", async (data) => {
   const int32Array = new Int32Array(data.sharedBuffer);
   try {
-    const response = await fetch(data.url);
+    const response = await fetch(data.url, data.init);
     const headers: Record<string, string> = {};
     response.headers.forEach((value, key) => {
       headers[key] = value;
