@@ -11,6 +11,6 @@ export class GASUser implements GoogleAppsScript.Base.User {
   }
   /** @deprecated DO NOT USE */
   getUserLoginId(): string {
-    throw new Error("GASUser#getUserLoginId() is deprecated. Do not use.");
+    throw new Error("User#getUserLoginId() is deprecated. Do not use.");
   }
 }
