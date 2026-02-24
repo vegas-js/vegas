@@ -4,17 +4,17 @@ import { defaultTreeAdapter, html, serialize } from "parse5";
 import { build as buildWithRolldownApi, OutputChunk, RolldownOutput } from "rolldown";
 import { build as buildWithViteApi, Plugin } from "vite";
 
-import { MockTarget } from "../../../shared/gas";
-import { ProjectEntry } from "../../analyze";
-import { exportBridge } from "../../build/plugins/exportbridge";
-import { virtualHTML } from "../../build/plugins/virtualhtml";
-import { ResolvedUserConfig } from "../../config";
-import { GASConsole } from "./console";
-import { GASHtmlService } from "./htmlservice";
-import { GASLogger } from "./logger";
-import { GASProperties } from "./properties";
-import { GASPropertiesService } from "./propertiesservice";
-import { GASSession } from "./session";
+import { MockTarget } from "../../../../shared/gas";
+import { ProjectEntry } from "../../../analyze";
+import { exportBridge } from "../../../build/plugins/exportbridge";
+import { virtualHTML } from "../../../build/plugins/virtualhtml";
+import { ResolvedUserConfig } from "../../../config";
+import { GASConsole } from "./gasapi/console";
+import { GASHtmlService } from "./gasapi/htmlservice";
+import { GASLogger } from "./gasapi/logger";
+import { GASProperties } from "./gasapi/properties";
+import { GASPropertiesService } from "./gasapi/propertiesservice";
+import { GASSession } from "./gasapi/session";
 
 function buildWithVite(config: ResolvedUserConfig, webEntry: string) {
   return buildWithViteApi({

@@ -1,5 +1,5 @@
-import { MockSession } from "../../../shared/gas";
-import { ResolvedUserConfig } from "../../config";
+import { MockSession } from "../../../../../../shared/gas";
+import { ResolvedUserConfig } from "../../../../../config";
 import { GASUser } from "./user";
 
 // https://developers.google.com/apps-script/reference/base/session
