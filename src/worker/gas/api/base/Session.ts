@@ -1,42 +1,35 @@
-import { GASManifest } from "../../../../shared/config";
-import { MockSession } from "../../../../shared/gas";
+import { RequestSyncFn } from "../..";
 import { User } from "./User";
 
 // https://developers.google.com/apps-script/reference/base/session
-export function Session(gas: GASManifest, mock: MockSession): GoogleAppsScript.Base.Session {
-  const activeUser =
-    gas.webapp!.executeAs === "USER_ACCESSING"
-      ? User(mock?.activeUserEmail ?? "active@gmail.com")
-      : User(mock?.effectiveUserEmail ?? "effective@gmail.com");
-  const activeUserLocale = mock?.activeUserLocale ?? "en";
-  const effectiveUser = activeUser;
-  const scriptTimeZone = gas.timeZone!;
-  const temporaryActiveUserKey =
-    mock?.temporaryActiveUserKey ??
-    "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
-
+export function Session(requestSync: RequestSyncFn): GoogleAppsScript.Base.Session {
   return {
-    getActiveUser: function () {
-      return activeUser;
+    getActiveUser: () => {
+      const email = requestSync("vegas:Session#getActiveUser");
+      return User(email);
     },
-    getActiveUserLocale: function () {
-      return activeUserLocale;
+    getActiveUserLocale: () => {
+      const locale = requestSync("vegas:Session#getActiveUserLocale");
+      return locale;
     },
-    getEffectiveUser: function () {
-      return effectiveUser;
+    getEffectiveUser: () => {
+      const email = requestSync("vegas:Session#getEffectiveUser");
+      return User(email);
     },
-    getScriptTimeZone: function () {
-      return scriptTimeZone;
+    getScriptTimeZone: () => {
+      const timeZone = requestSync("vegas:Session#getScriptTimeZone");
+      return timeZone;
     },
-    getTemporaryActiveUserKey: function () {
-      return temporaryActiveUserKey;
+    getTemporaryActiveUserKey: () => {
+      const temporaryKey = requestSync("vegas:Session#getTemporaryActiveUserKey");
+      return temporaryKey;
     },
     /** @deprecated DO NOT USE */
-    getTimeZone: function () {
+    getTimeZone: () => {
       throw new Error("Session#getTimeZone() is deprecated. Do not use.");
     },
     /** @deprecated DO NOT USE */
-    getUser: function () {
+    getUser: () => {
       throw new Error("Session#getUser() is deprecated. Do not use.");
     },
   };

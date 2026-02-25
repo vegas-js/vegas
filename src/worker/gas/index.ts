@@ -3,7 +3,6 @@ import { MessagePort, receiveMessageOnPort, workerData } from "node:worker_threa
 
 import { defaultTreeAdapter, html, serialize } from "parse5";
 
-import { GASManifest } from "../../shared/config";
 import { Console } from "./api/base/console";
 import { Logger } from "./api/base/Logger";
 import { Session } from "./api/base/Session";
@@ -11,8 +10,6 @@ import { CacheService } from "./api/cache/CacheService";
 import { HtmlService } from "./api/html/HtmlService";
 
 type GASWorkerData = {
-  gasManifest: GASManifest;
-  mockSeed: Record<string, any>;
   fn: string;
   args: any[];
   contentBaseUrl: string;
@@ -38,7 +35,7 @@ messagePort.on("message", async (data: GASWorkerData) => {
     console: Console(),
     Logger: Logger(),
     HtmlService: HtmlService(requestSync),
-    Session: Session(data.gasManifest, data.mockSeed["Session"]),
+    Session: Session(requestSync),
     CacheService: CacheService(requestSync),
   });
   script.runInContext(scriptContext);

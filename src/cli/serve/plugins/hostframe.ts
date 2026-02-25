@@ -58,12 +58,7 @@ export function hostFrame(
     scriptCache: {} as Record<string, { value: string; expired: number }>,
     userCache: {} as Record<string, { value: string; expired: number }>,
   };
-  function launchGAS(
-    contentBaseUrl: string,
-    mockSeed: Record<string, any>,
-    fn: string,
-    ...args: any[]
-  ): Promise<any> {
+  function launchGAS(contentBaseUrl: string, fn: string, ...args: any[]): Promise<any> {
     return new Promise((resolve) => {
       const sharedBuffer = new SharedArrayBuffer(4);
       const sharedArray = new Int32Array(sharedBuffer);
@@ -75,8 +70,6 @@ export function hostFrame(
       });
 
       port1.postMessage({
-        gasManifest: config.gas,
-        mockSeed,
         fn,
         args,
         contentBaseUrl,
@@ -86,6 +79,39 @@ export function hostFrame(
           const filePath = `${parse(data.payload).name}.html`;
           const html = userCodes.web.map.get(filePath);
           port1.postMessage(html);
+          Atomics.store(sharedArray, 0, 0);
+          Atomics.notify(sharedArray, 0);
+        } else if (data.message === "vegas:Session#getActiveUser") {
+          const email =
+            config.gas.webapp!.executeAs === "USER_ACCESSING"
+              ? (mockSeed["Session"]?.activeUserEmail ?? "active@gmail.com")
+              : (mockSeed["Session"]?.effectiveUserEmail ?? "effective@gmail.com");
+          port1.postMessage(email);
+          Atomics.store(sharedArray, 0, 0);
+          Atomics.notify(sharedArray, 0);
+        } else if (data.message === "vegas:Session#getActiveUserLocale") {
+          const userLocale = mockSeed["Session"]?.activeUserLocale ?? "en";
+          port1.postMessage(userLocale);
+          Atomics.store(sharedArray, 0, 0);
+          Atomics.notify(sharedArray, 0);
+        } else if (data.message === "vegas:Session#getEffectiveUser") {
+          const email =
+            config.gas.webapp!.executeAs === "USER_ACCESSING"
+              ? (mockSeed["Session"]?.activeUserEmail ?? "active@gmail.com")
+              : (mockSeed["Session"]?.effectiveUserEmail ?? "effective@gmail.com");
+          port1.postMessage(email);
+          Atomics.store(sharedArray, 0, 0);
+          Atomics.notify(sharedArray, 0);
+        } else if (data.message === "vegas:Session#getScriptTimeZone") {
+          const timeZone = config.gas.timeZone ?? "UTC";
+          port1.postMessage(timeZone);
+          Atomics.store(sharedArray, 0, 0);
+          Atomics.notify(sharedArray, 0);
+        } else if (data.message === "vegas:Session#getTemporaryActiveUserKey") {
+          const key =
+            mockSeed["Session"]?.temporaryActiveUserKey ??
+            "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
+          port1.postMessage(key);
           Atomics.store(sharedArray, 0, 0);
           Atomics.notify(sharedArray, 0);
         } else if (data.message === "vegas:Cache#get") {
@@ -310,7 +336,7 @@ export function hostFrame(
 
       server.ws.on("vegas:gascall", async (data, client) => {
         try {
-          const result = await launchGAS("", mockSeed, data.func, ...JSON.parse(data.args));
+          const result = await launchGAS("", data.func, ...JSON.parse(data.args));
           client.send("vegas:gasreturn", {
             id: data.id,
             status: "ok",
@@ -351,7 +377,7 @@ export function hostFrame(
             if (!userCodes.web.hrefs.includes(url.href)) {
               userCodes.web.hrefs.push(url.href);
             }
-            const result = await launchGAS(contentBaseUrl, mockSeed, "doGet");
+            const result = await launchGAS(contentBaseUrl, "doGet");
             const transFormedHtml = await server.transformIndexHtml(url.href, result);
             response.statusCode = 200;
             response.setHeader("Content-Type", "text/html");
