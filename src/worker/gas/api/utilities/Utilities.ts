@@ -1,4 +1,4 @@
-import { randomUUID } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 
 // https://developers.google.com/apps-script/reference/utilities/utilities
 export function Utilities(): GoogleAppsScript.Utilities.Utilities {
@@ -31,8 +31,9 @@ export function Utilities(): GoogleAppsScript.Utilities.Utilities {
     base64Decode: (encoded: string, charset?: GoogleAppsScript.Utilities.Charset) => {
       return Array.from(new Int8Array(Buffer.from(encoded, "base64")));
     },
-    base64DecodeWebSafe: (encoded: unknown, charset?: unknown) => {
-      throw new Error("Method not implemented.");
+    // oxlint-disable-next-line no-unused-vars
+    base64DecodeWebSafe: (encoded: string, charset?: GoogleAppsScript.Utilities.Charset) => {
+      return Array.from(new Int8Array(Buffer.from(encoded, "base64")));
     },
     base64Encode: (
       data: string | GoogleAppsScript.Byte[],
@@ -42,11 +43,25 @@ export function Utilities(): GoogleAppsScript.Utilities.Utilities {
       const buffer = typeof data === "string" ? Buffer.from(data, encoding) : Buffer.from(data);
       return buffer.toString("base64");
     },
-    base64EncodeWebSafe: (data: unknown, charset?: unknown) => {
-      throw new Error("Method not implemented.");
+    base64EncodeWebSafe: (
+      data: string | GoogleAppsScript.Byte[],
+      charset?: GoogleAppsScript.Utilities.Charset,
+    ) => {
+      const encoding = (charset && charset === 0 ? "ascii" : "utf8") as BufferEncoding;
+      const buffer = typeof data === "string" ? Buffer.from(data, encoding) : Buffer.from(data);
+      const encoded = buffer.toString("base64");
+      return encoded.replaceAll("+", "-").replaceAll("/", "_");
     },
-    computeDigest: (algorithm: unknown, value: unknown, charset?: unknown) => {
-      throw new Error("Method not implemented.");
+    computeDigest: (
+      algorithm: GoogleAppsScript.Utilities.DigestAlgorithm,
+      value: GoogleAppsScript.Byte[] | string,
+      charset?: GoogleAppsScript.Utilities.Charset,
+    ) => {
+      const hash = createHash("md5");
+      const encoding = (charset && charset === 0 ? "ascii" : "utf8") as BufferEncoding;
+      const buffer = typeof value === "string" ? Buffer.from(value, encoding) : Buffer.from(value);
+      hash.update(buffer);
+      return Array.from(new Int8Array(hash.digest()));
     },
     computeHmacSha256Signature: (value: unknown, key: unknown, charset?: unknown) => {
       throw new Error("Method not implemented.");
@@ -66,7 +81,7 @@ export function Utilities(): GoogleAppsScript.Utilities.Utilities {
     formatDate: (date: GoogleAppsScript.Base.Date, timeZone: string, format: string) => {
       throw new Error("Method not implemented.");
     },
-    formatString: (template: string, ...args: any[]) => {
+    formatString: (template: string, ...args: object[]) => {
       throw new Error("Method not implemented.");
     },
     getUuid: () => {
