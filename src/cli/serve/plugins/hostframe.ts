@@ -65,27 +65,23 @@ export function hostFrame(
     ...args: any[]
   ): Promise<any> {
     return new Promise((resolve) => {
-      const worker = new Worker(join(import.meta.dirname, "gas.js"), {
-        env: { ...process.env, FORCE_COLOR: "1" },
-        workerData: userCodes.server,
-      });
       const sharedBuffer = new SharedArrayBuffer(4);
       const sharedArray = new Int32Array(sharedBuffer);
       const { port1, port2 } = new MessageChannel();
+      new Worker(join(import.meta.dirname, "gas.js"), {
+        env: { ...process.env, FORCE_COLOR: "1" },
+        transferList: [port2],
+        workerData: { code: userCodes.server, sharedArray, port: port2 },
+      });
 
-      worker.postMessage(
-        {
-          gasManifest: config.gas,
-          mockSeed,
-          fn,
-          args,
-          contentBaseUrl,
-          port: port2,
-          sharedBuffer,
-        },
-        [port2],
-      );
-      worker.on("message", async (data) => {
+      port1.postMessage({
+        gasManifest: config.gas,
+        mockSeed,
+        fn,
+        args,
+        contentBaseUrl,
+      });
+      port1.on("message", async (data) => {
         if (data.message === "vegas:HtmlService#createHtmlOutputFromFile") {
           const filePath = `${parse(data.payload).name}.html`;
           const html = userCodes.web.map.get(filePath);
@@ -103,7 +99,7 @@ export function hostFrame(
           }
 
           if (cache) {
-            const now = new Date().valueOf();
+            const now = Date.now();
             Object.entries(cache).forEach(([key, data]) => {
               if (data.expired <= now) {
                 delete cache[key];
@@ -124,7 +120,7 @@ export function hostFrame(
           }
 
           if (cache) {
-            const now = new Date().valueOf();
+            const now = Date.now();
             const obj: Record<string, string> = {};
             Object.entries(cache).forEach(([key, value]) => {
               if (value.expired <= now) {
@@ -149,7 +145,7 @@ export function hostFrame(
 
           if (cache) {
             const record = data.payload.record;
-            const expired = new Date().valueOf() + record.expired * 1000;
+            const expired = Date.now() + record.expired * 1000;
             cache[record.key] = { value: record.value, expired };
 
             const cachedLength = Object.keys(cache).length;
@@ -179,7 +175,7 @@ export function hostFrame(
           }
 
           if (cache) {
-            const expired = new Date().valueOf() + data.payload.expired * 1000;
+            const expired = Date.now() + data.payload.expired * 1000;
             Object.entries(data.payload.values as Record<string, string>).forEach(
               ([key, value]) => {
                 cache[key] = { value, expired };

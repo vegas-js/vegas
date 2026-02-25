@@ -1,5 +1,5 @@
 import vm from "node:vm";
-import { MessagePort, parentPort, receiveMessageOnPort, workerData } from "node:worker_threads";
+import { MessagePort, receiveMessageOnPort, workerData } from "node:worker_threads";
 
 import { defaultTreeAdapter, html, serialize } from "parse5";
 
@@ -16,23 +16,20 @@ type GASWorkerData = {
   fn: string;
   args: any[];
   contentBaseUrl: string;
-  port: MessagePort;
-  sharedBuffer: SharedArrayBuffer;
 };
 
 export type RequestSyncFn = (message: string, payload?: any) => any;
 
-const script = new vm.Script(workerData);
+const script = new vm.Script(workerData.code);
+const sharedArray: Int32Array = workerData.sharedArray;
+const messagePort: MessagePort = workerData.port;
 
-parentPort!.on("message", async (data: GASWorkerData) => {
-  const port = data.port;
-  const sharedArray = new Int32Array(data.sharedBuffer);
-
+messagePort.on("message", async (data: GASWorkerData) => {
   function requestSync(message: string, payload?: any) {
-    parentPort!.postMessage({ message, payload });
+    messagePort!.postMessage({ message, payload });
     Atomics.store(sharedArray, 0, 1);
     Atomics.wait(sharedArray, 0, 1);
-    const received = receiveMessageOnPort(port);
+    const received = receiveMessageOnPort(messagePort);
 
     return received?.message ?? null;
   }
@@ -138,7 +135,7 @@ document.getElementById("sandboxFrame").onload = (event) => {
     payload = JSON.stringify(result);
   }
 
-  parentPort!.postMessage({ message: "vegas:resolve", payload });
+  messagePort!.postMessage({ message: "vegas:resolve", payload });
 
   setTimeout(() => process.exit(0), 10);
 });
