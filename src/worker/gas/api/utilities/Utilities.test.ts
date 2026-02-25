@@ -19,7 +19,7 @@ test("Utilities#base64Encode() can be base64 encoded", () => {
   expect(utilities.base64Encode("A string here")).toEqual("QSBzdHJpbmcgaGVyZQ==");
 });
 
-test("Utilities#base64Encode() can be base64 encoded", () => {
+test("Utilities#base64Encode() can be base64 encoded with UTF8", () => {
   const utilities = Utilities();
   expect(utilities.base64Encode("Google グループ", utilities.Charset.UTF_8)).toEqual(
     "R29vZ2xlIOOCsOODq+ODvOODlw==",
