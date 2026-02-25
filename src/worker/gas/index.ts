@@ -1,5 +1,5 @@
 import vm from "node:vm";
-import { MessagePort, parentPort, receiveMessageOnPort } from "node:worker_threads";
+import { MessagePort, parentPort, receiveMessageOnPort, workerData } from "node:worker_threads";
 
 import { defaultTreeAdapter, html, serialize } from "parse5";
 
@@ -12,7 +12,6 @@ import { HtmlService } from "./api/html/HtmlService";
 
 type GASWorkerData = {
   gasManifest: GASManifest;
-  code: string;
   mockSeed: Record<string, any>;
   fn: string;
   args: any[];
@@ -23,8 +22,9 @@ type GASWorkerData = {
 
 export type RequestSyncFn = (message: string, payload?: any) => any;
 
+const script = new vm.Script(workerData);
+
 parentPort!.on("message", async (data: GASWorkerData) => {
-  const script = new vm.Script(data.code);
   const port = data.port;
   const sharedArray = new Int32Array(data.sharedBuffer);
 

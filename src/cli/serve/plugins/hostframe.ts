@@ -67,6 +67,7 @@ export function hostFrame(
     return new Promise((resolve) => {
       const worker = new Worker(join(import.meta.dirname, "gas.js"), {
         env: { ...process.env, FORCE_COLOR: "1" },
+        workerData: userCodes.server,
       });
       const sharedBuffer = new SharedArrayBuffer(4);
       const sharedArray = new Int32Array(sharedBuffer);
@@ -75,7 +76,6 @@ export function hostFrame(
       worker.postMessage(
         {
           gasManifest: config.gas,
-          code: userCodes.server,
           mockSeed,
           fn,
           args,
