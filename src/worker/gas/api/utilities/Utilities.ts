@@ -1,3 +1,5 @@
+import { randomUUID } from "node:crypto";
+
 // https://developers.google.com/apps-script/reference/utilities/utilities
 export function Utilities(): GoogleAppsScript.Utilities.Utilities {
   return {
@@ -25,87 +27,89 @@ export function Utilities(): GoogleAppsScript.Utilities.Utilities {
       RSA_SHA_256: 1,
     },
 
-    base64Decode: function (encoded: unknown, charset?: unknown) {
+    // oxlint-disable-next-line no-unused-vars
+    base64Decode: (encoded: string, charset?: GoogleAppsScript.Utilities.Charset) => {
+      return Array.from(new Int8Array(Buffer.from(encoded, "base64")));
+    },
+    base64DecodeWebSafe: (encoded: unknown, charset?: unknown) => {
       throw new Error("Method not implemented.");
     },
-    base64DecodeWebSafe: function (encoded: unknown, charset?: unknown) {
+    base64Encode: (
+      data: string | GoogleAppsScript.Byte[],
+      charset?: GoogleAppsScript.Utilities.Charset,
+    ) => {
+      const encoding = (charset && charset === 0 ? "ascii" : "utf8") as BufferEncoding;
+      const buffer = typeof data === "string" ? Buffer.from(data, encoding) : Buffer.from(data);
+      return buffer.toString("base64");
+    },
+    base64EncodeWebSafe: (data: unknown, charset?: unknown) => {
       throw new Error("Method not implemented.");
     },
-    base64Encode: function (data: unknown, charset?: unknown) {
+    computeDigest: (algorithm: unknown, value: unknown, charset?: unknown) => {
       throw new Error("Method not implemented.");
     },
-    base64EncodeWebSafe: function (data: unknown, charset?: unknown) {
+    computeHmacSha256Signature: (value: unknown, key: unknown, charset?: unknown) => {
       throw new Error("Method not implemented.");
     },
-    computeDigest: function (algorithm: unknown, value: unknown, charset?: unknown) {
+    computeHmacSignature: (algorithm: unknown, value: unknown, key: unknown, charset?: unknown) => {
       throw new Error("Method not implemented.");
     },
-    computeHmacSha256Signature: function (value: unknown, key: unknown, charset?: unknown) {
+    computeRsaSha1Signature: (value: unknown, key: unknown, charset?: unknown) => {
       throw new Error("Method not implemented.");
     },
-    computeHmacSignature: function (
-      algorithm: unknown,
-      value: unknown,
-      key: unknown,
-      charset?: unknown,
-    ) {
+    computeRsaSha256Signature: (value: unknown, key: unknown, charset?: unknown) => {
       throw new Error("Method not implemented.");
     },
-    computeRsaSha1Signature: function (value: unknown, key: unknown, charset?: unknown) {
+    computeRsaSignature: (algorithm: unknown, value: unknown, key: unknown, charset?: unknown) => {
       throw new Error("Method not implemented.");
     },
-    computeRsaSha256Signature: function (value: unknown, key: unknown, charset?: unknown) {
+    formatDate: (date: GoogleAppsScript.Base.Date, timeZone: string, format: string) => {
       throw new Error("Method not implemented.");
     },
-    computeRsaSignature: function (
-      algorithm: unknown,
-      value: unknown,
-      key: unknown,
-      charset?: unknown,
-    ) {
+    formatString: (template: string, ...args: any[]) => {
       throw new Error("Method not implemented.");
     },
-    formatDate: function (date: GoogleAppsScript.Base.Date, timeZone: string, format: string) {
+    getUuid: () => {
+      return randomUUID();
+    },
+    gzip: (blob: unknown, name?: unknown) => {
       throw new Error("Method not implemented.");
     },
-    formatString: function (template: string, ...args: any[]) {
+    newBlob: (data: unknown, contentType?: unknown, name?: unknown) => {
       throw new Error("Method not implemented.");
     },
-    getUuid: function () {
+    parseCsv: (csv: string, delimiter: GoogleAppsScript.Char = ",") => {
+      if (delimiter.length !== 1) {
+        throw new Error(`Cannot convert ${delimiter} to char.`);
+      }
+      return csv.split("\n").map((dim1) => dim1.split(delimiter));
+    },
+    parseDate: (date: string, timeZone: string, format: string) => {
       throw new Error("Method not implemented.");
     },
-    gzip: function (blob: unknown, name?: unknown) {
+    sleep: (milliseconds: GoogleAppsScript.Integer) => {
+      const sharedBuffer = new SharedArrayBuffer(4);
+      const arrayBuffer = new Int32Array(sharedBuffer);
+      const delayMs = Math.min(milliseconds, 300000);
+      Atomics.wait(arrayBuffer, 0, 0, delayMs);
+    },
+    ungzip: (blob: GoogleAppsScript.Base.BlobSource) => {
       throw new Error("Method not implemented.");
     },
-    newBlob: function (data: unknown, contentType?: unknown, name?: unknown) {
+    unzip: (blob: GoogleAppsScript.Base.BlobSource) => {
       throw new Error("Method not implemented.");
     },
-    parseCsv: function (csv: unknown, delimiter?: unknown) {
-      throw new Error("Method not implemented.");
-    },
-    parseDate: function (date: string, timeZone: string, format: string) {
-      throw new Error("Method not implemented.");
-    },
-    sleep: function (milliseconds: GoogleAppsScript.Integer) {
-      throw new Error("Method not implemented.");
-    },
-    ungzip: function (blob: GoogleAppsScript.Base.BlobSource) {
-      throw new Error("Method not implemented.");
-    },
-    unzip: function (blob: GoogleAppsScript.Base.BlobSource) {
-      throw new Error("Method not implemented.");
-    },
-    zip: function (blobs: unknown, name?: unknown) {
+    zip: (blobs: unknown, name?: unknown) => {
       throw new Error("Method not implemented.");
     },
     /** @deprecated DO NOT USE */
     // oxlint-disable-next-line no-unused-vars
-    jsonParse: function (jsonString: string) {
+    jsonParse: (jsonString: string) => {
       throw new Error("Utilities#jsonParse() is deprecated. Do not use.");
     },
     /** @deprecated DO NOT USE */
     // oxlint-disable-next-line no-unused-vars
-    jsonStringify: function (obj: any) {
+    jsonStringify: (obj: any) => {
       throw new Error("Utilities#jsonStringify() is deprecated. Do not use.");
     },
   };
