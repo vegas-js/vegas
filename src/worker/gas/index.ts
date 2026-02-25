@@ -1,5 +1,5 @@
 import vm from "node:vm";
-import { MessagePort, parentPort } from "node:worker_threads";
+import { MessagePort, parentPort, receiveMessageOnPort } from "node:worker_threads";
 
 import { defaultTreeAdapter, html, serialize } from "parse5";
 
@@ -7,6 +7,7 @@ import { GASManifest } from "../../shared/config";
 import { Console } from "./api/base/console";
 import { Logger } from "./api/base/Logger";
 import { Session } from "./api/base/Session";
+import { CacheService } from "./api/cache/CacheService";
 import { HtmlService } from "./api/html/HtmlService";
 
 type GASWorkerData = {
@@ -20,16 +21,28 @@ type GASWorkerData = {
   sharedBuffer: SharedArrayBuffer;
 };
 
+export type RequestSyncFn = (message: string, payload?: any) => any;
+
 parentPort!.on("message", async (data: GASWorkerData) => {
   const script = new vm.Script(data.code);
   const port = data.port;
   const sharedArray = new Int32Array(data.sharedBuffer);
 
+  function requestSync(message: string, payload?: any) {
+    parentPort!.postMessage({ message, payload });
+    Atomics.store(sharedArray, 0, 1);
+    Atomics.wait(sharedArray, 0, 1);
+    const received = receiveMessageOnPort(port);
+
+    return received?.message ?? null;
+  }
+
   const scriptContext = vm.createContext({
     console: Console(),
     Logger: Logger(),
-    HtmlService: HtmlService({ parentPort, port, sharedArray }),
+    HtmlService: HtmlService(requestSync),
     Session: Session(data.gasManifest, data.mockSeed["Session"]),
+    CacheService: CacheService(requestSync),
   });
   script.runInContext(scriptContext);
   const result = await scriptContext[data.fn](...data.args);

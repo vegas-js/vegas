@@ -4,15 +4,11 @@ import { MessageChannel, Worker } from "node:worker_threads";
 import { build as buildWithRolldownApi, OutputChunk, RolldownOutput } from "rolldown";
 import { build as buildWithViteApi, Plugin } from "vite";
 
-import { MockTarget } from "../../../../shared/gas";
-import { ProjectEntry } from "../../../analyze";
-import { exportBridge } from "../../../build/plugins/exportbridge";
-import { virtualHTML } from "../../../build/plugins/virtualhtml";
-import { ResolvedUserConfig } from "../../../config";
-import { GASCache } from "./gasapi/cache";
-import { GASCacheService } from "./gasapi/cacheservice";
-import { GASProperties } from "./gasapi/properties";
-import { GASUrlFetchApp } from "./gasapi/urlfetchapp";
+import { MockTarget } from "../../../shared/gas";
+import { ProjectEntry } from "../../analyze";
+import { exportBridge } from "../../build/plugins/exportbridge";
+import { virtualHTML } from "../../build/plugins/virtualhtml";
+import { ResolvedUserConfig } from "../../config";
 
 function buildWithVite(config: ResolvedUserConfig, webEntry: string) {
   return buildWithViteApi({
@@ -55,12 +51,12 @@ export function hostFrame(
   };
   const mockSeed: Record<string, any> = {};
   const inMemoryStore = {
-    documentProperties: new GASProperties(),
-    scriptProperties: new GASProperties(),
-    userProperties: new GASProperties(),
-    documentCache: new GASCache(),
-    scriptCache: new GASCache(),
-    userCache: new GASCache(),
+    documentProperties: {} as Record<string, string>,
+    scriptProperties: {} as Record<string, string>,
+    userProperties: {} as Record<string, string>,
+    documentCache: {} as Record<string, { value: string; expired: number }>,
+    scriptCache: {} as Record<string, { value: string; expired: number }>,
+    userCache: {} as Record<string, { value: string; expired: number }>,
   };
   function launchGAS(
     contentBaseUrl: string,
@@ -90,10 +86,152 @@ export function hostFrame(
         [port2],
       );
       worker.on("message", async (data) => {
-        if (data.message === "vegas:htmlservice") {
-          const filePath = `${parse(data.filename).name}.html`;
+        if (data.message === "vegas:HtmlService#createHtmlOutputFromFile") {
+          const filePath = `${parse(data.payload).name}.html`;
           const html = userCodes.web.map.get(filePath);
           port1.postMessage(html);
+          Atomics.store(sharedArray, 0, 0);
+          Atomics.notify(sharedArray, 0);
+        } else if (data.message === "vegas:Cache#get") {
+          let cache = null;
+          if (data.payload.scope === "document") {
+            cache = inMemoryStore.documentCache;
+          } else if (data.payload.scope === "script") {
+            cache = inMemoryStore.scriptCache;
+          } else if (data.payload.scope === "user") {
+            cache = inMemoryStore.userCache;
+          }
+
+          if (cache) {
+            const now = new Date().valueOf();
+            Object.entries(cache).forEach(([key, data]) => {
+              if (data.expired <= now) {
+                delete cache[key];
+              }
+            });
+            port1.postMessage(cache[data.payload.key].value);
+          }
+          Atomics.store(sharedArray, 0, 0);
+          Atomics.notify(sharedArray, 0);
+        } else if (data.message === "vegas:Cache#getAll") {
+          let cache = null;
+          if (data.payload.scope === "document") {
+            cache = inMemoryStore.documentCache;
+          } else if (data.payload.scope === "script") {
+            cache = inMemoryStore.scriptCache;
+          } else if (data.payload.scope === "user") {
+            cache = inMemoryStore.userCache;
+          }
+
+          if (cache) {
+            const now = new Date().valueOf();
+            const obj: Record<string, string> = {};
+            Object.entries(cache).forEach(([key, value]) => {
+              if (value.expired <= now) {
+                delete cache[key];
+              } else if ((data.payload.keys as string[]).includes(key)) {
+                obj[key] = cache[key].value;
+              }
+            });
+            port1.postMessage(obj);
+          }
+          Atomics.store(sharedArray, 0, 0);
+          Atomics.notify(sharedArray, 0);
+        } else if (data.message === "vegas:Cache#put") {
+          let cache = null;
+          if (data.payload.scope === "document") {
+            cache = inMemoryStore.documentCache;
+          } else if (data.payload.scope === "script") {
+            cache = inMemoryStore.scriptCache;
+          } else if (data.payload.scope === "user") {
+            cache = inMemoryStore.userCache;
+          }
+
+          if (cache) {
+            const record = data.payload.record;
+            const expired = new Date().valueOf() + record.expired * 1000;
+            cache[record.key] = { value: record.value, expired };
+
+            const cachedLength = Object.keys(cache).length;
+            if (cachedLength > 1000) {
+              const objArray: { expired: number; key: string }[] = [];
+              Object.entries(cache).forEach(([key, data]) => {
+                objArray.push({ expired: data.expired, key });
+              });
+              // desc sort
+              objArray.sort((a, b) => b.expired - a.expired);
+              // remove cached value ( result 900 cache values )
+              for (let i = 0; i < 100 + cachedLength - 1000; i++) {
+                delete cache[objArray[i].key];
+              }
+            }
+          }
+          Atomics.store(sharedArray, 0, 0);
+          Atomics.notify(sharedArray, 0);
+        } else if (data.message === "vegas:Cache#putAll") {
+          let cache = null;
+          if (data.payload.scope === "document") {
+            cache = inMemoryStore.documentCache;
+          } else if (data.payload.scope === "script") {
+            cache = inMemoryStore.scriptCache;
+          } else if (data.payload.scope === "user") {
+            cache = inMemoryStore.userCache;
+          }
+
+          if (cache) {
+            const expired = new Date().valueOf() + data.payload.expired * 1000;
+            Object.entries(data.payload.values as Record<string, string>).forEach(
+              ([key, value]) => {
+                cache[key] = { value, expired };
+              },
+            );
+
+            const cachedLength = Object.keys(cache).length;
+            if (cachedLength > 1000) {
+              const objArray: { expired: number; key: string }[] = [];
+              Object.entries(cache).forEach(([key, data]) => {
+                objArray.push({ expired: data.expired, key });
+              });
+              // desc sort
+              objArray.sort((a, b) => b.expired - a.expired);
+              // remove cached value ( result 900 cache values )
+              for (let i = 0; i < 100 + cachedLength - 1000; i++) {
+                delete cache[objArray[i].key];
+              }
+            }
+          }
+          Atomics.store(sharedArray, 0, 0);
+          Atomics.notify(sharedArray, 0);
+        } else if (data.message === "vegas:Cache#remove") {
+          let cache = null;
+          if (data.payload.scope === "document") {
+            cache = inMemoryStore.documentCache;
+          } else if (data.payload.scope === "script") {
+            cache = inMemoryStore.scriptCache;
+          } else if (data.payload.scope === "user") {
+            cache = inMemoryStore.userCache;
+          }
+
+          if (cache) {
+            delete cache[data.payload.key];
+          }
+          Atomics.store(sharedArray, 0, 0);
+          Atomics.notify(sharedArray, 0);
+        } else if (data.message === "vegas:Cache#removeAll") {
+          let cache = null;
+          if (data.payload.scope === "document") {
+            cache = inMemoryStore.documentCache;
+          } else if (data.payload.scope === "script") {
+            cache = inMemoryStore.scriptCache;
+          } else if (data.payload.scope === "user") {
+            cache = inMemoryStore.userCache;
+          }
+
+          if (cache) {
+            (data.payload.keys as string[]).forEach((key) => {
+              delete cache[key];
+            });
+          }
           Atomics.store(sharedArray, 0, 0);
           Atomics.notify(sharedArray, 0);
         } else if (data.message === "vegas:resolve") {
@@ -159,9 +297,9 @@ export function hostFrame(
 
         switch (mock.target) {
           case MockTarget.Properties: {
-            inMemoryStore.documentProperties.setProperties(mock?.documentProperties ?? {});
-            inMemoryStore.scriptProperties.setProperties(mock?.scriptProperties ?? {});
-            inMemoryStore.userProperties.setProperties(mock?.userProperties ?? {});
+            inMemoryStore.documentProperties = mock?.documentProperties ?? {};
+            inMemoryStore.scriptProperties = mock?.scriptProperties ?? {};
+            inMemoryStore.userProperties = mock?.userProperties ?? {};
             break;
           }
           case MockTarget.Session: {

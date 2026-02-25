@@ -1,22 +1,19 @@
+import { RequestSyncFn } from "../..";
+import { Properties } from "./Properties";
+
 // https://developers.google.com/apps-script/reference/properties/properties-service
-export function PropertiesService({
-  documentProperties,
-  scriptProperties,
-  userProperties,
-}: {
-  documentProperties: GoogleAppsScript.Properties.Properties;
-  scriptProperties: GoogleAppsScript.Properties.Properties;
-  userProperties: GoogleAppsScript.Properties.Properties;
-}): GoogleAppsScript.Properties.PropertiesService {
+export function PropertiesService(
+  requestSync: RequestSyncFn,
+): GoogleAppsScript.Properties.PropertiesService {
   return {
     getDocumentProperties: function () {
-      return documentProperties;
+      return Properties("document", requestSync);
     },
     getScriptProperties: function () {
-      return scriptProperties;
+      return Properties("script", requestSync);
     },
     getUserProperties: function () {
-      return userProperties;
+      return Properties("user", requestSync);
     },
   };
 }

@@ -1,36 +1,34 @@
-// https://developers.google.com/apps-script/reference/properties/properties
-export function Properties(): GoogleAppsScript.Properties.Properties {
-  let _properties: Record<string, string> = {};
+import { RequestSyncFn } from "../..";
 
+// https://developers.google.com/apps-script/reference/properties/properties
+export function Properties(
+  scope: string,
+  requestSync: RequestSyncFn,
+): GoogleAppsScript.Properties.Properties {
   return {
     deleteAllProperties: function () {
-      _properties = {};
+      requestSync("vegas:Properties#deleteAllProperties", { scope });
       return this;
     },
     deleteProperty: function (key: string) {
-      delete _properties[key];
+      requestSync("vegas:Properties#deleteProperty", { scope, key });
       return this;
     },
     getKeys: function () {
-      return Object.keys(_properties);
+      return requestSync("vegas:Properties#getKeys", { scope });
     },
     getProperties: function () {
-      return _properties;
+      return requestSync("vegas:Properties#getProperties", { scope });
     },
     getProperty: function (key: string) {
-      return _properties[key] ?? null;
+      return requestSync("vegas:Properties#getProperties", { scope, key });
     },
-    setProperties: function (properties: object, deleteAllOthers?: boolean) {
-      if (deleteAllOthers) {
-        _properties = {};
-      }
-      Object.entries(properties).forEach(([key, value]) => {
-        _properties[key] = value;
-      });
+    setProperties: function (properties: object, deleteAllOthers: boolean = false) {
+      requestSync("vegas:Properties#setProperties", { scope, properties, deleteAllOthers });
       return this;
     },
     setProperty: function (key: string, value: string) {
-      _properties[key] = value;
+      requestSync("vegas:Properties#setProperty", { scope, property: { key, value } });
       return this;
     },
   };
