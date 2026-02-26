@@ -4,8 +4,8 @@ import { join, resolve } from "node:path";
 import { build } from "rolldown";
 
 import { DisposableTempDir } from "../core";
+import { resolvePath } from "../core";
 import { BaseConfig, GASManifest, OutputConfig, UserConfig } from "../shared/config";
-import { resolvePath } from "./path";
 
 export type ResolvedUserConfig = Required<BaseConfig> & {
   output: Required<OutputConfig>;

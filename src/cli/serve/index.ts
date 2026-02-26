@@ -5,12 +5,12 @@ import { defaultTreeAdapter, html, serialize } from "parse5";
 import { build as buildWithRolldownApi, OutputChunk, RolldownOutput } from "rolldown";
 import { build as buildWithViteApi, Connect, createLogger, createServer } from "vite";
 
+import { resolvePath } from "../../core";
 import { MockTarget } from "../../shared/gas";
 import { collectSources, detectEntries, ProjectEntry } from "../analyze";
 import { exportBridge } from "../build/plugins/exportbridge";
 import { virtualHTML } from "../build/plugins/virtualhtml";
 import { loadConfig, resolveConfig, ResolvedUserConfig } from "../config";
-import { resolvePath } from "../path";
 
 function buildWithVite(config: ResolvedUserConfig, webEntry: string) {
   return buildWithViteApi({

@@ -1,10 +1,12 @@
 import { rmSync, writeFileSync } from "node:fs";
 import { join, relative, sep } from "node:path";
 import { styleText } from "node:util";
+
 import { build as buildWithRolldown, VERSION as ROLLDOWN_VERSION } from "rolldown";
 import { build as buildWithVite, version as VITE_VERSION } from "vite";
 
 import { version as VEGAS_VERSION } from "../../../package.json";
+import { resolvePath } from "../../core";
 import {
   BuildArtifact,
   collectArtifacts,
@@ -13,7 +15,6 @@ import {
   ProjectEntry,
 } from "../analyze";
 import { loadConfig, resolveConfig, ResolvedUserConfig } from "../config";
-import { resolvePath } from "../path";
 import { exportBridge } from "./plugins/exportbridge";
 import { virtualHTML } from "./plugins/virtualhtml";
 
