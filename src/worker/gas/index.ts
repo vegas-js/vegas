@@ -19,14 +19,14 @@ export type RequestSyncFn = (message: string, payload?: any) => any;
 
 const script = new vm.Script(workerData.code);
 const sharedArray: Int32Array = workerData.sharedArray;
-const messagePort: MessagePort = workerData.port;
+const port: MessagePort = workerData.port;
 
-messagePort.on("message", async (data: GASWorkerData) => {
+port.on("message", async (data: GASWorkerData) => {
   function requestSync(message: string, payload?: any) {
-    messagePort.postMessage({ message, payload });
+    port.postMessage({ message, payload });
     Atomics.store(sharedArray, 0, 1);
     Atomics.wait(sharedArray, 0, 1);
-    const received = receiveMessageOnPort(messagePort);
+    const received = receiveMessageOnPort(port);
 
     return received?.message ?? null;
   }
@@ -132,7 +132,7 @@ document.getElementById("sandboxFrame").onload = (event) => {
     payload = JSON.stringify(result);
   }
 
-  messagePort.postMessage({ message: "vegas:resolve", payload });
+  port.postMessage({ message: "vegas:resolve", payload });
 
   setTimeout(() => process.exit(0), 10);
 });
