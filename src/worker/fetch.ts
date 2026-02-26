@@ -1,7 +1,9 @@
-import { parentPort } from "node:worker_threads";
+import { MessagePort, workerData } from "node:worker_threads";
 
-parentPort?.on("message", async (data) => {
-  const int32Array = new Int32Array(data.sharedBuffer);
+const sharedArray = workerData.sharedArray;
+const port: MessagePort = workerData.port;
+
+port.on("message", async (data) => {
   try {
     const response = await fetch(data.url, data.init);
     const headers: Record<string, string> = {};
@@ -13,11 +15,13 @@ parentPort?.on("message", async (data) => {
       content: Array.from(await response.bytes()),
       responseCode: response.status,
     };
-    data.port.postMessage(obj);
+    port.postMessage(obj);
   } catch (err) {
-    data.port.postMessage(err);
+    port.postMessage(err);
   } finally {
-    Atomics.store(int32Array, 0, 1);
-    Atomics.notify(int32Array, 0);
+    Atomics.store(sharedArray, 0, 0);
+    Atomics.notify(sharedArray, 0);
+
+    process.exit(0);
   }
 });

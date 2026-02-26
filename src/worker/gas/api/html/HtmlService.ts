@@ -1,37 +1,38 @@
 import { RequestSyncFn } from "../..";
 import { HtmlOutput } from "./HtmlOutput";
 
-export function HtmlService(requestSync: RequestSyncFn): GoogleAppsScript.HTML.HtmlService {
-  return {
-    SandboxMode: { EMULATED: 0, IFRAME: 1, NATIVE: 2 },
-    XFrameOptionsMode: { ALLOWALL: 0, DEFAULT: 1 },
-    createHtmlOutput: function (
-      html?: string | GoogleAppsScript.Base.BlobSource,
-    ): GoogleAppsScript.HTML.HtmlOutput {
-      if (typeof html !== "string") {
-        throw new Error("Method not implemented.");
-      }
-      const output = HtmlOutput();
-      return output.setContent(html);
-    },
-    createHtmlOutputFromFile: function (filename: string): GoogleAppsScript.HTML.HtmlOutput {
-      const message = requestSync("vegas:HtmlService#createHtmlOutputFromFile", filename);
-      if (!message) {
-        throw new Error(`No HTML file named ${filename} was found.`);
-      }
+export class HtmlService implements GoogleAppsScript.HTML.HtmlService {
+  readonly #requestSync: RequestSyncFn;
 
-      return this.createHtmlOutput(message);
-    },
-    createTemplate: function (
-      _html: string | GoogleAppsScript.Base.BlobSource,
-    ): GoogleAppsScript.HTML.HtmlTemplate {
-      throw new Error("Function not implemented.");
-    },
-    createTemplateFromFile: function (_filename: string): GoogleAppsScript.HTML.HtmlTemplate {
-      throw new Error("Function not implemented.");
-    },
-    getUserAgent: function (): string {
-      throw new Error("Function not implemented.");
-    },
+  constructor(requestSync: RequestSyncFn) {
+    this.#requestSync = requestSync;
+  }
+
+  SandboxMode = { EMULATED: 0, IFRAME: 1, NATIVE: 2 };
+  XFrameOptionsMode = { ALLOWALL: 0, DEFAULT: 1 };
+
+  createHtmlOutput = (html?: string | GoogleAppsScript.Base.BlobSource) => {
+    if (typeof html !== "string") {
+      throw new Error("Method not implemented.");
+    }
+
+    return new HtmlOutput(html);
+  };
+  createHtmlOutputFromFile = (filename: string) => {
+    const message = this.#requestSync("vegas:HtmlService#createHtmlOutputFromFile", filename);
+    if (!message) {
+      throw new Error(`No HTML file named ${filename} was found.`);
+    }
+
+    return this.createHtmlOutput(message);
+  };
+  createTemplate = (html: string | GoogleAppsScript.Base.BlobSource) => {
+    throw new Error("Function not implemented.");
+  };
+  createTemplateFromFile = (filename: string) => {
+    throw new Error("Function not implemented.");
+  };
+  getUserAgent = () => {
+    throw new Error("Function not implemented.");
   };
 }

@@ -23,7 +23,7 @@ const messagePort: MessagePort = workerData.port;
 
 messagePort.on("message", async (data: GASWorkerData) => {
   function requestSync(message: string, payload?: any) {
-    messagePort!.postMessage({ message, payload });
+    messagePort.postMessage({ message, payload });
     Atomics.store(sharedArray, 0, 1);
     Atomics.wait(sharedArray, 0, 1);
     const received = receiveMessageOnPort(messagePort);
@@ -32,11 +32,11 @@ messagePort.on("message", async (data: GASWorkerData) => {
   }
 
   const scriptContext = vm.createContext({
-    console: Console(),
-    Logger: Logger(),
-    HtmlService: HtmlService(requestSync),
-    Session: Session(requestSync),
-    CacheService: CacheService(requestSync),
+    console: new Console(),
+    Logger: new Logger(),
+    HtmlService: new HtmlService(requestSync),
+    Session: new Session(requestSync),
+    CacheService: new CacheService(requestSync),
   });
   script.runInContext(scriptContext);
   const result = await scriptContext[data.fn](...data.args);
@@ -132,7 +132,7 @@ document.getElementById("sandboxFrame").onload = (event) => {
     payload = JSON.stringify(result);
   }
 
-  messagePort!.postMessage({ message: "vegas:resolve", payload });
+  messagePort.postMessage({ message: "vegas:resolve", payload });
 
   setTimeout(() => process.exit(0), 10);
 });

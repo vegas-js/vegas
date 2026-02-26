@@ -1,31 +1,33 @@
 import { RequestSyncFn } from "../..";
 
 // https://developers.google.com/apps-script/reference/cache/cache
-export function Cache(scope: string, requestSync: RequestSyncFn): GoogleAppsScript.Cache.Cache {
-  return {
-    get: function (key: string) {
-      return requestSync("vegas:Cache#get", { scope, key }) ?? null;
-    },
-    getAll: function (keys: string[]) {
-      return requestSync("vegas:Cache#getAll", { scope, keys });
-    },
-    put: function (
-      key: string,
-      value: string,
-      expirationInSeconds: GoogleAppsScript.Integer = 600,
-    ) {
-      const expired = new Date().valueOf() + expirationInSeconds * 1000;
-      requestSync("vegas:Cache#put", { scope, record: { key, value, expired } });
-    },
-    putAll: function (values: object, expirationInSeconds: GoogleAppsScript.Integer = 600) {
-      const expired = new Date().valueOf() + expirationInSeconds * 1000;
-      requestSync("vegas:Cache#putAll", { scope, record: { values, expired } });
-    },
-    remove: function (key: string) {
-      requestSync("vegas:Cache#remove", { scope, key });
-    },
-    removeAll: function (keys: string[]) {
-      requestSync("vegas:Cache#removeAll", { scope, keys });
-    },
+export class Cache implements GoogleAppsScript.Cache.Cache {
+  readonly #scope: string;
+  readonly #requestSync: RequestSyncFn;
+
+  constructor(scope: string, requestSync: RequestSyncFn) {
+    this.#scope = scope;
+    this.#requestSync = requestSync;
+  }
+
+  get = (key: string) => {
+    return this.#requestSync("vegas:Cache#get", { scope: this.#scope, key }) ?? null;
+  };
+  getAll = (keys: string[]) => {
+    return this.#requestSync("vegas:Cache#getAll", { scope: this.#scope, keys });
+  };
+  put = (key: string, value: string, expirationInSeconds: GoogleAppsScript.Integer = 600) => {
+    const expired = new Date().valueOf() + expirationInSeconds * 1000;
+    this.#requestSync("vegas:Cache#put", { scope: this.#scope, record: { key, value, expired } });
+  };
+  putAll = (values: object, expirationInSeconds: GoogleAppsScript.Integer = 600) => {
+    const expired = new Date().valueOf() + expirationInSeconds * 1000;
+    this.#requestSync("vegas:Cache#putAll", { scope: this.#scope, record: { values, expired } });
+  };
+  remove = (key: string) => {
+    this.#requestSync("vegas:Cache#remove", { scope: this.#scope, key });
+  };
+  removeAll = (keys: string[]) => {
+    this.#requestSync("vegas:Cache#removeAll", { scope: this.#scope, keys });
   };
 }

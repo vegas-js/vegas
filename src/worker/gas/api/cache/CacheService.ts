@@ -2,16 +2,20 @@ import { RequestSyncFn } from "../..";
 import { Cache } from "./Cache";
 
 // https://developers.google.com/apps-script/reference/cache/cache-service
-export function CacheService(requestSync: RequestSyncFn): GoogleAppsScript.Cache.CacheService {
-  return {
-    getDocumentCache: function () {
-      return Cache("document", requestSync);
-    },
-    getScriptCache: function () {
-      return Cache("script", requestSync);
-    },
-    getUserCache: function () {
-      return Cache("user", requestSync);
-    },
+export class CacheService implements GoogleAppsScript.Cache.CacheService {
+  readonly #requestSync: RequestSyncFn;
+
+  constructor(requestSync: RequestSyncFn) {
+    this.#requestSync = requestSync;
+  }
+
+  getDocumentCache = () => {
+    return new Cache("document", this.#requestSync);
+  };
+  getScriptCache = () => {
+    return new Cache("script", this.#requestSync);
+  };
+  getUserCache = () => {
+    return new Cache("user", this.#requestSync);
   };
 }

@@ -1,35 +1,45 @@
 import { RequestSyncFn } from "../..";
 
 // https://developers.google.com/apps-script/reference/properties/properties
-export function Properties(
-  scope: string,
-  requestSync: RequestSyncFn,
-): GoogleAppsScript.Properties.Properties {
-  return {
-    deleteAllProperties: function () {
-      requestSync("vegas:Properties#deleteAllProperties", { scope });
-      return this;
-    },
-    deleteProperty: function (key: string) {
-      requestSync("vegas:Properties#deleteProperty", { scope, key });
-      return this;
-    },
-    getKeys: function () {
-      return requestSync("vegas:Properties#getKeys", { scope });
-    },
-    getProperties: function () {
-      return requestSync("vegas:Properties#getProperties", { scope });
-    },
-    getProperty: function (key: string) {
-      return requestSync("vegas:Properties#getProperties", { scope, key });
-    },
-    setProperties: function (properties: object, deleteAllOthers: boolean = false) {
-      requestSync("vegas:Properties#setProperties", { scope, properties, deleteAllOthers });
-      return this;
-    },
-    setProperty: function (key: string, value: string) {
-      requestSync("vegas:Properties#setProperty", { scope, property: { key, value } });
-      return this;
-    },
+export class Properties implements GoogleAppsScript.Properties.Properties {
+  readonly #scope: string;
+  readonly #requestSync: RequestSyncFn;
+
+  constructor(scope: string, requestSync: RequestSyncFn) {
+    this.#scope = scope;
+    this.#requestSync = requestSync;
+  }
+
+  deleteAllProperties = () => {
+    this.#requestSync("vegas:Properties#deleteAllProperties", { scope: this.#scope });
+    return this;
+  };
+  deleteProperty = (key: string) => {
+    this.#requestSync("vegas:Properties#deleteProperty", { scope: this.#scope, key });
+    return this;
+  };
+  getKeys = () => {
+    return this.#requestSync("vegas:Properties#getKeys", { scope: this.#scope });
+  };
+  getProperties = () => {
+    return this.#requestSync("vegas:Properties#getProperties", { scope: this.#scope });
+  };
+  getProperty = (key: string) => {
+    return this.#requestSync("vegas:Properties#getProperties", { scope: this.#scope, key });
+  };
+  setProperties = (properties: object, deleteAllOthers: boolean = false) => {
+    this.#requestSync("vegas:Properties#setProperties", {
+      scope: this.#scope,
+      properties,
+      deleteAllOthers,
+    });
+    return this;
+  };
+  setProperty = (key: string, value: string) => {
+    this.#requestSync("vegas:Properties#setProperty", {
+      scope: this.#scope,
+      property: { key, value },
+    });
+    return this;
   };
 }
