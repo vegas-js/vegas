@@ -1,32 +1,26 @@
-import { RequestSyncFn } from "../..";
+import { requestSync } from "../..";
 import { User } from "./User";
 
 // https://developers.google.com/apps-script/reference/base/session
 export class Session implements GoogleAppsScript.Base.Session {
-  readonly #requestSync: RequestSyncFn;
-
-  constructor(requestSync: RequestSyncFn) {
-    this.#requestSync = requestSync;
-  }
-
   getActiveUser = () => {
-    const email = this.#requestSync("vegas:Session#getActiveUser");
+    const email = requestSync("vegas:Session#getActiveUser");
     return new User(email);
   };
   getActiveUserLocale = () => {
-    const locale = this.#requestSync("vegas:Session#getActiveUserLocale");
+    const locale = requestSync("vegas:Session#getActiveUserLocale");
     return locale;
   };
   getEffectiveUser = () => {
-    const email = this.#requestSync("vegas:Session#getEffectiveUser");
+    const email = requestSync("vegas:Session#getEffectiveUser");
     return new User(email);
   };
   getScriptTimeZone = () => {
-    const timeZone = this.#requestSync("vegas:Session#getScriptTimeZone");
+    const timeZone = requestSync("vegas:Session#getScriptTimeZone");
     return timeZone;
   };
   getTemporaryActiveUserKey = () => {
-    const temporaryKey = this.#requestSync("vegas:Session#getTemporaryActiveUserKey");
+    const temporaryKey = requestSync("vegas:Session#getTemporaryActiveUserKey");
     return temporaryKey;
   };
   /** @deprecated DO NOT USE */

@@ -15,30 +15,29 @@ type GASWorkerData = {
   contentBaseUrl: string;
 };
 
-export type RequestSyncFn = (message: string, payload?: any) => any;
-
 const script = new vm.Script(workerData.code);
+const scriptContext = vm.createContext({
+  console: new Console(),
+  Logger: new Logger(),
+  HtmlService: new HtmlService(),
+  Session: new Session(),
+  CacheService: new CacheService(),
+});
+script.runInContext(scriptContext);
+
 const sharedArray: Int32Array = workerData.sharedArray;
 const port: MessagePort = workerData.port;
 
+export function requestSync(message: string, payload?: any) {
+  port.postMessage({ message, payload });
+  Atomics.store(sharedArray, 0, 1);
+  Atomics.wait(sharedArray, 0, 1);
+  const received = receiveMessageOnPort(port);
+
+  return received?.message ?? null;
+}
+
 port.on("message", async (data: GASWorkerData) => {
-  function requestSync(message: string, payload?: any) {
-    port.postMessage({ message, payload });
-    Atomics.store(sharedArray, 0, 1);
-    Atomics.wait(sharedArray, 0, 1);
-    const received = receiveMessageOnPort(port);
-
-    return received?.message ?? null;
-  }
-
-  const scriptContext = vm.createContext({
-    console: new Console(),
-    Logger: new Logger(),
-    HtmlService: new HtmlService(requestSync),
-    Session: new Session(requestSync),
-    CacheService: new CacheService(requestSync),
-  });
-  script.runInContext(scriptContext);
   const result = await scriptContext[data.fn](...data.args);
 
   let payload = "";

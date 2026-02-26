@@ -1,13 +1,7 @@
-import { RequestSyncFn } from "../..";
+import { requestSync } from "../..";
 import { HtmlOutput } from "./HtmlOutput";
 
 export class HtmlService implements GoogleAppsScript.HTML.HtmlService {
-  readonly #requestSync: RequestSyncFn;
-
-  constructor(requestSync: RequestSyncFn) {
-    this.#requestSync = requestSync;
-  }
-
   SandboxMode = { EMULATED: 0, IFRAME: 1, NATIVE: 2 };
   XFrameOptionsMode = { ALLOWALL: 0, DEFAULT: 1 };
 
@@ -19,7 +13,7 @@ export class HtmlService implements GoogleAppsScript.HTML.HtmlService {
     return new HtmlOutput(html);
   };
   createHtmlOutputFromFile = (filename: string) => {
-    const message = this.#requestSync("vegas:HtmlService#createHtmlOutputFromFile", filename);
+    const message = requestSync("vegas:HtmlService#createHtmlOutputFromFile", filename);
     if (!message) {
       throw new Error(`No HTML file named ${filename} was found.`);
     }
