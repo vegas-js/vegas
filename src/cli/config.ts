@@ -1,8 +1,9 @@
-import { existsSync, mkdtempSync, rmSync } from "node:fs";
+import { existsSync } from "node:fs";
 import { join, resolve } from "node:path";
 
 import { build } from "rolldown";
 
+import { DisposableTempDir } from "../core";
 import { BaseConfig, GASManifest, OutputConfig, UserConfig } from "../shared/config";
 import { resolvePath } from "./path";
 
@@ -31,14 +32,12 @@ async function transpileConfig(root: string, outputDir: string) {
 }
 
 export async function loadConfig(root: string): Promise<UserConfig> {
-  const tempDirPrefix = join(root, "node_modules", "vegas-");
-  const tempDir = mkdtempSync(tempDirPrefix);
-  const transpiledConfigPath = await transpileConfig(root, tempDir);
+  using tempDir = new DisposableTempDir("vegas");
+  const transpiledConfigPath = await transpileConfig(root, tempDir.getPath());
   const rawModule: { default: unknown } = await import(transpiledConfigPath);
   if (!rawModule.default) {
     throw new Error("config must export or return an object.");
   }
-  rmSync(tempDir, { recursive: true, force: true });
   return rawModule.default;
 }
 
