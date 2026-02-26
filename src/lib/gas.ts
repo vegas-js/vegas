@@ -1,9 +1,4 @@
-import {
-  excludesGASUserFunctionNames,
-  MockProperties,
-  MockSession,
-  MockTarget,
-} from "../shared/gas";
+import { MockProperties, MockSession, MockTarget } from "../shared/gas";
 
 declare namespace google {
   namespace script {
@@ -22,6 +17,15 @@ type GASUserFunction<T> = {
     ? (...args: A) => Promise<Awaited<R>>
     : never;
 };
+
+const excludesGASUserFunctionNames = [
+  "onOpen",
+  "onInstall",
+  "onEdit",
+  "onSelectionChange",
+  "doGet",
+  "doPost",
+] as const;
 
 type ExcludeGASUserFunction = (typeof excludesGASUserFunctionNames)[number];
 

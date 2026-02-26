@@ -1,12 +1,3 @@
-export const excludesGASUserFunctionNames = [
-  "onOpen",
-  "onInstall",
-  "onEdit",
-  "onSelectionChange",
-  "doGet",
-  "doPost",
-] as const;
-
 export enum MockTarget {
   Cache = "Cache",
   Properties = "Properties",
