@@ -474,13 +474,9 @@ async function serveApp(
           { name: "src", value: "/blank" },
         ]);
 
-        const transFormedHtml = await userContentServer.transformIndexHtml(
-          url.href,
-          html.toString(),
-        );
         response.statusCode = 200;
         response.setHeader("Content-Type", "text/html");
-        response.end(transFormedHtml);
+        response.end(html.toString());
         return;
       }
     }
