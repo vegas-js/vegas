@@ -1,4 +1,4 @@
-import path, { join, parse } from "node:path";
+import path from "node:path";
 import { MessageChannel, Worker } from "node:worker_threads";
 
 import { OutputChunk, RolldownOutput } from "rolldown";
@@ -20,7 +20,7 @@ async function serveApp(
       const sharedBuffer = new SharedArrayBuffer(4);
       const sharedArray = new Int32Array(sharedBuffer);
       const { port1, port2 } = new MessageChannel();
-      new Worker(join(import.meta.dirname, "gas.js"), {
+      new Worker(path.join(import.meta.dirname, "gas.js"), {
         env: { ...process.env, FORCE_COLOR: "1" },
         transferList: [port2],
         workerData: { code: userCodes.server, sharedArray, port: port2 },
@@ -33,7 +33,7 @@ async function serveApp(
       });
       port1.on("message", async (data) => {
         if (data.message === "vegas:HtmlService#createHtmlOutputFromFile") {
-          const filePath = `${parse(data.payload).name}.html`;
+          const filePath = `${path.parse(data.payload).name}.html`;
           const html = userCodes.web.map.get(filePath);
           port1.postMessage(html);
           Atomics.store(sharedArray, 0, 0);
@@ -238,7 +238,7 @@ async function serveApp(
     root: config.root,
     configFile: false,
     customLogger: createLogger("info", { prefix: "[vegas]" }),
-    cacheDir: join(config.root, "node_modules", ".vegas-host"),
+    cacheDir: path.join(config.root, "node_modules", ".vegas-host"),
   });
 
   const webResult = await Promise.all(buildWebApp(config, projectEntry.webEntries, false));
@@ -359,7 +359,6 @@ async function serveApp(
     root: config.root,
     configFile: false,
     plugins: [
-      ...config.plugins,
       {
         name: "vegas",
 
@@ -380,7 +379,7 @@ async function serveApp(
     ],
     server: { port: hostServer.config.server.port + 1 },
     customLogger: createLogger("info", { prefix: "[vegas]" }),
-    cacheDir: join(config.root, "node_modules", ".vegas-content"),
+    cacheDir: path.join(config.root, "node_modules", ".vegas-content"),
   });
 
   const userContentHandler: Connect.NextHandleFunction = async (request, response, next) => {
