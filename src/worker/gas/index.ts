@@ -1,8 +1,7 @@
 import vm from "node:vm";
 import { MessagePort, receiveMessageOnPort, workerData } from "node:worker_threads";
 
-import { defaultTreeAdapter, html, serialize } from "parse5";
-
+import { HTML } from "../../core";
 import { Console } from "./api/base/console";
 import { Logger } from "./api/base/Logger";
 import { Session } from "./api/base/Session";
@@ -43,48 +42,38 @@ port.on("message", async (data: GASWorkerData) => {
   let payload = "";
   if (data.fn === "doGet") {
     const htmlOutput = result as GoogleAppsScript.HTML.HtmlOutput;
-    const document = defaultTreeAdapter.createDocument();
-    defaultTreeAdapter.setDocumentType(document, "html", "", "");
-    const htmlTag = defaultTreeAdapter.createElement("html", html.NS.HTML, []);
-    const headTag = defaultTreeAdapter.createElement("head", html.NS.HTML, []);
+    const html = new HTML();
 
     const htmlOutputMetaTags = htmlOutput.getMetaTags();
     if (htmlOutputMetaTags.length > 0) {
       htmlOutputMetaTags.forEach((metaTag) => {
-        const meta = defaultTreeAdapter.createElement("meta", html.NS.HTML, [
+        html.appendToHead("meta", [
           { name: "name", value: metaTag.getName() },
           { name: "content", value: metaTag.getContent() },
         ]);
-        defaultTreeAdapter.appendChild(headTag, meta);
       });
     }
 
     const htmlOutputTitle = htmlOutput.getTitle();
     if (htmlOutputTitle) {
-      const title = defaultTreeAdapter.createElement("title", html.NS.HTML, []);
-      defaultTreeAdapter.insertText(title, htmlOutputTitle);
-      defaultTreeAdapter.appendChild(headTag, title);
+      html.appendToHead("title", htmlOutputTitle);
     }
 
     const htmlOutputFaviconUrl = result.getFaviconUrl();
     if (htmlOutputFaviconUrl) {
-      const title = defaultTreeAdapter.createElement("link", html.NS.HTML, [
+      html.appendToHead("link", [
         { name: "rel", value: "shortcut icon" },
         { name: "type", value: "image/png" },
         { name: "href", value: htmlOutputFaviconUrl },
       ]);
-      defaultTreeAdapter.appendChild(headTag, title);
     }
 
-    const styleTag = defaultTreeAdapter.createElement("style", html.NS.HTML, []);
-    defaultTreeAdapter.insertText(
-      styleTag,
+    html.appendToHead(
+      "style",
       "html,body,iframe#sandboxFrame{margin:0;padding:0;height:100%;width:100%;}iframe#sandboxFrame{border:none;display:block;};",
     );
-    defaultTreeAdapter.appendChild(headTag, styleTag);
 
-    const bodyTag = defaultTreeAdapter.createElement("body", html.NS.HTML, []);
-    const iframeTag = defaultTreeAdapter.createElement("iframe", html.NS.HTML, [
+    html.appendToBody("iframe", [
       { name: "id", value: "sandboxFrame" },
       {
         name: "allow",
@@ -98,15 +87,10 @@ port.on("message", async (data: GASWorkerData) => {
       },
       { name: "src", value: `${data.contentBaseUrl}/userCodeAppPanel` },
     ]);
-    defaultTreeAdapter.appendChild(bodyTag, iframeTag);
-
-    const scriptEntryTag = defaultTreeAdapter.createElement("script", html.NS.HTML, [
-      { name: "type", value: "module" },
-    ]);
     const initRecord: Record<string, any> = {};
     initRecord["userHtml"] = result.getContent();
-    defaultTreeAdapter.insertText(
-      scriptEntryTag,
+    html.appendToBody(
+      "script",
       `if (import.meta.hot) {
   import.meta.hot.on("vegas:gasreturn", (data) => {
     document.getElementById("sandboxFrame").contentWindow.postMessage({ type: "vegas:gasreturn", payload: data }, "${data.contentBaseUrl}");
@@ -119,14 +103,10 @@ port.on("message", async (data: GASWorkerData) => {
 document.getElementById("sandboxFrame").onload = (event) => {
   event.currentTarget.contentWindow.postMessage({ type: "vegas:gasinit", payload: { host: window.location.origin,serverData: JSON.parse(decodeURIComponent("${encodeURIComponent(JSON.stringify(initRecord))}"))}}, "${data.contentBaseUrl}");
 }`,
+      [{ name: "type", value: "module" }],
     );
-    defaultTreeAdapter.appendChild(bodyTag, scriptEntryTag);
 
-    defaultTreeAdapter.appendChild(htmlTag, headTag);
-    defaultTreeAdapter.appendChild(htmlTag, bodyTag);
-    defaultTreeAdapter.appendChild(document, htmlTag);
-
-    payload = serialize(document);
+    payload = html.toString();
   } else {
     payload = JSON.stringify(result);
   }

@@ -1,11 +1,10 @@
 import { join, parse } from "node:path";
 import { MessageChannel, Worker } from "node:worker_threads";
 
-import { defaultTreeAdapter, html, serialize } from "parse5";
 import { build as buildWithRolldownApi, OutputChunk, RolldownOutput } from "rolldown";
 import { build as buildWithViteApi, Connect, createLogger, createServer } from "vite";
 
-import { resolvePath } from "../../core";
+import { HTML, resolvePath } from "../../core";
 import { MockTarget } from "../../shared/gas";
 import { collectSources, detectEntries, ProjectEntry } from "../analyze";
 import { exportBridge } from "../build/plugins/exportbridge";
@@ -432,19 +431,13 @@ async function serveApp(
         response.end(blankHtml);
         return;
       } else if (url.pathname === "/userCodeAppPanel") {
-        const document = defaultTreeAdapter.createDocument();
-        defaultTreeAdapter.setDocumentType(document, "html", "", "");
-        const htmlTag = defaultTreeAdapter.createElement("html", html.NS.HTML, []);
-        const headTag = defaultTreeAdapter.createElement("head", html.NS.HTML, []);
-        const styleTag = defaultTreeAdapter.createElement("style", html.NS.HTML, []);
-        defaultTreeAdapter.insertText(
-          styleTag,
+        const html = new HTML();
+        html.appendToHead(
+          "style",
           "html, body, iframe {border: 0; display: block; height: 100%; margin: 0; padding: 0; width: 100%;}iframe#userHtmlFrame {overflow-y: scroll; -webkit-overflow-scrolling: touch;}",
         );
-        defaultTreeAdapter.appendChild(headTag, styleTag);
-        const scriptVegasModuleTag = defaultTreeAdapter.createElement("script", html.NS.HTML, []);
-        defaultTreeAdapter.insertText(
-          scriptVegasModuleTag,
+        html.appendToHead(
+          "script",
           `window.vegas = {
   requestMap: new Map(),
 };
@@ -504,11 +497,8 @@ window.addEventListener("message", (event) => {
   }
 });`,
         );
-        defaultTreeAdapter.appendChild(headTag, scriptVegasModuleTag);
-        defaultTreeAdapter.appendChild(htmlTag, headTag);
 
-        const bodyTag = defaultTreeAdapter.createElement("body", html.NS.HTML, []);
-        const iframeTag = defaultTreeAdapter.createElement("iframe", html.NS.HTML, [
+        html.appendToBody("iframe", [
           { name: "id", value: "userHtmlFrame" },
           {
             name: "allow",
@@ -518,14 +508,9 @@ window.addEventListener("message", (event) => {
           { name: "src", value: "/blank" },
         ]);
 
-        defaultTreeAdapter.appendChild(bodyTag, iframeTag);
-
-        defaultTreeAdapter.appendChild(htmlTag, bodyTag);
-        defaultTreeAdapter.appendChild(document, htmlTag);
-
         const transFormedHtml = await userContentServer.transformIndexHtml(
           url.href,
-          serialize(document),
+          html.toString(),
         );
         response.statusCode = 200;
         response.setHeader("Content-Type", "text/html");
