@@ -1,5 +1,4 @@
 import fs from "node:fs";
-import os from "node:os";
 import path from "node:path";
 
 import { describe, expect, test } from "vitest";
@@ -10,7 +9,7 @@ test("the temp directory path is generated.", () => {
   const name = "test";
   const tempDir = new DisposableTempDir(name);
 
-  const expectTempPath = `${path.join(os.tmpdir(), name)}-`;
+  const expectTempPath = path.join(process.cwd(), "node_modules", "test-");
 
   expect(tempDir.getPath().startsWith(expectTempPath)).toBe(true);
 });
@@ -20,13 +19,33 @@ describe("temp directory paths are generated safely.", () => {
     const name = "/";
     const tempDir = new DisposableTempDir(name);
 
-    expect(tempDir.getPath().startsWith(os.tmpdir())).toBe(true);
+    const expectTempPath = path.join(process.cwd(), "node_modules", "temp-");
+
+    expect(tempDir.getPath().startsWith(expectTempPath)).toBe(true);
   });
-  test("relative reference specification", () => {
+  test("current reference specification.", () => {
+    const name = "./";
+    const tempDir = new DisposableTempDir(name);
+
+    const expectTempPath = path.join(process.cwd(), "node_modules", "temp-");
+
+    expect(tempDir.getPath().startsWith(expectTempPath)).toBe(true);
+  });
+  test("relative reference specification.", () => {
     const name = "../";
     const tempDir = new DisposableTempDir(name);
 
-    expect(tempDir.getPath().startsWith(os.tmpdir())).toBe(true);
+    const expectTempPath = path.join(process.cwd(), "node_modules", "temp-");
+
+    expect(tempDir.getPath().startsWith(expectTempPath)).toBe(true);
+  });
+  test("empty name specification.", () => {
+    const name = "";
+    const tempDir = new DisposableTempDir(name);
+
+    const expectTempPath = path.join(process.cwd(), "node_modules", "temp-");
+
+    expect(tempDir.getPath().startsWith(expectTempPath)).toBe(true);
   });
 });
 

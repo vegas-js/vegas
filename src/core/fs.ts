@@ -8,7 +8,10 @@ export class DisposableTempDir {
 
   constructor(name: string) {
     const safeBasename = path.basename(name);
-    const prefix = path.join(os.tmpdir(), `${safeBasename}-`);
+    const resolvedBasename = safeBasename.replace(/\.\.?/, "");
+    const nodeModuleDirPath = path.join(process.cwd(), "node_modules");
+    const tempDirRoot = fs.existsSync(nodeModuleDirPath) ? nodeModuleDirPath : os.tmpdir();
+    const prefix = path.join(tempDirRoot, `${resolvedBasename ? resolvedBasename : "temp"}-`);
 
     this.#tempDirPath = fs.mkdtempSync(prefix);
   }

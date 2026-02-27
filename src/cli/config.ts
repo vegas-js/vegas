@@ -1,5 +1,5 @@
 import { existsSync } from "node:fs";
-import { join, resolve } from "node:path";
+import { join, relative, resolve } from "node:path";
 
 import { build } from "rolldown";
 
@@ -34,7 +34,8 @@ async function transpileConfig(root: string, outputDir: string) {
 export async function loadConfig(root: string): Promise<UserConfig> {
   using tempDir = new DisposableTempDir("vegas");
   const transpiledConfigPath = await transpileConfig(root, tempDir.getPath());
-  const rawModule: { default: unknown } = await import(transpiledConfigPath);
+  const transpiledRelativeConfigPath = relative(import.meta.dirname, transpiledConfigPath);
+  const rawModule: { default: unknown } = await import(transpiledRelativeConfigPath);
   if (!rawModule.default) {
     throw new Error("config must export or return an object.");
   }
