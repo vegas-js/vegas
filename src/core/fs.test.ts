@@ -7,7 +7,7 @@ import { DisposableTempDir } from "./fs";
 
 test("the temp directory path is generated.", () => {
   const name = "test";
-  const tempDir = new DisposableTempDir(name);
+  using tempDir = new DisposableTempDir(name);
 
   const expectTempPath = path.join(process.cwd(), "node_modules", "test-");
 
@@ -17,7 +17,7 @@ test("the temp directory path is generated.", () => {
 describe("temp directory paths are generated safely.", () => {
   test("root specification", () => {
     const name = "/";
-    const tempDir = new DisposableTempDir(name);
+    using tempDir = new DisposableTempDir(name);
 
     const expectTempPath = path.join(process.cwd(), "node_modules", "temp-");
 
@@ -25,7 +25,7 @@ describe("temp directory paths are generated safely.", () => {
   });
   test("current reference specification.", () => {
     const name = "./";
-    const tempDir = new DisposableTempDir(name);
+    using tempDir = new DisposableTempDir(name);
 
     const expectTempPath = path.join(process.cwd(), "node_modules", "temp-");
 
@@ -33,7 +33,7 @@ describe("temp directory paths are generated safely.", () => {
   });
   test("relative reference specification.", () => {
     const name = "../";
-    const tempDir = new DisposableTempDir(name);
+    using tempDir = new DisposableTempDir(name);
 
     const expectTempPath = path.join(process.cwd(), "node_modules", "temp-");
 
@@ -41,7 +41,7 @@ describe("temp directory paths are generated safely.", () => {
   });
   test("empty name specification.", () => {
     const name = "";
-    const tempDir = new DisposableTempDir(name);
+    using tempDir = new DisposableTempDir(name);
 
     const expectTempPath = path.join(process.cwd(), "node_modules", "temp-");
 

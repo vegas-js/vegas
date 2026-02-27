@@ -32,7 +32,7 @@ async function transpileConfig(root: string, outputDir: string) {
 }
 
 export async function loadConfig(root: string): Promise<UserConfig> {
-  using tempDir = new DisposableTempDir("vegas");
+  using tempDir = new DisposableTempDir(".vegas");
   const transpiledConfigPath = await transpileConfig(root, tempDir.getPath());
   const transpiledRelativeConfigPath = relative(import.meta.dirname, transpiledConfigPath);
   const rawModule: { default: unknown } = await import(transpiledRelativeConfigPath);

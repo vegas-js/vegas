@@ -425,10 +425,14 @@ async function serveApp(
       const baseUrl = `${scheme}://${host}:${port}`;
       const url = new URL(request.url, baseUrl);
       if (url.pathname === "/blank") {
-        const blankHtml = `<!DOCTYPE html><html><head><meta http-equiv="X-UA-Compatible" content="IE=edge"></head><body></body></html>\n`;
+        const html = new HTML();
+        html.appendToHead("meta", [
+          { name: "http-equiv", value: "X-UA-Compatible" },
+          { name: "content", value: "IE=edge" },
+        ]);
         response.statusCode = 200;
         response.setHeader("Content-Type", "text/html");
-        response.end(blankHtml);
+        response.end(html.toString());
         return;
       } else if (url.pathname === "/userCodeAppPanel") {
         const html = new HTML();
