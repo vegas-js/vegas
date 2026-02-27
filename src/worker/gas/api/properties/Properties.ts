@@ -23,7 +23,7 @@ export class Properties implements GoogleAppsScript.Properties.Properties {
     return requestSync("vegas:Properties#getProperties", { scope: this.#scope });
   };
   getProperty = (key: string) => {
-    return requestSync("vegas:Properties#getProperties", { scope: this.#scope, key });
+    return requestSync("vegas:Properties#getProperty", { scope: this.#scope, key });
   };
   setProperties = (properties: object, deleteAllOthers: boolean = false) => {
     requestSync("vegas:Properties#setProperties", {
