@@ -14,7 +14,7 @@ export class Logger implements GoogleAppsScript.Base.Logger {
   outputLogs: string[];
 
   constructor() {
-    this.#logTitle = "Logger(GAS)";
+    this.#logTitle = "Logger (GAS)";
     this.outputLogs = [];
   }
 
