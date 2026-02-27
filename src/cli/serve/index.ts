@@ -1,4 +1,4 @@
-import { join, parse } from "node:path";
+import path, { join, parse } from "node:path";
 import { MessageChannel, Worker } from "node:worker_threads";
 
 import { build as buildWithRolldownApi, OutputChunk, RolldownOutput } from "rolldown";
@@ -404,7 +404,26 @@ async function serveApp(
   const userContentServer = await createServer({
     root: config.root,
     configFile: false,
-    plugins: [...config.plugins],
+    plugins: [
+      ...config.plugins,
+      {
+        name: "vegas",
+
+        resolveId(source, _importer, _options) {
+          if (source === "/@vegas/client") {
+            return "\0virtual:vegas";
+          }
+        },
+
+        async load(id, _options) {
+          if (id === "\0virtual:vegas") {
+            return await this.fs.readFile(path.join(import.meta.dirname, "client.js"), {
+              encoding: "utf8",
+            });
+          }
+        },
+      },
+    ],
     server: { port: hostServer.config.server.port + 1 },
     customLogger: createLogger("info", { prefix: "[vegas]" }),
     cacheDir: join(config.root, "node_modules", ".vegas-content"),
@@ -440,67 +459,10 @@ async function serveApp(
           "style",
           "html, body, iframe {border: 0; display: block; height: 100%; margin: 0; padding: 0; width: 100%;}iframe#userHtmlFrame {overflow-y: scroll; -webkit-overflow-scrolling: touch;}",
         );
-        html.appendToHead(
-          "script",
-          `window.vegas = {
-  requestMap: new Map(),
-};
-window.addEventListener("message", (event) => {
-  if (event.data.type === "vegas:gasinit") {
-    window.vegas.host = event.data.payload.host;
-    const iframe = document.getElementById("userHtmlFrame");
-    iframe.contentWindow.document.open();
-    iframe.contentWindow.document.write(event.data.payload.serverData.userHtml);
-    if (!iframe.contentWindow.google) {
-      iframe.contentWindow.google = {
-        script: {
-          run: {
-            __proto__: new Proxy({
-              withSuccessHandler: (callback) => {},
-              withFailureHandler: (callback) => {},
-            }, {
-              get: (target, property, receiver) => {
-                if (property === "withSuccessHandler") {
-                  return (callback) => {
-                    return {
-                      successHandler: callback,
-                      __proto__: receiver,
-                    };
-                  };
-                } else if (property === "withFailureHandler") {
-                  return (callback) => {
-                    return {
-                      failureHandler: callback,
-                      __proto__: receiver,
-                    };
-                  };
-                } else {
-                  return (...args) => {
-                    let requestId = 0;
-                    do { requestId = Math.floor(Math.random() * 99999); } while (window.vegas.requestMap.has(requestId));
-                    window.vegas.requestMap.set(requestId, receiver);
-                    window.parent.postMessage({ type: "vegas:gascall", payload: { id: requestId, func: property, args: JSON.stringify(args) }}, window.vegas.host);
-                  };
-                }
-              },
-            }),
-          },
-        },
-      };
-    }
-    iframe.contentWindow.document.close();
-  } else if (event.data.type === "vegas:gasreturn") {
-    const iframe = document.getElementById("userHtmlFrame");
-    const gasRun = window.vegas.requestMap.get(event.data.payload.id);
-    if (event.data.payload.status === "ok") {
-      gasRun.successHandler(JSON.parse(event.data.payload.result));
-    } else if (event.data.payload.status === "err") {
-      gasRun.failureHandler(event.data.payload.message);
-    }
-    window.vegas.requestMap.delete(event.data.payload.id);
-  }
-});`,
-        );
+        html.appendToHead("script", [
+          { name: "type", value: "module" },
+          { name: "src", value: "/@vegas/client" },
+        ]);
 
         html.appendToBody("iframe", [
           { name: "id", value: "userHtmlFrame" },

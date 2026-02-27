@@ -1,15 +1,4 @@
 {
-  "compilerOptions": {
-    "target": "es2023",
-    "module": "esnext",
-    "types": ["google-apps-script", "node", "parse5", "rolldown", "vite", "vitest"],
-    "skipLibCheck": true,
-
-    /* Bundler mode */
-    "moduleResolution": "bundler",
-
-    /* Linting */
-    "strict": true
-  },
-  "include": ["src"]
+  "files": [],
+  "references": [{ "path": "tsconfig.client.json" }, { "path": "tsconfig.node.json" }]
 }

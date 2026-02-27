@@ -29,4 +29,11 @@ export default defineConfig([
     },
     dts: false,
   },
+  {
+    entry: "./src/client",
+    outputOptions: {
+      entryFileNames: "[name].js",
+    },
+    dts: false,
+  },
 ]);

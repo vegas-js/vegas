@@ -101,7 +101,7 @@ port.on("message", async (data: GASWorkerData) => {
   });
 }
 document.getElementById("sandboxFrame").onload = (event) => {
-  event.currentTarget.contentWindow.postMessage({ type: "vegas:gasinit", payload: { host: window.location.origin,serverData: JSON.parse(decodeURIComponent("${encodeURIComponent(JSON.stringify(initRecord))}"))}}, "${data.contentBaseUrl}");
+  event.currentTarget.contentWindow.postMessage({ type: "vegas:gasinit", payload: { host: window.location.origin, serverData: JSON.parse(decodeURIComponent("${encodeURIComponent(JSON.stringify(initRecord))}"))}}, "${data.contentBaseUrl}");
 }`,
       [{ name: "type", value: "module" }],
     );
