@@ -1,45 +1,14 @@
 import path, { join, parse } from "node:path";
 import { MessageChannel, Worker } from "node:worker_threads";
 
-import { build as buildWithRolldownApi, OutputChunk, RolldownOutput } from "rolldown";
-import { build as buildWithViteApi, Connect, createLogger, createServer } from "vite";
+import { OutputChunk, RolldownOutput } from "rolldown";
+import { Connect, createLogger, createServer } from "vite";
 
 import { HTML, resolvePath } from "../../core";
 import { MockTarget } from "../../shared/gas";
 import { collectSources, detectEntries, ProjectEntry } from "../analyze";
-import { exportBridge } from "../build/plugins/exportbridge";
-import { virtualHTML } from "../build/plugins/virtualhtml";
+import { buildServerApp, buildWebApp } from "../build";
 import { loadConfig, resolveConfig, ResolvedUserConfig } from "../config";
-
-function buildWithVite(config: ResolvedUserConfig, webEntry: string) {
-  return buildWithViteApi({
-    root: config.root,
-    configFile: false,
-    plugins: [...config.plugins, virtualHTML({ webDir: config.webDir, webEntry: webEntry })],
-    build: {
-      rolldownOptions: {
-        input: webEntry,
-      },
-      outDir: config.output.dir,
-      write: false,
-    },
-    logLevel: "silent",
-  });
-}
-
-function buildWithRolldown(config: ResolvedUserConfig, serverEntry: string) {
-  return buildWithRolldownApi({
-    cwd: config.root,
-    input: serverEntry,
-    plugins: [exportBridge(serverEntry)],
-    output: {
-      format: "iife",
-      name: "GASApp",
-      exports: "named",
-    },
-    write: false,
-  });
-}
 
 async function serveApp(
   config: ResolvedUserConfig,
@@ -272,11 +241,7 @@ async function serveApp(
     cacheDir: join(config.root, "node_modules", ".vegas-host"),
   });
 
-  const webResult = await Promise.all(
-    projectEntry.webEntries.map((webEntry) => {
-      return buildWithVite(config, webEntry);
-    }),
-  );
+  const webResult = await Promise.all(buildWebApp(config, projectEntry.webEntries, false));
   const newWebMap = new Map<string, string>();
   webResult.flat().forEach((result) => {
     (result as RolldownOutput).output.flat().forEach((output) => {
@@ -287,7 +252,7 @@ async function serveApp(
   });
   userCodes.web.map = newWebMap;
 
-  const serverResult = await buildWithRolldown(config, projectEntry.serverEntry);
+  const serverResult = await buildServerApp(config, projectEntry.serverEntry);
   const serverOutput = serverResult.output.flat()[0] as OutputChunk;
   userCodes.server = serverOutput.code;
 
@@ -314,9 +279,7 @@ async function serveApp(
 
   hostServer.watcher.on("change", async (path) => {
     if (path.startsWith(config.webDir)) {
-      const frontResult = await Promise.all(
-        projectEntry.webEntries.map((webEntry) => buildWithVite(config, webEntry)),
-      );
+      const frontResult = await Promise.all(buildWebApp(config, projectEntry.webEntries, false));
       const newWeb = new Map<string, string>();
       frontResult.flat().forEach((result) => {
         (result as RolldownOutput).output.flat().forEach((out) => {
@@ -336,7 +299,7 @@ async function serveApp(
       hostServer.ws.send({ type: "full-reload" });
       return [];
     } else if (path.startsWith(config.serverDir)) {
-      const serverResult = await buildWithRolldown(config, projectEntry.serverEntry);
+      const serverResult = await buildServerApp(config, projectEntry.serverEntry, false);
       const serverOutput = serverResult.output.flat()[0] as OutputChunk;
       userCodes.server = serverOutput.code;
       return [];

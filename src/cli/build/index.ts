@@ -18,7 +18,11 @@ import { loadConfig, resolveConfig, ResolvedUserConfig } from "../config";
 import { exportBridge } from "./plugins/exportbridge";
 import { virtualHTML } from "./plugins/virtualhtml";
 
-function buildWebApp(config: ResolvedUserConfig, webEntries: string[]) {
+export function buildWebApp(
+  config: ResolvedUserConfig,
+  webEntries: string[],
+  isWrite: boolean = true,
+) {
   return webEntries.map((entry) => {
     return buildWithVite({
       root: config.root,
@@ -30,13 +34,18 @@ function buildWebApp(config: ResolvedUserConfig, webEntries: string[]) {
         },
         outDir: config.output.dir,
         emptyOutDir: false,
+        write: isWrite,
       },
       logLevel: "silent",
     });
   });
 }
 
-function buildServerApp(config: ResolvedUserConfig, serverEntry: string) {
+export function buildServerApp(
+  config: ResolvedUserConfig,
+  serverEntry: string,
+  isWrite: boolean = true,
+) {
   return buildWithRolldown({
     cwd: config.root,
     input: serverEntry,
@@ -47,9 +56,7 @@ function buildServerApp(config: ResolvedUserConfig, serverEntry: string) {
       exports: "named",
       dir: config.output.dir,
     },
-    experimental: {
-      nativeMagicString: true,
-    },
+    write: isWrite,
   });
 }
 
