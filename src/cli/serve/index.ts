@@ -362,18 +362,9 @@ async function serveApp(
 
   const hostHandler: Connect.NextHandleFunction = async (request, response, next) => {
     if (request.url) {
-      const scheme = hostServer.config.server.https ? "https" : "http";
-      const host =
-        hostServer.config.server.host !== undefined
-          ? typeof hostServer.config.server.host === "boolean"
-            ? hostServer.config.server.host
-              ? "0.0.0.0"
-              : "localhost"
-            : hostServer.config.server.host
-          : "localhost";
-      const contentPort = hostServer.config.server.port + 1;
-      const contentBaseUrl = `${scheme}://${host}:${contentPort}`;
-      const url = new URL(request.url, contentBaseUrl);
+      const scheme = userContentServer.config.server.https ? "https" : "http";
+      const url = new URL(request.url, `${scheme}://${request.headers.host}`);
+      url.port = String(Number.parseInt(url.port) + 1);
       if (url.pathname === "/") {
         // redirect to iframe
         const basePath = hostServer.config.mode === "production" ? "/exec" : "/dev";
@@ -386,7 +377,7 @@ async function serveApp(
         if (!userCodes.web.hrefs.includes(url.href)) {
           userCodes.web.hrefs.push(url.href);
         }
-        const result = await launchGAS(contentBaseUrl, "doGet");
+        const result = await launchGAS(url.origin, "doGet");
         const transFormedHtml = await hostServer.transformIndexHtml(url.href, result);
         response.statusCode = 200;
         response.setHeader("Content-Type", "text/html");
@@ -432,17 +423,7 @@ async function serveApp(
   const userContentHandler: Connect.NextHandleFunction = async (request, response, next) => {
     if (request.url) {
       const scheme = userContentServer.config.server.https ? "https" : "http";
-      const host =
-        userContentServer.config.server.host !== undefined
-          ? typeof userContentServer.config.server.host === "boolean"
-            ? userContentServer.config.server.host
-              ? "0.0.0.0"
-              : "localhost"
-            : userContentServer.config.server.host
-          : "localhost";
-      const port = userContentServer.config.server.port;
-      const baseUrl = `${scheme}://${host}:${port}`;
-      const url = new URL(request.url, baseUrl);
+      const url = new URL(request.url, `${scheme}://${request.headers.host}`);
       if (url.pathname === "/blank") {
         const html = new HTML();
         html.appendToHead("meta", [
