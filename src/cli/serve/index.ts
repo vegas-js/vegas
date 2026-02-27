@@ -15,7 +15,7 @@ async function serveApp(
   projectEntry: ProjectEntry,
   gasMockSources: string[],
 ) {
-  function launchGAS(contentBaseUrl: string, fn: string, ...args: any[]): Promise<any> {
+  function launchGAS(fn: string, ...args: any[]): Promise<any> {
     return new Promise((resolve) => {
       const sharedBuffer = new SharedArrayBuffer(4);
       const sharedArray = new Int32Array(sharedBuffer);
@@ -26,11 +26,7 @@ async function serveApp(
         workerData: { code: userCodes.server, sharedArray, port: port2 },
       });
 
-      port1.postMessage({
-        fn,
-        args,
-        contentBaseUrl,
-      });
+      port1.postMessage({ fn, args });
       port1.on("message", async (data) => {
         if (data.message === "vegas:HtmlService#createHtmlOutputFromFile") {
           const filePath = `${path.parse(data.payload).name}.html`;
@@ -308,7 +304,7 @@ async function serveApp(
 
   hostServer.ws.on("vegas:gascall", async (data, client) => {
     try {
-      const result = await launchGAS("", data.func, ...JSON.parse(data.args));
+      const result = await launchGAS(data.func, ...JSON.parse(data.args));
       client.send("vegas:gasreturn", {
         id: data.id,
         status: "ok",
@@ -340,8 +336,68 @@ async function serveApp(
         if (!userCodes.web.hrefs.includes(url.href)) {
           userCodes.web.hrefs.push(url.href);
         }
-        const result = await launchGAS(url.origin, "doGet");
-        const transFormedHtml = await hostServer.transformIndexHtml(url.href, result);
+        const result = JSON.parse(await launchGAS("doGet"));
+        const html = new HTML();
+
+        if (result.metaTags > 0) {
+          (result.metaTags as { name: string; content: string }[]).forEach((metaTag) => {
+            html.appendToHead("meta", [
+              { name: "name", value: metaTag.name },
+              { name: "content", value: metaTag.content },
+            ]);
+          });
+        }
+
+        if (result.title) {
+          html.appendToHead("title", result.title);
+        }
+
+        if (result.faviconUrl) {
+          html.appendToHead("link", [
+            { name: "rel", value: "shortcut icon" },
+            { name: "type", value: "image/png" },
+            { name: "href", value: result.faviconUrl },
+          ]);
+        }
+
+        html.appendToHead(
+          "style",
+          "html,body,iframe#sandboxFrame{margin:0;padding:0;height:100%;width:100%;}iframe#sandboxFrame{border:none;display:block;};",
+        );
+
+        html.appendToBody("iframe", [
+          { name: "id", value: "sandboxFrame" },
+          {
+            name: "allow",
+            value:
+              "accelerometer *; ambient-light-sensor *; autoplay *; camera *; clipboard-read *; clipboard-write *; encrypted-media *; fullscreen *; geolocation *; gyroscope *; local-network-access *; magnetometer *; microphone *; midi *; payment *; picture-in-picture *; screen-wake-lock *; speaker *; sync-xhr *; usb *; vibrate *; vr *; web-share *",
+          },
+          {
+            name: "sandbox",
+            value:
+              "allow-downloads allow-forms allow-modals allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts allow-top-navigation-by-user-activation allow-storage-access-by-user-activation",
+          },
+          { name: "src", value: `${url.origin}/userCodeAppPanel` },
+        ]);
+        const initRecord: Record<string, any> = {};
+        initRecord["userHtml"] = result.content;
+        html.appendToBody(
+          "script",
+          `if (import.meta.hot) {
+  import.meta.hot.on("vegas:gasreturn", (data) => {
+    document.getElementById("sandboxFrame").contentWindow.postMessage({ type: "vegas:gasreturn", payload: data }, "${url.origin}");
+  });
+  window.addEventListener("message", (event) => {
+    if (event.origin !== "${url.origin}") return;
+    if (event.data.type === "vegas:gascall") import.meta.hot.send(event.data.type, event.data.payload);
+  });
+}
+document.getElementById("sandboxFrame").onload = (event) => {
+  event.currentTarget.contentWindow.postMessage({ type: "vegas:gasinit", payload: { host: window.location.origin, serverData: JSON.parse(decodeURIComponent("${encodeURIComponent(JSON.stringify(initRecord))}"))}}, "${url.origin}");
+}`,
+          [{ name: "type", value: "module" }],
+        );
+        const transFormedHtml = await hostServer.transformIndexHtml(url.href, html.toString());
         response.statusCode = 200;
         response.setHeader("Content-Type", "text/html");
         response.end(transFormedHtml);
