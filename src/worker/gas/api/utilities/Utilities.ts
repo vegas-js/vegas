@@ -1,5 +1,7 @@
 import crypto from "node:crypto";
 
+import { Blob } from "../base/Blob";
+
 // https://developers.google.com/apps-script/reference/utilities/utilities
 export class Utilities implements GoogleAppsScript.Utilities.Utilities {
   Charset = {
@@ -85,8 +87,16 @@ export class Utilities implements GoogleAppsScript.Utilities.Utilities {
   gzip = (blob: unknown, name?: unknown) => {
     throw new Error("Method not implemented.");
   };
-  newBlob = (data: unknown, contentType?: unknown, name?: unknown) => {
-    throw new Error("Method not implemented.");
+  newBlob = (data: GoogleAppsScript.Byte[] | string, contentType?: string, name?: string) => {
+    const blob = new Blob(name);
+    if (typeof data === "string") {
+      blob.setDataFromString(data);
+    } else {
+      blob.setBytes(data);
+    }
+    blob.setContentType(contentType ?? null);
+
+    return blob;
   };
   parseCsv = (csv: string, delimiter: GoogleAppsScript.Char = ",") => {
     if (delimiter.length !== 1) {

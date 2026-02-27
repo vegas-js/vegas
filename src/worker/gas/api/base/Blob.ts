@@ -1,43 +1,60 @@
 // https://developers.google.com/apps-script/reference/base/blob
 export class Blob implements GoogleAppsScript.Base.Blob {
+  #name: string;
+  #bytes: GoogleAppsScript.Byte[];
+  #contentType: string | null;
+
+  constructor(name: string = "") {
+    this.#name = name;
+    this.#bytes = [];
+    this.#contentType = null;
+  }
+
   copyBlob = () => {
-    throw new Error("Method not implemented.");
+    return new Blob(this.#name)
+      .setBytes(structuredClone(this.#bytes))
+      .setContentType(this.#contentType);
   };
   getAs = (contentType: string) => {
     throw new Error("Method not implemented.");
   };
   getBytes = () => {
-    throw new Error("Method not implemented.");
+    return this.#bytes;
   };
   getContentType = () => {
-    throw new Error("Method not implemented.");
+    return this.#contentType;
   };
-  getDataAsString = (charset?: unknown) => {
-    throw new Error("Method not implemented.");
+  getDataAsString = (charset?: string) => {
+    return Buffer.from(this.#bytes).toString(charset as BufferEncoding);
   };
   getName = () => {
-    throw new Error("Method not implemented.");
+    return this.#name;
   };
   isGoogleType = () => {
     throw new Error("Method not implemented.");
   };
   setBytes = (data: GoogleAppsScript.Byte[]) => {
-    throw new Error("Method not implemented.");
+    this.#bytes = data;
+    return this;
   };
   setContentType = (contentType: string | null) => {
-    throw new Error("Method not implemented.");
+    this.#contentType = contentType;
+    return this;
   };
   setContentTypeFromExtension = () => {
     throw new Error("Method not implemented.");
   };
-  setDataFromString = (string: unknown, charset?: unknown) => {
-    throw new Error("Method not implemented.");
+  setDataFromString = (string: string, charset?: string) => {
+    this.#bytes = Array.from(Buffer.from(string, charset as BufferEncoding));
+    return this;
   };
   setName = (name: string) => {
-    throw new Error("Method not implemented.");
+    this.#name = name;
+    return this;
   };
+  /** @deprecated DO NOT USE */
   getAllBlobs = () => {
-    throw new Error("Method not implemented.");
+    throw new Error("Blob#getAllBlobs() is deprecated. Do not use.");
   };
   getBlob = () => {
     throw new Error("Method not implemented.");

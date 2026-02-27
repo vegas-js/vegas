@@ -18,11 +18,11 @@ describe("base64", () => {
     expect(decoded).toStrictEqual(decodedArray);
   });
   test("decode and stringify", () => {
-    //   const utilities = new Utilities();
-    //   const original = "Google グループ";
-    //   const base64data = "R29vZ2xlIOOCsOODq+ODvOODlw==";
-    //   const decoded = utilities.base64Decode(base64data);
-    //   expect(utilities.newBlob(decoded).getDataAsString()).toBe(original);
+    const utilities = new Utilities();
+    const original = "Google グループ";
+    const base64data = "R29vZ2xlIOOCsOODq+ODvOODlw==";
+    const decoded = utilities.base64Decode(base64data);
+    expect(utilities.newBlob(decoded).getDataAsString()).toBe(original);
   });
   // https://developers.google.com/apps-script/reference/utilities/utilities#base64decodeencoded,-charset
   test("decode with charset", () => {
@@ -36,11 +36,11 @@ describe("base64", () => {
     expect(decoded).toStrictEqual(decodedArray);
   });
   test("decode with charset and stringify", () => {
-    //   const utilities = new Utilities();
-    //   const original = "Google グループ";
-    //   const base64data = "R29vZ2xlIOOCsOODq+ODvOODlw==";
-    //   const decoded = utilities.base64Decode(base64data, utilities.Charset.UTF_8);
-    //   expect(utilities.newBlob(decoded).getDataAsString()).toBe(original);
+    const utilities = new Utilities();
+    const original = "Google グループ";
+    const base64data = "R29vZ2xlIOOCsOODq+ODvOODlw==";
+    const decoded = utilities.base64Decode(base64data, utilities.Charset.UTF_8);
+    expect(utilities.newBlob(decoded).getDataAsString()).toBe(original);
   });
   // https://developers.google.com/apps-script/reference/utilities/utilities#base64decodewebsafeencoded
   test("decode websafe", () => {
@@ -54,11 +54,11 @@ describe("base64", () => {
     expect(decoded).toStrictEqual(decodedArray);
   });
   test("decode websafe and stringify", () => {
-    //   const utilities = new Utilities();
-    //   const original = "Google グループ";
-    //   const base64data = "R29vZ2xlIOOCsOODq-ODvOODlw==";
-    //   const decoded = utilities.base64DecodeWebSafe(base64data);
-    //   expect(utilities.newBlob(decoded).getDataAsString()).toBe(original);
+    const utilities = new Utilities();
+    const original = "Google グループ";
+    const base64data = "R29vZ2xlIOOCsOODq-ODvOODlw==";
+    const decoded = utilities.base64DecodeWebSafe(base64data);
+    expect(utilities.newBlob(decoded).getDataAsString()).toBe(original);
   });
   // https://developers.google.com/apps-script/reference/utilities/utilities#base64decodewebsafeencoded,-charset
   test("decode websafe with charset", () => {
@@ -72,18 +72,18 @@ describe("base64", () => {
     expect(decoded).toStrictEqual(decodedArray);
   });
   test("decode websafe with charset and stringify", () => {
-    //   const utilities = new Utilities();
-    //   const original = "Google グループ";
-    //   const base64data = "R29vZ2xlIOOCsOODq-ODvOODlw==";
-    //   const decoded = utilities.base64DecodeWebSafe(base64data, utilities.Charset.UTF_8);
-    //   expect(utilities.newBlob(decoded).getDataAsString()).toBe(original);
+    const utilities = new Utilities();
+    const original = "Google グループ";
+    const base64data = "R29vZ2xlIOOCsOODq-ODvOODlw==";
+    const decoded = utilities.base64DecodeWebSafe(base64data, utilities.Charset.UTF_8);
+    expect(utilities.newBlob(decoded).getDataAsString()).toBe(original);
   });
   // https://developers.google.com/apps-script/reference/utilities/utilities#base64encodedata
   test("encode from blob", () => {
-    //   const utilities = new Utilities();
-    //   const blob = utilities.newBlob("A string here");
-    //   const encoded = utilities.base64Encode(blob.getBytes());
-    //   expect(encoded).toBe("QSBzdHJpbmcgaGVyZQ==");
+    const utilities = new Utilities();
+    const blob = utilities.newBlob("A string here");
+    const encoded = utilities.base64Encode(blob.getBytes());
+    expect(encoded).toBe("QSBzdHJpbmcgaGVyZQ==");
   });
   // https://developers.google.com/apps-script/reference/utilities/utilities#base64encodedata_1
   test("encode from string", () => {
@@ -100,10 +100,10 @@ describe("base64", () => {
   });
   // https://developers.google.com/apps-script/reference/utilities/utilities#base64encodewebsafedata
   test("encode websafe from blob", () => {
-    // const utilities = new Utilities();
-    // const blob = utilities.newBlob("A string here");
-    // const encoded = utilities.base64EncodeWebSafe(blob.getBytes());
-    // expect(encoded).toBe("QSBzdHJpbmcgaGVyZQ==");
+    const utilities = new Utilities();
+    const blob = utilities.newBlob("A string here");
+    const encoded = utilities.base64EncodeWebSafe(blob.getBytes());
+    expect(encoded).toBe("QSBzdHJpbmcgaGVyZQ==");
   });
   // https://developers.google.com/apps-script/reference/utilities/utilities#base64encodewebsafedata_1
   test("encode websafe from string", () => {
