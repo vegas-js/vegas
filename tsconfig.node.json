@@ -2,7 +2,15 @@
   "compilerOptions": {
     "target": "es2023",
     "module": "esnext",
-    "types": ["google-apps-script", "node", "parse5", "rolldown", "vite", "vitest"],
+    "types": [
+      "@clack/prompts",
+      "google-apps-script",
+      "node",
+      "parse5",
+      "rolldown",
+      "vite",
+      "vitest"
+    ],
     "skipLibCheck": true,
 
     /* Bundler mode */

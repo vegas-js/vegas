@@ -12,6 +12,14 @@ export default defineConfig([
     dts: false,
   },
   {
+    entry: "./src/create-vegas",
+    inlineOnly: ["cac", "@clack/core", "@clack/prompts", "picocolors", "sisteransi"],
+    outputOptions: {
+      entryFileNames: "[name].js",
+    },
+    dts: false,
+  },
+  {
     entry: "./src/lib/index",
     external: ["vite"],
     outputOptions: {

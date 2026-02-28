@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "author": "Yasushi",
   "bin": {
+    "create-vegas": "./dist/create-vegas.js",
     "vegas": "./dist/vegas.js"
   },
   "type": "module",
@@ -22,6 +23,7 @@
     "docs:preview": "vitepress preview docs"
   },
   "devDependencies": {
+    "@clack/prompts": "^1.0.1",
     "@types/google-apps-script": "^2.0.8",
     "@types/node": "^25.3.2",
     "cac": "^6.7.14",
