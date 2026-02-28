@@ -458,6 +458,10 @@ document.getElementById("sandboxFrame").onload = (event) => {
           "style",
           "html, body, iframe {border: 0; display: block; height: 100%; margin: 0; padding: 0; width: 100%;}iframe#userHtmlFrame {overflow-y: scroll; -webkit-overflow-scrolling: touch;}",
         );
+        html.appendToHead(
+          "script",
+          `window.vegas = { host: "${url.origin}", requestMap: new Map() }`,
+        );
         html.appendToHead("script", [
           { name: "type", value: "module" },
           { name: "src", value: "/@vegas/client" },
