@@ -36,7 +36,7 @@ src/
   ├─ server/
   │  └─ Code.ts
   └─ web/
-    └─ main.tsx  // web entry ( to: index.html )
+    └─ main.tsx  // web entry ( to: dist/index.html )
 ```
 
 ### Multi Front / Single GAS
@@ -48,7 +48,7 @@ src/
   └─ web/
     ├─ sub1/
     │  └─ main.tsx // web entry ( to: dist/sub1.html )
-    └─ main.tsx  // web entry ( to: index.html )
+    └─ main.tsx  // web entry ( to: dist/index.html )
 ```
 
 ## License
@@ -59,7 +59,7 @@ src/
 
 ### Note
 
-Vegas is an independent project not affiliated with VoidZero, Inc.
+Vegas is an independent project not affiliated with Google LLC and VoidZero Inc.
 
 ### Thanks
 
