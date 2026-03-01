@@ -49,7 +49,7 @@ export function virtualHTML(option: VirtualHTMLOption): Plugin {
             });
             delete bundle[key];
           } else {
-            console.log(`no processing: ${JSON.stringify(name)}`);
+            this.warn(`no processing: ${name}`);
           }
         } else if (output.type === "chunk") {
           if (name.endsWith(".js")) {
@@ -61,10 +61,10 @@ export function virtualHTML(option: VirtualHTMLOption): Plugin {
             });
             delete bundle[key];
           } else {
-            console.log(`no processing: ${JSON.stringify(name)}`);
+            this.warn(`no processing: ${name}`);
           }
         } else {
-          console.log(`no processing: ${JSON.stringify(name)}`);
+          this.warn(`no processing: ${name}`);
         }
       });
 
