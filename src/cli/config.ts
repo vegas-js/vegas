@@ -12,34 +12,43 @@ export type ResolvedUserConfig = Required<BaseConfig> & {
   gas: GASManifest;
 };
 
-async function transpileConfig(root: string, outputDir: string) {
-  const configPath = path.join(root, "vegas.config.ts");
-  if (!fs.existsSync(configPath)) {
-    throw new Error("vegas.config.ts is required.");
+async function transpileModule(ctx: { root: string; filePath: string; outputDir: string }) {
+  if (!fs.existsSync(ctx.filePath)) {
+    throw new Error(`${ctx.filePath} is not found.`);
   }
   const result = await build({
-    input: configPath,
+    input: ctx.filePath,
     external: () => true,
-    cwd: root,
+    cwd: ctx.root,
     treeshake: false,
     tsconfig: false,
     output: {
-      dir: outputDir,
+      dir: ctx.outputDir,
     },
   });
   const output = result.output[0];
-  return path.join(outputDir, output.fileName);
+  return path.join(ctx.outputDir, output.fileName);
 }
 
-export async function loadConfig(root: string): Promise<UserConfig> {
+export async function loadModule(ctx: { root: string; filePath: string }): Promise<any> {
   using tempDir = new DisposableTempDir(".vegas");
-  const transpiledConfigPath = await transpileConfig(root, tempDir.getPath());
+  const transpiledConfigPath = await transpileModule({
+    root: ctx.root,
+    filePath: ctx.filePath,
+    outputDir: tempDir.getPath(),
+  });
   const transpiledRelativeConfigPath = path.relative(import.meta.dirname, transpiledConfigPath);
   const rawModule: { default: unknown } = await import(transpiledRelativeConfigPath);
   if (!rawModule.default) {
     throw new Error("config must export or return an object.");
   }
   return rawModule.default;
+}
+
+export async function loadConfig(root: string) {
+  const mod = loadModule({ root, filePath: path.join(root, "vegas.config.ts") });
+
+  return mod as UserConfig;
 }
 
 export function resolveConfig(userConfig: UserConfig): ResolvedUserConfig {

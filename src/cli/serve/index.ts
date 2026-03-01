@@ -8,13 +8,38 @@ import { HTML, resolvePath } from "../../core";
 import { MockTarget } from "../../shared/gas";
 import { collectSources, detectEntries, ProjectEntry } from "../analyze";
 import { buildServerApp, buildWebApp } from "../build";
-import { loadConfig, resolveConfig, ResolvedUserConfig } from "../config";
+import { loadConfig, loadModule, resolveConfig, ResolvedUserConfig } from "../config";
+import { createServeContext, ServeContext } from "./context";
+
+async function loadMock(ctx: ServeContext, gasMockSources: string[]) {
+  for (const source of gasMockSources) {
+    const mock = await loadModule({ root: ctx.config.root, filePath: source });
+
+    switch (mock.target) {
+      case MockTarget.Properties: {
+        ctx.store.properties.document = mock?.documentProperties ?? {};
+        ctx.store.properties.script = mock?.scriptProperties ?? {};
+        ctx.store.properties.user = mock?.userProperties ?? {};
+        break;
+      }
+      case MockTarget.Session: {
+        ctx.mock[mock.target] = mock;
+        break;
+      }
+      // TODO
+    }
+  }
+}
 
 async function serveApp(
   config: ResolvedUserConfig,
   projectEntry: ProjectEntry,
   gasMockSources: string[],
 ) {
+  const ctx = createServeContext(config, projectEntry);
+
+  await loadMock(ctx, gasMockSources);
+
   function launchGAS(fn: string, ...args: any[]): Promise<any> {
     return new Promise((resolve) => {
       const sharedBuffer = new SharedArrayBuffer(4);
@@ -23,35 +48,35 @@ async function serveApp(
       new worker.Worker(path.join(import.meta.dirname, "gas.js"), {
         env: { ...process.env, FORCE_COLOR: "1" },
         transferList: [port2],
-        workerData: { code: userCodes.server, sharedArray, port: port2 },
+        workerData: { code: ctx.code.server, sharedArray, port: port2 },
       });
 
       port1.postMessage({ fn, args });
       port1.on("message", async (data) => {
         if (data.message === "vegas:HtmlService#createHtmlOutputFromFile") {
           const filePath = `${path.parse(data.payload).name}.html`;
-          const html = userCodes.web.map.get(filePath);
+          const html = ctx.code.web.map.get(filePath);
           port1.postMessage(html);
           Atomics.store(sharedArray, 0, 0);
           Atomics.notify(sharedArray, 0);
         } else if (data.message === "vegas:Session#getActiveUser") {
           const email =
             config.gas.webapp!.executeAs === "USER_ACCESSING"
-              ? (mockSeed["Session"]?.activeUserEmail ?? "active@gmail.com")
-              : (mockSeed["Session"]?.effectiveUserEmail ?? "effective@gmail.com");
+              ? (ctx.mock["Session"]?.activeUserEmail ?? "active@gmail.com")
+              : (ctx.mock["Session"]?.effectiveUserEmail ?? "effective@gmail.com");
           port1.postMessage(email);
           Atomics.store(sharedArray, 0, 0);
           Atomics.notify(sharedArray, 0);
         } else if (data.message === "vegas:Session#getActiveUserLocale") {
-          const userLocale = mockSeed["Session"]?.activeUserLocale ?? "en";
+          const userLocale = ctx.mock["Session"]?.activeUserLocale ?? "en";
           port1.postMessage(userLocale);
           Atomics.store(sharedArray, 0, 0);
           Atomics.notify(sharedArray, 0);
         } else if (data.message === "vegas:Session#getEffectiveUser") {
           const email =
             config.gas.webapp!.executeAs === "USER_ACCESSING"
-              ? (mockSeed["Session"]?.activeUserEmail ?? "active@gmail.com")
-              : (mockSeed["Session"]?.effectiveUserEmail ?? "effective@gmail.com");
+              ? (ctx.mock["Session"]?.activeUserEmail ?? "active@gmail.com")
+              : (ctx.mock["Session"]?.effectiveUserEmail ?? "effective@gmail.com");
           port1.postMessage(email);
           Atomics.store(sharedArray, 0, 0);
           Atomics.notify(sharedArray, 0);
@@ -62,7 +87,7 @@ async function serveApp(
           Atomics.notify(sharedArray, 0);
         } else if (data.message === "vegas:Session#getTemporaryActiveUserKey") {
           const key =
-            mockSeed["Session"]?.temporaryActiveUserKey ??
+            ctx.mock["Session"]?.temporaryActiveUserKey ??
             "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
           port1.postMessage(key);
           Atomics.store(sharedArray, 0, 0);
@@ -70,11 +95,11 @@ async function serveApp(
         } else if (data.message === "vegas:Cache#get") {
           let cache = null;
           if (data.payload.scope === "document") {
-            cache = inMemoryStore.documentCache;
+            cache = ctx.store.cache.document;
           } else if (data.payload.scope === "script") {
-            cache = inMemoryStore.scriptCache;
+            cache = ctx.store.cache.script;
           } else if (data.payload.scope === "user") {
-            cache = inMemoryStore.userCache;
+            cache = ctx.store.cache.user;
           }
 
           if (cache) {
@@ -91,11 +116,11 @@ async function serveApp(
         } else if (data.message === "vegas:Cache#getAll") {
           let cache = null;
           if (data.payload.scope === "document") {
-            cache = inMemoryStore.documentCache;
+            cache = ctx.store.cache.document;
           } else if (data.payload.scope === "script") {
-            cache = inMemoryStore.scriptCache;
+            cache = ctx.store.cache.script;
           } else if (data.payload.scope === "user") {
-            cache = inMemoryStore.userCache;
+            cache = ctx.store.cache.user;
           }
 
           if (cache) {
@@ -115,11 +140,11 @@ async function serveApp(
         } else if (data.message === "vegas:Cache#put") {
           let cache = null;
           if (data.payload.scope === "document") {
-            cache = inMemoryStore.documentCache;
+            cache = ctx.store.cache.document;
           } else if (data.payload.scope === "script") {
-            cache = inMemoryStore.scriptCache;
+            cache = ctx.store.cache.script;
           } else if (data.payload.scope === "user") {
-            cache = inMemoryStore.userCache;
+            cache = ctx.store.cache.user;
           }
 
           if (cache) {
@@ -145,11 +170,11 @@ async function serveApp(
         } else if (data.message === "vegas:Cache#putAll") {
           let cache = null;
           if (data.payload.scope === "document") {
-            cache = inMemoryStore.documentCache;
+            cache = ctx.store.cache.document;
           } else if (data.payload.scope === "script") {
-            cache = inMemoryStore.scriptCache;
+            cache = ctx.store.cache.script;
           } else if (data.payload.scope === "user") {
-            cache = inMemoryStore.userCache;
+            cache = ctx.store.cache.user;
           }
 
           if (cache) {
@@ -179,11 +204,11 @@ async function serveApp(
         } else if (data.message === "vegas:Cache#remove") {
           let cache = null;
           if (data.payload.scope === "document") {
-            cache = inMemoryStore.documentCache;
+            cache = ctx.store.cache.document;
           } else if (data.payload.scope === "script") {
-            cache = inMemoryStore.scriptCache;
+            cache = ctx.store.cache.script;
           } else if (data.payload.scope === "user") {
-            cache = inMemoryStore.userCache;
+            cache = ctx.store.cache.user;
           }
 
           if (cache) {
@@ -194,11 +219,11 @@ async function serveApp(
         } else if (data.message === "vegas:Cache#removeAll") {
           let cache = null;
           if (data.payload.scope === "document") {
-            cache = inMemoryStore.documentCache;
+            cache = ctx.store.cache.document;
           } else if (data.payload.scope === "script") {
-            cache = inMemoryStore.scriptCache;
+            cache = ctx.store.cache.script;
           } else if (data.payload.scope === "user") {
-            cache = inMemoryStore.userCache;
+            cache = ctx.store.cache.user;
           }
 
           if (cache) {
@@ -214,20 +239,6 @@ async function serveApp(
       });
     });
   }
-
-  const userCodes = {
-    web: { hrefs: [] as string[], map: new Map<string, string>() },
-    server: "",
-  };
-  const mockSeed: Record<string, any> = {};
-  const inMemoryStore = {
-    documentProperties: {} as Record<string, string>,
-    scriptProperties: {} as Record<string, string>,
-    userProperties: {} as Record<string, string>,
-    documentCache: {} as Record<string, { value: string; expired: number }>,
-    scriptCache: {} as Record<string, { value: string; expired: number }>,
-    userCache: {} as Record<string, { value: string; expired: number }>,
-  };
 
   const hostServer = await createServer({
     root: config.root,
@@ -245,30 +256,11 @@ async function serveApp(
       }
     });
   });
-  userCodes.web.map = newWebMap;
+  ctx.code.web.map = newWebMap;
 
   const serverResult = await buildServerApp(config, projectEntry.serverEntry);
   const serverOutput = serverResult.output.flat()[0] as OutputChunk;
-  userCodes.server = serverOutput.code;
-
-  for (const source of gasMockSources) {
-    const mod = await hostServer.ssrLoadModule(source);
-    const mock = mod.default;
-
-    switch (mock.target) {
-      case MockTarget.Properties: {
-        inMemoryStore.documentProperties = mock?.documentProperties ?? {};
-        inMemoryStore.scriptProperties = mock?.scriptProperties ?? {};
-        inMemoryStore.userProperties = mock?.userProperties ?? {};
-        break;
-      }
-      case MockTarget.Session: {
-        mockSeed[mock.target] = mock;
-        break;
-      }
-      // TODO
-    }
-  }
+  ctx.code.server = serverOutput.code;
 
   hostServer.watcher.add([config.webDir, config.serverDir]);
 
@@ -283,9 +275,9 @@ async function serveApp(
           }
         });
       });
-      userCodes.web.map = newWeb;
+      ctx.code.web.map = newWeb;
       hostServer.moduleGraph.invalidateAll();
-      for (const href of userCodes.web.hrefs) {
+      for (const href of ctx.code.web.hrefs) {
         const mod = await hostServer.moduleGraph.getModuleByUrl(href);
         if (mod) {
           hostServer.moduleGraph.invalidateModule(mod);
@@ -296,7 +288,7 @@ async function serveApp(
     } else if (path.startsWith(config.serverDir)) {
       const serverResult = await buildServerApp(config, projectEntry.serverEntry, false);
       const serverOutput = serverResult.output.flat()[0] as OutputChunk;
-      userCodes.server = serverOutput.code;
+      ctx.code.server = serverOutput.code;
       return [];
     }
   });
@@ -332,8 +324,8 @@ async function serveApp(
         return;
       } else if (/^\/(exec|dev)/.test(url.pathname)) {
         // response iframe
-        if (!userCodes.web.hrefs.includes(url.href)) {
-          userCodes.web.hrefs.push(url.href);
+        if (!ctx.code.web.hrefs.includes(url.href)) {
+          ctx.code.web.hrefs.push(url.href);
         }
         const result = JSON.parse(await launchGAS("doGet"));
         const html = new HTML();
