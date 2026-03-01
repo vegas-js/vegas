@@ -9,23 +9,31 @@ export class Cache implements GoogleAppsScript.Cache.Cache {
   }
 
   get = (key: string) => {
-    return requestSync("vegas:Cache#get", { scope: this.#scope, key }) ?? null;
+    return (
+      requestSync({ message: "vegas:Cache#get", payload: { scope: this.#scope, key } }) ?? null
+    );
   };
   getAll = (keys: string[]) => {
-    return requestSync("vegas:Cache#getAll", { scope: this.#scope, keys });
+    return requestSync({ message: "vegas:Cache#getAll", payload: { scope: this.#scope, keys } });
   };
   put = (key: string, value: string, expirationInSeconds: GoogleAppsScript.Integer = 600) => {
     const expired = new Date().valueOf() + expirationInSeconds * 1000;
-    requestSync("vegas:Cache#put", { scope: this.#scope, record: { key, value, expired } });
+    requestSync({
+      message: "vegas:Cache#put",
+      payload: { scope: this.#scope, record: { key, value, expired } },
+    });
   };
   putAll = (values: object, expirationInSeconds: GoogleAppsScript.Integer = 600) => {
     const expired = new Date().valueOf() + expirationInSeconds * 1000;
-    requestSync("vegas:Cache#putAll", { scope: this.#scope, record: { values, expired } });
+    requestSync({
+      message: "vegas:Cache#putAll",
+      payload: { scope: this.#scope, record: { values, expired } },
+    });
   };
   remove = (key: string) => {
-    requestSync("vegas:Cache#remove", { scope: this.#scope, key });
+    requestSync({ message: "vegas:Cache#remove", payload: { scope: this.#scope, key } });
   };
   removeAll = (keys: string[]) => {
-    requestSync("vegas:Cache#removeAll", { scope: this.#scope, keys });
+    requestSync({ message: "vegas:Cache#removeAll", payload: { scope: this.#scope, keys } });
   };
 }

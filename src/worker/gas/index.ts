@@ -25,10 +25,10 @@ script.runInContext(scriptContext);
 const sharedArray: Int32Array = workerData.sharedArray;
 const port: MessagePort = workerData.port;
 
-export function requestSync(message: string, payload?: any) {
-  port.postMessage({ message, payload });
+export function requestSync(request: { message: string; payload?: any }, timeout?: number) {
+  port.postMessage(request);
   Atomics.store(sharedArray, 0, 1);
-  Atomics.wait(sharedArray, 0, 1);
+  Atomics.wait(sharedArray, 0, 1, timeout);
   const received = receiveMessageOnPort(port);
 
   return received?.message ?? null;

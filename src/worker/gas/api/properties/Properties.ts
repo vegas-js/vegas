@@ -9,34 +9,52 @@ export class Properties implements GoogleAppsScript.Properties.Properties {
   }
 
   deleteAllProperties = () => {
-    requestSync("vegas:Properties#deleteAllProperties", { scope: this.#scope });
+    requestSync({
+      message: "vegas:Properties#deleteAllProperties",
+      payload: { scope: this.#scope },
+    });
     return this;
   };
   deleteProperty = (key: string) => {
-    requestSync("vegas:Properties#deleteProperty", { scope: this.#scope, key });
+    requestSync({
+      message: "vegas:Properties#deleteProperty",
+      payload: { scope: this.#scope, key },
+    });
     return this;
   };
   getKeys = () => {
-    return requestSync("vegas:Properties#getKeys", { scope: this.#scope });
+    return requestSync({ message: "vegas:Properties#getKeys", payload: { scope: this.#scope } });
   };
   getProperties = () => {
-    return requestSync("vegas:Properties#getProperties", { scope: this.#scope });
+    return requestSync({
+      message: "vegas:Properties#getProperties",
+      payload: { scope: this.#scope },
+    });
   };
   getProperty = (key: string) => {
-    return requestSync("vegas:Properties#getProperty", { scope: this.#scope, key });
+    return requestSync({
+      message: "vegas:Properties#getProperty",
+      payload: { scope: this.#scope, key },
+    });
   };
   setProperties = (properties: object, deleteAllOthers: boolean = false) => {
-    requestSync("vegas:Properties#setProperties", {
-      scope: this.#scope,
-      properties,
-      deleteAllOthers,
+    requestSync({
+      message: "vegas:Properties#setProperties",
+      payload: {
+        scope: this.#scope,
+        properties,
+        deleteAllOthers,
+      },
     });
     return this;
   };
   setProperty = (key: string, value: string) => {
-    requestSync("vegas:Properties#setProperty", {
-      scope: this.#scope,
-      property: { key, value },
+    requestSync({
+      message: "vegas:Properties#setProperty",
+      payload: {
+        scope: this.#scope,
+        property: { key, value },
+      },
     });
     return this;
   };

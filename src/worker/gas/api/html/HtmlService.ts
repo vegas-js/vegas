@@ -13,7 +13,10 @@ export class HtmlService implements GoogleAppsScript.HTML.HtmlService {
     return new HtmlOutput(html);
   };
   createHtmlOutputFromFile = (filename: string) => {
-    const message = requestSync("vegas:HtmlService#createHtmlOutputFromFile", filename);
+    const message = requestSync({
+      message: "vegas:HtmlService#createHtmlOutputFromFile",
+      payload: filename,
+    });
     if (!message) {
       throw new Error(`No HTML file named ${filename} was found.`);
     }
