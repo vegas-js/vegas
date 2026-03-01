@@ -1,5 +1,5 @@
 import vm from "node:vm";
-import { MessagePort, receiveMessageOnPort, workerData } from "node:worker_threads";
+import worker_threads from "node:worker_threads";
 
 import { Console } from "./api/base/console";
 import { Logger } from "./api/base/Logger";
@@ -12,7 +12,7 @@ type GASWorkerData = {
   args: any[];
 };
 
-const script = new vm.Script(workerData.code);
+const script = new vm.Script(worker_threads.workerData.code);
 const scriptContext = vm.createContext({
   console: new Console(),
   Logger: new Logger(),
@@ -22,14 +22,14 @@ const scriptContext = vm.createContext({
 });
 script.runInContext(scriptContext);
 
-const sharedArray: Int32Array = workerData.sharedArray;
-const port: MessagePort = workerData.port;
+const sharedArray: Int32Array = worker_threads.workerData.sharedArray;
+const port: worker_threads.MessagePort = worker_threads.workerData.port;
 
 export function requestSync(request: { message: string; payload?: any }, timeout?: number) {
   port.postMessage(request);
   Atomics.store(sharedArray, 0, 1);
   Atomics.wait(sharedArray, 0, 1, timeout);
-  const received = receiveMessageOnPort(port);
+  const received = worker_threads.receiveMessageOnPort(port);
 
   return received?.message ?? null;
 }
@@ -56,5 +56,5 @@ port.on("message", async (data: GASWorkerData) => {
 
   port.postMessage({ message: "vegas:resolve", payload });
 
-  setTimeout(() => process.exit(0), 10);
+  globalThis.setTimeout(() => process.exit(0), 10);
 });

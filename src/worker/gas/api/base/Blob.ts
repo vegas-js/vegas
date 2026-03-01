@@ -12,7 +12,7 @@ export class Blob implements GoogleAppsScript.Base.Blob {
 
   copyBlob = () => {
     return new Blob(this.#name)
-      .setBytes(structuredClone(this.#bytes))
+      .setBytes(globalThis.structuredClone(this.#bytes))
       .setContentType(this.#contentType);
   };
   getAs = (contentType: string) => {

@@ -1,4 +1,4 @@
-import { parse } from "node:path";
+import path from "node:path";
 
 import { Plugin } from "vite";
 
@@ -7,7 +7,7 @@ export function exportBridge(serverEntry: string): Plugin {
     name: "vite-plugin-exportbridge",
 
     generateBundle(outputOptions, bundle, _isWrite) {
-      const key = `${parse(serverEntry).name}.js`;
+      const key = `${path.parse(serverEntry).name}.js`;
       const entry = bundle[key];
       if (entry && entry.type === "chunk") {
         const bridgeCodes: string[] = ["\n\n/* Function bridge for GAS Client */"];

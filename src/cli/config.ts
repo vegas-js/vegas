@@ -1,5 +1,5 @@
-import { existsSync } from "node:fs";
-import { join, relative, resolve } from "node:path";
+import fs from "node:fs";
+import path from "node:path";
 
 import { build } from "rolldown";
 
@@ -13,8 +13,8 @@ export type ResolvedUserConfig = Required<BaseConfig> & {
 };
 
 async function transpileConfig(root: string, outputDir: string) {
-  const configPath = join(root, "vegas.config.ts");
-  if (!existsSync(configPath)) {
+  const configPath = path.join(root, "vegas.config.ts");
+  if (!fs.existsSync(configPath)) {
     throw new Error("vegas.config.ts is required.");
   }
   const result = await build({
@@ -28,13 +28,13 @@ async function transpileConfig(root: string, outputDir: string) {
     },
   });
   const output = result.output[0];
-  return join(outputDir, output.fileName);
+  return path.join(outputDir, output.fileName);
 }
 
 export async function loadConfig(root: string): Promise<UserConfig> {
   using tempDir = new DisposableTempDir(".vegas");
   const transpiledConfigPath = await transpileConfig(root, tempDir.getPath());
-  const transpiledRelativeConfigPath = relative(import.meta.dirname, transpiledConfigPath);
+  const transpiledRelativeConfigPath = path.relative(import.meta.dirname, transpiledConfigPath);
   const rawModule: { default: unknown } = await import(transpiledRelativeConfigPath);
   if (!rawModule.default) {
     throw new Error("config must export or return an object.");
@@ -44,12 +44,14 @@ export async function loadConfig(root: string): Promise<UserConfig> {
 
 export function resolveConfig(userConfig: UserConfig): ResolvedUserConfig {
   const root = resolvePath(userConfig.root);
-  const webDir = resolve(join(root, userConfig.webDir ?? join("src", "web")));
-  const serverDir = resolve(join(root, userConfig.serverDir ?? join("src", "server")));
-  const gasMockDir = resolve(join(root, userConfig.gasMockDir ?? "mock"));
+  const webDir = path.resolve(path.join(root, userConfig.webDir ?? path.join("src", "web")));
+  const serverDir = path.resolve(
+    path.join(root, userConfig.serverDir ?? path.join("src", "server")),
+  );
+  const gasMockDir = path.resolve(path.join(root, userConfig.gasMockDir ?? "mock"));
   const plugins = userConfig.plugins ?? [];
   const output = {
-    dir: resolve(join(root, userConfig.output?.dir ?? "dist")),
+    dir: path.resolve(path.join(root, userConfig.output?.dir ?? "dist")),
   };
   const gas: GASManifest = {
     dependencies: userConfig.gas?.dependencies,

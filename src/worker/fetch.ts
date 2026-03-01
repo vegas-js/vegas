@@ -1,11 +1,11 @@
-import { MessagePort, workerData } from "node:worker_threads";
+import worker_threads from "node:worker_threads";
 
-const sharedArray = workerData.sharedArray;
-const port: MessagePort = workerData.port;
+const sharedArray = worker_threads.workerData.sharedArray;
+const port: worker_threads.MessagePort = worker_threads.workerData.port;
 
 port.on("message", async (data) => {
   try {
-    const response = await fetch(data.url, data.init);
+    const response = await globalThis.fetch(data.url, data.init);
     const headers: Record<string, string> = {};
     response.headers.forEach((value, key) => {
       headers[key] = value;

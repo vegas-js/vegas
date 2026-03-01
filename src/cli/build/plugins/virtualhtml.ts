@@ -1,4 +1,4 @@
-import { join, parse, relative } from "node:path";
+import path from "node:path";
 
 import { HtmlTagDescriptor, Plugin } from "vite";
 
@@ -12,10 +12,10 @@ export function virtualHTML(option: VirtualHTMLOption): Plugin {
     name: "vite-plugin-virtualhtml",
 
     configResolved(config) {
-      const relativeDirname = relative(option.webDir, parse(option.webEntry).dir);
+      const relativeDirname = path.relative(option.webDir, path.parse(option.webEntry).dir);
       const htmlPath = relativeDirname
         ? `${relativeDirname}.html`
-        : join(relativeDirname, "index.html");
+        : path.join(relativeDirname, "index.html");
       config.build.rolldownOptions.input = htmlPath;
     },
 

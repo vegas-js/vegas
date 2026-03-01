@@ -1,5 +1,5 @@
-import { readdirSync, readFileSync, statSync } from "node:fs";
-import { join, parse, relative, resolve } from "node:path";
+import fs from "node:fs";
+import path from "node:path";
 
 import { parseSync } from "vite";
 
@@ -13,9 +13,9 @@ export type ProjectSource = {
 
 function recursiveCollectFiles(dir: string, excludeDirs?: string[]) {
   const filePaths: string[] = [];
-  const entryDir = readdirSync(dir, { withFileTypes: true });
+  const entryDir = fs.readdirSync(dir, { withFileTypes: true });
   entryDir.forEach((entry) => {
-    const absolutePath = resolve(join(dir, entry.name));
+    const absolutePath = path.resolve(path.join(dir, entry.name));
     if (entry.isFile()) {
       filePaths.push(absolutePath);
     } else if (entry.isDirectory() && !excludeDirs?.includes(entry.name)) {
@@ -48,20 +48,20 @@ export function collectSources(userConfig: ResolvedUserConfig): ProjectSource {
 }
 
 function detectWebEntries(webSources: string[]) {
-  return webSources.filter((source) => /^main\.tsx?$/.test(parse(source).base));
+  return webSources.filter((source) => /^main\.tsx?$/.test(path.parse(source).base));
 }
 
 function detectServerEntry(webSources: string[], serverSources: string[]) {
   const serverEntries: string[] = [];
   webSources.forEach((webSource) => {
-    const { program } = parseSync(webSource, readFileSync(webSource, { encoding: "utf8" }));
+    const { program } = parseSync(webSource, fs.readFileSync(webSource, { encoding: "utf8" }));
     program.body.forEach((node) => {
       if (node.type === "ImportDeclaration") {
-        const sourceDir = parse(webSource).dir;
-        const importPath = resolve(sourceDir, node.source.value);
+        const sourceDir = path.parse(webSource).dir;
+        const importPath = path.resolve(sourceDir, node.source.value);
         const importAbsolutePath = importPath.endsWith(".ts") ? importPath : `${importPath}.ts`;
         if (serverSources.includes(importAbsolutePath)) {
-          if (parse(importAbsolutePath).base !== "Code.ts") {
+          if (path.parse(importAbsolutePath).base !== "Code.ts") {
             throw new Error("The only file that can be imported from the server side is Code.ts");
           }
           serverEntries.push(importAbsolutePath);
@@ -103,10 +103,10 @@ export type ProjectIOMap = {
 
 export function mappingProjectIO(config: ResolvedUserConfig, projectEntry: ProjectEntry) {
   const projectIOMap: ProjectIOMap[] = projectEntry.webEntries.map((entryPath) => {
-    const relativeDirname = relative(config.webDir, parse(entryPath).dir);
+    const relativeDirname = path.relative(config.webDir, path.parse(entryPath).dir);
     const outputPath = relativeDirname
       ? `${relativeDirname}.html`
-      : join(relativeDirname, "index.html");
+      : path.join(relativeDirname, "index.html");
     return { entryPath, outputPath };
   });
 
@@ -120,8 +120,8 @@ export type BuildArtifact = {
 
 export function collectArtifacts(outDir: string): BuildArtifact[] {
   return recursiveCollectFiles(outDir).map((filePath) => {
-    const size = statSync(filePath).size;
-    const relativePath = relative(outDir, filePath);
+    const size = fs.statSync(filePath).size;
+    const relativePath = path.relative(outDir, filePath);
     return { path: relativePath, size };
   });
 }
