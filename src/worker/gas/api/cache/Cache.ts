@@ -17,14 +17,14 @@ export class Cache implements GoogleAppsScript.Cache.Cache {
     return requestSync({ message: "vegas:Cache#getAll", payload: { scope: this.#scope, keys } });
   };
   put = (key: string, value: string, expirationInSeconds: GoogleAppsScript.Integer = 600) => {
-    const expired = new Date().valueOf() + expirationInSeconds * 1000;
+    const expired = Date.now() + expirationInSeconds * 1000;
     requestSync({
       message: "vegas:Cache#put",
       payload: { scope: this.#scope, record: { key, value, expired } },
     });
   };
   putAll = (values: object, expirationInSeconds: GoogleAppsScript.Integer = 600) => {
-    const expired = new Date().valueOf() + expirationInSeconds * 1000;
+    const expired = Date.now() + expirationInSeconds * 1000;
     requestSync({
       message: "vegas:Cache#putAll",
       payload: { scope: this.#scope, record: { values, expired } },

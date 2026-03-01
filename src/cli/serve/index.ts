@@ -124,8 +124,7 @@ async function serveApp(
 
           if (cache) {
             const record = data.payload.record;
-            const expired = Date.now() + record.expired * 1000;
-            cache[record.key] = { value: record.value, expired };
+            cache[record.key] = { value: record.value, expired: record.expired };
 
             const cachedLength = Object.keys(cache).length;
             if (cachedLength > 1000) {
@@ -154,8 +153,8 @@ async function serveApp(
           }
 
           if (cache) {
-            const expired = Date.now() + data.payload.expired * 1000;
-            Object.entries(data.payload.values as Record<string, string>).forEach(
+            const expired = data.payload.record.expired;
+            Object.entries(data.payload.record.values as Record<string, string>).forEach(
               ([key, value]) => {
                 cache[key] = { value, expired };
               },
