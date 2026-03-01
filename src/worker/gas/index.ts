@@ -1,5 +1,5 @@
 import vm from "node:vm";
-import worker_threads from "node:worker_threads";
+import worker from "node:worker_threads";
 
 import { Console } from "./api/base/console";
 import { Logger } from "./api/base/Logger";
@@ -12,7 +12,7 @@ type GASWorkerData = {
   args: any[];
 };
 
-const script = new vm.Script(worker_threads.workerData.code);
+const script = new vm.Script(worker.workerData.code);
 const scriptContext = vm.createContext({
   console: new Console(),
   Logger: new Logger(),
@@ -22,14 +22,14 @@ const scriptContext = vm.createContext({
 });
 script.runInContext(scriptContext);
 
-const sharedArray: Int32Array = worker_threads.workerData.sharedArray;
-const port: worker_threads.MessagePort = worker_threads.workerData.port;
+const sharedArray: Int32Array = worker.workerData.sharedArray;
+const port: worker.MessagePort = worker.workerData.port;
 
 export function requestSync(request: { message: string; payload?: any }, timeout?: number) {
   port.postMessage(request);
   Atomics.store(sharedArray, 0, 1);
   Atomics.wait(sharedArray, 0, 1, timeout);
-  const received = worker_threads.receiveMessageOnPort(port);
+  const received = worker.receiveMessageOnPort(port);
 
   return received?.message ?? null;
 }

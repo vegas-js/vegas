@@ -1,5 +1,5 @@
 import path from "node:path";
-import { MessageChannel, receiveMessageOnPort, Worker } from "node:worker_threads";
+import worker from "node:worker_threads";
 
 import { HttpResponse } from "./HTTPResponse";
 
@@ -8,8 +8,8 @@ export class UrlFetchApp implements GoogleAppsScript.URL_Fetch.UrlFetchApp {
   fetch = (url: string, params?: GoogleAppsScript.URL_Fetch.URLFetchRequestOptions) => {
     const sharedBuffer = new SharedArrayBuffer(4);
     const sharedArray = new Int32Array(sharedBuffer);
-    const { port1, port2 } = new MessageChannel();
-    new Worker(path.join(import.meta.dirname, "fetch.js"), {
+    const { port1, port2 } = new worker.MessageChannel();
+    new worker.Worker(path.join(import.meta.dirname, "fetch.js"), {
       transferList: [port2],
       workerData: { sharedArray, port: port2 },
     });
@@ -26,7 +26,7 @@ export class UrlFetchApp implements GoogleAppsScript.URL_Fetch.UrlFetchApp {
     port1.postMessage({ url, init });
     Atomics.store(sharedArray, 0, 1);
     Atomics.wait(sharedArray, 0, 1);
-    const result = receiveMessageOnPort(port1);
+    const result = worker.receiveMessageOnPort(port1);
     return new HttpResponse(
       result?.message.headers,
       result?.message.content,

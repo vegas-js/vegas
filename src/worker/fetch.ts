@@ -1,7 +1,7 @@
-import worker_threads from "node:worker_threads";
+import worker from "node:worker_threads";
 
-const sharedArray = worker_threads.workerData.sharedArray;
-const port: worker_threads.MessagePort = worker_threads.workerData.port;
+const sharedArray = worker.workerData.sharedArray;
+const port: worker.MessagePort = worker.workerData.port;
 
 port.on("message", async (data) => {
   try {

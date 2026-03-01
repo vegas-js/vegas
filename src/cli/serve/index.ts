@@ -1,5 +1,5 @@
 import path from "node:path";
-import { MessageChannel, Worker } from "node:worker_threads";
+import worker from "node:worker_threads";
 
 import { OutputChunk, RolldownOutput } from "rolldown";
 import { Connect, createLogger, createServer } from "vite";
@@ -19,8 +19,8 @@ async function serveApp(
     return new Promise((resolve) => {
       const sharedBuffer = new SharedArrayBuffer(4);
       const sharedArray = new Int32Array(sharedBuffer);
-      const { port1, port2 } = new MessageChannel();
-      new Worker(path.join(import.meta.dirname, "gas.js"), {
+      const { port1, port2 } = new worker.MessageChannel();
+      new worker.Worker(path.join(import.meta.dirname, "gas.js"), {
         env: { ...process.env, FORCE_COLOR: "1" },
         transferList: [port2],
         workerData: { code: userCodes.server, sharedArray, port: port2 },

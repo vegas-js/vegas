@@ -1,4 +1,4 @@
-import util, { Inspectable } from "node:util";
+import util from "node:util";
 
 const logPrefixFormat = `${util.styleText(["black", "bgGreenBright"], "%s")}  %s%s`;
 
@@ -49,7 +49,7 @@ function formatObject(object?: object) {
       output = outputArray;
     } else {
       const outputObject = object;
-      (outputObject as Inspectable)[util.inspect.custom] = (_depth, _options, _inspect) => {
+      (outputObject as util.Inspectable)[util.inspect.custom] = (_depth, _options, _inspect) => {
         const obj: Record<string, any> = {};
         Object.entries(object).forEach(([key, value]) => {
           obj[key] = value;
