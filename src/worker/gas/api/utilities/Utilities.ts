@@ -1,6 +1,7 @@
 import crypto from "node:crypto";
 
 import { Blob } from "../base/Blob";
+import { MD2Hash } from "./md2hash";
 
 // https://developers.google.com/apps-script/reference/utilities/utilities
 export class Utilities implements GoogleAppsScript.Utilities.Utilities {
@@ -28,6 +29,15 @@ export class Utilities implements GoogleAppsScript.Utilities.Utilities {
     RSA_SHA_256: 1,
   };
 
+  #AlgorithmMap = {
+    [this.DigestAlgorithm.MD2]: "md2",
+    [this.DigestAlgorithm.MD5]: "md5",
+    [this.DigestAlgorithm.SHA_1]: "sha1",
+    [this.DigestAlgorithm.SHA_256]: "sha256",
+    [this.DigestAlgorithm.SHA_384]: "sha384",
+    [this.DigestAlgorithm.SHA_512]: "sha512",
+  } as const;
+
   // oxlint-disable-next-line no-unused-vars
   base64Decode = (encoded: string, charset?: GoogleAppsScript.Utilities.Charset) => {
     return Array.from(new Int8Array(Buffer.from(encoded, "base64")));
@@ -54,11 +64,15 @@ export class Utilities implements GoogleAppsScript.Utilities.Utilities {
     value: GoogleAppsScript.Byte[] | string,
     charset?: GoogleAppsScript.Utilities.Charset,
   ) => {
-    const hash = crypto.createHash("md5");
+    let algo = this.#AlgorithmMap[algorithm];
+
     const encoding = (charset && charset === 0 ? "ascii" : "utf8") as BufferEncoding;
     const buffer = typeof value === "string" ? Buffer.from(value, encoding) : Buffer.from(value);
+    const hash = algo === "md2" ? new MD2Hash() : crypto.createHash(algo);
     hash.update(buffer);
-    return Array.from(new Int8Array(hash.digest()));
+    const result = Array.from(new Int8Array(hash.digest()));
+
+    return result;
   };
   computeHmacSha256Signature = (value: unknown, key: unknown, charset?: unknown) => {
     throw new Error("Method not implemented.");
