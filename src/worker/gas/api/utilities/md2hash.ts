@@ -35,20 +35,20 @@ const PADDING = [
 ];
 
 export class MD2Hash {
-  #state: Uint16Array;
-  #checksum: Uint16Array;
+  #state: Uint8Array;
+  #checksum: Uint8Array;
   #count: number;
-  #buffer: Uint16Array;
+  #buffer: Uint8Array;
 
   constructor() {
-    this.#state = new Uint16Array(16);
-    this.#checksum = new Uint16Array(16);
+    this.#state = new Uint8Array(16);
+    this.#checksum = new Uint8Array(16);
     this.#count = 0;
-    this.#buffer = new Uint16Array(16);
+    this.#buffer = new Uint8Array(16);
   }
 
   #transform(block: Buffer) {
-    const x = new Uint16Array(48);
+    const x = new Uint8Array(48);
     for (let i = 0; i < 16; i++) {
       x[i] = this.#state[i];
       x[i + 16] = block[i];
