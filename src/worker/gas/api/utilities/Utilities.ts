@@ -47,7 +47,7 @@ export class Utilities implements GoogleAppsScript.Utilities.Utilities {
   #RsaAlgorithmMap = {
     [this.RsaAlgorithm.RSA_SHA_1]: "sha1",
     [this.RsaAlgorithm.RSA_SHA_256]: "sha256",
-  };
+  } as const;
 
   // oxlint-disable-next-line no-unused-vars
   base64Decode = (encoded: string, charset?: GoogleAppsScript.Utilities.Charset) => {
