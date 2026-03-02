@@ -8,17 +8,14 @@ export default defineConfig([
       fetch: "./src/worker/fetch",
       client: "./src/client",
     },
-    external: ["vite"],
-    inlineOnly: ["@rolldown/pluginutils", "cac", "entities", "parse5", "rolldown"],
+    inlineOnly: ["cac", "entities", "parse5"],
     outputOptions: {
       entryFileNames: "[name].js",
-      chunkFileNames: "chunks/[name].js",
     },
     dts: false,
   },
   {
-    entry: "./src/lib/index",
-    external: ["vite"],
+    entry: "./src/lib",
     outputOptions: {
       entryFileNames: (chunk) => `${chunk.name.replace(/^index(\.d)?$/, "lib$1")}.js`,
     },
