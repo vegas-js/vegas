@@ -27,6 +27,7 @@
     "@types/google-apps-script": "^2.0.8",
     "@types/node": "^25.3.2",
     "cac": "^6.7.14",
+    "memfs": "^4.56.10",
     "oxfmt": "^0.35.0",
     "oxlint": "^1.50.0",
     "oxlint-tsgolint": "^0.15.0",
