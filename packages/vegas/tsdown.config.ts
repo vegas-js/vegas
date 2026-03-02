@@ -3,9 +3,9 @@ import { defineConfig } from "tsdown";
 export default defineConfig([
   {
     entry: {
-      vegas: "./src/cli",
-      gas: "./src/worker/gas",
-      fetch: "./src/worker/fetch",
+      vegas: "./src/node/cli",
+      gas: "./src/node/worker/gas",
+      fetch: "./src/node/worker/fetch",
       client: "./src/client",
     },
     inlineOnly: ["cac", "entities", "parse5"],

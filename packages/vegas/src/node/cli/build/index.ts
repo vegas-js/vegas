@@ -5,7 +5,7 @@ import util from "node:util";
 import { build as buildWithRolldown, VERSION as ROLLDOWN_VERSION } from "rolldown";
 import { build as buildWithVite, version as VITE_VERSION } from "vite";
 
-import { version as VEGAS_VERSION } from "../../../package.json";
+import { version as VEGAS_VERSION } from "../../../../package.json";
 import { resolvePath } from "../../core";
 import { collectArtifacts, collectSources, detectEntries, ProjectEntry } from "../analyze";
 import { loadConfig, resolveConfig, ResolvedUserConfig } from "../config";

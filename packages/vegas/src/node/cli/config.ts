@@ -3,9 +3,9 @@ import path from "node:path";
 
 import { build } from "rolldown";
 
+import { BaseConfig, GASManifest, OutputConfig, UserConfig } from "../../shared/config";
 import { DisposableTempDir } from "../core";
 import { resolvePath } from "../core";
-import { BaseConfig, GASManifest, OutputConfig, UserConfig } from "../shared/config";
 
 export type ResolvedUserConfig = Required<BaseConfig> & {
   output: Required<OutputConfig>;
