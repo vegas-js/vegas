@@ -1,4 +1,5 @@
 import crypto from "node:crypto";
+import util from "node:util";
 
 import { Blob } from "../base/Blob";
 import { MD2Hash } from "./md2hash";
@@ -17,19 +18,7 @@ export class Utilities implements GoogleAppsScript.Utilities.Utilities {
     SHA_384: 4,
     SHA_512: 5,
   };
-  MacAlgorithm = {
-    HMAC_MD5: 0,
-    HMAC_SHA_1: 1,
-    HMAC_SHA_256: 2,
-    HMAC_SHA_384: 3,
-    HMAC_SHA_512: 4,
-  };
-  RsaAlgorithm = {
-    RSA_SHA_1: 0,
-    RSA_SHA_256: 1,
-  };
-
-  #AlgorithmMap = {
+  #DigestAlgorithmMap = {
     [this.DigestAlgorithm.MD2]: "md2",
     [this.DigestAlgorithm.MD5]: "md5",
     [this.DigestAlgorithm.SHA_1]: "sha1",
@@ -37,6 +26,28 @@ export class Utilities implements GoogleAppsScript.Utilities.Utilities {
     [this.DigestAlgorithm.SHA_384]: "sha384",
     [this.DigestAlgorithm.SHA_512]: "sha512",
   } as const;
+  MacAlgorithm = {
+    HMAC_MD5: 0,
+    HMAC_SHA_1: 1,
+    HMAC_SHA_256: 2,
+    HMAC_SHA_384: 3,
+    HMAC_SHA_512: 4,
+  };
+  #MacAlgorithmMap = {
+    [this.MacAlgorithm.HMAC_MD5]: "md5",
+    [this.MacAlgorithm.HMAC_SHA_1]: "sha1",
+    [this.MacAlgorithm.HMAC_SHA_256]: "sha256",
+    [this.MacAlgorithm.HMAC_SHA_384]: "sha384",
+    [this.MacAlgorithm.HMAC_SHA_512]: "sha512",
+  } as const;
+  RsaAlgorithm = {
+    RSA_SHA_1: 0,
+    RSA_SHA_256: 1,
+  };
+  #RsaAlgorithmMap = {
+    [this.RsaAlgorithm.RSA_SHA_1]: "sha1",
+    [this.RsaAlgorithm.RSA_SHA_256]: "sha256",
+  };
 
   // oxlint-disable-next-line no-unused-vars
   base64Decode = (encoded: string, charset?: GoogleAppsScript.Utilities.Charset) => {
@@ -64,7 +75,7 @@ export class Utilities implements GoogleAppsScript.Utilities.Utilities {
     value: GoogleAppsScript.Byte[] | string,
     charset?: GoogleAppsScript.Utilities.Charset,
   ) => {
-    let algo = this.#AlgorithmMap[algorithm];
+    let algo = this.#DigestAlgorithmMap[algorithm];
 
     const encoding = (charset && charset === 0 ? "ascii" : "utf8") as BufferEncoding;
     const buffer = typeof value === "string" ? Buffer.from(value, encoding) : Buffer.from(value);
@@ -74,20 +85,60 @@ export class Utilities implements GoogleAppsScript.Utilities.Utilities {
 
     return result;
   };
-  computeHmacSha256Signature = (value: unknown, key: unknown, charset?: unknown) => {
-    throw new Error("Method not implemented.");
+  computeHmacSha256Signature = (
+    value: GoogleAppsScript.Byte[] | string,
+    key: GoogleAppsScript.Byte[] | string,
+    charset?: GoogleAppsScript.Utilities.Charset,
+  ) => {
+    return this.computeHmacSignature(this.MacAlgorithm.HMAC_SHA_256, value, key, charset);
   };
-  computeHmacSignature = (algorithm: unknown, value: unknown, key: unknown, charset?: unknown) => {
-    throw new Error("Method not implemented.");
+  computeHmacSignature = (
+    algorithm: GoogleAppsScript.Utilities.MacAlgorithm,
+    value: GoogleAppsScript.Byte[] | string,
+    key: GoogleAppsScript.Byte[] | string,
+    charset?: GoogleAppsScript.Utilities.Charset,
+  ) => {
+    let algo = this.#MacAlgorithmMap[algorithm];
+
+    const encoding = (charset && charset === 0 ? "ascii" : "utf8") as BufferEncoding;
+    const bufferValue =
+      typeof value === "string" ? Buffer.from(value, encoding) : Buffer.from(value);
+    const bufferKey = typeof key === "string" ? Buffer.from(key, encoding) : Buffer.from(key);
+    const hmac = crypto.createHmac(algo, bufferKey);
+    hmac.update(bufferValue);
+    const result = Array.from(new Int8Array(hmac.digest()));
+
+    return result;
   };
-  computeRsaSha1Signature = (value: unknown, key: unknown, charset?: unknown) => {
-    throw new Error("Method not implemented.");
+  computeRsaSha1Signature = (
+    value: string,
+    key: string,
+    charset?: GoogleAppsScript.Utilities.Charset,
+  ) => {
+    return this.computeRsaSignature(this.RsaAlgorithm.RSA_SHA_1, value, key, charset);
   };
-  computeRsaSha256Signature = (value: unknown, key: unknown, charset?: unknown) => {
-    throw new Error("Method not implemented.");
+  computeRsaSha256Signature = (
+    value: string,
+    key: string,
+    charset?: GoogleAppsScript.Utilities.Charset,
+  ) => {
+    return this.computeRsaSignature(this.RsaAlgorithm.RSA_SHA_256, value, key, charset);
   };
-  computeRsaSignature = (algorithm: unknown, value: unknown, key: unknown, charset?: unknown) => {
-    throw new Error("Method not implemented.");
+  computeRsaSignature = (
+    algorithm: GoogleAppsScript.Utilities.RsaAlgorithm,
+    value: string,
+    key: string,
+    charset?: GoogleAppsScript.Utilities.Charset,
+  ) => {
+    let algo = this.#RsaAlgorithmMap[algorithm];
+
+    const encoding = (charset && charset === 0 ? "ascii" : "utf8") as BufferEncoding;
+    const bufferValue =
+      typeof value === "string" ? Buffer.from(value, encoding) : Buffer.from(value);
+    const bufferKey = typeof key === "string" ? Buffer.from(key, encoding) : Buffer.from(key);
+    const result = Array.from(new Int8Array(crypto.sign(algo, bufferValue, bufferKey)));
+
+    return result;
   };
   formatDate = (date: GoogleAppsScript.Base.Date, timeZone: string, format: string) => {
     throw new Error("Method not implemented.");
