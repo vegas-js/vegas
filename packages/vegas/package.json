@@ -20,7 +20,7 @@
   "devDependencies": {
     "@types/google-apps-script": "^2.0.8",
     "@types/node": "^25.3.2",
-    "cac": "^6.7.14",
+    "cac": "^7.0.0",
     "memfs": "^4.56.10",
     "parse5": "^8.0.0"
   },
