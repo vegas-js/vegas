@@ -8,7 +8,7 @@
   "explorer.fileNesting.enabled": true,
   "explorer.fileNesting.patterns": {
     "*.ts": "${capture}.test.ts",
-    "package.json": "package-lock.json, .oxfmt*, .oxlint*"
+    "package.json": "pnpm-*, .oxfmt*, .oxlint*"
   },
   "oxc.fmt.configPath": ".oxfmtrc.json",
   "oxc.typeAware": true

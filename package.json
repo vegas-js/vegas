@@ -1,19 +1,10 @@
 {
-  "name": "@vegasjs/vegas",
-  "version": "0.0.0",
+  "name": "@vegasjs/vegas-monorepo",
+  "private": true,
   "author": "Yasushi",
-  "bin": {
-    "create-vegas": "./dist/create-vegas.js",
-    "vegas": "./dist/vegas.js"
-  },
   "type": "module",
-  "exports": {
-    ".": {
-      "types": "./dist/lib.d.ts",
-      "import": "./dist/lib.js"
-    }
-  },
   "scripts": {
+    "preinstall": "npx only-allow pnpm",
     "lint": "oxlint --type-aware --type-check --deny-warnings",
     "format": "oxfmt --write",
     "test": "vitest run",
@@ -23,18 +14,10 @@
     "docs:preview": "vitepress preview docs"
   },
   "devDependencies": {
-    "@clack/prompts": "^1.0.1",
-    "@types/google-apps-script": "^2.0.8",
-    "@types/node": "^25.3.2",
-    "cac": "^6.7.14",
-    "memfs": "^4.56.10",
     "oxfmt": "^0.35.0",
     "oxlint": "^1.50.0",
     "oxlint-tsgolint": "^0.15.0",
-    "parse5": "^8.0.0",
-    "rolldown": "^1.0.0-rc.6",
     "tsdown": "^0.20.3",
-    "vite": "=8.0.0-beta.16",
     "vitepress": "^2.0.0-alpha.16",
     "vitest": "^4.0.18"
   },

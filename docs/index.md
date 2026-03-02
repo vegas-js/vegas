@@ -21,4 +21,3 @@ $ npm i -D @vegasjs/vegas
 ```
 
 :::
-
