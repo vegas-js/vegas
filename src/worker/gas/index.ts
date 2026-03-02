@@ -6,24 +6,21 @@ import { Logger } from "./api/base/Logger";
 import { Session } from "./api/base/Session";
 import { CacheService } from "./api/cache/CacheService";
 import { HtmlService } from "./api/html/HtmlService";
+import { Properties } from "./api/properties/Properties";
+import { PropertiesService } from "./api/properties/PropertiesService";
 
 type GASWorkerData = {
   fn: string;
   args: any[];
 };
 
-const script = new vm.Script(worker.workerData.code);
-const scriptContext = vm.createContext({
-  console: new Console(),
-  Logger: new Logger(),
-  HtmlService: new HtmlService(),
-  Session: new Session(),
-  CacheService: new CacheService(),
-});
-script.runInContext(scriptContext);
+const Scope = {
+  DOCUMENT: "document",
+  SCRIPT: "script",
+  USER: "user",
+} as const;
 
-const sharedArray: Int32Array = worker.workerData.sharedArray;
-const port: worker.MessagePort = worker.workerData.port;
+export type Scope = (typeof Scope)[keyof typeof Scope];
 
 export function requestSync(request: { message: string; payload?: any }, timeout?: number) {
   port.postMessage(request);
@@ -33,6 +30,26 @@ export function requestSync(request: { message: string; payload?: any }, timeout
 
   return received?.message ?? null;
 }
+
+export type RequestSyncFn = typeof requestSync;
+
+const script = new vm.Script(worker.workerData.code);
+const scriptContext = vm.createContext({
+  console: new Console(),
+  Logger: new Logger(),
+  HtmlService: new HtmlService(),
+  Session: new Session(),
+  CacheService: new CacheService(),
+  PropertiesService: new PropertiesService(
+    new Properties(Scope.DOCUMENT, requestSync),
+    new Properties(Scope.SCRIPT, requestSync),
+    new Properties(Scope.USER, requestSync),
+  ),
+});
+script.runInContext(scriptContext);
+
+const sharedArray: Int32Array = worker.workerData.sharedArray;
+const port: worker.MessagePort = worker.workerData.port;
 
 port.on("message", async (data: GASWorkerData) => {
   const result = await scriptContext[data.fn](...data.args);
