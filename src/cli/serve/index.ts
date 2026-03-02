@@ -4,30 +4,22 @@ import { OutputChunk, RolldownOutput } from "rolldown";
 import { Connect, createLogger, createServer } from "vite";
 
 import { HTML, resolvePath } from "../../core";
-import { collectSources, detectEntries, ProjectEntry } from "../analyze";
+import { collectSources, detectEntries } from "../analyze";
 import { buildServerApp, buildWebApp } from "../build";
-import { loadConfig, resolveConfig, ResolvedUserConfig } from "../config";
-import { createServeContext } from "./context";
+import { loadConfig, resolveConfig } from "../config";
+import { createServeContext, ServeContext } from "./context";
 import { launchGAS } from "./launch";
 import { loadMock } from "./mock";
 
-async function serveApp(
-  config: ResolvedUserConfig,
-  projectEntry: ProjectEntry,
-  gasMockSources: string[],
-) {
-  const ctx = createServeContext(config, projectEntry);
-
-  await loadMock(ctx, gasMockSources);
-
+async function serveApp(ctx: ServeContext) {
   const hostServer = await createServer({
-    root: config.root,
+    root: ctx.config.root,
     configFile: false,
     customLogger: createLogger("info", { prefix: "[vegas]" }),
-    cacheDir: path.join(config.root, "node_modules", ".vegas-host"),
+    cacheDir: path.join(ctx.config.root, "node_modules", ".vegas-host"),
   });
 
-  const webResult = await Promise.all(buildWebApp(config, projectEntry.webEntries, false));
+  const webResult = await Promise.all(buildWebApp(ctx.config, ctx.entry.webEntries, false));
   const newWebMap = new Map<string, string>();
   webResult.flat().forEach((result) => {
     (result as RolldownOutput).output.flat().forEach((output) => {
@@ -38,15 +30,15 @@ async function serveApp(
   });
   ctx.code.web.map = newWebMap;
 
-  const serverResult = await buildServerApp(config, projectEntry.serverEntry);
+  const serverResult = await buildServerApp(ctx.config, ctx.entry.serverEntry);
   const serverOutput = serverResult.output.flat()[0] as OutputChunk;
   ctx.code.server = serverOutput.code;
 
-  hostServer.watcher.add([config.webDir, config.serverDir]);
+  hostServer.watcher.add([ctx.config.webDir, ctx.config.serverDir]);
 
   hostServer.watcher.on("change", async (path) => {
-    if (path.startsWith(config.webDir)) {
-      const frontResult = await Promise.all(buildWebApp(config, projectEntry.webEntries, false));
+    if (path.startsWith(ctx.config.webDir)) {
+      const frontResult = await Promise.all(buildWebApp(ctx.config, ctx.entry.webEntries, false));
       const newWeb = new Map<string, string>();
       frontResult.flat().forEach((result) => {
         (result as RolldownOutput).output.flat().forEach((out) => {
@@ -65,8 +57,8 @@ async function serveApp(
       }
       hostServer.ws.send({ type: "full-reload" });
       return [];
-    } else if (path.startsWith(config.serverDir)) {
-      const serverResult = await buildServerApp(config, projectEntry.serverEntry, false);
+    } else if (path.startsWith(ctx.config.serverDir)) {
+      const serverResult = await buildServerApp(ctx.config, ctx.entry.serverEntry, false);
       const serverOutput = serverResult.output.flat()[0] as OutputChunk;
       ctx.code.server = serverOutput.code;
       return [];
@@ -183,7 +175,7 @@ document.getElementById("sandboxFrame").onload = (event) => {
   await hostServer.listen();
 
   const userContentServer = await createServer({
-    root: config.root,
+    root: ctx.config.root,
     configFile: false,
     plugins: [
       {
@@ -206,7 +198,7 @@ document.getElementById("sandboxFrame").onload = (event) => {
     ],
     server: { port: hostServer.config.server.port + 1 },
     customLogger: createLogger("info", { prefix: "[vegas]" }),
-    cacheDir: path.join(config.root, "node_modules", ".vegas-content"),
+    cacheDir: path.join(ctx.config.root, "node_modules", ".vegas-content"),
   });
 
   const userContentHandler: Connect.NextHandleFunction = async (request, response, next) => {
@@ -271,6 +263,8 @@ export async function runServe(root?: string) {
   const resolvedUserConfig = resolveConfig(userConfig);
   const projectSource = collectSources(resolvedUserConfig);
   const projectEntry = detectEntries(projectSource);
+  const ctx = createServeContext(resolvedUserConfig, projectEntry);
+  await loadMock(ctx, projectSource.gasMockSources);
 
-  await serveApp(resolvedUserConfig, projectEntry, projectSource.gasMockSources);
+  await serveApp(ctx);
 }
