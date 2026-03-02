@@ -16,7 +16,8 @@ export function launchGAS(ctx: ServeContext, fn: string, ...args: any[]): Promis
 
     port1.postMessage({ fn, args });
     port1.on("message", async (data) => {
-      if (data.message === "vegas:HtmlService#createHtmlOutputFromFile") {
+      if (data.message === "vegas:doGet") {
+      } else if (data.message === "vegas:HtmlService#createHtmlOutputFromFile") {
         const filePath = `${path.parse(data.payload).name}.html`;
         const html = ctx.code.web.map.get(filePath);
         port1.postMessage(html);

@@ -4,8 +4,11 @@ import worker from "node:worker_threads";
 import { Console } from "./api/base/console";
 import { Logger } from "./api/base/Logger";
 import { Session } from "./api/base/Session";
+import { Cache } from "./api/cache/Cache";
 import { CacheService } from "./api/cache/CacheService";
 import { HtmlService } from "./api/html/HtmlService";
+import { Lock } from "./api/lock/Lock";
+import { LockService } from "./api/lock/LockService";
 import { Properties } from "./api/properties/Properties";
 import { PropertiesService } from "./api/properties/PropertiesService";
 
@@ -39,11 +42,20 @@ const scriptContext = vm.createContext({
   Logger: new Logger(),
   HtmlService: new HtmlService(),
   Session: new Session(),
-  CacheService: new CacheService(),
+  CacheService: new CacheService(
+    new Cache(Scope.DOCUMENT, requestSync),
+    new Cache(Scope.SCRIPT, requestSync),
+    new Cache(Scope.USER, requestSync),
+  ),
   PropertiesService: new PropertiesService(
     new Properties(Scope.DOCUMENT, requestSync),
     new Properties(Scope.SCRIPT, requestSync),
     new Properties(Scope.USER, requestSync),
+  ),
+  LockService: new LockService(
+    new Lock(Scope.DOCUMENT),
+    new Lock(Scope.SCRIPT),
+    new Lock(Scope.USER),
   ),
 });
 script.runInContext(scriptContext);
