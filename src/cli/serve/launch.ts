@@ -120,8 +120,8 @@ export function launchGAS(ctx: ServeContext, fn: string, ...args: any[]): Promis
             Object.entries(cache).forEach(([key, data]) => {
               objArray.push({ expired: data.expired, key });
             });
-            // desc sort
-            objArray.sort((a, b) => b.expired - a.expired);
+            // asc sort
+            objArray.sort((a, b) => a.expired - b.expired);
             // remove cached value ( result 900 cache values )
             for (let i = 0; i < 100 + cachedLength - 1000; i++) {
               delete cache[objArray[i].key];
@@ -154,8 +154,8 @@ export function launchGAS(ctx: ServeContext, fn: string, ...args: any[]): Promis
             Object.entries(cache).forEach(([key, data]) => {
               objArray.push({ expired: data.expired, key });
             });
-            // desc sort
-            objArray.sort((a, b) => b.expired - a.expired);
+            // asc sort
+            objArray.sort((a, b) => a.expired - b.expired);
             // remove cached value ( result 900 cache values )
             for (let i = 0; i < 100 + cachedLength - 1000; i++) {
               delete cache[objArray[i].key];
