@@ -1,10 +1,29 @@
 #!/usr/bin/env node
+import child_process from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 
 import * as prompts from "@clack/prompts";
 import { cac } from "cac";
 import spawn from "cross-spawn";
+
+function runCmd(
+  cmd: string,
+  args?: readonly string[],
+  options?: child_process.SpawnSyncOptionsWithBufferEncoding,
+) {
+  return new Promise<void>((resolve, reject) => {
+    const sp = spawn(cmd, args, options);
+    sp.on("error", reject);
+    sp.on("close", (code) => {
+      if (code === 0) {
+        resolve();
+      } else {
+        reject(new Error(`${cmd} ${args?.join(" ") ?? ""} failed. ExitCode: ${code}`));
+      }
+    });
+  });
+}
 
 const frameworkOptions: {
   value: string;
@@ -83,12 +102,6 @@ async function run() {
 
   const packagePath = path.resolve(path.join(process.cwd(), ctx.projectName.replace(/\.\.?/g, "")));
   prompts.log.step(`Scaffolding project in ${packagePath}...`);
-  const spinner = prompts.spinner({
-    indicator: "timer",
-    frames: ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"],
-    delay: 80,
-  });
-  spinner.start();
 
   if (ctx.directoryOperation === "remove") {
     fs.rmSync(packagePath, { recursive: true, force: true });
@@ -98,19 +111,24 @@ async function run() {
     force: true,
   });
 
-  spawn.sync("npm", ["pkg", "set", `name=${path.parse(ctx.projectName).base}`], {
+  await runCmd("npm", ["pkg", "set", `name=${path.parse(ctx.projectName).base}`], {
     cwd: packagePath,
   });
   fs.renameSync(path.join(packagePath, "_gitignore"), path.join(packagePath, ".gitignore"));
   if (ctx.npmStartUp) {
-    spawn.sync("npm", ["install"], { cwd: packagePath });
-  }
-
-  spinner.stop();
-  prompts.outro(`Done. Now run:\n
+    const spinner = prompts.spinner({
+      frames: ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"],
+    });
+    spinner.start("Installing dependencies with npm...");
+    await runCmd("npm", ["install"], { cwd: packagePath });
+    spinner.stop("Starting dev server...");
+    await runCmd("npm", ["run", "dev"], { cwd: packagePath });
+  } else {
+    prompts.outro(`Done. Now run:\n
   cd ${path.relative(process.cwd(), packagePath)}
   npm install
   npm run dev`);
+  }
 }
 
 const cli = cac("create-vegas");
