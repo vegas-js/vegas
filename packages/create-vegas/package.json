@@ -6,11 +6,17 @@
   "bin": {
     "create-vegas": "dist/create-vegas.js"
   },
+  "files": [
+    "template-*",
+    "dist"
+  ],
   "type": "module",
   "devDependencies": {
     "@clack/prompts": "1.0.1",
+    "@types/cross-spawn": "^6.0.6",
     "@types/node": "^25.3.2",
-    "cac": "^7.0.0"
+    "cac": "^7.0.0",
+    "cross-spawn": "^7.0.6"
   },
   "engines": {
     "node": "^20.12.0 || >=22.12.0"
