@@ -2,7 +2,7 @@ window.addEventListener("message", (event) => {
   if (event.data.type === "vegas:gasinit") {
     vegas.host = event.data.payload.host;
     const iframe = document.getElementById("userHtmlFrame") as HTMLIFrameElement;
-    if (iframe && iframe.contentWindow) {
+    if (iframe.contentWindow) {
       const contentWindow: any = iframe.contentWindow;
       contentWindow.document.open();
       contentWindow.document.write(event.data.payload.serverData.userHtml);
