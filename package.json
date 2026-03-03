@@ -9,9 +9,9 @@
     "format": "oxfmt --write",
     "test": "vitest run",
     "build": "tsdown",
-    "docs:dev": "pnpm --filter=./docs dev",
-    "docs:build": "pnpm --filter=./docs build",
-    "docs:preview": "pnpm --filter=./docs preview"
+    "docs:dev": "pnpm --filter ./docs dev",
+    "docs:build": "pnpm --filter ./docs build",
+    "docs:preview": "pnpm --filter ./docs preview"
   },
   "devDependencies": {
     "oxfmt": "^0.36.0",
