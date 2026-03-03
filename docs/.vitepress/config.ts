@@ -46,7 +46,7 @@ export default defineConfig({
       ],
     },
 
-    socialLinks: [{ icon: "github", link: "https://github.com/8su4/vegas" }],
+    socialLinks: [{ icon: "github", link: "https://github.com/vegas-js/vegas" }],
 
     footer: {
       copyright: "&copy; Yasushi 2026",
