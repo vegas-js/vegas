@@ -1,8 +1,8 @@
 import path from "node:path";
 import util from "node:util";
 
-import { BuildArtifact } from "../analyze";
-import { ResolvedUserConfig } from "../config";
+import { BuildArtifact } from "../core/analyze";
+import { ResolvedUserConfig } from "../core/config";
 
 function formatSize(bytes: number): string {
   const units = ["B", "kB", "mB"];

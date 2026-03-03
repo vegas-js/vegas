@@ -3,10 +3,10 @@ import path from "node:path";
 import { OutputChunk, RolldownOutput } from "rolldown";
 import { Connect, createLogger, createServer } from "vite";
 
-import { HTML, resolvePath } from "../../core";
-import { collectSources, detectEntries } from "../analyze";
 import { buildServerApp, buildWebApp } from "../build";
-import { loadConfig, resolveConfig } from "../config";
+import { HTML, resolvePath } from "../core";
+import { collectSources, detectEntries } from "../core/analyze";
+import { loadConfig, resolveConfig } from "../core/config";
 import { createServeContext, ServeContext } from "./context";
 import { launchGAS } from "./launch";
 import { loadMock } from "./mock";

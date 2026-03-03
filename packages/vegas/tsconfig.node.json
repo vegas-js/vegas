@@ -11,5 +11,5 @@
     /* Linting */
     "strict": true
   },
-  "include": ["src/shared", "src/lib", "src/node/cli", "src/node/core", "src/node/worker"]
+  "include": ["src/shared", "src/lib", "src/node/cli", "src/node/worker"]
 }

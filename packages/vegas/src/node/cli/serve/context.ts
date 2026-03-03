@@ -1,5 +1,5 @@
-import { ProjectEntry } from "../analyze";
-import { ResolvedUserConfig } from "../config";
+import { ProjectEntry } from "../core/analyze";
+import { ResolvedUserConfig } from "../core/config";
 
 export interface ServeContext {
   config: ResolvedUserConfig;
