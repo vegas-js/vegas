@@ -3,11 +3,11 @@ import { defineConfig } from "vitepress";
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
   title: "Vegas",
-  description: "A VitePress Site",
+  description: "SPA build tool for GAS platform",
   head: [["link", { rel: "icon", href: "/favicon.ico" }]],
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
-    logo: "/vegas.webp",
+    logo: "/logo.webp",
 
     nav: [
       { text: "Guide", link: "/guide" },
@@ -27,9 +27,9 @@ export default defineConfig({
         {
           text: "Guide",
           items: [
-            { text: "Features", link: "/guide/" },
-            { text: "CLI", link: "/guide/philosophy/" },
-            { text: "Using Plugins", link: "/guide/why/" },
+            { text: "Features", link: "/guide/features/" },
+            { text: "CLI", link: "/guide/cli/" },
+            { text: "Using Plugins", link: "/guide/using-plugins/" },
           ],
         },
       ],
@@ -49,6 +49,7 @@ export default defineConfig({
     socialLinks: [{ icon: "github", link: "https://github.com/vegas-js/vegas" }],
 
     footer: {
+      message: "Released under the MIT License.",
       copyright: "&copy; Yasushi 2026",
     },
   },
