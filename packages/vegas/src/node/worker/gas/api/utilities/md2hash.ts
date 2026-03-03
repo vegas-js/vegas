@@ -105,8 +105,7 @@ export class MD2Hash {
   }
 
   digest(): Buffer<ArrayBuffer> {
-    let index = this.#count;
-    const padLen = 16 - index;
+    const padLen = 16 - this.#count;
 
     this.update(Buffer.from(PADDING[padLen]));
     this.update(Buffer.from(this.#checksum));
