@@ -21,6 +21,7 @@ export interface ServeContext {
       user: Record<string, { value: string; expired: number }>;
     };
   };
+  spreadSheet: Map<{ id: string; name: string }, Map<{ id: string; name: string }, any[][]>>;
 }
 
 export function createServeContext(
@@ -47,5 +48,6 @@ export function createServeContext(
         user: {},
       },
     },
+    spreadSheet: new Map(),
   };
 }

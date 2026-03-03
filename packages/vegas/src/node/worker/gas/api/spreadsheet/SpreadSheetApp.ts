@@ -157,94 +157,88 @@ export class SpreadSheetApp implements GoogleAppsScript.Spreadsheet.SpreadsheetA
   ValueType = { IMAGE: 0 };
   WrapStrategy = { WRAP: 0, OVERFLOW: 1, CLIP: 2 };
 
-  create(
-    name: unknown,
-    rows?: unknown,
-    columns?: unknown,
-  ): GoogleAppsScript.Spreadsheet.Spreadsheet {
+  create = (name: unknown, rows?: unknown, columns?: unknown) => {
     throw new Error("Method not implemented.");
-  }
-  enableAllDataSourcesExecution(): void {
+  };
+  enableAllDataSourcesExecution = () => {
     throw new Error("Method not implemented.");
-  }
-  enableBigQueryExecution(): void {
+  };
+  enableBigQueryExecution = () => {
     throw new Error("Method not implemented.");
-  }
-  flush(): void {
+  };
+  flush = () => {
     throw new Error("Method not implemented.");
-  }
-  getActive(): GoogleAppsScript.Spreadsheet.Spreadsheet {
+  };
+  getActive = () => {
     throw new Error("Method not implemented.");
-  }
-  getActiveRange(): GoogleAppsScript.Spreadsheet.Range {
+  };
+  getActiveRange = () => {
     throw new Error("Method not implemented.");
-  }
-  getActiveRangeList(): GoogleAppsScript.Spreadsheet.RangeList {
+  };
+  getActiveRangeList = () => {
     throw new Error("Method not implemented.");
-  }
-  getActiveSheet(): GoogleAppsScript.Spreadsheet.Sheet {
+  };
+  getActiveSheet = () => {
     throw new Error("Method not implemented.");
-  }
-  getActiveSpreadsheet(): GoogleAppsScript.Spreadsheet.Spreadsheet {
+  };
+  getActiveSpreadsheet = () => {
     throw new Error("Method not implemented.");
-  }
-  getCurrentCell(): GoogleAppsScript.Spreadsheet.Range {
+  };
+  getCurrentCell = () => {
     throw new Error("Method not implemented.");
-  }
-  getSelection(): GoogleAppsScript.Spreadsheet.Selection {
+  };
+  getSelection = () => {
     throw new Error("Method not implemented.");
-  }
-  getUi(): GoogleAppsScript.Base.Ui {
+  };
+  getUi = () => {
     throw new Error("Method not implemented.");
-  }
-  newCellImage(): GoogleAppsScript.Spreadsheet.CellImageBuilder {
+  };
+  newCellImage = () => {
     throw new Error("Method not implemented.");
-  }
-  newColor(): GoogleAppsScript.Spreadsheet.ColorBuilder {
+  };
+  newColor = () => {
     throw new Error("Method not implemented.");
-  }
-  newConditionalFormatRule(): GoogleAppsScript.Spreadsheet.ConditionalFormatRuleBuilder {
+  };
+  newConditionalFormatRule = () => {
     throw new Error("Method not implemented.");
-  }
-  newDataSourceSpec(): GoogleAppsScript.Spreadsheet.DataSourceSpecBuilder {
+  };
+  newDataSourceSpec = () => {
     throw new Error("Method not implemented.");
-  }
-  newDataValidation(): GoogleAppsScript.Spreadsheet.DataValidationBuilder {
+  };
+  newDataValidation = () => {
     throw new Error("Method not implemented.");
-  }
-  newFilterCriteria(): GoogleAppsScript.Spreadsheet.FilterCriteriaBuilder {
+  };
+  newFilterCriteria = () => {
     throw new Error("Method not implemented.");
-  }
-  newRichTextValue(): GoogleAppsScript.Spreadsheet.RichTextValueBuilder {
+  };
+  newRichTextValue = () => {
     throw new Error("Method not implemented.");
-  }
-  newTextStyle(): GoogleAppsScript.Spreadsheet.TextStyleBuilder {
+  };
+  newTextStyle = () => {
     throw new Error("Method not implemented.");
-  }
-  open(file: GoogleAppsScript.Drive.File): GoogleAppsScript.Spreadsheet.Spreadsheet {
+  };
+  open = (file: GoogleAppsScript.Drive.File) => {
     throw new Error("Method not implemented.");
-  }
-  openById(id: string): GoogleAppsScript.Spreadsheet.Spreadsheet {
+  };
+  openById = (id: string) => {
     throw new Error("Method not implemented.");
-  }
-  openByUrl(url: string): GoogleAppsScript.Spreadsheet.Spreadsheet {
+  };
+  openByUrl = (url: string) => {
     throw new Error("Method not implemented.");
-  }
-  setActiveRange(range: GoogleAppsScript.Spreadsheet.Range): GoogleAppsScript.Spreadsheet.Range {
+  };
+  setActiveRange = (range: GoogleAppsScript.Spreadsheet.Range) => {
     throw new Error("Method not implemented.");
-  }
-  setActiveRangeList(
-    rangeList: GoogleAppsScript.Spreadsheet.RangeList,
-  ): GoogleAppsScript.Spreadsheet.RangeList {
+  };
+  setActiveRangeList = (rangeList: GoogleAppsScript.Spreadsheet.RangeList) => {
     throw new Error("Method not implemented.");
-  }
-  setActiveSheet(sheet: unknown, restoreSelection?: unknown): GoogleAppsScript.Spreadsheet.Sheet {
+  };
+  setActiveSheet = (sheet: unknown, restoreSelection?: unknown) => {
     throw new Error("Method not implemented.");
-  }
-  setActiveSpreadsheet(newActiveSpreadsheet: GoogleAppsScript.Spreadsheet.Spreadsheet): void {
+  };
+  setActiveSpreadsheet = (newActiveSpreadsheet: GoogleAppsScript.Spreadsheet.Spreadsheet) => {
     throw new Error("Method not implemented.");
-  }
-  setCurrentCell(cell: GoogleAppsScript.Spreadsheet.Range): GoogleAppsScript.Spreadsheet.Range {
+  };
+  setCurrentCell = (cell: GoogleAppsScript.Spreadsheet.Range) => {
     throw new Error("Method not implemented.");
-  }
+  };
 }
