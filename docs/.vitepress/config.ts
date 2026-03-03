@@ -4,8 +4,11 @@ import { defineConfig } from "vitepress";
 export default defineConfig({
   title: "Vegas",
   description: "A VitePress Site",
+  head: [["link", { rel: "icon", href: "/favicon.ico" }]],
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
+    logo: "/vegas.webp",
+
     nav: [
       { text: "Guide", link: "/guide" },
       { text: "Config", link: "/config" },
