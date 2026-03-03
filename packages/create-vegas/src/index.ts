@@ -81,19 +81,36 @@ async function run() {
     cancelHandler();
   }
 
+  const packagePath = path.resolve(path.join(process.cwd(), ctx.projectName.replace(/\.\.?/g, "")));
+  prompts.log.step(`Scaffolding project in ${packagePath}...`);
+  const spinner = prompts.spinner({
+    indicator: "timer",
+    frames: ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"],
+    delay: 80,
+  });
+  spinner.start();
+
   if (ctx.directoryOperation === "remove") {
-    fs.rmSync(ctx.projectName, { recursive: true, force: true });
+    fs.rmSync(packagePath, { recursive: true, force: true });
   }
-  fs.cpSync(path.join(import.meta.dirname, "..", ctx.framework), ctx.projectName, {
+  fs.cpSync(path.join(import.meta.dirname, "..", ctx.framework), packagePath, {
     recursive: true,
     force: true,
   });
 
-  spawn.sync("npm", ["pkg", "set", `name=${ctx.projectName}`], { cwd: ctx.projectName });
-  fs.renameSync(path.join(ctx.projectName, "_gitignore"), path.join(ctx.projectName, ".gitignore"));
+  spawn.sync("npm", ["pkg", "set", `name=${path.parse(ctx.projectName).base}`], {
+    cwd: packagePath,
+  });
+  fs.renameSync(path.join(packagePath, "_gitignore"), path.join(packagePath, ".gitignore"));
   if (ctx.npmStartUp) {
-    spawn.sync("npm", ["install"], { cwd: ctx.projectName });
+    spawn.sync("npm", ["install"], { cwd: packagePath });
   }
+
+  spinner.stop();
+  prompts.outro(`Done. Now run:\n
+  cd ${path.relative(process.cwd(), packagePath)}
+  npm install
+  npm run dev`);
 }
 
 const cli = cac("create-vegas");
