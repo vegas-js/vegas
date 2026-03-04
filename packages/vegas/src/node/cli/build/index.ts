@@ -28,8 +28,11 @@ export function buildWebApp(
           input: entry,
         },
         outDir: config.output.dir,
-        emptyOutDir: false,
+        assetsInlineLimit: () => true,
+        cssCodeSplit: false,
         write: isWrite,
+        emptyOutDir: false,
+        reportCompressedSize: false,
       },
       logLevel: "silent",
     });
