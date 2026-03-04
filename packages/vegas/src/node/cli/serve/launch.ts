@@ -16,13 +16,13 @@ export function launchGAS(ctx: ServeContext, fn: string, ...args: any[]): Promis
 
     port1.postMessage({ fn, args });
     port1.on("message", async (data) => {
-      if (data.message === "vegas:HtmlService#createHtmlOutputFromFile") {
+      if (data.message === "HtmlService#createHtmlOutputFromFile") {
         const filePath = `${path.parse(data.payload).name}.html`;
         const html = ctx.code.web.map.get(filePath);
         port1.postMessage(html);
         Atomics.store(sharedArray, 0, 0);
         Atomics.notify(sharedArray, 0);
-      } else if (data.message === "vegas:Session#getActiveUser") {
+      } else if (data.message === "Session#getActiveUser") {
         const email =
           ctx.config.gas.webapp!.executeAs === "USER_ACCESSING"
             ? (ctx.mock["Session"]?.activeUserEmail ?? "active@gmail.com")
@@ -30,12 +30,12 @@ export function launchGAS(ctx: ServeContext, fn: string, ...args: any[]): Promis
         port1.postMessage(email);
         Atomics.store(sharedArray, 0, 0);
         Atomics.notify(sharedArray, 0);
-      } else if (data.message === "vegas:Session#getActiveUserLocale") {
+      } else if (data.message === "Session#getActiveUserLocale") {
         const userLocale = ctx.mock["Session"]?.activeUserLocale ?? "en";
         port1.postMessage(userLocale);
         Atomics.store(sharedArray, 0, 0);
         Atomics.notify(sharedArray, 0);
-      } else if (data.message === "vegas:Session#getEffectiveUser") {
+      } else if (data.message === "Session#getEffectiveUser") {
         const email =
           ctx.config.gas.webapp!.executeAs === "USER_ACCESSING"
             ? (ctx.mock["Session"]?.activeUserEmail ?? "active@gmail.com")
@@ -43,19 +43,19 @@ export function launchGAS(ctx: ServeContext, fn: string, ...args: any[]): Promis
         port1.postMessage(email);
         Atomics.store(sharedArray, 0, 0);
         Atomics.notify(sharedArray, 0);
-      } else if (data.message === "vegas:Session#getScriptTimeZone") {
+      } else if (data.message === "Session#getScriptTimeZone") {
         const timeZone = ctx.config.gas.timeZone ?? "UTC";
         port1.postMessage(timeZone);
         Atomics.store(sharedArray, 0, 0);
         Atomics.notify(sharedArray, 0);
-      } else if (data.message === "vegas:Session#getTemporaryActiveUserKey") {
+      } else if (data.message === "Session#getTemporaryActiveUserKey") {
         const key =
           ctx.mock["Session"]?.temporaryActiveUserKey ??
           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
         port1.postMessage(key);
         Atomics.store(sharedArray, 0, 0);
         Atomics.notify(sharedArray, 0);
-      } else if (data.message === "vegas:Cache#get") {
+      } else if (data.message === "Cache#get") {
         let cache = null;
         if (data.payload.scope === "document") {
           cache = ctx.store.cache.document;
@@ -76,7 +76,7 @@ export function launchGAS(ctx: ServeContext, fn: string, ...args: any[]): Promis
         }
         Atomics.store(sharedArray, 0, 0);
         Atomics.notify(sharedArray, 0);
-      } else if (data.message === "vegas:Cache#getAll") {
+      } else if (data.message === "Cache#getAll") {
         let cache = null;
         if (data.payload.scope === "document") {
           cache = ctx.store.cache.document;
@@ -100,7 +100,7 @@ export function launchGAS(ctx: ServeContext, fn: string, ...args: any[]): Promis
         }
         Atomics.store(sharedArray, 0, 0);
         Atomics.notify(sharedArray, 0);
-      } else if (data.message === "vegas:Cache#put") {
+      } else if (data.message === "Cache#put") {
         let cache = null;
         if (data.payload.scope === "document") {
           cache = ctx.store.cache.document;
@@ -130,7 +130,7 @@ export function launchGAS(ctx: ServeContext, fn: string, ...args: any[]): Promis
         }
         Atomics.store(sharedArray, 0, 0);
         Atomics.notify(sharedArray, 0);
-      } else if (data.message === "vegas:Cache#putAll") {
+      } else if (data.message === "Cache#putAll") {
         let cache = null;
         if (data.payload.scope === "document") {
           cache = ctx.store.cache.document;
@@ -164,7 +164,7 @@ export function launchGAS(ctx: ServeContext, fn: string, ...args: any[]): Promis
         }
         Atomics.store(sharedArray, 0, 0);
         Atomics.notify(sharedArray, 0);
-      } else if (data.message === "vegas:Cache#remove") {
+      } else if (data.message === "Cache#remove") {
         let cache = null;
         if (data.payload.scope === "document") {
           cache = ctx.store.cache.document;
@@ -179,7 +179,7 @@ export function launchGAS(ctx: ServeContext, fn: string, ...args: any[]): Promis
         }
         Atomics.store(sharedArray, 0, 0);
         Atomics.notify(sharedArray, 0);
-      } else if (data.message === "vegas:Cache#removeAll") {
+      } else if (data.message === "Cache#removeAll") {
         let cache = null;
         if (data.payload.scope === "document") {
           cache = ctx.store.cache.document;
@@ -196,7 +196,7 @@ export function launchGAS(ctx: ServeContext, fn: string, ...args: any[]): Promis
         }
         Atomics.store(sharedArray, 0, 0);
         Atomics.notify(sharedArray, 0);
-      } else if (data.message === "vegas:resolve") {
+      } else if (data.message === "resolve") {
         resolve(data.payload);
       }
     });

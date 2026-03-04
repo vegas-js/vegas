@@ -18,7 +18,7 @@ export class Lock implements GoogleAppsScript.Lock.Lock {
   releaseLock = () => {
     if (this.#isLocked) {
       requestSync({
-        message: "vegas:Lock#releaseLock",
+        message: "Lock#releaseLock",
         payload: { scope: this.#scope, id: this.#id },
       });
       this.#isLocked = false;
@@ -27,10 +27,7 @@ export class Lock implements GoogleAppsScript.Lock.Lock {
   tryLock = (timeoutInMillis: GoogleAppsScript.Integer) => {
     const id = (process.report.getReport() as any).javascriptStack.stack[1];
     if (
-      requestSync(
-        { message: "vegas:Lock#tryLock", payload: { scope: this.#scope, id } },
-        timeoutInMillis,
-      )
+      requestSync({ message: "Lock#tryLock", payload: { scope: this.#scope, id } }, timeoutInMillis)
     ) {
       this.#id = id;
       this.#isLocked = true;
@@ -41,7 +38,7 @@ export class Lock implements GoogleAppsScript.Lock.Lock {
     const id = (process.report.getReport() as any).javascriptStack.stack[1];
     if (
       !requestSync(
-        { message: "vegas:Lock#waitLock", payload: { scope: this.#scope, id } },
+        { message: "Lock#waitLock", payload: { scope: this.#scope, id } },
         timeoutInMillis,
       )
     ) {

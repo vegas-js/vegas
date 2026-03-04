@@ -4,23 +4,23 @@ import { User } from "./User";
 // https://developers.google.com/apps-script/reference/base/session
 export class Session implements GoogleAppsScript.Base.Session {
   getActiveUser = () => {
-    const email = requestSync({ message: "vegas:Session#getActiveUser" });
+    const email = requestSync({ message: "Session#getActiveUser" });
     return new User(email);
   };
   getActiveUserLocale = () => {
-    const locale = requestSync({ message: "vegas:Session#getActiveUserLocale" });
+    const locale = requestSync({ message: "Session#getActiveUserLocale" });
     return locale;
   };
   getEffectiveUser = () => {
-    const email = requestSync({ message: "vegas:Session#getEffectiveUser" });
+    const email = requestSync({ message: "Session#getEffectiveUser" });
     return new User(email);
   };
   getScriptTimeZone = () => {
-    const timeZone = requestSync({ message: "vegas:Session#getScriptTimeZone" });
+    const timeZone = requestSync({ message: "Session#getScriptTimeZone" });
     return timeZone;
   };
   getTemporaryActiveUserKey = () => {
-    const temporaryKey = requestSync({ message: "vegas:Session#getTemporaryActiveUserKey" });
+    const temporaryKey = requestSync({ message: "Session#getTemporaryActiveUserKey" });
     return temporaryKey;
   };
   /** @deprecated DO NOT USE */

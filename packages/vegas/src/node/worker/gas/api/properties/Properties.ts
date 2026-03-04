@@ -12,39 +12,39 @@ export class Properties implements GoogleAppsScript.Properties.Properties {
 
   deleteAllProperties = () => {
     this.#requestSync({
-      message: "vegas:Properties#deleteAllProperties",
+      message: "Properties#deleteAllProperties",
       payload: { scope: this.#scope },
     });
     return this;
   };
   deleteProperty = (key: string) => {
     this.#requestSync({
-      message: "vegas:Properties#deleteProperty",
+      message: "Properties#deleteProperty",
       payload: { scope: this.#scope, key },
     });
     return this;
   };
   getKeys = () => {
     return this.#requestSync({
-      message: "vegas:Properties#getKeys",
+      message: "Properties#getKeys",
       payload: { scope: this.#scope },
     });
   };
   getProperties = () => {
     return this.#requestSync({
-      message: "vegas:Properties#getProperties",
+      message: "Properties#getProperties",
       payload: { scope: this.#scope },
     });
   };
   getProperty = (key: string) => {
     return this.#requestSync({
-      message: "vegas:Properties#getProperty",
+      message: "Properties#getProperty",
       payload: { scope: this.#scope, key },
     });
   };
   setProperties = (properties: object, deleteAllOthers: boolean = false) => {
     this.#requestSync({
-      message: "vegas:Properties#setProperties",
+      message: "Properties#setProperties",
       payload: {
         scope: this.#scope,
         properties,
@@ -55,7 +55,7 @@ export class Properties implements GoogleAppsScript.Properties.Properties {
   };
   setProperty = (key: string, value: string) => {
     this.#requestSync({
-      message: "vegas:Properties#setProperty",
+      message: "Properties#setProperty",
       payload: {
         scope: this.#scope,
         property: { key, value },

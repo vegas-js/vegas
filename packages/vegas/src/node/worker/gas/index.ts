@@ -103,7 +103,7 @@ class TriggerEvent extends events.EventEmitter {
 
   postMessage(data: any) {
     const payload = JSON.stringify(data);
-    this.#port.postMessage({ message: "vegas:resolve", payload });
+    this.#port.postMessage({ message: "resolve", payload });
   }
 }
 
@@ -117,7 +117,7 @@ port.on("message", async (data: GASWorkerData) => {
     triggerEvent.emit(data.fn, result);
   } else {
     const payload = JSON.stringify(result);
-    port.postMessage({ message: "vegas:resolve", payload });
+    port.postMessage({ message: "resolve", payload });
   }
 
   process.exit(0);

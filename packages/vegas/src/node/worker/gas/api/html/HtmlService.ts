@@ -14,7 +14,7 @@ export class HtmlService implements GoogleAppsScript.HTML.HtmlService {
   };
   createHtmlOutputFromFile = (filename: string) => {
     const message = requestSync({
-      message: "vegas:HtmlService#createHtmlOutputFromFile",
+      message: "HtmlService#createHtmlOutputFromFile",
       payload: filename,
     });
     if (!message) {

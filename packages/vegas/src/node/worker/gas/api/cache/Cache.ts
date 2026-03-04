@@ -12,34 +12,33 @@ export class Cache implements GoogleAppsScript.Cache.Cache {
 
   get = (key: string) => {
     return (
-      this.#requestSync({ message: "vegas:Cache#get", payload: { scope: this.#scope, key } }) ??
-      null
+      this.#requestSync({ message: "Cache#get", payload: { scope: this.#scope, key } }) ?? null
     );
   };
   getAll = (keys: string[]) => {
     return this.#requestSync({
-      message: "vegas:Cache#getAll",
+      message: "Cache#getAll",
       payload: { scope: this.#scope, keys },
     });
   };
   put = (key: string, value: string, expirationInSeconds: GoogleAppsScript.Integer = 600) => {
     const expired = Date.now() + expirationInSeconds * 1000;
     this.#requestSync({
-      message: "vegas:Cache#put",
+      message: "Cache#put",
       payload: { scope: this.#scope, record: { key, value, expired } },
     });
   };
   putAll = (values: object, expirationInSeconds: GoogleAppsScript.Integer = 600) => {
     const expired = Date.now() + expirationInSeconds * 1000;
     this.#requestSync({
-      message: "vegas:Cache#putAll",
+      message: "Cache#putAll",
       payload: { scope: this.#scope, record: { values, expired } },
     });
   };
   remove = (key: string) => {
-    this.#requestSync({ message: "vegas:Cache#remove", payload: { scope: this.#scope, key } });
+    this.#requestSync({ message: "Cache#remove", payload: { scope: this.#scope, key } });
   };
   removeAll = (keys: string[]) => {
-    this.#requestSync({ message: "vegas:Cache#removeAll", payload: { scope: this.#scope, keys } });
+    this.#requestSync({ message: "Cache#removeAll", payload: { scope: this.#scope, keys } });
   };
 }
