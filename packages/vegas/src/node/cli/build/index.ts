@@ -90,17 +90,20 @@ function printBanner() {
 
 export async function runBuild(root?: string) {
   printBanner();
+
   const resolvedRoot = resolvePath(root);
   const userConfig = await loadConfig(resolvedRoot);
   const resolvedUserConfig = resolveConfig(userConfig);
   const projectSource = collectSources(resolvedUserConfig);
   const projectEntry = detectEntries(projectSource);
+
   const startTime = performance.now();
   await buildApp(resolvedUserConfig, projectEntry);
   generateManifest(resolvedUserConfig);
   const endTime = performance.now();
-  const artifacts = collectArtifacts(resolvedUserConfig.output.dir).sort((a, b) =>
-    a.path.localeCompare(b.path),
-  );
+
+  const artifacts = collectArtifacts(resolvedUserConfig.output.dir);
+  artifacts.sort((a, b) => a.path.localeCompare(b.path));
+
   printReport(resolvedUserConfig, artifacts, endTime - startTime);
 }
