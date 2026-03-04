@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 
-import { parseSync } from "vite";
+import { parseSync, Visitor } from "vite";
 
 import { ResolvedUserConfig } from "./config";
 
@@ -55,8 +55,8 @@ function detectServerEntry(webSources: string[], serverSources: string[]) {
   const serverEntries: string[] = [];
   webSources.forEach((webSource) => {
     const { program } = parseSync(webSource, fs.readFileSync(webSource, { encoding: "utf8" }));
-    program.body.forEach((node) => {
-      if (node.type === "ImportDeclaration") {
+    const visitor = new Visitor({
+      ImportDeclaration(node) {
         const sourceDir = path.parse(webSource).dir;
         const importPath = path.resolve(sourceDir, node.source.value);
         const importAbsolutePath = importPath.endsWith(".ts") ? importPath : `${importPath}.ts`;
@@ -66,8 +66,10 @@ function detectServerEntry(webSources: string[], serverSources: string[]) {
           }
           serverEntries.push(importAbsolutePath);
         }
-      }
+      },
     });
+
+    visitor.visit(program);
   });
 
   if (serverEntries.length > 1) {
