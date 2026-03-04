@@ -28,7 +28,10 @@ function runCmd(
 const frameworkOptions: {
   value: string;
   label?: string | undefined;
-}[] = [{ label: "React", value: "template-react" }];
+}[] = [
+  { label: "React", value: "template-react" },
+  { label: "Vue", value: "template-vue" },
+];
 
 function cancelHandler() {
   prompts.cancel("Operation cancelled");
@@ -41,6 +44,7 @@ async function run() {
     directoryOperation: "ignore",
     packageName: "",
     framework: "",
+    useOxcStack: false,
     npmStartUp: false,
   };
 
@@ -90,6 +94,18 @@ async function run() {
 
   if (prompts.isCancel(ctx.framework)) {
     cancelHandler();
+  }
+
+  if (ctx.framework !== "template-react") {
+    ctx.useOxcStack = (await prompts.confirm({
+      message: "Use Oxc Stack?",
+    })) as boolean;
+
+    if (prompts.isCancel(ctx.useOxcStack)) {
+      cancelHandler();
+    } else if (ctx.useOxcStack) {
+      ctx.framework += "-oxc";
+    }
   }
 
   ctx.npmStartUp = (await prompts.confirm({

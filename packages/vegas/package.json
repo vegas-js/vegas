@@ -6,10 +6,13 @@
   "bin": {
     "vegas": "dist/vegas.js"
   },
+  "files": [
+    "./client.d.ts"
+  ],
   "type": "module",
   "exports": {
     ".": {
-      "types": "./dist/lib.d.ts",
+      "types": "./client.d.ts",
       "import": "./dist/lib.js"
     }
   },
