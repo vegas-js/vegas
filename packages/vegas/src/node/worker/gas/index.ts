@@ -70,6 +70,7 @@ interface DoGetResult {
   title: string;
   faviconUrl: string;
   content: string;
+  xFrameOptionsMode: string;
 }
 
 function doGetHandler(this: TriggerEvent, htmlOutput: GoogleAppsScript.HTML.HtmlOutput) {
@@ -80,6 +81,7 @@ function doGetHandler(this: TriggerEvent, htmlOutput: GoogleAppsScript.HTML.Html
     title: htmlOutput.getTitle(),
     faviconUrl: htmlOutput.getFaviconUrl(),
     content: htmlOutput.getContent(),
+    xFrameOptionsMode: (htmlOutput as any).getXFrameOptionsMode(),
   };
   this.postMessage(result);
 }

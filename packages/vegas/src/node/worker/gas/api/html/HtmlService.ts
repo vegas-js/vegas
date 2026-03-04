@@ -10,7 +10,7 @@ export class HtmlService implements GoogleAppsScript.HTML.HtmlService {
       throw new Error("Method not implemented.");
     }
 
-    return new HtmlOutput(html);
+    return new HtmlOutput(html, this.XFrameOptionsMode.DEFAULT);
   };
   createHtmlOutputFromFile = (filename: string) => {
     const message = requestSync({

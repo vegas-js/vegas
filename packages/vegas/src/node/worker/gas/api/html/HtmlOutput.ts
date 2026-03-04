@@ -8,8 +8,10 @@ export class HtmlOutput implements GoogleAppsScript.HTML.HtmlOutput {
   #faviconUrl: string;
   #content: string;
   #metaTags: GoogleAppsScript.HTML.HtmlOutputMetaTag[];
+  #defaultXFrameOptionsMode: GoogleAppsScript.HTML.XFrameOptionsMode;
+  #xFrameOptionsMode: GoogleAppsScript.HTML.XFrameOptionsMode;
 
-  constructor(content: string) {
+  constructor(content: string, defaultXFrameOptionsMode: GoogleAppsScript.HTML.XFrameOptionsMode) {
     this.#allowedMetaTags = [
       "apple-mobile-web-app-capable",
       "google-site-verification",
@@ -21,6 +23,12 @@ export class HtmlOutput implements GoogleAppsScript.HTML.HtmlOutput {
     this.#faviconUrl = "";
     this.#content = content;
     this.#metaTags = [];
+    this.#defaultXFrameOptionsMode = defaultXFrameOptionsMode;
+    this.#xFrameOptionsMode = defaultXFrameOptionsMode;
+  }
+
+  getXFrameOptionsMode() {
+    return this.#xFrameOptionsMode === this.#defaultXFrameOptionsMode ? "SAMEORIGIN" : undefined;
   }
 
   addMetaTag = (name: string, content: string) => {
@@ -98,6 +106,7 @@ export class HtmlOutput implements GoogleAppsScript.HTML.HtmlOutput {
     return this;
   };
   setXFrameOptionsMode = (mode: GoogleAppsScript.HTML.XFrameOptionsMode) => {
-    throw new Error("Method not implemented.");
+    this.#xFrameOptionsMode = mode;
+    return this;
   };
 }

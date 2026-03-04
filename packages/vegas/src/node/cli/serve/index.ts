@@ -163,6 +163,9 @@ document.getElementById("sandboxFrame").onload = (event) => {
         const transFormedHtml = await hostServer.transformIndexHtml(url.href, html.toString());
         response.statusCode = 200;
         response.setHeader("Content-Type", "text/html");
+        if (result.xFrameOptionsMode) {
+          response.setHeader("X-Frame-Options", result.xFrameOptionsMode);
+        }
         response.end(transFormedHtml);
         return;
       }
