@@ -1,6 +1,8 @@
+import events from "node:events";
 import vm from "node:vm";
 import worker from "node:worker_threads";
 
+import { excludesGASUserFunctionNames } from "../../../shared/gas";
 import { Console } from "./api/base/console";
 import { Logger } from "./api/base/Logger";
 import { Session } from "./api/base/Session";
@@ -63,27 +65,60 @@ script.runInContext(scriptContext);
 const sharedArray: Int32Array = worker.workerData.sharedArray;
 const port: worker.MessagePort = worker.workerData.port;
 
+interface DoGetResult {
+  metaTags: { name: string; content: string }[];
+  title: string;
+  faviconUrl: string;
+  content: string;
+}
+
+function doGetHandler(this: TriggerEvent, htmlOutput: GoogleAppsScript.HTML.HtmlOutput) {
+  const result: DoGetResult = {
+    metaTags: htmlOutput.getMetaTags().map((metaTag) => {
+      return { name: metaTag.getName(), content: metaTag.getContent() };
+    }),
+    title: htmlOutput.getTitle(),
+    faviconUrl: htmlOutput.getFaviconUrl(),
+    content: htmlOutput.getContent(),
+  };
+  this.postMessage(result);
+}
+
+class TriggerEvent extends events.EventEmitter {
+  #port: worker.MessagePort;
+
+  constructor(port: worker.MessagePort) {
+    super();
+    this.#port = port;
+  }
+
+  on(event: "doGet", listener: (arg: GoogleAppsScript.HTML.HtmlOutput) => void): this;
+  on(
+    event: (typeof excludesGASUserFunctionNames)[number],
+    listener: (...args: any[]) => void,
+  ): this {
+    super.on(event, listener);
+    return this;
+  }
+
+  postMessage(data: any) {
+    const payload = JSON.stringify(data);
+    this.#port.postMessage({ message: "vegas:resolve", payload });
+  }
+}
+
+const triggerEvent = new TriggerEvent(port);
+triggerEvent.on("doGet", doGetHandler);
+
 port.on("message", async (data: GASWorkerData) => {
   const result = await scriptContext[data.fn](...data.args);
 
-  let payload = "";
-  if (data.fn === "doGet") {
-    const htmlOutput = result as GoogleAppsScript.HTML.HtmlOutput;
-    const doGetResult: any = {
-      metaTags: htmlOutput.getMetaTags().map((metaTag) => {
-        return { name: metaTag.getName(), content: metaTag.getContent() };
-      }),
-      title: htmlOutput.getTitle(),
-      faviconUrl: htmlOutput.getFaviconUrl(),
-      content: htmlOutput.getContent(),
-    };
-
-    payload = JSON.stringify(doGetResult);
+  if ((excludesGASUserFunctionNames as unknown as string[]).includes(data.fn)) {
+    triggerEvent.emit(data.fn, result);
   } else {
-    payload = JSON.stringify(result);
+    const payload = JSON.stringify(result);
+    port.postMessage({ message: "vegas:resolve", payload });
   }
 
-  port.postMessage({ message: "vegas:resolve", payload });
-
-  globalThis.setTimeout(() => process.exit(0), 10);
+  process.exit(0);
 });

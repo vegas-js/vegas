@@ -5,6 +5,15 @@ export enum MockTarget {
   // TODO
 }
 
+export const excludesGASUserFunctionNames = [
+  "onOpen",
+  "onInstall",
+  "onEdit",
+  "onSelectionChange",
+  "doGet",
+  "doPost",
+] as const;
+
 export interface MockProperties {
   documentProperties?: Record<string, string>;
   scriptProperties?: Record<string, string>;
