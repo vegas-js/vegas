@@ -1,4 +1,5 @@
 import fs from "node:fs";
+import module from "node:module";
 import path from "node:path";
 
 import { build } from "rolldown";
@@ -18,7 +19,13 @@ async function transpileModule(ctx: { root: string; filePath: string; outputDir:
   }
   const result = await build({
     input: ctx.filePath,
-    external: () => true,
+    external: (id) => {
+      return (
+        id.includes("/node_modules/") ||
+        module.builtinModules.includes(id.replace(/^node:/, "")) ||
+        fs.existsSync(path.resolve(path.join(process.cwd(), "node_modules", id)))
+      );
+    },
     cwd: ctx.root,
     treeshake: false,
     tsconfig: false,
