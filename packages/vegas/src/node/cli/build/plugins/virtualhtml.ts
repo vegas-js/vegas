@@ -1,6 +1,8 @@
 import path from "node:path";
 
-import { HtmlTagDescriptor, Plugin } from "vite";
+import { Plugin } from "vite";
+
+import { HTML } from "../../core";
 
 type VirtualHTMLOption = {
   webDir: string;
@@ -10,68 +12,50 @@ type VirtualHTMLOption = {
 export function virtualHTML(option: VirtualHTMLOption): Plugin {
   return {
     name: "vite-plugin-virtualhtml",
+    enforce: "post",
 
-    configResolved(config) {
-      const relativeDirname = path.relative(option.webDir, path.parse(option.webEntry).dir);
-      const htmlPath = relativeDirname
-        ? `${relativeDirname}.html`
-        : path.join(relativeDirname, "index.html");
-      config.build.rolldownOptions.input = htmlPath;
+    applyToEnvironment(environment) {
+      return environment.name.startsWith("web");
     },
 
-    resolveId(source, _importer, _options) {
-      if (source.endsWith(".html")) {
-        return source;
-      }
-    },
-
-    load(id, _options) {
-      if (id.endsWith(".html")) {
-        return `<script type="module" src="${option.webEntry}"></script>`;
-      }
-    },
-
-    transformIndexHtml(_html, ctx) {
-      const bundle = ctx.bundle;
-      if (!bundle) {
-        return;
-      }
-      const injectTags: HtmlTagDescriptor[] = [];
+    generateBundle(_outputOptions, bundle, _isWrite) {
+      const assets: string[] = [];
+      const chunks: { id: string; original: string; jsCode: string }[] = [];
       Object.keys(bundle).forEach((key) => {
         const output = bundle[key];
-        const name = output.fileName;
-        if (output.type === "asset") {
-          if (name.endsWith(".css")) {
-            injectTags.push({
-              tag: "style",
-              children: Buffer.from(output.source).toString("utf8"),
-              injectTo: "head",
-            });
-            delete bundle[key];
-          } else {
-            this.warn(`no processing: ${name}`);
-          }
-        } else if (output.type === "chunk") {
-          if (name.endsWith(".js")) {
-            injectTags.push({
-              tag: "script",
-              children: output.code,
-              attrs: { type: "module" },
-              injectTo: "body",
-            });
-            delete bundle[key];
-          } else {
-            this.warn(`no processing: ${name}`);
-          }
+
+        if (output.type === "chunk") {
+          const relativeDirname = path.relative(
+            option.webDir,
+            path.parse(output.facadeModuleId!).dir,
+          );
+          const htmlPath = relativeDirname
+            ? `${relativeDirname}.html`
+            : path.join(relativeDirname, "index.html");
+
+          chunks.push({ id: htmlPath, original: output.facadeModuleId ?? "", jsCode: output.code });
         } else {
-          this.warn(`no processing: ${name}`);
+          assets.push(Buffer.from(output.source).toString("utf8"));
         }
+
+        delete bundle[key];
       });
 
-      return {
-        html: `<!DOCTYPE html><html><head></head><body><div id="root"></div></body></html>`,
-        tags: injectTags,
-      };
+      chunks.forEach((chunk) => {
+        const html = new HTML();
+        assets.forEach((asset) => {
+          html.appendToHead("style", asset);
+        });
+        html.appendToBody("div", [{ name: "id", value: "root" }]);
+        html.appendToBody("script", chunk.jsCode, [{ name: "type", value: "module" }]);
+
+        this.emitFile({
+          originalFileName: chunk.original,
+          fileName: chunk.id,
+          type: "asset",
+          source: html.toString(),
+        });
+      });
     },
   };
 }

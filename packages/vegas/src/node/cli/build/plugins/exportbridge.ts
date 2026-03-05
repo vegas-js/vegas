@@ -6,6 +6,10 @@ export function exportBridge(serverEntry: string): Plugin {
   return {
     name: "vite-plugin-exportbridge",
 
+    applyToEnvironment(environment) {
+      return !environment.name.startsWith("web");
+    },
+
     generateBundle(outputOptions, bundle, _isWrite) {
       const key = `${path.parse(serverEntry).name}.js`;
       const entry = bundle[key];

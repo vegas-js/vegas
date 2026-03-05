@@ -3,7 +3,7 @@ import path from "node:path";
 import { OutputChunk, RolldownOutput } from "rolldown";
 import { Connect, createLogger, createServer } from "vite";
 
-import { buildServerApp, buildWebApp } from "../build";
+import { buildApp, buildServerApp, buildWebApp } from "../build";
 import { HTML, resolvePath } from "../core";
 import { collectSources, detectEntries } from "../core/analyze";
 import { loadConfig, resolveConfig } from "../core/config";
@@ -19,20 +19,9 @@ async function serveApp(ctx: ServeContext) {
     cacheDir: path.join(ctx.config.root, "node_modules", ".vegas-host"),
   });
 
-  const webResult = await Promise.all(buildWebApp(ctx.config, ctx.entry.webEntries, false));
-  const newWebMap = new Map<string, string>();
-  webResult.flat().forEach((result) => {
-    (result as RolldownOutput).output.flat().forEach((output) => {
-      if (output.type === "asset") {
-        newWebMap.set(output.fileName, Buffer.from(output.source).toString("utf8"));
-      }
-    });
-  });
-  ctx.code.web.map = newWebMap;
-
-  const serverResult = await buildServerApp(ctx.config, ctx.entry.serverEntry);
-  const serverOutput = serverResult.output.flat()[0] as OutputChunk;
-  ctx.code.server = serverOutput.code;
+  const result = await buildApp(ctx.config, ctx.entry);
+  ctx.code.web.map = result.web;
+  ctx.code.server = result.server;
 
   hostServer.watcher.add([ctx.config.webDir, ctx.config.serverDir]);
 

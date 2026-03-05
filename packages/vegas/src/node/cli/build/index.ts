@@ -2,8 +2,8 @@ import fs from "node:fs";
 import path from "node:path";
 import util from "node:util";
 
-import { build as buildWithRolldown, VERSION as ROLLDOWN_VERSION } from "rolldown";
-import { build as buildWithVite, version as VITE_VERSION } from "vite";
+import { build as buildWithRolldown, VERSION as ROLLDOWN_VERSION, RolldownOutput } from "rolldown";
+import { build as buildWithVite, createBuilder, UserConfig, version as VITE_VERSION } from "vite";
 
 import { version as VEGAS_VERSION } from "../../../../package.json";
 import { resolvePath } from "../core";
@@ -58,14 +58,68 @@ export function buildServerApp(
   });
 }
 
-async function buildApp(config: ResolvedUserConfig, projectEntry: ProjectEntry) {
+export async function buildApp(config: ResolvedUserConfig, projectEntry: ProjectEntry) {
   fs.rmSync(config.output.dir, { recursive: true, force: true });
-  const promiseBuilds = buildWebApp(config, projectEntry.webEntries);
-  if (projectEntry.serverEntry) {
-    promiseBuilds.push(buildServerApp(config, projectEntry.serverEntry));
-  }
+  const webEnvironments: Record<string, UserConfig> = {};
+  projectEntry.webEntries.forEach((entry, index) => {
+    webEnvironments[`web${index}`] = {
+      build: {
+        rolldownOptions: {
+          input: `${entry}`,
+        },
+      },
+    };
+    (webEnvironments[`web${index}`] as any).consumer = "client";
+  });
+  const builder = await createBuilder({
+    root: config.root,
+    configFile: false,
+    plugins: [
+      ...config.plugins,
+      virtualHTML({ webDir: config.webDir, webEntry: "" }),
+      exportBridge(projectEntry.serverEntry),
+    ],
+    environments: {
+      ...webEnvironments,
+      gas: {
+        build: {
+          lib: {
+            formats: ["iife"],
+            name: "GASApp",
+            entry: projectEntry.serverEntry,
+          },
+        },
+      },
+    },
+    build: {
+      outDir: config.output.dir,
+      assetsInlineLimit: () => true,
+      cssCodeSplit: false,
+      // write: isWrite,
+      emptyOutDir: false,
+      reportCompressedSize: false,
+    },
+    logLevel: "silent",
+  });
+  const results = await Promise.all(
+    Object.values(builder.environments).map((environment) => {
+      return builder.build(environment);
+    }),
+  );
 
-  await Promise.all(promiseBuilds);
+  const output: { web: Map<string, string>; server: string } = { web: new Map(), server: "" };
+  (results.flat() as RolldownOutput[]).map((result) => {
+    const outputs = result.output.flat();
+    outputs.forEach((out) => {
+      if (out.type === "asset") {
+        output.web.set(out.fileName, Buffer.from(out.source).toString("utf8"));
+      } else {
+        output.server = out.code;
+      }
+    });
+  });
+
+  return output;
 }
 
 function generateManifest(config: ResolvedUserConfig) {
