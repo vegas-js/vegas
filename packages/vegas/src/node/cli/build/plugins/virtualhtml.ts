@@ -4,12 +4,7 @@ import { Plugin } from "vite";
 
 import { HTML } from "../../core";
 
-type VirtualHTMLOption = {
-  webDir: string;
-  webEntry: string;
-};
-
-export function virtualHTML(option: VirtualHTMLOption): Plugin {
+export function virtualHTML(webDir: string): Plugin {
   return {
     name: "vite-plugin-virtualhtml",
     enforce: "post",
@@ -25,15 +20,14 @@ export function virtualHTML(option: VirtualHTMLOption): Plugin {
         const output = bundle[key];
 
         if (output.type === "chunk") {
-          const relativeDirname = path.relative(
-            option.webDir,
-            path.parse(output.facadeModuleId!).dir,
-          );
+          const relativeDirname = path.relative(webDir, path.parse(output.facadeModuleId!).dir);
           const htmlPath = relativeDirname
             ? `${relativeDirname}.html`
             : path.join(relativeDirname, "index.html");
 
           chunks.push({ id: htmlPath, original: output.facadeModuleId ?? "", jsCode: output.code });
+        } else if (typeof output.source === "string") {
+          assets.push(output.source);
         } else {
           assets.push(Buffer.from(output.source).toString("utf8"));
         }

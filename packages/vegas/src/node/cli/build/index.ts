@@ -2,8 +2,8 @@ import fs from "node:fs";
 import path from "node:path";
 import util from "node:util";
 
-import { build as buildWithRolldown, VERSION as ROLLDOWN_VERSION, RolldownOutput } from "rolldown";
-import { build as buildWithVite, createBuilder, UserConfig, version as VITE_VERSION } from "vite";
+import { VERSION as ROLLDOWN_VERSION, RolldownOutput } from "rolldown";
+import { createBuilder, UserConfig, version as VITE_VERSION } from "vite";
 
 import { version as VEGAS_VERSION } from "../../../../package.json";
 import { resolvePath } from "../core";
@@ -13,59 +13,19 @@ import { exportBridge } from "./plugins/exportbridge";
 import { virtualHTML } from "./plugins/virtualhtml";
 import { printReport } from "./printReport";
 
-export function buildWebApp(
+export async function buildApp(
   config: ResolvedUserConfig,
-  webEntries: string[],
-  isWrite: boolean = true,
+  projectEntry: ProjectEntry,
+  isWrite?: boolean,
+  envFilter?: RegExp,
 ) {
-  return webEntries.map((entry) => {
-    return buildWithVite({
-      root: config.root,
-      configFile: false,
-      plugins: [...config.plugins, virtualHTML({ webDir: config.webDir, webEntry: entry })],
-      build: {
-        rolldownOptions: {
-          input: entry,
-        },
-        outDir: config.output.dir,
-        assetsInlineLimit: () => true,
-        cssCodeSplit: false,
-        write: isWrite,
-        emptyOutDir: false,
-        reportCompressedSize: false,
-      },
-      logLevel: "silent",
-    });
-  });
-}
-
-export function buildServerApp(
-  config: ResolvedUserConfig,
-  serverEntry: string,
-  isWrite: boolean = true,
-) {
-  return buildWithRolldown({
-    cwd: config.root,
-    input: serverEntry,
-    plugins: [exportBridge(serverEntry)],
-    output: {
-      format: "iife",
-      name: "GASApp",
-      exports: "named",
-      dir: config.output.dir,
-    },
-    write: isWrite,
-  });
-}
-
-export async function buildApp(config: ResolvedUserConfig, projectEntry: ProjectEntry) {
   fs.rmSync(config.output.dir, { recursive: true, force: true });
   const webEnvironments: Record<string, UserConfig> = {};
   projectEntry.webEntries.forEach((entry, index) => {
     webEnvironments[`web${index}`] = {
       build: {
         rolldownOptions: {
-          input: `${entry}`,
+          input: entry,
         },
       },
     };
@@ -76,7 +36,7 @@ export async function buildApp(config: ResolvedUserConfig, projectEntry: Project
     configFile: false,
     plugins: [
       ...config.plugins,
-      virtualHTML({ webDir: config.webDir, webEntry: "" }),
+      virtualHTML(config.webDir),
       exportBridge(projectEntry.serverEntry),
     ],
     environments: {
@@ -95,7 +55,7 @@ export async function buildApp(config: ResolvedUserConfig, projectEntry: Project
       outDir: config.output.dir,
       assetsInlineLimit: () => true,
       cssCodeSplit: false,
-      // write: isWrite,
+      write: isWrite,
       emptyOutDir: false,
       reportCompressedSize: false,
     },
@@ -103,23 +63,28 @@ export async function buildApp(config: ResolvedUserConfig, projectEntry: Project
   });
   const results = await Promise.all(
     Object.values(builder.environments).map((environment) => {
-      return builder.build(environment);
+      if (environment.name !== "client") {
+        if ((envFilter && envFilter.test(environment.name)) || !envFilter) {
+          return builder.build(environment);
+        }
+      }
     }),
   );
 
-  const output: { web: Map<string, string>; server: string } = { web: new Map(), server: "" };
-  (results.flat() as RolldownOutput[]).map((result) => {
-    const outputs = result.output.flat();
-    outputs.forEach((out) => {
-      if (out.type === "asset") {
-        output.web.set(out.fileName, Buffer.from(out.source).toString("utf8"));
-      } else {
-        output.server = out.code;
-      }
+  if (!isWrite) {
+    const output: { web: Map<string, string>; server: string } = { web: new Map(), server: "" };
+    (results.flat().filter((result) => result !== undefined) as RolldownOutput[]).map((result) => {
+      const outputs = result.output.flat();
+      outputs.forEach((out) => {
+        if (out.type === "asset") {
+          output.web.set(out.fileName, Buffer.from(out.source).toString("utf8"));
+        } else {
+          output.server = out.code;
+        }
+      });
     });
-  });
-
-  return output;
+    return output;
+  }
 }
 
 function generateManifest(config: ResolvedUserConfig) {
@@ -152,7 +117,7 @@ export async function runBuild(root?: string) {
   const projectEntry = detectEntries(projectSource);
 
   const startTime = performance.now();
-  await buildApp(resolvedUserConfig, projectEntry);
+  await buildApp(resolvedUserConfig, projectEntry, true);
   generateManifest(resolvedUserConfig);
   const endTime = performance.now();
 
