@@ -3,7 +3,7 @@ import path from "node:path";
 import util from "node:util";
 
 import type { RolldownOutput } from "rolldown";
-import { createBuilder, UserConfig, version as VITE_VERSION } from "vite";
+import { createBuilder, EnvironmentOptions, version as VITE_VERSION } from "vite";
 
 import { version as VEGAS_VERSION } from "../../../../package.json";
 import { resolvePath } from "../core";
@@ -20,7 +20,7 @@ export async function buildApp(
   envFilter?: RegExp,
 ) {
   fs.rmSync(config.output.dir, { recursive: true, force: true });
-  const webEnvironments: Record<string, UserConfig> = {};
+  const webEnvironments: Record<string, EnvironmentOptions> = {};
   projectEntry.webEntries.forEach((entry, index) => {
     webEnvironments[`web${index}`] = {
       build: {
@@ -28,8 +28,8 @@ export async function buildApp(
           input: entry,
         },
       },
+      consumer: "client",
     };
-    (webEnvironments[`web${index}`] as any).consumer = "client";
   });
   const builder = await createBuilder({
     root: config.root,
