@@ -2,7 +2,7 @@
 
 > **It feels like Vite, and it really is Vite.**
 
-Vegas is a tool for building SPAs on the GAS platform, powered by `Vite` and `Rolldown`, which significantly improves the frontend development experience.
+Vegas is a tool for building SPAs on the GAS platform, powered by `Vite`, which significantly improves the frontend development experience.
 
 ## Features
 
@@ -63,4 +63,4 @@ Vegas is an independent project not affiliated with Google LLC and VoidZero Inc.
 
 ### Thanks
 
-Thanks to everyone who provides Vite, Rolldown, and other tools.
+Thanks to everyone who provides Vite, and other tools.

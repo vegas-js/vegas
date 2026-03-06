@@ -10,7 +10,7 @@ Vegas (Vite + GAS) is an integrated build tool aimed at providing a faster, more
 
 - A development server with a local GAS compatible runtime, powered by [Vite](https://vite.dev), a powerful tool with hot module replacement (HMR).
 
-- A build command that bundles frontend and server code, powered by [Vite](https://vite.dev) and [Rolldown](https://rolldown.rs), further enhanced with the introduction of Rust. The frontend is built with Vite, and the server with Rolldown, resulting in code optimized for each target.
+- A build command that bundles frontend and server code, powered by [Vite](https://vite.dev), further enhanced with the introduction of Rust.
 
 Vegas provides a zero-config experience, achieving optimal build results without any configuration in most cases. See the Feature Guide for details.
 

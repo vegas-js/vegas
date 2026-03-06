@@ -2,7 +2,8 @@ import fs from "node:fs";
 import module from "node:module";
 import path from "node:path";
 
-import { build } from "rolldown";
+import type { RolldownOutput, OutputChunk } from "rolldown";
+import { build } from "vite";
 
 import { DisposableTempDir } from ".";
 import { resolvePath } from ".";
@@ -18,22 +19,33 @@ async function transpileModule(ctx: { root: string; filePath: string; outputDir:
     throw new Error(`${ctx.filePath} is not found.`);
   }
   const result = await build({
-    input: ctx.filePath,
-    external: (id) => {
-      return (
-        id.includes("/node_modules/") ||
-        module.builtinModules.includes(id.replace(/^node:/, "")) ||
-        fs.existsSync(path.resolve(path.join(process.cwd(), "node_modules", id)))
-      );
+    build: {
+      lib: {
+        entry: ctx.filePath,
+        formats: ["es"],
+      },
+      rolldownOptions: {
+        external: (id) => {
+          return (
+            id.includes("/node_modules/") ||
+            module.builtinModules.includes(id.replace(/^node:/, "")) ||
+            fs.existsSync(path.resolve(path.join(process.cwd(), "node_modules", id)))
+          );
+        },
+        cwd: ctx.root,
+        treeshake: false,
+        tsconfig: false,
+        output: {
+          dir: ctx.outputDir,
+          minify: false,
+        },
+      },
     },
-    cwd: ctx.root,
-    treeshake: false,
-    tsconfig: false,
-    output: {
-      dir: ctx.outputDir,
-    },
+    logLevel: "silent",
   });
-  const output = result.output[0];
+  const output = (
+    (Array.isArray(result) ? result[0] : result) as RolldownOutput
+  ).output.flat()[0] as OutputChunk;
   return path.join(ctx.outputDir, output.fileName);
 }
 
