@@ -14,7 +14,7 @@ export function exportBridge(serverEntry: string): Plugin {
       const key = `${path.parse(serverEntry).name}.js`;
       const entry = bundle[key];
       if (entry && entry.type === "chunk") {
-        const bridgeCodes: string[] = ["\n\n/* Function bridge for GAS Client */"];
+        const bridgeCodes: string[] = ["\n/* Function bridge for GAS Client */"];
         entry.exports.forEach((expo) => {
           bridgeCodes.push(
             `function ${expo}(...args) { return ${outputOptions.name ?? "globalThis"}.${expo}(...args); };`,

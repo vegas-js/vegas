@@ -32,7 +32,6 @@ async function transpileModule(ctx: { root: string; filePath: string; outputDir:
             fs.existsSync(path.resolve(path.join(process.cwd(), "node_modules", id)))
           );
         },
-        cwd: ctx.root,
         treeshake: false,
         tsconfig: false,
         output: {
