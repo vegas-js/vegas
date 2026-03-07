@@ -121,6 +121,6 @@ port.on("message", async (data: GASWorkerData) => {
     const payload = JSON.stringify(result);
     port.postMessage({ message: "resolve", payload });
   }
-
-  process.exit(0);
 });
+
+port.on("close", () => process.exit());

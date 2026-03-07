@@ -15,7 +15,7 @@ export function launchGAS(ctx: ServeContext, fn: string, ...args: any[]): Promis
     });
 
     port1.postMessage({ fn, args });
-    port1.on("message", async (data) => {
+    port1.on("message", (data) => {
       if (data.message === "HtmlService#createHtmlOutputFromFile") {
         const filePath = `${path.parse(data.payload).name}.html`;
         const html = ctx.code.web.map.get(filePath);
@@ -197,6 +197,7 @@ export function launchGAS(ctx: ServeContext, fn: string, ...args: any[]): Promis
         Atomics.store(sharedArray, 0, 0);
         Atomics.notify(sharedArray, 0);
       } else if (data.message === "resolve") {
+        port1.close();
         resolve(data.payload);
       }
     });
