@@ -60,6 +60,15 @@ function detectServerEntry(webSources: string[], serverSources: string[]) {
         const sourceDir = path.parse(webSource).dir;
         const importPath = path.resolve(sourceDir, node.source.value);
         const importAbsolutePath = importPath.endsWith(".ts") ? importPath : `${importPath}.ts`;
+        /* memo */
+        // createBuilder()
+        //   .then((builder) => {
+        //     const resolver = createIdResolver(builder.environments.client.config, {});
+        //     resolver(builder.environments.client, node.source.value, webSource)
+        //       .then((resolvedPath) => console.log(node.source.value, "=>", resolvedPath))
+        //       .catch(() => {});
+        //   })
+        //   .catch(() => {});
         if (serverSources.includes(importAbsolutePath)) {
           if (path.parse(importAbsolutePath).base !== "Code.ts") {
             throw new Error("The only file that can be imported from the server side is Code.ts");
