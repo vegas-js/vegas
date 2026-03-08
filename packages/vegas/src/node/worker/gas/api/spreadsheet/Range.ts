@@ -1,431 +1,388 @@
 // https://developers.google.com/apps-script/reference/spreadsheet/range
 export class Range implements GoogleAppsScript.Spreadsheet.Range {
-  activate(): GoogleAppsScript.Spreadsheet.Range {
+  activate = () => {
     throw new Error("Method not implemented.");
-  }
-  activateAsCurrentCell(): GoogleAppsScript.Spreadsheet.Range {
+  };
+  activateAsCurrentCell = () => {
     throw new Error("Method not implemented.");
-  }
-  addDeveloperMetadata(
-    key: unknown,
-    value?: unknown,
-    visibility?: unknown,
-  ): GoogleAppsScript.Spreadsheet.Range {
+  };
+  addDeveloperMetadata = (key: unknown, value?: unknown, visibility?: unknown) => {
     throw new Error("Method not implemented.");
-  }
-  applyColumnBanding(
-    bandingTheme?: unknown,
-    showHeader?: unknown,
-    showFooter?: unknown,
-  ): GoogleAppsScript.Spreadsheet.Banding {
+  };
+  applyColumnBanding = (bandingTheme?: unknown, showHeader?: unknown, showFooter?: unknown) => {
     throw new Error("Method not implemented.");
-  }
-  applyRowBanding(
-    bandingTheme?: unknown,
-    showHeader?: unknown,
-    showFooter?: unknown,
-  ): GoogleAppsScript.Spreadsheet.Banding {
+  };
+  applyRowBanding = (bandingTheme?: unknown, showHeader?: unknown, showFooter?: unknown) => {
     throw new Error("Method not implemented.");
-  }
-  autoFill(
+  };
+  autoFill = (
     destination: GoogleAppsScript.Spreadsheet.Range,
     series: GoogleAppsScript.Spreadsheet.AutoFillSeries,
-  ): void {
+  ) => {
     throw new Error("Method not implemented.");
-  }
-  autoFillToNeighbor(series: GoogleAppsScript.Spreadsheet.AutoFillSeries): void {
+  };
+  autoFillToNeighbor = (series: GoogleAppsScript.Spreadsheet.AutoFillSeries) => {
     throw new Error("Method not implemented.");
-  }
-  breakApart(): GoogleAppsScript.Spreadsheet.Range {
+  };
+  breakApart = () => {
     throw new Error("Method not implemented.");
-  }
-  canEdit(): boolean {
+  };
+  canEdit = () => {
     throw new Error("Method not implemented.");
-  }
-  check(): GoogleAppsScript.Spreadsheet.Range {
+  };
+  check = () => {
     throw new Error("Method not implemented.");
-  }
-  clear(options?: unknown): GoogleAppsScript.Spreadsheet.Range {
+  };
+  clear = (options?: unknown) => {
     throw new Error("Method not implemented.");
-  }
-  clearContent(): GoogleAppsScript.Spreadsheet.Range {
+  };
+  clearContent = () => {
     throw new Error("Method not implemented.");
-  }
-  clearDataValidations(): GoogleAppsScript.Spreadsheet.Range {
+  };
+  clearDataValidations = () => {
     throw new Error("Method not implemented.");
-  }
-  clearFormat(): GoogleAppsScript.Spreadsheet.Range {
+  };
+  clearFormat = () => {
     throw new Error("Method not implemented.");
-  }
-  clearNote(): GoogleAppsScript.Spreadsheet.Range {
+  };
+  clearNote = () => {
     throw new Error("Method not implemented.");
-  }
-  collapseGroups(): GoogleAppsScript.Spreadsheet.Range {
+  };
+  collapseGroups = () => {
     throw new Error("Method not implemented.");
-  }
-  copyFormatToRange(
+  };
+  copyFormatToRange = (
     sheet: unknown,
     column: unknown,
     columnEnd: unknown,
     row: unknown,
     rowEnd: unknown,
-  ): void {
+  ) => {
     throw new Error("Method not implemented.");
-  }
-  copyTo(destination: unknown, copyPasteType?: unknown, transposed?: unknown): void {
+  };
+  copyTo = (destination: unknown, copyPasteType?: unknown, transposed?: unknown) => {
     throw new Error("Method not implemented.");
-  }
-  copyValuesToRange(
+  };
+  copyValuesToRange = (
     sheet: unknown,
     column: unknown,
     columnEnd: unknown,
     row: unknown,
     rowEnd: unknown,
-  ): void {
+  ) => {
     throw new Error("Method not implemented.");
-  }
-  createDataSourcePivotTable(
-    dataSource: GoogleAppsScript.Spreadsheet.DataSource,
-  ): GoogleAppsScript.Spreadsheet.DataSourcePivotTable {
+  };
+  createDataSourcePivotTable = (dataSource: GoogleAppsScript.Spreadsheet.DataSource) => {
     throw new Error("Method not implemented.");
-  }
-  createDataSourceTable(
-    dataSource: GoogleAppsScript.Spreadsheet.DataSource,
-  ): GoogleAppsScript.Spreadsheet.DataSourceTable {
+  };
+  createDataSourceTable = (dataSource: GoogleAppsScript.Spreadsheet.DataSource) => {
     throw new Error("Method not implemented.");
-  }
-  createDeveloperMetadataFinder(): GoogleAppsScript.Spreadsheet.DeveloperMetadataFinder {
+  };
+  createDeveloperMetadataFinder = () => {
     throw new Error("Method not implemented.");
-  }
-  createFilter(): GoogleAppsScript.Spreadsheet.Filter {
+  };
+  createFilter = () => {
     throw new Error("Method not implemented.");
-  }
-  createPivotTable(
-    sourceData: GoogleAppsScript.Spreadsheet.Range,
-  ): GoogleAppsScript.Spreadsheet.PivotTable {
+  };
+  createPivotTable = (sourceData: GoogleAppsScript.Spreadsheet.Range) => {
     throw new Error("Method not implemented.");
-  }
-  createTextFinder(findText: string): GoogleAppsScript.Spreadsheet.TextFinder {
+  };
+  createTextFinder = (findText: string) => {
     throw new Error("Method not implemented.");
-  }
-  deleteCells(shiftDimension: GoogleAppsScript.Spreadsheet.Dimension): void {
+  };
+  deleteCells = (shiftDimension: GoogleAppsScript.Spreadsheet.Dimension) => {
     throw new Error("Method not implemented.");
-  }
-  expandGroups(): GoogleAppsScript.Spreadsheet.Range {
+  };
+  expandGroups = () => {
     throw new Error("Method not implemented.");
-  }
-  getA1Notation(): string {
+  };
+  getA1Notation = () => {
     throw new Error("Method not implemented.");
-  }
-  getBackground(): string {
+  };
+  getBackground = () => {
     throw new Error("Method not implemented.");
-  }
-  getBackgroundObject(): GoogleAppsScript.Spreadsheet.Color {
+  };
+  getBackgroundObject = () => {
     throw new Error("Method not implemented.");
-  }
-  getBackgroundObjects(): GoogleAppsScript.Spreadsheet.Color[][] {
+  };
+  getBackgroundObjects = () => {
     throw new Error("Method not implemented.");
-  }
-  getBackgrounds(): string[][] {
+  };
+  getBackgrounds = () => {
     throw new Error("Method not implemented.");
-  }
-  getBandings(): GoogleAppsScript.Spreadsheet.Banding[] {
+  };
+  getBandings = () => {
     throw new Error("Method not implemented.");
-  }
-  getCell(
-    row: GoogleAppsScript.Integer,
-    column: GoogleAppsScript.Integer,
-  ): GoogleAppsScript.Spreadsheet.Range {
+  };
+  getCell = (row: GoogleAppsScript.Integer, column: GoogleAppsScript.Integer) => {
     throw new Error("Method not implemented.");
-  }
-  getColumn(): GoogleAppsScript.Integer {
+  };
+  getColumn = () => {
     throw new Error("Method not implemented.");
-  }
-  getDataRegion(dimension?: unknown): GoogleAppsScript.Spreadsheet.Range {
+  };
+  getDataRegion = (dimension?: unknown) => {
     throw new Error("Method not implemented.");
-  }
-  getDataSourceFormula(): GoogleAppsScript.Spreadsheet.DataSourceFormula {
+  };
+  getDataSourceFormula = () => {
     throw new Error("Method not implemented.");
-  }
-  getDataSourceFormulas(): GoogleAppsScript.Spreadsheet.DataSourceFormula[] {
+  };
+  getDataSourceFormulas = () => {
     throw new Error("Method not implemented.");
-  }
-  getDataSourcePivotTables(): GoogleAppsScript.Spreadsheet.DataSourcePivotTable[] {
+  };
+  getDataSourcePivotTables = () => {
     throw new Error("Method not implemented.");
-  }
-  getDataSourceTables(): GoogleAppsScript.Spreadsheet.DataSourceTable[] {
+  };
+  getDataSourceTables = () => {
     throw new Error("Method not implemented.");
-  }
-  getDataSourceUrl(): string {
+  };
+  getDataSourceUrl = () => {
     throw new Error("Method not implemented.");
-  }
-  getDataTable(firstRowIsHeader?: unknown): GoogleAppsScript.Charts.DataTable {
+  };
+  getDataTable = (firstRowIsHeader?: unknown) => {
     throw new Error("Method not implemented.");
-  }
-  getDataValidation(): GoogleAppsScript.Spreadsheet.DataValidation | null {
+  };
+  getDataValidation = () => {
     throw new Error("Method not implemented.");
-  }
-  getDataValidations(): Array<Array<GoogleAppsScript.Spreadsheet.DataValidation | null>> {
+  };
+  getDataValidations = () => {
     throw new Error("Method not implemented.");
-  }
-  getDeveloperMetadata(): GoogleAppsScript.Spreadsheet.DeveloperMetadata[] {
+  };
+  getDeveloperMetadata = () => {
     throw new Error("Method not implemented.");
-  }
-  getDisplayValue(): string {
+  };
+  getDisplayValue = () => {
     throw new Error("Method not implemented.");
-  }
-  getDisplayValues(): string[][] {
+  };
+  getDisplayValues = () => {
     throw new Error("Method not implemented.");
-  }
-  getFilter(): GoogleAppsScript.Spreadsheet.Filter | null {
+  };
+  getFilter = () => {
     throw new Error("Method not implemented.");
-  }
-  getFontColor(): string {
+  };
+  getFontColorObject = () => {
     throw new Error("Method not implemented.");
-  }
-  getFontColors(): string[][] {
+  };
+  getFontColorObjects = () => {
     throw new Error("Method not implemented.");
-  }
-  getFontColorObject(): GoogleAppsScript.Spreadsheet.Color {
+  };
+  getFontFamilies = () => {
     throw new Error("Method not implemented.");
-  }
-  getFontColorObjects(): GoogleAppsScript.Spreadsheet.Color[][] {
+  };
+  getFontFamily = () => {
     throw new Error("Method not implemented.");
-  }
-  getFontFamilies(): string[][] {
+  };
+  getFontLine = () => {
     throw new Error("Method not implemented.");
-  }
-  getFontFamily(): string {
+  };
+  getFontLines = () => {
     throw new Error("Method not implemented.");
-  }
-  getFontLine(): GoogleAppsScript.Spreadsheet.FontLine {
+  };
+  getFontSize = () => {
     throw new Error("Method not implemented.");
-  }
-  getFontLines(): GoogleAppsScript.Spreadsheet.FontLine[][] {
+  };
+  getFontSizes = () => {
     throw new Error("Method not implemented.");
-  }
-  getFontSize(): GoogleAppsScript.Integer {
+  };
+  getFontStyle = () => {
     throw new Error("Method not implemented.");
-  }
-  getFontSizes(): GoogleAppsScript.Integer[][] {
+  };
+  getFontStyles = () => {
     throw new Error("Method not implemented.");
-  }
-  getFontStyle(): GoogleAppsScript.Spreadsheet.FontStyle {
+  };
+  getFontWeight = () => {
     throw new Error("Method not implemented.");
-  }
-  getFontStyles(): GoogleAppsScript.Spreadsheet.FontStyle[][] {
+  };
+  getFontWeights = () => {
     throw new Error("Method not implemented.");
-  }
-  getFontWeight(): GoogleAppsScript.Spreadsheet.FontWeight {
+  };
+  getFormula = () => {
     throw new Error("Method not implemented.");
-  }
-  getFontWeights(): GoogleAppsScript.Spreadsheet.FontWeight[][] {
+  };
+  getFormulaR1C1 = () => {
     throw new Error("Method not implemented.");
-  }
-  getFormula(): string {
+  };
+  getFormulas = () => {
     throw new Error("Method not implemented.");
-  }
-  getFormulaR1C1(): string | null {
+  };
+  getFormulasR1C1 = () => {
     throw new Error("Method not implemented.");
-  }
-  getFormulas(): string[][] {
+  };
+  getGridId = () => {
     throw new Error("Method not implemented.");
-  }
-  getFormulasR1C1(): Array<Array<string | null>> {
+  };
+  getHeight = () => {
     throw new Error("Method not implemented.");
-  }
-  getGridId(): GoogleAppsScript.Integer {
+  };
+  getHorizontalAlignment = () => {
     throw new Error("Method not implemented.");
-  }
-  getHeight(): GoogleAppsScript.Integer {
+  };
+  getHorizontalAlignments = () => {
     throw new Error("Method not implemented.");
-  }
-  getHorizontalAlignment(): string {
+  };
+  getLastColumn = () => {
     throw new Error("Method not implemented.");
-  }
-  getHorizontalAlignments(): string[][] {
+  };
+  getLastRow = () => {
     throw new Error("Method not implemented.");
-  }
-  getLastColumn(): GoogleAppsScript.Integer {
+  };
+  getMergedRanges = () => {
     throw new Error("Method not implemented.");
-  }
-  getLastRow(): GoogleAppsScript.Integer {
+  };
+  getNextDataCell = (direction: GoogleAppsScript.Spreadsheet.Direction) => {
     throw new Error("Method not implemented.");
-  }
-  getMergedRanges(): GoogleAppsScript.Spreadsheet.Range[] {
+  };
+  getNote = () => {
     throw new Error("Method not implemented.");
-  }
-  getNextDataCell(
-    direction: GoogleAppsScript.Spreadsheet.Direction,
-  ): GoogleAppsScript.Spreadsheet.Range {
+  };
+  getNotes = () => {
     throw new Error("Method not implemented.");
-  }
-  getNote(): string {
+  };
+  getNumColumns = () => {
     throw new Error("Method not implemented.");
-  }
-  getNotes(): string[][] {
+  };
+  getNumRows = () => {
     throw new Error("Method not implemented.");
-  }
-  getNumColumns(): GoogleAppsScript.Integer {
+  };
+  getNumberFormat = () => {
     throw new Error("Method not implemented.");
-  }
-  getNumRows(): GoogleAppsScript.Integer {
+  };
+  getNumberFormats = () => {
     throw new Error("Method not implemented.");
-  }
-  getNumberFormat(): string {
+  };
+  getRichTextValue = () => {
     throw new Error("Method not implemented.");
-  }
-  getNumberFormats(): string[][] {
+  };
+  getRichTextValues = () => {
     throw new Error("Method not implemented.");
-  }
-  getRichTextValue(): GoogleAppsScript.Spreadsheet.RichTextValue | null {
+  };
+  getRow = () => {
     throw new Error("Method not implemented.");
-  }
-  getRichTextValues(): Array<Array<GoogleAppsScript.Spreadsheet.RichTextValue | null>> {
+  };
+  getRowIndex = () => {
     throw new Error("Method not implemented.");
-  }
-  getRow(): GoogleAppsScript.Integer {
+  };
+  getSheet = () => {
     throw new Error("Method not implemented.");
-  }
-  getRowIndex(): GoogleAppsScript.Integer {
+  };
+  getTextDirection = () => {
     throw new Error("Method not implemented.");
-  }
-  getSheet(): GoogleAppsScript.Spreadsheet.Sheet {
+  };
+  getTextDirections = () => {
     throw new Error("Method not implemented.");
-  }
-  getTextDirection(): GoogleAppsScript.Spreadsheet.TextDirection | null {
+  };
+  getTextRotation = () => {
     throw new Error("Method not implemented.");
-  }
-  getTextDirections(): Array<Array<GoogleAppsScript.Spreadsheet.TextDirection | null>> {
+  };
+  getTextRotations = () => {
     throw new Error("Method not implemented.");
-  }
-  getTextRotation(): GoogleAppsScript.Spreadsheet.TextRotation {
+  };
+  getTextStyle = () => {
     throw new Error("Method not implemented.");
-  }
-  getTextRotations(): GoogleAppsScript.Spreadsheet.TextRotation[][] {
+  };
+  getTextStyles = () => {
     throw new Error("Method not implemented.");
-  }
-  getTextStyle(): GoogleAppsScript.Spreadsheet.TextStyle {
+  };
+  getValue = () => {
     throw new Error("Method not implemented.");
-  }
-  getTextStyles(): GoogleAppsScript.Spreadsheet.TextStyle[][] {
+  };
+  getValues = () => {
     throw new Error("Method not implemented.");
-  }
-  getValue() {
+  };
+  getVerticalAlignment = () => {
     throw new Error("Method not implemented.");
-  }
-  getValues(): any[][] {
+  };
+  getVerticalAlignments = () => {
     throw new Error("Method not implemented.");
-  }
-  getVerticalAlignment(): string {
+  };
+  getWidth = () => {
     throw new Error("Method not implemented.");
-  }
-  getVerticalAlignments(): string[][] {
+  };
+  getWrap = () => {
     throw new Error("Method not implemented.");
-  }
-  getWidth(): GoogleAppsScript.Integer {
+  };
+  getWrapStrategies = () => {
     throw new Error("Method not implemented.");
-  }
-  getWrap(): boolean {
+  };
+  getWrapStrategy = () => {
     throw new Error("Method not implemented.");
-  }
-  getWrapStrategies(): GoogleAppsScript.Spreadsheet.WrapStrategy[][] {
+  };
+  getWraps = () => {
     throw new Error("Method not implemented.");
-  }
-  getWrapStrategy(): GoogleAppsScript.Spreadsheet.WrapStrategy {
+  };
+  insertCells = (shiftDimension: GoogleAppsScript.Spreadsheet.Dimension) => {
     throw new Error("Method not implemented.");
-  }
-  getWraps(): boolean[][] {
+  };
+  insertCheckboxes = (checkedValue?: unknown, uncheckedValue?: unknown) => {
     throw new Error("Method not implemented.");
-  }
-  insertCells(
-    shiftDimension: GoogleAppsScript.Spreadsheet.Dimension,
-  ): GoogleAppsScript.Spreadsheet.Range {
+  };
+  isBlank = () => {
     throw new Error("Method not implemented.");
-  }
-  insertCheckboxes(
-    checkedValue?: unknown,
-    uncheckedValue?: unknown,
-  ): GoogleAppsScript.Spreadsheet.Range {
+  };
+  isChecked = () => {
     throw new Error("Method not implemented.");
-  }
-  isBlank(): boolean {
+  };
+  isEndColumnBounded = () => {
     throw new Error("Method not implemented.");
-  }
-  isChecked(): boolean | null {
+  };
+  isEndRowBounded = () => {
     throw new Error("Method not implemented.");
-  }
-  isEndColumnBounded(): boolean {
+  };
+  isPartOfMerge = () => {
     throw new Error("Method not implemented.");
-  }
-  isEndRowBounded(): boolean {
+  };
+  isStartColumnBounded = () => {
     throw new Error("Method not implemented.");
-  }
-  isPartOfMerge(): boolean {
+  };
+  isStartRowBounded = () => {
     throw new Error("Method not implemented.");
-  }
-  isStartColumnBounded(): boolean {
+  };
+  merge = () => {
     throw new Error("Method not implemented.");
-  }
-  isStartRowBounded(): boolean {
+  };
+  mergeAcross = () => {
     throw new Error("Method not implemented.");
-  }
-  merge(): GoogleAppsScript.Spreadsheet.Range {
+  };
+  mergeVertically = () => {
     throw new Error("Method not implemented.");
-  }
-  mergeAcross(): GoogleAppsScript.Spreadsheet.Range {
+  };
+  moveTo = (target: GoogleAppsScript.Spreadsheet.Range) => {
     throw new Error("Method not implemented.");
-  }
-  mergeVertically(): GoogleAppsScript.Spreadsheet.Range {
+  };
+  offset = (rowOffset: unknown, columnOffset: unknown, numRows?: unknown, numColumns?: unknown) => {
     throw new Error("Method not implemented.");
-  }
-  moveTo(target: GoogleAppsScript.Spreadsheet.Range): void {
+  };
+  protect = () => {
     throw new Error("Method not implemented.");
-  }
-  offset(
-    rowOffset: unknown,
-    columnOffset: unknown,
-    numRows?: unknown,
-    numColumns?: unknown,
-  ): GoogleAppsScript.Spreadsheet.Range {
+  };
+  randomize = () => {
     throw new Error("Method not implemented.");
-  }
-  protect(): GoogleAppsScript.Spreadsheet.Protection {
+  };
+  removeCheckboxes = () => {
     throw new Error("Method not implemented.");
-  }
-  randomize(): GoogleAppsScript.Spreadsheet.Range {
+  };
+  removeDuplicates = (columnsToCompare?: unknown) => {
     throw new Error("Method not implemented.");
-  }
-  removeCheckboxes(): GoogleAppsScript.Spreadsheet.Range {
+  };
+  setBackground = (color: string | null) => {
     throw new Error("Method not implemented.");
-  }
-  removeDuplicates(columnsToCompare?: unknown): GoogleAppsScript.Spreadsheet.Range {
+  };
+  setBackgroundObject = (color: GoogleAppsScript.Spreadsheet.Color | null) => {
     throw new Error("Method not implemented.");
-  }
-  setBackground(color: string | null): GoogleAppsScript.Spreadsheet.Range {
+  };
+  setBackgroundObjects = (color: GoogleAppsScript.Spreadsheet.Color[][] | null) => {
     throw new Error("Method not implemented.");
-  }
-  setBackgroundObject(
-    color: GoogleAppsScript.Spreadsheet.Color | null,
-  ): GoogleAppsScript.Spreadsheet.Range {
-    throw new Error("Method not implemented.");
-  }
-  setBackgroundObjects(
-    color: GoogleAppsScript.Spreadsheet.Color[][] | null,
-  ): GoogleAppsScript.Spreadsheet.Range {
-    throw new Error("Method not implemented.");
-  }
-  setBackgroundRGB(
+  };
+  setBackgroundRGB = (
     red: GoogleAppsScript.Integer,
     green: GoogleAppsScript.Integer,
     blue: GoogleAppsScript.Integer,
-  ): GoogleAppsScript.Spreadsheet.Range {
+  ) => {
     throw new Error("Method not implemented.");
-  }
-  setBackgrounds(color: Array<Array<string | null>>): GoogleAppsScript.Spreadsheet.Range {
+  };
+  setBackgrounds = (color: Array<Array<string | null>>) => {
     throw new Error("Method not implemented.");
-  }
-  setBorder(
+  };
+  setBorder = (
     top: unknown,
     left: unknown,
     bottom: unknown,
@@ -434,201 +391,171 @@ export class Range implements GoogleAppsScript.Spreadsheet.Range {
     horizontal: unknown,
     color?: unknown,
     style?: unknown,
-  ): GoogleAppsScript.Spreadsheet.Range {
+  ) => {
     throw new Error("Method not implemented.");
-  }
-  setDataValidation(
-    rule: GoogleAppsScript.Spreadsheet.DataValidation | null,
-  ): GoogleAppsScript.Spreadsheet.Range {
+  };
+  setDataValidation = (rule: GoogleAppsScript.Spreadsheet.DataValidation | null) => {
     throw new Error("Method not implemented.");
-  }
-  setDataValidations(
+  };
+  setDataValidations = (
     rules: Array<Array<GoogleAppsScript.Spreadsheet.DataValidation | null>>,
-  ): GoogleAppsScript.Spreadsheet.Range {
+  ) => {
     throw new Error("Method not implemented.");
-  }
-  setFontColor(color: string | null): GoogleAppsScript.Spreadsheet.Range {
+  };
+  setFontColor = (color: string | null) => {
     throw new Error("Method not implemented.");
-  }
-  setFontColorObject(
-    color: GoogleAppsScript.Spreadsheet.Color | null,
-  ): GoogleAppsScript.Spreadsheet.Range {
+  };
+  setFontColorObject = (color: GoogleAppsScript.Spreadsheet.Color | null) => {
     throw new Error("Method not implemented.");
-  }
-  setFontColorObjects(
-    colors: Array<Array<GoogleAppsScript.Spreadsheet.Color | null>>,
-  ): GoogleAppsScript.Spreadsheet.Range {
+  };
+  setFontColorObjects = (colors: Array<Array<GoogleAppsScript.Spreadsheet.Color | null>>) => {
     throw new Error("Method not implemented.");
-  }
-  setFontColors(colors: any[][]): GoogleAppsScript.Spreadsheet.Range {
+  };
+  setFontColors = (colors: any[][]) => {
     throw new Error("Method not implemented.");
-  }
-  setFontFamilies(fontFamilies: Array<Array<string | null>>): GoogleAppsScript.Spreadsheet.Range {
+  };
+  setFontFamilies = (fontFamilies: Array<Array<string | null>>) => {
     throw new Error("Method not implemented.");
-  }
-  setFontFamily(fontFamily: string | null): GoogleAppsScript.Spreadsheet.Range {
+  };
+  setFontFamily = (fontFamily: string | null) => {
     throw new Error("Method not implemented.");
-  }
-  setFontLine(
-    fontLine: GoogleAppsScript.Spreadsheet.FontLine | null,
-  ): GoogleAppsScript.Spreadsheet.Range {
+  };
+  setFontLine = (fontLine: GoogleAppsScript.Spreadsheet.FontLine | null) => {
     throw new Error("Method not implemented.");
-  }
-  setFontLines(
-    fontLines: Array<Array<GoogleAppsScript.Spreadsheet.FontLine | null>>,
-  ): GoogleAppsScript.Spreadsheet.Range {
+  };
+  setFontLines = (fontLines: Array<Array<GoogleAppsScript.Spreadsheet.FontLine | null>>) => {
     throw new Error("Method not implemented.");
-  }
-  setFontSize(size: GoogleAppsScript.Integer): GoogleAppsScript.Spreadsheet.Range {
+  };
+  setFontSize = (size: GoogleAppsScript.Integer) => {
     throw new Error("Method not implemented.");
-  }
-  setFontSizes(sizes: GoogleAppsScript.Integer[][]): GoogleAppsScript.Spreadsheet.Range {
+  };
+  setFontSizes = (sizes: GoogleAppsScript.Integer[][]) => {
     throw new Error("Method not implemented.");
-  }
-  setFontStyle(
-    fontStyle: GoogleAppsScript.Spreadsheet.FontStyle | null,
-  ): GoogleAppsScript.Spreadsheet.Range {
+  };
+  setFontStyle = (fontStyle: GoogleAppsScript.Spreadsheet.FontStyle | null) => {
     throw new Error("Method not implemented.");
-  }
-  setFontStyles(
-    fontStyles: Array<Array<GoogleAppsScript.Spreadsheet.FontStyle | null>>,
-  ): GoogleAppsScript.Spreadsheet.Range {
+  };
+  setFontStyles = (fontStyles: Array<Array<GoogleAppsScript.Spreadsheet.FontStyle | null>>) => {
     throw new Error("Method not implemented.");
-  }
-  setFontWeight(
-    fontWeight: GoogleAppsScript.Spreadsheet.FontWeight | null,
-  ): GoogleAppsScript.Spreadsheet.Range {
+  };
+  setFontWeight = (fontWeight: GoogleAppsScript.Spreadsheet.FontWeight | null) => {
     throw new Error("Method not implemented.");
-  }
-  setFontWeights(
-    fontWeights: Array<Array<GoogleAppsScript.Spreadsheet.FontWeight | null>>,
-  ): GoogleAppsScript.Spreadsheet.Range {
+  };
+  setFontWeights = (fontWeights: Array<Array<GoogleAppsScript.Spreadsheet.FontWeight | null>>) => {
     throw new Error("Method not implemented.");
-  }
-  setFormula(formula: string): GoogleAppsScript.Spreadsheet.Range {
+  };
+  setFormula = (formula: string) => {
     throw new Error("Method not implemented.");
-  }
-  setFormulaR1C1(formula: string): GoogleAppsScript.Spreadsheet.Range {
+  };
+  setFormulaR1C1 = (formula: string) => {
     throw new Error("Method not implemented.");
-  }
-  setFormulas(formulas: string[][]): GoogleAppsScript.Spreadsheet.Range {
+  };
+  setFormulas = (formulas: string[][]) => {
     throw new Error("Method not implemented.");
-  }
-  setFormulasR1C1(formulas: string[][]): GoogleAppsScript.Spreadsheet.Range {
+  };
+  setFormulasR1C1 = (formulas: string[][]) => {
     throw new Error("Method not implemented.");
-  }
-  setHorizontalAlignment(
-    alignment: "left" | "center" | "normal" | "right" | null,
-  ): GoogleAppsScript.Spreadsheet.Range {
+  };
+  setHorizontalAlignment = (alignment: "left" | "center" | "normal" | "right" | null) => {
     throw new Error("Method not implemented.");
-  }
-  setHorizontalAlignments(
+  };
+  setHorizontalAlignments = (
     alignments: Array<Array<"left" | "center" | "normal" | "right" | null>>,
-  ): GoogleAppsScript.Spreadsheet.Range {
+  ) => {
     throw new Error("Method not implemented.");
-  }
-  setNote(note: string | null): GoogleAppsScript.Spreadsheet.Range {
+  };
+  setNote = (note: string | null) => {
     throw new Error("Method not implemented.");
-  }
-  setNotes(notes: Array<Array<string | null>>): GoogleAppsScript.Spreadsheet.Range {
+  };
+  setNotes = (notes: Array<Array<string | null>>) => {
     throw new Error("Method not implemented.");
-  }
-  setNumberFormat(numberFormat: string): GoogleAppsScript.Spreadsheet.Range {
+  };
+  setNumberFormat = (numberFormat: string) => {
     throw new Error("Method not implemented.");
-  }
-  setNumberFormats(numberFormats: string[][]): GoogleAppsScript.Spreadsheet.Range {
+  };
+  setNumberFormats = (numberFormats: string[][]) => {
     throw new Error("Method not implemented.");
-  }
-  setRichTextValue(
-    value: GoogleAppsScript.Spreadsheet.RichTextValue,
-  ): GoogleAppsScript.Spreadsheet.Range {
+  };
+  setRichTextValue = (value: GoogleAppsScript.Spreadsheet.RichTextValue) => {
     throw new Error("Method not implemented.");
-  }
-  setRichTextValues(
-    values: GoogleAppsScript.Spreadsheet.RichTextValue[][],
-  ): GoogleAppsScript.Spreadsheet.Range {
+  };
+  setRichTextValues = (values: GoogleAppsScript.Spreadsheet.RichTextValue[][]) => {
     throw new Error("Method not implemented.");
-  }
-  setShowHyperlink(showHyperlink: boolean): GoogleAppsScript.Spreadsheet.Range {
+  };
+  setShowHyperlink = (showHyperlink: boolean) => {
     throw new Error("Method not implemented.");
-  }
-  setTextDirection(
-    direction: GoogleAppsScript.Spreadsheet.TextDirection | null,
-  ): GoogleAppsScript.Spreadsheet.Range {
+  };
+  setTextDirection = (direction: GoogleAppsScript.Spreadsheet.TextDirection | null) => {
     throw new Error("Method not implemented.");
-  }
-  setTextDirections(
+  };
+  setTextDirections = (
     directions: Array<Array<GoogleAppsScript.Spreadsheet.TextDirection | null>>,
-  ): GoogleAppsScript.Spreadsheet.Range {
+  ) => {
     throw new Error("Method not implemented.");
-  }
-  setTextRotation(rotation: unknown): GoogleAppsScript.Spreadsheet.Range {
+  };
+  setTextRotation = (rotation: unknown) => {
     throw new Error("Method not implemented.");
-  }
-  setTextRotations(
-    rotations: GoogleAppsScript.Spreadsheet.TextRotation[][],
-  ): GoogleAppsScript.Spreadsheet.Range {
+  };
+  setTextRotations = (rotations: GoogleAppsScript.Spreadsheet.TextRotation[][]) => {
     throw new Error("Method not implemented.");
-  }
-  setTextStyle(style: GoogleAppsScript.Spreadsheet.TextStyle): GoogleAppsScript.Spreadsheet.Range {
+  };
+  setTextStyle = (style: GoogleAppsScript.Spreadsheet.TextStyle) => {
     throw new Error("Method not implemented.");
-  }
-  setTextStyles(
-    styles: GoogleAppsScript.Spreadsheet.TextStyle[][],
-  ): GoogleAppsScript.Spreadsheet.Range {
+  };
+  setTextStyles = (styles: GoogleAppsScript.Spreadsheet.TextStyle[][]) => {
     throw new Error("Method not implemented.");
-  }
-  setValue(value: any): GoogleAppsScript.Spreadsheet.Range {
+  };
+  setValue = (value: any) => {
     throw new Error("Method not implemented.");
-  }
-  setValues(values: any[][]): GoogleAppsScript.Spreadsheet.Range {
+  };
+  setValues = (values: any[][]) => {
     throw new Error("Method not implemented.");
-  }
-  setVerticalAlignment(
-    alignment: "top" | "middle" | "bottom" | null,
-  ): GoogleAppsScript.Spreadsheet.Range {
+  };
+  setVerticalAlignment = (alignment: "top" | "middle" | "bottom" | null) => {
     throw new Error("Method not implemented.");
-  }
-  setVerticalAlignments(
-    alignments: Array<Array<"top" | "middle" | "bottom" | null>>,
-  ): GoogleAppsScript.Spreadsheet.Range {
+  };
+  setVerticalAlignments = (alignments: Array<Array<"top" | "middle" | "bottom" | null>>) => {
     throw new Error("Method not implemented.");
-  }
-  setVerticalText(isVertical: boolean): GoogleAppsScript.Spreadsheet.Range {
+  };
+  setVerticalText = (isVertical: boolean) => {
     throw new Error("Method not implemented.");
-  }
-  setWrap(isWrapEnabled: boolean): GoogleAppsScript.Spreadsheet.Range {
+  };
+  setWrap = (isWrapEnabled: boolean) => {
     throw new Error("Method not implemented.");
-  }
-  setWrapStrategies(
-    strategies: GoogleAppsScript.Spreadsheet.WrapStrategy[][],
-  ): GoogleAppsScript.Spreadsheet.Range {
+  };
+  setWrapStrategies = (strategies: GoogleAppsScript.Spreadsheet.WrapStrategy[][]) => {
     throw new Error("Method not implemented.");
-  }
-  setWrapStrategy(
-    strategy: GoogleAppsScript.Spreadsheet.WrapStrategy,
-  ): GoogleAppsScript.Spreadsheet.Range {
+  };
+  setWrapStrategy = (strategy: GoogleAppsScript.Spreadsheet.WrapStrategy) => {
     throw new Error("Method not implemented.");
-  }
-  setWraps(isWrapEnabled: boolean[][]): GoogleAppsScript.Spreadsheet.Range {
+  };
+  setWraps = (isWrapEnabled: boolean[][]) => {
     throw new Error("Method not implemented.");
-  }
-  shiftColumnGroupDepth(delta: GoogleAppsScript.Integer): GoogleAppsScript.Spreadsheet.Range {
+  };
+  shiftColumnGroupDepth = (delta: GoogleAppsScript.Integer) => {
     throw new Error("Method not implemented.");
-  }
-  shiftRowGroupDepth(delta: GoogleAppsScript.Integer): GoogleAppsScript.Spreadsheet.Range {
+  };
+  shiftRowGroupDepth = (delta: GoogleAppsScript.Integer) => {
     throw new Error("Method not implemented.");
-  }
-  sort(sortSpecObj: any): GoogleAppsScript.Spreadsheet.Range {
+  };
+  sort = (sortSpecObj: any) => {
     throw new Error("Method not implemented.");
-  }
-  splitTextToColumns(delimiter?: unknown): void {
+  };
+  splitTextToColumns = (delimiter?: unknown) => {
     throw new Error("Method not implemented.");
-  }
-  trimWhitespace(): GoogleAppsScript.Spreadsheet.Range {
+  };
+  trimWhitespace = () => {
     throw new Error("Method not implemented.");
-  }
-  uncheck(): GoogleAppsScript.Spreadsheet.Range {
+  };
+  uncheck = () => {
     throw new Error("Method not implemented.");
-  }
+  };
+  /** @deprecated DO NOT USE */
+  getFontColor = () => {
+    throw new Error("Range#getFontColor() is deprecated. Do not use.");
+  };
+  /** @deprecated DO NOT USE */
+  getFontColors = () => {
+    throw new Error("Range#getFontColors() is deprecated. Do not use.");
+  };
 }

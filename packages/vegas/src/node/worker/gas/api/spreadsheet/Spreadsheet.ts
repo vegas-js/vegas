@@ -1,57 +1,39 @@
-// https://developers.google.com/apps-script/reference/spreadsheet/sheet
-export class Sheet implements GoogleAppsScript.Spreadsheet.Sheet {
-  activate = () => {
+// https://developers.google.com/apps-script/reference/spreadsheet/spreadsheet
+export class Spreadsheet implements GoogleAppsScript.Spreadsheet.Spreadsheet {
+  addDeveloperMetadata = (key: unknown, value?: unknown, visibility?: unknown) => {
     throw new Error("Method not implemented.");
   };
-  addDeveloperMetadata = (key: unknown, value?: unknown, visibility?: unknown) => {
+  addEditor = (user: unknown) => {
+    throw new Error("Method not implemented.");
+  };
+  addEditors = (emailAddresses: string[]) => {
+    throw new Error("Method not implemented.");
+  };
+  addMenu = (name: string, subMenus: Array<{ name: string; functionName: string } | null>) => {
+    throw new Error("Method not implemented.");
+  };
+  addViewer = (user: unknown) => {
+    throw new Error("Method not implemented.");
+  };
+  addViewers = (emailAddresses: string[]) => {
     throw new Error("Method not implemented.");
   };
   appendRow = (rowContents: any[]) => {
     throw new Error("Method not implemented.");
   };
-  asDataSourceSheet = () => {
-    throw new Error("Method not implemented.");
-  };
   autoResizeColumn = (columnPosition: GoogleAppsScript.Integer) => {
     throw new Error("Method not implemented.");
   };
-  autoResizeColumns = (
-    startColumn: GoogleAppsScript.Integer,
-    numColumns: GoogleAppsScript.Integer,
-  ) => {
-    throw new Error("Method not implemented.");
-  };
-  autoResizeRows = (startRow: GoogleAppsScript.Integer, numRows: GoogleAppsScript.Integer) => {
-    throw new Error("Method not implemented.");
-  };
-  clear = (options?: unknown) => {
-    throw new Error("Method not implemented.");
-  };
-  clearConditionalFormatRules = () => {
-    throw new Error("Method not implemented.");
-  };
-  clearContents = () => {
-    throw new Error("Method not implemented.");
-  };
-  clearFormats = () => {
-    throw new Error("Method not implemented.");
-  };
-  clearNotes = () => {
-    throw new Error("Method not implemented.");
-  };
-  collapseAllColumnGroups = () => {
-    throw new Error("Method not implemented.");
-  };
-  collapseAllRowGroups = () => {
-    throw new Error("Method not implemented.");
-  };
-  copyTo = (spreadsheet: GoogleAppsScript.Spreadsheet.Spreadsheet) => {
+  copy = (name: string) => {
     throw new Error("Method not implemented.");
   };
   createDeveloperMetadataFinder = () => {
     throw new Error("Method not implemented.");
   };
   createTextFinder = (findText: string) => {
+    throw new Error("Method not implemented.");
+  };
+  deleteActiveSheet = () => {
     throw new Error("Method not implemented.");
   };
   deleteColumn = (columnPosition: GoogleAppsScript.Integer) => {
@@ -66,16 +48,10 @@ export class Sheet implements GoogleAppsScript.Spreadsheet.Sheet {
   deleteRows = (rowPosition: GoogleAppsScript.Integer, howMany: GoogleAppsScript.Integer) => {
     throw new Error("Method not implemented.");
   };
-  expandAllColumnGroups = () => {
+  deleteSheet = (sheet: GoogleAppsScript.Spreadsheet.Sheet) => {
     throw new Error("Method not implemented.");
   };
-  expandAllRowGroups = () => {
-    throw new Error("Method not implemented.");
-  };
-  expandColumnGroupsUpToDepth = (groupDepth: GoogleAppsScript.Integer) => {
-    throw new Error("Method not implemented.");
-  };
-  expandRowGroupsUpToDepth = (groupDepth: GoogleAppsScript.Integer) => {
+  duplicateActiveSheet = () => {
     throw new Error("Method not implemented.");
   };
   getActiveCell = () => {
@@ -87,28 +63,19 @@ export class Sheet implements GoogleAppsScript.Spreadsheet.Sheet {
   getActiveRangeList = () => {
     throw new Error("Method not implemented.");
   };
+  getActiveSheet = () => {
+    throw new Error("Method not implemented.");
+  };
+  getAs = (contentType: string) => {
+    throw new Error("Method not implemented.");
+  };
   getBandings = () => {
     throw new Error("Method not implemented.");
   };
-  getCharts = () => {
-    throw new Error("Method not implemented.");
-  };
-  getColumnGroup = (
-    columnIndex: GoogleAppsScript.Integer,
-    groupDepth: GoogleAppsScript.Integer,
-  ) => {
-    throw new Error("Method not implemented.");
-  };
-  getColumnGroupControlPosition = () => {
-    throw new Error("Method not implemented.");
-  };
-  getColumnGroupDepth = (columnIndex: GoogleAppsScript.Integer) => {
+  getBlob = () => {
     throw new Error("Method not implemented.");
   };
   getColumnWidth = (columnPosition: GoogleAppsScript.Integer) => {
-    throw new Error("Method not implemented.");
-  };
-  getConditionalFormatRules = () => {
     throw new Error("Method not implemented.");
   };
   getCurrentCell = () => {
@@ -123,10 +90,7 @@ export class Sheet implements GoogleAppsScript.Spreadsheet.Sheet {
   getDeveloperMetadata = () => {
     throw new Error("Method not implemented.");
   };
-  getDrawings = () => {
-    throw new Error("Method not implemented.");
-  };
-  getFilter = () => {
+  getEditors = () => {
     throw new Error("Method not implemented.");
   };
   getFormUrl = () => {
@@ -138,10 +102,13 @@ export class Sheet implements GoogleAppsScript.Spreadsheet.Sheet {
   getFrozenRows = () => {
     throw new Error("Method not implemented.");
   };
+  getId = () => {
+    throw new Error("Method not implemented.");
+  };
   getImages = () => {
     throw new Error("Method not implemented.");
   };
-  getIndex = () => {
+  getIterativeCalculationConvergenceThreshold = () => {
     throw new Error("Method not implemented.");
   };
   getLastColumn = () => {
@@ -150,10 +117,7 @@ export class Sheet implements GoogleAppsScript.Spreadsheet.Sheet {
   getLastRow = () => {
     throw new Error("Method not implemented.");
   };
-  getMaxColumns = () => {
-    throw new Error("Method not implemented.");
-  };
-  getMaxRows = () => {
+  getMaxIterativeCalculationCycles = () => {
     throw new Error("Method not implemented.");
   };
   getName = () => {
@@ -162,34 +126,40 @@ export class Sheet implements GoogleAppsScript.Spreadsheet.Sheet {
   getNamedRanges = () => {
     throw new Error("Method not implemented.");
   };
-  getParent = () => {
+  getNumSheets = () => {
     throw new Error("Method not implemented.");
   };
-  getPivotTables = () => {
+  getOwner = () => {
+    throw new Error("Method not implemented.");
+  };
+  getPredefinedSpreadsheetThemes = () => {
     throw new Error("Method not implemented.");
   };
   getProtections = (type: GoogleAppsScript.Spreadsheet.ProtectionType) => {
     throw new Error("Method not implemented.");
   };
-  getRange = (row: unknown, column?: unknown, numRows?: unknown, numColumns?: unknown) => {
+  getRange = (a1Notation: string) => {
+    throw new Error("Method not implemented.");
+  };
+  getRangeByName = (name: string) => {
     throw new Error("Method not implemented.");
   };
   getRangeList = (a1Notations: string[]) => {
     throw new Error("Method not implemented.");
   };
-  getRowGroup = (rowIndex: GoogleAppsScript.Integer, groupDepth: GoogleAppsScript.Integer) => {
-    throw new Error("Method not implemented.");
-  };
-  getRowGroupControlPosition = () => {
-    throw new Error("Method not implemented.");
-  };
-  getRowGroupDepth = (rowIndex: GoogleAppsScript.Integer) => {
+  getRecalculationInterval = () => {
     throw new Error("Method not implemented.");
   };
   getRowHeight = (rowPosition: GoogleAppsScript.Integer) => {
     throw new Error("Method not implemented.");
   };
   getSelection = () => {
+    throw new Error("Method not implemented.");
+  };
+  getSheetById = (id: number) => {
+    throw new Error("Method not implemented.");
+  };
+  getSheetByName = (name: string) => {
     throw new Error("Method not implemented.");
   };
   getSheetId = () => {
@@ -206,40 +176,34 @@ export class Sheet implements GoogleAppsScript.Spreadsheet.Sheet {
   ) => {
     throw new Error("Method not implemented.");
   };
-  getSlicers = () => {
+  getSheets = () => {
     throw new Error("Method not implemented.");
   };
-  getType = () => {
+  getSpreadsheetLocale = () => {
     throw new Error("Method not implemented.");
   };
-  hasHiddenGridlines = () => {
+  getSpreadsheetTheme = () => {
+    throw new Error("Method not implemented.");
+  };
+  getSpreadsheetTimeZone = () => {
+    throw new Error("Method not implemented.");
+  };
+  getUrl = () => {
+    throw new Error("Method not implemented.");
+  };
+  getViewers = () => {
     throw new Error("Method not implemented.");
   };
   hideColumn = (column: GoogleAppsScript.Spreadsheet.Range) => {
     throw new Error("Method not implemented.");
   };
-  hideColumns = (columnIndex: unknown, numColumns?: unknown) => {
-    throw new Error("Method not implemented.");
-  };
   hideRow = (row: GoogleAppsScript.Spreadsheet.Range) => {
-    throw new Error("Method not implemented.");
-  };
-  hideRows = (rowIndex: unknown, numRows?: unknown) => {
-    throw new Error("Method not implemented.");
-  };
-  hideSheet = () => {
-    throw new Error("Method not implemented.");
-  };
-  insertChart = (chart: GoogleAppsScript.Spreadsheet.EmbeddedChart) => {
     throw new Error("Method not implemented.");
   };
   insertColumnAfter = (afterPosition: GoogleAppsScript.Integer) => {
     throw new Error("Method not implemented.");
   };
   insertColumnBefore = (beforePosition: GoogleAppsScript.Integer) => {
-    throw new Error("Method not implemented.");
-  };
-  insertColumns = (columnIndex: unknown, numColumns?: unknown) => {
     throw new Error("Method not implemented.");
   };
   insertColumnsAfter = (
@@ -269,9 +233,6 @@ export class Sheet implements GoogleAppsScript.Spreadsheet.Sheet {
   insertRowBefore = (beforePosition: GoogleAppsScript.Integer) => {
     throw new Error("Method not implemented.");
   };
-  insertRows = (rowIndex: unknown, numRows?: unknown) => {
-    throw new Error("Method not implemented.");
-  };
   insertRowsAfter = (
     afterPosition: GoogleAppsScript.Integer,
     howMany: GoogleAppsScript.Integer,
@@ -284,19 +245,16 @@ export class Sheet implements GoogleAppsScript.Spreadsheet.Sheet {
   ) => {
     throw new Error("Method not implemented.");
   };
-  insertSlicer = (
-    range: unknown,
-    anchorRowPos: unknown,
-    anchorColPos: unknown,
-    offsetX?: unknown,
-    offsetY?: unknown,
-  ) => {
+  insertSheet = (sheetName?: unknown, sheetIndex?: unknown, options?: unknown) => {
+    throw new Error("Method not implemented.");
+  };
+  insertSheetWithDataSourceTable = (spec: GoogleAppsScript.Spreadsheet.DataSourceSpec) => {
     throw new Error("Method not implemented.");
   };
   isColumnHiddenByUser = (columnPosition: GoogleAppsScript.Integer) => {
     throw new Error("Method not implemented.");
   };
-  isRightToLeft = () => {
+  isIterativeCalculationEnabled = () => {
     throw new Error("Method not implemented.");
   };
   isRowHiddenByFilter = (rowPosition: GoogleAppsScript.Integer) => {
@@ -305,28 +263,31 @@ export class Sheet implements GoogleAppsScript.Spreadsheet.Sheet {
   isRowHiddenByUser = (rowPosition: GoogleAppsScript.Integer) => {
     throw new Error("Method not implemented.");
   };
-  isSheetHidden = () => {
+  moveActiveSheet = (pos: GoogleAppsScript.Integer) => {
     throw new Error("Method not implemented.");
   };
-  moveColumns = (
-    columnSpec: GoogleAppsScript.Spreadsheet.Range,
-    destinationIndex: GoogleAppsScript.Integer,
-  ) => {
+  moveChartToObjectSheet = (chart: GoogleAppsScript.Spreadsheet.EmbeddedChart) => {
     throw new Error("Method not implemented.");
   };
-  moveRows = (
-    rowSpec: GoogleAppsScript.Spreadsheet.Range,
-    destinationIndex: GoogleAppsScript.Integer,
-  ) => {
+  removeEditor = (user: unknown) => {
     throw new Error("Method not implemented.");
   };
-  newChart = () => {
+  removeMenu = (name: string) => {
     throw new Error("Method not implemented.");
   };
-  protect = () => {
+  removeNamedRange = (name: string) => {
     throw new Error("Method not implemented.");
   };
-  removeChart = (chart: GoogleAppsScript.Spreadsheet.EmbeddedChart) => {
+  removeViewer = (user: unknown) => {
+    throw new Error("Method not implemented.");
+  };
+  rename = (newName: string) => {
+    throw new Error("Method not implemented.");
+  };
+  renameActiveSheet = (newName: string) => {
+    throw new Error("Method not implemented.");
+  };
+  resetSpreadsheetTheme = () => {
     throw new Error("Method not implemented.");
   };
   setActiveRange = (range: GoogleAppsScript.Spreadsheet.Range) => {
@@ -338,22 +299,10 @@ export class Sheet implements GoogleAppsScript.Spreadsheet.Sheet {
   setActiveSelection = (a1Notation: unknown) => {
     throw new Error("Method not implemented.");
   };
-  setColumnGroupControlPosition = (
-    position: GoogleAppsScript.Spreadsheet.GroupControlTogglePosition,
-  ) => {
+  setActiveSheet = (sheet: unknown, restoreSelection?: unknown) => {
     throw new Error("Method not implemented.");
   };
   setColumnWidth = (columnPosition: GoogleAppsScript.Integer, width: GoogleAppsScript.Integer) => {
-    throw new Error("Method not implemented.");
-  };
-  setColumnWidths = (
-    startColumn: GoogleAppsScript.Integer,
-    numColumns: GoogleAppsScript.Integer,
-    width: GoogleAppsScript.Integer,
-  ) => {
-    throw new Error("Method not implemented.");
-  };
-  setConditionalFormatRules = (rules: GoogleAppsScript.Spreadsheet.ConditionalFormatRule[]) => {
     throw new Error("Method not implemented.");
   };
   setCurrentCell = (cell: GoogleAppsScript.Spreadsheet.Range) => {
@@ -365,51 +314,42 @@ export class Sheet implements GoogleAppsScript.Spreadsheet.Sheet {
   setFrozenRows = (rows: GoogleAppsScript.Integer) => {
     throw new Error("Method not implemented.");
   };
-  setHiddenGridlines = (hideGridlines: boolean) => {
+  setIterativeCalculationConvergenceThreshold = (minThreshold: number) => {
     throw new Error("Method not implemented.");
   };
-  setName = (name: string) => {
+  setIterativeCalculationEnabled = (isEnabled: boolean) => {
     throw new Error("Method not implemented.");
   };
-  setRightToLeft = (rightToLeft: boolean) => {
+  setMaxIterativeCalculationCycles = (maxIterations: GoogleAppsScript.Integer) => {
     throw new Error("Method not implemented.");
   };
-  setRowGroupControlPosition = (
-    position: GoogleAppsScript.Spreadsheet.GroupControlTogglePosition,
+  setNamedRange = (name: string, range: GoogleAppsScript.Spreadsheet.Range) => {
+    throw new Error("Method not implemented.");
+  };
+  setRecalculationInterval = (
+    recalculationInterval: GoogleAppsScript.Spreadsheet.RecalculationInterval,
   ) => {
     throw new Error("Method not implemented.");
   };
   setRowHeight = (rowPosition: GoogleAppsScript.Integer, height: GoogleAppsScript.Integer) => {
     throw new Error("Method not implemented.");
   };
-  setRowHeights = (
-    startRow: GoogleAppsScript.Integer,
-    numRows: GoogleAppsScript.Integer,
-    height: GoogleAppsScript.Integer,
-  ) => {
+  setSpreadsheetLocale = (locale: string) => {
     throw new Error("Method not implemented.");
   };
-  setRowHeightsForced = (
-    startRow: GoogleAppsScript.Integer,
-    numRows: GoogleAppsScript.Integer,
-    height: GoogleAppsScript.Integer,
-  ) => {
+  setSpreadsheetTheme = (theme: GoogleAppsScript.Spreadsheet.SpreadsheetTheme) => {
     throw new Error("Method not implemented.");
   };
-  /** @deprecated DO NOT USE */
-  setTabColor = (color: string | null) => {
+  setSpreadsheetTimeZone = (timezone: string) => {
     throw new Error("Method not implemented.");
   };
-  showColumns = (columnIndex: unknown, numColumns?: unknown) => {
-    throw new Error("Method not implemented.");
-  };
-  showRows = (rowIndex: unknown, numRows?: unknown) => {
-    throw new Error("Method not implemented.");
-  };
-  showSheet = () => {
+  show = (userInterface: GoogleAppsScript.HTML.HtmlOutput) => {
     throw new Error("Method not implemented.");
   };
   sort = (columnPosition: unknown, ascending?: unknown) => {
+    throw new Error("Method not implemented.");
+  };
+  toast = (msg: unknown, title?: unknown, timeoutSeconds?: unknown) => {
     throw new Error("Method not implemented.");
   };
   unhideColumn = (column: GoogleAppsScript.Spreadsheet.Range) => {
@@ -418,20 +358,29 @@ export class Sheet implements GoogleAppsScript.Spreadsheet.Sheet {
   unhideRow = (row: GoogleAppsScript.Spreadsheet.Range) => {
     throw new Error("Method not implemented.");
   };
-  updateChart = (chart: GoogleAppsScript.Spreadsheet.EmbeddedChart) => {
+  updateMenu = (name: string, subMenus: Array<{ name: string; functionName: string }>) => {
     throw new Error("Method not implemented.");
   };
   /** @deprecated DO NOT USE */
   getSheetProtection = () => {
-    throw new Error("Sheet#getSheetProtection() is deprecated. Do not use.");
+    throw new Error("Spreadsheet#getSheetProtection() is deprecated. Do not use.");
   };
   /** @deprecated DO NOT USE */
-  getTabColor = () => {
-    throw new Error("Sheet#getTabColor() is deprecated. Do not use.");
+  isAnonymousView = () => {
+    throw new Error("Spreadsheet#isAnonymousView() is deprecated. Do not use.");
+  };
+  /** @deprecated DO NOT USE */
+  isAnonymousWrite = () => {
+    throw new Error("Spreadsheet#isAnonymousWrite() is deprecated. Do not use.");
+  };
+  /** @deprecated DO NOT USE */
+  // oxlint-disable-next-line no-unused-vars
+  setAnonymousAccess = (anonymousReadAllowed: boolean, anonymousWriteAllowed: boolean) => {
+    throw new Error("Spreadsheet#setAnonymousAccess() is deprecated. Do not use.");
   };
   /** @deprecated DO NOT USE */
   // oxlint-disable-next-line no-unused-vars
   setSheetProtection = (permissions: GoogleAppsScript.Spreadsheet.PageProtection) => {
-    throw new Error("Sheet#setSheetProtection() is deprecated. Do not use.");
+    throw new Error("Spreadsheet#setSheetProtection() is deprecated. Do not use.");
   };
 }

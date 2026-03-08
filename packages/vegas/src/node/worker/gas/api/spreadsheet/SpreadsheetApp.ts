@@ -1,5 +1,7 @@
+import { Spreadsheet } from "./Spreadsheet";
+
 // https://developers.google.com/apps-script/reference/spreadsheet/spreadsheet-app
-export class SpreadSheetApp implements GoogleAppsScript.Spreadsheet.SpreadsheetApp {
+export class SpreadsheetApp implements GoogleAppsScript.Spreadsheet.SpreadsheetApp {
   AutoFillSeries = { DEFAULT_SERIES: 0, ALTERNATE_SERIES: 1 };
   BandingTheme = {
     LIGHT_GREY: 0,
@@ -157,8 +159,25 @@ export class SpreadSheetApp implements GoogleAppsScript.Spreadsheet.SpreadsheetA
   ValueType = { IMAGE: 0 };
   WrapStrategy = { WRAP: 0, OVERFLOW: 1, CLIP: 2 };
 
-  create = (name: unknown, rows?: unknown, columns?: unknown) => {
-    throw new Error("Method not implemented.");
+  create = (name: string, rows?: GoogleAppsScript.Integer, columns?: GoogleAppsScript.Integer) => {
+    const id = String.fromCharCode(
+      ...Array.from({ length: 44 }).map(() => {
+        let tempId = Math.floor(Math.random() * 61) + 0x2d;
+        if (tempId > 0x2d) {
+          tempId += 3;
+        }
+        if (tempId > 0x39) {
+          tempId += 7;
+        }
+        if (tempId > 0x5a) {
+          tempId += 6;
+        }
+
+        return tempId;
+      }),
+    );
+    console.log(id);
+    return new Spreadsheet();
   };
   enableAllDataSourcesExecution = () => {
     throw new Error("Method not implemented.");
