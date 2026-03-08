@@ -13,6 +13,7 @@ import { Lock } from "./api/lock/Lock";
 import { LockService } from "./api/lock/LockService";
 import { Properties } from "./api/properties/Properties";
 import { PropertiesService } from "./api/properties/PropertiesService";
+import { Utilities } from "./api/utilities/Utilities";
 
 type GASWorkerData = {
   fn: string;
@@ -59,6 +60,7 @@ const scriptContext = vm.createContext({
     new Lock(Scope.SCRIPT),
     new Lock(Scope.USER),
   ),
+  Utilities: new Utilities(),
 });
 script.runInContext(scriptContext);
 
