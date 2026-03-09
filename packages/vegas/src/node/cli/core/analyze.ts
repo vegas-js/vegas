@@ -11,23 +11,6 @@ export type ProjectSource = {
   gasMockSources: string[];
 };
 
-function recursiveCollectFiles(dir: string, excludeDirs?: string[]) {
-  const filePaths: string[] = [];
-  const entryDir = fs.readdirSync(dir, { withFileTypes: true });
-  entryDir.forEach((entry) => {
-    const absolutePath = path.resolve(path.join(dir, entry.name));
-    if (entry.isFile()) {
-      filePaths.push(absolutePath);
-    } else if (entry.isDirectory() && !excludeDirs?.includes(entry.name)) {
-      recursiveCollectFiles(absolutePath, excludeDirs).forEach((filePath) =>
-        filePaths.push(filePath),
-      );
-    }
-  });
-
-  return filePaths;
-}
-
 export function collectSources(userConfig: ResolvedUserConfig): ProjectSource {
   const exclude = ["node_modules", ".git"];
   function dtsExcludeFilter(filePath: string) {
@@ -141,7 +124,7 @@ export type BuildArtifact = {
 };
 
 export function collectArtifacts(outDir: string): BuildArtifact[] {
-  return recursiveCollectFiles(outDir).map((filePath) => {
+  return fs.globSync(path.join(outDir, "**", "*.*")).map((filePath) => {
     const size = fs.statSync(filePath).size;
     const relativePath = path.relative(outDir, filePath);
     return { path: relativePath, size };
