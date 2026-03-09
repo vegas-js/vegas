@@ -1,24 +1,24 @@
 import { defaultTreeAdapter, DefaultTreeAdapterTypes, html, serialize, Token } from "parse5";
 
 export class HTML {
-  readonly #document: DefaultTreeAdapterTypes.Document;
-  readonly #head: DefaultTreeAdapterTypes.Element;
-  readonly #body: DefaultTreeAdapterTypes.Element;
+  private readonly document: DefaultTreeAdapterTypes.Document;
+  private readonly head: DefaultTreeAdapterTypes.Element;
+  private readonly body: DefaultTreeAdapterTypes.Element;
 
   constructor() {
-    this.#document = defaultTreeAdapter.createDocument();
-    defaultTreeAdapter.setDocumentType(this.#document, "html", "", "");
+    this.document = defaultTreeAdapter.createDocument();
+    defaultTreeAdapter.setDocumentType(this.document, "html", "", "");
 
     const documentRoot = defaultTreeAdapter.createElement("html", html.NS.HTML, []);
-    defaultTreeAdapter.appendChild(this.#document, documentRoot);
+    defaultTreeAdapter.appendChild(this.document, documentRoot);
 
-    this.#head = defaultTreeAdapter.createElement("head", html.NS.HTML, []);
-    this.#body = defaultTreeAdapter.createElement("body", html.NS.HTML, []);
-    defaultTreeAdapter.appendChild(documentRoot, this.#head);
-    defaultTreeAdapter.appendChild(documentRoot, this.#body);
+    this.head = defaultTreeAdapter.createElement("head", html.NS.HTML, []);
+    this.body = defaultTreeAdapter.createElement("body", html.NS.HTML, []);
+    defaultTreeAdapter.appendChild(documentRoot, this.head);
+    defaultTreeAdapter.appendChild(documentRoot, this.body);
   }
 
-  #append(
+  private append(
     target: DefaultTreeAdapterTypes.Element,
     tagName: string,
     attrsOrContent?: Token.Attribute[] | string,
@@ -40,7 +40,7 @@ export class HTML {
     attrsOrContent?: Token.Attribute[] | string,
     attrs?: Token.Attribute[],
   ): void {
-    this.#append(this.#head, tagName, attrsOrContent, attrs);
+    this.append(this.head, tagName, attrsOrContent, attrs);
   }
 
   appendToBody(tagName: string, attrs?: Token.Attribute[]): void;
@@ -50,10 +50,10 @@ export class HTML {
     attrsOrContent?: Token.Attribute[] | string,
     attrs?: Token.Attribute[],
   ): void {
-    this.#append(this.#body, tagName, attrsOrContent, attrs);
+    this.append(this.body, tagName, attrsOrContent, attrs);
   }
 
   toString(): string {
-    return serialize(this.#document);
+    return serialize(this.document);
   }
 }
