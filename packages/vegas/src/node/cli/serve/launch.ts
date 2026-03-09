@@ -268,7 +268,7 @@ class GASHandler {
     return new Proxy(this, proxyHandler);
   }
 
-  addHandler(HandlerClass: any) {
+  addHandler(HandlerClass: new () => any) {
     const className = HandlerClass.name;
     if (typeof HandlerClass === "function" && className.endsWith("Handler")) {
       const key = className.replace(/Handler$/, "");
