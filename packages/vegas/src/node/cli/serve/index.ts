@@ -243,7 +243,7 @@ export async function runServe(root?: string) {
   const resolvedRoot = resolvePath(root);
   const userConfig = await loadConfig(resolvedRoot);
   const resolvedUserConfig = resolveConfig(userConfig);
-  const projectSource = collectSources(resolvedUserConfig);
+  const projectSource = await collectSources(resolvedUserConfig);
   const projectEntry = detectEntries(projectSource);
   const ctx = createServeContext(resolvedUserConfig, projectEntry);
   await loadMock(ctx, projectSource.gasMockSources);

@@ -112,7 +112,7 @@ export async function runBuild(root?: string) {
   const resolvedRoot = resolvePath(root);
   const userConfig = await loadConfig(resolvedRoot);
   const resolvedUserConfig = resolveConfig(userConfig);
-  const projectSource = collectSources(resolvedUserConfig);
+  const projectSource = await collectSources(resolvedUserConfig);
   const projectEntry = detectEntries(projectSource);
 
   const startTime = performance.now();

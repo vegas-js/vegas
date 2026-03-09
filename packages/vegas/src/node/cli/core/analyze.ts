@@ -11,10 +11,21 @@ export type ProjectSource = {
   gasMockSources: string[];
 };
 
-export function collectSources(userConfig: ResolvedUserConfig): ProjectSource {
-  const exclude = ["node_modules", ".git"];
-  function dtsExcludeFilter(filePath: string) {
-    return !filePath.endsWith(".d.ts");
+async function collectGlob(
+  pattern: string | readonly string[],
+  options: fs.GlobOptionsWithoutFileTypes = {},
+) {
+  const files: string[] = [];
+  for await (const entry of fs.promises.glob(pattern, options)) {
+    files.push(entry);
+  }
+
+  return files;
+}
+
+export async function collectSources(userConfig: ResolvedUserConfig): Promise<ProjectSource> {
+  function exclude(fileName: string) {
+    return fileName.endsWith(".d.ts");
   }
 
   const webDirGlobPrefix = path.join(userConfig.webDir, "**");
@@ -22,17 +33,21 @@ export function collectSources(userConfig: ResolvedUserConfig): ProjectSource {
     path.join(webDirGlobPrefix, "*.ts"),
     path.join(webDirGlobPrefix, "*.tsx"),
   ];
-  const webSources = fs.globSync(webGlobPatterns, { exclude }).filter(dtsExcludeFilter);
+  const webGlobSearchPromise = collectGlob(webGlobPatterns, { exclude });
 
   const serverDirGlobPrefix = path.join(userConfig.serverDir, "**");
-  const serverSources = fs
-    .globSync(path.join(serverDirGlobPrefix, "*.ts"), { exclude })
-    .filter(dtsExcludeFilter);
+  const serverGlobPattern = path.join(serverDirGlobPrefix, "*.ts");
+  const serverGlobSearchPromise = collectGlob(serverGlobPattern, { exclude });
 
   const gasMockDirGlobPrefix = path.join(userConfig.gasMockDir, "**");
-  const gasMockSources = fs
-    .globSync(path.join(gasMockDirGlobPrefix, "*.ts"), { exclude })
-    .filter(dtsExcludeFilter);
+  const gasMockGlobPattern = path.join(gasMockDirGlobPrefix, "*.ts");
+  const gasMockGlobSearchPromise = collectGlob(gasMockGlobPattern, { exclude });
+
+  const [webSources, serverSources, gasMockSources] = await Promise.all([
+    webGlobSearchPromise,
+    serverGlobSearchPromise,
+    gasMockGlobSearchPromise,
+  ]);
 
   return {
     webSources,
