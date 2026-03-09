@@ -11,6 +11,7 @@ export default defineConfig([
     inlineOnly: ["cac", "entities", "parse5"],
     outputOptions: {
       entryFileNames: "[name].js",
+      chunkFileNames: "chunks/[name].js",
     },
     dts: false,
   },
