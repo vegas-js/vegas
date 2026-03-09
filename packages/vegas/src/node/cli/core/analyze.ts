@@ -11,7 +11,7 @@ export type ProjectSource = {
   gasMockSources: string[];
 };
 
-async function collectGlob(
+async function collectWithGlob(
   pattern: string | readonly string[],
   options: fs.GlobOptionsWithoutFileTypes = {},
 ) {
@@ -33,15 +33,15 @@ export async function collectSources(userConfig: ResolvedUserConfig): Promise<Pr
     path.join(webDirGlobPrefix, "*.ts"),
     path.join(webDirGlobPrefix, "*.tsx"),
   ];
-  const webGlobSearchPromise = collectGlob(webGlobPatterns, { exclude });
+  const webGlobSearchPromise = collectWithGlob(webGlobPatterns, { exclude });
 
   const serverDirGlobPrefix = path.join(userConfig.serverDir, "**");
   const serverGlobPattern = path.join(serverDirGlobPrefix, "*.ts");
-  const serverGlobSearchPromise = collectGlob(serverGlobPattern, { exclude });
+  const serverGlobSearchPromise = collectWithGlob(serverGlobPattern, { exclude });
 
   const gasMockDirGlobPrefix = path.join(userConfig.gasMockDir, "**");
   const gasMockGlobPattern = path.join(gasMockDirGlobPrefix, "*.ts");
-  const gasMockGlobSearchPromise = collectGlob(gasMockGlobPattern, { exclude });
+  const gasMockGlobSearchPromise = collectWithGlob(gasMockGlobPattern, { exclude });
 
   const [webSources, serverSources, gasMockSources] = await Promise.all([
     webGlobSearchPromise,
