@@ -8,7 +8,9 @@ export default defineConfig([
       fetch: "./src/node/worker/fetch",
       client: "./src/client",
     },
-    inlineOnly: ["cac", "entities", "parse5"],
+    deps: {
+      onlyAllowBundle: ["cac", "entities", "parse5"],
+    },
     outputOptions: {
       entryFileNames: "[name].js",
       chunkFileNames: "chunks/[name].js",
