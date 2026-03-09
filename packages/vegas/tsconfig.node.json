@@ -2,7 +2,7 @@
   "compilerOptions": {
     "target": "es2023",
     "module": "esnext",
-    "types": ["google-apps-script", "memfs", "node", "parse5", "rolldown", "vite", "vitest"],
+    "types": ["google-apps-script", "memfs", "node", "parse5", "vite", "vitest"],
     "skipLibCheck": true,
 
     /* Bundler mode */

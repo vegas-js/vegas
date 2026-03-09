@@ -2,8 +2,7 @@ import fs from "node:fs";
 import module from "node:module";
 import path from "node:path";
 
-import type { RolldownOutput, OutputChunk } from "rolldown";
-import { build } from "vite";
+import { build, Rolldown } from "vite";
 
 import { DisposableTempDir } from ".";
 import { resolvePath } from ".";
@@ -43,8 +42,8 @@ async function transpileModule(ctx: { root: string; filePath: string; outputDir:
     logLevel: "silent",
   });
   const output = (
-    (Array.isArray(result) ? result[0] : result) as RolldownOutput
-  ).output.flat()[0] as OutputChunk;
+    (Array.isArray(result) ? result[0] : result) as Rolldown.RolldownOutput
+  ).output.flat()[0] as Rolldown.OutputChunk;
   return path.join(ctx.outputDir, output.fileName);
 }
 

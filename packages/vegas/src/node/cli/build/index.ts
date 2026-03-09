@@ -2,8 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import util from "node:util";
 
-import type { RolldownOutput } from "rolldown";
-import { createBuilder, EnvironmentOptions, version as VITE_VERSION } from "vite";
+import { createBuilder, EnvironmentOptions, Rolldown, version as VITE_VERSION } from "vite";
 
 import { version as VEGAS_VERSION } from "../../../../package.json";
 import { resolvePath } from "../core";
@@ -73,16 +72,18 @@ export async function buildApp(
 
   if (!isWrite) {
     const output: { web: Map<string, string>; server: string } = { web: new Map(), server: "" };
-    (results.flat().filter((result) => result !== undefined) as RolldownOutput[]).map((result) => {
-      const outputs = result.output.flat();
-      outputs.forEach((out) => {
-        if (out.type === "asset") {
-          output.web.set(out.fileName, Buffer.from(out.source).toString("utf8"));
-        } else {
-          output.server = out.code;
-        }
-      });
-    });
+    (results.flat().filter((result) => result !== undefined) as Rolldown.RolldownOutput[]).map(
+      (result) => {
+        const outputs = result.output.flat();
+        outputs.forEach((out) => {
+          if (out.type === "asset") {
+            output.web.set(out.fileName, Buffer.from(out.source).toString("utf8"));
+          } else {
+            output.server = out.code;
+          }
+        });
+      },
+    );
     return output;
   }
 }

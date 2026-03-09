@@ -69,9 +69,6 @@ importers:
       parse5:
         specifier: ^8.0.0
         version: 8.0.0
-      rolldown:
-        specifier: 1.0.0-rc.6
-        version: 1.0.0-rc.6
 
 packages:
 
