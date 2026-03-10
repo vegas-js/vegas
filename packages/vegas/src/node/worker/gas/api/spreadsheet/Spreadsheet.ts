@@ -1,9 +1,20 @@
 // https://developers.google.com/apps-script/reference/spreadsheet/spreadsheet
 export class Spreadsheet implements GoogleAppsScript.Spreadsheet.Spreadsheet {
-  #id: string;
+  #spreadsheetId: string;
+  #SheetClass: new (...args: any[]) => GoogleAppsScript.Spreadsheet.Sheet;
+  #RangeClass: new (...args: any[]) => GoogleAppsScript.Spreadsheet.Range;
+  #requestSync: Function;
 
-  constructor(id: string) {
-    this.#id = id;
+  constructor(
+    spreadsheetId: string,
+    SheetClass: new (...args: any[]) => GoogleAppsScript.Spreadsheet.Sheet,
+    RangeClass: new (...args: any[]) => GoogleAppsScript.Spreadsheet.Range,
+    requestSync: Function,
+  ) {
+    this.#spreadsheetId = spreadsheetId;
+    this.#SheetClass = SheetClass;
+    this.#RangeClass = RangeClass;
+    this.#requestSync = requestSync;
   }
 
   addDeveloperMetadata = (key: unknown, value?: unknown, visibility?: unknown) => {
@@ -109,7 +120,7 @@ export class Spreadsheet implements GoogleAppsScript.Spreadsheet.Spreadsheet {
     throw new Error("Method not implemented.");
   };
   getId = () => {
-    return this.#id;
+    return this.#spreadsheetId;
   };
   getImages = () => {
     throw new Error("Method not implemented.");

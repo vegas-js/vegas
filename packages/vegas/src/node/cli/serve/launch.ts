@@ -278,6 +278,49 @@ class SpreadsheetAppHandler {
   }
 }
 
+class SheetHandler {
+  deleteRow(
+    ctx: ServeContext,
+    payload: { spreadsheetId: string; sheetId: number; rowPosition: number },
+  ) {
+    this.deleteRows(ctx, {
+      spreadsheetId: payload.spreadsheetId,
+      sheetId: payload.sheetId,
+      rowPosition: payload.rowPosition,
+      howMany: 1,
+    });
+  }
+  deleteRows(
+    ctx: ServeContext,
+    payload: { spreadsheetId: string; sheetId: number; rowPosition: number; howMany: number },
+  ) {
+    ctx.store.spreadsheet
+      .get(payload.spreadsheetId)
+      ?.sheet.get(payload.sheetId)
+      ?.cells.splice(payload.rowPosition, payload.howMany);
+  }
+  deleteColumn(
+    ctx: ServeContext,
+    payload: { spreadsheetId: string; sheetId: number; columnPosition: number },
+  ) {
+    this.deleteRows(ctx, {
+      spreadsheetId: payload.spreadsheetId,
+      sheetId: payload.sheetId,
+      rowPosition: payload.columnPosition,
+      howMany: 1,
+    });
+  }
+  deleteColumns(
+    ctx: ServeContext,
+    payload: { spreadsheetId: string; sheetId: number; columnPosition: number; howMany: number },
+  ) {
+    ctx.store.spreadsheet
+      .get(payload.spreadsheetId)
+      ?.sheet.get(payload.sheetId)
+      ?.cells.forEach((row) => row.splice(payload.columnPosition, payload.howMany));
+  }
+}
+
 class GASHandler {
   constructor() {
     const proxyHandler: ProxyHandler<any> = {
@@ -319,6 +362,7 @@ handler.addHandler(SessionHandler);
 handler.addHandler(CacheHandler);
 handler.addHandler(PropertiesHandler);
 handler.addHandler(SpreadsheetAppHandler);
+handler.addHandler(SheetHandler);
 
 export function launchGAS(ctx: ServeContext, fn: string, ...args: any[]): Promise<any> {
   return new Promise((resolve) => {

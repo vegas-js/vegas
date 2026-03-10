@@ -2,14 +2,20 @@ import { RequestSyncFn } from "../..";
 
 // https://developers.google.com/apps-script/reference/spreadsheet/spreadsheet-app
 export class SpreadsheetApp implements GoogleAppsScript.Spreadsheet.SpreadsheetApp {
-  #SpreadsheetClass: new (id: string) => GoogleAppsScript.Spreadsheet.Spreadsheet;
+  #SpreadsheetClass: new (...args: any[]) => GoogleAppsScript.Spreadsheet.Spreadsheet;
+  #SheetClass: new (...args: any[]) => GoogleAppsScript.Spreadsheet.Sheet;
+  #RangeClass: new (...args: any[]) => GoogleAppsScript.Spreadsheet.Range;
   #requestSync: RequestSyncFn;
 
   constructor(
-    SpreadsheetClass: new (id: string) => GoogleAppsScript.Spreadsheet.Spreadsheet,
+    SpreadsheetClass: new (...args: any[]) => GoogleAppsScript.Spreadsheet.Spreadsheet,
+    SheetClass: new (...args: any[]) => GoogleAppsScript.Spreadsheet.Sheet,
+    RangeClass: new (...args: any[]) => GoogleAppsScript.Spreadsheet.Range,
     requestSync: RequestSyncFn,
   ) {
     this.#SpreadsheetClass = SpreadsheetClass;
+    this.#SheetClass = SheetClass;
+    this.#RangeClass = RangeClass;
     this.#requestSync = requestSync;
   }
 
@@ -175,11 +181,16 @@ export class SpreadsheetApp implements GoogleAppsScript.Spreadsheet.SpreadsheetA
     rows: GoogleAppsScript.Integer = 1000,
     columns: GoogleAppsScript.Integer = 26,
   ) => {
-    const id = this.#requestSync({
+    const spreadSheetId = this.#requestSync({
       message: "SpreadsheetApp#create",
       payload: { name, rows, columns },
     });
-    return new this.#SpreadsheetClass(id);
+    return new this.#SpreadsheetClass(
+      spreadSheetId,
+      this.#SheetClass,
+      this.#RangeClass,
+      this.#requestSync,
+    );
   };
   enableAllDataSourcesExecution = () => {
     throw new Error("Method not implemented.");
@@ -247,7 +258,7 @@ export class SpreadsheetApp implements GoogleAppsScript.Spreadsheet.SpreadsheetA
       message: "SpreadsheetApp#openById",
       payload: { id },
     });
-    return new this.#SpreadsheetClass(id);
+    return new this.#SpreadsheetClass(id, this.#SheetClass, this.#RangeClass, this.#requestSync);
   };
   openByUrl = (url: string) => {
     const targetUrl = new URL(url);

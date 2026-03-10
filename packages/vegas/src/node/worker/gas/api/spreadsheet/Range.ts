@@ -1,5 +1,15 @@
 // https://developers.google.com/apps-script/reference/spreadsheet/range
 export class Range implements GoogleAppsScript.Spreadsheet.Range {
+  #spreadsheetId: string;
+  #sheetId: number;
+  #requestSync: Function;
+
+  constructor(spreadsheetId: string, sheetId: number, requestSync: Function) {
+    this.#spreadsheetId = spreadsheetId;
+    this.#sheetId = sheetId;
+    this.#requestSync = requestSync;
+  }
+
   activate = () => {
     throw new Error("Method not implemented.");
   };
@@ -283,10 +293,10 @@ export class Range implements GoogleAppsScript.Spreadsheet.Range {
     throw new Error("Method not implemented.");
   };
   getValue = () => {
-    throw new Error("Method not implemented.");
+    return this.#requestSync({ message: "Range#getValue" });
   };
   getValues = () => {
-    throw new Error("Method not implemented.");
+    return this.#requestSync({ message: "Range#getValues" });
   };
   getVerticalAlignment = () => {
     throw new Error("Method not implemented.");
@@ -506,6 +516,7 @@ export class Range implements GoogleAppsScript.Spreadsheet.Range {
     throw new Error("Method not implemented.");
   };
   setValue = (value: any) => {
+    return this.#requestSync({ message: "Range#getValues" });
     throw new Error("Method not implemented.");
   };
   setValues = (values: any[][]) => {

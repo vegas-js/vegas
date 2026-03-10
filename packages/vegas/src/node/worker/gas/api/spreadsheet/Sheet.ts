@@ -1,5 +1,22 @@
 // https://developers.google.com/apps-script/reference/spreadsheet/sheet
 export class Sheet implements GoogleAppsScript.Spreadsheet.Sheet {
+  #spreadsheetId: string;
+  #sheetId: number;
+  #RangeClass: new (...args: any[]) => GoogleAppsScript.Spreadsheet.Range;
+  #requestSync: Function;
+
+  constructor(
+    spreadsheetId: string,
+    sheetId: number,
+    RangeClass: new (...args: any[]) => GoogleAppsScript.Spreadsheet.Range,
+    requestSync: Function,
+  ) {
+    this.#spreadsheetId = spreadsheetId;
+    this.#sheetId = sheetId;
+    this.#RangeClass = RangeClass;
+    this.#requestSync = requestSync;
+  }
+
   activate = () => {
     throw new Error("Method not implemented.");
   };
@@ -55,16 +72,37 @@ export class Sheet implements GoogleAppsScript.Spreadsheet.Sheet {
     throw new Error("Method not implemented.");
   };
   deleteColumn = (columnPosition: GoogleAppsScript.Integer) => {
-    throw new Error("Method not implemented.");
+    this.#requestSync({
+      message: `${this.constructor.name}#deleteColumn`,
+      payload: { spreadsheetId: this.#spreadsheetId, sheetId: this.#sheetId, columnPosition },
+    });
+    return this;
   };
   deleteColumns = (columnPosition: GoogleAppsScript.Integer, howMany: GoogleAppsScript.Integer) => {
-    throw new Error("Method not implemented.");
+    this.#requestSync({
+      message: `${this.constructor.name}#deleteColumns`,
+      payload: {
+        spreadsheetId: this.#spreadsheetId,
+        sheetId: this.#sheetId,
+        columnPosition,
+        howMany,
+      },
+    });
+    return this;
   };
   deleteRow = (rowPosition: GoogleAppsScript.Integer) => {
-    throw new Error("Method not implemented.");
+    this.#requestSync({
+      message: `${this.constructor.name}#deleteRow`,
+      payload: { spreadsheetId: this.#spreadsheetId, sheetId: this.#sheetId, rowPosition },
+    });
+    return this;
   };
   deleteRows = (rowPosition: GoogleAppsScript.Integer, howMany: GoogleAppsScript.Integer) => {
-    throw new Error("Method not implemented.");
+    this.#requestSync({
+      message: `${this.constructor.name}#deleteRows`,
+      payload: { spreadsheetId: this.#spreadsheetId, sheetId: this.#sheetId, rowPosition, howMany },
+    });
+    return this;
   };
   expandAllColumnGroups = () => {
     throw new Error("Method not implemented.");
@@ -171,7 +209,12 @@ export class Sheet implements GoogleAppsScript.Spreadsheet.Sheet {
   getProtections = (type: GoogleAppsScript.Spreadsheet.ProtectionType) => {
     throw new Error("Method not implemented.");
   };
-  getRange = (row: unknown, column?: unknown, numRows?: unknown, numColumns?: unknown) => {
+  getRange = (
+    rowOrA1Notation: GoogleAppsScript.Integer | string,
+    column?: GoogleAppsScript.Integer,
+    numRows?: GoogleAppsScript.Integer,
+    numColumns?: GoogleAppsScript.Integer,
+  ) => {
     throw new Error("Method not implemented.");
   };
   getRangeList = (a1Notations: string[]) => {
