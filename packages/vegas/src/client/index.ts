@@ -18,20 +18,15 @@ window.addEventListener("message", (event) => {
                   withFailureHandler: (callback: Function) => {},
                 },
                 {
-                  get: (_target, property, receiver) => {
-                    if (property === "withSuccessHandler") {
+                  get: (target, property, receiver) => {
+                    if (Reflect.get(target, property, receiver)) {
                       return (callback: Function) => {
-                        return {
-                          successHandler: callback,
+                        const objRun: Record<string, Function> = {
                           __proto__: receiver,
                         };
-                      };
-                    } else if (property === "withFailureHandler") {
-                      return (callback: Function) => {
-                        return {
-                          failureHandler: callback,
-                          __proto__: receiver,
-                        };
+                        const handlerName = (property as string).slice(4);
+                        objRun[handlerName] = callback;
+                        return objRun;
                       };
                     } else {
                       return (...args: any[]) => {
@@ -61,9 +56,9 @@ window.addEventListener("message", (event) => {
   } else if (event.data.type === "vegas:gasreturn") {
     const gasRun = vegas.requestMap.get(event.data.payload.id);
     if (event.data.payload.status === "ok") {
-      gasRun.successHandler(JSON.parse(event.data.payload.result));
+      gasRun.SuccessHandler(JSON.parse(event.data.payload.result));
     } else if (event.data.payload.status === "err") {
-      gasRun.failureHandler(event.data.payload.message);
+      gasRun.FailureHandler(event.data.payload.message);
     }
     window.vegas.requestMap.delete(event.data.payload.id);
   }

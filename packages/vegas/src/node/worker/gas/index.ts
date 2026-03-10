@@ -183,11 +183,11 @@ function doGetHandler(this: TriggerEvent, htmlOutput: GoogleAppsScript.HTML.Html
 }
 
 class TriggerEvent extends events.EventEmitter {
-  #port: worker.MessagePort;
+  private port: worker.MessagePort;
 
   constructor(port: worker.MessagePort) {
     super();
-    this.#port = port;
+    this.port = port;
   }
 
   on(event: "doGet", listener: (arg: GoogleAppsScript.HTML.HtmlOutput) => void): this;
@@ -201,7 +201,7 @@ class TriggerEvent extends events.EventEmitter {
 
   postMessage(data: any) {
     const payload = JSON.stringify(data);
-    this.#port.postMessage({ message: "resolve", payload });
+    this.port.postMessage({ message: "resolve", payload });
   }
 }
 
