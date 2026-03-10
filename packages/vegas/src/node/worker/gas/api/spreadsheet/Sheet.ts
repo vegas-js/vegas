@@ -215,6 +215,15 @@ export class Sheet implements GoogleAppsScript.Spreadsheet.Sheet {
     numRows?: GoogleAppsScript.Integer,
     numColumns?: GoogleAppsScript.Integer,
   ) => {
+    return new this.#RangeClass(
+      this.#spreadsheetId,
+      this.#sheetId,
+      rowOrA1Notation,
+      column,
+      numRows,
+      numColumns,
+      this.#requestSync,
+    );
     throw new Error("Method not implemented.");
   };
   getRangeList = (a1Notations: string[]) => {
