@@ -13,6 +13,7 @@ import { Lock } from "./api/lock/Lock";
 import { LockService } from "./api/lock/LockService";
 import { Properties } from "./api/properties/Properties";
 import { PropertiesService } from "./api/properties/PropertiesService";
+import { Spreadsheet } from "./api/spreadsheet/Spreadsheet";
 import { SpreadsheetApp } from "./api/spreadsheet/SpreadsheetApp";
 import { UrlFetchApp } from "./api/url_fetch/URLFetchApp";
 import { Utilities } from "./api/utilities/Utilities";
@@ -63,7 +64,7 @@ const scriptContext = vm.createContext({
   /* Gmail */
   GmailApp: undefined,
   /* Sheets */
-  SpreadsheetApp: new SpreadsheetApp(),
+  SpreadsheetApp: new SpreadsheetApp(Spreadsheet, requestSync),
   /* Slides */
   SlidesApp: undefined,
   /* Workspace */

@@ -1,7 +1,18 @@
-import { Spreadsheet } from "./Spreadsheet";
+import { RequestSyncFn } from "../..";
 
 // https://developers.google.com/apps-script/reference/spreadsheet/spreadsheet-app
 export class SpreadsheetApp implements GoogleAppsScript.Spreadsheet.SpreadsheetApp {
+  #SpreadsheetClass: new (id: string) => GoogleAppsScript.Spreadsheet.Spreadsheet;
+  #requestSync: RequestSyncFn;
+
+  constructor(
+    SpreadsheetClass: new (id: string) => GoogleAppsScript.Spreadsheet.Spreadsheet,
+    requestSync: RequestSyncFn,
+  ) {
+    this.#SpreadsheetClass = SpreadsheetClass;
+    this.#requestSync = requestSync;
+  }
+
   AutoFillSeries = { DEFAULT_SERIES: 0, ALTERNATE_SERIES: 1 };
   BandingTheme = {
     LIGHT_GREY: 0,
@@ -159,25 +170,16 @@ export class SpreadsheetApp implements GoogleAppsScript.Spreadsheet.SpreadsheetA
   ValueType = { IMAGE: 0 };
   WrapStrategy = { WRAP: 0, OVERFLOW: 1, CLIP: 2 };
 
-  create = (name: string, rows?: GoogleAppsScript.Integer, columns?: GoogleAppsScript.Integer) => {
-    const id = String.fromCharCode(
-      ...Array.from({ length: 44 }).map(() => {
-        let tempId = Math.floor(Math.random() * 61) + 0x2d;
-        if (tempId > 0x2d) {
-          tempId += 3;
-        }
-        if (tempId > 0x39) {
-          tempId += 7;
-        }
-        if (tempId > 0x5a) {
-          tempId += 6;
-        }
-
-        return tempId;
-      }),
-    );
-    console.log(id);
-    return new Spreadsheet();
+  create = (
+    name: string,
+    rows: GoogleAppsScript.Integer = 1000,
+    columns: GoogleAppsScript.Integer = 26,
+  ) => {
+    const id = this.#requestSync({
+      message: "SpreadsheetApp#create",
+      payload: { name, rows, columns },
+    });
+    return new this.#SpreadsheetClass(id);
   };
   enableAllDataSourcesExecution = () => {
     throw new Error("Method not implemented.");
@@ -237,13 +239,20 @@ export class SpreadsheetApp implements GoogleAppsScript.Spreadsheet.SpreadsheetA
     throw new Error("Method not implemented.");
   };
   open = (file: GoogleAppsScript.Drive.File) => {
-    throw new Error("Method not implemented.");
+    const id = file.getId();
+    return this.openById(id);
   };
   openById = (id: string) => {
-    throw new Error("Method not implemented.");
+    this.#requestSync({
+      message: "SpreadsheetApp#openById",
+      payload: { id },
+    });
+    return new this.#SpreadsheetClass(id);
   };
   openByUrl = (url: string) => {
-    throw new Error("Method not implemented.");
+    const targetUrl = new URL(url);
+    const id = targetUrl.pathname.split("/")[3];
+    return this.openById(id);
   };
   setActiveRange = (range: GoogleAppsScript.Spreadsheet.Range) => {
     throw new Error("Method not implemented.");

@@ -1,5 +1,11 @@
 // https://developers.google.com/apps-script/reference/spreadsheet/spreadsheet
 export class Spreadsheet implements GoogleAppsScript.Spreadsheet.Spreadsheet {
+  #id: string;
+
+  constructor(id: string) {
+    this.#id = id;
+  }
+
   addDeveloperMetadata = (key: unknown, value?: unknown, visibility?: unknown) => {
     throw new Error("Method not implemented.");
   };
@@ -103,7 +109,7 @@ export class Spreadsheet implements GoogleAppsScript.Spreadsheet.Spreadsheet {
     throw new Error("Method not implemented.");
   };
   getId = () => {
-    throw new Error("Method not implemented.");
+    return this.#id;
   };
   getImages = () => {
     throw new Error("Method not implemented.");

@@ -20,8 +20,11 @@ export interface ServeContext {
       script: Record<string, { value: string; expired: number }>;
       user: Record<string, { value: string; expired: number }>;
     };
+    spreadsheet: Map<
+      string,
+      { name: string; sheet: Map<number, { name: string; cells: any[][] }> }
+    >;
   };
-  spreadSheet: Map<{ id: string; name: string }, Map<{ id: string; name: string }, any[][]>>;
 }
 
 export function createServeContext(
@@ -47,7 +50,7 @@ export function createServeContext(
         script: {},
         user: {},
       },
+      spreadsheet: new Map(),
     },
-    spreadSheet: new Map(),
   };
 }
