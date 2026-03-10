@@ -44,7 +44,7 @@ class SessionHandler {
 }
 
 class CacheHandler {
-  private getScopedCache(scope: Scope, ctx: ServeContext) {
+  #getScopedCache(scope: Scope, ctx: ServeContext) {
     switch (scope) {
       case "document": {
         return ctx.store.cache.document;
@@ -61,7 +61,7 @@ class CacheHandler {
     }
   }
 
-  private deleteExpiredCache(
+  #deleteExpiredCache(
     cache: Record<
       string,
       {
@@ -78,7 +78,7 @@ class CacheHandler {
     });
   }
 
-  private deleteOverflowCache(
+  #deleteOverflowCache(
     cache: Record<
       string,
       {
@@ -102,19 +102,19 @@ class CacheHandler {
     }
   }
   get(ctx: ServeContext, payload: any) {
-    const cache = this.getScopedCache(payload.scope, ctx);
+    const cache = this.#getScopedCache(payload.scope, ctx);
 
     if (cache) {
-      this.deleteExpiredCache(cache);
+      this.#deleteExpiredCache(cache);
     }
     return cache ? cache[payload.key].value : null;
   }
   getAll(ctx: ServeContext, payload: any) {
-    const cache = this.getScopedCache(payload.scope, ctx);
+    const cache = this.#getScopedCache(payload.scope, ctx);
 
     const obj: Record<string, string> = {};
     if (cache) {
-      this.deleteExpiredCache(cache);
+      this.#deleteExpiredCache(cache);
       Object.entries(cache).forEach(([key, value]) => {
         if ((payload.keys as string[]).includes(key)) {
           obj[key] = value.value;
@@ -124,17 +124,17 @@ class CacheHandler {
     return obj;
   }
   put(ctx: ServeContext, payload: any) {
-    const cache = this.getScopedCache(payload.scope, ctx);
+    const cache = this.#getScopedCache(payload.scope, ctx);
 
     if (cache) {
       const record = payload.record;
       cache[record.key] = { value: record.value, expired: record.expired };
 
-      this.deleteOverflowCache(cache);
+      this.#deleteOverflowCache(cache);
     }
   }
   putAll(ctx: ServeContext, payload: any) {
-    const cache = this.getScopedCache(payload.scope, ctx);
+    const cache = this.#getScopedCache(payload.scope, ctx);
 
     if (cache) {
       const expired = payload.record.expired;
@@ -142,18 +142,18 @@ class CacheHandler {
         cache[key] = { value, expired };
       });
 
-      this.deleteOverflowCache(cache);
+      this.#deleteOverflowCache(cache);
     }
   }
   remove(ctx: ServeContext, payload: any) {
-    const cache = this.getScopedCache(payload.scope, ctx);
+    const cache = this.#getScopedCache(payload.scope, ctx);
 
     if (cache) {
       delete cache[payload.key];
     }
   }
   removeAll(ctx: ServeContext, payload: any) {
-    const cache = this.getScopedCache(payload.scope, ctx);
+    const cache = this.#getScopedCache(payload.scope, ctx);
 
     if (cache) {
       (payload.keys as string[]).forEach((key) => {
@@ -164,7 +164,7 @@ class CacheHandler {
 }
 
 class PropertiesHandler {
-  private getScopedProperties(scope: Scope, ctx: ServeContext) {
+  #getScopedProperties(scope: Scope, ctx: ServeContext) {
     switch (scope) {
       case "document": {
         return ctx.store.properties.document;
@@ -182,7 +182,7 @@ class PropertiesHandler {
   }
 
   deleteAllProperties(ctx: ServeContext, payload: any) {
-    const property = this.getScopedProperties(payload.scope, ctx);
+    const property = this.#getScopedProperties(payload.scope, ctx);
 
     if (property) {
       Object.keys(property).forEach((key) => {
@@ -191,19 +191,19 @@ class PropertiesHandler {
     }
   }
   deleteProperty(ctx: ServeContext, payload: any) {
-    const property = this.getScopedProperties(payload.scope, ctx);
+    const property = this.#getScopedProperties(payload.scope, ctx);
 
     if (property) {
       delete property[payload.key];
     }
   }
   getKeys(ctx: ServeContext, payload: any) {
-    const property = this.getScopedProperties(payload.scope, ctx);
+    const property = this.#getScopedProperties(payload.scope, ctx);
 
     return Object.keys(property ?? {});
   }
   getProperties(ctx: ServeContext, payload: any) {
-    const property = this.getScopedProperties(payload.scope, ctx);
+    const property = this.#getScopedProperties(payload.scope, ctx);
 
     const obj: Record<string, string> = {};
     if (property) {
@@ -214,12 +214,12 @@ class PropertiesHandler {
     return obj;
   }
   getProperty(ctx: ServeContext, payload: any) {
-    const property = this.getScopedProperties(payload.scope, ctx);
+    const property = this.#getScopedProperties(payload.scope, ctx);
 
     return property ? property[payload.key] : null;
   }
   setProperties(ctx: ServeContext, payload: any) {
-    const property = this.getScopedProperties(payload.scope, ctx);
+    const property = this.#getScopedProperties(payload.scope, ctx);
 
     if (property) {
       if (payload.deleteAllOthers) {
@@ -234,7 +234,7 @@ class PropertiesHandler {
     }
   }
   setProperty(ctx: ServeContext, payload: any) {
-    const property = this.getScopedProperties(payload.scope, ctx);
+    const property = this.#getScopedProperties(payload.scope, ctx);
 
     if (property) {
       property[payload.property.key] = payload.property.value;
