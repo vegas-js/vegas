@@ -2,13 +2,22 @@ import fs from "node:fs";
 import path from "node:path";
 import util from "node:util";
 
-import { createBuilder, Rolldown, version as VITE_VERSION, ViteBuilder } from "vite";
+import {
+  createBuilder,
+  EnvironmentOptions,
+  InlineConfig,
+  Rolldown,
+  version as VITE_VERSION,
+  ViteBuilder,
+} from "vite";
 
 import { version as VEGAS_VERSION } from "../../../../package.json";
 import { resolvePath } from "../core";
-import { collectArtifacts, collectSources, detectEntries } from "../core/analyze";
-import { createBuilderConfig, loadConfig, resolveConfig, ResolvedUserConfig } from "../core/config";
-import { printReport } from "./printReport";
+import { collectSources, detectEntries, ProjectEntry } from "../core/analyze";
+import { loadConfig, resolveConfig, ResolvedUserConfig } from "../core/config";
+import { exportBridge } from "./plugins/exportbridge";
+import { virtualHTML } from "./plugins/virtualhtml";
+import { collectArtifacts, printReport } from "./printReport";
 
 export async function buildApp(builder: ViteBuilder, envFilter?: RegExp) {
   const buildPromises = [];
@@ -21,6 +30,54 @@ export async function buildApp(builder: ViteBuilder, envFilter?: RegExp) {
     }
   }
   return Promise.all(buildPromises);
+}
+
+export function createBuilderConfig(
+  config: ResolvedUserConfig,
+  projectEntry: ProjectEntry,
+  isWrite: boolean = true,
+) {
+  const environments: Record<string, EnvironmentOptions> = {
+    gas: {
+      build: {
+        lib: {
+          formats: ["iife"],
+          name: "GASApp",
+          entry: projectEntry.serverEntry,
+        },
+      },
+    },
+  };
+  projectEntry.webEntries.forEach((entry, index) => {
+    environments[`web${index}`] = {
+      consumer: "client",
+      build: {
+        rolldownOptions: {
+          input: entry,
+        },
+      },
+    };
+  });
+  const builderConfig: InlineConfig = {
+    root: config.root,
+    configFile: false,
+    plugins: [
+      ...config.plugins,
+      virtualHTML(config.webDir),
+      exportBridge(projectEntry.serverEntry),
+    ],
+    environments,
+    build: {
+      outDir: config.output.dir,
+      assetsInlineLimit: () => true,
+      cssCodeSplit: false,
+      write: isWrite,
+      emptyOutDir: false,
+      reportCompressedSize: false,
+    },
+    logLevel: "silent",
+  };
+  return builderConfig;
 }
 
 export function extractOutput(

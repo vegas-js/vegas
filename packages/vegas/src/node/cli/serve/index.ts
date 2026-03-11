@@ -2,10 +2,10 @@ import path from "node:path";
 
 import { Connect, createBuilder, createLogger, createServer } from "vite";
 
-import { buildApp, extractOutput } from "../build";
+import { buildApp, createBuilderConfig, extractOutput } from "../build";
 import { HTML, resolvePath } from "../core";
 import { collectSources, detectEntries } from "../core/analyze";
-import { createBuilderConfig, loadConfig, resolveConfig } from "../core/config";
+import { loadConfig, resolveConfig } from "../core/config";
 import { createServeContext, ServeContext } from "./context";
 import { launchGAS } from "./launch";
 import { loadMock } from "./mock";

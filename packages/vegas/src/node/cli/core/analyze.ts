@@ -132,16 +132,3 @@ export function mappingProjectIO(config: ResolvedUserConfig, projectEntry: Proje
 
   return projectIOMap;
 }
-
-export type BuildArtifact = {
-  path: string;
-  size: number;
-};
-
-export function collectArtifacts(outDir: string): BuildArtifact[] {
-  return fs.globSync(path.join(outDir, "**", "*.*")).map((filePath) => {
-    const size = fs.statSync(filePath).size;
-    const relativePath = path.relative(outDir, filePath);
-    return { path: relativePath, size };
-  });
-}

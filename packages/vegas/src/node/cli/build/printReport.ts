@@ -1,8 +1,21 @@
+import fs from "node:fs";
 import path from "node:path";
 import util from "node:util";
 
-import { BuildArtifact } from "../core/analyze";
 import { ResolvedUserConfig } from "../core/config";
+
+type BuildArtifact = {
+  path: string;
+  size: number;
+};
+
+export function collectArtifacts(outDir: string): BuildArtifact[] {
+  return fs.globSync(path.join(outDir, "**", "*.*")).map((filePath) => {
+    const size = fs.statSync(filePath).size;
+    const relativePath = path.relative(outDir, filePath);
+    return { path: relativePath, size };
+  });
+}
 
 function formatSize(bytes: number): string {
   const units = ["B", "kB", "mB"];
