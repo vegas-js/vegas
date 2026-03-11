@@ -18,7 +18,7 @@ export async function buildApp(builder: ViteBuilder, envFilter?: RegExp) {
     if (environment.name === "client") {
       continue;
     }
-    if ((envFilter && envFilter.test(environment.name)) || !envFilter) {
+    if (!envFilter || envFilter.test(environment.name)) {
       buildPromises.push(builder.build(environment));
     }
   }
