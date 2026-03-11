@@ -11,9 +11,7 @@ import { createBuilderConfig, loadConfig, resolveConfig, ResolvedUserConfig } fr
 import { printReport } from "./printReport";
 
 export async function buildApp(builder: ViteBuilder, envFilter?: RegExp) {
-  const buildPromises: Promise<
-    Rolldown.RolldownOutput | Rolldown.RolldownOutput[] | Rolldown.RolldownWatcher
-  >[] = [];
+  const buildPromises = [];
   for (const environment of Object.values(builder.environments)) {
     if (environment.name === "client") {
       continue;
