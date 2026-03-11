@@ -1,11 +1,11 @@
 import path from "node:path";
 
-import { Connect, createLogger, createServer } from "vite";
+import { Connect, createBuilder, createLogger, createServer } from "vite";
 
-import { buildApp } from "../build";
+import { buildApp, extractOutput } from "../build";
 import { HTML, resolvePath } from "../core";
 import { collectSources, detectEntries } from "../core/analyze";
-import { loadConfig, resolveConfig } from "../core/config";
+import { createBuilderConfig, loadConfig, resolveConfig } from "../core/config";
 import { createServeContext, ServeContext } from "./context";
 import { launchGAS } from "./launch";
 import { loadMock } from "./mock";
@@ -18,16 +18,20 @@ async function serveApp(ctx: ServeContext) {
     cacheDir: path.join(ctx.config.root, "node_modules", ".vegas-host"),
   });
 
-  const result = await buildApp(ctx.config, ctx.entry);
-  ctx.code.web.map = result!.web;
-  ctx.code.server = result!.server;
+  const builderConfig = createBuilderConfig(ctx.config, ctx.entry, false);
+  const builder = await createBuilder(builderConfig);
+  const result = await buildApp(builder);
+  const output = extractOutput(result);
+  ctx.code.web.map = output.web;
+  ctx.code.server = output.server;
 
   hostServer.watcher.add([ctx.config.webDir, ctx.config.serverDir]);
 
   hostServer.watcher.on("change", async (path) => {
     if (path.startsWith(ctx.config.webDir)) {
-      const result = await buildApp(ctx.config, ctx.entry, false, /^web/);
-      ctx.code.web.map = result!.web;
+      const result = await buildApp(builder, /^web/);
+      const output = extractOutput(result);
+      ctx.code.web.map = output.web;
       hostServer.moduleGraph.invalidateAll();
       for (const href of ctx.code.web.hrefs) {
         const mod = await hostServer.moduleGraph.getModuleByUrl(href);
@@ -38,8 +42,9 @@ async function serveApp(ctx: ServeContext) {
       hostServer.ws.send({ type: "full-reload" });
       return [];
     } else if (path.startsWith(ctx.config.serverDir)) {
-      const result = await buildApp(ctx.config, ctx.entry, false, /^gas$/);
-      ctx.code.server = result!.server;
+      const result = await buildApp(builder, /^gas$/);
+      const output = extractOutput(result);
+      ctx.code.server = output.server;
       return [];
     }
   });

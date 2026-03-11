@@ -2,11 +2,14 @@ import fs from "node:fs";
 import module from "node:module";
 import path from "node:path";
 
-import { build, Rolldown } from "vite";
+import { build, EnvironmentOptions, InlineConfig, Rolldown } from "vite";
 
 import { DisposableTempDir } from ".";
 import { resolvePath } from ".";
 import { BaseConfig, GASManifest, OutputConfig, UserConfig } from "../../../shared/config";
+import { exportBridge } from "../build/plugins/exportbridge";
+import { virtualHTML } from "../build/plugins/virtualhtml";
+import { ProjectEntry } from "./analyze";
 
 export type ResolvedUserConfig = Required<BaseConfig> & {
   output: Required<OutputConfig>;
@@ -66,6 +69,54 @@ export async function loadConfig(root: string) {
   const mod = loadModule({ root, filePath: path.join(root, "vegas.config.ts") });
 
   return mod as UserConfig;
+}
+
+export function createBuilderConfig(
+  config: ResolvedUserConfig,
+  projectEntry: ProjectEntry,
+  isWrite: boolean = true,
+) {
+  const environments: Record<string, EnvironmentOptions> = {
+    gas: {
+      build: {
+        lib: {
+          formats: ["iife"],
+          name: "GASApp",
+          entry: projectEntry.serverEntry,
+        },
+      },
+    },
+  };
+  projectEntry.webEntries.forEach((entry, index) => {
+    environments[`web${index}`] = {
+      consumer: "client",
+      build: {
+        rolldownOptions: {
+          input: entry,
+        },
+      },
+    };
+  });
+  const builderConfig: InlineConfig = {
+    root: config.root,
+    configFile: false,
+    plugins: [
+      ...config.plugins,
+      virtualHTML(config.webDir),
+      exportBridge(projectEntry.serverEntry),
+    ],
+    environments,
+    build: {
+      outDir: config.output.dir,
+      assetsInlineLimit: () => true,
+      cssCodeSplit: false,
+      write: isWrite,
+      emptyOutDir: false,
+      reportCompressedSize: false,
+    },
+    logLevel: "silent",
+  };
+  return builderConfig;
 }
 
 export function resolveConfig(userConfig: UserConfig): ResolvedUserConfig {
