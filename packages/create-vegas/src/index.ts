@@ -96,7 +96,7 @@ async function run() {
     cancelHandler();
   }
 
-  if (ctx.framework !== "template-react") {
+  if (ctx.framework === "template-react") {
     ctx.useOxcStack = (await prompts.confirm({
       message: "Use Oxc Stack?",
     })) as boolean;
