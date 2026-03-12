@@ -302,10 +302,10 @@ export class SheetHandler {
     ctx: ServeContext,
     payload: { spreadsheetId: string; sheetId: number; columnPosition: number },
   ) {
-    this.deleteRows(ctx, {
+    this.deleteColumns(ctx, {
       spreadsheetId: payload.spreadsheetId,
       sheetId: payload.sheetId,
-      rowPosition: payload.columnPosition,
+      columnPosition: payload.columnPosition,
       howMany: 1,
     });
   }
