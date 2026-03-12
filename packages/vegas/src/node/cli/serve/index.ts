@@ -35,7 +35,6 @@ async function serveApp(ctx: ServeContext) {
       const result = await buildApp(builder, /^web/);
       const output = extractOutput(result);
       ctx.code.web.map = output.web;
-      hostServer.moduleGraph.invalidateAll();
       for (const href of ctx.code.web.hrefs) {
         const mod = await hostServer.moduleGraph.getModuleByUrl(href);
         if (mod) {
