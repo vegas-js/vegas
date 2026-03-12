@@ -35,12 +35,7 @@ async function serveApp(ctx: ServeContext) {
       const result = await buildApp(builder, /^web/);
       const output = extractOutput(result);
       ctx.code.web.map = output.web;
-      for (const href of ctx.code.web.hrefs) {
-        const mod = await hostServer.moduleGraph.getModuleByUrl(href);
-        if (mod) {
-          hostServer.moduleGraph.invalidateModule(mod);
-        }
-      }
+      hostServer.moduleGraph.invalidateAll();
       hostServer.ws.send({ type: "full-reload" });
       return [];
     } else if (path.startsWith(ctx.config.serverDir)) {
