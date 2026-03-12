@@ -99,6 +99,39 @@ async function serveApp(ctx: ServeContext) {
         return;
       } else if (/^\/(exec|dev)/.test(url.pathname)) {
         // response iframe
+        const queryString =
+          url.search.length > 1 ? url.search.slice(1) : (null as unknown as string);
+        const { parameter, parameters } = ((queryString) => {
+          const parameter: Record<string, string> = {};
+          const parameters: Record<string, string[]> = {};
+
+          queryString.split("&").forEach((query) => {
+            const [key, value] = query.split("=");
+            if (!parameter[key]) {
+              parameter[key] = value ?? "";
+            }
+            if (!parameters[key]) {
+              parameters[key] = [value ?? ""];
+            } else {
+              parameters[key].push(value ?? "");
+            }
+          });
+
+          return { parameter, parameters };
+        })(queryString);
+        const pathInfo = (() => {
+          const temp = url.pathname.replace(/^\/(exec|dev)/, "");
+          return temp.length !== 0 ? temp.slice(1) : (undefined as unknown as string);
+        })();
+
+        const doGetEvent: GoogleAppsScript.Events.DoGet = {
+          queryString,
+          parameter,
+          parameters,
+          contextPath: "",
+          contentLength: -1,
+          pathInfo,
+        };
         if (!ctx.code.web.hrefs.includes(url.href)) {
           ctx.code.web.hrefs.push(url.href);
         }
@@ -107,7 +140,7 @@ async function serveApp(ctx: ServeContext) {
           uuid = crypto.randomUUID();
         } while (idMap.has(uuid));
         idMap.set(uuid, { use: false, expiredAt: Date.now() + 1000 * 30 });
-        const result = await launchGAS(ctx, "doGet");
+        const result = await launchGAS(ctx, "doGet", doGetEvent);
         const html = createHostHtml(url, result);
         const transFormedHtml = await hostServer.transformIndexHtml(url.href, html);
         response.statusCode = 200;
