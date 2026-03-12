@@ -106,7 +106,7 @@ export class CacheHandler {
     if (cache) {
       this.#deleteExpiredCache(cache);
     }
-    return cache ? cache[payload.key].value : null;
+    return cache ? cache[payload.key]?.value : null;
   }
   getAll(ctx: ServeContext, payload: any) {
     const cache = this.#getScopedCache(payload.scope, ctx);
