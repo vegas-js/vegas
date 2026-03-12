@@ -99,39 +99,39 @@ async function serveApp(ctx: ServeContext) {
         return;
       } else if (/^\/(exec|dev)/.test(url.pathname)) {
         // response iframe
-        const queryString =
-          url.search.length > 1 ? url.search.slice(1) : (null as unknown as string);
+        const queryString = url.search.length > 1 ? url.search.slice(1) : "";
         const { parameter, parameters } = ((queryString) => {
           const parameter: Record<string, string> = {};
           const parameters: Record<string, string[]> = {};
 
           queryString.split("&").forEach((query) => {
             const [key, value] = query.split("=");
-            if (!parameter[key]) {
-              parameter[key] = value ?? "";
-            }
-            if (!parameters[key]) {
-              parameters[key] = [value ?? ""];
-            } else {
+            if (key) {
+              if (!parameter[key]) {
+                parameter[key] = value ?? "";
+              }
+              parameters[key] ??= [];
               parameters[key].push(value ?? "");
             }
           });
 
           return { parameter, parameters };
         })(queryString);
-        const pathInfo = (() => {
-          const temp = url.pathname.replace(/^\/(exec|dev)/, "");
-          return temp.length !== 0 ? temp.slice(1) : (undefined as unknown as string);
-        })();
 
-        const doGetEvent: GoogleAppsScript.Events.DoGet = {
+        const doGetEvent: Record<string, any> = {
           queryString,
           parameter,
           parameters,
           contextPath: "",
           contentLength: -1,
-          pathInfo,
         };
+        const pathInfo = (() => {
+          const temp = url.pathname.replace(/^\/(exec|dev)/, "");
+          return temp.length !== 0 ? temp.slice(1) : (undefined as unknown as string);
+        })();
+        if (pathInfo) {
+          doGetEvent["pathInfo"] = pathInfo;
+        }
         if (!ctx.code.web.hrefs.includes(url.href)) {
           ctx.code.web.hrefs.push(url.href);
         }
