@@ -203,8 +203,7 @@ class TriggerEvent extends events.EventEmitter {
   }
 
   postMessage(data: any) {
-    const payload = JSON.stringify(data);
-    this.#port.postMessage({ message: "resolve", payload });
+    this.#port.postMessage({ message: "resolve", payload: data });
   }
 }
 
@@ -217,8 +216,7 @@ port.on("message", async (data: GASWorkerData) => {
   if ((excludesGASUserFunctionNames as unknown as string[]).includes(data.fn)) {
     triggerEvent.emit(data.fn, result);
   } else {
-    const payload = JSON.stringify(result);
-    port.postMessage({ message: "resolve", payload });
+    port.postMessage({ message: "resolve", payload: result });
   }
 });
 

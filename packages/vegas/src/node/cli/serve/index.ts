@@ -1,3 +1,4 @@
+import crypto from "node:crypto";
 import path from "node:path";
 
 import { Connect, createBuilder, createLogger, createServer } from "vite";
@@ -12,6 +13,7 @@ import { launchGAS } from "./launch";
 import { loadMock } from "./mock";
 
 async function serveApp(ctx: ServeContext) {
+  const idMap: Map<string, { use: boolean; expiredAt: number }> = new Map();
   const hostServer = await createServer({
     root: ctx.config.root,
     configFile: false,
@@ -50,16 +52,32 @@ async function serveApp(ctx: ServeContext) {
     }
   });
 
+  hostServer.ws.on("vegas:init", (data, client) => {
+    idMap.forEach((value, key, map) => {
+      if (value.expiredAt <= Date.now()) {
+        map.delete(key);
+      }
+    });
+    const value = idMap.get(data.payload.id);
+    if (value && value.use) {
+      idMap.delete(data.payload.id);
+      client.send("vegas:init");
+    } else {
+      client.close();
+    }
+  });
+
   hostServer.ws.on("vegas:gascall", async (data, client) => {
     try {
-      const result = await launchGAS(ctx, data.func, ...JSON.parse(data.args));
-      client.send("vegas:gasreturn", {
+      const args = Array.isArray(data.args) ? data.args : [data.args];
+      const result = await launchGAS(ctx, data.func, ...args);
+      client.send("vegas:return", {
         id: data.id,
         status: "ok",
         result,
       });
     } catch (error) {
-      client.send("vegas:gasreturn", {
+      client.send("vegas:return", {
         id: data.id,
         status: "err",
         message: (error as any).message,
@@ -84,7 +102,12 @@ async function serveApp(ctx: ServeContext) {
         if (!ctx.code.web.hrefs.includes(url.href)) {
           ctx.code.web.hrefs.push(url.href);
         }
-        const result = JSON.parse(await launchGAS(ctx, "doGet"));
+        let uuid = "";
+        do {
+          uuid = crypto.randomUUID();
+        } while (idMap.has(uuid));
+        idMap.set(uuid, { use: false, expiredAt: Date.now() + 1000 * 30 });
+        const result = await launchGAS(ctx, "doGet");
         const html = createHostHtml(url, result);
         const transFormedHtml = await hostServer.transformIndexHtml(url.href, html);
         response.statusCode = 200;
@@ -150,9 +173,20 @@ async function serveApp(ctx: ServeContext) {
           "style",
           "html, body, iframe {border: 0; display: block; height: 100%; margin: 0; padding: 0; width: 100%;}iframe#userHtmlFrame {overflow-y: scroll; -webkit-overflow-scrolling: touch;}",
         );
+        let uuid = "";
+        for (const [key, value] of idMap) {
+          if (value.expiredAt <= Date.now()) {
+            idMap.delete(key);
+          } else if (!value.use) {
+            uuid = key;
+            value.use = true;
+            break;
+          }
+        }
+        const hostOrigin = `${url.protocol}//${url.hostname}:${hostServer.config.server.port}`;
         html.appendToHead(
           "script",
-          `window.vegas = { host: "${url.origin}", requestMap: new Map() }`,
+          `window.vegas = { id: "${uuid}", hostOrigin: "${hostOrigin}", requestMap: new Map() }`,
         );
         html.appendToHead("script", [
           { name: "type", value: "module" },

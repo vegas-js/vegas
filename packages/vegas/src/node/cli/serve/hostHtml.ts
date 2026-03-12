@@ -47,18 +47,33 @@ export function createHostHtml(url: URL, result: any) {
   initRecord["userHtml"] = result.content;
   html.appendToBody(
     "script",
-    `if (import.meta.hot) {
-  import.meta.hot.on("vegas:gasreturn", (data) => {
-    document.getElementById("sandboxFrame").contentWindow.postMessage({ type: "vegas:gasreturn", payload: data }, "${url.origin}");
+    `let port = null;
+if (import.meta.hot) {
+  import.meta.hot.on("vegas:init", (data) => {
+    if (port) {
+      port.onmessage = (event) => {
+        if (event.data.type === "vegas:gascall") {
+          import.meta.hot.send(event.data.type, event.data.payload);
+        }
+      };
+      port.postMessage({ type: "vegas:init", payload: { serverData: JSON.parse(decodeURIComponent("${encodeURIComponent(JSON.stringify(initRecord))}"))}});
+    }
   });
-  window.addEventListener("message", (event) => {
-    if (event.origin !== "${url.origin}") return;
-    if (event.data.type === "vegas:gascall") import.meta.hot.send(event.data.type, event.data.payload);
+  import.meta.hot.on("vegas:return", (data) => {
+    if (port) {
+      port.postMessage({ type: "vegas:return", payload: data });
+    }
   });
 }
-document.getElementById("sandboxFrame").onload = (event) => {
-  event.currentTarget.contentWindow.postMessage({ type: "vegas:gasinit", payload: { host: window.location.origin, serverData: JSON.parse(decodeURIComponent("${encodeURIComponent(JSON.stringify(initRecord))}"))}}, "${url.origin}");
-}`,
+window.addEventListener("message", (event) => {
+  if (event.origin !== "${url.origin}") {
+    return;
+  }
+  if (event.data.type === "vegas:init" && event.data.payload.id) {
+    port = event.data.payload.port;
+    import.meta.hot.send(event.data.type, { payload: { id: event.data.payload.id }});
+  }
+});`,
     [{ name: "type", value: "module" }],
   );
 
