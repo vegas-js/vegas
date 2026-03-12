@@ -245,7 +245,7 @@ export class SpreadsheetAppHandler {
   create(ctx: ServeContext, payload: { name: string; rows: number; columns: number }) {
     let id = "";
     do {
-      String.fromCharCode(
+      id = String.fromCharCode(
         ...Array.from({ length: 44 }).map(() => {
           let tempId = Math.floor(Math.random() * 61) + 0x2d;
           if (tempId > 0x2d) {
