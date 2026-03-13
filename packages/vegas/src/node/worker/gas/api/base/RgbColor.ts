@@ -16,9 +16,9 @@ export class RgbColor implements GoogleAppsScript.Base.RgbColor {
     throw new Error("Method not implemented.");
   };
   getGreen = () => {
-    return this.#argb & 0x0000ff00;
+    return (this.#argb >> 8) & 0x000000ff;
   };
   getRed = () => {
-    return this.#argb & 0x00ff0000;
+    return (this.#argb >> 16) & 0x000000ff;
   };
 }
