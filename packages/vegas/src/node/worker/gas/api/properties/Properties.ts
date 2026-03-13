@@ -12,39 +12,39 @@ export class Properties implements GoogleAppsScript.Properties.Properties {
 
   deleteAllProperties = () => {
     this.#requestSync({
-      message: "Properties#deleteAllProperties",
+      message: `${this.constructor.name}#deleteAllProperties`,
       payload: { scope: this.#scope },
     });
     return this;
   };
   deleteProperty = (key: string) => {
     this.#requestSync({
-      message: "Properties#deleteProperty",
+      message: `${this.constructor.name}#deleteProperty`,
       payload: { scope: this.#scope, key },
     });
     return this;
   };
   getKeys = () => {
     return this.#requestSync({
-      message: "Properties#getKeys",
+      message: `${this.constructor.name}#getKeys`,
       payload: { scope: this.#scope },
     });
   };
   getProperties = () => {
     return this.#requestSync({
-      message: "Properties#getProperties",
+      message: `${this.constructor.name}#getProperties`,
       payload: { scope: this.#scope },
     });
   };
   getProperty = (key: string) => {
     return this.#requestSync({
-      message: "Properties#getProperty",
+      message: `${this.constructor.name}#getProperty`,
       payload: { scope: this.#scope, key },
     });
   };
   setProperties = (properties: object, deleteAllOthers: boolean = false) => {
     this.#requestSync({
-      message: "Properties#setProperties",
+      message: `${this.constructor.name}#setProperties`,
       payload: {
         scope: this.#scope,
         properties,
@@ -55,7 +55,7 @@ export class Properties implements GoogleAppsScript.Properties.Properties {
   };
   setProperty = (key: string, value: string) => {
     this.#requestSync({
-      message: "Properties#setProperty",
+      message: `${this.constructor.name}#setProperty`,
       payload: {
         scope: this.#scope,
         property: { key, value },

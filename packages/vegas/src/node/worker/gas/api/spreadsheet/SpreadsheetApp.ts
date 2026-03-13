@@ -173,7 +173,7 @@ export class SpreadsheetApp implements GoogleAppsScript.Spreadsheet.SpreadsheetA
     columns: GoogleAppsScript.Integer = 26,
   ) => {
     const spreadSheetId = this.#requestSync({
-      message: "SpreadsheetApp#create",
+      message: `${this.constructor.name}#create`,
       payload: { name, rows, columns },
     });
     return this.#createSpreadsheet(spreadSheetId);
@@ -241,7 +241,7 @@ export class SpreadsheetApp implements GoogleAppsScript.Spreadsheet.SpreadsheetA
   };
   openById = (id: string) => {
     this.#requestSync({
-      message: "SpreadsheetApp#openById",
+      message: `${this.constructor.name}#openById`,
       payload: { id },
     });
     return this.#createSpreadsheet(id);
