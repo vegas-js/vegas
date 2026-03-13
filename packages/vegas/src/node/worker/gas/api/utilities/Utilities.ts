@@ -232,7 +232,6 @@ export class Utilities implements GoogleAppsScript.Utilities.Utilities {
                 const firstWeekNumber = tmpWeekNumber <= 0 ? 7 - tmpWeekNumber : tmpWeekNumber;
                 const pastWeeks = Math.floor(dayOfYear / 7) + 1;
                 const fixedPastWeeks = weekNumber < firstWeekNumber ? pastWeeks : pastWeeks + 1;
-                console.log(weekNumber, firstWeekNumber, fixedPastWeeks);
                 str.push(String(fixedPastWeeks).padStart(length, "0"));
                 break;
               }
