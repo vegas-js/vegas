@@ -224,7 +224,6 @@ export class Sheet implements GoogleAppsScript.Spreadsheet.Sheet {
       numColumns,
       this.#requestSync,
     );
-    throw new Error("Method not implemented.");
   };
   getRangeList = (a1Notations: string[]) => {
     throw new Error("Method not implemented.");
