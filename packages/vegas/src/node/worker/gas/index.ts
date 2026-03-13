@@ -8,6 +8,7 @@ import { Logger } from "./api/base/Logger";
 import { Session } from "./api/base/Session";
 import { Cache } from "./api/cache/Cache";
 import { CacheService } from "./api/cache/CacheService";
+import { HtmlOutput } from "./api/html/HtmlOutput";
 import { HtmlService } from "./api/html/HtmlService";
 import { Lock } from "./api/lock/Lock";
 import { LockService } from "./api/lock/LockService";
@@ -43,6 +44,38 @@ export function requestSync(request: { message: string; payload?: any }, timeout
 }
 
 export type RequestSyncFn = typeof requestSync;
+export type CreateRange = (
+  spreadSheetId: string,
+  sheetId: number,
+) => GoogleAppsScript.Spreadsheet.Range;
+export type CreateSheet = (
+  spreadSheetId: string,
+  sheetId: number,
+) => GoogleAppsScript.Spreadsheet.Sheet;
+export type CreateSpreadsheet = (spreadSheetId: string) => GoogleAppsScript.Spreadsheet.Spreadsheet;
+export type CreateHtmlOutput = (
+  content: string,
+  defaultXFrameOptionsMode: GoogleAppsScript.HTML.XFrameOptionsMode,
+) => GoogleAppsScript.HTML.HtmlOutput;
+
+function createRange(spreadsheetId: string, sheetId: number): GoogleAppsScript.Spreadsheet.Range {
+  return new Range(spreadsheetId, sheetId, requestSync);
+}
+
+function createSheet(spreadsheetId: string, sheetId: number): GoogleAppsScript.Spreadsheet.Sheet {
+  return new Sheet(spreadsheetId, sheetId, createRange, requestSync);
+}
+
+function createSpreadsheet(spreadsheetId: string): GoogleAppsScript.Spreadsheet.Spreadsheet {
+  return new Spreadsheet(spreadsheetId, createSheet, requestSync);
+}
+
+function createHtmlOutput(
+  content: string,
+  defaultXFrameOptionsMode: GoogleAppsScript.HTML.XFrameOptionsMode,
+): GoogleAppsScript.HTML.HtmlOutput {
+  return new HtmlOutput(content, defaultXFrameOptionsMode);
+}
 
 const script = new vm.Script(worker.workerData.code);
 const scriptContext = vm.createContext({
@@ -66,7 +99,7 @@ const scriptContext = vm.createContext({
   /* Gmail */
   GmailApp: undefined,
   /* Sheets */
-  SpreadsheetApp: new SpreadsheetApp(Spreadsheet, Sheet, Range, requestSync),
+  SpreadsheetApp: new SpreadsheetApp(createSpreadsheet, requestSync),
   /* Slides */
   SlidesApp: undefined,
   /* Workspace */
@@ -127,7 +160,7 @@ const scriptContext = vm.createContext({
   /* Content */
   ContentService: undefined,
   /* HTML */
-  HtmlService: new HtmlService(),
+  HtmlService: new HtmlService(createHtmlOutput),
   /* Mail */
   MailApp: undefined,
   /* Base */

@@ -1,21 +1,12 @@
-import { RequestSyncFn } from "../..";
+import { CreateSpreadsheet, RequestSyncFn } from "../..";
 
 // https://developers.google.com/apps-script/reference/spreadsheet/spreadsheet-app
 export class SpreadsheetApp implements GoogleAppsScript.Spreadsheet.SpreadsheetApp {
-  #SpreadsheetClass: new (...args: any[]) => GoogleAppsScript.Spreadsheet.Spreadsheet;
-  #SheetClass: new (...args: any[]) => GoogleAppsScript.Spreadsheet.Sheet;
-  #RangeClass: new (...args: any[]) => GoogleAppsScript.Spreadsheet.Range;
+  #createSpreadsheet: CreateSpreadsheet;
   #requestSync: RequestSyncFn;
 
-  constructor(
-    SpreadsheetClass: new (...args: any[]) => GoogleAppsScript.Spreadsheet.Spreadsheet,
-    SheetClass: new (...args: any[]) => GoogleAppsScript.Spreadsheet.Sheet,
-    RangeClass: new (...args: any[]) => GoogleAppsScript.Spreadsheet.Range,
-    requestSync: RequestSyncFn,
-  ) {
-    this.#SpreadsheetClass = SpreadsheetClass;
-    this.#SheetClass = SheetClass;
-    this.#RangeClass = RangeClass;
+  constructor(createSpreadsheet: CreateSpreadsheet, requestSync: RequestSyncFn) {
+    this.#createSpreadsheet = createSpreadsheet;
     this.#requestSync = requestSync;
   }
 
@@ -185,12 +176,7 @@ export class SpreadsheetApp implements GoogleAppsScript.Spreadsheet.SpreadsheetA
       message: "SpreadsheetApp#create",
       payload: { name, rows, columns },
     });
-    return new this.#SpreadsheetClass(
-      spreadSheetId,
-      this.#SheetClass,
-      this.#RangeClass,
-      this.#requestSync,
-    );
+    return this.#createSpreadsheet(spreadSheetId);
   };
   enableAllDataSourcesExecution = () => {
     throw new Error("Method not implemented.");
@@ -258,7 +244,7 @@ export class SpreadsheetApp implements GoogleAppsScript.Spreadsheet.SpreadsheetA
       message: "SpreadsheetApp#openById",
       payload: { id },
     });
-    return new this.#SpreadsheetClass(id, this.#SheetClass, this.#RangeClass, this.#requestSync);
+    return this.#createSpreadsheet(id);
   };
   openByUrl = (url: string) => {
     const targetUrl = new URL(url);

@@ -2,27 +2,11 @@
 export class Range implements GoogleAppsScript.Spreadsheet.Range {
   #spreadsheetId: string;
   #sheetId: GoogleAppsScript.Integer;
-  #row: GoogleAppsScript.Integer;
-  #column: GoogleAppsScript.Integer;
-  #numRows: GoogleAppsScript.Integer;
-  #numColumns: GoogleAppsScript.Integer;
   #requestSync: Function;
 
-  constructor(
-    spreadsheetId: string,
-    sheetId: GoogleAppsScript.Integer,
-    row: GoogleAppsScript.Integer,
-    column: GoogleAppsScript.Integer,
-    numRows: GoogleAppsScript.Integer,
-    numColumns: GoogleAppsScript.Integer,
-    requestSync: Function,
-  ) {
+  constructor(spreadsheetId: string, sheetId: GoogleAppsScript.Integer, requestSync: Function) {
     this.#spreadsheetId = spreadsheetId;
     this.#sheetId = sheetId;
-    this.#row = row;
-    this.#column = column;
-    this.#numRows = numRows;
-    this.#numColumns = numColumns;
     this.#requestSync = requestSync;
   }
 
@@ -309,28 +293,10 @@ export class Range implements GoogleAppsScript.Spreadsheet.Range {
     throw new Error("Method not implemented.");
   };
   getValue = () => {
-    return this.#requestSync({
-      message: "Range#getValue",
-      payload: {
-        spreadsheetId: this.#spreadsheetId,
-        sheetId: this.#sheetId,
-        row: this.#row,
-        column: this.#column,
-      },
-    });
+    throw new Error("Method not implemented.");
   };
   getValues = () => {
-    return this.#requestSync({
-      message: "Range#getValues",
-      payload: {
-        spreadsheetId: this.#spreadsheetId,
-        sheetId: this.#sheetId,
-        row: this.#row,
-        column: this.#column,
-        numRows: this.#numRows,
-        numColumns: this.#numColumns,
-      },
-    });
+    throw new Error("Method not implemented.");
   };
   getVerticalAlignment = () => {
     throw new Error("Method not implemented.");

@@ -1,19 +1,14 @@
+import { CreateSheet, RequestSyncFn } from "../..";
+
 // https://developers.google.com/apps-script/reference/spreadsheet/spreadsheet
 export class Spreadsheet implements GoogleAppsScript.Spreadsheet.Spreadsheet {
   #spreadsheetId: string;
-  #SheetClass: new (...args: any[]) => GoogleAppsScript.Spreadsheet.Sheet;
-  #RangeClass: new (...args: any[]) => GoogleAppsScript.Spreadsheet.Range;
-  #requestSync: Function;
+  #createSheet: CreateSheet;
+  #requestSync: RequestSyncFn;
 
-  constructor(
-    spreadsheetId: string,
-    SheetClass: new (...args: any[]) => GoogleAppsScript.Spreadsheet.Sheet,
-    RangeClass: new (...args: any[]) => GoogleAppsScript.Spreadsheet.Range,
-    requestSync: Function,
-  ) {
+  constructor(spreadsheetId: string, createSheet: CreateSheet, requestSync: RequestSyncFn) {
     this.#spreadsheetId = spreadsheetId;
-    this.#SheetClass = SheetClass;
-    this.#RangeClass = RangeClass;
+    this.#createSheet = createSheet;
     this.#requestSync = requestSync;
   }
 
