@@ -39,8 +39,6 @@ export default defineConfig({
           items: [
             { text: "Configuring Vegas", link: "/config/" },
             { text: "Shared Options", link: "/config/shared-options/" },
-            { text: "Server Options", link: "/config/server-options/" },
-            { text: "Build Options", link: "/config/build-options/" },
           ],
         },
       ],
