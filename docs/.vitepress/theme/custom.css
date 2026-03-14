@@ -1,0 +1,21 @@
+:root {
+  --vp-c-brand-1: var(--vp-c-yellow-1);
+  --vp-c-brand-2: var(--vp-c-yellow-2);
+  --vp-c-brand-3: var(--vp-c-yellow-3);
+  --vp-c-brand-soft: var(--vp-c-yellow-soft);
+}
+
+:root {
+  --vp-home-hero-name-color: transparent;
+  --vp-home-hero-name-background: -webkit-linear-gradient(-60deg, #f5d269, #bc2185);
+}
+
+:root {
+  --vp-home-hero-image-background-image: linear-gradient(#ff69b426);
+  --vp-home-hero-image-filter: blur(64px);
+}
+
+.dark {
+  --vp-home-hero-image-background-image: none;
+  --vp-home-hero-image-filter: none;
+}

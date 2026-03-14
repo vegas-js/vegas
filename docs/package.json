@@ -1,0 +1,14 @@
+{
+  "name": "@vegasjs/monorepo-docs",
+  "private": true,
+  "author": "Yasushi",
+  "type": "module",
+  "scripts": {
+    "dev": "vitepress dev",
+    "build": "vitepress build",
+    "preview": "vitepress preview"
+  },
+  "devDependencies": {
+    "vitepress": "^2.0.0-alpha.16"
+  }
+}
