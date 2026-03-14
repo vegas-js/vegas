@@ -50,4 +50,4 @@ Vegas doesn't just build your code; it emulates the GAS environment.
 - **Synchronous Simulation:**
   Vegas respects the synchronous nature of GAS APIs.
 - **In-Memory Services:**
-  From Spreadsheet and Drive to Properties and Session, Vegas provides high-fidelity local implementations, allowing for comprehensive testing without ever hitting Google's rate limits or touching live production data.
+  Vegas provides a high-precision local implementation for APIs used in GAS, enabling comprehensive testing without hitting Google's rate limits or touching production data.
