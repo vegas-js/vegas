@@ -94,11 +94,17 @@ function detectServerEntry(webSources: string[], serverSources: string[]) {
     throw new Error("Duplicate server entry.");
   }
 
-  if (serverEntries.length === 0) {
-    throw new Error("No server entry found.");
+  if (serverEntries.length === 1) {
+    return serverEntries[0];
   }
 
-  return serverEntries[0];
+  const fallback = serverSources.find((source) => path.parse(source).base === "Code.ts");
+
+  if (!fallback) {
+    throw new Error("No server entry found. Place Code.ts under serverDir.");
+  }
+
+  return fallback;
 }
 
 export type ProjectEntry = {
