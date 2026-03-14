@@ -30,7 +30,7 @@ While standard HMR (Hot Module Replacement) is great for the web, it can introdu
 - **No Orphaned State:**
   By avoiding partial module updates, you are guaranteed to test code that is a 1:1 representation of what will actually run on Google’s servers.
 - **Powered by Rust:**
-  Leveraging the speed of Vite (Rust-based), this full refresh happens in milliseconds, providing the speed of HMR with the reliability of a fresh start.
+  Leveraging the speed of Vite (Rust-based), this full refresh happens in milliseconds, providing the speed of Full-Bundle Refresh with the reliability of a fresh start.
 
 2. Native Multi-Frontend Support
 
