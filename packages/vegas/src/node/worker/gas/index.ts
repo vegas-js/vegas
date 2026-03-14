@@ -47,6 +47,10 @@ export type RequestSyncFn = typeof requestSync;
 export type CreateRange = (
   spreadSheetId: string,
   sheetId: number,
+  row: number,
+  column: number,
+  numRows: number,
+  numColumns: number,
 ) => GoogleAppsScript.Spreadsheet.Range;
 export type CreateSheet = (
   spreadSheetId: string,
@@ -58,8 +62,15 @@ export type CreateHtmlOutput = (
   defaultXFrameOptionsMode: GoogleAppsScript.HTML.XFrameOptionsMode,
 ) => GoogleAppsScript.HTML.HtmlOutput;
 
-function createRange(spreadsheetId: string, sheetId: number): GoogleAppsScript.Spreadsheet.Range {
-  return new Range(spreadsheetId, sheetId, requestSync);
+function createRange(
+  spreadsheetId: string,
+  sheetId: number,
+  row: number,
+  column: number,
+  numRows: number,
+  numColumns: number,
+): GoogleAppsScript.Spreadsheet.Range {
+  return new Range(spreadsheetId, sheetId, row, column, numRows, numColumns, requestSync);
 }
 
 function createSheet(spreadsheetId: string, sheetId: number): GoogleAppsScript.Spreadsheet.Sheet {

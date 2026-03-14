@@ -217,6 +217,11 @@ export class Sheet implements GoogleAppsScript.Spreadsheet.Sheet {
     numRows?: GoogleAppsScript.Integer,
     numColumns?: GoogleAppsScript.Integer,
   ) => {
+    const r = typeof rowOrA1Notation === "number" ? rowOrA1Notation : 0;
+    const c = column ?? 1;
+    const nr = numRows ?? 1;
+    const nc = numColumns ?? 1;
+    this.#createRange(this.#spreadsheetId, this.#sheetId, r, c, nr, nc);
     throw new Error("Method not implemented.");
   };
   getRangeList = (a1Notations: string[]) => {

@@ -2,11 +2,27 @@
 export class Range implements GoogleAppsScript.Spreadsheet.Range {
   #spreadsheetId: string;
   #sheetId: GoogleAppsScript.Integer;
+  #row: GoogleAppsScript.Integer;
+  #column: GoogleAppsScript.Integer;
+  #numRows: GoogleAppsScript.Integer;
+  #numColumns: GoogleAppsScript.Integer;
   #requestSync: Function;
 
-  constructor(spreadsheetId: string, sheetId: GoogleAppsScript.Integer, requestSync: Function) {
+  constructor(
+    spreadsheetId: string,
+    sheetId: GoogleAppsScript.Integer,
+    row: GoogleAppsScript.Integer,
+    column: GoogleAppsScript.Integer,
+    numRows: GoogleAppsScript.Integer,
+    numColumns: GoogleAppsScript.Integer,
+    requestSync: Function,
+  ) {
     this.#spreadsheetId = spreadsheetId;
     this.#sheetId = sheetId;
+    this.#row = row;
+    this.#column = column;
+    this.#numRows = numRows;
+    this.#numColumns = numColumns;
     this.#requestSync = requestSync;
   }
 
