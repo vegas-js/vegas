@@ -1,8 +1,17 @@
 {
   "name": "create-vegas",
   "version": "0.1.0",
+  "homepage": "https://vegasjs.dev",
+  "bugs": {
+    "url": "https://github.com/vegas-js/vegas/issues"
+  },
   "license": "MIT",
   "author": "Yasushi",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vegas-js/vegas.git",
+    "directory": "packages/create-vegas"
+  },
   "bin": {
     "create-vegas": "dist/create-vegas.js"
   },

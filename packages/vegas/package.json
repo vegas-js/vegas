@@ -10,8 +10,17 @@
     "google-apps-script",
     "vegas"
   ],
+  "homepage": "https://vegasjs.dev",
+  "bugs": {
+    "url": "https://github.com/vegas-js/vegas/issues"
+  },
   "license": "MIT",
   "author": "Yasushi",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vegas-js/vegas.git",
+    "directory": "packages/vegas"
+  },
   "bin": {
     "vegas": "dist/vegas.js"
   },

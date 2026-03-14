@@ -1,7 +1,13 @@
 {
   "name": "@vegasjs/vegas-monorepo",
   "private": true,
+  "homepage": "https://vegasjs.dev",
+  "license": "MIT",
   "author": "Yasushi",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vegas-js/vegas.git"
+  },
   "type": "module",
   "scripts": {
     "preinstall": "npx only-allow pnpm",
