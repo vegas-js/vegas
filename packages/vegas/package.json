@@ -1,13 +1,23 @@
 {
   "name": "@vegasjs/vegas",
-  "version": "0.0.0",
+  "version": "0.1.0",
+  "description": "The SPA build tool for GAS platform",
+  "keywords": [
+    "build-tool",
+    "dev-server",
+    "framework",
+    "frontend",
+    "google-apps-script",
+    "vegas"
+  ],
   "license": "MIT",
   "author": "Yasushi",
   "bin": {
     "vegas": "dist/vegas.js"
   },
   "files": [
-    "./client.d.ts"
+    "dist",
+    "client.d.ts"
   ],
   "type": "module",
   "exports": {

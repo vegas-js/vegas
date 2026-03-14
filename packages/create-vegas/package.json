@@ -1,13 +1,15 @@
 {
   "name": "create-vegas",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "license": "MIT",
   "author": "Yasushi",
   "bin": {
     "create-vegas": "dist/create-vegas.js"
   },
   "files": [
-    "template-*",
+    "template-react",
+    "template-react-oxc",
+    "template-vue",
     "dist"
   ],
   "type": "module",

@@ -1,8 +1,16 @@
 # Vegas
 
+[![npm version](https://img.shields.io/npm/v/@vegasjs/vegas)](https://www.npmjs.com/package/@vegasjs/vegas)
+[![CI](https://github.com/vegas-js/vegas/actions/workflows/ci.yml/badge.svg)](https://github.com/vegas-js/vegas/actions)
+[![license](https://img.shields.io/npm/l/@vegasjs/vegas)](./LICENSE)
+
 > **It feels like Vite, and it really is Vite.**
 
 Vegas is a tool for building SPAs on the GAS platform, powered by `Vite`, which significantly improves the frontend development experience.
+
+## ⚠ Breaking changes ⚠
+
+This project is in the experimental stage and will undergo frequent disruptive changes.
 
 ## Features
 
@@ -50,6 +58,24 @@ src/
     │  └─ main.tsx // web entry ( to: dist/sub1.html )
     └─ main.tsx  // web entry ( to: dist/index.html )
 ```
+
+## Documentation
+
+[vegas-js.github.io/vegas](https://vegas-js.github.io/vegas/)
+
+## Supported GAS APIs (Local Runtime)
+
+| API               | Status     |
+| ----------------- | ---------- |
+| HtmlService       | ✅         |
+| PropertiesService | ✅         |
+| CacheService      | ✅         |
+| LockService       | ✅         |
+| SpreadsheetApp    | ⚠️ Partial |
+| UrlFetchApp       | ✅         |
+| Utilities         | ✅         |
+| Session           | ✅         |
+| Logger / console  | ✅         |
 
 ## License
 
