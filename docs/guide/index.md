@@ -16,7 +16,7 @@ Vegas provides a zero-config experience, achieving optimal build results without
 
 It features a Vite plugin pass-through function, enabling framework support and integration with other tools with the Vite experience.
 
-The reasoning behind the project is explained in detail in the [Why Vegas](./why/) section.
+The reasoning behind the project is explained in detail in the [Why Vegas](./why) section.
 
 ## Scaffolding Your First Vegas Project
 
