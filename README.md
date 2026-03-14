@@ -59,23 +59,22 @@ src/
     └─ main.tsx  // web entry ( to: dist/index.html )
 ```
 
-## Documentation
-
-[vegas-js.github.io/vegas](https://vegas-js.github.io/vegas/)
+[Read the Docs to Learn More](https://vegasjs.dev).
 
 ## Supported GAS APIs (Local Runtime)
 
-| API               | Status     |
-| ----------------- | ---------- |
-| HtmlService       | ✅         |
-| PropertiesService | ✅         |
-| CacheService      | ✅         |
-| LockService       | ✅         |
-| SpreadsheetApp    | ⚠️ Partial |
-| UrlFetchApp       | ✅         |
-| Utilities         | ✅         |
-| Session           | ✅         |
-| Logger / console  | ✅         |
+| API               | Status         |
+| ----------------- | -------------- |
+| HtmlService       | 🛠️             |
+| PropertiesService | ✅             |
+| CacheService      | 🛠️             |
+| LockService       | 🛠️             |
+| SpreadsheetApp    | 🛠️             |
+| UrlFetchApp       | 🛠️             |
+| Utilities         | 🛠️             |
+| Session           | ✅             |
+| Logger / console  | 🛠️             |
+| Others            | ❌ (undefined) |
 
 ## License
 
