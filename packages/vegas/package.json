@@ -17,7 +17,7 @@
     }
   },
   "dependencies": {
-    "vite": "=8.0.0-beta.17"
+    "vite": "^8.0.0"
   },
   "devDependencies": {
     "@types/google-apps-script": "^2.0.8",
