@@ -1,6 +1,13 @@
 {
   "name": "create-vegas",
   "version": "0.1.0",
+  "description": "Scaffolding tool for Vegas projects",
+  "keywords": [
+    "create",
+    "google-apps-script",
+    "scaffolding",
+    "vegas"
+  ],
   "homepage": "https://vegasjs.dev",
   "bugs": {
     "url": "https://github.com/vegas-js/vegas/issues"
@@ -23,6 +30,9 @@
     "LICENSES_BUNDLED.md"
   ],
   "type": "module",
+  "publishConfig": {
+    "provenance": true
+  },
   "devDependencies": {
     "@clack/prompts": "1.0.1",
     "@types/cross-spawn": "^6.0.6",
