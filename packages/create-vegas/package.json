@@ -10,7 +10,8 @@
     "template-react",
     "template-react-oxc",
     "template-vue",
-    "dist"
+    "dist",
+    "LICENSES_BUNDLED.md"
   ],
   "type": "module",
   "devDependencies": {
