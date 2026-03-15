@@ -1,3 +1,5 @@
+import { RequestSyncFn } from "../..";
+
 // https://developers.google.com/apps-script/reference/spreadsheet/range
 export class Range implements GoogleAppsScript.Spreadsheet.Range {
   #spreadsheetId: string;
@@ -6,7 +8,7 @@ export class Range implements GoogleAppsScript.Spreadsheet.Range {
   #column: GoogleAppsScript.Integer;
   #numRows: GoogleAppsScript.Integer;
   #numColumns: GoogleAppsScript.Integer;
-  #requestSync: Function;
+  #requestSync: RequestSyncFn;
 
   constructor(
     spreadsheetId: string,
@@ -15,7 +17,7 @@ export class Range implements GoogleAppsScript.Spreadsheet.Range {
     column: GoogleAppsScript.Integer,
     numRows: GoogleAppsScript.Integer,
     numColumns: GoogleAppsScript.Integer,
-    requestSync: Function,
+    requestSync: RequestSyncFn,
   ) {
     this.#spreadsheetId = spreadsheetId;
     this.#sheetId = sheetId;
@@ -309,10 +311,32 @@ export class Range implements GoogleAppsScript.Spreadsheet.Range {
     throw new Error("Method not implemented.");
   };
   getValue = () => {
-    throw new Error("Method not implemented.");
+    return this.#requestSync({
+      message: `${this.constructor.name}#getValue`,
+      payload: {
+        spreadsheetId: this.#spreadsheetId,
+        sheetId: this.#sheetId,
+        range: {
+          row: this.#row,
+          column: this.#column,
+        },
+      },
+    });
   };
   getValues = () => {
-    throw new Error("Method not implemented.");
+    return this.#requestSync({
+      message: `${this.constructor.name}#getValues`,
+      payload: {
+        spreadsheetId: this.#spreadsheetId,
+        sheetId: this.#sheetId,
+        range: {
+          row: this.#row,
+          column: this.#column,
+          numRows: this.#numRows,
+          numColumns: this.#numColumns,
+        },
+      },
+    });
   };
   getVerticalAlignment = () => {
     throw new Error("Method not implemented.");
@@ -532,10 +556,45 @@ export class Range implements GoogleAppsScript.Spreadsheet.Range {
     throw new Error("Method not implemented.");
   };
   setValue = (value: any) => {
-    throw new Error("Method not implemented.");
+    this.#requestSync({
+      message: `${this.constructor.name}#setValue`,
+      payload: {
+        spreadsheetId: this.#spreadsheetId,
+        sheetId: this.#sheetId,
+        range: {
+          row: this.#row,
+          column: this.#column,
+          numRows: this.#numRows,
+          numColumns: this.#numColumns,
+        },
+        value,
+      },
+    });
+
+    return this;
   };
   setValues = (values: any[][]) => {
-    throw new Error("Method not implemented.");
+    if (values.length !== this.#numRows && values[0].length !== this.#numColumns) {
+      throw new Error(
+        "The number of columns in the data does not match the number of columns in the range",
+      );
+    }
+    this.#requestSync({
+      message: `${this.constructor.name}#setValues`,
+      payload: {
+        spreadsheetId: this.#spreadsheetId,
+        sheetId: this.#sheetId,
+        range: {
+          row: this.#row,
+          column: this.#column,
+          numRows: this.#numRows,
+          numColumns: this.#numColumns,
+        },
+        values,
+      },
+    });
+
+    return this;
   };
   setVerticalAlignment = (alignment: "top" | "middle" | "bottom" | null) => {
     throw new Error("Method not implemented.");

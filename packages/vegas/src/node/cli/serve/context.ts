@@ -20,7 +20,7 @@ export interface ServeContext {
     };
     spreadsheet: Map<
       string,
-      { name: string; sheet: Map<number, { name: string; cells: any[][] }> }
+      { name: string; sheets: Map<number, { name: string; cells: any[][] }> }
     >;
   };
 }

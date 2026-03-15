@@ -264,11 +264,11 @@ export class SpreadsheetAppHandler {
     } while (ctx.store.spreadsheet.has(id));
 
     const cells: any[][] = Array.from({ length: payload.rows }).map(() =>
-      Array.from({ length: payload.columns }).map(() => null),
+      Array.from({ length: payload.columns }).map(() => ""),
     );
-    const sheet = new Map<number, { name: string; cells: any[][] }>();
-    sheet.set(0, { name: "sheet1", cells });
-    ctx.store.spreadsheet.set(id, { name: payload.name, sheet: new Map() });
+    const sheets = new Map<number, { name: string; cells: any[][] }>();
+    sheets.set(0, { name: "sheet1", cells });
+    ctx.store.spreadsheet.set(id, { name: payload.name, sheets });
 
     return id;
   }
@@ -295,7 +295,7 @@ export class SheetHandler {
   ) {
     ctx.store.spreadsheet
       .get(payload.spreadsheetId)
-      ?.sheet.get(payload.sheetId)
+      ?.sheets.get(payload.sheetId)
       ?.cells.splice(payload.rowPosition, payload.howMany);
   }
   deleteColumn(
@@ -315,7 +315,141 @@ export class SheetHandler {
   ) {
     ctx.store.spreadsheet
       .get(payload.spreadsheetId)
-      ?.sheet.get(payload.sheetId)
+      ?.sheets.get(payload.sheetId)
       ?.cells.forEach((row) => row.splice(payload.columnPosition, payload.howMany));
+  }
+  getRange(ctx: ServeContext, payload: { spreadsheetId: string; sheetName: string }) {
+    const spreadSheet = ctx.store.spreadsheet.get(payload.spreadsheetId);
+    if (!spreadSheet) {
+      return null;
+    }
+    const sheets = spreadSheet.sheets;
+    if (!sheets) {
+      return null;
+    }
+    for (const [sheetId, sheet] of sheets) {
+      if (sheet.name === payload.sheetName) {
+        return sheetId;
+      }
+    }
+  }
+}
+
+export class RangeHandler {
+  getValue(
+    ctx: ServeContext,
+    payload: { spreadsheetId: string; sheetId: number; range: { row: number; column: number } },
+  ) {
+    const spreadSheet = ctx.store.spreadsheet.get(payload.spreadsheetId);
+    if (!spreadSheet) {
+      return null;
+    }
+    const sheets = spreadSheet.sheets;
+    if (!sheets) {
+      return null;
+    }
+    const sheet = sheets.get(payload.sheetId);
+    if (!sheet) {
+      return null;
+    }
+    return sheet.cells[payload.range.row - 1][payload.range.column - 1];
+  }
+  getValues(
+    ctx: ServeContext,
+    payload: {
+      spreadsheetId: string;
+      sheetId: number;
+      range: { row: number; column: number; numRows: number; numColumns: number };
+    },
+  ) {
+    const spreadSheet = ctx.store.spreadsheet.get(payload.spreadsheetId);
+    if (!spreadSheet) {
+      return null;
+    }
+    const sheets = spreadSheet.sheets;
+    if (!sheets) {
+      return null;
+    }
+    const sheet = sheets.get(payload.sheetId);
+    if (!sheet) {
+      return null;
+    }
+    const cells = sheet.cells;
+    const rowStart = payload.range.numRows === 0 ? 0 : payload.range.row - 1;
+    const rowEnd = payload.range.numRows === 0 ? cells.length - 1 : payload.range.numRows;
+    const rows = cells.slice(rowStart, rowEnd);
+
+    const columnStart = payload.range.numColumns === 0 ? 0 : payload.range.column - 1;
+    const columnEnd =
+      payload.range.numColumns === 0 ? cells[0].length - 1 : payload.range.numColumns;
+    return rows.map((arr) => {
+      return arr.slice(columnStart, columnEnd);
+    });
+  }
+  setValue(
+    ctx: ServeContext,
+    payload: {
+      spreadsheetId: string;
+      sheetId: number;
+      range: { row: number; column: number; numRows: number; numColumns: number };
+      value: any;
+    },
+  ) {
+    const spreadSheet = ctx.store.spreadsheet.get(payload.spreadsheetId);
+    if (!spreadSheet) {
+      return;
+    }
+    const sheets = spreadSheet.sheets;
+    if (!sheets) {
+      return;
+    }
+    const sheet = sheets.get(payload.sheetId);
+    if (!sheet) {
+      return;
+    }
+    const cells = sheet.cells;
+    const rowStart = payload.range.numRows === 0 ? 0 : payload.range.row - 1;
+    const rowEnd = payload.range.numRows === 0 ? cells.length - 1 : payload.range.numRows;
+    const columnStart = payload.range.numColumns === 0 ? 0 : payload.range.column - 1;
+    const columnEnd =
+      payload.range.numColumns === 0 ? cells[0].length - 1 : payload.range.numColumns;
+    for (let i = rowStart; i < rowEnd; i++) {
+      for (let j = columnStart; j < columnEnd; j++) {
+        cells[i][j] = payload.value;
+      }
+    }
+  }
+  setValues(
+    ctx: ServeContext,
+    payload: {
+      spreadsheetId: string;
+      sheetId: number;
+      range: { row: number; column: number; numRows: number; numColumns: number };
+      values: any[][];
+    },
+  ) {
+    const spreadSheet = ctx.store.spreadsheet.get(payload.spreadsheetId);
+    if (!spreadSheet) {
+      return;
+    }
+    const sheets = spreadSheet.sheets;
+    if (!sheets) {
+      return;
+    }
+    const sheet = sheets.get(payload.sheetId);
+    if (!sheet) {
+      return;
+    }
+    const cells = sheet.cells;
+    const rowStart = payload.range.numRows === 0 ? 0 : payload.range.row - 1;
+    const rowEnd = payload.range.numRows === 0 ? cells.length - 1 : payload.range.numRows;
+    const columnStart = payload.range.numColumns === 0 ? 0 : payload.range.column - 1;
+    const columnEnd =
+      payload.range.numColumns === 0 ? cells[0].length - 1 : payload.range.numColumns;
+    for (let i = rowStart; i < rowEnd; i++) {
+      for (let j = columnStart; j < columnEnd; j++) {
+        cells[i][j] = payload.values[i][j];
+      }
+    }
   }
 }

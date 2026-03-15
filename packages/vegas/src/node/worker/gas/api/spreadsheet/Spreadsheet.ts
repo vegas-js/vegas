@@ -169,7 +169,7 @@ export class Spreadsheet implements GoogleAppsScript.Spreadsheet.Spreadsheet {
     throw new Error("Method not implemented.");
   };
   getSheetById = (id: number) => {
-    throw new Error("Method not implemented.");
+    return this.#createSheet(this.#spreadsheetId, id);
   };
   getSheetByName = (name: string) => {
     throw new Error("Method not implemented.");

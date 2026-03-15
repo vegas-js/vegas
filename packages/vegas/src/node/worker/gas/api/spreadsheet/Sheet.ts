@@ -217,12 +217,62 @@ export class Sheet implements GoogleAppsScript.Spreadsheet.Sheet {
     numRows?: GoogleAppsScript.Integer,
     numColumns?: GoogleAppsScript.Integer,
   ) => {
-    const r = typeof rowOrA1Notation === "number" ? rowOrA1Notation : 0;
-    const c = column ?? 1;
-    const nr = numRows ?? 1;
-    const nc = numColumns ?? 1;
-    this.#createRange(this.#spreadsheetId, this.#sheetId, r, c, nr, nc);
-    throw new Error("Method not implemented.");
+    let r = 1;
+    let c = column ?? 1;
+    let nr = numRows ?? 1;
+    let nc = numColumns ?? 1;
+    let sheetId = this.#sheetId;
+    if (typeof rowOrA1Notation === "number") {
+      r = rowOrA1Notation;
+    } else {
+      let a1Notation = rowOrA1Notation;
+      if (a1Notation.includes("!")) {
+        const [sheetName, tempA1Notation] = a1Notation.split("!");
+        sheetId = this.#requestSync({
+          message: `${this.constructor.name}#getRange`,
+          payload: { spreadsheetId: this.#spreadsheetId, sheetName },
+        });
+        a1Notation = tempA1Notation;
+      }
+      function toColumnNumber(columnStr: string) {
+        if (!columnStr) {
+          return 0;
+        }
+        let columnNumber = 0;
+        const upperCaseColumnStr = columnStr.toUpperCase();
+        for (let i = 0; i < upperCaseColumnStr.length; i++) {
+          const charCode = upperCaseColumnStr.charCodeAt(i) - 64;
+          columnNumber = columnNumber * 26 + charCode;
+        }
+
+        return columnNumber;
+      }
+      const match = /^([a-zA-Z]*)(\d*):?([a-zA-Z]*)(\d*)$/.exec(a1Notation);
+      if (match) {
+        const [colStr1, rowStr1, colStr2, rowStr2] = match.slice(1);
+        c = colStr1 ? toColumnNumber(colStr1) : 1;
+        r = rowStr1 ? Number(rowStr1) : 1;
+
+        if (!colStr2 && !rowStr2) {
+          nr = 1;
+          nc = 1;
+        } else {
+          const c2 = colStr2 ? toColumnNumber(colStr2) : c;
+          const r2 = rowStr2 ? Number(rowStr2) : r;
+          nc = c2 - c + 1;
+          nr = r2 - r + 1;
+        }
+
+        if (!colStr1 && !colStr2) {
+          c = 1;
+          nc = 0;
+        } else if (!rowStr1 && !rowStr2) {
+          r = 1;
+          nr = 0;
+        }
+      }
+    }
+    return this.#createRange(this.#spreadsheetId, sheetId, r, c, nr, nc);
   };
   getRangeList = (a1Notations: string[]) => {
     throw new Error("Method not implemented.");

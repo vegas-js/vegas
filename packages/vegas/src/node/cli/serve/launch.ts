@@ -9,6 +9,7 @@ import {
   PropertiesHandler,
   SpreadsheetAppHandler,
   SheetHandler,
+  RangeHandler,
 } from "./handlers";
 
 class GASHandler {
@@ -53,6 +54,7 @@ handler.addHandler(CacheHandler);
 handler.addHandler(PropertiesHandler);
 handler.addHandler(SpreadsheetAppHandler);
 handler.addHandler(SheetHandler);
+handler.addHandler(RangeHandler);
 
 export function launchGAS(ctx: ServeContext, fn: string, ...args: any[]): Promise<any> {
   return new Promise((resolve) => {
