@@ -138,7 +138,7 @@ async function run() {
     spinner.start("Installing dependencies with npm...");
     await runCmd("npm", ["install"], { cwd: packagePath });
     spinner.stop("Starting dev server...");
-    await runCmd("npm", ["run", "dev"], { cwd: packagePath });
+    await runCmd("npm", ["run", "dev"], { cwd: packagePath, stdio: "inherit" });
   } else {
     prompts.outro(`Done. Now run:\n
   cd ${path.relative(process.cwd(), packagePath)}
