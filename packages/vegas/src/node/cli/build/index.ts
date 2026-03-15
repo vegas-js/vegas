@@ -12,8 +12,9 @@ import {
 } from "vite";
 
 import { version as VEGAS_VERSION } from "../../../../package.json";
-import { collectSources, detectEntries, ProjectEntry } from "../core/analyze";
+import { collectSources, detectWebEntries, ProjectSource } from "../core/analyze";
 import { loadConfig, resolveConfig, ResolvedUserConfig } from "../core/config";
+import { detectServerEntry, VIRTUAL_DETECT_SERVER_ENTRY } from "./plugins/detectentry";
 import { exportBridge } from "./plugins/exportbridge";
 import { virtualHTML } from "./plugins/virtualhtml";
 import { collectArtifacts, printReport } from "./printReport";
@@ -33,7 +34,8 @@ export async function buildApp(builder: ViteBuilder, envFilter?: RegExp) {
 
 export function createBuilderConfig(
   config: ResolvedUserConfig,
-  projectEntry: ProjectEntry,
+  projectSource: ProjectSource,
+  webEntries: string[],
   isWrite: boolean = true,
 ) {
   const environments: Record<string, EnvironmentOptions> = {
@@ -42,12 +44,12 @@ export function createBuilderConfig(
         lib: {
           formats: ["iife"],
           name: "GASApp",
-          entry: projectEntry.serverEntry,
+          entry: VIRTUAL_DETECT_SERVER_ENTRY,
         },
       },
     },
   };
-  projectEntry.webEntries.forEach((entry, index) => {
+  webEntries.forEach((entry, index) => {
     environments[`web${index}`] = {
       consumer: "client",
       build: {
@@ -63,7 +65,8 @@ export function createBuilderConfig(
     plugins: [
       ...config.plugins,
       virtualHTML(config.webDir),
-      exportBridge(projectEntry.serverEntry),
+      detectServerEntry(projectSource),
+      exportBridge(),
     ],
     environments,
     build: {
@@ -122,10 +125,10 @@ export async function runBuild(root?: string) {
   const userConfig = await loadConfig(resolvedRoot);
   const resolvedUserConfig = resolveConfig(userConfig);
   const projectSource = await collectSources(resolvedUserConfig);
-  const projectEntry = detectEntries(projectSource);
+  const webEntries = detectWebEntries(projectSource.webSources);
 
   const startTime = performance.now();
-  const builderConfig = createBuilderConfig(resolvedUserConfig, projectEntry);
+  const builderConfig = createBuilderConfig(resolvedUserConfig, projectSource, webEntries);
   const builder = await createBuilder(builderConfig);
   fs.rmSync(resolvedUserConfig.output.dir, { recursive: true, force: true });
   await buildApp(builder);
