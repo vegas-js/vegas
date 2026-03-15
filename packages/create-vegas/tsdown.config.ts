@@ -6,7 +6,7 @@ import { defineConfig } from "tsdown";
 export default defineConfig({
   entry: { "create-vegas": "./src" },
   deps: {
-    onlyAllowBundle: [
+    onlyBundle: [
       "@clack/core",
       "@clack/prompts",
       "cac",

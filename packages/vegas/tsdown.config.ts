@@ -12,7 +12,7 @@ export default defineConfig([
       client: "./src/client",
     },
     deps: {
-      onlyAllowBundle: ["cac", "entities", "parse5"],
+      onlyBundle: ["cac", "entities", "parse5"],
     },
     outputOptions: {
       entryFileNames: "[name].js",
