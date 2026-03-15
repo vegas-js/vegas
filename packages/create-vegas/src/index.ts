@@ -140,10 +140,13 @@ async function run() {
     spinner.stop("Starting dev server...");
     await runCmd("npm", ["run", "dev"], { cwd: packagePath, stdio: "inherit" });
   } else {
-    prompts.outro(`Done. Now run:\n
-  cd ${path.relative(process.cwd(), packagePath)}
-  npm install
-  npm run dev`);
+    const outroText = [
+      "Done. Now run:\n",
+      `  cd ${path.relative(process.cwd(), packagePath)}`,
+      "  npm install",
+      "  npm run dev",
+    ];
+    prompts.outro(outroText.join("\n"));
   }
 }
 
