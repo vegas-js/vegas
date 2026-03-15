@@ -27,7 +27,7 @@
   "files": [
     "dist",
     "client.d.ts",
-    "LICENSES_BUNDLED.md"
+    "LICENSE.md"
   ],
   "type": "module",
   "exports": {

@@ -27,7 +27,7 @@
     "template-react-oxc",
     "template-vue",
     "dist",
-    "LICENSES_BUNDLED.md"
+    "LICENSE.md"
   ],
   "type": "module",
   "publishConfig": {

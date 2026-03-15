@@ -28,7 +28,7 @@ export default defineConfig({
     {
       name: "vite-license-plugin",
 
-      async generateBundle(_, bundle) {
+      generateBundle(_, bundle) {
         const packageSet: Set<string> = new Set();
         const packageMap: Map<string, string> = new Map();
         const nodeModuleDirName = "/node_modules/";
@@ -59,15 +59,17 @@ export default defineConfig({
           "This file contains licenses of third-party libraries bundled in this package.\n",
         ];
 
+        const licenseSet: Set<string> = new Set();
         packages.forEach((pkgName, index) => {
           outputLicenses.push(`## ${pkgName}`);
           const pkgPath = packageMap.get(pkgName)!;
           const pkgRootPath = path.join(pkgPath, pkgName);
-          const packageJson = JSON.parse(
-            fs.readFileSync(path.join(pkgRootPath, "package.json"), { encoding: "utf8" }),
-          );
+          const packageJsonPath = path.join(pkgRootPath, "package.json");
+          const packageJsonText = fs.readFileSync(packageJsonPath, { encoding: "utf8" });
+          const packageJson = JSON.parse(packageJsonText);
           if (packageJson.license !== undefined) {
             outputLicenses.push(`License: ${packageJson.license}`);
+            licenseSet.add(packageJson.license);
           }
           if (packageJson.author !== undefined) {
             if (typeof packageJson.author === "object") {
@@ -96,16 +98,35 @@ export default defineConfig({
           } else if (fs.existsSync(path.join(pkgRootPath, lowerLicenseFileName))) {
             readPath = path.join(pkgRootPath, lowerLicenseFileName);
           }
-          outputLicenses.push(fs.readFileSync(readPath, { encoding: "utf8" }).replace(/^/gm, "> "));
+          const licenseText = fs.readFileSync(readPath, { encoding: "utf8" });
+          outputLicenses.push(licenseText.replace(/^/gm, "> ").replace(/\n> $/g, ""));
           if (index !== packages.length - 1) {
             outputLicenses.push("\n---------------------------------------\n");
           }
         });
 
-        await this.fs.writeFile(
-          path.join(import.meta.dirname, "LICENSES_BUNDLED.md"),
-          outputLicenses.join("\n"),
-          { encoding: "utf8" },
+        const coreLicensePath = path.join(process.cwd(), "LICENSE");
+        const coreLicenseText = fs.readFileSync(coreLicensePath, { encoding: "utf8" });
+        const licenseHeader: string[] = [
+          "# Vegas core license",
+          "Vegas is released under the MIT license:\n",
+          coreLicenseText,
+          "# Licenses of bundled dependencies",
+          "The published Vegas artifact additionally contains code with the following licenses:",
+          Array.from(licenseSet).sort().join(", "),
+          "",
+        ];
+
+        licenseHeader.reverse().forEach((line) => {
+          outputLicenses.unshift(line);
+        });
+
+        fs.writeFileSync(
+          path.join(import.meta.dirname, "LICENSE.md"),
+          `${outputLicenses.join("\n")}\n`,
+          {
+            encoding: "utf8",
+          },
         );
       },
     },
