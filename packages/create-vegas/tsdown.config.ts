@@ -12,7 +12,6 @@ export default defineConfig({
       "cross-spawn",
       "isexe",
       "path-key",
-      "picocolors",
       "shebang-command",
       "shebang-regex",
       "sisteransi",
