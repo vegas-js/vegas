@@ -293,10 +293,13 @@ export class Sheet implements GoogleAppsScript.Spreadsheet.Sheet {
     throw new Error("Method not implemented.");
   };
   getSheetId = () => {
-    throw new Error("Method not implemented.");
+    return this.#sheetId;
   };
   getSheetName = () => {
-    throw new Error("Method not implemented.");
+    return this.#requestSync({
+      message: `${this.constructor.name}#getSheetName`,
+      payload: { spreadsheetId: this.#spreadsheetId, sheetId: this.#sheetId },
+    });
   };
   getSheetValues = (
     startRow: GoogleAppsScript.Integer,

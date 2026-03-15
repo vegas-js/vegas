@@ -333,6 +333,21 @@ export class SheetHandler {
       }
     }
   }
+  getSheetName(ctx: ServeContext, payload: { spreadsheetId: string; sheetId: number }) {
+    const spreadSheet = ctx.store.spreadsheet.get(payload.spreadsheetId);
+    if (!spreadSheet) {
+      return null;
+    }
+    const sheets = spreadSheet.sheets;
+    if (!sheets) {
+      return null;
+    }
+    const sheet = sheets.get(payload.sheetId);
+    if (!sheet) {
+      return null;
+    }
+    return sheet.name;
+  }
 }
 
 export class RangeHandler {
