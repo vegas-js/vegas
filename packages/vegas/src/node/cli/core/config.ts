@@ -26,15 +26,13 @@ export async function loadConfig(root: string) {
 }
 
 export function resolveConfig(userConfig: UserConfig): ResolvedUserConfig {
-  const root = path.resolve(userConfig.root ?? ".");
-  const webDir = path.resolve(path.join(root, userConfig.webDir ?? path.join("src", "web")));
-  const serverDir = path.resolve(
-    path.join(root, userConfig.serverDir ?? path.join("src", "server")),
-  );
-  const gasMockDir = path.resolve(path.join(root, userConfig.gasMockDir ?? "mock"));
+  const root = userConfig.root ?? ".";
+  const webDir = path.resolve(root, userConfig.webDir ?? path.join("src", "web"));
+  const serverDir = path.resolve(root, userConfig.serverDir ?? path.join("src", "server"));
+  const gasMockDir = path.resolve(root, userConfig.gasMockDir ?? "mock");
   const plugins = userConfig.plugins ?? [];
   const output = {
-    dir: path.resolve(path.join(root, userConfig.output?.dir ?? "dist")),
+    dir: path.resolve(root, userConfig.output?.dir ?? "dist"),
   };
   const gas: GASManifest = {
     dependencies: userConfig.gas?.dependencies,
