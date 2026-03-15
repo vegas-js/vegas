@@ -5,7 +5,7 @@ layout: home
 hero:
   name: Vegas
   text: The SPA build tool for GAS platform
-  tagline: "It feels like Vite, and it really is Vite."
+  tagline: "It feels like Vite, and it really is Vite (quick!)."
   image:
     src: /logo.webp
     alt: Vegas
