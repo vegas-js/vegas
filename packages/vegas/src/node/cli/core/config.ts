@@ -1,6 +1,5 @@
 import path from "node:path";
 
-import { resolvePath } from ".";
 import { BaseConfig, GASManifest, OutputConfig, UserConfig } from "../../../shared/config";
 import { loadModule } from "./module";
 
@@ -16,7 +15,7 @@ export async function loadConfig(root: string) {
 }
 
 export function resolveConfig(userConfig: UserConfig): ResolvedUserConfig {
-  const root = resolvePath(userConfig.root);
+  const root = path.resolve(userConfig.root ?? ".");
   const webDir = path.resolve(path.join(root, userConfig.webDir ?? path.join("src", "web")));
   const serverDir = path.resolve(
     path.join(root, userConfig.serverDir ?? path.join("src", "server")),

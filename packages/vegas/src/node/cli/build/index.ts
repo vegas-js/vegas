@@ -12,7 +12,6 @@ import {
 } from "vite";
 
 import { version as VEGAS_VERSION } from "../../../../package.json";
-import { resolvePath } from "../core";
 import { collectSources, detectEntries, ProjectEntry } from "../core/analyze";
 import { loadConfig, resolveConfig, ResolvedUserConfig } from "../core/config";
 import { exportBridge } from "./plugins/exportbridge";
@@ -119,7 +118,7 @@ function printBanner() {
 export async function runBuild(root?: string) {
   printBanner();
 
-  const resolvedRoot = resolvePath(root);
+  const resolvedRoot = path.resolve(root ?? ".");
   const userConfig = await loadConfig(resolvedRoot);
   const resolvedUserConfig = resolveConfig(userConfig);
   const projectSource = await collectSources(resolvedUserConfig);

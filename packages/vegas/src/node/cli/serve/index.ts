@@ -4,7 +4,7 @@ import path from "node:path";
 import { Connect, createBuilder, createLogger, createServer } from "vite";
 
 import { buildApp, createBuilderConfig, extractOutput } from "../build";
-import { HTML, resolvePath } from "../core";
+import { HTML } from "../core";
 import { collectSources, detectEntries } from "../core/analyze";
 import { loadConfig, resolveConfig } from "../core/config";
 import { createServeContext, ServeContext } from "./context";
@@ -248,7 +248,7 @@ async function serveApp(ctx: ServeContext) {
 }
 
 export async function runServe(root?: string) {
-  const resolvedRoot = resolvePath(root);
+  const resolvedRoot = path.resolve(root ?? ".");
   const userConfig = await loadConfig(resolvedRoot);
   const resolvedUserConfig = resolveConfig(userConfig);
   const projectSource = await collectSources(resolvedUserConfig);
