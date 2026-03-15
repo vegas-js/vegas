@@ -7,9 +7,9 @@ export default defineConfig({
   entry: { "create-vegas": "./src" },
   deps: {
     onlyAllowBundle: [
-      "cac",
       "@clack/core",
       "@clack/prompts",
+      "cac",
       "cross-spawn",
       "isexe",
       "path-key",
