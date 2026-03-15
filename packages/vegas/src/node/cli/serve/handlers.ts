@@ -391,12 +391,12 @@ export class RangeHandler {
     }
     const cells = sheet.cells;
     const rowStart = payload.range.numRows === 0 ? 0 : payload.range.row - 1;
-    const rowEnd = payload.range.numRows === 0 ? cells.length - 1 : payload.range.numRows;
+    const rowEnd = payload.range.numRows === 0 ? cells.length : rowStart + payload.range.numRows;
     const rows = cells.slice(rowStart, rowEnd);
 
     const columnStart = payload.range.numColumns === 0 ? 0 : payload.range.column - 1;
     const columnEnd =
-      payload.range.numColumns === 0 ? cells[0].length - 1 : payload.range.numColumns;
+      payload.range.numColumns === 0 ? cells[0].length : columnStart + payload.range.numColumns;
     return rows.map((arr) => {
       return arr.slice(columnStart, columnEnd);
     });
@@ -424,10 +424,10 @@ export class RangeHandler {
     }
     const cells = sheet.cells;
     const rowStart = payload.range.numRows === 0 ? 0 : payload.range.row - 1;
-    const rowEnd = payload.range.numRows === 0 ? cells.length - 1 : payload.range.numRows;
+    const rowEnd = payload.range.numRows === 0 ? cells.length : rowStart + payload.range.numRows;
     const columnStart = payload.range.numColumns === 0 ? 0 : payload.range.column - 1;
     const columnEnd =
-      payload.range.numColumns === 0 ? cells[0].length - 1 : payload.range.numColumns;
+      payload.range.numColumns === 0 ? cells[0].length : columnStart + payload.range.numColumns;
     for (let i = rowStart; i < rowEnd; i++) {
       for (let j = columnStart; j < columnEnd; j++) {
         cells[i][j] = payload.value;
@@ -457,13 +457,13 @@ export class RangeHandler {
     }
     const cells = sheet.cells;
     const rowStart = payload.range.numRows === 0 ? 0 : payload.range.row - 1;
-    const rowEnd = payload.range.numRows === 0 ? cells.length - 1 : payload.range.numRows;
+    const rowEnd = payload.range.numRows === 0 ? cells.length : rowStart + payload.range.numRows;
     const columnStart = payload.range.numColumns === 0 ? 0 : payload.range.column - 1;
     const columnEnd =
-      payload.range.numColumns === 0 ? cells[0].length - 1 : payload.range.numColumns;
+      payload.range.numColumns === 0 ? cells[0].length : columnStart + payload.range.numColumns;
     for (let i = rowStart; i < rowEnd; i++) {
       for (let j = columnStart; j < columnEnd; j++) {
-        cells[i][j] = payload.values[i][j];
+        cells[i][j] = payload.values[i - rowStart][j - columnStart];
       }
     }
   }
