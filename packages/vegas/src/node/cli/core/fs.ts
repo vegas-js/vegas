@@ -2,7 +2,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 
-// Nodejs 20 LTS / 22 LTS polyfill
+// Node.js v22 LTS polyfill
 export class DisposableTempDir {
   readonly #tempDirPath: string;
 
