@@ -10,7 +10,7 @@ Vegas is a tool for building SPAs on the GAS platform, powered by `Vite`, which 
 
 ## ⚠ Breaking changes ⚠
 
-This project is in the experimental stage and will undergo frequent disruptive changes.
+This project is in the experimental stage and will undergo frequent breaking changes.
 
 ## Features
 
