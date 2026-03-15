@@ -136,7 +136,7 @@ async function run() {
       frames: ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"],
     });
     spinner.start("Installing dependencies with npm...");
-    await runCmd("npm", ["install"], { cwd: packagePath });
+    await runCmd("npm", ["install"], { cwd: packagePath, stdio: "inherit" });
     spinner.stop("Starting dev server...");
     await runCmd("npm", ["run", "dev"], { cwd: packagePath, stdio: "inherit" });
   } else {
