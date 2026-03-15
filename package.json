@@ -14,7 +14,7 @@
     "lint": "oxlint --ignore-pattern 'packages/create-vegas/template-*' --ignore-pattern packages/vegas/client.d.ts",
     "format": "oxfmt",
     "test": "vitest run",
-    "build": "tsdown",
+    "build": "tsdown --config-loader unrun",
     "docs:dev": "pnpm --filter ./docs dev",
     "docs:build": "pnpm --filter ./docs build",
     "docs:preview": "pnpm --filter ./docs preview"
