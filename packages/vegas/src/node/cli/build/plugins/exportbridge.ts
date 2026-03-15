@@ -5,7 +5,7 @@ export function exportBridge(): Plugin {
     name: "vite-plugin-exportbridge",
 
     applyToEnvironment(environment) {
-      return !environment.name.startsWith("web");
+      return environment.name.startsWith("server");
     },
 
     generateBundle(outputOptions, bundle, _isWrite) {

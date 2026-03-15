@@ -39,7 +39,7 @@ export function createBuilderConfig(
   isWrite: boolean = true,
 ) {
   const environments: Record<string, EnvironmentOptions> = {
-    gas: {
+    server: {
       build: {
         lib: {
           formats: ["iife"],

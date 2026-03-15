@@ -12,7 +12,7 @@ export function detectServerEntry(projectSource: ProjectSource): Plugin {
     name: "vite-plugin-detectserverentry",
 
     applyToEnvironment(environment) {
-      return !environment.name.startsWith("web");
+      return environment.name.startsWith("server");
     },
 
     async resolveId(source, _importer, options) {
