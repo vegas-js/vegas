@@ -25,7 +25,7 @@ type GASUserFunction<T> = {
 
 type ExcludeGASUserFunction = (typeof excludesGASUserFunctionNames)[number];
 
-type GASFunction<T> = Omit<GASUserFunction<T>, ExcludeGASUserFunction>;
+type GASClient<T> = Omit<GASUserFunction<T>, ExcludeGASUserFunction>;
 
 export function createGASClient<T extends object>() {
   const handler: ProxyHandler<object> = {
@@ -39,7 +39,7 @@ export function createGASClient<T extends object>() {
         });
     },
   };
-  return new Proxy({}, handler) as GASFunction<T>;
+  return new Proxy({}, handler) as GASClient<T>;
 }
 
 function mockGAS<T>(target: MockTarget, mock: T): T {
