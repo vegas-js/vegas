@@ -42,7 +42,7 @@ export function requestSync(request: { message: string; payload?: any }, timeout
 
   return received?.message ?? null;
 }
-export type RequestSyncFn = typeof requestSync;
+export type RequestSync = typeof requestSync;
 
 function createRange(
   spreadsheetId: string,

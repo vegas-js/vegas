@@ -1,4 +1,4 @@
-import { RequestSyncFn } from "../..";
+import { RequestSync } from "../..";
 
 // https://developers.google.com/apps-script/reference/spreadsheet/range
 export class Range implements GoogleAppsScript.Spreadsheet.Range {
@@ -8,7 +8,7 @@ export class Range implements GoogleAppsScript.Spreadsheet.Range {
   #column: GoogleAppsScript.Integer;
   #numRows: GoogleAppsScript.Integer;
   #numColumns: GoogleAppsScript.Integer;
-  #requestSync: RequestSyncFn;
+  #requestSync: RequestSync;
 
   constructor(
     spreadsheetId: string,
@@ -17,7 +17,7 @@ export class Range implements GoogleAppsScript.Spreadsheet.Range {
     column: GoogleAppsScript.Integer,
     numRows: GoogleAppsScript.Integer,
     numColumns: GoogleAppsScript.Integer,
-    requestSync: RequestSyncFn,
+    requestSync: RequestSync,
   ) {
     this.#spreadsheetId = spreadsheetId;
     this.#sheetId = sheetId;
