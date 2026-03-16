@@ -5,6 +5,33 @@ import { HttpResponse } from "./HTTPResponse";
 
 // https://developers.google.com/apps-script/reference/url-fetch/url-fetch-app
 export class UrlFetchApp implements GoogleAppsScript.URL_Fetch.UrlFetchApp {
+  #createRequest(url: string, params?: GoogleAppsScript.URL_Fetch.URLFetchRequestOptions) {
+    const request: GoogleAppsScript.URL_Fetch.URLFetchRequest = {
+      url,
+      contentType: params?.contentType ?? "application/x-www-form-urlencoded",
+      headers: params?.headers ?? {},
+      method: params?.method ?? "get",
+      payload: params?.payload ?? "",
+    };
+    if (params?.useIntranet) {
+      request.useIntranet = params.useIntranet;
+    }
+    if (params?.validateHttpsCertificates) {
+      request.validateHttpsCertificates = params.validateHttpsCertificates;
+    }
+    if (params?.followRedirects) {
+      request.followRedirects = params.validateHttpsCertificates;
+    }
+    if (params?.muteHttpExceptions) {
+      request.muteHttpExceptions = params.muteHttpExceptions;
+    }
+    if (params?.escaping) {
+      request.escaping = params.escaping;
+    }
+
+    return request;
+  }
+
   fetch = (url: string, params?: GoogleAppsScript.URL_Fetch.URLFetchRequestOptions) => {
     const sharedBuffer = new SharedArrayBuffer(4);
     const sharedArray = new Int32Array(sharedBuffer);
@@ -14,13 +41,16 @@ export class UrlFetchApp implements GoogleAppsScript.URL_Fetch.UrlFetchApp {
       workerData: { sharedArray, port: port2 },
     });
 
-    const init = {
-      method: params?.method,
+    const requestParam = this.#createRequest(url, params);
+
+    const init: RequestInit = {
+      method: requestParam.method,
       headers: {
-        ...params?.headers,
-        "Content-Type": params?.contentType,
+        ...requestParam.headers,
+        "Content-Type": requestParam.contentType!,
       },
-      body: params?.payload as any,
+      redirect: (requestParam.followRedirects ?? true) ? "follow" : "manual",
+      body: requestParam.payload as any,
     };
 
     port1.postMessage({ url, init });
@@ -55,6 +85,6 @@ export class UrlFetchApp implements GoogleAppsScript.URL_Fetch.UrlFetchApp {
     });
   };
   getRequest = (url: string, params?: GoogleAppsScript.URL_Fetch.URLFetchRequestOptions) => {
-    throw new Error("Method not implemented.");
+    return this.#createRequest(url, params);
   };
 }
