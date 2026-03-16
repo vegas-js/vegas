@@ -1,0 +1,74 @@
+import { ServeContext } from "../context";
+
+export class SheetHandler {
+  deleteRow(
+    ctx: ServeContext,
+    payload: { spreadsheetId: string; sheetId: number; rowPosition: number },
+  ) {
+    this.deleteRows(ctx, {
+      spreadsheetId: payload.spreadsheetId,
+      sheetId: payload.sheetId,
+      rowPosition: payload.rowPosition,
+      howMany: 1,
+    });
+  }
+  deleteRows(
+    ctx: ServeContext,
+    payload: { spreadsheetId: string; sheetId: number; rowPosition: number; howMany: number },
+  ) {
+    ctx.store.spreadsheet
+      .get(payload.spreadsheetId)
+      ?.sheets.get(payload.sheetId)
+      ?.cells.splice(payload.rowPosition, payload.howMany);
+  }
+  deleteColumn(
+    ctx: ServeContext,
+    payload: { spreadsheetId: string; sheetId: number; columnPosition: number },
+  ) {
+    this.deleteColumns(ctx, {
+      spreadsheetId: payload.spreadsheetId,
+      sheetId: payload.sheetId,
+      columnPosition: payload.columnPosition,
+      howMany: 1,
+    });
+  }
+  deleteColumns(
+    ctx: ServeContext,
+    payload: { spreadsheetId: string; sheetId: number; columnPosition: number; howMany: number },
+  ) {
+    ctx.store.spreadsheet
+      .get(payload.spreadsheetId)
+      ?.sheets.get(payload.sheetId)
+      ?.cells.forEach((row) => row.splice(payload.columnPosition, payload.howMany));
+  }
+  getRange(ctx: ServeContext, payload: { spreadsheetId: string; sheetName: string }) {
+    const spreadSheet = ctx.store.spreadsheet.get(payload.spreadsheetId);
+    if (!spreadSheet) {
+      return null;
+    }
+    const sheets = spreadSheet.sheets;
+    if (!sheets) {
+      return null;
+    }
+    for (const [sheetId, sheet] of sheets) {
+      if (sheet.name === payload.sheetName) {
+        return sheetId;
+      }
+    }
+  }
+  getSheetName(ctx: ServeContext, payload: { spreadsheetId: string; sheetId: number }) {
+    const spreadSheet = ctx.store.spreadsheet.get(payload.spreadsheetId);
+    if (!spreadSheet) {
+      return null;
+    }
+    const sheets = spreadSheet.sheets;
+    if (!sheets) {
+      return null;
+    }
+    const sheet = sheets.get(payload.sheetId);
+    if (!sheet) {
+      return null;
+    }
+    return sheet.name;
+  }
+}
