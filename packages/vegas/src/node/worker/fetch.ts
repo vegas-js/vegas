@@ -21,7 +21,7 @@ port.on("message", async (data) => {
   } finally {
     Atomics.store(sharedArray, 0, 0);
     Atomics.notify(sharedArray, 0);
-
-    process.exit(0);
   }
 });
+
+port.on("close", () => process.exit(0));

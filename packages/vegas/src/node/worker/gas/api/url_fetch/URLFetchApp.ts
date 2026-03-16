@@ -27,6 +27,8 @@ export class UrlFetchApp implements GoogleAppsScript.URL_Fetch.UrlFetchApp {
     Atomics.store(sharedArray, 0, 1);
     Atomics.wait(sharedArray, 0, 1);
     const result = worker.receiveMessageOnPort(port1);
+    port1.close();
+
     return new HttpResponse(
       result?.message.headers,
       result?.message.content,
