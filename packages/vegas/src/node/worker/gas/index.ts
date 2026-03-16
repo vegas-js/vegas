@@ -42,25 +42,7 @@ export function requestSync(request: { message: string; payload?: any }, timeout
 
   return received?.message ?? null;
 }
-
 export type RequestSyncFn = typeof requestSync;
-export type CreateRange = (
-  spreadSheetId: string,
-  sheetId: number,
-  row: number,
-  column: number,
-  numRows: number,
-  numColumns: number,
-) => GoogleAppsScript.Spreadsheet.Range;
-export type CreateSheet = (
-  spreadSheetId: string,
-  sheetId: number,
-) => GoogleAppsScript.Spreadsheet.Sheet;
-export type CreateSpreadsheet = (spreadSheetId: string) => GoogleAppsScript.Spreadsheet.Spreadsheet;
-export type CreateHtmlOutput = (
-  content: string,
-  defaultXFrameOptionsMode: GoogleAppsScript.HTML.XFrameOptionsMode,
-) => GoogleAppsScript.HTML.HtmlOutput;
 
 function createRange(
   spreadsheetId: string,
@@ -72,14 +54,17 @@ function createRange(
 ): GoogleAppsScript.Spreadsheet.Range {
   return new Range(spreadsheetId, sheetId, row, column, numRows, numColumns, requestSync);
 }
+export type CreateRange = typeof createRange;
 
 function createSheet(spreadsheetId: string, sheetId: number): GoogleAppsScript.Spreadsheet.Sheet {
   return new Sheet(spreadsheetId, sheetId, createRange, requestSync);
 }
+export type CreateSheet = typeof createSheet;
 
 function createSpreadsheet(spreadsheetId: string): GoogleAppsScript.Spreadsheet.Spreadsheet {
   return new Spreadsheet(spreadsheetId, createSheet, requestSync);
 }
+export type CreateSpreadsheet = typeof createSpreadsheet;
 
 function createHtmlOutput(
   content: string,
@@ -87,6 +72,7 @@ function createHtmlOutput(
 ): GoogleAppsScript.HTML.HtmlOutput {
   return new HtmlOutput(content, defaultXFrameOptionsMode);
 }
+export type CreateHtmlOutput = typeof createHtmlOutput;
 
 const script = new vm.Script(worker.workerData.code);
 const scriptContext = vm.createContext({
