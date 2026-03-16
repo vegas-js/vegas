@@ -185,16 +185,28 @@ export class Sheet implements GoogleAppsScript.Spreadsheet.Sheet {
     throw new Error("Method not implemented.");
   };
   getLastColumn = () => {
-    throw new Error("Method not implemented.");
+    return this.#requestSync({
+      message: `${this.constructor.name}#getLastColumn`,
+      payload: { spreadsheetId: this.#spreadsheetId, sheetId: this.#sheetId },
+    });
   };
   getLastRow = () => {
-    throw new Error("Method not implemented.");
+    return this.#requestSync({
+      message: `${this.constructor.name}#getLastRow`,
+      payload: { spreadsheetId: this.#spreadsheetId, sheetId: this.#sheetId },
+    });
   };
   getMaxColumns = () => {
-    throw new Error("Method not implemented.");
+    return this.#requestSync({
+      message: `${this.constructor.name}#getMaxColumns`,
+      payload: { spreadsheetId: this.#spreadsheetId, sheetId: this.#sheetId },
+    });
   };
   getMaxRows = () => {
-    throw new Error("Method not implemented.");
+    return this.#requestSync({
+      message: `${this.constructor.name}#getMaxRows`,
+      payload: { spreadsheetId: this.#spreadsheetId, sheetId: this.#sheetId },
+    });
   };
   getName = () => {
     throw new Error("Method not implemented.");
@@ -307,7 +319,15 @@ export class Sheet implements GoogleAppsScript.Spreadsheet.Sheet {
     numRows: GoogleAppsScript.Integer,
     numColumns: GoogleAppsScript.Integer,
   ) => {
-    throw new Error("Method not implemented.");
+    const range = this.#createRange(
+      this.#spreadsheetId,
+      this.#sheetId,
+      startRow,
+      startColumn,
+      numRows,
+      numColumns,
+    );
+    return range.getValues();
   };
   getSlicers = () => {
     throw new Error("Method not implemented.");
