@@ -185,7 +185,7 @@ export class SpreadsheetApp implements GoogleAppsScript.Spreadsheet.SpreadsheetA
     throw new Error("Method not implemented.");
   };
   flush = () => {
-    throw new Error("Method not implemented.");
+    // It's equivalent to constantly flushing, so do nothing.
   };
   getActive = () => {
     throw new Error("Method not implemented.");
