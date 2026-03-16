@@ -69,17 +69,17 @@ src/
 - ❌: no implementation (undefined)
 
 | API               | Status |
-| ----------------- | ------ |
-| HtmlService       | 🛠️     |
-| PropertiesService | 🧪     |
-| CacheService      | 🧪     |
-| LockService       | 🛠️     |
-| SpreadsheetApp    | 🛠️     |
-| UrlFetchApp       | 🛠️     |
-| Utilities         | 🛠️     |
-| Session           | 🧪     |
-| Logger / console  | 🛠️     |
-| Others            | ❌     |
+| ----------------- | :----: |
+| HtmlService       |   🛠️   |
+| PropertiesService |   🧪   |
+| CacheService      |   🧪   |
+| LockService       |   🛠️   |
+| SpreadsheetApp    |   🛠️   |
+| UrlFetchApp       |   🛠️   |
+| Utilities         |   🛠️   |
+| Session           |   🧪   |
+| Logger / console  |   🛠️   |
+| Others            |   ❌   |
 
 ## License
 
