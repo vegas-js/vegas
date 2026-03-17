@@ -6,8 +6,7 @@ export default defineConfig([
   {
     entry: {
       vegas: "./src/node/cli",
-      gas: "./src/node/worker/gas",
-      fetch: "./src/node/worker/fetch",
+      gas: "./src/node/worker",
       client: "./src/client",
     },
     deps: {

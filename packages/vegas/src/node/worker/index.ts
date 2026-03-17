@@ -2,7 +2,7 @@ import events from "node:events";
 import vm from "node:vm";
 import worker from "node:worker_threads";
 
-import { excludesGASUserFunctionNames } from "../../../shared/gas";
+import { excludesGASUserFunctionNames } from "../../shared/gas";
 import { Console } from "./api/base/console";
 import { Logger } from "./api/base/Logger";
 import { Session } from "./api/base/Session";
@@ -18,7 +18,7 @@ import { Range } from "./api/spreadsheet/Range";
 import { Sheet } from "./api/spreadsheet/Sheet";
 import { Spreadsheet } from "./api/spreadsheet/Spreadsheet";
 import { SpreadsheetApp } from "./api/spreadsheet/SpreadsheetApp";
-import { UrlFetchApp } from "./api/url_fetch/URLFetchApp";
+import { UrlFetchApp } from "./api/url_fetch/UrlFetchApp";
 import { Utilities } from "./api/utilities/Utilities";
 
 type GASWorkerData = {
@@ -145,7 +145,7 @@ const scriptContext = vm.createContext({
   /* JDBC */
   Jdbc: undefined,
   /* URL Fetch */
-  UrlFetchApp: new UrlFetchApp(),
+  UrlFetchApp: new UrlFetchApp(requestSync),
   /* Optimization */
   LinearOptimizationService: undefined,
   /* Utilities */

@@ -1,4 +1,4 @@
-import { Scope } from "../../../worker/gas";
+import { Scope } from "../../../worker";
 import { ServeContext } from "../context";
 
 export class PropertiesHandler {

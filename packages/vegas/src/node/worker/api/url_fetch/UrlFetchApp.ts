@@ -1,17 +1,21 @@
-import path from "node:path";
-import worker from "node:worker_threads";
-
+import { RequestSync } from "../..";
 import { HttpResponse } from "./HTTPResponse";
 
 // https://developers.google.com/apps-script/reference/url-fetch/url-fetch-app
 export class UrlFetchApp implements GoogleAppsScript.URL_Fetch.UrlFetchApp {
+  #requestSync: RequestSync;
+
+  constructor(requestSync: RequestSync) {
+    this.#requestSync = requestSync;
+  }
+
   #createRequest(url: string, params?: GoogleAppsScript.URL_Fetch.URLFetchRequestOptions) {
     const request: GoogleAppsScript.URL_Fetch.URLFetchRequest = {
       url,
       contentType: params?.contentType ?? "application/x-www-form-urlencoded",
       headers: params?.headers ?? {},
       method: params?.method ?? "get",
-      payload: params?.payload ?? "",
+      payload: params?.payload,
     };
     if (params?.useIntranet) {
       request.useIntranet = params.useIntranet;
@@ -20,7 +24,7 @@ export class UrlFetchApp implements GoogleAppsScript.URL_Fetch.UrlFetchApp {
       request.validateHttpsCertificates = params.validateHttpsCertificates;
     }
     if (params?.followRedirects) {
-      request.followRedirects = params.validateHttpsCertificates;
+      request.followRedirects = params.followRedirects;
     }
     if (params?.muteHttpExceptions) {
       request.muteHttpExceptions = params.muteHttpExceptions;
@@ -33,14 +37,6 @@ export class UrlFetchApp implements GoogleAppsScript.URL_Fetch.UrlFetchApp {
   }
 
   fetch = (url: string, params?: GoogleAppsScript.URL_Fetch.URLFetchRequestOptions) => {
-    const sharedBuffer = new SharedArrayBuffer(4);
-    const sharedArray = new Int32Array(sharedBuffer);
-    const { port1, port2 } = new worker.MessageChannel();
-    new worker.Worker(path.join(import.meta.dirname, "fetch.js"), {
-      transferList: [port2],
-      workerData: { sharedArray, port: port2 },
-    });
-
     const requestParam = this.#createRequest(url, params);
 
     const init: RequestInit = {
@@ -53,17 +49,12 @@ export class UrlFetchApp implements GoogleAppsScript.URL_Fetch.UrlFetchApp {
       body: requestParam.payload as any,
     };
 
-    port1.postMessage({ url, init });
-    Atomics.store(sharedArray, 0, 1);
-    Atomics.wait(sharedArray, 0, 1);
-    const result = worker.receiveMessageOnPort(port1);
-    port1.close();
+    const result = this.#requestSync({
+      message: `${this.constructor.name}#fetch`,
+      payload: { url, init },
+    });
 
-    return new HttpResponse(
-      result?.message.headers,
-      result?.message.content,
-      result?.message.responseCode,
-    );
+    return new HttpResponse(result?.headers, result?.content, result?.responseCode);
   };
   fetchAll = (requests: Array<GoogleAppsScript.URL_Fetch.URLFetchRequest | string>) => {
     return requests.map((request) => {
