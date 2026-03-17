@@ -33,7 +33,7 @@ const Scope = {
 
 export type Scope = (typeof Scope)[keyof typeof Scope];
 
-export function requestSync(request: { message: string; payload?: any }, timeout?: number) {
+function requestSync(request: { message: string; payload?: any }, timeout?: number) {
   port.postMessage(request);
   Atomics.store(sharedArray, 0, 1);
   Atomics.wait(sharedArray, 0, 1, timeout);
@@ -156,14 +156,14 @@ const scriptContext = vm.createContext({
   /* Content */
   ContentService: undefined,
   /* HTML */
-  HtmlService: new HtmlService(createHtmlOutput),
+  HtmlService: new HtmlService(createHtmlOutput, requestSync),
   /* Mail */
   MailApp: undefined,
   /* Base */
   Browser: undefined,
   Logger: new Logger(),
   MimeType: undefined,
-  Session: new Session(),
+  Session: new Session(requestSync),
   console: new Console(),
   /* Cache */
   CacheService: new CacheService(
@@ -173,9 +173,9 @@ const scriptContext = vm.createContext({
   ),
   /* Lock */
   LockService: new LockService(
-    new Lock(Scope.DOCUMENT),
-    new Lock(Scope.SCRIPT),
-    new Lock(Scope.USER),
+    new Lock(Scope.DOCUMENT, requestSync),
+    new Lock(Scope.SCRIPT, requestSync),
+    new Lock(Scope.USER, requestSync),
   ),
   /* Properties */
   PropertiesService: new PropertiesService(

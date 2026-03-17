@@ -1,10 +1,12 @@
-import { CreateHtmlOutput, requestSync } from "../..";
+import { CreateHtmlOutput, RequestSync } from "../..";
 
 export class HtmlService implements GoogleAppsScript.HTML.HtmlService {
   #createHtmlOutput: CreateHtmlOutput;
+  #requestSync: RequestSync;
 
-  constructor(createHtmlOutput: CreateHtmlOutput) {
+  constructor(createHtmlOutput: CreateHtmlOutput, requestSync: RequestSync) {
     this.#createHtmlOutput = createHtmlOutput;
+    this.#requestSync = requestSync;
   }
 
   SandboxMode = { EMULATED: 0, IFRAME: 1, NATIVE: 2 };
@@ -18,7 +20,7 @@ export class HtmlService implements GoogleAppsScript.HTML.HtmlService {
     return this.#createHtmlOutput(html, this.XFrameOptionsMode.DEFAULT);
   };
   createHtmlOutputFromFile = (filename: string) => {
-    const message = requestSync({
+    const message = this.#requestSync({
       message: "HtmlService#createHtmlOutputFromFile",
       payload: filename,
     });

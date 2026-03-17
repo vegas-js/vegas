@@ -1,13 +1,15 @@
-import { requestSync, Scope } from "../..";
+import { RequestSync, Scope } from "../..";
 
 // https://developers.google.com/apps-script/reference/lock/lock
 export class Lock implements GoogleAppsScript.Lock.Lock {
   readonly #scope: Scope;
+  #requestSync: RequestSync;
   #id: string | null;
   #isLocked: boolean;
 
-  constructor(scope: Scope) {
+  constructor(scope: Scope, requestSync: RequestSync) {
     this.#scope = scope;
+    this.#requestSync = requestSync;
     this.#id = null;
     this.#isLocked = false;
   }
@@ -17,7 +19,7 @@ export class Lock implements GoogleAppsScript.Lock.Lock {
   };
   releaseLock = () => {
     if (this.#isLocked) {
-      requestSync({
+      this.#requestSync({
         message: "Lock#releaseLock",
         payload: { scope: this.#scope, id: this.#id },
       });
@@ -27,7 +29,10 @@ export class Lock implements GoogleAppsScript.Lock.Lock {
   tryLock = (timeoutInMillis: GoogleAppsScript.Integer) => {
     const id = (process.report.getReport() as any).javascriptStack.stack[1];
     if (
-      requestSync({ message: "Lock#tryLock", payload: { scope: this.#scope, id } }, timeoutInMillis)
+      this.#requestSync(
+        { message: "Lock#tryLock", payload: { scope: this.#scope, id } },
+        timeoutInMillis,
+      )
     ) {
       this.#id = id;
       this.#isLocked = true;
@@ -37,7 +42,7 @@ export class Lock implements GoogleAppsScript.Lock.Lock {
   waitLock = (timeoutInMillis: GoogleAppsScript.Integer) => {
     const id = (process.report.getReport() as any).javascriptStack.stack[1];
     if (
-      !requestSync(
+      !this.#requestSync(
         { message: "Lock#waitLock", payload: { scope: this.#scope, id } },
         timeoutInMillis,
       )
