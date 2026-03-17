@@ -1,7 +1,6 @@
 import vm from "node:vm";
 import worker from "node:worker_threads";
 
-import { excludesGASUserFunctionNames } from "../../shared/gas";
 import { Console } from "./api/base/console";
 import { Logger } from "./api/base/Logger";
 import { Session } from "./api/base/Session";
@@ -224,7 +223,7 @@ port.on("message", async (data: GASWorkerData) => {
   if (typeof targetFn === "function") {
     const result = await targetFn(...data.args);
 
-    if ((excludesGASUserFunctionNames as unknown as string[]).includes(data.fn)) {
+    if (triggerEvent.isTarget(data.fn)) {
       triggerEvent.emit(data.fn, result);
     } else {
       port.postMessage({ message: "resolve", payload: result });

@@ -11,6 +11,10 @@ export class TriggerEvent extends events.EventEmitter {
     this.#port = port;
   }
 
+  isTarget(eventName: string) {
+    return (excludesGASUserFunctionNames as unknown as string[]).includes(eventName);
+  }
+
   on(event: "doGet", listener: (arg: GoogleAppsScript.HTML.HtmlOutput) => void): this;
   on(
     event: (typeof excludesGASUserFunctionNames)[number],
