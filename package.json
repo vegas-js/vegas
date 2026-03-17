@@ -11,7 +11,7 @@
   "type": "module",
   "scripts": {
     "preinstall": "npx only-allow pnpm",
-    "lint": "oxlint --ignore-pattern 'packages/create-vegas/template-*' --ignore-pattern packages/vegas/client.d.ts --ignore-pattern docs/.vitepress/theme",
+    "lint": "oxlint --ignore-pattern 'packages/create-vegas/template-*'",
     "format": "oxfmt",
     "test": "vitest run",
     "build": "tsdown --config-loader unrun",
