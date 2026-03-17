@@ -1,4 +1,3 @@
-import events from "node:events";
 import vm from "node:vm";
 import worker from "node:worker_threads";
 
@@ -20,6 +19,7 @@ import { Spreadsheet } from "./api/spreadsheet/Spreadsheet";
 import { SpreadsheetApp } from "./api/spreadsheet/SpreadsheetApp";
 import { UrlFetchApp } from "./api/url_fetch/UrlFetchApp";
 import { Utilities } from "./api/utilities/Utilities";
+import { TriggerEvent } from "./triggerEvent";
 
 type GASWorkerData = {
   fn: string;
@@ -213,28 +213,6 @@ function doGetHandler(this: TriggerEvent, htmlOutput: GoogleAppsScript.HTML.Html
     xFrameOptionsMode: (htmlOutput as any).getXFrameOptionsMode(),
   };
   this.postMessage(result);
-}
-
-class TriggerEvent extends events.EventEmitter {
-  #port: worker.MessagePort;
-
-  constructor(port: worker.MessagePort) {
-    super();
-    this.#port = port;
-  }
-
-  on(event: "doGet", listener: (arg: GoogleAppsScript.HTML.HtmlOutput) => void): this;
-  on(
-    event: (typeof excludesGASUserFunctionNames)[number],
-    listener: (...args: any[]) => void,
-  ): this {
-    super.on(event, listener);
-    return this;
-  }
-
-  postMessage(data: any) {
-    this.#port.postMessage({ message: "resolve", payload: data });
-  }
 }
 
 const triggerEvent = new TriggerEvent(port);
