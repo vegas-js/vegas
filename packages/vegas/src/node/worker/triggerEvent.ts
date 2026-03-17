@@ -12,7 +12,7 @@ export class TriggerEvent extends events.EventEmitter {
   }
 
   isTarget(eventName: string) {
-    return (excludesGASUserFunctionNames as unknown as string[]).includes(eventName);
+    return (excludesGASUserFunctionNames as ReadonlyArray<string>).includes(eventName);
   }
 
   on(event: "doGet", listener: (arg: GoogleAppsScript.HTML.HtmlOutput) => void): this;
