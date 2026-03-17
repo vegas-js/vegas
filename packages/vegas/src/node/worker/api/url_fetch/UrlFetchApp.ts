@@ -57,22 +57,31 @@ export class UrlFetchApp implements GoogleAppsScript.URL_Fetch.UrlFetchApp {
     return new HttpResponse(result?.headers, result?.content, result?.responseCode);
   };
   fetchAll = (requests: Array<GoogleAppsScript.URL_Fetch.URLFetchRequest | string>) => {
-    return requests.map((request) => {
+    const fetchRequests: { url: string; init?: RequestInit }[] = requests.map((request) => {
       if (typeof request === "string") {
-        return this.fetch(request);
+        return { url: request };
       } else {
-        return this.fetch(request.url, {
-          contentType: request.contentType,
-          headers: request.headers,
-          method: request.method,
-          payload: request.payload,
-          useIntranet: request.useIntranet,
-          validateHttpsCertificates: request.validateHttpsCertificates,
-          followRedirects: request.followRedirects,
-          muteHttpExceptions: request.muteHttpExceptions,
-          escaping: request.escaping,
-        });
+        const requestParam = this.#createRequest(request.url, request);
+        const init: RequestInit = {
+          method: requestParam.method,
+          headers: {
+            ...requestParam.headers,
+            "Content-Type": requestParam.contentType!,
+          },
+          redirect: (requestParam.followRedirects ?? true) ? "follow" : "manual",
+          body: requestParam.payload as any,
+        };
+        return { url: request.url, init };
       }
+    });
+
+    const results = this.#requestSync({
+      message: `${this.constructor.name}#fetchAll`,
+      payload: { fetchRequests },
+    });
+
+    return results.map((result: any) => {
+      return new HttpResponse(result?.headers, result?.content, result?.responseCode);
     });
   };
   getRequest = (url: string, params?: GoogleAppsScript.URL_Fetch.URLFetchRequestOptions) => {
