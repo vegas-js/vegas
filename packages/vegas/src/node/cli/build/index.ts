@@ -22,7 +22,7 @@ import { collectArtifacts, printReport } from "./printReport";
 export async function buildApp(builder: ViteBuilder, envFilter?: RegExp) {
   const buildPromises = [];
   for (const environment of Object.values(builder.environments)) {
-    if (environment.name === "client") {
+    if (/^(client|ssr)$/.test(environment.name)) {
       continue;
     }
     if (!envFilter || envFilter.test(environment.name)) {
