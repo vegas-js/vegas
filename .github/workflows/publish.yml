@@ -1,8 +1,8 @@
 name: Publish
 on:
   push:
-    tags:
-      - "v*"
+    branches:
+      - "main"
 
 jobs:
   publish:
@@ -21,4 +21,4 @@ jobs:
           registry-url: https://registry.npmjs.org
       - run: pnpm install
       - run: pnpm build
-      - run: pnpm -r publish --no-git-checks
+      - run: pnpm -r publish

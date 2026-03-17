@@ -1,6 +1,9 @@
-# 0.1.1
+# 0.1.1 (2026-03-17)
 
-chore: add full package licenses auto generate.
+fix: accepts stdio for npm commands.
+fix: revert the template package version to 0.0.0.
+chore: auto generation of full bundle licenses.
+chore: add README.
 
 # 0.1.0 (2026-03-14)
 
