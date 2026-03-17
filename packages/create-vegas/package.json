@@ -1,6 +1,6 @@
 {
   "name": "create-vegas",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Scaffolding tool for Vegas projects",
   "keywords": [
     "create",
@@ -26,17 +26,16 @@
     "template-react",
     "template-react-oxc",
     "template-vue",
-    "dist",
-    "LICENSES_BUNDLED.md"
+    "dist"
   ],
   "type": "module",
   "publishConfig": {
     "provenance": true
   },
   "devDependencies": {
-    "@clack/prompts": "1.0.1",
+    "@clack/prompts": "1.1.0",
     "@types/cross-spawn": "^6.0.6",
-    "@types/node": "^25.3.2",
+    "@types/node": "^25.5.0",
     "cac": "^7.0.0",
     "cross-spawn": "^7.0.6"
   },

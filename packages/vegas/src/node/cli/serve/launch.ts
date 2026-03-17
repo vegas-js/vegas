@@ -9,6 +9,8 @@ import {
   PropertiesHandler,
   SpreadsheetAppHandler,
   SheetHandler,
+  RangeHandler,
+  UrlFetchAppHandler,
 } from "./handlers";
 
 class GASHandler {
@@ -19,10 +21,10 @@ class GASHandler {
         if (thisFn) {
           return thisFn;
         }
-        return (port: worker.MessagePort, sharedArray: Int32Array, ...args: any[]) => {
+        return async (port: worker.MessagePort, sharedArray: Int32Array, ...args: any[]) => {
           const [clazz, method] = property.toString().split("#");
           try {
-            const result = target[clazz][method](...args);
+            const result = await target[clazz][method](...args);
             if (result !== undefined) {
               port.postMessage(result);
             }
@@ -53,6 +55,8 @@ handler.addHandler(CacheHandler);
 handler.addHandler(PropertiesHandler);
 handler.addHandler(SpreadsheetAppHandler);
 handler.addHandler(SheetHandler);
+handler.addHandler(RangeHandler);
+handler.addHandler(UrlFetchAppHandler);
 
 export function launchGAS(ctx: ServeContext, fn: string, ...args: any[]): Promise<any> {
   return new Promise((resolve) => {
@@ -66,12 +70,12 @@ export function launchGAS(ctx: ServeContext, fn: string, ...args: any[]): Promis
     });
 
     port1.postMessage({ fn, args });
-    port1.on("message", (data) => {
+    port1.on("message", async (data) => {
       if (data.message === "resolve") {
         port1.close();
         resolve(data.payload);
       } else {
-        (handler as any)[data.message](port1, sharedArray, ctx, data.payload);
+        await (handler as any)[data.message](port1, sharedArray, ctx, data.payload);
       }
     });
   });

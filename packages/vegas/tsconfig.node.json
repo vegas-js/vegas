@@ -2,7 +2,7 @@
   "compilerOptions": {
     "target": "es2023",
     "module": "esnext",
-    "types": ["google-apps-script", "memfs", "node", "parse5", "vite", "vitest"],
+    "types": ["google-apps-script", "memfs", "node", "parse5", "vite", "vitest", "tsdown"],
     "skipLibCheck": true,
 
     /* Bundler mode */
@@ -11,5 +11,12 @@
     /* Linting */
     "strict": true
   },
-  "include": ["src/shared", "src/lib", "src/node/cli", "src/node/worker", "tsdown.config.ts"]
+  "include": [
+    "src/shared",
+    "src/lib",
+    "src/node/cli",
+    "src/node/worker",
+    "tsdown.config.ts",
+    "rolldownLicensePlugin.ts"
+  ]
 }

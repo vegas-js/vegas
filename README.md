@@ -10,7 +10,7 @@ Vegas is a tool for building SPAs on the GAS platform, powered by `Vite`, which 
 
 ## ⚠ Breaking changes ⚠
 
-This project is in the experimental stage and will undergo frequent disruptive changes.
+This project is in the experimental stage and will undergo frequent breaking changes.
 
 ## Features
 
@@ -63,18 +63,23 @@ src/
 
 ## Supported GAS APIs (Local Runtime)
 
-| API               | Status         |
-| ----------------- | -------------- |
-| HtmlService       | 🛠️             |
-| PropertiesService | ✅             |
-| CacheService      | 🛠️             |
-| LockService       | 🛠️             |
-| SpreadsheetApp    | 🛠️             |
-| UrlFetchApp       | 🛠️             |
-| Utilities         | 🛠️             |
-| Session           | ✅             |
-| Logger / console  | 🛠️             |
-| Others            | ❌ (undefined) |
+- ✅: support
+- 🧪: require tests
+- 🛠️: under development
+- ❌: no implementation (undefined)
+
+| API               | Status |
+| ----------------- | :----: |
+| HtmlService       |   🛠️   |
+| PropertiesService |   🧪   |
+| CacheService      |   🧪   |
+| LockService       |   🛠️   |
+| SpreadsheetApp    |   🛠️   |
+| UrlFetchApp       |   🛠️   |
+| Utilities         |   🛠️   |
+| Session           |   🧪   |
+| Logger / console  |   🛠️   |
+| Others            |   ❌   |
 
 ## License
 

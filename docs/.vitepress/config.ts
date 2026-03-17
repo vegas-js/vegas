@@ -24,6 +24,13 @@ export default defineConfig({
             { text: "Why Vegas", link: "/guide/why/" },
           ],
         },
+        {
+          text: "APIs",
+          items: [
+            { text: "JavaScript API", link: "/guide/api-javascript/" },
+            { text: "Config reference", link: "/config/" },
+          ],
+        },
       ],
       "/config/": [
         {

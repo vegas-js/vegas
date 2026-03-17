@@ -1,3 +1,3 @@
-export function doGet(_event: GoogleAppsScript.Events.DoGet): GoogleAppsScript.HTML.HtmlOutput {
+export function doGet() {
   return HtmlService.createHtmlOutputFromFile("index");
 }

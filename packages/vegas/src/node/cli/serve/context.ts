@@ -1,9 +1,7 @@
-import { ProjectEntry } from "../core/analyze";
 import { ResolvedUserConfig } from "../core/config";
 
 export interface ServeContext {
   config: ResolvedUserConfig;
-  entry: ProjectEntry;
   code: {
     web: { hrefs: string[]; map: Map<string, string> };
     server: string;
@@ -22,21 +20,20 @@ export interface ServeContext {
     };
     spreadsheet: Map<
       string,
-      { name: string; sheet: Map<number, { name: string; cells: any[][] }> }
+      { name: string; sheets: Map<number, { name: string; cells: any[][] }> }
     >;
   };
 }
 
 export function createServeContext(
   config: ResolvedUserConfig,
-  projectEntry: ProjectEntry,
+  sources: { web: Map<string, string>; server: string },
 ): ServeContext {
   return {
     config,
-    entry: projectEntry,
     code: {
-      web: { hrefs: [], map: new Map() },
-      server: "",
+      web: { hrefs: [], map: sources.web },
+      server: sources.server,
     },
     mock: {},
     store: {

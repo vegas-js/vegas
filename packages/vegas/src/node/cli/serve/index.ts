@@ -1,18 +1,18 @@
 import crypto from "node:crypto";
 import path from "node:path";
 
-import { Connect, createBuilder, createLogger, createServer } from "vite";
+import { Connect, createBuilder, createLogger, createServer, ViteBuilder } from "vite";
 
 import { buildApp, createBuilderConfig, extractOutput } from "../build";
-import { HTML, resolvePath } from "../core";
-import { collectSources, detectEntries } from "../core/analyze";
+import { HTML } from "../core";
+import { collectSources, detectWebEntries } from "../core/analyze";
 import { loadConfig, resolveConfig } from "../core/config";
 import { createServeContext, ServeContext } from "./context";
 import { createHostHtml } from "./hostHtml";
 import { launchGAS } from "./launch";
 import { loadMock } from "./mock";
 
-async function serveApp(ctx: ServeContext) {
+async function serveApp(ctx: ServeContext, builder: ViteBuilder) {
   const idMap: Map<string, { use: boolean; expiredAt: number }> = new Map();
   const hostServer = await createServer({
     root: ctx.config.root,
@@ -20,13 +20,6 @@ async function serveApp(ctx: ServeContext) {
     customLogger: createLogger("info", { prefix: "[vegas]" }),
     cacheDir: path.join(ctx.config.root, "node_modules", ".vegas-host"),
   });
-
-  const builderConfig = createBuilderConfig(ctx.config, ctx.entry, false);
-  const builder = await createBuilder(builderConfig);
-  const result = await buildApp(builder);
-  const output = extractOutput(result);
-  ctx.code.web.map = output.web;
-  ctx.code.server = output.server;
 
   hostServer.watcher.add([ctx.config.webDir, ctx.config.serverDir]);
 
@@ -248,13 +241,18 @@ async function serveApp(ctx: ServeContext) {
 }
 
 export async function runServe(root?: string) {
-  const resolvedRoot = resolvePath(root);
+  const resolvedRoot = path.resolve(root ?? ".");
   const userConfig = await loadConfig(resolvedRoot);
   const resolvedUserConfig = resolveConfig(userConfig);
   const projectSource = await collectSources(resolvedUserConfig);
-  const projectEntry = detectEntries(projectSource);
-  const ctx = createServeContext(resolvedUserConfig, projectEntry);
+  const webEntries = detectWebEntries(projectSource.webSources);
+
+  const builderConfig = createBuilderConfig(resolvedUserConfig, projectSource, webEntries);
+  const builder = await createBuilder(builderConfig);
+  const result = await buildApp(builder);
+  const sources = extractOutput(result);
+  const ctx = createServeContext(resolvedUserConfig, sources);
   await loadMock(ctx, projectSource.gasMockSources);
 
-  await serveApp(ctx);
+  await serveApp(ctx, builder);
 }
