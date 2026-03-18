@@ -63,7 +63,7 @@ export function launchGAS(ctx: ServeContext, fn: string, ...args: any[]): Promis
     const sharedBuffer = new SharedArrayBuffer(4);
     const sharedArray = new Int32Array(sharedBuffer);
     const { port1, port2 } = new worker.MessageChannel();
-    new worker.Worker(path.join(import.meta.dirname, "gas.js"), {
+    new worker.Worker(path.join(import.meta.dirname, "worker.js"), {
       env: { ...process.env, FORCE_COLOR: "1" },
       transferList: [port2],
       workerData: { code: ctx.code.server, sharedArray, port: port2 },
