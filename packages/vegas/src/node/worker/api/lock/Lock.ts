@@ -20,7 +20,7 @@ export class Lock implements GoogleAppsScript.Lock.Lock {
   releaseLock = () => {
     if (this.#isLocked) {
       this.#requestSync({
-        message: "Lock#releaseLock",
+        message: `${this.constructor.name}#releaseLock`,
         payload: { scope: this.#scope, id: this.#id },
       });
       this.#isLocked = false;
@@ -30,7 +30,7 @@ export class Lock implements GoogleAppsScript.Lock.Lock {
     const id = (process.report.getReport() as any).javascriptStack.stack[1];
     if (
       this.#requestSync(
-        { message: "Lock#tryLock", payload: { scope: this.#scope, id } },
+        { message: `${this.constructor.name}#tryLock`, payload: { scope: this.#scope, id } },
         timeoutInMillis,
       )
     ) {
@@ -43,7 +43,7 @@ export class Lock implements GoogleAppsScript.Lock.Lock {
     const id = (process.report.getReport() as any).javascriptStack.stack[1];
     if (
       !this.#requestSync(
-        { message: "Lock#waitLock", payload: { scope: this.#scope, id } },
+        { message: `${this.constructor.name}#waitLock`, payload: { scope: this.#scope, id } },
         timeoutInMillis,
       )
     ) {

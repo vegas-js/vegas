@@ -10,23 +10,25 @@ export class Session implements GoogleAppsScript.Base.Session {
   }
 
   getActiveUser = () => {
-    const email = this.#requestSync({ message: "Session#getActiveUser" });
+    const email = this.#requestSync({ message: `${this.constructor.name}#getActiveUser` });
     return new User(email);
   };
   getActiveUserLocale = () => {
-    const locale = this.#requestSync({ message: "Session#getActiveUserLocale" });
+    const locale = this.#requestSync({ message: `${this.constructor.name}#getActiveUserLocale` });
     return locale;
   };
   getEffectiveUser = () => {
-    const email = this.#requestSync({ message: "Session#getEffectiveUser" });
+    const email = this.#requestSync({ message: `${this.constructor.name}#getEffectiveUser` });
     return new User(email);
   };
   getScriptTimeZone = () => {
-    const timeZone = this.#requestSync({ message: "Session#getScriptTimeZone" });
+    const timeZone = this.#requestSync({ message: `${this.constructor.name}#getScriptTimeZone` });
     return timeZone;
   };
   getTemporaryActiveUserKey = () => {
-    const temporaryKey = this.#requestSync({ message: "Session#getTemporaryActiveUserKey" });
+    const temporaryKey = this.#requestSync({
+      message: `${this.constructor.name}#getTemporaryActiveUserKey`,
+    });
     return temporaryKey;
   };
   /** @deprecated DO NOT USE */
