@@ -41,6 +41,26 @@ export class SheetHandler {
       ?.sheets.get(payload.sheetId)
       ?.cells.forEach((row) => row.splice(payload.columnPosition, payload.howMany));
   }
+  clearContents(ctx: ServeContext, payload: { spreadsheetId: string; sheetId: number }) {
+    const spreadSheet = ctx.store.spreadsheet.get(payload.spreadsheetId);
+    if (!spreadSheet) {
+      return null;
+    }
+    const sheets = spreadSheet.sheets;
+    if (!sheets) {
+      return null;
+    }
+    const sheet = sheets.get(payload.sheetId);
+    if (!sheet) {
+      return null;
+    }
+    const cells = sheet.cells;
+    for (let i = 0; i < cells.length; i++) {
+      for (let j = 0; j < cells[0].length; j++) {
+        cells[i][j] = "";
+      }
+    }
+  }
   getLastColumn(ctx: ServeContext, payload: { spreadsheetId: string; sheetId: number }) {
     const spreadSheet = ctx.store.spreadsheet.get(payload.spreadsheetId);
     if (!spreadSheet) {
