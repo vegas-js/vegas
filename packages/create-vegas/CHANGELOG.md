@@ -1,3 +1,8 @@
+# 0.1.2
+
+chore: improve template.
+chore: add react linter. (react-template-oxc)
+
 # 0.1.1 (2026-03-17)
 
 fix: accepts stdio for npm commands.
