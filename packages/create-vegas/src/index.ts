@@ -132,12 +132,9 @@ async function run() {
   });
   fs.renameSync(path.join(packagePath, "_gitignore"), path.join(packagePath, ".gitignore"));
   if (ctx.npmStartUp) {
-    const spinner = prompts.spinner({
-      frames: ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"],
-    });
-    spinner.start("Installing dependencies with npm...");
+    prompts.log.step("Installing dependencies with npm...");
     await runCmd("npm", ["install"], { cwd: packagePath, stdio: "inherit" });
-    spinner.stop("Starting dev server...");
+    prompts.log.step("Starting dev server...");
     await runCmd("npm", ["run", "dev"], { cwd: packagePath, stdio: "inherit" });
   } else {
     const outroText = [
