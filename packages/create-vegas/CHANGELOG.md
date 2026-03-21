@@ -1,6 +1,7 @@
 # 0.1.2
 
 chore: improve template.
+chore: improve scaffolding prompt.
 chore: add react linter. (react-template-oxc)
 
 # 0.1.1 (2026-03-17)
