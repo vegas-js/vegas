@@ -1,7 +1,7 @@
 {
-  "name": "vegas-react-starter",
-  "version": "0.0.0",
+  "name": "vegas-react-typescript-starter",
   "private": true,
+  "version": "0.0.0",
   "type": "module",
   "scripts": {
     "dev": "vegas",

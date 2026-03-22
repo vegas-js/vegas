@@ -49,7 +49,7 @@ const count = ref(0)
       <ul>
         <li>
           <a href="https://github.com/vegas-js/vegas" target="_blank">
-            <img class="button-icon" :src="githubIcon" />
+            <img class="button-icon" :src="githubIcon" alt="" />
             GitHub
           </a>
         </li>
