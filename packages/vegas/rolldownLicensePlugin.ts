@@ -3,7 +3,10 @@ import path from "node:path";
 
 import { Rolldown } from "tsdown";
 
-export default function rolldownLicensePlugin(root: string): Rolldown.Plugin {
+export default function rolldownLicensePlugin(
+  root: string,
+  AdditionalLicenseFiles: string[] = [],
+): Rolldown.Plugin {
   return {
     name: "rolldown-license-plugin",
 
@@ -90,11 +93,23 @@ export default function rolldownLicensePlugin(root: string): Rolldown.Plugin {
         "# Vegas core license",
         "Vegas is released under the MIT license:\n",
         coreLicenseText,
+      ];
+      if (AdditionalLicenseFiles.length > 0) {
+        AdditionalLicenseFiles.forEach((licenseFile) => {
+          const filePath = path.join(root, licenseFile);
+          if (fs.existsSync(filePath)) {
+            const content = fs.readFileSync(filePath, { encoding: "utf8" });
+            licenseHeader.push(content);
+          }
+        });
+      }
+
+      licenseHeader.push(
         "# Licenses of bundled dependencies",
         "The published Vegas artifact additionally contains code with the following licenses:",
         Array.from(licenseSet).sort().join(", "),
         "",
-      ];
+      );
 
       licenseHeader.reverse().forEach((line) => {
         outputLicenses.unshift(line);

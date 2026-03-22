@@ -22,5 +22,5 @@ export default defineConfig({
     entryFileNames: "[name].js",
   },
   dts: false,
-  plugins: [rolldownLicensePlugin(import.meta.dirname)],
+  plugins: [rolldownLicensePlugin(import.meta.dirname, ["LICENSE-TEMPLATES"])],
 });
