@@ -2,6 +2,7 @@
 import child_process from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
+import util from "node:util";
 
 import * as prompts from "@clack/prompts";
 import { cac } from "cac";
@@ -25,12 +26,11 @@ function runCmd(
   });
 }
 
-const frameworkOptions: {
-  value: string;
-  label?: string | undefined;
-}[] = [
-  { label: "React", value: "template-react" },
-  { label: "Vue", value: "template-vue" },
+const frameworkOptions: { value: string; label: string }[] = [
+  { label: util.styleText("yellow", "Vanilla"), value: "template-vanilla" },
+  { label: util.styleText("green", "Vue"), value: "template-vue" },
+  { label: util.styleText("cyan", "React"), value: "template-react" },
+  { label: util.styleText("magenta", "Preact"), value: "template-preact" },
 ];
 
 function cancelHandler() {
@@ -96,18 +96,6 @@ async function run() {
     cancelHandler();
   }
 
-  if (ctx.framework === "template-react") {
-    ctx.useOxcStack = (await prompts.confirm({
-      message: "Use Oxc Stack?",
-    })) as boolean;
-
-    if (prompts.isCancel(ctx.useOxcStack)) {
-      cancelHandler();
-    } else if (ctx.useOxcStack) {
-      ctx.framework += "-oxc";
-    }
-  }
-
   ctx.npmStartUp = (await prompts.confirm({
     message: "Install with npm and start now?",
   })) as boolean;
@@ -132,12 +120,9 @@ async function run() {
   });
   fs.renameSync(path.join(packagePath, "_gitignore"), path.join(packagePath, ".gitignore"));
   if (ctx.npmStartUp) {
-    const spinner = prompts.spinner({
-      frames: ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"],
-    });
-    spinner.start("Installing dependencies with npm...");
+    prompts.log.step("Installing dependencies with npm...");
     await runCmd("npm", ["install"], { cwd: packagePath, stdio: "inherit" });
-    spinner.stop("Starting dev server...");
+    prompts.log.step("Starting dev server...");
     await runCmd("npm", ["run", "dev"], { cwd: packagePath, stdio: "inherit" });
   } else {
     const outroText = [

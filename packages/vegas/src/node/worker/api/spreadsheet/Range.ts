@@ -143,7 +143,19 @@ export class Range implements GoogleAppsScript.Spreadsheet.Range {
     throw new Error("Method not implemented.");
   };
   getCell = (row: GoogleAppsScript.Integer, column: GoogleAppsScript.Integer) => {
-    throw new Error("Method not implemented.");
+    if ((0 < row && row <= this.#numRows) || (0 < column && column <= this.#numColumns)) {
+      return new Range(
+        this.#spreadsheetId,
+        this.#sheetId,
+        this.#row + row - 1,
+        this.#column + column - 1,
+        1,
+        1,
+        this.#requestSync,
+      );
+    } else {
+      throw new Error("out of range.");
+    }
   };
   getColumn = () => {
     throw new Error("Method not implemented.");

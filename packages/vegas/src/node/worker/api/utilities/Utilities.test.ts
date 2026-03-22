@@ -134,27 +134,27 @@ describe("compute", () => {
   });
 });
 
-// describe("format", () => {
-//   // https://developers.google.com/apps-script/reference/utilities/utilities#formatdatedate,-timezone,-format
-//   test("date", () => {
-//     const utilities = new Utilities();
-//     const formattedDate = utilities.formatDate(new Date(), "GMT", "yyyy-MM-dd'T'HH:mm:ss'Z'");
-//     expect(formattedDate).toBe("year-month-dateThour-minute-second");
-//   });
-//   // https://developers.google.com/apps-script/reference/utilities/utilities#formatstringtemplate,-args
-//   test("string from number", () => {
-//     const utilities = new Utilities();
-//     const formattedString = " 123.456000";
-//     const formatted = utilities.formatString("%11.6f", 123.456);
-//     expect(formatted).toBe(formattedString);
-//   });
-//   test("string from string", () => {
-//     const utilities = new Utilities();
-//     const formattedString = "   abc";
-//     const formatted = utilities.formatString("%6s", "abc");
-//     expect(formatted).toBe(formattedString);
-//   });
-// });
+describe("format", () => {
+  // https://developers.google.com/apps-script/reference/utilities/utilities#formatdatedate,-timezone,-format
+  test("date", () => {
+    const utilities = new Utilities();
+    const formattedDate = utilities.formatDate(new Date(), "GMT", "yyyy-MM-dd'T'HH:mm:ss'Z'");
+    expect(formattedDate).toMatch(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z/);
+  });
+  // // https://developers.google.com/apps-script/reference/utilities/utilities#formatstringtemplate,-args
+  // test("string from number", () => {
+  //   const utilities = new Utilities();
+  //   const formattedString = " 123.456000";
+  //   const formatted = utilities.formatString("%11.6f", 123.456);
+  //   expect(formatted).toBe(formattedString);
+  // });
+  // test("string from string", () => {
+  //   const utilities = new Utilities();
+  //   const formattedString = "   abc";
+  //   const formatted = utilities.formatString("%6s", "abc");
+  //   expect(formatted).toBe(formattedString);
+  // });
+});
 
 test("uuid", () => {
   const utilities = new Utilities();

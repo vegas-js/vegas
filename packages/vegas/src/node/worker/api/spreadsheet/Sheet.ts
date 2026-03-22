@@ -50,7 +50,14 @@ export class Sheet implements GoogleAppsScript.Spreadsheet.Sheet {
     throw new Error("Method not implemented.");
   };
   clearContents = () => {
-    throw new Error("Method not implemented.");
+    this.#requestSync({
+      message: `${this.constructor.name}#clearContents`,
+      payload: {
+        spreadsheetId: this.#spreadsheetId,
+        sheetId: this.#sheetId,
+      },
+    });
+    return this;
   };
   clearFormats = () => {
     throw new Error("Method not implemented.");

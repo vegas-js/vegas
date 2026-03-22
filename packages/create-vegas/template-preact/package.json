@@ -1,0 +1,23 @@
+{
+  "name": "vegas-preact-ts-starter",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vegas",
+    "build": "tsc && vegas build",
+    "login": "clasp login",
+    "push": "clasp push"
+  },
+  "dependencies": {
+    "preact": "^10.29.0"
+  },
+  "devDependencies": {
+    "@google/clasp": "^3.3.0",
+    "@preact/preset-vite": "^2.10.4",
+    "@types/google-apps-script": "^2.0.8",
+    "@types/node": "^24.12.0",
+    "@vegasjs/vegas": "^0.1.3",
+    "typescript": "~5.9.3"
+  }
+}

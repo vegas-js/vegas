@@ -3,7 +3,7 @@ import { HTML } from "../core";
 export function createHostHtml(url: URL, result: any) {
   const html = new HTML();
 
-  if (result.metaTags > 0) {
+  if (result.metaTags.length > 0) {
     (result.metaTags as { name: string; content: string }[]).forEach((metaTag) => {
       html.appendToHead("meta", [
         { name: "name", value: metaTag.name },

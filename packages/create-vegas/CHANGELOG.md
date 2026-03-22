@@ -1,3 +1,11 @@
+# 0.1.2 (2026-03-22)
+
+chore: we waive the copyright to the template.
+chore: improve react/vue template.
+chore: add vanilla/preact template.
+chore: improve scaffolding prompt.
+chore: remove template-react-oxc.
+
 # 0.1.1 (2026-03-17)
 
 fix: accepts stdio for npm commands.

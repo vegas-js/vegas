@@ -1,3 +1,4 @@
+import fs from "node:fs";
 import path from "node:path";
 
 import { BaseConfig, GASManifest, OutputConfig, UserConfig } from "../../../shared/config";
@@ -9,7 +10,8 @@ export type ResolvedUserConfig = Required<BaseConfig> & {
 };
 
 export async function loadConfig(root: string) {
-  const mod = loadModule({ root, filePath: path.join(root, "vegas.config.ts") });
+  const filePath = path.join(root, "vegas.config.ts");
+  const mod = fs.existsSync(filePath) ? loadModule({ root, filePath }) : {};
 
   return mod as UserConfig;
 }

@@ -1,3 +1,12 @@
+# 0.1.3 (2026-03-22)
+
+feat: add Spreadsheet#getCell().
+feat: add Spreadsheet#clearContents().
+feat: add Sheet#clearContents().
+chore: modified to work without a configuration file.
+chore: improve Utilities#formatDate().
+chore: parallel request UrlFetchApp#fechAll.
+
 # 0.1.2 (2026-03-17)
 
 feat: supports import aliases using tsconfig's paths.

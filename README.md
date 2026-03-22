@@ -4,7 +4,7 @@
 [![CI](https://github.com/vegas-js/vegas/actions/workflows/ci.yml/badge.svg)](https://github.com/vegas-js/vegas/actions)
 [![license](https://img.shields.io/npm/l/@vegasjs/vegas)](./LICENSE)
 
-> **It feels like Vite, and it really is Vite.**
+> **It feels like Vite, and it really is Vite (quick!).**
 
 Vegas is a tool for building SPAs on the GAS platform, powered by `Vite`, which significantly improves the frontend development experience.
 

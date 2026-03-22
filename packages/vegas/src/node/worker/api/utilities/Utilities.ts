@@ -181,10 +181,11 @@ export class Utilities implements GoogleAppsScript.Utilities.Utilities {
       (date as globalThis.Date).toLocaleDateString("en-US", { timeZone: "UTC" }),
     );
     const offsetTotalMin = Math.round((tzDate.getTime() - utcDate.getTime()) / 60000);
+    let isEscape = false;
     for (let i = 0; i <= format.length; i++) {
       const ch = i !== format.length ? format.charAt(i) : "";
       const isFormatChar = /^[GyYMwWDdFEuaHkKhmsSzZX]$/.test(ch);
-      if (target || isFormatChar) {
+      if (!isEscape && (target || isFormatChar)) {
         if (target) {
           if (target !== ch) {
             const length = i - start;
@@ -343,7 +344,11 @@ export class Utilities implements GoogleAppsScript.Utilities.Utilities {
             }
             target = isFormatChar ? ch : "";
             if (!target) {
-              str.push(ch);
+              if (ch === "'") {
+                isEscape = !isEscape;
+              } else {
+                str.push(ch);
+              }
             }
             start = i;
           }
@@ -352,7 +357,11 @@ export class Utilities implements GoogleAppsScript.Utilities.Utilities {
           start = i;
         }
       } else {
-        str.push(ch);
+        if (ch === "'") {
+          isEscape = !isEscape;
+        } else {
+          str.push(ch);
+        }
       }
     }
 

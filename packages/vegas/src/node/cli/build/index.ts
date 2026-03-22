@@ -14,7 +14,7 @@ import {
 import { version as VEGAS_VERSION } from "../../../../package.json";
 import { collectSources, detectWebEntries, ProjectSource } from "../core/analyze";
 import { loadConfig, resolveConfig, ResolvedUserConfig } from "../core/config";
-import { detectServerEntry, VIRTUAL_DETECT_SERVER_ENTRY } from "./plugins/detectentry";
+import { detectServerEntry, VIRTUAL_DETECT_SERVER_ENTRY } from "./plugins/detectserverentry";
 import { exportBridge } from "./plugins/exportbridge";
 import { virtualHTML } from "./plugins/virtualhtml";
 import { collectArtifacts, printReport } from "./printReport";
