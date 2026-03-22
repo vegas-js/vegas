@@ -1,6 +1,6 @@
 {
   "name": "@vegasjs/vegas",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "The SPA build tool for GAS platform",
   "keywords": [
     "build-tool",
