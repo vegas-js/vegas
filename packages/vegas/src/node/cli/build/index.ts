@@ -14,6 +14,7 @@ import {
 import { version as VEGAS_VERSION } from "../../../../package.json";
 import { collectSources, detectWebEntries, ProjectSource } from "../core/analyze";
 import { loadConfig, resolveConfig, ResolvedUserConfig } from "../core/config";
+import { generateManifest } from "./manifest";
 import { detectServerEntry, VIRTUAL_DETECT_SERVER_ENTRY } from "./plugins/detectserverentry";
 import { exportBridge } from "./plugins/exportbridge";
 import { virtualHTML } from "./plugins/virtualhtml";
@@ -99,16 +100,6 @@ export function extractOutput(
   return output;
 }
 
-function generateManifest(config: ResolvedUserConfig) {
-  fs.writeFileSync(
-    path.join(config.output.dir, "appsscript.json"),
-    JSON.stringify(config.gas, null, 2),
-    {
-      encoding: "utf8",
-    },
-  );
-}
-
 function printBanner() {
   const vegasId = util.styleText("cyan", `vegas v${VEGAS_VERSION}`);
   const byVite = util.styleText("magenta", `vite v${VITE_VERSION}`);
@@ -132,7 +123,7 @@ export async function runBuild(root?: string) {
   const builder = await createBuilder(builderConfig);
   fs.rmSync(resolvedUserConfig.output.dir, { recursive: true, force: true });
   await buildApp(builder);
-  generateManifest(resolvedUserConfig);
+  generateManifest(resolvedUserConfig.output.dir, resolvedUserConfig.gas);
   const endTime = performance.now();
 
   const artifacts = collectArtifacts(resolvedUserConfig.output.dir);
