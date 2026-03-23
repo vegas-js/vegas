@@ -4,7 +4,7 @@ import { fs, vol } from "memfs";
 import { beforeEach, expect, test, vi } from "vitest";
 
 import type { GASManifest } from "../../../shared/config";
-import { generateManifest } from "./manifest";
+import { generateGASManifest } from "./manifest";
 
 vi.mock("node:fs", () => {
   return {
@@ -22,7 +22,7 @@ beforeEach(() => {
 
 test("the GAS manifest file is output to the specified directory.", () => {
   const gasManifest: GASManifest = {};
-  generateManifest(outputDir, gasManifest);
+  generateGASManifest(outputDir, gasManifest);
 
   expect(fs.existsSync(manifestPath)).toBe(true);
 });
@@ -39,7 +39,7 @@ test("the settings you configured will be output exactly as they are.", () => {
       executeAs: "USER_ACCESSING",
     },
   };
-  generateManifest(outputDir, gasManifest);
+  generateGASManifest(outputDir, gasManifest);
   const content = fs.readFileSync(manifestPath, { encoding: "utf8" }).toString();
   const outputManifest = JSON.parse(content);
 

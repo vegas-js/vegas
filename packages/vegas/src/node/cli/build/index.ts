@@ -14,7 +14,7 @@ import {
 import { version as VEGAS_VERSION } from "../../../../package.json";
 import { collectSources, detectWebEntries, ProjectSource } from "../core/analyze";
 import { loadConfig, resolveConfig, ResolvedUserConfig } from "../core/config";
-import { generateManifest } from "./manifest";
+import { generateGASManifest } from "./manifest";
 import { detectServerEntry, VIRTUAL_DETECT_SERVER_ENTRY } from "./plugins/detectserverentry";
 import { exportBridge } from "./plugins/exportbridge";
 import { virtualHTML } from "./plugins/virtualhtml";
@@ -123,7 +123,7 @@ export async function runBuild(root?: string) {
   const builder = await createBuilder(builderConfig);
   fs.rmSync(resolvedUserConfig.output.dir, { recursive: true, force: true });
   await buildApp(builder);
-  generateManifest(resolvedUserConfig.output.dir, resolvedUserConfig.gas);
+  generateGASManifest(resolvedUserConfig.output.dir, resolvedUserConfig.gas);
   const endTime = performance.now();
 
   const artifacts = collectArtifacts(resolvedUserConfig.output.dir);
