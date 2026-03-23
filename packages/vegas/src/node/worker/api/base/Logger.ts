@@ -1,3 +1,4 @@
+// oxlint-disable no-wrapper-object-types
 import util from "node:util";
 
 import { getLogPrefix } from "./console";
@@ -18,19 +19,63 @@ export class Logger implements GoogleAppsScript.Base.Logger {
     this.outputLogs = [];
   }
 
-  clear = () => {
+  toString() {
+    return this.constructor.name;
+  }
+
+  clear() {
     this.outputLogs = [];
-  };
-  getLog = () => {
+  }
+  getLog() {
     return this.outputLogs.join("\n");
-  };
-  log = (format: string, ...values: unknown[]) => {
+  }
+  log(data: Object): Logger;
+  log(data: any): Logger;
+  log(format: string, ...values: Object[]): Logger;
+  log(dataOrFormat: Object, ...values: Object[]): Logger {
     let outputLog = getLogPrefix(this.#logTitle, "Info");
     if (values.length === 0) {
-      const data = typeof format === "number" ? convertNumberOutput(format) : format;
-      outputLog += data;
-      this.outputLogs.push(data);
+      if (dataOrFormat === null || dataOrFormat === undefined) {
+        outputLog += null;
+      } else {
+        switch (typeof dataOrFormat) {
+          case "number": {
+            outputLog += convertNumberOutput(dataOrFormat);
+            break;
+          }
+          case "string": {
+            outputLog += dataOrFormat;
+            break;
+          }
+          case "object": {
+            if ((dataOrFormat as any).message !== undefined) {
+              outputLog += (dataOrFormat as any).message;
+            } else {
+              if (dataOrFormat.constructor.name === "Object") {
+                const outObjects = Object.entries(dataOrFormat)
+                  .map(([key, value]) => {
+                    const strValue = `${value}`;
+                    return `${key}=${strValue.replace(/^\s+/gm, "").replace(/\n/g, "")}`;
+                  })
+                  .join(", ");
+
+                outputLog += `{${outObjects}}`;
+              } else {
+                // oxlint-disable-next-line no-base-to-string
+                const strObject = dataOrFormat.toString();
+                outputLog +=
+                  strObject === "[object Object]" ? JSON.stringify(dataOrFormat) : strObject;
+              }
+            }
+            break;
+          }
+          default: {
+            outputLog += dataOrFormat;
+          }
+        }
+      }
     } else {
+      // TODO
       const outValues = [];
       for (const value of values) {
         if (!value) {
@@ -54,11 +99,12 @@ export class Logger implements GoogleAppsScript.Base.Logger {
           }
         }
       }
-
-      outputLog += util.format(format.replace(/[^%]?%d/, "%s"), ...outValues);
-      this.outputLogs.push(util.format(format.replace(/[^%]?%d/, "%s"), ...outValues));
+      outputLog += util.format((dataOrFormat as string).replace(/[^%]?%d/, "%s"), ...outValues);
+      this.outputLogs.push(
+        util.format((dataOrFormat as string).replace(/[^%]?%d/, "%s"), ...outValues),
+      );
     }
     console.log(outputLog.replace(/\n/g, `\n${"".padEnd(36)}`));
     return this;
-  };
+  }
 }
