@@ -77,6 +77,11 @@ export function createBuilderConfig(
       write: isWrite,
       emptyOutDir: false,
       reportCompressedSize: false,
+      rolldownOptions: {
+        output: {
+          codeSplitting: false,
+        },
+      },
     },
     logLevel: "silent",
   };
