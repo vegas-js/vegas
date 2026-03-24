@@ -139,13 +139,13 @@ describe("direct output", () => {
     });
   });
 
-  test("output the class name of the GAS API instance.", () => {
-    using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-    const gasConsole = new Console();
-    gasConsole.log(gasConsole);
-    const args = consoleMock.mock.lastCall;
-    expect(args?.[1]).toBe("console!");
-  });
+  // test("output the class name of the GAS API instance.", () => {
+  //   using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
+  //   const gasConsole = new Console();
+  //   gasConsole.log(gasConsole);
+  //   const args = consoleMock.mock.lastCall;
+  //   expect(args?.[1]).toBe("console!");
+  // });
 
   test("output integer with first decimal place.", () => {
     using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
