@@ -40,13 +40,13 @@
     "provenance": true
   },
   "dependencies": {
-    "vite": "^8.0.0"
+    "vite": "^8.0.2"
   },
   "devDependencies": {
     "@types/google-apps-script": "^2.0.8",
     "@types/node": "^25.3.2",
     "cac": "^7.0.0",
-    "memfs": "^4.56.10",
+    "memfs": "^4.57.1",
     "parse5": "^8.0.0"
   },
   "engines": {

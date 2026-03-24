@@ -5,6 +5,6 @@
   "options": {
     // "denyWarnings": true,
     "typeAware": true,
-    "typeCheck": true,
-  },
+    "typeCheck": true
+  }
 }
