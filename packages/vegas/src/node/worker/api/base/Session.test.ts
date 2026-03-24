@@ -1,49 +1,185 @@
-import { expect, test, vi } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 
 import { Session } from "./Session";
 
-const deprecatedRegExp = / is deprecated\. Do not use\.$/;
-const mockRequestSync = vi.fn(
-  // oxlint-disable-next-line no-unused-vars
-  (request: { message: string; payload?: any }, timeout?: number) => {},
-);
+describe("getActiveUser", () => {
+  test("call requestSync with message", () => {
+    const mockRequestSync = vi.fn(
+      // oxlint-disable-next-line no-unused-vars
+      (request: { message: string; payload?: any }, timeout?: number) => {},
+    );
+    const session = new Session(mockRequestSync);
+    session.getActiveUser();
+    expect(mockRequestSync).toHaveBeenCalledWith({ message: "Session#getActiveUser" });
+  });
 
-test("call requestSync from getActiveUser.", () => {
-  const session = new Session(mockRequestSync);
-  session.getActiveUser();
-  expect(mockRequestSync).toHaveBeenCalledWith({ message: "Session#getActiveUser" });
+  test("call requestSync only once", () => {
+    const mockRequestSync = vi.fn(
+      // oxlint-disable-next-line no-unused-vars
+      (request: { message: string; payload?: any }, timeout?: number) => {},
+    );
+    const session = new Session(mockRequestSync);
+    session.getActiveUser();
+    expect(mockRequestSync).toHaveBeenCalledOnce();
+  });
+
+  test("returns a User object containing the return value of requestSync", () => {
+    const mockRequestSync = vi.fn(
+      // oxlint-disable-next-line no-unused-vars
+      (request: { message: string; payload?: any }, timeout?: number) => "active@example.com",
+    );
+    const session = new Session(mockRequestSync);
+    const user = session.getActiveUser();
+    expect(user.getEmail()).toBe("active@example.com");
+  });
 });
 
-test("call requestSync from getActiveUserLocale.", () => {
-  const session = new Session(mockRequestSync);
-  session.getActiveUserLocale();
-  expect(mockRequestSync).toHaveBeenCalledWith({ message: "Session#getActiveUserLocale" });
+describe("getActiveUserLocale", () => {
+  test("call requestSync with message", () => {
+    const mockRequestSync = vi.fn(
+      // oxlint-disable-next-line no-unused-vars
+      (request: { message: string; payload?: any }, timeout?: number) => {},
+    );
+    const session = new Session(mockRequestSync);
+    session.getActiveUserLocale();
+    expect(mockRequestSync).toHaveBeenCalledWith({ message: "Session#getActiveUserLocale" });
+  });
+
+  test("call requestSync only once", () => {
+    const mockRequestSync = vi.fn(
+      // oxlint-disable-next-line no-unused-vars
+      (request: { message: string; payload?: any }, timeout?: number) => {},
+    );
+    const session = new Session(mockRequestSync);
+    session.getActiveUserLocale();
+    expect(mockRequestSync).toHaveBeenCalledOnce();
+  });
+
+  test("return the user locale of the requestSync return value", () => {
+    const mockRequestSync = vi.fn(
+      // oxlint-disable-next-line no-unused-vars
+      (request: { message: string; payload?: any }, timeout?: number) => "en",
+    );
+    const session = new Session(mockRequestSync);
+    const locale = session.getActiveUserLocale();
+    expect(locale).toBe("en");
+  });
 });
 
-test("call requestSync from getEffectiveUser.", () => {
-  const session = new Session(mockRequestSync);
-  session.getEffectiveUser();
-  expect(mockRequestSync).toHaveBeenCalledWith({ message: "Session#getEffectiveUser" });
+describe("getEffectiveUser", () => {
+  test("call requestSync with message", () => {
+    const mockRequestSync = vi.fn(
+      // oxlint-disable-next-line no-unused-vars
+      (request: { message: string; payload?: any }, timeout?: number) => {},
+    );
+    const session = new Session(mockRequestSync);
+    session.getEffectiveUser();
+    expect(mockRequestSync).toHaveBeenCalledWith({ message: "Session#getEffectiveUser" });
+  });
+
+  test("call requestSync only once", () => {
+    const mockRequestSync = vi.fn(
+      // oxlint-disable-next-line no-unused-vars
+      (request: { message: string; payload?: any }, timeout?: number) => {},
+    );
+    const session = new Session(mockRequestSync);
+    session.getEffectiveUser();
+    expect(mockRequestSync).toHaveBeenCalledOnce();
+  });
+
+  test("returns a User object containing the return value of requestSync", () => {
+    const mockRequestSync = vi.fn(
+      // oxlint-disable-next-line no-unused-vars
+      (request: { message: string; payload?: any }, timeout?: number) => "effective@example.com",
+    );
+    const session = new Session(mockRequestSync);
+    const user = session.getEffectiveUser();
+    expect(user.getEmail()).toBe("effective@example.com");
+  });
 });
 
-test("call requestSync from getScriptTimeZone.", () => {
-  const session = new Session(mockRequestSync);
-  session.getScriptTimeZone();
-  expect(mockRequestSync).toHaveBeenCalledWith({ message: "Session#getScriptTimeZone" });
+describe("getScriptTimeZone", () => {
+  test("call requestSync with message", () => {
+    const mockRequestSync = vi.fn(
+      // oxlint-disable-next-line no-unused-vars
+      (request: { message: string; payload?: any }, timeout?: number) => {},
+    );
+    const session = new Session(mockRequestSync);
+    session.getScriptTimeZone();
+    expect(mockRequestSync).toHaveBeenCalledWith({ message: "Session#getScriptTimeZone" });
+  });
+
+  test("call requestSync only once", () => {
+    const mockRequestSync = vi.fn(
+      // oxlint-disable-next-line no-unused-vars
+      (request: { message: string; payload?: any }, timeout?: number) => {},
+    );
+    const session = new Session(mockRequestSync);
+    session.getScriptTimeZone();
+    expect(mockRequestSync).toHaveBeenCalledOnce();
+  });
+
+  test("return the timezone of the requestSync return value", () => {
+    const mockRequestSync = vi.fn(
+      // oxlint-disable-next-line no-unused-vars
+      (request: { message: string; payload?: any }, timeout?: number) => "Etc/UTC",
+    );
+    const session = new Session(mockRequestSync);
+    const timeZone = session.getScriptTimeZone();
+    expect(timeZone).toBe("Etc/UTC");
+  });
 });
 
-test("call requestSync from getTemporaryActiveUserKey.", () => {
-  const session = new Session(mockRequestSync);
-  session.getTemporaryActiveUserKey();
-  expect(mockRequestSync).toHaveBeenCalledWith({ message: "Session#getTemporaryActiveUserKey" });
+describe("getTemporaryActiveUserKey", () => {
+  test("call requestSync with message", () => {
+    const mockRequestSync = vi.fn(
+      // oxlint-disable-next-line no-unused-vars
+      (request: { message: string; payload?: any }, timeout?: number) => {},
+    );
+    const session = new Session(mockRequestSync);
+    session.getTemporaryActiveUserKey();
+    expect(mockRequestSync).toHaveBeenCalledWith({ message: "Session#getTemporaryActiveUserKey" });
+  });
+
+  test("call requestSync only once", () => {
+    const mockRequestSync = vi.fn(
+      // oxlint-disable-next-line no-unused-vars
+      (request: { message: string; payload?: any }, timeout?: number) => {},
+    );
+    const session = new Session(mockRequestSync);
+    session.getTemporaryActiveUserKey();
+    expect(mockRequestSync).toHaveBeenCalledOnce();
+  });
+
+  test("return the temporary key of the requestSync return value", () => {
+    const mockRequestSync = vi.fn(
+      // oxlint-disable-next-line no-unused-vars
+      (request: { message: string; payload?: any }, timeout?: number) => "-- Active user key --",
+    );
+    const session = new Session(mockRequestSync);
+    const temporaryActiveUserKey = session.getTemporaryActiveUserKey();
+    expect(temporaryActiveUserKey).toBe("-- Active user key --");
+  });
 });
 
-test("getTimeZone() always throws an exception.", () => {
-  const session = new Session(mockRequestSync);
-  expect(() => session.getTimeZone()).toThrow(deprecatedRegExp);
+describe("getTimeZone", () => {
+  test("always throw an exception with message", () => {
+    const mockRequestSync = vi.fn(
+      // oxlint-disable-next-line no-unused-vars
+      (request: { message: string; payload?: any }, timeout?: number) => {},
+    );
+    const session = new Session(mockRequestSync);
+    expect(() => session.getTimeZone()).toThrow("Session#getTimeZone() is deprecated. Do not use.");
+  });
 });
 
-test("getUser() always throws an exception.", () => {
-  const session = new Session(mockRequestSync);
-  expect(() => session.getUser()).toThrow(deprecatedRegExp);
+describe("getUser", () => {
+  test("always throw an exception with message", () => {
+    const mockRequestSync = vi.fn(
+      // oxlint-disable-next-line no-unused-vars
+      (request: { message: string; payload?: any }, timeout?: number) => {},
+    );
+    const session = new Session(mockRequestSync);
+    expect(() => session.getUser()).toThrow("Session#getUser() is deprecated. Do not use.");
+  });
 });
