@@ -20,7 +20,12 @@ function runCmd(
       if (code === 0) {
         resolve();
       } else {
-        reject(new Error(`${cmd} ${args?.join(" ") ?? ""} failed. ExitCode: ${code}`));
+        const messages: string[] = [cmd];
+        if (args) {
+          messages.push(...args);
+        }
+        messages.push("failed.", "Exit Code:", JSON.stringify(code));
+        reject(new Error(messages.join(" ")));
       }
     });
   });
