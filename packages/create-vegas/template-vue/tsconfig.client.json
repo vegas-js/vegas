@@ -1,7 +1,7 @@
 {
   "extends": "@vue/tsconfig/tsconfig.dom.json",
   "compilerOptions": {
-    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.web.tsbuildinfo",
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.client.tsbuildinfo",
     "types": ["@vegasjs/vegas"],
 
     /* Linting */
@@ -12,5 +12,5 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },
-  "include": ["src/web/**/*.ts", "src/web/**/*.tsx", "src/web/**/*.vue"]
+  "include": ["src/client/**/*.ts", "src/client/**/*.tsx", "src/client/**/*.vue"]
 }

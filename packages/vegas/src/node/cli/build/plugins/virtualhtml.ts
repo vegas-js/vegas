@@ -4,13 +4,13 @@ import { Plugin } from "vite";
 
 import { HTML } from "../../core";
 
-export function virtualHTML(webDir: string): Plugin {
+export function virtualHTML(clientDir: string): Plugin {
   return {
     name: "vite-plugin-virtualhtml",
     enforce: "post",
 
     applyToEnvironment(environment) {
-      return environment.name.startsWith("web");
+      return /^client\d+$/.test(environment.name);
     },
 
     generateBundle(_outputOptions, bundle, _isWrite) {
@@ -20,7 +20,7 @@ export function virtualHTML(webDir: string): Plugin {
         const output = bundle[key];
 
         if (output.type === "chunk") {
-          const relativeDirname = path.relative(webDir, path.parse(output.facadeModuleId!).dir);
+          const relativeDirname = path.relative(clientDir, path.parse(output.facadeModuleId!).dir);
           const htmlPath = relativeDirname
             ? `${relativeDirname}.html`
             : path.join(relativeDirname, "index.html");

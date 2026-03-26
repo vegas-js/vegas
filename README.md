@@ -14,7 +14,7 @@ This project is in the experimental stage and will undergo frequent breaking cha
 
 ## Features
 
-- Automatically detects web entry points
+- Automatically detects client entry points
 - Build flow optimized for the GAS platform
 - Includes a client library to call GAS functions
 - Compatible with Vite plugins
@@ -41,22 +41,22 @@ npx vegas build
 
 ```plaintext
 src/
-  ├─ server/
-  │  └─ Code.ts
-  └─ web/
-    └─ main.tsx  // web entry ( to: dist/index.html )
+  ├─ client/
+  │ └─ main.tsx  // client entry ( to: dist/index.html )
+  └─ server/
+    └─ Code.ts
 ```
 
 ### Multi Front / Single GAS
 
 ```plaintext
 src/
-  ├─ server/
-  │  └─ Code.ts
-  └─ web/
-    ├─ sub1/
-    │  └─ main.tsx // web entry ( to: dist/sub1.html )
-    └─ main.tsx  // web entry ( to: dist/index.html )
+  ├─ client/
+  │ ├─ sub1/
+  │ │  └─ main.tsx // client entry ( to: dist/sub1.html )
+  │ └─ main.tsx  // client entry ( to: dist/index.html )
+  └─ server/
+    └─ Code.ts
 ```
 
 [Read the Docs to Learn More](https://vegasjs.dev).

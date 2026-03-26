@@ -3,7 +3,7 @@ import { ResolvedUserConfig } from "../core/config";
 export interface ServeContext {
   config: ResolvedUserConfig;
   code: {
-    web: { hrefs: string[]; map: Map<string, string> };
+    client: { hrefs: string[]; map: Map<string, string> };
     server: string;
   };
   mock: Record<string, any>;
@@ -27,12 +27,12 @@ export interface ServeContext {
 
 export function createServeContext(
   config: ResolvedUserConfig,
-  sources: { web: Map<string, string>; server: string },
+  sources: { client: Map<string, string>; server: string },
 ): ServeContext {
   return {
     config,
     code: {
-      web: { hrefs: [], map: sources.web },
+      client: { hrefs: [], map: sources.client },
       server: sources.server,
     },
     mock: {},

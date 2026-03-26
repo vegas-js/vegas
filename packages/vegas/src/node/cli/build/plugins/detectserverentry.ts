@@ -19,17 +19,17 @@ export function detectServerEntry(projectSource: ProjectSource): Plugin {
       if (source.endsWith(VIRTUAL_DETECT_SERVER_ENTRY)) {
         const serverEntries: string[] = [];
         const importMap: Map<string, string[]> = new Map();
-        projectSource.webSources.forEach((webSource) => {
+        projectSource.clientSources.forEach((clientSource) => {
           const { program } = parseSync(
-            webSource,
-            fs.readFileSync(webSource, { encoding: "utf8" }),
+            clientSource,
+            fs.readFileSync(clientSource, { encoding: "utf8" }),
           );
           const visitor = new Visitor({
             ImportDeclaration(node) {
-              if (importMap.has(webSource)) {
-                importMap.get(webSource)!.push(node.source.value);
+              if (importMap.has(clientSource)) {
+                importMap.get(clientSource)!.push(node.source.value);
               } else {
-                importMap.set(webSource, [node.source.value]);
+                importMap.set(clientSource, [node.source.value]);
               }
             },
           });
@@ -37,9 +37,9 @@ export function detectServerEntry(projectSource: ProjectSource): Plugin {
           visitor.visit(program);
         });
 
-        for (const [webSourcePath, imports] of importMap) {
+        for (const [clientSourcePath, imports] of importMap) {
           for (const importPath of imports) {
-            const resolvedId = await this.resolve(importPath, webSourcePath, options);
+            const resolvedId = await this.resolve(importPath, clientSourcePath, options);
             if (resolvedId && projectSource.serverSources.includes(resolvedId.id)) {
               if (path.parse(resolvedId.id).base !== "Code.ts") {
                 throw new Error(

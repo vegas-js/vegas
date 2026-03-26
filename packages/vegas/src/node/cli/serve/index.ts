@@ -5,7 +5,7 @@ import { Connect, createBuilder, createLogger, createServer, ViteBuilder } from 
 
 import { buildApp, createBuilderConfig, extractOutput } from "../build";
 import { HTML } from "../core";
-import { collectSources, detectWebEntries } from "../core/analyze";
+import { collectSources, detectClientEntries } from "../core/analyze";
 import { loadConfig, resolveConfig } from "../core/config";
 import { createServeContext, ServeContext } from "./context";
 import { createHostHtml } from "./hostHtml";
@@ -21,13 +21,13 @@ async function serveApp(ctx: ServeContext, builder: ViteBuilder) {
     cacheDir: path.join(ctx.config.root, "node_modules", ".vegas-host"),
   });
 
-  hostServer.watcher.add([ctx.config.webDir, ctx.config.serverDir]);
+  hostServer.watcher.add([ctx.config.clientDir, ctx.config.serverDir]);
 
   hostServer.watcher.on("change", async (path) => {
-    if (path.startsWith(ctx.config.webDir)) {
-      const result = await buildApp(builder, /^web/);
+    if (path.startsWith(ctx.config.clientDir)) {
+      const result = await buildApp(builder, /^client\d+$/);
       const output = extractOutput(result);
-      ctx.code.web.map = output.web;
+      ctx.code.client.map = output.client;
       hostServer.moduleGraph.invalidateAll();
       hostServer.ws.send({ type: "full-reload" });
       return [];
@@ -119,8 +119,8 @@ async function serveApp(ctx: ServeContext, builder: ViteBuilder) {
         if (pathInfo) {
           doGetEvent["pathInfo"] = pathInfo;
         }
-        if (!ctx.code.web.hrefs.includes(url.href)) {
-          ctx.code.web.hrefs.push(url.href);
+        if (!ctx.code.client.hrefs.includes(url.href)) {
+          ctx.code.client.hrefs.push(url.href);
         }
         let uuid = "";
         do {
@@ -245,9 +245,9 @@ export async function runServe(root?: string) {
   const userConfig = await loadConfig(resolvedRoot);
   const resolvedUserConfig = resolveConfig(userConfig);
   const projectSource = await collectSources(resolvedUserConfig);
-  const webEntries = detectWebEntries(projectSource.webSources);
+  const clientEntries = detectClientEntries(projectSource.clientSources);
 
-  const builderConfig = createBuilderConfig(resolvedUserConfig, projectSource, webEntries);
+  const builderConfig = createBuilderConfig(resolvedUserConfig, projectSource, clientEntries);
   const builder = await createBuilder(builderConfig);
   const result = await buildApp(builder);
   const sources = extractOutput(result);

@@ -12,7 +12,7 @@ import {
 } from "vite";
 
 import { version as VEGAS_VERSION } from "../../../../package.json";
-import { collectSources, detectWebEntries, ProjectSource } from "../core/analyze";
+import { collectSources, detectClientEntries, ProjectSource } from "../core/analyze";
 import { loadConfig, resolveConfig, ResolvedUserConfig } from "../core/config";
 import { generateGASManifest } from "./manifest";
 import { detectServerEntry, VIRTUAL_DETECT_SERVER_ENTRY } from "./plugins/detectserverentry";
@@ -36,7 +36,7 @@ export async function buildApp(builder: ViteBuilder, envFilter?: RegExp) {
 export function createBuilderConfig(
   config: ResolvedUserConfig,
   projectSource: ProjectSource,
-  webEntries: string[],
+  clientEntries: string[],
   isWrite: boolean = true,
 ) {
   const environments: Record<string, EnvironmentOptions> = {
@@ -50,8 +50,8 @@ export function createBuilderConfig(
       },
     },
   };
-  webEntries.forEach((entry, index) => {
-    environments[`web${index}`] = {
+  clientEntries.forEach((entry, index) => {
+    environments[`client${index}`] = {
       consumer: "client",
       build: {
         rolldownOptions: {
@@ -65,7 +65,7 @@ export function createBuilderConfig(
     configFile: false,
     plugins: [
       ...config.plugins,
-      virtualHTML(config.webDir),
+      virtualHTML(config.clientDir),
       detectServerEntry(projectSource),
       exportBridge(),
     ],
@@ -91,12 +91,12 @@ export function createBuilderConfig(
 export function extractOutput(
   results: (Rolldown.RolldownOutput | Rolldown.RolldownOutput[] | Rolldown.RolldownWatcher)[],
 ) {
-  const output: { web: Map<string, string>; server: string } = { web: new Map(), server: "" };
+  const output: { client: Map<string, string>; server: string } = { client: new Map(), server: "" };
   (results.flat() as Rolldown.RolldownOutput[]).map((result) => {
     const outputs = result.output.flat();
     outputs.forEach((out) => {
       if (out.type === "asset") {
-        output.web.set(out.fileName, Buffer.from(out.source).toString("utf8"));
+        output.client.set(out.fileName, Buffer.from(out.source).toString("utf8"));
       } else {
         output.server = out.code;
       }
@@ -121,10 +121,10 @@ export async function runBuild(root?: string) {
   const userConfig = await loadConfig(resolvedRoot);
   const resolvedUserConfig = resolveConfig(userConfig);
   const projectSource = await collectSources(resolvedUserConfig);
-  const webEntries = detectWebEntries(projectSource.webSources);
+  const clientEntries = detectClientEntries(projectSource.clientSources);
 
   const startTime = performance.now();
-  const builderConfig = createBuilderConfig(resolvedUserConfig, projectSource, webEntries);
+  const builderConfig = createBuilderConfig(resolvedUserConfig, projectSource, clientEntries);
   const builder = await createBuilder(builderConfig);
   fs.rmSync(resolvedUserConfig.output.dir, { recursive: true, force: true });
   await buildApp(builder);
