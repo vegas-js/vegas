@@ -66,11 +66,13 @@ function formatObject(object?: object) {
         return getProps(Object.getPrototypeOf(obj), props, filter);
       }
 
-      output = getProps(object)
-        .join(", ")
-        .replace(/\[Function:[^\]]*\]/g, "[Function]")
-        .replace(/^\{[^\w]*/, "{ ")
-        .replace(/\n\}$/, " }");
+      output =
+        (object as any).toString() ??
+        getProps(object)
+          .join(", ")
+          .replace(/\[Function:[^\]]*\]/g, "[Function]")
+          .replace(/^\{[^\w]*/, "{ ")
+          .replace(/\n\}$/, " }");
     }
   }
 
