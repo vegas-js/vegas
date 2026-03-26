@@ -11,7 +11,7 @@
   "type": "module",
   "scripts": {
     "preinstall": "npx only-allow pnpm",
-    "lint": "oxlint --ignore-pattern 'packages/create-vegas/template-*'",
+    "lint": "oxlint",
     "format": "oxfmt",
     "test": "vitest run",
     "build": "tsdown --config-loader unrun",
