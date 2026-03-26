@@ -1,6 +1,0 @@
-{
-  "$schema": "./node_modules/oxfmt/configuration_schema.json",
-  "experimentalSortImports": {},
-  "experimentalSortPackageJson": {},
-  "ignorePatterns": ["**/LICENSE*", "packages/create-vegas/template-*"]
-}
