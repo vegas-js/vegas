@@ -48,24 +48,29 @@ function formatObject(object?: object) {
     if (Array.isArray(object)) {
       output = object;
     } else {
-      const outputObject = object;
-      (outputObject as util.Inspectable)[util.inspect.custom] = (_depth, _options, _inspect) => {
-        const obj: Record<string, any> = {};
-        Object.entries(object).forEach(([key, value]) => {
-          obj[key] = value;
-        });
-
-        if (Object.keys(obj).length === 0) {
-          return util.format(obj);
+      function getProps(
+        obj: object | null,
+        props: Set<string> = new Set(),
+        filter?: (arg: [string, PropertyDescriptor]) => boolean,
+      ): string[] {
+        if (!obj || obj === Object.prototype) {
+          return Array.from(props).reverse();
         }
+        Object.entries(Object.getOwnPropertyDescriptors(obj))
+          .reverse()
+          .forEach(([key, desc]) => {
+            if (key !== "constructor" && (filter?.([key, desc]) ?? true)) {
+              props.add(key);
+            }
+          });
+        return getProps(Object.getPrototypeOf(obj), props, filter);
+      }
 
-        return util
-          .format(obj)
-          .replace(/\[Function:[^\]]*\]/g, "[Function]")
-          .replace(/^\{[^\w]*/, "{ ")
-          .replace(/\n\}$/, " }");
-      };
-      output = outputObject;
+      output = getProps(object)
+        .join(", ")
+        .replace(/\[Function:[^\]]*\]/g, "[Function]")
+        .replace(/^\{[^\w]*/, "{ ")
+        .replace(/\n\}$/, " }");
     }
   }
 
