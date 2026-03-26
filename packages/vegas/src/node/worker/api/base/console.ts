@@ -172,7 +172,6 @@ export class Console {
           }
           maxIndex = index;
         });
-        console.log(maxIndex, values);
         if (maxIndex - maxOffset < values.length - 1) {
           outputLog += ` ${values.slice(maxIndex - maxOffset).join(" ")}`;
         }
