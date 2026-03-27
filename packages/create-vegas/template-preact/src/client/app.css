@@ -22,7 +22,7 @@
 
   .base,
   .framework,
-  .vite {
+  .vegas {
     inset-inline: 0;
     margin: 0 auto;
   }
@@ -34,7 +34,7 @@
   }
 
   .framework,
-  .vite {
+  .vegas {
     position: absolute;
   }
 
@@ -46,7 +46,7 @@
       scale(1.4);
   }
 
-  .vite {
+  .vegas {
     z-index: 0;
     top: 107px;
     height: 26px;

@@ -14,7 +14,7 @@ export function App() {
         <div class="hero">
           <img src={heroImg} class="base" width="170" height="179" alt="" />
           <img src={preactLogo} class="framework" alt="Preact logo" />
-          <img src={vegasLogo} class="vite" alt="Vite logo" />
+          <img src={vegasLogo} class="vegas" alt="Vegas logo" />
         </div>
         <div>
           <h1>Get started</h1>
