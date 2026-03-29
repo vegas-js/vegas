@@ -25,6 +25,11 @@ export type BaseConfig = {
    * Array of vite plugins to use. (passthrough)
    */
   plugins?: PluginOption[];
+  /**
+   * Whether your application is a Single Page Application (SPA), or Plain script.
+   * @default 'spa'
+   */
+  // appType?: "spa" | "script";
 };
 
 export type OutputConfig = {

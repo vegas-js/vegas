@@ -22,6 +22,7 @@ export function resolveConfig(userConfig: UserConfig): ResolvedUserConfig {
   const serverDir = path.resolve(root, userConfig.serverDir ?? path.join("src", "server"));
   const gasMockDir = path.resolve(root, userConfig.gasMockDir ?? "mock");
   const plugins = userConfig.plugins ?? [];
+  // const appType = userConfig.appType ?? "spa";
   const output = {
     dir: path.resolve(root, userConfig.output?.dir ?? "dist"),
   };
@@ -37,5 +38,5 @@ export function resolveConfig(userConfig: UserConfig): ResolvedUserConfig {
     },
   };
 
-  return { root, clientDir, serverDir, gasMockDir, plugins, output, gas };
+  return { root, clientDir, serverDir, gasMockDir, plugins, /* appType, */ output, gas };
 }
