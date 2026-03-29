@@ -14,6 +14,7 @@ async function transpileModule(ctx: { root: string; filePath: string; outputDir:
     build: {
       lib: {
         entry: ctx.filePath,
+        fileName: path.parse(ctx.filePath).name,
         formats: ["es"],
       },
       rolldownOptions: {
