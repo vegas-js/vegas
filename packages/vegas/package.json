@@ -40,7 +40,7 @@
     "provenance": true
   },
   "dependencies": {
-    "vite": "^8.0.2"
+    "vite": "^8.0.3"
   },
   "devDependencies": {
     "@types/google-apps-script": "^2.0.8",
