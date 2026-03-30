@@ -3,7 +3,7 @@ import path from "node:path";
 import { fs, vol } from "memfs";
 import { beforeEach, expect, test, vi } from "vitest";
 
-import type { GASManifest } from "../../shared/config";
+import type { GASManifest } from "../../../shared/config";
 import { generateGASManifest } from "./manifest";
 
 vi.mock("node:fs", () => {

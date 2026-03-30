@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 
-import type { GASManifest } from "../../shared/config";
+import type { GASManifest } from "../../../shared/config";
 
 export function generateGASManifest(outputDir: string, gasManifest: GASManifest) {
   const manifestPath = path.join(outputDir, "appsscript.json");

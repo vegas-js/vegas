@@ -6,8 +6,8 @@ import { createBuilder } from "vite";
 import { collectSources, detectClientEntries } from "./core/analyze";
 import { buildApp, createBuilderConfig, printBanner } from "./core/build";
 import { loadConfig, resolveConfig } from "./core/config";
-import { generateGASManifest } from "./manifest";
-import { collectArtifacts, printReport } from "./printReport";
+import { generateGASManifest } from "./core/manifest";
+import { collectArtifacts, printReport } from "./core/printReport";
 
 export async function runBuild(root?: string) {
   printBanner();
