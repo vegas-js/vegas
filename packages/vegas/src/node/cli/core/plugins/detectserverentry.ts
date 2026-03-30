@@ -3,7 +3,7 @@ import path from "node:path";
 
 import { parseSync, Plugin, Visitor } from "vite";
 
-import { ProjectSource } from "../../core/analyze";
+import { ProjectSource } from "../analyze";
 
 export const VIRTUAL_DETECT_SERVER_ENTRY = "virtual:detectserverentry";
 

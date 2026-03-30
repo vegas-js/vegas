@@ -1,4 +1,4 @@
-import { ResolvedUserConfig } from "../core/config";
+import { ResolvedUserConfig } from "./config";
 
 export interface ServeContext {
   config: ResolvedUserConfig;

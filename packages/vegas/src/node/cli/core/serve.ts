@@ -1,18 +1,15 @@
 import crypto from "node:crypto";
 import path from "node:path";
 
-import { Connect, createBuilder, createLogger, createServer, ViteBuilder } from "vite";
+import { Connect, createLogger, createServer, ViteBuilder } from "vite";
 
-import { buildApp, createBuilderConfig, extractOutput } from "../build";
 import { HTML } from "../core";
-import { collectSources, detectClientEntries } from "../core/analyze";
-import { loadConfig, resolveConfig } from "../core/config";
-import { createServeContext, ServeContext } from "./context";
+import { buildApp, extractOutput } from "./build";
+import { ServeContext } from "./context";
 import { createHostHtml } from "./hostHtml";
 import { launchGAS } from "./launch";
-import { loadMock } from "./mock";
 
-async function serveApp(ctx: ServeContext, builder: ViteBuilder) {
+export async function serveApp(ctx: ServeContext, builder: ViteBuilder) {
   const idMap: Map<string, { use: boolean; expiredAt: number }> = new Map();
   const hostServer = await createServer({
     root: ctx.config.root,
@@ -238,21 +235,4 @@ async function serveApp(ctx: ServeContext, builder: ViteBuilder) {
 
   hostServer.printUrls();
   hostServer.bindCLIShortcuts({ print: true });
-}
-
-export async function runServe(root?: string) {
-  const resolvedRoot = path.resolve(root ?? ".");
-  const userConfig = await loadConfig(resolvedRoot);
-  const resolvedUserConfig = resolveConfig(userConfig);
-  const projectSource = await collectSources(resolvedUserConfig);
-  const clientEntries = detectClientEntries(projectSource.clientSources);
-
-  const builderConfig = createBuilderConfig(resolvedUserConfig, projectSource, clientEntries);
-  const builder = await createBuilder(builderConfig);
-  const result = await buildApp(builder);
-  const sources = extractOutput(result);
-  const ctx = createServeContext(resolvedUserConfig, sources);
-  await loadMock(ctx, projectSource.gasMockSources);
-
-  await serveApp(ctx, builder);
 }

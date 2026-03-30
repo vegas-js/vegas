@@ -1,6 +1,6 @@
 import { MockTarget } from "../../../shared/gas";
-import { loadModule } from "../core/module";
 import { ServeContext } from "./context";
+import { loadModule } from "./module";
 
 export async function loadMock(ctx: ServeContext, gasMockSources: string[]) {
   for (const source of gasMockSources) {

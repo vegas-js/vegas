@@ -1,9 +1,6 @@
-import fs from "node:fs";
-import path from "node:path";
 import util from "node:util";
 
 import {
-  createBuilder,
   EnvironmentOptions,
   InlineConfig,
   Rolldown,
@@ -12,13 +9,11 @@ import {
 } from "vite";
 
 import { version as VEGAS_VERSION } from "../../../../package.json";
-import { collectSources, detectClientEntries, ProjectSource } from "../core/analyze";
-import { loadConfig, resolveConfig, ResolvedUserConfig } from "../core/config";
-import { generateGASManifest } from "./manifest";
-import { detectServerEntry, VIRTUAL_DETECT_SERVER_ENTRY } from "./plugins/detectserverentry";
-import { exportBridge } from "./plugins/exportbridge";
-import { virtualHTML } from "./plugins/virtualhtml";
-import { collectArtifacts, printReport } from "./printReport";
+import { ProjectSource } from "../core/analyze";
+import { ResolvedUserConfig } from "../core/config";
+import { detectServerEntry, VIRTUAL_DETECT_SERVER_ENTRY } from "../core/plugins/detectserverentry";
+import { exportBridge } from "../core/plugins/exportbridge";
+import { virtualHTML } from "../core/plugins/virtualhtml";
 
 export async function buildApp(builder: ViteBuilder, envFilter?: RegExp) {
   const buildPromises = [];
@@ -35,6 +30,7 @@ export async function buildApp(builder: ViteBuilder, envFilter?: RegExp) {
 
 export function createBuilderConfig(
   config: ResolvedUserConfig,
+  mode: "development" | "production",
   projectSource: ProjectSource,
   clientEntries: string[],
   isWrite: boolean = true,
@@ -47,6 +43,7 @@ export function createBuilderConfig(
           name: "GASApp",
           entry: VIRTUAL_DETECT_SERVER_ENTRY,
         },
+        write: isWrite,
       },
     },
   };
@@ -57,11 +54,17 @@ export function createBuilderConfig(
         rolldownOptions: {
           input: entry,
         },
+        write: isWrite,
       },
     };
   });
   const builderConfig: InlineConfig = {
     root: config.root,
+    define: {
+      "import.meta.env.DEV": mode === "development",
+      "import.meta.env.MODE": mode,
+      "import.meta.env.PROD": mode === "production",
+    },
     configFile: false,
     plugins: [
       ...config.plugins,
@@ -105,34 +108,11 @@ export function extractOutput(
   return output;
 }
 
-function printBanner() {
+export function printBanner() {
   const vegasId = util.styleText("cyan", `vegas v${VEGAS_VERSION}`);
   const byVite = util.styleText("magenta", `vite v${VITE_VERSION}`);
   const message = util.styleText("green", "building client environment for production...");
   const poweredBy = `${util.styleText("dim", "> powered by")} ${byVite}\n`;
   console.log(vegasId, message);
   console.log(poweredBy);
-}
-
-export async function runBuild(root?: string) {
-  printBanner();
-
-  const resolvedRoot = path.resolve(root ?? ".");
-  const userConfig = await loadConfig(resolvedRoot);
-  const resolvedUserConfig = resolveConfig(userConfig);
-  const projectSource = await collectSources(resolvedUserConfig);
-  const clientEntries = detectClientEntries(projectSource.clientSources);
-
-  const startTime = performance.now();
-  const builderConfig = createBuilderConfig(resolvedUserConfig, projectSource, clientEntries);
-  const builder = await createBuilder(builderConfig);
-  fs.rmSync(resolvedUserConfig.output.dir, { recursive: true, force: true });
-  await buildApp(builder);
-  generateGASManifest(resolvedUserConfig.output.dir, resolvedUserConfig.gas);
-  const endTime = performance.now();
-
-  const artifacts = collectArtifacts(resolvedUserConfig.output.dir);
-  artifacts.sort((a, b) => a.path.localeCompare(b.path));
-
-  printReport(resolvedUserConfig, artifacts, endTime - startTime);
 }

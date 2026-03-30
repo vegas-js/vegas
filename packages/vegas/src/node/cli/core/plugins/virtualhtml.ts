@@ -2,7 +2,7 @@ import path from "node:path";
 
 import { Plugin } from "vite";
 
-import { HTML } from "../../core";
+import { HTML } from "..";
 
 export function virtualHTML(clientDir: string): Plugin {
   return {

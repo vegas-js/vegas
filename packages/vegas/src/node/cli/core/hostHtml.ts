@@ -1,4 +1,4 @@
-import { HTML } from "../core";
+import { HTML } from ".";
 
 export function createHostHtml(url: URL, result: any) {
   const html = new HTML();

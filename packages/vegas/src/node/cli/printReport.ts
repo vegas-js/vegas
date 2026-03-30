@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import util from "node:util";
 
-import { ResolvedUserConfig } from "../core/config";
+import { ResolvedUserConfig } from "./core/config";
 
 type BuildArtifact = {
   path: string;
