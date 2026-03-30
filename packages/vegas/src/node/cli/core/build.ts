@@ -74,7 +74,7 @@ export function createBuilderConfig(
     plugins: [
       ...config.plugins,
       virtualHTML(config.clientDir),
-      detectServerEntry(projectSource),
+      detectServerEntry(config, projectSource),
       exportBridge(),
     ],
     environments,

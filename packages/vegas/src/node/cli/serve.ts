@@ -14,7 +14,8 @@ export async function runServe(root?: string) {
   const userConfig = await loadConfig(resolvedRoot);
   const resolvedUserConfig = resolveConfig(userConfig);
   const projectSource = await collectSources(resolvedUserConfig);
-  const clientEntries = detectClientEntries(projectSource.clientSources);
+  const clientEntries =
+    resolvedUserConfig.appType === "spa" ? detectClientEntries(projectSource.clientSources) : [];
 
   const builderConfig = createBuilderConfig(
     resolvedUserConfig,

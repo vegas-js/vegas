@@ -60,6 +60,21 @@ src/
     └─ Code.ts
 ```
 
+### GAS Only (No SPA)
+
+```plaintext
+src/
+  └─ server/
+    └─ Code.ts
+```
+
+or
+
+```plaintext
+src/
+  └─ Code.ts
+```
+
 ## Supported GAS APIs (Local Runtime)
 
 - ✅: support

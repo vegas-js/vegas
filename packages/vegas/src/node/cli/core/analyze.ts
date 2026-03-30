@@ -1,6 +1,8 @@
 import fs from "node:fs";
 import path from "node:path";
 
+import { parseSync } from "vite";
+
 import { ResolvedUserConfig } from "./config";
 
 export type ProjectSource = {
@@ -58,8 +60,20 @@ export function detectClientEntries(clientSources: string[]) {
   const clientEntries = clientSources.filter((source) =>
     /^main\.tsx?$/.test(path.parse(source).base),
   );
-  if (clientEntries.length === 0) {
-    throw new Error("No client entry found. Place main.ts or main.tsx under clientDir.");
-  }
   return clientEntries;
+}
+
+export function isWebApp(serverSource: string) {
+  let isWebApp = false;
+  if (serverSource) {
+    const { program } = parseSync("Code.ts", serverSource);
+    program.body.forEach((node) => {
+      if (node.type === "FunctionDeclaration" && node.id) {
+        if (node.id.name === "doGet" || node.id.name === "doPost") {
+          isWebApp = true;
+        }
+      }
+    });
+  }
+  return isWebApp;
 }

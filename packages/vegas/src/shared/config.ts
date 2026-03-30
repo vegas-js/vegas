@@ -29,7 +29,7 @@ export type BaseConfig = {
    * Whether your application is a Single Page Application (SPA), or Plain script.
    * @default 'spa'
    */
-  // appType?: "spa" | "script";
+  appType?: "spa" | "script";
 };
 
 export type OutputConfig = {

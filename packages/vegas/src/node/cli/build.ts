@@ -3,8 +3,8 @@ import path from "node:path";
 
 import { createBuilder } from "vite";
 
-import { collectSources, detectClientEntries } from "./core/analyze";
-import { buildApp, createBuilderConfig, printBanner } from "./core/build";
+import { collectSources, detectClientEntries, isWebApp } from "./core/analyze";
+import { buildApp, createBuilderConfig, extractOutput, printBanner } from "./core/build";
 import { loadConfig, resolveConfig } from "./core/config";
 import { generateGASManifest } from "./core/manifest";
 import { collectArtifacts, printReport } from "./core/printReport";
@@ -16,7 +16,8 @@ export async function runBuild(root?: string) {
   const userConfig = await loadConfig(resolvedRoot);
   const resolvedUserConfig = resolveConfig(userConfig);
   const projectSource = await collectSources(resolvedUserConfig);
-  const clientEntries = detectClientEntries(projectSource.clientSources);
+  const clientEntries =
+    resolvedUserConfig.appType === "spa" ? detectClientEntries(projectSource.clientSources) : [];
 
   const startTime = performance.now();
   const builderConfig = createBuilderConfig(
@@ -27,7 +28,11 @@ export async function runBuild(root?: string) {
   );
   const builder = await createBuilder(builderConfig);
   fs.rmSync(resolvedUserConfig.output.dir, { recursive: true, force: true });
-  await buildApp(builder);
+  const result = await buildApp(builder);
+  const { server } = extractOutput(result);
+  if (!isWebApp(server)) {
+    resolvedUserConfig.gas.webapp = undefined;
+  }
   generateGASManifest(resolvedUserConfig.output.dir, resolvedUserConfig.gas);
   const endTime = performance.now();
 

@@ -4,10 +4,14 @@ import path from "node:path";
 import { parseSync, Plugin, Visitor } from "vite";
 
 import { ProjectSource } from "../analyze";
+import { ResolvedUserConfig } from "../config";
 
 export const VIRTUAL_DETECT_SERVER_ENTRY = "virtual:detectserverentry";
 
-export function detectServerEntry(projectSource: ProjectSource): Plugin {
+export function detectServerEntry(
+  config: ResolvedUserConfig,
+  projectSource: ProjectSource,
+): Plugin {
   return {
     name: "vite-plugin-detectserverentry",
 
@@ -59,15 +63,24 @@ export function detectServerEntry(projectSource: ProjectSource): Plugin {
           return serverEntries[0];
         }
 
-        const fallback = projectSource.serverSources.find(
+        const fallback1 = projectSource.serverSources.find(
           (source) => path.parse(source).base === "Code.ts",
         );
 
-        if (!fallback) {
-          throw new Error("No server entry found. Place Code.ts under serverDir.");
+        if (fallback1) {
+          return fallback1;
         }
 
-        return fallback;
+        if (config.appType === "script") {
+          const fallback2 = path.resolve(config.root, "src", "Code.ts");
+          if (fs.existsSync(fallback2)) {
+            return fallback2;
+          } else {
+            throw new Error("No server entry found. Place Code.ts under srcDir.");
+          }
+        } else {
+          throw new Error("No server entry found. Place Code.ts under serverDir.");
+        }
       }
     },
   };
