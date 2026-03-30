@@ -24,20 +24,21 @@ This project is in the experimental stage and will undergo frequent breaking cha
 Development
 
 ```sh
-npx vegas        # start development server
-npx vegas dev    # alternative development command
-npx vegas serve  # further alternative
+npx vegas         # start development server
+npx vegas dev     # alternative development command
+npx vegas serve   # further alternative
 ```
 
-Production build
+Production
 
 ```sh
-npx vegas build
+npx vegas preview # locally preview production build
+npx vegas build   # build for production
 ```
 
 ## Project Structure
 
-### Basic
+### Basic SPA
 
 ```plaintext
 src/
@@ -47,7 +48,7 @@ src/
     └─ Code.ts
 ```
 
-### Multi Front / Single GAS
+### Multi Front SPA
 
 ```plaintext
 src/
@@ -58,8 +59,6 @@ src/
   └─ server/
     └─ Code.ts
 ```
-
-[Read the Docs to Learn More](https://vegasjs.dev).
 
 ## Supported GAS APIs (Local Runtime)
 
@@ -80,6 +79,8 @@ src/
 | Session           |   🧪   |
 | Logger / console  |   🛠️   |
 | Others            |   ❌   |
+
+[Read the Docs to Learn More](https://vegasjs.dev).
 
 ## License
 
