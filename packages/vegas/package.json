@@ -26,6 +26,7 @@
   },
   "files": [
     "dist",
+    "types",
     "client.d.ts"
   ],
   "type": "module",

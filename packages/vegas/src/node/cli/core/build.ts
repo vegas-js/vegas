@@ -50,6 +50,11 @@ export function createBuilderConfig(
   clientEntries.forEach((entry, index) => {
     environments[`client${index}`] = {
       consumer: "client",
+      define: {
+        "import.meta.env.BASE_URL": JSON.stringify("/userCodeAppPanel"),
+        "import.meta.env.ENDPOINT_URL": JSON.stringify(mode === "production" ? "/exec" : "/dev"),
+        "import.meta.env.SSR": false,
+      },
       build: {
         rolldownOptions: {
           input: entry,
