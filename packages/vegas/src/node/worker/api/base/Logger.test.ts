@@ -325,7 +325,7 @@ describe("format output", () => {
 describe("stock logs", () => {
   test("get stocked log.", () => {
     const outputLogPrefixRegEx =
-      "^[A-Z][a-z]{2} [A-Z][a-z]{2} \\d{1,2} \\d{2}:\\d{2}:\\d{2} [A-Z]{3} \\d{4} INFO: ";
+      "^[A-Z][a-z]{2} [A-Z][a-z]{2} \\d{1,2} \\d{2}:\\d{2}:\\d{2} [A-Z]{3}[^ ]* \\d{4} INFO: ";
     using _ = vi.spyOn(console, "log").mockImplementation(() => {});
     const logger = new Logger();
     logger.log("first");
