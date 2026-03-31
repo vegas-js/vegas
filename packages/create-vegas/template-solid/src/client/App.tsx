@@ -37,7 +37,7 @@ function App() {
             <li>
               <a href="https://vegasjs.dev/" target="_blank">
                 <img class="logo" src={vegasLogo} alt="" />
-                Explore Vite
+                Explore Vegas
               </a>
             </li>
             <li>
