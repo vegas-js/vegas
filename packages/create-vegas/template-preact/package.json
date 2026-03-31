@@ -1,11 +1,12 @@
 {
-  "name": "vegas-preact-ts-starter",
+  "name": "vegas-preact-typescript-starter",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
     "dev": "vegas",
     "build": "tsc && vegas build",
+    "preview": "vegas preview",
     "login": "clasp login",
     "push": "clasp push"
   },

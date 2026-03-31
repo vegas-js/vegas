@@ -1,12 +1,14 @@
 {
-  "name": "vegas-solid-ts-starter",
+  "name": "vegas-solid-typescript-starter",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
     "dev": "vegas",
     "build": "tsc -b && vegas build",
-    "preview": "vegas preview"
+    "preview": "vegas preview",
+    "login": "clasp login",
+    "push": "clasp push"
   },
   "dependencies": {
     "solid-js": "^1.9.12"

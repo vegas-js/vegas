@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vegas",
     "build": "tsc -b && vegas build",
+    "preview": "vegas preview",
     "lint": "eslint .",
     "login": "clasp login",
     "push": "clasp push"

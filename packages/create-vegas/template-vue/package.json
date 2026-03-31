@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vegas",
     "build": "vue-tsc -b && vegas build",
+    "preview": "vegas preview",
     "login": "clasp login",
     "push": "clasp push"
   },
