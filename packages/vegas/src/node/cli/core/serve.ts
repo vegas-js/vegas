@@ -30,7 +30,7 @@ export async function serveApp(ctx: ServeContext, builder: ViteBuilder) {
         hostServer.ws.send({ type: "full-reload" });
         return [];
       } else if (path.startsWith(ctx.config.serverDir)) {
-        const result = await buildApp(builder, /^gas$/);
+        const result = await buildApp(builder, /^server$/);
         const output = extractOutput(result);
         ctx.code.server = output.server;
         return [];
