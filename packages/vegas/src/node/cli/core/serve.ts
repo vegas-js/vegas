@@ -21,17 +21,31 @@ export async function serveApp(ctx: ServeContext, builder: ViteBuilder) {
   hostServer.watcher.add([ctx.config.clientDir, ctx.config.serverDir]);
 
   hostServer.watcher.on("change", async (path) => {
-    if (path.startsWith(ctx.config.clientDir)) {
-      const result = await buildApp(builder, /^client\d+$/);
-      const output = extractOutput(result);
-      ctx.code.client.map = output.client;
-      hostServer.moduleGraph.invalidateAll();
-      hostServer.ws.send({ type: "full-reload" });
-      return [];
-    } else if (path.startsWith(ctx.config.serverDir)) {
-      const result = await buildApp(builder, /^gas$/);
-      const output = extractOutput(result);
-      ctx.code.server = output.server;
+    try {
+      if (path.startsWith(ctx.config.clientDir)) {
+        const result = await buildApp(builder, /^client\d+$/);
+        const output = extractOutput(result);
+        ctx.code.client.map = output.client;
+        hostServer.moduleGraph.invalidateAll();
+        hostServer.ws.send({ type: "full-reload" });
+        return [];
+      } else if (path.startsWith(ctx.config.serverDir)) {
+        const result = await buildApp(builder, /^gas$/);
+        const output = extractOutput(result);
+        ctx.code.server = output.server;
+        return [];
+      }
+    } catch (err: any) {
+      console.error(err);
+      hostServer.ws.send({
+        type: "error",
+        err: {
+          // oxlint-disable-next-line no-control-regex
+          message: err.message.replace(/\x1b\[[\d;]+m/g, ""),
+          // oxlint-disable-next-line no-control-regex
+          stack: err.stack.replace(/\x1b\[[\d;]+m/g, ""),
+        },
+      });
       return [];
     }
   });
@@ -56,15 +70,17 @@ export async function serveApp(ctx: ServeContext, builder: ViteBuilder) {
       const args = Array.isArray(data.args) ? data.args : [data.args];
       const result = await launchGAS(ctx, data.func, ...args);
       client.send("vegas:return", {
-        id: data.id,
         status: "ok",
         result,
       });
-    } catch (error) {
-      client.send("vegas:return", {
-        id: data.id,
-        status: "err",
-        message: (error as any).message,
+    } catch (err: any) {
+      hostServer.ws.send({
+        type: "error",
+        err: {
+          // id: data.id,
+          message: err.message,
+          stack: err.stack,
+        },
       });
     }
   });

@@ -28,9 +28,12 @@ class GASHandler {
             if (result !== undefined) {
               port.postMessage(result);
             }
-          } finally {
             Atomics.store(sharedArray, 0, 0);
             Atomics.notify(sharedArray, 0);
+          } catch (err: any) {
+            Atomics.store(sharedArray, 0, 0);
+            Atomics.notify(sharedArray, 0);
+            throw err;
           }
         };
       },
@@ -59,7 +62,7 @@ handler.addHandler(RangeHandler);
 handler.addHandler(UrlFetchAppHandler);
 
 export function launchGAS(ctx: ServeContext, fn: string, ...args: any[]): Promise<any> {
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     const sharedBuffer = new SharedArrayBuffer(4);
     const sharedArray = new Int32Array(sharedBuffer);
     const { port1, port2 } = new worker.MessageChannel();
@@ -74,8 +77,17 @@ export function launchGAS(ctx: ServeContext, fn: string, ...args: any[]): Promis
       if (data.message === "resolve") {
         port1.close();
         resolve(data.payload);
+      } else if (data.message === "reject") {
+        port1.close();
+        reject(data.payload);
       } else {
-        await (handler as any)[data.message](port1, sharedArray, ctx, data.payload);
+        try {
+          await (handler as any)[data.message](port1, sharedArray, ctx, data.payload);
+        } catch (err: any) {
+          port1.close();
+          console.error(err);
+          reject(err);
+        }
       }
     });
   });
