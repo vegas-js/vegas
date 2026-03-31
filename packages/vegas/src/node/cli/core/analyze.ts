@@ -1,10 +1,12 @@
 import fs from "node:fs";
 import path from "node:path";
 
+import { parseSync } from "vite";
+
 import { ResolvedUserConfig } from "./config";
 
 export type ProjectSource = {
-  webSources: string[];
+  clientSources: string[];
   serverSources: string[];
   gasMockSources: string[];
 };
@@ -26,12 +28,12 @@ export async function collectSources(userConfig: ResolvedUserConfig): Promise<Pr
     return fileName.endsWith(".d.ts");
   }
 
-  const webDirGlobPrefix = path.join(userConfig.webDir, "**");
-  const webGlobPatterns = [
-    path.join(webDirGlobPrefix, "*.ts"),
-    path.join(webDirGlobPrefix, "*.tsx"),
+  const clientDirGlobPrefix = path.join(userConfig.clientDir, "**");
+  const clientGlobPatterns = [
+    path.join(clientDirGlobPrefix, "*.ts"),
+    path.join(clientDirGlobPrefix, "*.tsx"),
   ];
-  const webGlobSearchPromise = collectWithGlob(webGlobPatterns, { exclude });
+  const clientGlobSearchPromise = collectWithGlob(clientGlobPatterns, { exclude });
 
   const serverDirGlobPrefix = path.join(userConfig.serverDir, "**");
   const serverGlobPattern = path.join(serverDirGlobPrefix, "*.ts");
@@ -41,23 +43,37 @@ export async function collectSources(userConfig: ResolvedUserConfig): Promise<Pr
   const gasMockGlobPattern = path.join(gasMockDirGlobPrefix, "*.ts");
   const gasMockGlobSearchPromise = collectWithGlob(gasMockGlobPattern, { exclude });
 
-  const [webSources, serverSources, gasMockSources] = await Promise.all([
-    webGlobSearchPromise,
+  const [clientSources, serverSources, gasMockSources] = await Promise.all([
+    clientGlobSearchPromise,
     serverGlobSearchPromise,
     gasMockGlobSearchPromise,
   ]);
 
   return {
-    webSources,
+    clientSources,
     serverSources,
     gasMockSources,
   };
 }
 
-export function detectWebEntries(webSources: string[]) {
-  const webEntries = webSources.filter((source) => /^main\.tsx?$/.test(path.parse(source).base));
-  if (webEntries.length === 0) {
-    throw new Error("No web entry found. Place main.ts or main.tsx under webDir.");
+export function detectClientEntries(clientSources: string[]) {
+  const clientEntries = clientSources.filter((source) =>
+    /^main\.tsx?$/.test(path.parse(source).base),
+  );
+  return clientEntries;
+}
+
+export function isWebApp(serverSource: string) {
+  let isWebApp = false;
+  if (serverSource) {
+    const { program } = parseSync("Code.ts", serverSource);
+    program.body.forEach((node) => {
+      if (node.type === "FunctionDeclaration" && node.id) {
+        if (node.id.name === "doGet" || node.id.name === "doPost") {
+          isWebApp = true;
+        }
+      }
+    });
   }
-  return webEntries;
+  return isWebApp;
 }

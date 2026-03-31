@@ -8,9 +8,9 @@ export type BaseConfig = {
   root?: string;
   /**
    * Frontend source directory. Both absolute and relative paths are resolved starting from the project root directory.
-   * @default 'src/web'
+   * @default 'src/client'
    */
-  webDir?: string;
+  clientDir?: string;
   /**
    * GAS source directory. Both absolute and relative paths are resolved starting from the project root directory.
    * @default 'src/server'
@@ -25,6 +25,11 @@ export type BaseConfig = {
    * Array of vite plugins to use. (passthrough)
    */
   plugins?: PluginOption[];
+  /**
+   * Whether your application is a Single Page Application (SPA), or Plain script.
+   * @default 'spa'
+   */
+  appType?: "spa" | "script";
 };
 
 export type OutputConfig = {

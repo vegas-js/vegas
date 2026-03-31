@@ -1,8 +1,17 @@
+# 0.1.3 (2026-04-01)
+
+feat: add solid template.
+feat: add svelte template.
+fix: LICENSE-TEMPLATES (command name).
+chore: improve templates npm script.
+chore: upgrade templates dependencies version.
+chore: rename frontend dir (web -> client).
+
 # 0.1.2 (2026-03-22)
 
+feat: improve react/vue template.
+feat: add vanilla/preact template.
 chore: we waive the copyright to the template.
-chore: improve react/vue template.
-chore: add vanilla/preact template.
 chore: improve scaffolding prompt.
 chore: remove template-react-oxc.
 

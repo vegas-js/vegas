@@ -20,7 +20,12 @@ function runCmd(
       if (code === 0) {
         resolve();
       } else {
-        reject(new Error(`${cmd} ${args?.join(" ") ?? ""} failed. ExitCode: ${code}`));
+        const messages: string[] = [cmd];
+        if (args) {
+          messages.push(...args);
+        }
+        messages.push("failed.", "Exit Code:", JSON.stringify(code));
+        reject(new Error(messages.join(" ")));
       }
     });
   });
@@ -31,6 +36,8 @@ const frameworkOptions: { value: string; label: string }[] = [
   { label: util.styleText("green", "Vue"), value: "template-vue" },
   { label: util.styleText("cyan", "React"), value: "template-react" },
   { label: util.styleText("magenta", "Preact"), value: "template-preact" },
+  { label: util.styleText("red", "Svelte"), value: "template-svelte" },
+  { label: util.styleText("blue", "Solid"), value: "template-solid" },
 ];
 
 function cancelHandler() {

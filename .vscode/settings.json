@@ -10,6 +10,7 @@
     "*.ts": "${capture}.test.ts",
     "package.json": "pnpm-*, .oxfmt*, .oxlint*"
   },
-  "oxc.fmt.configPath": ".oxfmtrc.json",
+  "oxc.configPath": "oxlint.config.ts",
+  "oxc.fmt.configPath": "oxfmt.config.ts",
   "oxc.typeAware": true
 }

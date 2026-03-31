@@ -218,9 +218,11 @@ const triggerEvent = new TriggerEvent(port);
 triggerEvent.on("doGet", doGetHandler);
 
 port.on("message", async (data: GASWorkerData) => {
-  const targetFn = scriptContext[data.fn];
-
-  if (typeof targetFn === "function") {
+  try {
+    const targetFn = scriptContext[data.fn];
+    if (typeof targetFn !== "function") {
+      throw new Error(`${data.fn} is not a function`);
+    }
     const result = await targetFn(...data.args);
 
     if (triggerEvent.isTarget(data.fn)) {
@@ -228,8 +230,12 @@ port.on("message", async (data: GASWorkerData) => {
     } else {
       port.postMessage({ message: "resolve", payload: result });
     }
-  } else {
-    port.postMessage({ message: "reject", payload: { message: `${data.fn} is not Function.` } });
+  } catch (err: any) {
+    console.error(err);
+    port.postMessage({
+      message: "reject",
+      payload: { message: err.message, stack: err.stack },
+    });
   }
 });
 

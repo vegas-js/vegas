@@ -5,21 +5,18 @@ import { Rolldown } from "tsdown";
 
 export default function rolldownLicensePlugin(
   root: string,
-  AdditionalLicenseFiles: string[] = [],
+  AdditionalLicenseFiles?: string[],
 ): Rolldown.Plugin {
   return {
     name: "rolldown-license-plugin",
 
     generateBundle(_, bundle) {
-      const packageSet: Set<string> = new Set();
       const packageMap: Map<string, string> = new Map();
       const nodeModuleDirName = "/node_modules/";
-      Object.keys(bundle).forEach((key) => {
-        const output = bundle[key];
+      Object.values(bundle).forEach((output) => {
         if (output.type === "chunk") {
-          output.moduleIds
-            .filter((moduleId) => moduleId.includes(nodeModuleDirName))
-            .map((moduleId) => {
+          output.moduleIds.forEach((moduleId) => {
+            if (moduleId.includes(nodeModuleDirName)) {
               const nodeModuleIndex = moduleId.lastIndexOf(nodeModuleDirName);
               const modulePath = moduleId.slice(0, nodeModuleIndex + nodeModuleDirName.length);
               const moduleInnerPath = moduleId.slice(nodeModuleIndex + nodeModuleDirName.length);
@@ -27,33 +24,30 @@ export default function rolldownLicensePlugin(
               const packageName = splittedModuleInnerPath[0].startsWith("@")
                 ? splittedModuleInnerPath.slice(0, 2).join("/")
                 : splittedModuleInnerPath[0];
-              if (!packageMap.has(packageName)) {
-                packageSet.add(packageName);
-                packageMap.set(packageName, modulePath);
-              }
-            });
+              packageMap.set(packageName, modulePath);
+            }
+          });
         }
       });
 
-      const packages = Array.from(packageSet).sort();
+      const packages = [...packageMap.entries()].sort((a, b) => a[0].localeCompare(b[0]));
       const outputLicenses: string[] = [
         "# Bundled Third-Party Licenses",
         "This file contains licenses of third-party libraries bundled in this package.\n",
       ];
 
       const licenseSet: Set<string> = new Set();
-      packages.forEach((pkgName, index) => {
+      packages.forEach(([pkgName, pkgPath], index) => {
         outputLicenses.push(`## ${pkgName}`);
-        const pkgPath = packageMap.get(pkgName)!;
         const pkgRootPath = path.join(pkgPath, pkgName);
         const packageJsonPath = path.join(pkgRootPath, "package.json");
         const packageJsonText = fs.readFileSync(packageJsonPath, { encoding: "utf8" });
         const packageJson = JSON.parse(packageJsonText);
-        if (packageJson.license !== undefined) {
+        if (packageJson.license) {
           outputLicenses.push(`License: ${packageJson.license}`);
           licenseSet.add(packageJson.license);
         }
-        if (packageJson.author !== undefined) {
+        if (packageJson.author) {
           if (typeof packageJson.author === "object") {
             const author: string[] = [packageJson.author.name];
             if (packageJson.author.email) {
@@ -68,7 +62,7 @@ export default function rolldownLicensePlugin(
             outputLicenses.push(`By: ${packageJson.author}`);
           }
         }
-        if (packageJson.repository !== undefined && packageJson.repository.url !== undefined) {
+        if (packageJson.repository && packageJson.repository.url) {
           outputLicenses.push(`Repositories: ${packageJson.repository.url}`);
         }
         outputLicenses.push("");
@@ -81,7 +75,7 @@ export default function rolldownLicensePlugin(
           readPath = path.join(pkgRootPath, lowerLicenseFileName);
         }
         const licenseText = fs.readFileSync(readPath, { encoding: "utf8" });
-        outputLicenses.push(licenseText.replace(/^/gm, "> ").replace(/\n> $/g, ""));
+        outputLicenses.push(licenseText.replace(/\n$/g, "").replace(/^/gm, "> "));
         if (index !== packages.length - 1) {
           outputLicenses.push("\n---------------------------------------\n");
         }
@@ -94,7 +88,7 @@ export default function rolldownLicensePlugin(
         "Vegas is released under the MIT license:\n",
         coreLicenseText,
       ];
-      if (AdditionalLicenseFiles.length > 0) {
+      if (AdditionalLicenseFiles) {
         AdditionalLicenseFiles.forEach((licenseFile) => {
           const filePath = path.join(root, licenseFile);
           if (fs.existsSync(filePath)) {
@@ -111,13 +105,13 @@ export default function rolldownLicensePlugin(
         "",
       );
 
-      licenseHeader.reverse().forEach((line) => {
-        outputLicenses.unshift(line);
-      });
-
-      fs.writeFileSync(path.join(root, "LICENSE.md"), `${outputLicenses.join("\n")}\n`, {
-        encoding: "utf8",
-      });
+      fs.writeFileSync(
+        path.join(root, "LICENSE.md"),
+        `${licenseHeader.concat(outputLicenses).join("\n")}\n`,
+        {
+          encoding: "utf8",
+        },
+      );
     },
   };
 }

@@ -1,6 +1,6 @@
 {
   "name": "@vegasjs/vegas",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "The SPA build tool for GAS platform",
   "keywords": [
     "build-tool",
@@ -26,6 +26,7 @@
   },
   "files": [
     "dist",
+    "types",
     "client.d.ts"
   ],
   "type": "module",
@@ -40,16 +41,16 @@
     "provenance": true
   },
   "dependencies": {
-    "vite": "^8.0.0"
+    "vite": "^8.0.3"
   },
   "devDependencies": {
     "@types/google-apps-script": "^2.0.8",
-    "@types/node": "^25.3.2",
+    "@types/node": "^24.12.0",
     "cac": "^7.0.0",
-    "memfs": "^4.56.10",
+    "memfs": "^4.57.1",
     "parse5": "^8.0.0"
   },
   "engines": {
-    "node": ">=22.14.0"
+    "node": ">=22.18.0"
   }
 }

@@ -9,10 +9,10 @@ Unless noted, the options in this section are applied to all dev and build.
 
 Project root directory. Can be an absolute path, or a path relative to the current working directory.
 
-## webDir
+## clientDir
 
 - **Type:** `string`
-- **Default:** `src/web`
+- **Default:** `src/client`
 
 The directory that serves as the starting point for exploring front-end programs.
 

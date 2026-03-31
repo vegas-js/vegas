@@ -1,0 +1,25 @@
+{
+  "name": "vegas-svelte-typescript-starter",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vegas",
+    "build": "vegas build",
+    "preview": "vegas preview",
+    "check": "svelte-check --tsconfig ./tsconfig.client.json && tsc -p tsconfig.server.json && tsc -p tsconfig.node.json",
+    "login": "clasp login",
+    "push": "clasp push"
+  },
+  "devDependencies": {
+    "@google/clasp": "^3.3.0",
+    "@sveltejs/vite-plugin-svelte": "^7.0.0",
+    "@tsconfig/svelte": "^5.0.8",
+    "@types/google-apps-script": "^2.0.8",
+    "@types/node": "^24.12.0",
+    "@vegasjs/vegas": "^0.1.4",
+    "svelte": "^5.55.1",
+    "svelte-check": "^4.4.6",
+    "typescript": "~5.9.3"
+  }
+}
