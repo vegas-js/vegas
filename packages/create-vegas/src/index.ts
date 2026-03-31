@@ -36,6 +36,7 @@ const frameworkOptions: { value: string; label: string }[] = [
   { label: util.styleText("green", "Vue"), value: "template-vue" },
   { label: util.styleText("cyan", "React"), value: "template-react" },
   { label: util.styleText("magenta", "Preact"), value: "template-preact" },
+  { label: util.styleText("red", "Svelte"), value: "template-svelte" },
 ];
 
 function cancelHandler() {

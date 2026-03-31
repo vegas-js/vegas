@@ -55,6 +55,9 @@ export function createBuilderConfig(
         "import.meta.env.ENDPOINT_URL": JSON.stringify(mode === "production" ? "/exec" : "/dev"),
         "import.meta.env.SSR": false,
       },
+      resolve: {
+        conditions: ["module", "browser", mode],
+      },
       build: {
         rolldownOptions: {
           input: entry,
