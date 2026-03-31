@@ -1,6 +1,6 @@
 {
   "name": "create-vegas",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Scaffolding tool for Vegas projects",
   "keywords": [
     "create",
@@ -23,8 +23,11 @@
     "create-vegas": "dist/create-vegas.js"
   },
   "files": [
+    "template-preact",
     "template-react",
-    "template-react-oxc",
+    "template-solid",
+    "template-svelte",
+    "template-vanilla",
     "template-vue",
     "dist"
   ],
