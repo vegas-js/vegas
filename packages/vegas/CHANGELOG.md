@@ -1,3 +1,18 @@
+# 0.1.4 (2026-04-01)
+
+feat: support svelte.
+feat: support GAS script only build.
+feat: add preview subcommand.
+feat: support no config file.
+chore: improve Logger API.
+chore: add Logger API tests.
+chore: add Session API tests.
+chore: add genarateManifest tests.
+chore: improve error handling.
+chore: rename frontend dir (web -> client).
+chore: disable codeSplitting.
+chore: improve rolldownLicensePlugin.
+
 # 0.1.3 (2026-03-22)
 
 feat: add Spreadsheet#getCell().
