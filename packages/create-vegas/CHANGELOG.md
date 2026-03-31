@@ -1,3 +1,7 @@
+# 0.1.4 (2026-04-01)
+
+fix: not published templates.
+
 # 0.1.3 (2026-04-01)
 
 feat: add solid template.

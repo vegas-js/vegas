@@ -1,3 +1,7 @@
+# 0.1.5 (2026-04-01)
+
+chore: improve README.
+
 # 0.1.4 (2026-04-01)
 
 feat: support svelte.
