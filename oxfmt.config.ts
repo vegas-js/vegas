@@ -1,7 +1,6 @@
 import { defineConfig } from "oxfmt";
 
 export default defineConfig({
-  experimentalSortImports: {},
-  experimentalSortPackageJson: {},
+  sortImports: {},
   ignorePatterns: ["**/LICENSE*", "packages/create-vegas/template-*"],
 });
