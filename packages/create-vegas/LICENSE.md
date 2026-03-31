@@ -23,8 +23,8 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-# License of the files in the directories starting with "template-" in create-vite
-The files in the directories starting with "template-" in create-vite and files
+# License of the files in the directories starting with "template-" in create-vegas
+The files in the directories starting with "template-" in create-vegas and files
 generated from those files are licensed under the CC0 1.0 Universal license:
 
 Creative Commons Legal Code
