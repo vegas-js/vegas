@@ -71,6 +71,16 @@ src/
   └─ Code.ts
 ```
 
+Please add the appType setting to `vegas.config.ts`.
+
+```typescript
+import { defineConfig } from "@vegasjs/vegas";
+
+export default defineConfig({
+  appType: "script",
+});
+```
+
 ## Supported GAS APIs (Local Runtime)
 
 - ✅: support
