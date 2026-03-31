@@ -70,6 +70,7 @@ export async function serveApp(ctx: ServeContext, builder: ViteBuilder) {
       const args = Array.isArray(data.args) ? data.args : [data.args];
       const result = await launchGAS(ctx, data.func, ...args);
       client.send("vegas:return", {
+        requestId: data.requestId,
         status: "ok",
         result,
       });
@@ -77,7 +78,7 @@ export async function serveApp(ctx: ServeContext, builder: ViteBuilder) {
       hostServer.ws.send({
         type: "error",
         err: {
-          // id: data.id,
+          requestId: data.requestId,
           message: err.message,
           stack: err.stack,
         },

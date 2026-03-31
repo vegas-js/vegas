@@ -12,7 +12,7 @@ interface VegasInitEvent {
 interface VegasResult {
   type: "vegas:return";
   payload: {
-    id: number;
+    requestId: number;
   };
 }
 
@@ -52,14 +52,14 @@ port1.onmessage = (event: MessageEvent<VegasEvent>) => {
       break;
     }
     case "vegas:return": {
-      const gasRun = window.vegas.requestMap.get(event.data.payload.id);
+      const gasRun = window.vegas.requestMap.get(event.data.payload.requestId);
       if (gasRun) {
         if (event.data.payload.status === "ok") {
           gasRun.SuccessHandler(event.data.payload.result);
         } else if (event.data.payload.status === "err") {
           gasRun.FailureHandler(event.data.payload.message);
         }
-        window.vegas.requestMap.delete(event.data.payload.id);
+        window.vegas.requestMap.delete(event.data.payload.requestId);
       }
       break;
     }
@@ -93,7 +93,7 @@ const proxyHandler: ProxyHandler<object> = {
         window.vegas.requestMap.set(requestId, receiver);
         port1.postMessage({
           type: "vegas:gascall",
-          payload: { id: requestId, func: property, args },
+          payload: { requestId, func: property, args },
         });
       };
     }
