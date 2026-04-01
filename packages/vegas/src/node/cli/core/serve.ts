@@ -13,7 +13,7 @@ export async function serveApp(ctx: ServeContext, builder: ViteBuilder) {
   const idMap: Map<string, { use: boolean; expiredAt: number }> = new Map();
   const hostServer = await createServer({
     root: ctx.config.root,
-    configFile: false,
+    configFile: "vegas.config.ts",
     customLogger: createLogger("info", { prefix: "[vegas]" }),
     cacheDir: path.join(ctx.config.root, "node_modules", ".vegas-host"),
   });
