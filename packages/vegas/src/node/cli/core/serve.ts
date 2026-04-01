@@ -13,9 +13,17 @@ export async function serveApp(ctx: ServeContext, builder: ViteBuilder) {
   const idMap: Map<string, { use: boolean; expiredAt: number }> = new Map();
   const hostServer = await createServer({
     root: ctx.config.root,
-    configFile: "vegas.config.ts",
+    configFile: false,
     customLogger: createLogger("info", { prefix: "[vegas]" }),
     cacheDir: path.join(ctx.config.root, "node_modules", ".vegas-host"),
+    plugins: [
+      {
+        name: "vite-plugin-configfile",
+        configureServer(server) {
+          Object.assign(server.config, { configFile: "vegas.config.ts" });
+        },
+      },
+    ],
   });
 
   hostServer.watcher.add([ctx.config.clientDir, ctx.config.serverDir]);
