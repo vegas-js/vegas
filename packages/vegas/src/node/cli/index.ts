@@ -3,8 +3,8 @@ import { cac } from "cac";
 
 import pkg from "../../../package.json";
 import { runBuild } from "./build";
-import { runPush } from "./deploy";
 import { runPreview } from "./preview";
+import { runPush } from "./push";
 import { runServe } from "./serve";
 
 const cli = cac("vegas");
