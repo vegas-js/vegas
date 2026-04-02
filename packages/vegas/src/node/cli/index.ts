@@ -3,6 +3,7 @@ import { cac } from "cac";
 
 import pkg from "../../../package.json";
 import { runBuild } from "./build";
+import { runPush } from "./deploy";
 import { runPreview } from "./preview";
 import { runServe } from "./serve";
 
@@ -17,6 +18,9 @@ cli.command("preview [root]").action(runPreview);
 
 // build
 cli.command("build [root]").action(runBuild);
+
+// push
+cli.command("push").action(runPush);
 
 cli.help();
 cli.parse();

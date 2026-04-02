@@ -60,6 +60,9 @@ importers:
         specifier: ^8.0.3
         version: 8.0.3(@types/node@24.12.0)(esbuild@0.27.3)
     devDependencies:
+      '@platformatic/vfs':
+        specifier: ^0.3.0
+        version: 0.3.0
       '@types/google-apps-script':
         specifier: ^2.0.8
         version: 2.0.8
@@ -718,6 +721,10 @@ packages:
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [x64]
     os: [win32]
+
+  '@platformatic/vfs@0.3.0':
+    resolution: {integrity: sha512-BGXVOAz59HYPZCgI9v/MtiTF/ng8YAWtkooxVwOPR3TatNgGy0WZ/t15ScqytiZi5NdSRqWNRfuAbXKeAlKDdQ==}
+    engines: {node: '>= 22'}
 
   '@quansync/fs@1.0.0':
     resolution: {integrity: sha512-4TJ3DFtlf1L5LDMaM6CanJ/0lckGNtJcMjQ1NAV6zDmA0tEHKZtxNKin8EgPaVX1YzljbxckyT2tJrpQKAtngQ==}
@@ -2324,6 +2331,8 @@ snapshots:
 
   '@oxlint/binding-win32-x64-msvc@1.58.0':
     optional: true
+
+  '@platformatic/vfs@0.3.0': {}
 
   '@quansync/fs@1.0.0':
     dependencies:

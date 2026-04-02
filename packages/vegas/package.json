@@ -44,6 +44,7 @@
     "vite": "^8.0.3"
   },
   "devDependencies": {
+    "@platformatic/vfs": "^0.3.0",
     "@types/google-apps-script": "^2.0.8",
     "@types/node": "^24.12.0",
     "cac": "^7.0.0",
