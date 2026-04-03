@@ -62,8 +62,12 @@ export default function rolldownLicensePlugin(
             outputLicenses.push(`By: ${packageJson.author}`);
           }
         }
-        if (packageJson.repository && packageJson.repository.url) {
-          outputLicenses.push(`Repositories: ${packageJson.repository.url}`);
+        if (packageJson.repository) {
+          if (typeof packageJson.repository === "string") {
+            outputLicenses.push(`Repositories: ${packageJson.repository}`);
+          } else if (packageJson.repository.url) {
+            outputLicenses.push(`Repositories: ${packageJson.repository.url}`);
+          }
         }
         outputLicenses.push("");
         const upperLicenseFileName = "LICENSE";
