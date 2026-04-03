@@ -14,26 +14,32 @@ import {
 } from "./handlers";
 
 class GASHandler {
+  #handlers: Record<string, Record<string, any>>;
+
   constructor() {
-    const proxyHandler: ProxyHandler<any> = {
-      get(target, property, receiver) {
-        const thisFn = Reflect.get(target, property, receiver);
-        if (thisFn) {
-          return thisFn;
-        }
+    this.#handlers = {
+      HtmlService: new HtmlServiceHandler(),
+      Session: new SessionHandler(),
+      Cache: new CacheHandler(),
+      Properties: new PropertiesHandler(),
+      SpreadsheetApp: new SpreadsheetAppHandler(),
+      Sheet: new SheetHandler(),
+      Range: new RangeHandler(),
+      UrlFetchApp: new UrlFetchAppHandler(),
+    };
+
+    const proxyHandler: ProxyHandler<this> = {
+      get(target, property) {
         return async (port: worker.MessagePort, sharedArray: Int32Array, ...args: any[]) => {
-          const [clazz, method] = property.toString().split("#");
+          const [clazz, method] = String(property).split("#");
           try {
-            const result = await target[clazz][method](...args);
+            const result = await target.#handlers[clazz][method](...args);
             if (result !== undefined) {
               port.postMessage(result);
             }
+          } finally {
             Atomics.store(sharedArray, 0, 0);
             Atomics.notify(sharedArray, 0);
-          } catch (err: any) {
-            Atomics.store(sharedArray, 0, 0);
-            Atomics.notify(sharedArray, 0);
-            throw err;
           }
         };
       },
@@ -41,25 +47,9 @@ class GASHandler {
 
     return new Proxy(this, proxyHandler);
   }
-
-  addHandler(HandlerClass: new () => any) {
-    const className = HandlerClass.name;
-    if (typeof HandlerClass === "function" && className.endsWith("Handler")) {
-      const key = className.replace(/Handler$/, "");
-      (this as any)[key] = new HandlerClass();
-    }
-  }
 }
 
 const handler = new GASHandler();
-handler.addHandler(HtmlServiceHandler);
-handler.addHandler(SessionHandler);
-handler.addHandler(CacheHandler);
-handler.addHandler(PropertiesHandler);
-handler.addHandler(SpreadsheetAppHandler);
-handler.addHandler(SheetHandler);
-handler.addHandler(RangeHandler);
-handler.addHandler(UrlFetchAppHandler);
 
 export function launchGAS(ctx: ServeContext, fn: string, ...args: any[]): Promise<any> {
   return new Promise((resolve, reject) => {
