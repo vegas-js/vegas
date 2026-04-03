@@ -15,12 +15,16 @@ export async function runPush() {
     if (typeof pkgBin === "string") {
       const claspPath = path.resolve(path.dirname(pkgJsonPath), pkgBin);
       const claspConfigPath = path.join(process.cwd(), ".clasp.json");
+      const claspConfig = fs.existsSync(claspConfigPath)
+        ? JSON.parse(fs.readFileSync(claspConfigPath, "utf8"))
+        : {};
+
+      using mvfs = vfs.create({ overlay: true });
+      mvfs.mount(process.cwd());
+
       const fsPromises = fs.promises;
 
       const origAccess = fsPromises.access;
-      const origStat = fsPromises.stat;
-      const origReadFile = fsPromises.readFile;
-
       fsPromises.access = async (target, mode) => {
         if (path.resolve(String(target)) === claspConfigPath) {
           return mvfs.promises.access(claspConfigPath, mode);
@@ -28,6 +32,7 @@ export async function runPush() {
         return origAccess(target, mode);
       };
 
+      const origStat = fsPromises.stat;
       fsPromises.stat = async (target, options) => {
         if (path.resolve(String(target)) === claspConfigPath) {
           return mvfs.promises.stat(claspConfigPath, options) as any;
@@ -35,6 +40,7 @@ export async function runPush() {
         return origStat(target, options);
       };
 
+      const origReadFile = fsPromises.readFile;
       fsPromises.readFile = async (target, options) => {
         // oxlint-disable-next-line no-base-to-string
         if (path.resolve(String(target)) === claspConfigPath) {
@@ -42,13 +48,6 @@ export async function runPush() {
         }
         return origReadFile(target, options);
       };
-
-      const claspConfig = fs.existsSync(claspConfigPath)
-        ? JSON.parse(fs.readFileSync(claspConfigPath, "utf8"))
-        : {};
-
-      using mvfs = vfs.create({ overlay: true });
-      mvfs.mount(process.cwd());
 
       const mergedConfig: Record<string, string> = {};
       mergedConfig.parentId = process.env.VEGAS_PARENT_ID ?? claspConfig.parentId;
