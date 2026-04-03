@@ -5,9 +5,6 @@ import path from "node:path";
 import vfs from "@platformatic/vfs";
 
 export async function runPush() {
-  const scriptId = process.env.VEGAS_SCRIPT_ID;
-  const parentId = process.env.VEGAS_PARENT_ID;
-
   const importer = path.join(process.cwd(), "index.js");
   const pkgJsonPath = module.findPackageJSON("@google/clasp", importer);
 
@@ -54,8 +51,8 @@ export async function runPush() {
       mvfs.mount(process.cwd());
 
       const mergedConfig: Record<string, string> = {};
-      mergedConfig.parentId = parentId ?? claspConfig.parentId;
-      mergedConfig.scriptId = scriptId ?? claspConfig.scriptId;
+      mergedConfig.parentId = process.env.VEGAS_PARENT_ID ?? claspConfig.parentId;
+      mergedConfig.scriptId = process.env.VEGAS_SCRIPT_ID ?? claspConfig.scriptId;
       mergedConfig.rootDir = "dist";
 
       mvfs.writeFileSync(claspConfigPath, JSON.stringify(mergedConfig), "utf8");
