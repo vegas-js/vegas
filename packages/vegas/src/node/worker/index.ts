@@ -18,7 +18,6 @@ import { Spreadsheet } from "./api/spreadsheet/Spreadsheet";
 import { SpreadsheetApp } from "./api/spreadsheet/SpreadsheetApp";
 import { UrlFetchApp } from "./api/url_fetch/UrlFetchApp";
 import { Utilities } from "./api/utilities/Utilities";
-import { TriggerEvent } from "./triggerEvent";
 
 type GASWorkerData = {
   fn: string;
@@ -201,42 +200,32 @@ interface DoGetResult {
   xFrameOptionsMode: string;
 }
 
-function doGetHandler(this: TriggerEvent, htmlOutput: GoogleAppsScript.HTML.HtmlOutput) {
-  const result: DoGetResult = {
-    metaTags: htmlOutput.getMetaTags().map((metaTag) => {
-      return { name: metaTag.getName(), content: metaTag.getContent() };
-    }),
-    title: htmlOutput.getTitle(),
-    faviconUrl: htmlOutput.getFaviconUrl(),
-    content: htmlOutput.getContent(),
-    xFrameOptionsMode: (htmlOutput as any).getXFrameOptionsMode(),
-  };
-  this.postMessage(result);
+async function invokeFn(fn: Function, ...args: any[]) {
+  const result = await fn(...args);
+  if (fn.name === "doGet") {
+    const htmlOutput: GoogleAppsScript.HTML.HtmlOutput = result;
+    return {
+      metaTags: htmlOutput.getMetaTags().map((metaTag) => {
+        return { name: metaTag.getName(), content: metaTag.getContent() };
+      }),
+      title: htmlOutput.getTitle(),
+      faviconUrl: htmlOutput.getFaviconUrl(),
+      content: htmlOutput.getContent(),
+      xFrameOptionsMode: (htmlOutput as any).getXFrameOptionsMode(),
+    } satisfies DoGetResult;
+  }
+
+  return result;
 }
 
-const triggerEvent = new TriggerEvent(port);
-triggerEvent.on("doGet", doGetHandler);
-
 port.on("message", async (data: GASWorkerData) => {
-  try {
-    const targetFn = scriptContext[data.fn];
-    if (typeof targetFn !== "function") {
-      throw new Error(`${data.fn} is not a function`);
-    }
-    const result = await targetFn(...data.args);
-
-    if (triggerEvent.isTarget(data.fn)) {
-      triggerEvent.emit(data.fn, result);
-    } else {
-      port.postMessage({ message: "resolve", payload: result });
-    }
-  } catch (err: any) {
-    console.error(err);
-    port.postMessage({
-      message: "reject",
-      payload: { message: err.message, stack: err.stack },
-    });
+  const targetFn = scriptContext[data.fn];
+  if (typeof targetFn !== "function") {
+    throw new Error(`${data.fn} is not a function`);
   }
+
+  const result = await invokeFn(targetFn, ...data.args);
+  port.postMessage({ message: "resolve", payload: result });
 });
 
 port.on("close", () => process.exit());

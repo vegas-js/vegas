@@ -66,20 +66,21 @@ export function launchGAS(ctx: ServeContext, fn: string, ...args: any[]): Promis
     const sharedBuffer = new SharedArrayBuffer(4);
     const sharedArray = new Int32Array(sharedBuffer);
     const { port1, port2 } = new worker.MessageChannel();
-    new worker.Worker(path.join(import.meta.dirname, "worker.js"), {
+    const gasWorker = new worker.Worker(path.join(import.meta.dirname, "worker.js"), {
       env: { ...process.env, FORCE_COLOR: "1" },
       transferList: [port2],
       workerData: { code: ctx.code.server, sharedArray, port: port2 },
     });
 
-    port1.postMessage({ fn, args });
+    gasWorker.on("error", (err: any) => {
+      console.error(err);
+      reject(err);
+    });
+
     port1.on("message", async (data) => {
       if (data.message === "resolve") {
         port1.close();
         resolve(data.payload);
-      } else if (data.message === "reject") {
-        port1.close();
-        reject(data.payload);
       } else {
         try {
           await (handler as any)[data.message](port1, sharedArray, ctx, data.payload);
@@ -90,5 +91,6 @@ export function launchGAS(ctx: ServeContext, fn: string, ...args: any[]): Promis
         }
       }
     });
+    port1.postMessage({ fn, args });
   });
 }
