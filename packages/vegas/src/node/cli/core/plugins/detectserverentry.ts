@@ -24,10 +24,7 @@ export function detectServerEntry(
         const serverEntries: string[] = [];
         const importMap: Map<string, string[]> = new Map();
         projectSource.clientSources.forEach((clientSource) => {
-          const { program } = parseSync(
-            clientSource,
-            fs.readFileSync(clientSource, { encoding: "utf8" }),
-          );
+          const { program } = parseSync(clientSource, fs.readFileSync(clientSource, "utf8"));
           const visitor = new Visitor({
             ImportDeclaration(node) {
               if (importMap.has(clientSource)) {
