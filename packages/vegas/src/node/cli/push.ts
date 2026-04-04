@@ -26,7 +26,7 @@ export async function runPush() {
 
       const originalPromiseAccess = fsPromises.access;
       fsPromises.access = async (target, mode) => {
-        if (typeof target === "string") {
+        if (typeof target === "string" && mvfs) {
           const normalizedPath = path.normalize(path.resolve(target));
           if (mvfs.shouldHandle(normalizedPath)) {
             return await mvfs.promises.access(claspConfigPath, mode);
