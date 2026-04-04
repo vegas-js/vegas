@@ -16,7 +16,7 @@ export function detectServerEntry(
     name: "vite-plugin-detectserverentry",
 
     applyToEnvironment(environment) {
-      return environment.name.startsWith("server");
+      return environment.name === "server";
     },
 
     async resolveId(source, _importer, options) {
@@ -27,8 +27,9 @@ export function detectServerEntry(
           const { program } = parseSync(clientSource, fs.readFileSync(clientSource, "utf8"));
           const visitor = new Visitor({
             ImportDeclaration(node) {
-              if (importMap.has(clientSource)) {
-                importMap.get(clientSource)!.push(node.source.value);
+              const imports = importMap.get(clientSource);
+              if (imports) {
+                imports.push(node.source.value);
               } else {
                 importMap.set(clientSource, [node.source.value]);
               }
