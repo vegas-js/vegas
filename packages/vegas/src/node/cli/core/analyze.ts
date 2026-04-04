@@ -64,16 +64,15 @@ export function detectClientEntries(clientSources: string[]) {
 }
 
 export function isWebApp(serverSource: string) {
-  let isWebApp = false;
   if (serverSource) {
     const { program } = parseSync("Code.ts", serverSource);
-    program.body.forEach((node) => {
+    for (const node of program.body) {
       if (node.type === "FunctionDeclaration" && node.id) {
-        if (node.id.name === "doGet" || node.id.name === "doPost") {
-          isWebApp = true;
+        if (/^do(Get|Post)$/.test(node.id.name)) {
+          return true;
         }
       }
-    });
+    }
   }
-  return isWebApp;
+  return false;
 }
