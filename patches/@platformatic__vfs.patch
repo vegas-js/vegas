@@ -1,3 +1,21 @@
+diff --git a/index.js b/index.js
+index c3f5471eebdd84fd34f95c03da8eee663c411130..84ff9e2c82912054f670ed269dc476fbd793d4f1 100644
+--- a/index.js
++++ b/index.js
+@@ -4,7 +4,6 @@ const { VirtualFileSystem } = require('./lib/file_system.js');
+ const { VirtualProvider } = require('./lib/provider.js');
+ const { MemoryProvider } = require('./lib/providers/memory.js');
+ const { RealFSProvider } = require('./lib/providers/real.js');
+-const { SqliteProvider } = require('./lib/providers/sqlite.js');
+ 
+ /**
+  * Creates a new VirtualFileSystem instance.
+@@ -31,5 +30,4 @@ module.exports = {
+   VirtualProvider,
+   MemoryProvider,
+   RealFSProvider,
+-  SqliteProvider,
+ };
 diff --git a/lib/module_hooks.js b/lib/module_hooks.js
 index e4cb82372d9c6329ea077e3b7b7ef1cd9f37bbb4..10affe7570eba2732217f4aa82e6d3ac208b9967 100644
 --- a/lib/module_hooks.js

@@ -6,7 +6,7 @@ settings:
 
 patchedDependencies:
   '@platformatic/vfs':
-    hash: 4db22e1941082428794a3f2d7c38ce8301f8da2814e7fb4a56ffa9b91daac0d5
+    hash: 8c43c1c6ff5795150785c1e6bf451dddbd760f1f601c853a698c05273258376f
     path: patches/@platformatic__vfs.patch
 
 importers:
@@ -70,7 +70,7 @@ importers:
     devDependencies:
       '@platformatic/vfs':
         specifier: ^0.3.0
-        version: 0.3.0(patch_hash=4db22e1941082428794a3f2d7c38ce8301f8da2814e7fb4a56ffa9b91daac0d5)
+        version: 0.3.0(patch_hash=8c43c1c6ff5795150785c1e6bf451dddbd760f1f601c853a698c05273258376f)
       '@types/node':
         specifier: ^24.12.0
         version: 24.12.0
@@ -2349,7 +2349,7 @@ snapshots:
   '@oxlint/binding-win32-x64-msvc@1.58.0':
     optional: true
 
-  '@platformatic/vfs@0.3.0(patch_hash=4db22e1941082428794a3f2d7c38ce8301f8da2814e7fb4a56ffa9b91daac0d5)': {}
+  '@platformatic/vfs@0.3.0(patch_hash=8c43c1c6ff5795150785c1e6bf451dddbd760f1f601c853a698c05273258376f)': {}
 
   '@quansync/fs@1.0.0':
     dependencies:
