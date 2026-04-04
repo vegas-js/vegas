@@ -1,5 +1,5 @@
 diff --git a/lib/module_hooks.js b/lib/module_hooks.js
-index e4cb82372d9c6329ea077e3b7b7ef1cd9f37bbb4..36debdda9e5d0169994eec96ffb033b5da7c8a6f 100644
+index e4cb82372d9c6329ea077e3b7b7ef1cd9f37bbb4..10affe7570eba2732217f4aa82e6d3ac208b9967 100644
 --- a/lib/module_hooks.js
 +++ b/lib/module_hooks.js
 @@ -73,6 +73,14 @@ let originalExistsSync = null;
@@ -7,84 +7,183 @@ index e4cb82372d9c6329ea077e3b7b7ef1cd9f37bbb4..36debdda9e5d0169994eec96ffb033b5
  let originalWatchFile = null;
  let originalUnwatchFile = null;
 +
-+let originalPromiseReadFile = null;
-+let originalPromiseRealpath = null;
-+let originalPromiseLstat = null;
-+let originalPromiseStat = null;
-+let originalPromiseReaddir = null;
-+let originalPromiseWatch = null;
++let originalAsyncReadFile = null;
++let originalAsyncRealpath = null;
++let originalAsyncLstat = null;
++let originalAsyncStat = null;
++let originalAsyncReaddir = null;
++let originalAsyncWatch = null;
 +
  let hooksInstalled = false;
  
  function registerVFS(vfs) {
-@@ -946,6 +954,85 @@ function installFsPatches() {
+@@ -228,6 +236,98 @@ function findVFSForWatch(filename) {
+   return null;
+ }
+ 
++async function findVFSForAsyncRead(filename, options) {
++  const normalized = normalizeVFSPath(filename);
++  for (let i = 0; i < activeVFSList.length; i++) {
++    const vfs = activeVFSList[i];
++    if (vfs.shouldHandle(normalized)) {
++      if (vfs.existsSync(normalized)) {
++        const statResult = vfs.internalModuleStat(normalized);
++        if (statResult !== 0) {
++          return null;
++        }
++        try {
++          const content = await vfs.promises.readFile(normalized, options);
++          return { vfs, content };
++        } catch (e) {
++          if (vfs.mounted) {
++            throw e;
++          }
++        }
++      } else if (vfs.mounted) {
++        throw createENOENT('open', filename);
++      }
++    }
++  }
++  return null;
++}
++
++async function findVFSForAsyncRealpath(filename) {
++  const normalized = normalizeVFSPath(filename);
++  for (let i = 0; i < activeVFSList.length; i++) {
++    const vfs = activeVFSList[i];
++    if (vfs.shouldHandle(normalized)) {
++      if (vfs.existsSync(normalized)) {
++        try {
++          const realpath = await vfs.promises.realpath(normalized);
++          return { vfs, realpath };
++        } catch (e) {
++          if (vfs.mounted) {
++            throw e;
++          }
++        }
++      } else if (vfs.mounted) {
++        throw createENOENT('realpath', filename);
++      }
++    }
++  }
++  return null;
++}
++
++async function findVFSForAsyncFsStat(filename) {
++  const normalized = normalizeVFSPath(filename);
++  for (let i = 0; i < activeVFSList.length; i++) {
++    const vfs = activeVFSList[i];
++    if (vfs.shouldHandle(normalized)) {
++      if (vfs.existsSync(normalized)) {
++        try {
++          const stats = await vfs.promises.stat(normalized);
++          return { vfs, stats };
++        } catch (e) {
++          if (vfs.mounted) {
++            throw e;
++          }
++        }
++      } else if (vfs.mounted) {
++        throw createENOENT('stat', filename);
++      }
++    }
++  }
++  return null;
++}
++
++async function findVFSForAsyncReaddir(dirname, options) {
++  const normalized = normalizeVFSPath(dirname);
++  for (let i = 0; i < activeVFSList.length; i++) {
++    const vfs = activeVFSList[i];
++    if (vfs.shouldHandle(normalized)) {
++      if (vfs.existsSync(normalized)) {
++        try {
++          const entries = await vfs.promises.readdir(normalized, options);
++          return { vfs, entries };
++        } catch (e) {
++          if (vfs.mounted) {
++            throw e;
++          }
++        }
++      } else if (vfs.mounted) {
++        throw createENOENT('scandir', dirname);
++      }
++    }
++  }
++  return null;
++}
++
+ // === Module format detection ===
+ 
+ const VFS_FORMAT_MAP = {
+@@ -946,6 +1046,85 @@ function installFsPatches() {
    };
  }
  
-+function installFsPromisePatches() {
-+  const fsPromise = require('node:fs/promises');
++function installFsPromisesPatches() {
++  const fsPromises = require('node:fs/promises');
 +
-+  originalPromiseReadFile = fsPromise.readFile;
-+  originalPromiseRealpath = fsPromise.realpath;
-+  originalPromiseLstat = fsPromise.lstat;
-+  originalPromiseStat = fsPromise.stat;
++  originalAsyncReadFile = fsPromises.readFile;
++  originalAsyncRealpath = fsPromises.realpath;
++  originalAsyncLstat = fsPromises.lstat;
++  originalAsyncStat = fsPromises.stat;
 +
-+  fsPromise.readFile = async function readFile(path, options) {
++  fsPromises.readFile = async function readFile(path, options) {
 +    if (typeof path === 'string') {
-+      const vfsResult = findVFSForRead(path, options);
++      const vfsResult = await findVFSForAsyncRead(path, options);
 +      if (vfsResult !== null) {
 +        return vfsResult.content;
 +      }
 +    }
-+    return originalPromiseReadFile.call(fsPromise, path, options);
++    return originalAsyncReadFile.call(fsPromises, path, options);
 +  };
 +
-+  fsPromise.realpath = async function realpath(path, options) {
++  fsPromises.realpath = async function realpath(path, options) {
 +    if (typeof path === 'string') {
-+      const vfsResult = findVFSForRealpath(path);
++      const vfsResult = await findVFSForAsyncRealpath(path);
 +      if (vfsResult !== null) {
 +        return vfsResult.realpath;
 +      }
 +    }
-+    return originalPromiseRealpath.call(fsPromise, path, options);
++    return originalAsyncRealpath.call(fsPromises, path, options);
 +  };
-+  if (originalPromiseRealpath.native) {
-+    fsPromise.realpath.native = originalPromiseRealpath.native;
++  if (originalAsyncRealpath.native) {
++    fsPromises.realpath.native = originalAsyncRealpath.native;
 +  }
 +
-+  fsPromise.lstat = async function lstat(path, options) {
++  fsPromises.lstat = async function lstat(path, options) {
 +    if (typeof path === 'string') {
-+      const vfsResult = findVFSForFsStat(path);
++      const vfsResult = await findVFSForAsyncFsStat(path);
 +      if (vfsResult !== null) {
 +        return vfsResult.stats;
 +      }
 +    }
-+    return originalPromiseLstat.call(fsPromise, path, options);
++    return originalAsyncLstat.call(fsPromises, path, options);
 +  };
 +
-+  fsPromise.stat = async function stat(path, options) {
++  fsPromises.stat = async function stat(path, options) {
 +    if (typeof path === 'string') {
-+      const vfsResult = findVFSForFsStat(path);
++      const vfsResult = await findVFSForAsyncFsStat(path);
 +      if (vfsResult !== null) {
 +        return vfsResult.stats;
 +      }
 +    }
-+    return originalPromiseStat.call(fsPromise, path, options);
++    return originalAsyncStat.call(fsPromises, path, options);
 +  };
 +
-+  originalPromiseReaddir = fsPromise.readdir;
-+  fsPromise.readdir = async function readdir(path, options) {
++  originalAsyncReaddir = fsPromises.readdir;
++  fsPromises.readdir = async function readdir(path, options) {
 +    if (typeof path === 'string') {
-+      const vfsResult = findVFSForReaddir(path, options);
++      const vfsResult = await findVFSForAsyncReaddir(path, options);
 +      if (vfsResult !== null) {
 +        return vfsResult.entries;
 +      }
 +    }
-+    return originalPromiseReaddir.call(fsPromise, path, options);
++    return originalAsyncReaddir.call(fsPromises, path, options);
 +  };
 +
-+  originalPromiseWatch = fsPromise.watch;
-+  fsPromise.watch = async function watch(filename, options) {
++  originalAsyncWatch = fsPromises.watch;
++  fsPromises.watch = async function watch(filename, options) {
 +    if (typeof options === 'function') {
 +      listener = options;
 +      options = kEmptyObject;
@@ -96,18 +195,18 @@ index e4cb82372d9c6329ea077e3b7b7ef1cd9f37bbb4..36debdda9e5d0169994eec96ffb033b5
 +        return await vfsResult.vfs.promise.watch(filename, options);
 +      }
 +    }
-+    return originalPromiseWatch.call(fsPromise, filename, options);
++    return originalAsyncWatch.call(fsPromises, filename, options);
 +  };
 +}
 +
  function installHooks() {
    if (hooksInstalled) {
      return;
-@@ -953,6 +1040,7 @@ function installHooks() {
+@@ -953,6 +1132,7 @@ function installHooks() {
  
    installModuleHooks();
    installFsPatches();
-+  installFsPromisePatches();
++  installFsPromisesPatches();
  
    hooksInstalled = true;
  }
