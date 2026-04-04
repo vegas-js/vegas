@@ -4,3 +4,6 @@ packages:
 
 ignoredBuiltDependencies:
   - esbuild
+
+patchedDependencies:
+  "@platformatic/vfs": patches/@platformatic__vfs.patch

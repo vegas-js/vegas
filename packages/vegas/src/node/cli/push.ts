@@ -24,29 +24,15 @@ export async function runPush() {
 
       const fsPromises = fs.promises;
 
-      const origAccess = fsPromises.access;
+      const originalPromiseAccess = fsPromises.access;
       fsPromises.access = async (target, mode) => {
-        if (path.resolve(String(target)) === claspConfigPath) {
-          return mvfs.promises.access(claspConfigPath, mode);
+        if (typeof target === "string") {
+          const normalizedPath = path.normalize(path.resolve(target));
+          if (mvfs.shouldHandle(normalizedPath)) {
+            return await mvfs.promises.access(claspConfigPath, mode);
+          }
         }
-        return origAccess(target, mode);
-      };
-
-      const origStat = fsPromises.stat;
-      fsPromises.stat = async (target, options) => {
-        if (path.resolve(String(target)) === claspConfigPath) {
-          return mvfs.promises.stat(claspConfigPath, options) as any;
-        }
-        return origStat(target, options);
-      };
-
-      const origReadFile = fsPromises.readFile;
-      fsPromises.readFile = async (target, options) => {
-        // oxlint-disable-next-line no-base-to-string
-        if (path.resolve(String(target)) === claspConfigPath) {
-          return mvfs.promises.readFile(claspConfigPath, options) as any;
-        }
-        return origReadFile(target, options);
+        return originalPromiseAccess.call(fsPromises, target, mode);
       };
 
       const mergedConfig: Record<string, string> = {};
@@ -54,18 +40,15 @@ export async function runPush() {
       mergedConfig.scriptId = process.env.VEGAS_SCRIPT_ID ?? claspConfig.scriptId;
       mergedConfig.rootDir = "dist";
 
-      mvfs.writeFileSync(claspConfigPath, JSON.stringify(mergedConfig), "utf8");
-
       const prevArgv = process.argv;
       process.argv = process.argv.slice(0, 3);
 
       try {
+        mvfs.writeFileSync(claspConfigPath, JSON.stringify(mergedConfig), "utf8");
         await import(claspPath);
       } finally {
         process.argv = prevArgv;
-        fsPromises.access = origAccess;
-        fsPromises.stat = origStat;
-        fsPromises.readFile = origReadFile;
+        fsPromises.access = originalPromiseAccess;
       }
     }
   }
