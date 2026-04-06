@@ -6,6 +6,7 @@ import { Logger } from "./api/base/Logger";
 import { Session } from "./api/base/Session";
 import { Cache } from "./api/cache/Cache";
 import { CacheService } from "./api/cache/CacheService";
+import { DriveApp } from "./api/drive/DriveApp";
 import { HtmlOutput } from "./api/html/HtmlOutput";
 import { HtmlService } from "./api/html/HtmlService";
 import { Lock } from "./api/lock/Lock";
@@ -88,7 +89,7 @@ const scriptContext = vm.createContext({
   /* Docs */
   DocumentApp: undefined,
   /* Drive */
-  DriveApp: undefined,
+  DriveApp: new DriveApp(requestSync),
   /* Forms */
   FormApp: undefined,
   /* Gmail */
