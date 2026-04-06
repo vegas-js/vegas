@@ -156,7 +156,7 @@ export async function serveApp(ctx: ServeContext, builder: ViteBuilder) {
         const html = createHostHtml(url, result);
         const transFormedHtml = await hostServer.transformIndexHtml(url.href, html);
         response.statusCode = 200;
-        response.setHeader("Content-Type", "text/html");
+        response.setHeader("Content-Type", "text/html; charset=utf-8");
         if (result.xFrameOptionsMode) {
           response.setHeader("X-Frame-Options", result.xFrameOptionsMode);
         }
