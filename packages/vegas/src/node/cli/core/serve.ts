@@ -24,6 +24,9 @@ export async function serveApp(ctx: ServeContext, builder: ViteBuilder) {
         },
       },
     ],
+    server: {
+      open: false,
+    },
   });
 
   hostServer.watcher.add([ctx.config.clientDir, ctx.config.serverDir]);
