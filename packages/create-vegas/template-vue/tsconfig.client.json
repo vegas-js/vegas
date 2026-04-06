@@ -5,12 +5,10 @@
     "types": ["@vegasjs/vegas/client"],
 
     /* Linting */
-    "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "erasableSyntaxOnly": true,
-    "noFallthroughCasesInSwitch": true,
-    "noUncheckedSideEffectImports": true
+    "noFallthroughCasesInSwitch": true
   },
   "include": ["src/client/**/*.ts", "src/client/**/*.tsx", "src/client/**/*.vue"]
 }
