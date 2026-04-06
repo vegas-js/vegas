@@ -37,7 +37,8 @@
       "import": "./dist/lib.js"
     },
     "./client": {
-      "types": "./client.d.ts"
+      "types": "./client.d.ts",
+      "import": "./dist/lib.js"
     }
   },
   "publishConfig": {
