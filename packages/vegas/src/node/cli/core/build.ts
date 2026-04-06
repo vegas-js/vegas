@@ -1,5 +1,8 @@
+import fs from "node:fs";
+import path from "node:path";
 import util from "node:util";
 
+import vfs from "@platformatic/vfs";
 import {
   EnvironmentOptions,
   InlineConfig,
@@ -15,8 +18,15 @@ import { detectServerEntry, VIRTUAL_DETECT_SERVER_ENTRY } from "../core/plugins/
 import { exportBridge } from "../core/plugins/exportbridge";
 import { virtualHTML } from "../core/plugins/virtualhtml";
 
-export async function buildApp(builder: ViteBuilder, envFilter?: RegExp) {
+type FileSystem = typeof fs;
+
+export async function buildApp(
+  fs: FileSystem | vfs.VirtualFileSystem,
+  builder: ViteBuilder,
+  envFilter?: RegExp,
+) {
   const buildPromises = [];
+  const config = builder.config;
   for (const environment of Object.values(builder.environments)) {
     if (/^(client|ssr)$/.test(environment.name)) {
       continue;
@@ -25,7 +35,19 @@ export async function buildApp(builder: ViteBuilder, envFilter?: RegExp) {
       buildPromises.push(builder.build(environment));
     }
   }
-  return Promise.all(buildPromises);
+  const output = await Promise.all(buildPromises);
+  (output.flat() as Rolldown.RolldownOutput[]).map((result) => {
+    const outputs = result.output.flat();
+    outputs.map((out) => {
+      const outputPath = path.join(config.build.outDir, out.fileName);
+      const outputDir = path.dirname(outputPath);
+      if (!fs.existsSync(outputDir)) {
+        fs.mkdirSync(outputDir, { recursive: true });
+      }
+      const content = out.type === "asset" ? Buffer.from(out.source).toString("utf8") : out.code;
+      fs.writeFileSync(outputPath, content, "utf8");
+    });
+  });
 }
 
 export function createBuilderConfig(
@@ -33,7 +55,6 @@ export function createBuilderConfig(
   mode: "development" | "production",
   projectSource: ProjectSource,
   clientEntries: string[],
-  isWrite: boolean = true,
 ) {
   const environments: Record<string, EnvironmentOptions> = {
     server: {
@@ -43,7 +64,6 @@ export function createBuilderConfig(
           name: "GASApp",
           entry: VIRTUAL_DETECT_SERVER_ENTRY,
         },
-        write: isWrite,
       },
     },
   };
@@ -62,7 +82,6 @@ export function createBuilderConfig(
         rolldownOptions: {
           input: entry,
         },
-        write: isWrite,
       },
     };
   });
@@ -85,7 +104,7 @@ export function createBuilderConfig(
       outDir: config.output.dir,
       assetsInlineLimit: () => true,
       cssCodeSplit: false,
-      write: isWrite,
+      write: false,
       emptyOutDir: false,
       reportCompressedSize: false,
       rolldownOptions: {
@@ -97,23 +116,6 @@ export function createBuilderConfig(
     logLevel: "silent",
   };
   return builderConfig;
-}
-
-export function extractOutput(
-  results: (Rolldown.RolldownOutput | Rolldown.RolldownOutput[] | Rolldown.RolldownWatcher)[],
-) {
-  const output: { client: Map<string, string>; server: string } = { client: new Map(), server: "" };
-  (results.flat() as Rolldown.RolldownOutput[]).map((result) => {
-    const outputs = result.output.flat();
-    outputs.forEach((out) => {
-      if (out.type === "asset") {
-        output.client.set(out.fileName, Buffer.from(out.source).toString("utf8"));
-      } else {
-        output.server = out.code;
-      }
-    });
-  });
-  return output;
 }
 
 export function printBanner() {

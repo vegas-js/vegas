@@ -4,7 +4,7 @@ import path from "node:path";
 import { createBuilder } from "vite";
 
 import { collectSources, detectClientEntries, isWebApp } from "./core/analyze";
-import { buildApp, createBuilderConfig, extractOutput, printBanner } from "./core/build";
+import { buildApp, createBuilderConfig, printBanner } from "./core/build";
 import { loadConfig, resolveConfig } from "./core/config";
 import { generateGASManifest } from "./core/manifest";
 import { collectArtifacts, printReport } from "./core/printReport";
@@ -28,9 +28,8 @@ export async function runBuild(root?: string) {
   );
   const builder = await createBuilder(builderConfig);
   fs.rmSync(resolvedUserConfig.output.dir, { recursive: true, force: true });
-  const result = await buildApp(builder);
-  const { server } = extractOutput(result);
-  if (!isWebApp(server)) {
+  await buildApp(fs, builder);
+  if (!isWebApp(resolvedUserConfig.output.dir)) {
     resolvedUserConfig.gas.webapp = undefined;
   }
   generateGASManifest(resolvedUserConfig.output.dir, resolvedUserConfig.gas);

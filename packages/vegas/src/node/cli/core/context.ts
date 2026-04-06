@@ -1,11 +1,10 @@
+import vfs from "@platformatic/vfs";
+
 import { ResolvedUserConfig } from "./config";
 
 export interface ServeContext {
   config: ResolvedUserConfig;
-  code: {
-    client: { hrefs: string[]; map: Map<string, string> };
-    server: string;
-  };
+  vfs: vfs.VirtualFileSystem;
   mock: Record<string, any>;
   store: {
     properties: {
@@ -27,14 +26,11 @@ export interface ServeContext {
 
 export function createServeContext(
   config: ResolvedUserConfig,
-  sources: { client: Map<string, string>; server: string },
+  vfs: vfs.VirtualFileSystem,
 ): ServeContext {
   return {
     config,
-    code: {
-      client: { hrefs: [], map: sources.client },
-      server: sources.server,
-    },
+    vfs,
     mock: {},
     store: {
       properties: {

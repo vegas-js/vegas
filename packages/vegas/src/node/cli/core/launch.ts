@@ -52,6 +52,8 @@ class GASHandler {
 const handler = new GASHandler();
 
 export function launchGAS(ctx: ServeContext, fn: string, ...args: any[]): Promise<any> {
+  const sourcePath = path.join(ctx.config.output.dir, "Code.js");
+  const code = ctx.vfs.readFileSync(sourcePath, "utf8");
   return new Promise((resolve, reject) => {
     const sharedBuffer = new SharedArrayBuffer(4);
     const sharedArray = new Int32Array(sharedBuffer);
@@ -59,7 +61,7 @@ export function launchGAS(ctx: ServeContext, fn: string, ...args: any[]): Promis
     const gasWorker = new worker.Worker(path.join(import.meta.dirname, "worker.js"), {
       env: { ...process.env, FORCE_COLOR: "1" },
       transferList: [port2],
-      workerData: { code: ctx.code.server, sharedArray, port: port2 },
+      workerData: { code, sharedArray, port: port2 },
     });
 
     gasWorker.on("error", (err: any) => {

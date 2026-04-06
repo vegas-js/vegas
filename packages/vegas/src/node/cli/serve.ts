@@ -1,9 +1,10 @@
 import path from "node:path";
 
+import vfs from "@platformatic/vfs";
 import { createBuilder } from "vite";
 
 import { collectSources, detectClientEntries } from "./core/analyze";
-import { buildApp, createBuilderConfig, extractOutput } from "./core/build";
+import { buildApp, createBuilderConfig } from "./core/build";
 import { loadConfig, resolveConfig } from "./core/config";
 import { createServeContext } from "./core/context";
 import { loadMock } from "./core/mock";
@@ -22,12 +23,11 @@ export async function runServe(root?: string) {
     "development",
     projectSource,
     clientEntries,
-    false,
   );
   const builder = await createBuilder(builderConfig);
-  const result = await buildApp(builder);
-  const sources = extractOutput(result);
-  const ctx = createServeContext(resolvedUserConfig, sources);
+  using mvfs = vfs.create();
+  await buildApp(mvfs, builder);
+  const ctx = createServeContext(resolvedUserConfig, mvfs);
   await loadMock(ctx, projectSource.gasMockSources);
 
   await serveApp(ctx, builder);

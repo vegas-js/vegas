@@ -4,7 +4,7 @@ import path from "node:path";
 import { Connect, createLogger, createServer, ViteBuilder } from "vite";
 
 import { HTML } from "../core";
-import { buildApp, extractOutput } from "./build";
+import { buildApp } from "./build";
 import { ServeContext } from "./context";
 import { createHostHtml } from "./hostHtml";
 import { launchGAS } from "./launch";
@@ -31,19 +31,15 @@ export async function serveApp(ctx: ServeContext, builder: ViteBuilder) {
 
   hostServer.watcher.add([ctx.config.clientDir, ctx.config.serverDir]);
 
-  hostServer.watcher.on("change", async (path) => {
+  hostServer.watcher.on("change", async (filePath) => {
     try {
-      if (path.startsWith(ctx.config.clientDir)) {
-        const result = await buildApp(builder, /^client\d+$/);
-        const output = extractOutput(result);
-        ctx.code.client.map = output.client;
+      if (filePath.startsWith(ctx.config.clientDir)) {
+        await buildApp(ctx.vfs, builder, /^client\d+$/);
         hostServer.moduleGraph.invalidateAll();
         hostServer.ws.send({ type: "full-reload" });
         return [];
-      } else if (path.startsWith(ctx.config.serverDir)) {
-        const result = await buildApp(builder, /^server$/);
-        const output = extractOutput(result);
-        ctx.code.server = output.server;
+      } else if (filePath.startsWith(ctx.config.serverDir)) {
+        await buildApp(ctx.vfs, builder, /^server$/);
         return [];
       }
     } catch (err: any) {
@@ -143,9 +139,6 @@ export async function serveApp(ctx: ServeContext, builder: ViteBuilder) {
         })();
         if (pathInfo) {
           doGetEvent["pathInfo"] = pathInfo;
-        }
-        if (!ctx.code.client.hrefs.includes(url.href)) {
-          ctx.code.client.hrefs.push(url.href);
         }
         let uuid = "";
         do {
