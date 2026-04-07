@@ -202,7 +202,7 @@ export async function serveApp(ctx: ServeContext, builder: ViteBuilder) {
           { name: "content", value: "IE=edge" },
         ]);
         response.statusCode = 200;
-        response.setHeader("Content-Type", "text/html");
+        response.setHeader("Content-Type", "text/html; charset=utf-8");
         response.end(html.toString());
         return;
       } else if (url.pathname === "/userCodeAppPanel") {
@@ -242,7 +242,7 @@ export async function serveApp(ctx: ServeContext, builder: ViteBuilder) {
         ]);
 
         response.statusCode = 200;
-        response.setHeader("Content-Type", "text/html");
+        response.setHeader("Content-Type", "text/html; charset=utf-8");
         response.end(html.toString());
         return;
       }
