@@ -17,13 +17,15 @@ index c3f5471eebdd84fd34f95c03da8eee663c411130..84ff9e2c82912054f670ed269dc476fb
 -  SqliteProvider,
  };
 diff --git a/lib/module_hooks.js b/lib/module_hooks.js
-index e4cb82372d9c6329ea077e3b7b7ef1cd9f37bbb4..10affe7570eba2732217f4aa82e6d3ac208b9967 100644
+index e4cb82372d9c6329ea077e3b7b7ef1cd9f37bbb4..12d0a06668940794b64dcded2815c62ede55eb66 100644
 --- a/lib/module_hooks.js
 +++ b/lib/module_hooks.js
-@@ -73,6 +73,14 @@ let originalExistsSync = null;
+@@ -73,6 +73,17 @@ let originalExistsSync = null;
  let originalWatch = null;
  let originalWatchFile = null;
  let originalUnwatchFile = null;
++let originalAccess = null;
++let originalAccessSync = null
 +
 +let originalAsyncReadFile = null;
 +let originalAsyncRealpath = null;
@@ -31,14 +33,32 @@ index e4cb82372d9c6329ea077e3b7b7ef1cd9f37bbb4..10affe7570eba2732217f4aa82e6d3ac
 +let originalAsyncStat = null;
 +let originalAsyncReaddir = null;
 +let originalAsyncWatch = null;
++let originalAsyncAccess = null;
 +
  let hooksInstalled = false;
  
  function registerVFS(vfs) {
-@@ -228,6 +236,98 @@ function findVFSForWatch(filename) {
+@@ -228,6 +239,115 @@ function findVFSForWatch(filename) {
    return null;
  }
  
++function findVFSForAccess(path) {
++  const normalized = normalizeVFSPath(path);
++  for (let i = 0; i < activeVFSList.length; i++) {
++    const vfs = activeVFSList[i];
++    if (vfs.shouldHandle(normalized)) {
++      if (vfs.overlay) {
++        if (vfs.existsSync(normalized)) {
++          return { vfs };
++        }
++        continue;
++      }
++      return { vfs };
++    }
++  }
++  return null;
++}
++
 +async function findVFSForAsyncRead(filename, options) {
 +  const normalized = normalizeVFSPath(filename);
 +  for (let i = 0; i < activeVFSList.length; i++) {
@@ -134,10 +154,39 @@ index e4cb82372d9c6329ea077e3b7b7ef1cd9f37bbb4..10affe7570eba2732217f4aa82e6d3ac
  // === Module format detection ===
  
  const VFS_FORMAT_MAP = {
-@@ -946,6 +1046,85 @@ function installFsPatches() {
+@@ -944,6 +1064,127 @@ function installFsPatches() {
+     }
+     return originalUnwatchFile.call(fs, filename, listener);
    };
- }
- 
++
++  originalAccess = fs.access;
++  fs.access = function access(path, mode, callback) {
++    if (typeof mode === 'function') {
++      callback = mode;
++      mode = kEmptyObject;
++    } else mode ??= kEmptyObject;
++
++    if (typeof path === 'string') {
++      const vfsResult = findVFSForAccess(path);
++      if (vfsResult !== null) {
++        vfsResult.vfs.access(path, mode, callback);
++      }
++    }
++    originalAccess.call(fs, path, mode, callback);
++  }
++
++  originalAccessSync = fs.accessSync;
++  fs.accessSync = function accessSync(path, mode) {
++    if (typeof path === 'string') {
++      const vfsResult = findVFSForAccess(path);
++      if (vfsResult !== null) {
++        vfsResult.vfs.accessSync(path, mode);
++      }
++    }
++    originalAccessSync.call(fs, path, mode);
++  }
++}
++
 +function installFsPromisesPatches() {
 +  const fsPromises = require('node:fs/promises');
 +
@@ -215,12 +264,25 @@ index e4cb82372d9c6329ea077e3b7b7ef1cd9f37bbb4..10affe7570eba2732217f4aa82e6d3ac
 +    }
 +    return originalAsyncWatch.call(fsPromises, filename, options);
 +  };
-+}
 +
++  originalAsyncAccess = fsPromises.access;
++  fsPromises.access = async function access(path, mode) {
++    if (typeof path === 'string') {
++      const vfsResult = findVFSForAccess(path);
++      if (vfsResult !== null) {
++        const promise = vfsResult.vfs.promises.access(path, mode);
++        if (promise !== null) {
++          await promise;
++          return;
++        }
++      }
++    }
++    return originalAsyncAccess.call(fsPromises, path, mode);
++  }
+ }
+ 
  function installHooks() {
-   if (hooksInstalled) {
-     return;
-@@ -953,6 +1132,7 @@ function installHooks() {
+@@ -953,6 +1194,7 @@ function installHooks() {
  
    installModuleHooks();
    installFsPatches();

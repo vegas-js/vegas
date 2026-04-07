@@ -22,19 +22,6 @@ export async function runPush() {
       using mvfs = vfs.create({ overlay: true });
       mvfs.mount(process.cwd());
 
-      const fsPromises = fs.promises;
-
-      const originalPromiseAccess = fsPromises.access;
-      fsPromises.access = async (target, mode) => {
-        if (typeof target === "string" && mvfs) {
-          const normalizedPath = path.normalize(path.resolve(target));
-          if (mvfs.shouldHandle(normalizedPath)) {
-            return await mvfs.promises.access(claspConfigPath, mode);
-          }
-        }
-        return originalPromiseAccess.call(fsPromises, target, mode);
-      };
-
       const mergedConfig: Record<string, string> = {};
       mergedConfig.parentId = process.env.VEGAS_PARENT_ID ?? claspConfig.parentId;
       mergedConfig.scriptId = process.env.VEGAS_SCRIPT_ID ?? claspConfig.scriptId;
@@ -48,7 +35,6 @@ export async function runPush() {
         await import(claspPath);
       } finally {
         process.argv = prevArgv;
-        fsPromises.access = originalPromiseAccess;
       }
     }
   }
