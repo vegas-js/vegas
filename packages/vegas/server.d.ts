@@ -2,7 +2,7 @@
 interface ImportMetaEnv {
   DEV: boolean;
   PROD: boolean;
-  MODE: "development" | "production";
+  MODE: string;
 }
 
 interface ImportMeta {

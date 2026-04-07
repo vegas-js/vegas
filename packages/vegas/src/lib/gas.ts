@@ -1,36 +1,24 @@
-import {
-  excludesGASUserFunctionNames,
-  MockProperties,
-  MockSession,
-  MockTarget,
-} from "../shared/gas";
-
-declare namespace google {
-  namespace script {
-    type ScriptRun = {
-      withSuccessHandler: (value: unknown) => ScriptRun;
-      withFailureHandler: (reason?: any) => ScriptRun;
-      [fn: string | symbol]: (...arg: any[]) => void;
-    };
-
-    export const run: ScriptRun;
-  }
-}
+/// <reference types="../../types/google" />
+import { MockProperties, MockSession, MockTarget } from "../shared/gas";
 
 type GASUserFunction<T> = {
   [K in keyof T]: T[K] extends (...args: infer A) => infer R
     ? (...args: A) => Promise<Awaited<R>>
     : never;
 };
-
-type ExcludeGASUserFunction = (typeof excludesGASUserFunctionNames)[number];
-
-type GASClient<T> = Omit<GASUserFunction<T>, ExcludeGASUserFunction>;
+type GASTriggerFunction =
+  | "onOpen"
+  | "onInstall"
+  | "onEdit"
+  | "onSelectionChange"
+  | "doGet"
+  | "doPost";
+type GASClient<T> = Omit<GASUserFunction<T>, GASTriggerFunction>;
 
 export function createGASClient<T extends object>() {
   const handler: ProxyHandler<object> = {
     get(_, property) {
-      return (...args: any[]) =>
+      return (...args: unknown[]) =>
         new Promise((resolve, reject) => {
           google.script.run
             .withSuccessHandler(resolve)
