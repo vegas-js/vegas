@@ -18,15 +18,30 @@ import { detectServerEntry, VIRTUAL_DETECT_SERVER_ENTRY } from "../core/plugins/
 import { exportBridge } from "../core/plugins/exportbridge";
 import { virtualHTML } from "../core/plugins/virtualhtml";
 
-type FileSystem = typeof fs;
+type FileSystem = typeof fs | vfs.VirtualFileSystem;
 
-export async function buildApp(
-  fs: FileSystem | vfs.VirtualFileSystem,
-  builder: ViteBuilder,
-  envFilter?: RegExp,
+async function output(
+  fs: FileSystem,
+  buildResults: Rolldown.RolldownOutput[],
+  config: ResolvedConfig,
 ) {
+  const outputs = buildResults.map((result) => result.output).flat();
+  await Promise.all(
+    outputs.map(async (output) => {
+      const outputPath = path.join(config.build.outDir, output.fileName);
+      const outputDir = path.dirname(outputPath);
+      if (!fs.existsSync(outputDir)) {
+        fs.mkdirSync(outputDir, { recursive: true });
+      }
+      const content =
+        output.type === "asset" ? Buffer.from(output.source).toString("utf8") : output.code;
+      return fs.promises.writeFile(outputPath, content, "utf8");
+    }),
+  );
+}
+
+export async function buildApp(fs: FileSystem, builder: ViteBuilder, envFilter?: RegExp) {
   const buildPromises = [];
-  const config = builder.config;
   for (const environment of Object.values(builder.environments)) {
     if (/^(client|ssr)$/.test(environment.name)) {
       continue;
