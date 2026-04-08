@@ -6,6 +6,7 @@ import vfs from "@platformatic/vfs";
 import {
   EnvironmentOptions,
   InlineConfig,
+  ResolvedConfig,
   Rolldown,
   version as VITE_VERSION,
   ViteBuilder,
@@ -50,19 +51,8 @@ export async function buildApp(fs: FileSystem, builder: ViteBuilder, envFilter?:
       buildPromises.push(builder.build(environment));
     }
   }
-  const output = await Promise.all(buildPromises);
-  (output.flat() as Rolldown.RolldownOutput[]).map((result) => {
-    const outputs = result.output.flat();
-    outputs.map((out) => {
-      const outputPath = path.join(config.build.outDir, out.fileName);
-      const outputDir = path.dirname(outputPath);
-      if (!fs.existsSync(outputDir)) {
-        fs.mkdirSync(outputDir, { recursive: true });
-      }
-      const content = out.type === "asset" ? Buffer.from(out.source).toString("utf8") : out.code;
-      fs.writeFileSync(outputPath, content, "utf8");
-    });
-  });
+  const buildResults = await Promise.all(buildPromises);
+  await output(fs, buildResults.flat() as Rolldown.RolldownOutput[], builder.config);
 }
 
 export function createBuilderConfig(
@@ -82,17 +72,20 @@ export function createBuilderConfig(
       },
     },
   };
+  const sharedClientOptions: EnvironmentOptions = {
+    consumer: "client",
+    define: {
+      "import.meta.env.BASE_URL": JSON.stringify("/userCodeAppPanel"),
+      "import.meta.env.ENDPOINT_URL": JSON.stringify(mode === "production" ? "/exec" : "/dev"),
+      "import.meta.env.SSR": false,
+    },
+    resolve: {
+      conditions: ["module", "browser", mode],
+    },
+  };
   clientEntries.forEach((entry, index) => {
     environments[`client${index}`] = {
-      consumer: "client",
-      define: {
-        "import.meta.env.BASE_URL": JSON.stringify("/userCodeAppPanel"),
-        "import.meta.env.ENDPOINT_URL": JSON.stringify(mode === "production" ? "/exec" : "/dev"),
-        "import.meta.env.SSR": false,
-      },
-      resolve: {
-        conditions: ["module", "browser", mode],
-      },
+      ...sharedClientOptions,
       build: {
         rolldownOptions: {
           input: entry,
