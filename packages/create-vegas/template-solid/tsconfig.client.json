@@ -5,7 +5,7 @@
     "useDefineForClassFields": true,
     "module": "ESNext",
     "lib": ["ES2023", "DOM", "DOM.Iterable"],
-    "types": ["@vegasjs/vegas"],
+    "types": ["@vegasjs/vegas/client"],
     "skipLibCheck": true,
 
     /* Bundler mode */
@@ -18,12 +18,10 @@
     "jsxImportSource": "solid-js",
 
     /* Linting */
-    "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "erasableSyntaxOnly": true,
-    "noFallthroughCasesInSwitch": true,
-    "noUncheckedSideEffectImports": true
+    "noFallthroughCasesInSwitch": true
   },
   "include": ["src/client"]
 }

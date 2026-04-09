@@ -1,4 +1,4 @@
 /// <reference types="vite/client" />
-/// <reference types="google-apps-script" />
 /// <reference types="./types/importMeta" />
+/// <reference types="./types/google" />
 export * from "./dist/lib";

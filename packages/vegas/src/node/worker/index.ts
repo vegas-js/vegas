@@ -6,6 +6,9 @@ import { Logger } from "./api/base/Logger";
 import { Session } from "./api/base/Session";
 import { Cache } from "./api/cache/Cache";
 import { CacheService } from "./api/cache/CacheService";
+import { DriveApp } from "./api/drive/DriveApp";
+import { File } from "./api/drive/File";
+import { Folder } from "./api/drive/Folder";
 import { HtmlOutput } from "./api/html/HtmlOutput";
 import { HtmlService } from "./api/html/HtmlService";
 import { Lock } from "./api/lock/Lock";
@@ -18,7 +21,6 @@ import { Spreadsheet } from "./api/spreadsheet/Spreadsheet";
 import { SpreadsheetApp } from "./api/spreadsheet/SpreadsheetApp";
 import { UrlFetchApp } from "./api/url_fetch/UrlFetchApp";
 import { Utilities } from "./api/utilities/Utilities";
-import { TriggerEvent } from "./triggerEvent";
 
 type GASWorkerData = {
   fn: string;
@@ -73,6 +75,16 @@ function createHtmlOutput(
 }
 export type CreateHtmlOutput = typeof createHtmlOutput;
 
+function createFolder(): GoogleAppsScript.Drive.Folder {
+  return new Folder();
+}
+export type CreateFolder = typeof createFolder;
+
+function createFile(): GoogleAppsScript.Drive.File {
+  return new File();
+}
+export type CreateFile = typeof createFile;
+
 const script = new vm.Script(worker.workerData.code);
 const scriptContext = vm.createContext({
   /* Admin Console */
@@ -89,7 +101,7 @@ const scriptContext = vm.createContext({
   /* Docs */
   DocumentApp: undefined,
   /* Drive */
-  DriveApp: undefined,
+  DriveApp: new DriveApp(createFile, createFolder, requestSync),
   /* Forms */
   FormApp: undefined,
   /* Gmail */
@@ -201,42 +213,32 @@ interface DoGetResult {
   xFrameOptionsMode: string;
 }
 
-function doGetHandler(this: TriggerEvent, htmlOutput: GoogleAppsScript.HTML.HtmlOutput) {
-  const result: DoGetResult = {
-    metaTags: htmlOutput.getMetaTags().map((metaTag) => {
-      return { name: metaTag.getName(), content: metaTag.getContent() };
-    }),
-    title: htmlOutput.getTitle(),
-    faviconUrl: htmlOutput.getFaviconUrl(),
-    content: htmlOutput.getContent(),
-    xFrameOptionsMode: (htmlOutput as any).getXFrameOptionsMode(),
-  };
-  this.postMessage(result);
+async function invokeFn(fn: Function, ...args: any[]) {
+  const result = await fn(...args);
+  if (fn.name === "doGet") {
+    const htmlOutput: GoogleAppsScript.HTML.HtmlOutput = result;
+    return {
+      metaTags: htmlOutput.getMetaTags().map((metaTag) => {
+        return { name: metaTag.getName(), content: metaTag.getContent() };
+      }),
+      title: htmlOutput.getTitle(),
+      faviconUrl: htmlOutput.getFaviconUrl(),
+      content: htmlOutput.getContent(),
+      xFrameOptionsMode: (htmlOutput as any).getXFrameOptionsMode(),
+    } satisfies DoGetResult;
+  }
+
+  return result;
 }
 
-const triggerEvent = new TriggerEvent(port);
-triggerEvent.on("doGet", doGetHandler);
-
 port.on("message", async (data: GASWorkerData) => {
-  try {
-    const targetFn = scriptContext[data.fn];
-    if (typeof targetFn !== "function") {
-      throw new Error(`${data.fn} is not a function`);
-    }
-    const result = await targetFn(...data.args);
-
-    if (triggerEvent.isTarget(data.fn)) {
-      triggerEvent.emit(data.fn, result);
-    } else {
-      port.postMessage({ message: "resolve", payload: result });
-    }
-  } catch (err: any) {
-    console.error(err);
-    port.postMessage({
-      message: "reject",
-      payload: { message: err.message, stack: err.stack },
-    });
+  const targetFn = scriptContext[data.fn];
+  if (typeof targetFn !== "function") {
+    throw new Error(`${data.fn} is not a function`);
   }
+
+  const result = await invokeFn(targetFn, ...data.args);
+  port.postMessage({ message: "resolve", payload: result });
 });
 
 port.on("close", () => process.exit());

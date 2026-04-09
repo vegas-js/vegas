@@ -10,7 +10,7 @@ export default defineConfig([
       client: "./src/client",
     },
     deps: {
-      onlyBundle: ["cac", "entities", "parse5"],
+      onlyBundle: ["@platformatic/vfs", "cac", "entities", "parse5"],
     },
     outputOptions: {
       entryFileNames: "[name].js",

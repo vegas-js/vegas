@@ -63,17 +63,18 @@ export function detectClientEntries(clientSources: string[]) {
   return clientEntries;
 }
 
-export function isWebApp(serverSource: string) {
-  let isWebApp = false;
-  if (serverSource) {
-    const { program } = parseSync("Code.ts", serverSource);
-    program.body.forEach((node) => {
+export function isWebApp(dir: string) {
+  const sourcePath = path.join(dir, "Code.js");
+  if (fs.existsSync(sourcePath)) {
+    const source = fs.readFileSync(sourcePath, "utf8");
+    const { program } = parseSync(sourcePath, source);
+    for (const node of program.body) {
       if (node.type === "FunctionDeclaration" && node.id) {
-        if (node.id.name === "doGet" || node.id.name === "doPost") {
-          isWebApp = true;
+        if (/^do(Get|Post)$/.test(node.id.name)) {
+          return true;
         }
       }
-    });
+    }
   }
-  return isWebApp;
+  return false;
 }

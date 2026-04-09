@@ -111,18 +111,18 @@ async function run() {
     cancelHandler();
   }
 
-  const packagePath = path.resolve(path.join(process.cwd(), ctx.projectName.replace(/\.\.?/g, "")));
+  const packagePath = path.resolve(process.cwd(), ctx.projectName.replace(/\.\.?/g, ""));
   prompts.log.step(`Scaffolding project in ${packagePath}...`);
 
   if (ctx.directoryOperation === "remove") {
     fs.rmSync(packagePath, { recursive: true, force: true });
   }
-  fs.cpSync(path.join(import.meta.dirname, "..", ctx.framework), packagePath, {
+  fs.cpSync(path.resolve(import.meta.dirname, "..", ctx.framework), packagePath, {
     recursive: true,
     force: true,
   });
 
-  await runCmd("npm", ["pkg", "set", `name=${path.parse(ctx.projectName).base}`], {
+  await runCmd("npm", ["pkg", "set", `name=${path.basename(ctx.projectName)}`], {
     cwd: packagePath,
   });
   fs.renameSync(path.join(packagePath, "_gitignore"), path.join(packagePath, ".gitignore"));

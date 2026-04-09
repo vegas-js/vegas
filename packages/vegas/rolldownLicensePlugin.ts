@@ -41,7 +41,7 @@ export default function rolldownLicensePlugin(
         outputLicenses.push(`## ${pkgName}`);
         const pkgRootPath = path.join(pkgPath, pkgName);
         const packageJsonPath = path.join(pkgRootPath, "package.json");
-        const packageJsonText = fs.readFileSync(packageJsonPath, { encoding: "utf8" });
+        const packageJsonText = fs.readFileSync(packageJsonPath, "utf8");
         const packageJson = JSON.parse(packageJsonText);
         if (packageJson.license) {
           outputLicenses.push(`License: ${packageJson.license}`);
@@ -62,8 +62,12 @@ export default function rolldownLicensePlugin(
             outputLicenses.push(`By: ${packageJson.author}`);
           }
         }
-        if (packageJson.repository && packageJson.repository.url) {
-          outputLicenses.push(`Repositories: ${packageJson.repository.url}`);
+        if (packageJson.repository) {
+          if (typeof packageJson.repository === "string") {
+            outputLicenses.push(`Repositories: ${packageJson.repository}`);
+          } else if (packageJson.repository.url) {
+            outputLicenses.push(`Repositories: ${packageJson.repository.url}`);
+          }
         }
         outputLicenses.push("");
         const upperLicenseFileName = "LICENSE";
@@ -74,7 +78,7 @@ export default function rolldownLicensePlugin(
         } else if (fs.existsSync(path.join(pkgRootPath, lowerLicenseFileName))) {
           readPath = path.join(pkgRootPath, lowerLicenseFileName);
         }
-        const licenseText = fs.readFileSync(readPath, { encoding: "utf8" });
+        const licenseText = fs.readFileSync(readPath, "utf8");
         outputLicenses.push(licenseText.replace(/\n$/g, "").replace(/^/gm, "> "));
         if (index !== packages.length - 1) {
           outputLicenses.push("\n---------------------------------------\n");
@@ -82,7 +86,7 @@ export default function rolldownLicensePlugin(
       });
 
       const coreLicensePath = path.join(process.cwd(), "LICENSE");
-      const coreLicenseText = fs.readFileSync(coreLicensePath, { encoding: "utf8" });
+      const coreLicenseText = fs.readFileSync(coreLicensePath, "utf8");
       const licenseHeader: string[] = [
         "# Vegas core license",
         "Vegas is released under the MIT license:\n",
@@ -92,7 +96,7 @@ export default function rolldownLicensePlugin(
         AdditionalLicenseFiles.forEach((licenseFile) => {
           const filePath = path.join(root, licenseFile);
           if (fs.existsSync(filePath)) {
-            const content = fs.readFileSync(filePath, { encoding: "utf8" });
+            const content = fs.readFileSync(filePath, "utf8");
             licenseHeader.push(content);
           }
         });
@@ -108,9 +112,7 @@ export default function rolldownLicensePlugin(
       fs.writeFileSync(
         path.join(root, "LICENSE.md"),
         `${licenseHeader.concat(outputLicenses).join("\n")}\n`,
-        {
-          encoding: "utf8",
-        },
+        "utf8",
       );
     },
   };

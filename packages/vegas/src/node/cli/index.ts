@@ -4,6 +4,7 @@ import { cac } from "cac";
 import pkg from "../../../package.json";
 import { runBuild } from "./build";
 import { runPreview } from "./preview";
+import { runPush } from "./push";
 import { runServe } from "./serve";
 
 const cli = cac("vegas");
@@ -17,6 +18,9 @@ cli.command("preview [root]").action(runPreview);
 
 // build
 cli.command("build [root]").action(runBuild);
+
+// push
+cli.command("push").action(runPush);
 
 cli.help();
 cli.parse();

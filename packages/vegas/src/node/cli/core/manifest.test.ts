@@ -40,7 +40,7 @@ test("the settings you configured will be output exactly as they are.", () => {
     },
   };
   generateGASManifest(outputDir, gasManifest);
-  const content = fs.readFileSync(manifestPath, { encoding: "utf8" }).toString();
+  const content = fs.readFileSync(manifestPath, "utf8").toString();
   const outputManifest = JSON.parse(content);
 
   expect(outputManifest).toStrictEqual(gasManifest);

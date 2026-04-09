@@ -69,7 +69,10 @@ window.addEventListener("message", (event) => {
   if (event.origin !== "${url.origin}") {
     return;
   }
-  if (event.data.type === "vegas:init" && event.data.payload.id) {
+  if (event.data.type === "vegas:preinit") {
+    const sandboxFrame = document.getElementById("sandboxFrame");
+    sandboxFrame.contentWindow.postMessage({ type: "vegas:preinit" }, event.data.payload.contentOrigin);
+  } else if (event.data.type === "vegas:init" && event.data.payload.id) {
     port = event.data.payload.port;
     import.meta.hot.send(event.data.type, { payload: { id: event.data.payload.id }});
   }

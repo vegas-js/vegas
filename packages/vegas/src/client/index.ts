@@ -34,18 +34,35 @@ type VegasReturnEvent = VegasResult & (VegasResultOk | VegasResultError);
 
 type VegasEvent = VegasInitEvent | VegasReturnEvent;
 
+let retryPreInitTimer: number | null = null;
+
 function vegasLoadListener() {
-  window.parent.postMessage(
-    { type: "vegas:init", payload: { id: window.vegas.id, port: port2 } },
-    window.vegas.hostOrigin!,
-    [port2],
+  retryPreInitTimer = setInterval(
+    () =>
+      window.parent.postMessage(
+        { type: "vegas:preinit", payload: { contentOrigin: window.origin } },
+        window.vegas.hostOrigin!,
+      ),
+    10,
   );
+  window.removeEventListener("load", vegasLoadListener);
 }
+
+window.addEventListener("message", (event) => {
+  if (event.data.type === "vegas:preinit" && retryPreInitTimer) {
+    clearInterval(retryPreInitTimer);
+    retryPreInitTimer = null;
+    window.parent.postMessage(
+      { type: "vegas:init", payload: { id: window.vegas.id, port: port2 } },
+      window.vegas.hostOrigin!,
+      [port2],
+    );
+  }
+});
 
 port1.onmessage = (event: MessageEvent<VegasEvent>) => {
   switch (event.data.type) {
     case "vegas:init": {
-      window.removeEventListener("load", vegasLoadListener);
       delete window.vegas.id;
       delete window.vegas.hostOrigin;
       injectUserHtml(event.data.payload.serverData.userHtml);

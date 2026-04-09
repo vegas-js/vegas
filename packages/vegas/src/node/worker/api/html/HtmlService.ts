@@ -1,5 +1,6 @@
 import { CreateHtmlOutput, RequestSync } from "../..";
 
+// https://developers.google.com/apps-script/reference/html/html-service
 export class HtmlService implements GoogleAppsScript.HTML.HtmlService {
   #createHtmlOutput: CreateHtmlOutput;
   #requestSync: RequestSync;

@@ -5,7 +5,7 @@
     "target": "ES2023",
     "useDefineForClassFields": true,
     "module": "ESNext",
-    "types": ["svelte", "@vegasjs/vegas"],
+    "types": ["svelte", "@vegasjs/vegas/client"],
     "noEmit": true,
     /**
      * Typecheck JS in `.svelte` and `.js` files by default.

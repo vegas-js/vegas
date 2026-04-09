@@ -1,8 +1,12 @@
+import fs from "node:fs";
+import path from "node:path";
 import util from "node:util";
 
+import vfs from "@platformatic/vfs";
 import {
   EnvironmentOptions,
   InlineConfig,
+  ResolvedConfig,
   Rolldown,
   version as VITE_VERSION,
   ViteBuilder,
@@ -15,7 +19,29 @@ import { detectServerEntry, VIRTUAL_DETECT_SERVER_ENTRY } from "../core/plugins/
 import { exportBridge } from "../core/plugins/exportbridge";
 import { virtualHTML } from "../core/plugins/virtualhtml";
 
-export async function buildApp(builder: ViteBuilder, envFilter?: RegExp) {
+type FileSystem = typeof fs | vfs.VirtualFileSystem;
+
+async function output(
+  fs: FileSystem,
+  buildResults: Rolldown.RolldownOutput[],
+  config: ResolvedConfig,
+) {
+  const outputs = buildResults.map((result) => result.output).flat();
+  await Promise.all(
+    outputs.map(async (output) => {
+      const outputPath = path.join(config.build.outDir, output.fileName);
+      const outputDir = path.dirname(outputPath);
+      if (!fs.existsSync(outputDir)) {
+        fs.mkdirSync(outputDir, { recursive: true });
+      }
+      const content =
+        output.type === "asset" ? Buffer.from(output.source).toString("utf8") : output.code;
+      return fs.promises.writeFile(outputPath, content, "utf8");
+    }),
+  );
+}
+
+export async function buildApp(fs: FileSystem, builder: ViteBuilder, envFilter?: RegExp) {
   const buildPromises = [];
   for (const environment of Object.values(builder.environments)) {
     if (/^(client|ssr)$/.test(environment.name)) {
@@ -25,7 +51,8 @@ export async function buildApp(builder: ViteBuilder, envFilter?: RegExp) {
       buildPromises.push(builder.build(environment));
     }
   }
-  return Promise.all(buildPromises);
+  const buildResults = await Promise.all(buildPromises);
+  await output(fs, buildResults.flat() as Rolldown.RolldownOutput[], builder.config);
 }
 
 export function createBuilderConfig(
@@ -33,7 +60,6 @@ export function createBuilderConfig(
   mode: "development" | "production",
   projectSource: ProjectSource,
   clientEntries: string[],
-  isWrite: boolean = true,
 ) {
   const environments: Record<string, EnvironmentOptions> = {
     server: {
@@ -43,26 +69,27 @@ export function createBuilderConfig(
           name: "GASApp",
           entry: VIRTUAL_DETECT_SERVER_ENTRY,
         },
-        write: isWrite,
       },
+    },
+  };
+  const sharedClientOptions: EnvironmentOptions = {
+    consumer: "client",
+    define: {
+      "import.meta.env.BASE_URL": JSON.stringify("/userCodeAppPanel"),
+      "import.meta.env.ENDPOINT_URL": JSON.stringify(mode === "production" ? "/exec" : "/dev"),
+      "import.meta.env.SSR": false,
+    },
+    resolve: {
+      conditions: ["module", "browser", mode],
     },
   };
   clientEntries.forEach((entry, index) => {
     environments[`client${index}`] = {
-      consumer: "client",
-      define: {
-        "import.meta.env.BASE_URL": JSON.stringify("/userCodeAppPanel"),
-        "import.meta.env.ENDPOINT_URL": JSON.stringify(mode === "production" ? "/exec" : "/dev"),
-        "import.meta.env.SSR": false,
-      },
-      resolve: {
-        conditions: ["module", "browser", mode],
-      },
+      ...sharedClientOptions,
       build: {
         rolldownOptions: {
           input: entry,
         },
-        write: isWrite,
       },
     };
   });
@@ -85,7 +112,7 @@ export function createBuilderConfig(
       outDir: config.output.dir,
       assetsInlineLimit: () => true,
       cssCodeSplit: false,
-      write: isWrite,
+      write: false,
       emptyOutDir: false,
       reportCompressedSize: false,
       rolldownOptions: {
@@ -97,23 +124,6 @@ export function createBuilderConfig(
     logLevel: "silent",
   };
   return builderConfig;
-}
-
-export function extractOutput(
-  results: (Rolldown.RolldownOutput | Rolldown.RolldownOutput[] | Rolldown.RolldownWatcher)[],
-) {
-  const output: { client: Map<string, string>; server: string } = { client: new Map(), server: "" };
-  (results.flat() as Rolldown.RolldownOutput[]).map((result) => {
-    const outputs = result.output.flat();
-    outputs.forEach((out) => {
-      if (out.type === "asset") {
-        output.client.set(out.fileName, Buffer.from(out.source).toString("utf8"));
-      } else {
-        output.server = out.code;
-      }
-    });
-  });
-  return output;
 }
 
 export function printBanner() {

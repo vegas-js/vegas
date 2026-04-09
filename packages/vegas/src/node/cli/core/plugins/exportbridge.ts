@@ -5,13 +5,12 @@ export function exportBridge(): Plugin {
     name: "vite-plugin-exportbridge",
 
     applyToEnvironment(environment) {
-      return environment.name.startsWith("server");
+      return environment.name === "server";
     },
 
-    generateBundle(outputOptions, bundle, _isWrite) {
-      Object.keys(bundle).forEach((key) => {
-        const output = bundle[key];
-        if (output && output.type === "chunk" && output.isEntry) {
+    generateBundle(outputOptions, bundle) {
+      Object.values(bundle).forEach((output) => {
+        if (output.type === "chunk" && output.isEntry) {
           const bridgeCodes: string[] = ["\n/* Function bridge for GAS Client */"];
           output.exports.forEach((expo) => {
             bridgeCodes.push(
