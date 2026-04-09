@@ -1,3 +1,8 @@
+# 0.1.5 (2026-04-09)
+
+chore: strict type separation between client and server.
+chore: upgrade dependencies.
+
 # 0.1.4 (2026-04-01)
 
 fix: not published templates.

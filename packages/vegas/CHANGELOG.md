@@ -1,3 +1,14 @@
+# 0.1.6 (2026-04-09)
+
+feat: vegs push.
+fix: screen does not display during Full-Bundle Refresh.
+fix: garbled characters on serve.
+chore: improve handler flow.
+chore: improve webapp detection.
+chore: improve fallback condition.
+chore: refactoring inner plugins.
+chore: upgrade dependencies.
+
 # 0.1.5 (2026-04-01)
 
 chore: improve README.
