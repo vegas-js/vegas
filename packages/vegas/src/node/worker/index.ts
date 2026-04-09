@@ -7,6 +7,8 @@ import { Session } from "./api/base/Session";
 import { Cache } from "./api/cache/Cache";
 import { CacheService } from "./api/cache/CacheService";
 import { DriveApp } from "./api/drive/DriveApp";
+import { File } from "./api/drive/File";
+import { Folder } from "./api/drive/Folder";
 import { HtmlOutput } from "./api/html/HtmlOutput";
 import { HtmlService } from "./api/html/HtmlService";
 import { Lock } from "./api/lock/Lock";
@@ -73,6 +75,16 @@ function createHtmlOutput(
 }
 export type CreateHtmlOutput = typeof createHtmlOutput;
 
+function createFolder(): GoogleAppsScript.Drive.Folder {
+  return new Folder();
+}
+export type CreateFolder = typeof createFolder;
+
+function createFile(): GoogleAppsScript.Drive.File {
+  return new File();
+}
+export type CreateFile = typeof createFile;
+
 const script = new vm.Script(worker.workerData.code);
 const scriptContext = vm.createContext({
   /* Admin Console */
@@ -89,7 +101,7 @@ const scriptContext = vm.createContext({
   /* Docs */
   DocumentApp: undefined,
   /* Drive */
-  DriveApp: new DriveApp(requestSync),
+  DriveApp: new DriveApp(createFile, createFolder, requestSync),
   /* Forms */
   FormApp: undefined,
   /* Gmail */

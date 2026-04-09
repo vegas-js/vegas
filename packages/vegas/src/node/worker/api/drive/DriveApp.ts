@@ -1,10 +1,14 @@
-import { RequestSync } from "../..";
+import { CreateFile, CreateFolder, RequestSync } from "../..";
 
 // https://developers.google.com/apps-script/reference/drive/drive-app
 export class DriveApp implements GoogleAppsScript.Drive.DriveApp {
+  #createFile: CreateFile;
+  #createFolder: CreateFolder;
   #requestSync: RequestSync;
 
-  constructor(requestSync: RequestSync) {
+  constructor(createFile: CreateFile, createFolder: CreateFolder, requestSync: RequestSync) {
+    this.#createFile = createFile;
+    this.#createFolder = createFolder;
     this.#requestSync = requestSync;
   }
 
