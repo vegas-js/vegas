@@ -11,6 +11,9 @@ import { launchGAS } from "./launch";
 
 export async function serveApp(ctx: ServeContext, builder: ViteBuilder) {
   const idMap: Map<string, { use: boolean; expiredAt: number }> = new Map();
+  let isBuilding = false;
+  const promises: { resolve: (value: unknown) => void; reject: (reason?: any) => void }[] = [];
+
   const hostServer = await createServer({
     root: ctx.config.root,
     configFile: false,
@@ -32,14 +35,19 @@ export async function serveApp(ctx: ServeContext, builder: ViteBuilder) {
   hostServer.watcher.add([ctx.config.clientDir, ctx.config.serverDir]);
 
   hostServer.watcher.on("change", async (filePath) => {
+    isBuilding = true;
     try {
       if (filePath.startsWith(ctx.config.clientDir)) {
         await buildApp(ctx.vfs, builder, /^client\d+$/);
+        isBuilding = false;
+        promises.forEach((promise) => promise.resolve(undefined));
         hostServer.moduleGraph.invalidateAll();
         hostServer.ws.send({ type: "full-reload" });
         return [];
       } else if (filePath.startsWith(ctx.config.serverDir)) {
         await buildApp(ctx.vfs, builder, /^server$/);
+        isBuilding = false;
+        promises.forEach((promise) => promise.resolve(undefined));
         return [];
       }
     } catch (err: any) {
@@ -53,11 +61,16 @@ export async function serveApp(ctx: ServeContext, builder: ViteBuilder) {
           stack: err.stack.replace(/\x1b\[[\d;]+m/g, ""),
         },
       });
+      isBuilding = false;
+      promises.forEach((promise) => promise.reject(err));
       return [];
     }
   });
 
-  hostServer.ws.on("vegas:init", (data, client) => {
+  hostServer.ws.on("vegas:init", async (data, client) => {
+    if (isBuilding) {
+      await new Promise((resolve, reject) => promises.push({ resolve, reject }));
+    }
     idMap.forEach((value, key, map) => {
       if (value.expiredAt <= Date.now()) {
         map.delete(key);
@@ -73,6 +86,9 @@ export async function serveApp(ctx: ServeContext, builder: ViteBuilder) {
   });
 
   hostServer.ws.on("vegas:gascall", async (data, client) => {
+    if (isBuilding) {
+      await new Promise((resolve, reject) => promises.push({ resolve, reject }));
+    }
     try {
       const args = Array.isArray(data.args) ? data.args : [data.args];
       const result = await launchGAS(ctx, data.func, ...args);
@@ -94,6 +110,9 @@ export async function serveApp(ctx: ServeContext, builder: ViteBuilder) {
   });
 
   const hostHandler: Connect.NextHandleFunction = async (request, response, next) => {
+    if (isBuilding) {
+      await new Promise((resolve, reject) => promises.push({ resolve, reject }));
+    }
     if (request.url) {
       const scheme = userContentServer.config.server.https ? "https" : "http";
       const url = new URL(request.url, `${scheme}://${request.headers.host}`);
@@ -192,6 +211,9 @@ export async function serveApp(ctx: ServeContext, builder: ViteBuilder) {
   });
 
   const userContentHandler: Connect.NextHandleFunction = async (request, response, next) => {
+    if (isBuilding) {
+      await new Promise((resolve, reject) => promises.push({ resolve, reject }));
+    }
     if (request.url) {
       const scheme = userContentServer.config.server.https ? "https" : "http";
       const url = new URL(request.url, `${scheme}://${request.headers.host}`);
