@@ -11,13 +11,13 @@
     "push": "clasp push"
   },
   "dependencies": {
-    "preact": "^10.29.0"
+    "preact": "^10.29.1"
   },
   "devDependencies": {
     "@google/clasp": "^3.3.0",
     "@preact/preset-vite": "^2.10.5",
     "@types/node": "^24.12.2",
-    "@vegasjs/vegas": "^0.1.5",
+    "@vegasjs/vegas": "^0.1.6",
     "typescript": "~6.0.2"
   }
 }
