@@ -216,16 +216,20 @@ interface DoGetResult {
 async function invokeFn(fn: Function, ...args: any[]) {
   const result = await fn(...args);
   if (fn.name === "doGet") {
-    const htmlOutput: GoogleAppsScript.HTML.HtmlOutput = result;
     return {
-      metaTags: htmlOutput.getMetaTags().map((metaTag) => {
+      metaTags: result.getMetaTags().map((metaTag: any) => {
         return { name: metaTag.getName(), content: metaTag.getContent() };
       }),
-      title: htmlOutput.getTitle(),
-      faviconUrl: htmlOutput.getFaviconUrl(),
-      content: htmlOutput.getContent(),
-      xFrameOptionsMode: (htmlOutput as any).getXFrameOptionsMode(),
+      title: result.getTitle(),
+      faviconUrl: result.getFaviconUrl(),
+      content: result.getContent(),
+      xFrameOptionsMode: (result as any).getXFrameOptionsMode(),
     } satisfies DoGetResult;
+  } else if (fn.name === "doPost") {
+    return {
+      mimeType: typeof result.getMimeType === "function" ? result.getMimeType() : "text/html",
+      content: result.getContent(),
+    };
   }
 
   return result;

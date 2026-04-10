@@ -145,35 +145,65 @@ export async function serveApp(ctx: ServeContext, builder: ViteBuilder) {
           return { parameter, parameters };
         })(queryString);
 
-        const doGetEvent: Record<string, any> = {
-          queryString,
-          parameter,
-          parameters,
-          contextPath: "",
-          contentLength: -1,
-        };
         const pathInfo = (() => {
           const temp = url.pathname.replace(/^\/(exec|dev)/, "");
           return temp.length !== 0 ? temp.slice(1) : (undefined as unknown as string);
         })();
-        if (pathInfo) {
-          doGetEvent["pathInfo"] = pathInfo;
+
+        if (request.method === "GET") {
+          const doGetEvent: Record<string, any> = {
+            queryString,
+            parameter,
+            parameters,
+            contextPath: "",
+            contentLength: -1,
+          };
+          if (pathInfo) {
+            doGetEvent["pathInfo"] = pathInfo;
+          }
+          let uuid = "";
+          do {
+            uuid = crypto.randomUUID();
+          } while (idMap.has(uuid));
+          idMap.set(uuid, { use: false, expiredAt: Date.now() + 1000 * 30 });
+          const result = await launchGAS(ctx, "doGet", doGetEvent);
+          const html = createHostHtml(url, result);
+          const transFormedHtml = await hostServer.transformIndexHtml(url.href, html);
+          response.statusCode = 200;
+          response.setHeader("Content-Type", "text/html; charset=utf-8");
+          if (result.xFrameOptionsMode) {
+            response.setHeader("X-Frame-Options", result.xFrameOptionsMode);
+          }
+          response.end(transFormedHtml);
+          return;
+        } else if (request.method === "POST") {
+          let data = "";
+          request.on("data", (chunk) => (data += Buffer.from(chunk).toString("utf8")));
+          request.on("end", async () => {
+            const contentLength = new Blob([data]).size;
+            const doPostEvent: Record<string, any> = {
+              queryString,
+              parameter,
+              parameters,
+              contextPath: "",
+              contentLength,
+              postData: {
+                length: contentLength,
+                type: request.headers["content-type"]?.replace(/;.*$/, ""),
+                contents: data,
+                name: "postData",
+              },
+            };
+            if (pathInfo) {
+              doPostEvent["pathInfo"] = pathInfo;
+            }
+            const result = await launchGAS(ctx, "doPost", doPostEvent);
+            response.statusCode = 200;
+            response.setHeader("Content-Type", `${result.mimeType}; charset=utf-8`);
+            response.end(result);
+          });
+          return;
         }
-        let uuid = "";
-        do {
-          uuid = crypto.randomUUID();
-        } while (idMap.has(uuid));
-        idMap.set(uuid, { use: false, expiredAt: Date.now() + 1000 * 30 });
-        const result = await launchGAS(ctx, "doGet", doGetEvent);
-        const html = createHostHtml(url, result);
-        const transFormedHtml = await hostServer.transformIndexHtml(url.href, html);
-        response.statusCode = 200;
-        response.setHeader("Content-Type", "text/html; charset=utf-8");
-        if (result.xFrameOptionsMode) {
-          response.setHeader("X-Frame-Options", result.xFrameOptionsMode);
-        }
-        response.end(transFormedHtml);
-        return;
       }
     }
     next();
