@@ -95,6 +95,11 @@ if (import.meta.hot) {
       port.postMessage({ type: "vegas:return", payload: data });
     }
   });
+  import.meta.hot.on("vite:error", (data) => {
+    if (port) {
+      port.postMessage({ type: "vegas:error", payload: { requestId: data.err.requestId } })
+    }
+  });
 }
 window.addEventListener("message", (event) => {
   if (event.origin !== "${url.origin}") {
