@@ -1,27 +1,33 @@
-10:44:22 PM	Notice	Execution started
-10:44:22 PM	Info	true
-10:44:22 PM	Info	false
-10:44:22 PM	Info	0
-10:44:22 PM	Info	12345678901234567000
-10:44:22 PM	Info	3.141592653589793
-10:44:22 PM	Info	null
-10:44:22 PM	Info	null
-10:44:22 PM	Info	""
-10:44:22 PM	Info	"Hello, world!"
-10:44:22 PM	Info	undefined
-10:44:22 PM	Info	null
-10:44:22 PM	Info	undefined
-10:44:22 PM	Info	{}
-10:44:22 PM	Info	{"a":0,"b":1,"c":2,"d":3,"e":4,"f":5,"g":6,"h":7,"i":8,"j":9,"k":0}
-10:44:22 PM	Info	[]
-10:44:22 PM	Info	[0,1,2,3,4,5,6,7,8,9,0]
-10:44:22 PM	Info	{}
-10:44:22 PM	Info	undefined
-10:44:22 PM	Info	undefined
-10:44:22 PM	Info	undefined
-10:44:22 PM	Info	undefined
-10:44:22 PM	Info	undefined
-10:44:22 PM	Info	{"member1":0,"member2":1}
-10:44:22 PM	Info	undefined
-10:44:22 PM	Info	{"SandboxMode":"EMULATED","XFrameOptionsMode":"DEFAULT"}
-10:44:23 PM	Notice	Execution completed
+3:10:47 PM	Notice	Execution started
+3:10:47 PM	Info	true
+3:10:47 PM	Info	false
+3:10:47 PM	Info	0
+3:10:47 PM	Info	12345678901234567000
+3:10:47 PM	Info	3.141592653589793
+3:10:47 PM	Info	null
+3:10:47 PM	Info	null
+3:10:47 PM	Info	""
+3:10:47 PM	Info	"Hello, world!"
+3:10:47 PM	Info	undefined
+3:10:47 PM	Info	null
+3:10:47 PM	Info	undefined
+3:10:47 PM	Info	{}
+3:10:47 PM	Info	{"a":0,"b":1,"c":2,"d":3,"e":4,"f":5,"g":6,"h":7,"i":8,"j":9,"k":0}
+3:10:47 PM	Info	{"message":"object message"}
+3:10:47 PM	Info	{}
+3:10:47 PM	Info	{"message":"object message"}
+3:10:47 PM	Info	{"nestedObject":{"message":"object message"}}
+3:10:47 PM	Info	[]
+3:10:47 PM	Info	[0,1,2,3,4,5,6,7,8,9,0]
+3:10:47 PM	Info	{}
+3:10:47 PM	Info	undefined
+3:10:47 PM	Info	undefined
+3:10:47 PM	Info	undefined
+3:10:47 PM	Info	undefined
+3:10:47 PM	Info	undefined
+3:10:47 PM	Info	undefined
+3:10:47 PM	Info	{"member1":0,"member2":1}
+3:10:47 PM	Info	{"SandboxMode":"EMULATED","XFrameOptionsMode":"DEFAULT"}
+3:10:47 PM	Info	{"nestedClass":{"member1":0,"member2":1}}
+3:10:47 PM	Info	{"nestedGASAPI":{"SandboxMode":"EMULATED","XFrameOptionsMode":"DEFAULT"}}
+3:10:47 PM	Notice	Execution completed

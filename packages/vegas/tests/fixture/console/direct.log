@@ -1,30 +1,34 @@
-10:40:58 PM	Notice	Execution started
-10:40:58 PM	Info	
-10:40:58 PM	Info	true
-10:40:58 PM	Info	false
-10:40:58 PM	Info	0
-10:40:58 PM	Info	12345678901234567000
-10:40:58 PM	Info	3.141592653589793
-10:40:58 PM	Info	Infinity
-10:40:58 PM	Info	NaN
-10:40:58 PM	Info	
-10:40:58 PM	Info	Hello, world!
-10:40:58 PM	Info	{}
-10:40:58 PM	Info	null
-10:40:58 PM	Info	undefined
-10:40:58 PM	Info	{}
-10:40:58 PM	Info	{ a: 0, b: 1, c: 2, d: 3, e: 4, f: 5, g: 6, h: 7, i: 8, j: 9, k: 0 }
-10:40:58 PM	Info	[]
-10:40:58 PM	Info	[ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0 ]
-10:40:58 PM	Info	/regexp/
-10:40:58 PM	Info	[Function]
-10:40:58 PM	Info	[Function]
-10:40:58 PM	Info	[Function: namedFn]
-10:40:58 PM	Info	[Function]
-10:40:58 PM	Info	[Function: NamedClass]
-10:40:58 PM	Info	{ member1: 0, member2: 1 }
-10:40:58 PM	Info	[Function]
-10:40:58 PM	Info	{ toString: [Function],
+3:09:57 PM	Notice	Execution started
+3:09:57 PM	Info	
+3:09:57 PM	Info	true
+3:09:57 PM	Info	false
+3:09:57 PM	Info	0
+3:09:57 PM	Info	12345678901234567000
+3:09:57 PM	Info	3.141592653589793
+3:09:57 PM	Info	Infinity
+3:09:57 PM	Info	NaN
+3:09:57 PM	Info	
+3:09:57 PM	Info	Hello, world!
+3:09:57 PM	Info	{}
+3:09:57 PM	Info	null
+3:09:57 PM	Info	undefined
+3:09:57 PM	Info	{}
+3:09:57 PM	Info	{ a: 0, b: 1, c: 2, d: 3, e: 4, f: 5, g: 6, h: 7, i: 8, j: 9, k: 0 }
+3:09:57 PM	Info	{ message: 'object message' }
+3:09:57 PM	Info	{ toString: [Function: toString] }
+3:09:57 PM	Info	{ message: 'object message', toString: [Function: toString] }
+3:09:57 PM	Info	{ nestedObject: { message: 'object message', toString: [Function: toString] } }
+3:09:57 PM	Info	[]
+3:09:57 PM	Info	[ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0 ]
+3:09:57 PM	Info	/regexp/
+3:09:57 PM	Info	[Function]
+3:09:57 PM	Info	[Function]
+3:09:57 PM	Info	[Function: namedFn]
+3:09:57 PM	Info	[Function]
+3:09:57 PM	Info	[Function: NamedClass]
+3:09:57 PM	Info	[Function]
+3:09:57 PM	Info	{ member1: 0, member2: 1 }
+3:09:57 PM	Info	{ toString: [Function],
   getUserAgent: [Function],
   createHtmlOutputFromFile: [Function],
   createHtmlOutput: [Function],
@@ -72,4 +76,31 @@
      DEFAULT: [Circular] },
   initTemplate: [Function],
   initTemplateExp: [Function] }
-10:40:58 PM	Notice	Execution completed
+3:09:57 PM	Info	{ nestedClass: { member1: 0, member2: 1 } }
+3:09:57 PM	Info	{ nestedGASAPI: 
+   { toString: [Function],
+     getUserAgent: [Function],
+     createHtmlOutputFromFile: [Function],
+     createHtmlOutput: [Function],
+     createTemplateFromFile: [Function],
+     createTemplate: [Function],
+     SandboxMode: 
+      { toString: [Function: toString],
+        name: [Function: toString],
+        toJSON: [Function: toString],
+        ordinal: [Function: ordinal],
+        compareTo: [Function: compareTo],
+        EMULATED: [Circular],
+        IFRAME: [Object],
+        NATIVE: [Object] },
+     XFrameOptionsMode: 
+      { toString: [Function: toString],
+        name: [Function: toString],
+        toJSON: [Function: toString],
+        ordinal: [Function: ordinal],
+        compareTo: [Function: compareTo],
+        ALLOWALL: [Object],
+        DEFAULT: [Circular] },
+     initTemplate: [Function],
+     initTemplateExp: [Function] } }
+3:09:58 PM	Notice	Execution completed

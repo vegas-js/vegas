@@ -1,6 +1,7 @@
 // oxlint-disable no-wrapper-object-types
-// oxlint-disable no-base-to-string
 import util from "node:util";
+
+import { GASAPI } from "../GASAPI";
 
 const logPrefixFormat = `${util.styleText(["black", "bgGreenBright"], "%s")}  %s%s`;
 
@@ -29,157 +30,146 @@ export function getLogPrefix(title: string, level: string, date: Date = new Date
   return util.format(logPrefixFormat, paddedTitle, paddedTimestamp, paddedLevel);
 }
 
-function formatObject(object?: object) {
-  let output;
+function formatGASAPI(object: object & { toString: () => string }) {
+  return object.toString();
+}
+
+function formatObject(object: unknown): string {
   if (
     object === null ||
     object === undefined ||
     typeof object === "bigint" ||
     typeof object === "boolean" ||
     typeof object === "number" ||
-    typeof object === "string"
+    typeof object === "string" ||
+    object instanceof RegExp
   ) {
-    output = object;
+    return String(object);
   } else if (typeof object === "function") {
-    output = `[Function${object.name ? `: ${object.name}` : ""}]`;
-  } else if (typeof object === "symbol") {
-    output = "{}";
-  } else if (typeof object === "object") {
-    if (Array.isArray(object)) {
-      output = object;
-    } else {
-      function getProps(
-        obj: object | null,
-        props: Set<string> = new Set(),
-        filter?: (arg: [string, PropertyDescriptor]) => boolean,
-      ): string[] {
-        if (!obj || obj === Object.prototype) {
-          return Array.from(props).reverse();
-        }
-        Object.entries(Object.getOwnPropertyDescriptors(obj))
-          .reverse()
-          .forEach(([key, desc]) => {
-            if (key !== "constructor" && (filter?.([key, desc]) ?? true)) {
-              props.add(key);
-            }
-          });
-        return getProps(Object.getPrototypeOf(obj), props, filter);
+    return `[Function${object.name ? `: ${object.name}` : ""}]`;
+  } else if (Array.isArray(object)) {
+    return `[ ${object.join(", ")} ]`.replace(/^\[  \]$/g, "[]");
+  } else if (object instanceof GASAPI) {
+    return formatGASAPI(object);
+  } else {
+    const formattedObject = Object.entries(object).map(([key, value]) => {
+      if (typeof value === "function") {
+        return `${key}: [Function: ${value.name}]`;
       }
-
-      output =
-        (object as any).toString() ??
-        getProps(object)
-          .join(", ")
-          .replace(/\[Function:[^\]]*\]/g, "[Function]")
-          .replace(/^\{[^\w]*/, "{ ")
-          .replace(/\n\}$/, " }");
-    }
+      if (typeof value === "object") {
+        if (value instanceof GASAPI) {
+          return `${key}: \n${formatGASAPI(value).replace(/^[^{]/g, "  ")}`;
+        } else {
+          return `${key}: ${formatObject(value)}`;
+        }
+      }
+      const val = typeof value === "string" ? `'${value}'` : String(value);
+      return `${key}: ${val}`;
+    });
+    return `{ ${formattedObject.join(", ")} }`.replace(/^{  }$/g, "{}");
   }
+}
 
-  return output;
+function jsonReplacer(this: any, key: string, value: any): any {
+  if (value instanceof GASAPI) {
+    const obj: Record<string, string> = {};
+    Object.entries(value).forEach(([key, value]) => {
+      obj[key] = Object.entries(value).find((key, value) => value === 0)![0];
+    });
+    return obj;
+  }
+  return value;
 }
 
 // https://developers.google.com/apps-script/reference/base/console
-export class Console {
+export class Console extends GASAPI {
   readonly #logTitle: string;
   readonly #timer: Map<string, number>;
 
   constructor() {
+    super();
     this.#logTitle = "console(GAS)";
     this.#timer = new Map();
   }
 
-  toString(): string {
-    return this.constructor.name.toLowerCase();
+  #output(
+    output: (message?: any, ...optionalParams: any[]) => void,
+    prefix: string,
+    ...data: unknown[]
+  ) {
+    let outputLog = "";
+    if (data.length > 0) {
+      const formatOrObject = data[0];
+      if (typeof formatOrObject !== "string") {
+        outputLog = formatObject(formatOrObject);
+      } else {
+        const values = data.slice(1);
+        let isFormat = false;
+        let valueIndex = 0;
+        for (let i = 0; i < formatOrObject.length; i++) {
+          const ch = formatOrObject.charAt(i);
+          if (ch === "%") {
+            if (!isFormat) {
+              isFormat = true;
+            } else {
+              outputLog += ch;
+              isFormat = false;
+            }
+          } else if (isFormat) {
+            if (ch === "s") {
+              let value =
+                values[valueIndex] instanceof GASAPI
+                  ? Object(values[valueIndex]).constructor.name
+                  : String(values[valueIndex]);
+              if (typeof values[valueIndex] === "function") {
+                value = value.replace(/^function\(\) {/, "function () {");
+              }
+              outputLog += value;
+              valueIndex++;
+            } else if (ch === "d") {
+              outputLog += String(Number(values[valueIndex++]));
+            } else if (ch === "j") {
+              let value = values[valueIndex++];
+              outputLog += JSON.stringify(value, jsonReplacer);
+            } else {
+              outputLog += `%${ch}`;
+            }
+            isFormat = false;
+          } else {
+            outputLog += ch;
+          }
+        }
+        if (valueIndex < values.length) {
+          outputLog += ` ${values
+            .slice(valueIndex)
+            .map((v) => formatObject(v))
+            .join(" ")}`;
+        }
+      }
+    }
+    output(prefix, outputLog.replace(/\n/g, `\n${"".padEnd(36)}`));
   }
 
   error(): void;
   error(formatOrObject: Object, ...values: Object[]): void;
   error(formatOrObject: any, ...values: any[]): void;
-  error(formatOrObject?: Object, ...values: Object[]): void {
+  error(...data: unknown[]): void {
     const logPrefix = getLogPrefix(this.#logTitle, "Error");
-    let outputLog = "";
-    outputLog += util.format(
-      util.styleText("red", "%s"),
-      values.length === 0
-        ? formatObject(formatOrObject)
-        : util.format(formatOrObject, ...values.map((val) => formatObject(val))),
-    );
-    console.error(logPrefix, outputLog.replace(/\n/g, `\n${"".padEnd(36)}`));
+    this.#output(console.error, logPrefix, ...data);
   }
   info(): void;
   info(formatOrObject: Object, ...values: Object[]): void;
   info(formatOrObject: any, ...values: any[]): void;
-  info(formatOrObject?: Object, ...values: Object[]): void {
+  info(...data: unknown[]): void {
     const logPrefix = getLogPrefix(this.#logTitle, "Info");
-    let outputLog = "";
-    outputLog += util.format(
-      "%s",
-      values.length === 0
-        ? formatObject(formatOrObject)
-        : util.format(formatOrObject, ...values.map((val) => formatObject(val))),
-    );
-    console.info(logPrefix, outputLog.replace(/\n/g, `\n${"".padEnd(36)}`));
+    this.#output(console.info, logPrefix, ...data);
   }
   log(): void;
   log(formatOrObject: Object, ...values: Object[]): void;
   log(formatOrObject: any, ...values: any[]): void;
-  log(formatOrObject?: Object, ...values: Object[]): void {
+  log(...data: unknown[]): void {
     const logPrefix = getLogPrefix(this.#logTitle, "Info");
-    let outputLog = "";
-    if (typeof formatOrObject !== "string" || values.length === 0) {
-      const isClass =
-        formatOrObject &&
-        formatOrObject.constructor &&
-        formatOrObject.constructor.name !== "Object";
-      if (formatOrObject) {
-        outputLog += isClass
-          ? formatObject(formatOrObject)
-          : `{ ${Object.entries(formatOrObject)
-              .map(([key, value]) => {
-                const val =
-                  typeof value === "function" ? `[Function: ${value.name}]` : `'${value}'`;
-                return `${key}: ${val}`;
-              })
-              .join(",\n")} }`;
-        outputLog = outputLog.replace(/^{  }$/g, "{}");
-      } else {
-        outputLog += formatOrObject;
-      }
-    } else {
-      outputLog = formatOrObject;
-      const matched = outputLog.match(/%[sdj%]/g);
-      if (matched) {
-        let maxIndex = 0;
-        let maxOffset = 0;
-        matched.forEach((match, index) => {
-          if (match === "%s") {
-            const value = values[index];
-            if (typeof value === "object" || typeof value === "symbol") {
-              outputLog = outputLog.replace(match, value.toString());
-            } else {
-              outputLog = outputLog.replace(match, value);
-            }
-          } else if (match === "%d") {
-            const value = formatObject(Number(values[index]) as any);
-            outputLog = outputLog.replace(match, `${value}`);
-          } else if (match === "%j") {
-            const value = JSON.stringify(values[index]);
-            outputLog = outputLog.replace(match, value);
-          } else {
-            outputLog = outputLog.replace(match, "%");
-            maxOffset++;
-          }
-          maxIndex = index;
-        });
-        if (maxIndex - maxOffset < values.length - 1) {
-          outputLog += ` ${values.slice(maxIndex - maxOffset).join(" ")}`;
-        }
-      } else {
-        outputLog += ` ${values.join(" ")}`;
-      }
-    }
-    console.debug(logPrefix, outputLog.replace(/\n/g, `\n${"".padEnd(36)}`));
+    this.#output(console.debug, logPrefix, ...data);
   }
   time(label: string): void {
     this.#timer.set(label, performance.now());
@@ -188,24 +178,21 @@ export class Console {
     const endTime = performance.now();
     const startTime = this.#timer.get(label);
     if (startTime) {
+      this.#timer.delete(label);
       const logPrefix = getLogPrefix(this.#logTitle, "Debug");
-      let outputLog = "";
-      outputLog += util.format("%s: %dms", label, (endTime - startTime).toFixed(0));
-      console.log(logPrefix, outputLog.replace(/\n/g, `\n${"".padEnd(36)}`));
+      const outputLog = util.format("%s: %dms", label, (endTime - startTime).toFixed(0));
+      this.#output(console.log, logPrefix, outputLog.replace(/\n/g, `\n${"".padEnd(36)}`));
+    } else {
+      throw new Error(
+        `The parameters (${label}) don't match the method signature for console.timeEnd.`,
+      );
     }
   }
   warn(): void;
   warn(formatOrObject: Object, ...values: Object[]): void;
   warn(formatOrObject: any, ...values: any[]): void;
-  warn(formatOrObject?: Object, ...values: Object[]): void {
+  warn(...data: unknown[]): void {
     const logPrefix = getLogPrefix(this.#logTitle, "Warning");
-    let outputLog = "";
-    outputLog += util.format(
-      util.styleText("yellow", "%s"),
-      values.length === 0
-        ? formatObject(formatOrObject)
-        : util.format(formatOrObject, ...values.map((val) => formatObject(val))),
-    );
-    console.warn(logPrefix, outputLog.replace(/\n/g, `\n${"".padEnd(36)}`));
+    this.#output(console.warn, logPrefix, ...data);
   }
 }

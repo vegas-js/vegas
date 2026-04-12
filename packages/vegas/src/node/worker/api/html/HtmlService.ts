@@ -1,26 +1,31 @@
 import { CreateHtmlOutput, RequestSync } from "../..";
+import { GASAPI } from "../GASAPI";
 
 // https://developers.google.com/apps-script/reference/html/html-service
-export class HtmlService implements GoogleAppsScript.HTML.HtmlService {
+export class HtmlService extends GASAPI implements GoogleAppsScript.HTML.HtmlService {
   #createHtmlOutput: CreateHtmlOutput;
   #requestSync: RequestSync;
 
   constructor(createHtmlOutput: CreateHtmlOutput, requestSync: RequestSync) {
+    super();
     this.#createHtmlOutput = createHtmlOutput;
     this.#requestSync = requestSync;
   }
 
   SandboxMode = { EMULATED: 0, IFRAME: 1, NATIVE: 2 };
-  XFrameOptionsMode = { ALLOWALL: 0, DEFAULT: 1 };
+  XFrameOptionsMode = { DEFAULT: 0, ALLOWALL: 1 };
 
-  createHtmlOutput = (html?: string | GoogleAppsScript.Base.BlobSource) => {
-    if (typeof html !== "string") {
+  createHtmlOutput(): GoogleAppsScript.HTML.HtmlOutput;
+  createHtmlOutput(html: string): GoogleAppsScript.HTML.HtmlOutput;
+  createHtmlOutput(blob: GoogleAppsScript.Base.BlobSource): GoogleAppsScript.HTML.HtmlOutput;
+  createHtmlOutput(htmlOrBlob?: unknown): GoogleAppsScript.HTML.HtmlOutput {
+    if (typeof htmlOrBlob !== "string") {
       throw new Error("Method not implemented.");
     }
 
-    return this.#createHtmlOutput(html, this.XFrameOptionsMode.DEFAULT);
-  };
-  createHtmlOutputFromFile = (filename: string) => {
+    return this.#createHtmlOutput(htmlOrBlob ?? "", this.XFrameOptionsMode.DEFAULT);
+  }
+  createHtmlOutputFromFile(filename: string): GoogleAppsScript.HTML.HtmlOutput {
     const message = this.#requestSync({
       message: `${this.constructor.name}#createHtmlOutputFromFile`,
       payload: filename,
@@ -30,14 +35,16 @@ export class HtmlService implements GoogleAppsScript.HTML.HtmlService {
     }
 
     return this.createHtmlOutput(message);
-  };
-  createTemplate = (html: string | GoogleAppsScript.Base.BlobSource) => {
+  }
+  createTemplate(html: string): GoogleAppsScript.HTML.HtmlTemplate;
+  createTemplate(blob: GoogleAppsScript.Base.BlobSource): GoogleAppsScript.HTML.HtmlTemplate;
+  createTemplate(htmlOrBlob: unknown): GoogleAppsScript.HTML.HtmlTemplate {
     throw new Error("Function not implemented.");
-  };
-  createTemplateFromFile = (filename: string) => {
+  }
+  createTemplateFromFile(filename: string): GoogleAppsScript.HTML.HtmlTemplate {
     throw new Error("Function not implemented.");
-  };
-  getUserAgent = () => {
+  }
+  getUserAgent(): string {
     throw new Error("Function not implemented.");
-  };
+  }
 }

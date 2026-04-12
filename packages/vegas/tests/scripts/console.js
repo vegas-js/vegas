@@ -28,6 +28,10 @@ function testConsoleWithDirect() {
   console.log(undefined);
   console.log({});
   console.log({ a: 0, b: 1, c: 2, d: 3, e: 4, f: 5, g: 6, h: 7, i: 8, j: 9, k: 0 });
+  console.log({ message: "object message" });
+  console.log({ toString: () => "object toString" });
+  console.log({ message: "object message", toString: () => "object toString" });
+  console.log({ nestedObject: { message: "object message", toString: () => "object toString" } });
   console.log([]);
   console.log([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0]);
   console.log(/regexp/);
@@ -36,7 +40,6 @@ function testConsoleWithDirect() {
   console.log(function namedFn() {});
   console.log(class {});
   console.log(NamedClass);
-  console.log(new NamedClass());
   console.log(
     class {
       constructor() {
@@ -46,7 +49,10 @@ function testConsoleWithDirect() {
       member3() {}
     },
   );
+  console.log(new NamedClass());
   console.log(HtmlService);
+  console.log({ nestedClass: new NamedClass() });
+  console.log({ nestedGASAPI: HtmlService });
 }
 
 // oxlint-disable-next-line no-unused-vars
@@ -69,6 +75,12 @@ function testConsoleWithStringFormat() {
   console.log("%s", undefined);
   console.log("%s", {});
   console.log("%s", { a: 0, b: 1, c: 2, d: 3, e: 4, f: 5, g: 6, h: 7, i: 8, j: 9, k: 0 });
+  console.log("%s", { message: "object message" });
+  console.log("%s", { toString: () => "object toString" });
+  console.log("%s", { message: "object message", toString: () => "object toString" });
+  console.log("%s", {
+    nestedObject: { message: "object message", toString: () => "object toString" },
+  });
   console.log("%s", []);
   console.log("%s", [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0]);
   console.log("%s", /regexp/);
@@ -84,7 +96,6 @@ function testConsoleWithStringFormat() {
     member3() {}
   }
   console.log("%s", NamedClass);
-  console.log("%s", new NamedClass());
   console.log(
     "%s",
     class {
@@ -95,7 +106,10 @@ function testConsoleWithStringFormat() {
       member3() {}
     },
   );
+  console.log("%s", new NamedClass());
   console.log("%s", HtmlService);
+  console.log("%s", { nestedClass: new NamedClass() });
+  console.log("%s", { nestedGASAPI: HtmlService });
 }
 
 // oxlint-disable-next-line no-unused-vars
@@ -119,6 +133,12 @@ function testConsoleWithNumberFormat() {
   console.log("%d", undefined);
   console.log("%d", {});
   console.log("%d", { a: 0, b: 1, c: 2, d: 3, e: 4, f: 5, g: 6, h: 7, i: 8, j: 9, k: 0 });
+  console.log("%d", { message: "object message" });
+  console.log("%d", { toString: () => "object toString" });
+  console.log("%d", { message: "object message", toString: () => "object toString" });
+  console.log("%d", {
+    nestedObject: { message: "object message", toString: () => "object toString" },
+  });
   console.log("%d", []);
   console.log("%d", [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0]);
   console.log("%d", /regexp/);
@@ -134,7 +154,6 @@ function testConsoleWithNumberFormat() {
     member3() {}
   }
   console.log("%d", NamedClass);
-  console.log("%d", new NamedClass());
   console.log(
     "%d",
     class {
@@ -145,7 +164,10 @@ function testConsoleWithNumberFormat() {
       member3() {}
     },
   );
+  console.log("%d", new NamedClass());
   console.log("%d", HtmlService);
+  console.log("%d", { nestedClass: new NamedClass() });
+  console.log("%d", { nestedGASAPI: HtmlService });
 }
 
 // oxlint-disable-next-line no-unused-vars
@@ -168,6 +190,12 @@ function testConsoleWithJsonFormat() {
   console.log("%j", undefined);
   console.log("%j", {});
   console.log("%j", { a: 0, b: 1, c: 2, d: 3, e: 4, f: 5, g: 6, h: 7, i: 8, j: 9, k: 0 });
+  console.log("%j", { message: "object message" });
+  console.log("%j", { toString: () => "object toString" });
+  console.log("%j", { message: "object message", toString: () => "object toString" });
+  console.log("%j", {
+    nestedObject: { message: "object message", toString: () => "object toString" },
+  });
   console.log("%j", []);
   console.log("%j", [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0]);
   console.log("%j", /regexp/);
@@ -183,7 +211,6 @@ function testConsoleWithJsonFormat() {
     member3() {}
   }
   console.log("%j", NamedClass);
-  console.log("%j", new NamedClass());
   console.log(
     "%j",
     class {
@@ -194,5 +221,38 @@ function testConsoleWithJsonFormat() {
       member3() {}
     },
   );
+  console.log("%j", new NamedClass());
   console.log("%j", HtmlService);
+  console.log("%j", { nestedClass: new NamedClass() });
+  console.log("%j", { nestedGASAPI: HtmlService });
+}
+
+// oxlint-disable-next-line no-unused-vars
+function testConsoleWithLogLevel() {
+  console.log();
+  console.info();
+  console.warn();
+  console.error();
+}
+
+// oxlint-disable-next-line no-unused-vars
+function testConsoleWithTimer() {
+  // throw error
+  // console.timeEnd("");
+  // console.timeEnd("label");
+  console.time("");
+  console.time("label");
+  console.timeEnd("");
+  console.timeEnd("label");
+  // throw error
+  // console.timeEnd("");
+  // console.timeEnd("label");
+}
+
+// oxlint-disable-next-line no-unused-vars
+function testConsoleWithOther() {
+  console.log("%s %% %d %j", {}, 0, {});
+  console.log("%s %% %i %d %j", {}, 0, {});
+  console.log("%s %%%dd %j %d", {}, 0, {}, 10);
+  console.log("%s %d %j %d", {}, 0, {}, 10, "a", 10, {});
 }
