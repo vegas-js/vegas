@@ -90,6 +90,7 @@ export default defineConfig({
 
 | API               | Status |
 | ----------------- | :----: |
+| Logger / console  |   ✅   |
 | HtmlService       |   🛠️   |
 | PropertiesService |   🧪   |
 | CacheService      |   🧪   |
@@ -98,5 +99,4 @@ export default defineConfig({
 | UrlFetchApp       |   🛠️   |
 | Utilities         |   🛠️   |
 | Session           |   🧪   |
-| Logger / console  |   🛠️   |
 | Others            |   ❌   |
