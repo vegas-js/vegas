@@ -1,0 +1,45 @@
+10:09:26 PM	Notice	Execution started
+10:09:26 PM	Info	true
+10:09:26 PM	Info	false
+10:09:26 PM	Info	0.0
+10:09:26 PM	Info	1.2345678901234567E19
+10:09:26 PM	Info	3.141592653589793
+10:09:26 PM	Info	Infinity
+10:09:26 PM	Info	NaN
+10:09:26 PM	Info	
+10:09:26 PM	Info	Hello, world!
+10:09:26 PM	Info	
+10:09:26 PM	Info	null
+10:09:26 PM	Info	null
+10:09:26 PM	Info	{}
+10:09:26 PM	Info	{b=1.0, a=0.0, j=9.0, g=6.0, h=7.0, k=0.0, e=4.0, f=5.0, i=8.0, d=3.0, c=2.0}
+10:09:26 PM	Info	object message
+10:09:26 PM	Info	{toString=() => "object toString"}
+10:09:26 PM	Info	object message
+10:09:26 PM	Info	{nestedObject={toString=() => "object toString", message=object message}}
+10:09:26 PM	Info	[]
+10:09:26 PM	Info	[0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 0.0]
+10:09:26 PM	Info	{}
+10:09:26 PM	Info	() => {}
+10:09:26 PM	Info	function () {}
+10:09:26 PM	Info	function namedFn() {}
+10:09:26 PM	Info	class {}
+10:09:26 PM	Info	class NamedClass {
+  constructor() {
+    this.member1 = 0;
+    this.member2 = 1;
+  }
+  member3() {}
+}
+10:09:26 PM	Info	class {
+      constructor() {
+        this.member1 = 0;
+        this.member2 = 1;
+      }
+      member3() {}
+    }
+10:09:26 PM	Info	{member2=1.0, member1=0.0}
+10:09:26 PM	Info	HtmlService
+10:09:26 PM	Info	{nestedClass={member1=0.0, member2=1.0}}
+10:09:26 PM	Info	{nestedGASAPI=HtmlService}
+10:09:26 PM	Notice	Execution completed

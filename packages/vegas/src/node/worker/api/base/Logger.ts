@@ -1,19 +1,31 @@
 // oxlint-disable no-wrapper-object-types
+import { GASAPI } from "../GASAPI";
 import { getLogPrefix } from "./console";
 
-function convertNumberOutput(num: number): string {
-  const min = Math.floor(num);
-  const max = Math.ceil(num);
-  return isNaN(num) || (num > min && num < max) ? num.toString() : `${num.toString()}.0`;
+function convertNumberOutput(num: unknown): string {
+  if (num === null || num === undefined) {
+    return "0.0";
+  } else if (typeof num !== "number" || Number.isNaN(num)) {
+    return String(NaN);
+  } else if (!Number.isFinite(num)) {
+    return String(Infinity);
+  } else if (num > Number.MAX_SAFE_INTEGER || num < Number.MIN_SAFE_INTEGER) {
+    return num.toExponential().replace("e+", "E");
+  } else {
+    const min = Math.floor(num);
+    const max = Math.ceil(num);
+    return isNaN(num) || (num > min && num < max) ? num.toString() : `${num.toString()}.0`;
+  }
 }
 
 // https://developers.google.com/apps-script/reference/base/logger
-export class Logger implements GoogleAppsScript.Base.Logger {
+export class Logger extends GASAPI implements GoogleAppsScript.Base.Logger {
   readonly #logTitle: string;
   readonly #formatter: Intl.DateTimeFormat;
   outputLogs: { prefix: string; value: string }[];
 
   constructor() {
+    super();
     this.#logTitle = "Logger (GAS)";
     this.#formatter = new Intl.DateTimeFormat("en-US", {
       weekday: "short",
@@ -29,48 +41,51 @@ export class Logger implements GoogleAppsScript.Base.Logger {
     this.outputLogs = [];
   }
 
-  #convertObjectOutput(data: Object): string {
-    switch (typeof data) {
-      case "undefined": {
-        return "null";
-      }
-      case "number": {
+  #convertObjectOutput(data: unknown, recursive: boolean = false): string {
+    if (data === null || data === undefined) {
+      return String(null);
+    } else if (typeof data === "boolean") {
+      return String(data);
+    } else if (typeof data === "number") {
+      if (Number.isNaN(data) || !Number.isFinite(data)) {
+        return String(data);
+      } else if (data > Number.MAX_SAFE_INTEGER) {
+        return data.toExponential().replace("e+", "E");
+      } else {
         return convertNumberOutput(data);
       }
-      case "string": {
-        return data;
-      }
-      case "object": {
-        if (data === null) {
-          return "null";
-        } else if ((data as any).message !== undefined) {
-          return (data as any).message;
-        } else if (data.constructor.name === "Object") {
-          const outObjects = Object.entries(data)
-            .map(([key, value]) => {
-              const strValue = typeof value === "number" ? convertNumberOutput(value) : `${value}`;
-              return `${key}=${strValue.replace(/^\s+/gm, "").replace(/\n/g, "")}`;
-            })
-            .join(", ");
+    } else if (typeof data === "string") {
+      return data;
+    } else if (data instanceof RegExp) {
+      return "{}";
+    } else if (typeof data === "function") {
+      return String(data).replace(/^function\(\) {/, "function () {");
+    } else if (typeof data === "symbol") {
+      return String();
+    } else if (Array.isArray(data)) {
+      return `[${data.map((v) => this.#convertObjectOutput(v)).join(", ")}]`.replace(
+        /^\[  \]$/g,
+        "[]",
+      );
+    } else {
+      if (!recursive && (data as any).message !== undefined) {
+        return (data as any).message;
+      } else if (data instanceof GASAPI) {
+        return data.constructor.name;
+      } else {
+        const outObjects = Object.entries(data)
+          .map(([key, value]) => {
+            if (value instanceof GASAPI) {
+              return `${key}=${value.constructor.name}`;
+            } else {
+              return `${key}=${this.#convertObjectOutput(value, true).replace(/^\s+/gm, "").replace(/\n/g, "")}`;
+            }
+          })
+          .join(", ");
 
-          return `{${outObjects}}`;
-        } else {
-          // oxlint-disable-next-line no-base-to-string
-          const strObject = data.toString();
-          return strObject === "[object Object]" ? JSON.stringify(data) : strObject;
-        }
-      }
-      case "symbol": {
-        return "";
-      }
-      default: {
-        return String(data);
+        return `{${outObjects}}`;
       }
     }
-  }
-
-  toString(): string {
-    return this.constructor.name;
   }
 
   clear(): void {
@@ -82,32 +97,38 @@ export class Logger implements GoogleAppsScript.Base.Logger {
   log(data: Object): Logger;
   log(data: any): Logger;
   log(format: string, ...values: Object[]): Logger;
-  log(format: string, ...values: any[]): Logger;
-  log(dataOrFormat: Object, ...values: Object[]): Logger {
+  log(format: any, ...values: any[]): Logger;
+  log(dataOrFormat: unknown, ...values: unknown[]): Logger {
     const date = new Date();
     const logLevel = "Info";
     const logPrefix = getLogPrefix(this.#logTitle, logLevel, date);
     let outputLog = "";
-    if (typeof dataOrFormat !== "string" || values.length === 0) {
+    if (typeof dataOrFormat !== "string") {
       outputLog += this.#convertObjectOutput(dataOrFormat);
     } else {
-      outputLog = dataOrFormat;
-      const matched = outputLog.match(/%[sdj%]/g);
-      if (matched) {
-        matched.forEach((match, index) => {
-          if (match === "%s") {
-            const value = this.#convertObjectOutput(values[index]);
-            outputLog = outputLog.replace(match, value);
-          } else if (match === "%d") {
-            const value = convertNumberOutput(Number(values[index]));
-            outputLog = outputLog.replace(match, `${value}`);
-          } else if (match === "%j") {
-            const value = this.#convertObjectOutput(values[index]);
-            outputLog = outputLog.replace(match, value);
+      let isFormat = false;
+      let valueIndex = 0;
+      for (let i = 0; i < dataOrFormat.length; i++) {
+        const ch = dataOrFormat.charAt(i);
+        if (ch === "%") {
+          if (!isFormat) {
+            isFormat = true;
           } else {
-            outputLog = outputLog.replace(match, "%");
+            outputLog += ch;
+            isFormat = false;
           }
-        });
+        } else if (isFormat) {
+          if (ch === "s" || ch === "j") {
+            outputLog += this.#convertObjectOutput(values[valueIndex++], true);
+          } else if (ch === "d") {
+            outputLog += convertNumberOutput(values[valueIndex++]);
+          } else {
+            outputLog += `%${ch}`;
+          }
+          isFormat = false;
+        } else {
+          outputLog += ch;
+        }
       }
     }
     const parts: Record<string, string> = {};
@@ -117,8 +138,8 @@ export class Logger implements GoogleAppsScript.Base.Logger {
       }
     });
     const prefix = [
-      parts.month,
       parts.weekday,
+      parts.month,
       parts.day,
       `${parts.hour}:${parts.minute}:${parts.second}`,
       parts.timeZoneName.replace(/[a-z ]/g, ""),
