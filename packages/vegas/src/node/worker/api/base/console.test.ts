@@ -1382,4 +1382,12 @@ describe("other", () => {
     const args = consoleMock.mock.lastCall;
     expect(args?.[1]).toBe("[object Object] 0 {} 10 a 10 {}");
   });
+
+  test("no format", () => {
+    using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
+    const gasConsole = new Console();
+    gasConsole.log({}, 0, {}, 10, "a");
+    const args = consoleMock.mock.lastCall;
+    expect(args?.[1]).toBe("{} 0 {} 10 'a'");
+  });
 });

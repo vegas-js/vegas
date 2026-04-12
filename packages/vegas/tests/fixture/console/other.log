@@ -1,6 +1,7 @@
-10:03:44 PM	Notice	Execution started
-10:03:44 PM	Info	[object Object] % 0 {}
-10:03:44 PM	Info	[object Object] % %i 0 {}
-10:03:44 PM	Info	[object Object] %0d {} 10
-10:03:44 PM	Info	[object Object] 0 {} 10 a 10 {}
-10:03:44 PM	Notice	Execution completed
+10:29:30 PM	Notice	Execution started
+10:29:30 PM	Info	[object Object] % 0 {}
+10:29:30 PM	Info	[object Object] % %i 0 {}
+10:29:30 PM	Info	[object Object] %0d {} 10
+10:29:30 PM	Info	[object Object] 0 {} 10 a 10 {}
+10:29:30 PM	Info	{} 0 {} 10 'a'
+10:29:31 PM	Notice	Execution completed

@@ -255,4 +255,5 @@ function testConsoleWithOther() {
   console.log("%s %% %i %d %j", {}, 0, {});
   console.log("%s %%%dd %j %d", {}, 0, {}, 10);
   console.log("%s %d %j %d", {}, 0, {}, 10, "a", 10, {});
+  console.log({}, 0, {}, 10, "a");
 }

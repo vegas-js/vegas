@@ -102,6 +102,10 @@ export class Console extends GASAPI {
       const formatOrObject = data[0];
       if (typeof formatOrObject !== "string") {
         outputLog = formatObject(formatOrObject);
+        if (data.length > 1) {
+          const values = data.splice(1);
+          outputLog += ` ${values.map((v) => (typeof v === "string" ? `'${v}'` : formatObject(v))).join(" ")}`;
+        }
       } else {
         const values = data.slice(1);
         let isFormat = false;
