@@ -14,7 +14,7 @@
     "lint": "oxlint",
     "format": "oxfmt",
     "test": "vitest run",
-    "coverage": "vitest run --coverage --coverage.include 'packages/*/src/**/*.ts' --coverage.reporter text",
+    "coverage": "vitest run --coverage",
     "build": "tsdown --config-loader unrun --workspace",
     "docs:dev": "pnpm --filter ./docs dev",
     "docs:build": "pnpm --filter ./docs build",
