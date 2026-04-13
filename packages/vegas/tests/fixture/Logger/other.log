@@ -1,7 +1,9 @@
-12:44:24 AM	Notice	Execution started
-12:44:24 AM	Info	{} % 0.0 {}
-12:44:24 AM	Info	{} % %i 0.0 {}
-12:44:24 AM	Info	{} %0.0d {} 10.0
-12:44:24 AM	Info	{} 0.0 {} 10.0
-12:44:24 AM	Info	{}
-12:44:24 AM	Notice	Execution completed
+2:53:14 PM	Notice	Execution started
+2:53:14 PM	Info	{} % 0.0 {}
+2:53:14 PM	Info	{} % %i 0.0 {}
+2:53:14 PM	Info	{} %0.0d {} 10.0
+2:53:14 PM	Info	{} 0.0 {} 10.0
+2:53:14 PM	Info	{}
+2:53:14 PM	Info	Hello
+2:53:14 PM	Info	world!
+2:53:14 PM	Notice	Execution completed

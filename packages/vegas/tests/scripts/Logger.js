@@ -243,4 +243,5 @@ function testLoggerWithOther() {
   Logger.log("%s %%%dd %j %d", {}, 0, {}, 10);
   Logger.log("%s %d %j %d", {}, 0, {}, 10, "a", 10, {});
   Logger.log({}, 0, {}, 10, "a");
+  Logger.log("Hello").log("world!");
 }

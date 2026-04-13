@@ -1352,4 +1352,13 @@ describe("other", () => {
     const args = consoleMock.mock.lastCall;
     expect(args?.[1]).toBe("{}");
   });
+
+  test("chain", () => {
+    using consoleMock = vi.spyOn(console, "log").mockImplementation(() => {});
+    const gasLogger = new Logger();
+    gasLogger.log("Hello").log("world!");
+    const calls = consoleMock.mock.calls;
+    expect(calls[0][1]).toBe("Hello");
+    expect(calls[1][1]).toBe("world!");
+  });
 });
