@@ -1315,7 +1315,7 @@ describe("timer", () => {
     expect(args?.[0]).toMatch(/Debug/);
   });
 
-  test("with label", () => {
+  test("with empty label", () => {
     using consoleMock = vi.spyOn(console, "log").mockImplementation(() => {});
     const gasConsole = new Console();
     gasConsole.time("");
@@ -1324,7 +1324,7 @@ describe("timer", () => {
     expect(args?.[1]).toMatch(/^: \d+ms$/);
   });
 
-  test("with empty label", () => {
+  test("with label", () => {
     using consoleMock = vi.spyOn(console, "log").mockImplementation(() => {});
     const gasConsole = new Console();
     gasConsole.time("label");
