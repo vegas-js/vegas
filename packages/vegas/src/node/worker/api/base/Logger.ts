@@ -47,13 +47,7 @@ export class Logger extends GASAPI implements GoogleAppsScript.Base.Logger {
     } else if (typeof data === "boolean") {
       return String(data);
     } else if (typeof data === "number") {
-      if (Number.isNaN(data) || !Number.isFinite(data)) {
-        return String(data);
-      } else if (data > Number.MAX_SAFE_INTEGER) {
-        return data.toExponential().replace("e+", "E");
-      } else {
-        return convertNumberOutput(data);
-      }
+      return convertNumberOutput(data);
     } else if (typeof data === "string") {
       return data;
     } else if (data instanceof RegExp) {
