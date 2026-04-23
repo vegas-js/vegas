@@ -91,7 +91,7 @@ Repositories: git+https://github.com/cacjs/cac.git
 ## entities
 License: BSD-2-Clause
 By: Felix Boehm <me@feedic.com>
-Repositories: git://github.com/fb55/entities.git
+Repositories: https://github.com/fb55/entities.git
 
 > Copyright (c) Felix Böhm
 > All rights reserved.
