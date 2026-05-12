@@ -1,3 +1,13 @@
+# 0.1.7 (2026-05-12)
+
+feature: support console
+feature: support Logger
+feature: add html template
+fix: add remove gas run object with error
+chore: improve sanitize html
+chore: upgrade dependencies
+wip: add doPost handle
+
 # 0.1.6 (2026-04-09)
 
 feat: vegs push.

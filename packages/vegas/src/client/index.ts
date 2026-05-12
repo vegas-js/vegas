@@ -30,9 +30,16 @@ interface VegasResultError {
   };
 }
 
+interface VegasErrorEvent {
+  type: "vegas:error";
+  payload: {
+    requestId: number;
+  };
+}
+
 type VegasReturnEvent = VegasResult & (VegasResultOk | VegasResultError);
 
-type VegasEvent = VegasInitEvent | VegasReturnEvent;
+type VegasEvent = VegasInitEvent | VegasReturnEvent | VegasErrorEvent;
 
 let retryPreInitTimer: number | null = null;
 
@@ -78,6 +85,10 @@ port1.onmessage = (event: MessageEvent<VegasEvent>) => {
         }
         window.vegas.requestMap.delete(event.data.payload.requestId);
       }
+      break;
+    }
+    case "vegas:error": {
+      window.vegas.requestMap.delete(event.data.payload.requestId);
       break;
     }
   }

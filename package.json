@@ -14,7 +14,7 @@
     "lint": "oxlint",
     "format": "oxfmt",
     "test": "vitest run",
-    "coverage": "vitest run --coverage --coverage.include 'packages/*/src/**/*.ts' --coverage.reporter text",
+    "coverage": "vitest run --coverage",
     "build": "tsdown --config-loader unrun --workspace",
     "docs:dev": "pnpm --filter ./docs dev",
     "docs:build": "pnpm --filter ./docs build",
@@ -22,12 +22,12 @@
   },
   "devDependencies": {
     "@vegasjs/vegas": "workspace:*",
-    "@vitest/coverage-v8": "^4.1.4",
-    "oxfmt": "^0.44.0",
-    "oxlint": "^1.59.0",
-    "oxlint-tsgolint": "^0.20.0",
-    "tsdown": "^0.21.7",
-    "vitest": "^4.1.4"
+    "@vitest/coverage-v8": "^4.1.6",
+    "oxfmt": "^0.49.0",
+    "oxlint": "^1.64.0",
+    "oxlint-tsgolint": "^0.22.1",
+    "tsdown": "^0.22.0",
+    "vitest": "^4.1.6"
   },
   "engines": {
     "node": ">=22.18.0"

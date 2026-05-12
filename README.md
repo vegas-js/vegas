@@ -94,6 +94,7 @@ export default defineConfig({
 
 | API               | Status |
 | ----------------- | :----: |
+| Logger / console  |   ✅   |
 | HtmlService       |   🛠️   |
 | PropertiesService |   🧪   |
 | CacheService      |   🧪   |
@@ -102,7 +103,6 @@ export default defineConfig({
 | UrlFetchApp       |   🛠️   |
 | Utilities         |   🛠️   |
 | Session           |   🧪   |
-| Logger / console  |   🛠️   |
 | Others            |   ❌   |
 
 [Read the Docs to Learn More](https://vegasjs.dev).

@@ -1,0 +1,45 @@
+3:10:12 PM	Notice	Execution started
+3:10:12 PM	Info	true
+3:10:12 PM	Info	false
+3:10:12 PM	Info	0
+3:10:12 PM	Info	12345678901234567000
+3:10:12 PM	Info	3.141592653589793
+3:10:12 PM	Info	Infinity
+3:10:12 PM	Info	NaN
+3:10:12 PM	Info	
+3:10:12 PM	Info	Hello, world!
+3:10:12 PM	Info	Symbol(sym)
+3:10:12 PM	Info	null
+3:10:12 PM	Info	undefined
+3:10:12 PM	Info	[object Object]
+3:10:12 PM	Info	[object Object]
+3:10:12 PM	Info	[object Object]
+3:10:12 PM	Info	object toString
+3:10:12 PM	Info	object toString
+3:10:12 PM	Info	[object Object]
+3:10:12 PM	Info	
+3:10:12 PM	Info	0,1,2,3,4,5,6,7,8,9,0
+3:10:12 PM	Info	/regexp/
+3:10:12 PM	Info	() => {}
+3:10:12 PM	Info	function () {}
+3:10:12 PM	Info	function namedFn() {}
+3:10:12 PM	Info	class {}
+3:10:12 PM	Info	class NamedClass {
+    constructor() {
+      this.member1 = 0;
+      this.member2 = 1;
+    }
+    member3() {}
+  }
+3:10:12 PM	Info	class {
+      constructor() {
+        this.member1 = 0;
+        this.member2 = 1;
+      }
+      member3() {}
+    }
+3:10:12 PM	Info	[object Object]
+3:10:12 PM	Info	HtmlService
+3:10:12 PM	Info	[object Object]
+3:10:12 PM	Info	[object Object]
+3:10:12 PM	Notice	Execution completed

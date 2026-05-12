@@ -11,6 +11,7 @@ import { File } from "./api/drive/File";
 import { Folder } from "./api/drive/Folder";
 import { HtmlOutput } from "./api/html/HtmlOutput";
 import { HtmlService } from "./api/html/HtmlService";
+import { HtmlTemplate } from "./api/html/HtmlTemplate";
 import { Lock } from "./api/lock/Lock";
 import { LockService } from "./api/lock/LockService";
 import { Properties } from "./api/properties/Properties";
@@ -75,6 +76,11 @@ function createHtmlOutput(
 }
 export type CreateHtmlOutput = typeof createHtmlOutput;
 
+function createHtmlTemplate(content: string): GoogleAppsScript.HTML.HtmlTemplate {
+  return new HtmlTemplate(content);
+}
+export type CreateHtmlTemplate = typeof createHtmlTemplate;
+
 function createFolder(): GoogleAppsScript.Drive.Folder {
   return new Folder();
 }
@@ -86,7 +92,7 @@ function createFile(): GoogleAppsScript.Drive.File {
 export type CreateFile = typeof createFile;
 
 const script = new vm.Script(worker.workerData.code);
-const scriptContext = vm.createContext({
+export const scriptContext = vm.createContext({
   /* Admin Console */
   AdminDirectory: undefined, // Advanced services. Low priority.
   AdminLicenseManager: undefined, // Advanced services. Low priority.
@@ -168,7 +174,7 @@ const scriptContext = vm.createContext({
   /* Content */
   ContentService: undefined,
   /* HTML */
-  HtmlService: new HtmlService(createHtmlOutput, requestSync),
+  HtmlService: new HtmlService(createHtmlOutput, createHtmlTemplate, requestSync),
   /* Mail */
   MailApp: undefined,
   /* Base */
@@ -216,16 +222,20 @@ interface DoGetResult {
 async function invokeFn(fn: Function, ...args: any[]) {
   const result = await fn(...args);
   if (fn.name === "doGet") {
-    const htmlOutput: GoogleAppsScript.HTML.HtmlOutput = result;
     return {
-      metaTags: htmlOutput.getMetaTags().map((metaTag) => {
+      metaTags: result.getMetaTags().map((metaTag: any) => {
         return { name: metaTag.getName(), content: metaTag.getContent() };
       }),
-      title: htmlOutput.getTitle(),
-      faviconUrl: htmlOutput.getFaviconUrl(),
-      content: htmlOutput.getContent(),
-      xFrameOptionsMode: (htmlOutput as any).getXFrameOptionsMode(),
+      title: result.getTitle(),
+      faviconUrl: result.getFaviconUrl(),
+      content: result.getContent(),
+      xFrameOptionsMode: (result as any).getXFrameOptionsMode(),
     } satisfies DoGetResult;
+  } else if (fn.name === "doPost") {
+    return {
+      mimeType: typeof result.getMimeType === "function" ? result.getMimeType() : "text/html",
+      content: result.getContent(),
+    };
   }
 
   return result;
