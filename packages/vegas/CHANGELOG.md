@@ -1,3 +1,7 @@
+# 0.1.8 (2026-06-09)
+
+chore: upgrade dependencies
+
 # 0.1.7 (2026-05-12)
 
 feature: support console
