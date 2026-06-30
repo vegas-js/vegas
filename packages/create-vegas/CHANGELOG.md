@@ -1,3 +1,7 @@
+# 0.1.8 (2026-06-30)
+
+chore: upgrade dependencies
+
 # 0.1.7 (2026-06-09)
 
 chore: upgrade dependencies
