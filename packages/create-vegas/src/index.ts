@@ -126,6 +126,12 @@ async function run() {
     cwd: packagePath,
   });
   fs.renameSync(path.join(packagePath, "_gitignore"), path.join(packagePath, ".gitignore"));
+  if (fs.existsSync(path.join(packagePath, "_oxlintrc.json"))) {
+    fs.renameSync(
+      path.join(packagePath, "_oxlintrc.json"),
+      path.join(packagePath, "oxlintrc.json"),
+    );
+  }
   if (ctx.npmStartUp) {
     prompts.log.step("Installing dependencies with npm...");
     await runCmd("npm", ["install"], { cwd: packagePath, stdio: "inherit" });
