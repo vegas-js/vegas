@@ -1,6 +1,6 @@
 {
   "name": "create-vegas",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "description": "Scaffolding tool for Vegas projects",
   "keywords": [
     "create",
@@ -36,7 +36,7 @@
     "provenance": true
   },
   "devDependencies": {
-    "@clack/prompts": "1.5.1",
+    "@clack/prompts": "1.6.0",
     "@types/cross-spawn": "^6.0.6",
     "@types/node": "^24.12.4",
     "cac": "^7.0.0",
