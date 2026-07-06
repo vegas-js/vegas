@@ -1,5 +1,7 @@
 #!/usr/bin/env node
-import { cac } from "cac";
+import path from "node:path";
+
+import cac from "cac";
 
 import pkg from "../../../package.json";
 import { runBuild } from "./build";
@@ -7,7 +9,7 @@ import { runPreview } from "./preview";
 import { runPush } from "./push";
 import { runServe } from "./serve";
 
-const cli = cac("vegas");
+const cli = cac(path.basename(pkg.name));
 cli.version(pkg.version);
 
 // serve
