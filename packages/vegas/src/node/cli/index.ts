@@ -1,16 +1,14 @@
 #!/usr/bin/env node
-import path from "node:path";
 
 import cac from "cac";
 
-import pkg from "../../../package.json";
 import { runBuild } from "./build";
 import { runPreview } from "./preview";
 import { runPush } from "./push";
 import { runServe } from "./serve";
 
-const cli = cac(path.basename(pkg.name));
-cli.version(pkg.version);
+const cli = cac(__PACKAGE_NAME__);
+cli.version(__PACKAGE_VERSION__);
 
 // serve
 cli.command("[root]").alias("serve").alias("dev").action(runServe);

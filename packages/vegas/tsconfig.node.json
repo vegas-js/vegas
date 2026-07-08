@@ -25,6 +25,7 @@
     "src/lib",
     "src/node/cli",
     "src/node/worker",
+    "types",
     "tsdown.config.ts",
     "rolldownLicensePlugin.ts"
   ]
