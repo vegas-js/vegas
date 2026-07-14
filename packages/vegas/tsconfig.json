@@ -1,4 +1,10 @@
 {
-  "files": [],
-  "references": [{ "path": "tsconfig.client.json" }, { "path": "tsconfig.node.json" }]
+  "compilerOptions": {
+    "target": "es2023",
+    "types": ["node", "tsdown"],
+
+    /* Bundler mode */
+    "moduleResolution": "bundler"
+  },
+  "include": ["tsdown.config.ts", "rolldownLicensePlugin.ts"]
 }

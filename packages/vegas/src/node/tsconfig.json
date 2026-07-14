@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "target": "es2023",
+    "types": [
+      "@platformatic/vfs",
+      "google-apps-script",
+      "memfs",
+      "node",
+      "parse5",
+      "vite",
+      "vitest"
+    ],
+
+    /* Bundler mode */
+    "moduleResolution": "bundler"
+  }
+}
