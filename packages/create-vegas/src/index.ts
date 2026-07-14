@@ -5,7 +5,7 @@ import path from "node:path";
 import util from "node:util";
 
 import * as prompts from "@clack/prompts";
-import { cac } from "cac";
+import cac from "cac";
 import spawn from "cross-spawn";
 
 function runCmd(
@@ -148,7 +148,8 @@ async function run() {
   }
 }
 
-const cli = cac("create-vegas");
+const cli = cac(__PACKAGE_NAME__);
+cli.version(__PACKAGE_VERSION__);
 
 cli.command("[...option] [directory]").action(run);
 

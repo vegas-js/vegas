@@ -1,9 +1,16 @@
+import path from "node:path";
+
 import { defineConfig } from "tsdown";
 
 import rolldownLicensePlugin from "../vegas/rolldownLicensePlugin";
+import pkg from "./package.json";
 
 export default defineConfig({
   entry: { "create-vegas": "./src" },
+  define: {
+    __PACKAGE_NAME__: JSON.stringify(path.basename(pkg.name)),
+    __PACKAGE_VERSION__: JSON.stringify(pkg.version),
+  },
   deps: {
     onlyBundle: [
       "@clack/core",
