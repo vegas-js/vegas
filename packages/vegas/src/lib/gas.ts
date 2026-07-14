@@ -1,5 +1,5 @@
 /// <reference types="../../types/google" />
-import { MockProperties, MockSession, MockTarget } from "../shared/gas";
+import { MockProperties, MockSession, MockTarget } from "../node/core/gas";
 
 type GASUserFunction<T> = {
   [K in keyof T]: T[K] extends (...args: infer A) => infer R

@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 
-import { BaseConfig, GASManifest, OutputConfig, UserConfig } from "../../../shared/config";
+import { BaseConfig, GASManifest, OutputConfig, UserConfig } from "../../core/config";
 import { loadModule } from "./module";
 
 export type ResolvedUserConfig = Required<BaseConfig> & {

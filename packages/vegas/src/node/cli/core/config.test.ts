@@ -2,7 +2,7 @@ import path from "path";
 
 import { describe, expect, test } from "vitest";
 
-import { UserConfig } from "../../../shared/config";
+import { UserConfig } from "../../core/config";
 import { resolveConfig } from "./config";
 
 describe("resolveConfig", () => {

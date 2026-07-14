@@ -1,4 +1,4 @@
-import { UserConfig } from "../shared/config";
+import { UserConfig } from "../node/core/config";
 
 export function defineConfig(config: UserConfig): UserConfig {
   return config;

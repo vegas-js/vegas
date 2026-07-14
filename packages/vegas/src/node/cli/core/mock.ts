@@ -1,4 +1,4 @@
-import { MockTarget } from "../../../shared/gas";
+import { MockTarget } from "../../core/gas";
 import { ServeContext } from "./context";
 import { loadModule } from "./module";
 
