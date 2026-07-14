@@ -20,13 +20,5 @@
     /* Linting */
     "strict": true
   },
-  "include": [
-    "src/shared",
-    "src/lib",
-    "src/node/cli",
-    "src/node/worker",
-    "types",
-    "tsdown.config.ts",
-    "rolldownLicensePlugin.ts"
-  ]
+  "include": ["src/node", "types", "tsdown.config.ts", "rolldownLicensePlugin.ts"]
 }

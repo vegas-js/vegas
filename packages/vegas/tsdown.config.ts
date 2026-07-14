@@ -27,7 +27,7 @@ export default defineConfig([
     plugins: [rolldownLicensePlugin(import.meta.dirname)],
   },
   {
-    entry: "./src/lib",
+    entry: "./src/node/lib",
     outputOptions: {
       entryFileNames: (chunk) => `${chunk.name.replace(/^index(\.d)?$/, "lib$1")}.js`,
     },
