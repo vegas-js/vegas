@@ -8,5 +8,5 @@
     /* Linting */
     "strict": true
   },
-  "include": ["src/client"]
+  "include": ["src/browser"]
 }

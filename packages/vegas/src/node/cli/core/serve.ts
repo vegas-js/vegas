@@ -222,7 +222,7 @@ export async function serveApp(ctx: ServeContext, builder: ViteBuilder) {
 
         async load(id, _options) {
           if (id === "\0virtual:vegas") {
-            return await this.fs.readFile(path.join(import.meta.dirname, "client.js"), {
+            return await this.fs.readFile(path.join(import.meta.dirname, "browser.js"), {
               encoding: "utf8",
             });
           }

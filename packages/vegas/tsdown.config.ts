@@ -10,7 +10,7 @@ export default defineConfig([
     entry: {
       vegas: "./src/node/cli",
       worker: "./src/node/worker",
-      client: "./src/client",
+      browser: "./src/browser",
     },
     define: {
       __PACKAGE_NAME__: JSON.stringify(path.basename(pkg.name)),
