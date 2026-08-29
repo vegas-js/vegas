@@ -1,6 +1,7 @@
 import vm from "node:vm";
 import worker from "node:worker_threads";
 
+import { RuntimeRequest, ServiceCaller } from "../runtime/protocol";
 import { Console } from "./api/base/console";
 import { Logger } from "./api/base/Logger";
 import { Session } from "./api/base/Session";
@@ -39,15 +40,23 @@ const Scope = {
 
 export type Scope = (typeof Scope)[keyof typeof Scope];
 
-function requestSync(request: { message: string; payload?: any }, timeout?: number) {
-  port.postMessage(request);
+type LegacyRequest = {
+  message: string;
+  payload?: unknown;
+};
+type WorkerRequest = LegacyRequest | RuntimeRequest;
+function requestSync(request: WorkerRequest, timeout?: number) {
   Atomics.store(sharedArray, 0, 1);
+  port.postMessage(request);
   Atomics.wait(sharedArray, 0, 1, timeout);
   const received = worker.receiveMessageOnPort(port);
 
   return received?.message ?? null;
 }
 export type RequestSync = typeof requestSync;
+const callService: ServiceCaller = (service, method, payload) => {
+  return requestSync({ message: `${service}#${String(method)}`, payload });
+};
 
 function createRange(
   spreadsheetId: string,
@@ -57,7 +66,7 @@ function createRange(
   numRows: number,
   numColumns: number,
 ): GoogleAppsScript.Spreadsheet.Range {
-  return new Range(spreadsheetId, sheetId, row, column, numRows, numColumns, requestSync);
+  return new Range(spreadsheetId, sheetId, row, column, numRows, numColumns, callService);
 }
 export type CreateRange = typeof createRange;
 

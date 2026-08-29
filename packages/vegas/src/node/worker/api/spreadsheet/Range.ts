@@ -1,4 +1,4 @@
-import { RequestSync } from "../..";
+import type { ServiceCaller } from "../../../runtime/protocol";
 
 // https://developers.google.com/apps-script/reference/spreadsheet/range
 export class Range implements GoogleAppsScript.Spreadsheet.Range {
@@ -8,7 +8,7 @@ export class Range implements GoogleAppsScript.Spreadsheet.Range {
   #column: GoogleAppsScript.Integer;
   #numRows: GoogleAppsScript.Integer;
   #numColumns: GoogleAppsScript.Integer;
-  #requestSync: RequestSync;
+  #callService: ServiceCaller;
 
   constructor(
     spreadsheetId: string,
@@ -17,7 +17,7 @@ export class Range implements GoogleAppsScript.Spreadsheet.Range {
     column: GoogleAppsScript.Integer,
     numRows: GoogleAppsScript.Integer,
     numColumns: GoogleAppsScript.Integer,
-    requestSync: RequestSync,
+    callService: ServiceCaller,
   ) {
     this.#spreadsheetId = spreadsheetId;
     this.#sheetId = sheetId;
@@ -25,7 +25,7 @@ export class Range implements GoogleAppsScript.Spreadsheet.Range {
     this.#column = column;
     this.#numRows = numRows;
     this.#numColumns = numColumns;
-    this.#requestSync = requestSync;
+    this.#callService = callService;
   }
 
   activate = () => {
@@ -151,7 +151,7 @@ export class Range implements GoogleAppsScript.Spreadsheet.Range {
         this.#column + column - 1,
         1,
         1,
-        this.#requestSync,
+        this.#callService,
       );
     } else {
       throw new Error("out of range.");
@@ -323,30 +323,24 @@ export class Range implements GoogleAppsScript.Spreadsheet.Range {
     throw new Error("Method not implemented.");
   };
   getValue = () => {
-    return this.#requestSync({
-      message: `${this.constructor.name}#getValue`,
-      payload: {
-        spreadsheetId: this.#spreadsheetId,
-        sheetId: this.#sheetId,
-        range: {
-          row: this.#row,
-          column: this.#column,
-        },
+    return this.#callService("Range", "getValue", {
+      spreadsheetId: this.#spreadsheetId,
+      sheetId: this.#sheetId,
+      range: {
+        row: this.#row,
+        column: this.#column,
       },
     });
   };
   getValues = () => {
-    return this.#requestSync({
-      message: `${this.constructor.name}#getValues`,
-      payload: {
-        spreadsheetId: this.#spreadsheetId,
-        sheetId: this.#sheetId,
-        range: {
-          row: this.#row,
-          column: this.#column,
-          numRows: this.#numRows,
-          numColumns: this.#numColumns,
-        },
+    return this.#callService("Range", "getValues", {
+      spreadsheetId: this.#spreadsheetId,
+      sheetId: this.#sheetId,
+      range: {
+        row: this.#row,
+        column: this.#column,
+        numRows: this.#numRows,
+        numColumns: this.#numColumns,
       },
     });
   };
@@ -568,19 +562,16 @@ export class Range implements GoogleAppsScript.Spreadsheet.Range {
     throw new Error("Method not implemented.");
   };
   setValue = (value: any) => {
-    this.#requestSync({
-      message: `${this.constructor.name}#setValue`,
-      payload: {
-        spreadsheetId: this.#spreadsheetId,
-        sheetId: this.#sheetId,
-        range: {
-          row: this.#row,
-          column: this.#column,
-          numRows: this.#numRows,
-          numColumns: this.#numColumns,
-        },
-        value,
+    this.#callService("Range", "setValue", {
+      spreadsheetId: this.#spreadsheetId,
+      sheetId: this.#sheetId,
+      range: {
+        row: this.#row,
+        column: this.#column,
+        numRows: this.#numRows,
+        numColumns: this.#numColumns,
       },
+      value,
     });
 
     return this;
@@ -591,19 +582,16 @@ export class Range implements GoogleAppsScript.Spreadsheet.Range {
         "The number of columns in the data does not match the number of columns in the range",
       );
     }
-    this.#requestSync({
-      message: `${this.constructor.name}#setValues`,
-      payload: {
-        spreadsheetId: this.#spreadsheetId,
-        sheetId: this.#sheetId,
-        range: {
-          row: this.#row,
-          column: this.#column,
-          numRows: this.#numRows,
-          numColumns: this.#numColumns,
-        },
-        values,
+    this.#callService("Range", "setValues", {
+      spreadsheetId: this.#spreadsheetId,
+      sheetId: this.#sheetId,
+      range: {
+        row: this.#row,
+        column: this.#column,
+        numRows: this.#numRows,
+        numColumns: this.#numColumns,
       },
+      values,
     });
 
     return this;
