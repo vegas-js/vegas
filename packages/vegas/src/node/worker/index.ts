@@ -23,6 +23,9 @@ import { SpreadsheetApp } from "./api/spreadsheet/SpreadsheetApp";
 import { UrlFetchApp } from "./api/url_fetch/UrlFetchApp";
 import { Utilities } from "./api/utilities/Utilities";
 
+const sharedArray: Int32Array = worker.workerData.sharedArray;
+const port: worker.MessagePort = worker.workerData.port;
+
 type GASWorkerData = {
   fn: string;
   args: any[];
@@ -207,9 +210,6 @@ export const scriptContext = vm.createContext({
   ScriptApp: undefined,
 });
 script.runInContext(scriptContext);
-
-const sharedArray: Int32Array = worker.workerData.sharedArray;
-const port: worker.MessagePort = worker.workerData.port;
 
 interface DoGetResult {
   metaTags: { name: string; content: string }[];
