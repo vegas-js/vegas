@@ -1,16 +1,16 @@
-import { CreateHtmlOutput, CreateHtmlTemplate, RequestSync } from "../..";
+import { CreateHtmlOutput, CreateHtmlTemplate, RequestLegacySync } from "../..";
 import { GASAPI } from "../GASAPI";
 
 // https://developers.google.com/apps-script/reference/html/html-service
 export class HtmlService extends GASAPI implements GoogleAppsScript.HTML.HtmlService {
   #createHtmlOutput: CreateHtmlOutput;
   #createHtmlTemplate: CreateHtmlTemplate;
-  #requestSync: RequestSync;
+  #requestSync: RequestLegacySync;
 
   constructor(
     createHtmlOutput: CreateHtmlOutput,
     createHtmlTemplate: CreateHtmlTemplate,
-    requestSync: RequestSync,
+    requestSync: RequestLegacySync,
   ) {
     super();
     this.#createHtmlOutput = createHtmlOutput;

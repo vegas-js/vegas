@@ -1,17 +1,17 @@
-import { CreateRange, RequestSync } from "../..";
+import { CreateRange, RequestLegacySync } from "../..";
 
 // https://developers.google.com/apps-script/reference/spreadsheet/sheet
 export class Sheet implements GoogleAppsScript.Spreadsheet.Sheet {
   #spreadsheetId: string;
   #sheetId: number;
   #createRange: CreateRange;
-  #requestSync: RequestSync;
+  #requestSync: RequestLegacySync;
 
   constructor(
     spreadsheetId: string,
     sheetId: number,
     createRange: CreateRange,
-    requestSync: RequestSync,
+    requestSync: RequestLegacySync,
   ) {
     this.#spreadsheetId = spreadsheetId;
     this.#sheetId = sheetId;

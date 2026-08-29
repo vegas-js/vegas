@@ -1,11 +1,11 @@
-import { RequestSync } from "../..";
+import { RequestLegacySync } from "../..";
 import { HttpResponse } from "./HTTPResponse";
 
 // https://developers.google.com/apps-script/reference/url-fetch/url-fetch-app
 export class UrlFetchApp implements GoogleAppsScript.URL_Fetch.UrlFetchApp {
-  #requestSync: RequestSync;
+  #requestSync: RequestLegacySync;
 
-  constructor(requestSync: RequestSync) {
+  constructor(requestSync: RequestLegacySync) {
     this.#requestSync = requestSync;
   }
 

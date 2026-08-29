@@ -1,7 +1,13 @@
 import vm from "node:vm";
 import worker from "node:worker_threads";
 
-import { RuntimeRequest, ServiceCaller } from "../runtime/protocol";
+import type {
+  RuntimeMethod,
+  RuntimeRequestFor,
+  RuntimeResult,
+  RuntimeService,
+  ServiceCaller,
+} from "../runtime/protocol";
 import { Console } from "./api/base/console";
 import { Logger } from "./api/base/Logger";
 import { Session } from "./api/base/Session";
@@ -44,8 +50,7 @@ type LegacyRequest = {
   message: string;
   payload?: unknown;
 };
-type WorkerRequest = LegacyRequest | RuntimeRequest;
-function requestSync(request: WorkerRequest, timeout?: number) {
+function requestLegacySync(request: LegacyRequest, timeout?: number) {
   Atomics.store(sharedArray, 0, 1);
   port.postMessage(request);
   Atomics.wait(sharedArray, 0, 1, timeout);
@@ -53,9 +58,21 @@ function requestSync(request: WorkerRequest, timeout?: number) {
 
   return received?.message ?? null;
 }
-export type RequestSync = typeof requestSync;
+export type RequestLegacySync = typeof requestLegacySync;
+function requestRuntimeSync<Service extends RuntimeService, Method extends RuntimeMethod<Service>>(
+  request: RuntimeRequestFor<Service, Method>,
+  timeout?: number,
+): RuntimeResult<Service, Method> {
+  Atomics.store(sharedArray, 0, 1);
+  port.postMessage(request);
+  Atomics.wait(sharedArray, 0, 1, timeout);
+
+  const received = worker.receiveMessageOnPort(port);
+
+  return received?.message ?? null;
+}
 const callService: ServiceCaller = (service, method, payload) => {
-  return requestSync({ message: `${service}#${String(method)}`, payload });
+  return requestRuntimeSync({ type: "service-call", service, method, payload });
 };
 
 function createRange(
@@ -71,12 +88,12 @@ function createRange(
 export type CreateRange = typeof createRange;
 
 function createSheet(spreadsheetId: string, sheetId: number): GoogleAppsScript.Spreadsheet.Sheet {
-  return new Sheet(spreadsheetId, sheetId, createRange, requestSync);
+  return new Sheet(spreadsheetId, sheetId, createRange, requestLegacySync);
 }
 export type CreateSheet = typeof createSheet;
 
 function createSpreadsheet(spreadsheetId: string): GoogleAppsScript.Spreadsheet.Spreadsheet {
-  return new Spreadsheet(spreadsheetId, createSheet, requestSync);
+  return new Spreadsheet(spreadsheetId, createSheet, requestLegacySync);
 }
 export type CreateSpreadsheet = typeof createSpreadsheet;
 
@@ -119,13 +136,13 @@ export const scriptContext = vm.createContext({
   /* Docs */
   DocumentApp: undefined,
   /* Drive */
-  DriveApp: new DriveApp(createFile, createFolder, requestSync),
+  DriveApp: new DriveApp(createFile, createFolder, requestLegacySync),
   /* Forms */
   FormApp: undefined,
   /* Gmail */
   GmailApp: undefined,
   /* Sheets */
-  SpreadsheetApp: new SpreadsheetApp(createSpreadsheet, requestSync),
+  SpreadsheetApp: new SpreadsheetApp(createSpreadsheet, requestLegacySync),
   /* Slides */
   SlidesApp: undefined,
   /* Workspace */
@@ -174,7 +191,7 @@ export const scriptContext = vm.createContext({
   /* JDBC */
   Jdbc: undefined,
   /* URL Fetch */
-  UrlFetchApp: new UrlFetchApp(requestSync),
+  UrlFetchApp: new UrlFetchApp(requestLegacySync),
   /* Optimization */
   LinearOptimizationService: undefined,
   /* Utilities */
@@ -186,32 +203,32 @@ export const scriptContext = vm.createContext({
   /* Content */
   ContentService: undefined,
   /* HTML */
-  HtmlService: new HtmlService(createHtmlOutput, createHtmlTemplate, requestSync),
+  HtmlService: new HtmlService(createHtmlOutput, createHtmlTemplate, requestLegacySync),
   /* Mail */
   MailApp: undefined,
   /* Base */
   Browser: undefined,
   Logger: new Logger(),
   MimeType: undefined,
-  Session: new Session(requestSync),
+  Session: new Session(requestLegacySync),
   console: new Console(),
   /* Cache */
   CacheService: new CacheService(
-    new Cache(Scope.DOCUMENT, requestSync),
-    new Cache(Scope.SCRIPT, requestSync),
-    new Cache(Scope.USER, requestSync),
+    new Cache(Scope.DOCUMENT, requestLegacySync),
+    new Cache(Scope.SCRIPT, requestLegacySync),
+    new Cache(Scope.USER, requestLegacySync),
   ),
   /* Lock */
   LockService: new LockService(
-    new Lock(Scope.DOCUMENT, requestSync),
-    new Lock(Scope.SCRIPT, requestSync),
-    new Lock(Scope.USER, requestSync),
+    new Lock(Scope.DOCUMENT, requestLegacySync),
+    new Lock(Scope.SCRIPT, requestLegacySync),
+    new Lock(Scope.USER, requestLegacySync),
   ),
   /* Properties */
   PropertiesService: new PropertiesService(
-    new Properties(Scope.DOCUMENT, requestSync),
-    new Properties(Scope.SCRIPT, requestSync),
-    new Properties(Scope.USER, requestSync),
+    new Properties(Scope.DOCUMENT, requestLegacySync),
+    new Properties(Scope.SCRIPT, requestLegacySync),
+    new Properties(Scope.USER, requestLegacySync),
   ),
   // ScriptProperties is Deprecated.
   // UserProperties is Deprecated.

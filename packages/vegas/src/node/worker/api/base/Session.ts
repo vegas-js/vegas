@@ -1,11 +1,11 @@
-import { RequestSync } from "../..";
+import { RequestLegacySync } from "../..";
 import { User } from "./User";
 
 // https://developers.google.com/apps-script/reference/base/session
 export class Session implements GoogleAppsScript.Base.Session {
-  #requestSync: RequestSync;
+  #requestSync: RequestLegacySync;
 
-  constructor(requestSync: RequestSync) {
+  constructor(requestSync: RequestLegacySync) {
     this.#requestSync = requestSync;
   }
 

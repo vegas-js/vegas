@@ -1,11 +1,11 @@
-import { RequestSync, Scope } from "../..";
+import { RequestLegacySync, Scope } from "../..";
 
 // https://developers.google.com/apps-script/reference/properties/properties
 export class Properties implements GoogleAppsScript.Properties.Properties {
   readonly #scope: Scope;
-  readonly #requestSync: RequestSync;
+  readonly #requestSync: RequestLegacySync;
 
-  constructor(scope: Scope, requestSync: RequestSync) {
+  constructor(scope: Scope, requestSync: RequestLegacySync) {
     this.#scope = scope;
     this.#requestSync = requestSync;
   }

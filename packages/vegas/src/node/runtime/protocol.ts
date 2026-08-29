@@ -46,9 +46,28 @@ export interface RuntimeProtocol {
   };
 }
 
-export type RuntimeService = keyof RuntimeProtocol;
+export type RuntimeService = Extract<keyof RuntimeProtocol, string>;
 
-export type RuntimeMethod<Service extends RuntimeService> = keyof RuntimeProtocol[Service];
+export type RuntimeMethod<Service extends RuntimeService> = Extract<
+  keyof RuntimeProtocol[Service],
+  string
+>;
+
+export type RuntimeRequestFor<
+  Service extends RuntimeService,
+  Method extends RuntimeMethod<Service>,
+> = {
+  type: "service-call";
+  service: Service;
+  method: Method;
+  payload: RuntimePayload<Service, Method>;
+};
+
+export type RuntimeRequest = {
+  [Service in RuntimeService]: {
+    [Method in RuntimeMethod<Service>]: RuntimeRequestFor<Service, Method>;
+  }[RuntimeMethod<Service>];
+}[RuntimeService];
 
 type AnyOperation = (payload: any) => any;
 export type RuntimeOperation<
@@ -60,17 +79,6 @@ export type RuntimePayload<
   Service extends RuntimeService,
   Method extends RuntimeMethod<Service>,
 > = Parameters<RuntimeOperation<Service, Method>>[0];
-
-export type RuntimeRequest = {
-  [Service in RuntimeService]: {
-    [Method in RuntimeMethod<Service>]: {
-      type: "service-call";
-      service: Service;
-      method: Method;
-      payload: RuntimePayload<Service, Method>;
-    };
-  }[RuntimeMethod<Service>];
-}[RuntimeService];
 
 export type RuntimeResult<
   Service extends RuntimeService,

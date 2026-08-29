@@ -73,14 +73,24 @@ export function launchGAS(ctx: ServeContext, fn: string, ...args: any[]): Promis
       if (data.message === "resolve") {
         port1.close();
         resolve(data.payload);
-      } else {
-        try {
+        return;
+      }
+
+      try {
+        if (data.type === "service-call") {
+          await (handler as any)[`${data.service}#${data.method}`](
+            port1,
+            sharedArray,
+            ctx,
+            data.payload,
+          );
+        } else {
           await (handler as any)[data.message](port1, sharedArray, ctx, data.payload);
-        } catch (err: any) {
-          port1.close();
-          console.error(err);
-          reject(err);
         }
+      } catch (err: any) {
+        port1.close();
+        console.error(err);
+        reject(err);
       }
     });
     port1.postMessage({ fn, args });

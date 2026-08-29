@@ -1,13 +1,13 @@
-import { RequestSync, Scope } from "../..";
+import { RequestLegacySync, Scope } from "../..";
 
 // https://developers.google.com/apps-script/reference/lock/lock
 export class Lock implements GoogleAppsScript.Lock.Lock {
   readonly #scope: Scope;
-  #requestSync: RequestSync;
+  #requestSync: RequestLegacySync;
   #id: string | null;
   #isLocked: boolean;
 
-  constructor(scope: Scope, requestSync: RequestSync) {
+  constructor(scope: Scope, requestSync: RequestLegacySync) {
     this.#scope = scope;
     this.#requestSync = requestSync;
     this.#id = null;

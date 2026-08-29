@@ -1,12 +1,12 @@
-import { CreateSheet, RequestSync } from "../..";
+import { CreateSheet, RequestLegacySync } from "../..";
 
 // https://developers.google.com/apps-script/reference/spreadsheet/spreadsheet
 export class Spreadsheet implements GoogleAppsScript.Spreadsheet.Spreadsheet {
   #spreadsheetId: string;
   #createSheet: CreateSheet;
-  #requestSync: RequestSync;
+  #requestSync: RequestLegacySync;
 
-  constructor(spreadsheetId: string, createSheet: CreateSheet, requestSync: RequestSync) {
+  constructor(spreadsheetId: string, createSheet: CreateSheet, requestSync: RequestLegacySync) {
     this.#spreadsheetId = spreadsheetId;
     this.#createSheet = createSheet;
     this.#requestSync = requestSync;
