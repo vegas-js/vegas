@@ -1,6 +1,7 @@
 import path from "node:path";
 import worker from "node:worker_threads";
 
+import { RuntimeRequest } from "../../runtime/protocol";
 import { ServeContext } from "./context";
 import {
   HtmlServiceHandler,
@@ -50,6 +51,46 @@ class GASHandler {
 }
 
 const handler = new GASHandler();
+const rangeHandler = new RangeHandler();
+
+async function dispatchRuntimeRequest(ctx: ServeContext, request: RuntimeRequest) {
+  switch (request.service) {
+    case "Range": {
+      switch (request.method) {
+        case "getValue": {
+          return rangeHandler.getValue(ctx, request.payload);
+        }
+        case "getValues": {
+          return rangeHandler.getValues(ctx, request.payload);
+        }
+        case "setValue": {
+          return rangeHandler.setValue(ctx, request.payload);
+        }
+        case "setValues": {
+          return rangeHandler.setValues(ctx, request.payload);
+        }
+      }
+    }
+  }
+}
+
+async function handleRuntimeRequest(
+  port: worker.MessagePort,
+  sharedArray: Int32Array,
+  ctx: ServeContext,
+  request: RuntimeRequest,
+) {
+  try {
+    const result = await dispatchRuntimeRequest(ctx, request);
+
+    if (result !== undefined) {
+      port.postMessage(result);
+    }
+  } finally {
+    Atomics.store(sharedArray, 0, 0);
+    Atomics.notify(sharedArray, 0);
+  }
+}
 
 export function launchGAS(ctx: ServeContext, fn: string, ...args: any[]): Promise<any> {
   const sourcePath = path.join(ctx.config.output.dir, "Code.js");
@@ -78,12 +119,7 @@ export function launchGAS(ctx: ServeContext, fn: string, ...args: any[]): Promis
 
       try {
         if (data.type === "service-call") {
-          await (handler as any)[`${data.service}#${data.method}`](
-            port1,
-            sharedArray,
-            ctx,
-            data.payload,
-          );
+          await handleRuntimeRequest(port1, sharedArray, ctx, data);
         } else {
           await (handler as any)[data.message](port1, sharedArray, ctx, data.payload);
         }
