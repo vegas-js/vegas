@@ -4,7 +4,9 @@ import worker from "node:worker_threads";
 import type {
   RuntimeMethod,
   RuntimeRequestFor,
+  RuntimeResponse,
   RuntimeResult,
+  RuntimeSerializedError,
   RuntimeService,
   RuntimeServicePort,
   ServiceCaller,
@@ -47,14 +49,25 @@ const Scope = {
 
 export type Scope = (typeof Scope)[keyof typeof Scope];
 
+function deserializeError(serialized: RuntimeSerializedError): Error {
+  const error = new Error(serialized.message);
+  error.name = serialized.name;
+
+  if (serialized.stack) {
+    error.stack = serialized.stack;
+  }
+
+  return error;
+}
+
 type LegacyRequest = {
   message: string;
   payload?: unknown;
 };
-function requestLegacySync(request: LegacyRequest, timeout?: number) {
+function requestLegacySync(request: LegacyRequest) {
   Atomics.store(sharedArray, 0, 1);
   port.postMessage(request);
-  Atomics.wait(sharedArray, 0, 1, timeout);
+  Atomics.wait(sharedArray, 0, 1);
   const received = worker.receiveMessageOnPort(port);
 
   return received?.message ?? null;
@@ -62,15 +75,31 @@ function requestLegacySync(request: LegacyRequest, timeout?: number) {
 export type RequestLegacySync = typeof requestLegacySync;
 function requestRuntimeSync<Service extends RuntimeService, Method extends RuntimeMethod<Service>>(
   request: RuntimeRequestFor<Service, Method>,
-  timeout?: number,
 ): RuntimeResult<Service, Method> {
   Atomics.store(sharedArray, 0, 1);
   port.postMessage(request);
-  Atomics.wait(sharedArray, 0, 1, timeout);
+
+  Atomics.wait(sharedArray, 0, 1);
 
   const received = worker.receiveMessageOnPort(port);
 
-  return received?.message ?? null;
+  if (!received) {
+    throw new Error(`Runtime service returned no response: ${request.service}.${request.method}`);
+  }
+
+  const response = received.message as RuntimeResponse<RuntimeResult<Service, Method>>;
+
+  switch (response.type) {
+    case "service-result": {
+      return response.result;
+    }
+    case "service-error": {
+      throw deserializeError(response.error);
+    }
+    default: {
+      throw new Error(`Invalid runtime response: ${request.service}.${request.method}`);
+    }
+  }
 }
 const callService: ServiceCaller = (service, method, ...args) => {
   return requestRuntimeSync({ type: "service-call", service, method, args });
@@ -92,6 +121,8 @@ function createSessionService(callService: ServiceCaller): RuntimeServicePort<"S
     getTemporaryActiveUserKey: () => callService("Session", "getTemporaryActiveUserKey"),
   };
 }
+const rangeService = createRangeService(callService);
+const sessionService = createSessionService(callService);
 
 function createRange(
   spreadsheetId: string,
@@ -101,15 +132,7 @@ function createRange(
   numRows: number,
   numColumns: number,
 ): GoogleAppsScript.Spreadsheet.Range {
-  return new Range(
-    spreadsheetId,
-    sheetId,
-    row,
-    column,
-    numRows,
-    numColumns,
-    createRangeService(callService),
-  );
+  return new Range(spreadsheetId, sheetId, row, column, numRows, numColumns, rangeService);
 }
 export type CreateRange = typeof createRange;
 
@@ -236,7 +259,7 @@ export const scriptContext = vm.createContext({
   Browser: undefined,
   Logger: new Logger(),
   MimeType: undefined,
-  Session: new Session(createSessionService(callService)),
+  Session: new Session(sessionService),
   console: new Console(),
   /* Cache */
   CacheService: new CacheService(

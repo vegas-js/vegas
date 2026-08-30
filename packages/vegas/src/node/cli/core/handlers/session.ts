@@ -1,7 +1,7 @@
-import type { IRuntimeService } from "../../../runtime/protocol";
+import type { RuntimeServiceImplementation } from "../../../runtime/protocol";
 import type { ServeContext } from "../context";
 
-export class SessionHandler implements IRuntimeService<"Session"> {
+export class SessionHandler implements RuntimeServiceImplementation<"Session"> {
   readonly #context: ServeContext;
 
   constructor(context: ServeContext) {

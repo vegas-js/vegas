@@ -1,7 +1,7 @@
 import path from "node:path";
 import worker from "node:worker_threads";
 
-import type { RuntimeRequest } from "../../runtime/protocol";
+import type { RuntimeRequest, RuntimeSerializedError } from "../../runtime/protocol";
 import { ServeContext } from "./context";
 import {
   HtmlServiceHandler,
@@ -93,6 +93,21 @@ async function dispatchRuntimeRequest(context: ServeContext, request: RuntimeReq
   }
 }
 
+function serializeError(error: unknown): RuntimeSerializedError {
+  if (error instanceof Error) {
+    return {
+      name: error.name,
+      message: error.message,
+      stack: error.stack,
+    };
+  }
+
+  return {
+    name: "Error",
+    message: String(error),
+  };
+}
+
 async function handleRuntimeRequest(
   port: worker.MessagePort,
   sharedArray: Int32Array,
@@ -102,9 +117,9 @@ async function handleRuntimeRequest(
   try {
     const result = await dispatchRuntimeRequest(context, request);
 
-    if (result !== undefined) {
-      port.postMessage(result);
-    }
+    port.postMessage({ type: "service-result", result });
+  } catch (error) {
+    port.postMessage({ type: "service-error", error: serializeError(error) });
   } finally {
     Atomics.store(sharedArray, 0, 0);
     Atomics.notify(sharedArray, 0);

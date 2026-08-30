@@ -103,8 +103,18 @@ export type ServiceCaller = <Service extends RuntimeService, Method extends Runt
 
 type Awaitable<T> = T | Promise<T>;
 
-export type IRuntimeService<Service extends RuntimeService> = {
+export type RuntimeServiceImplementation<Service extends RuntimeService> = {
   [Method in RuntimeMethod<Service>]: (
     ...args: RuntimeArgs<Service, Method>
   ) => Awaitable<RuntimeResult<Service, Method>>;
 };
+
+export type RuntimeSerializedError = {
+  name: string;
+  message: string;
+  stack?: string;
+};
+
+export type RuntimeResponse<Result = unknown> =
+  | { type: "service-result"; result: Result }
+  | { type: "service-error"; error: RuntimeSerializedError };

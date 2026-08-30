@@ -1,11 +1,27 @@
-import type { IRuntimeService } from "../../../runtime/protocol";
+import type { RuntimeServiceImplementation } from "../../../runtime/protocol";
 import type { ServeContext } from "../context";
 
-export class RangeHandler implements IRuntimeService<"Range"> {
+export class RangeHandler implements RuntimeServiceImplementation<"Range"> {
   readonly #context: ServeContext;
 
   constructor(context: ServeContext) {
     this.#context = context;
+  }
+
+  #getSheet(spreadsheetId: string, sheetId: number) {
+    const spreadsheet = this.#context.store.spreadsheet.get(spreadsheetId);
+
+    if (!spreadsheet) {
+      throw new Error(`Spreadsheet not found: ${spreadsheetId}`);
+    }
+
+    const sheet = spreadsheet.sheets.get(sheetId);
+
+    if (!sheet) {
+      throw new Error(`Sheet not found: ${sheetId}`);
+    }
+
+    return sheet;
   }
 
   getValue(payload: {
@@ -13,18 +29,7 @@ export class RangeHandler implements IRuntimeService<"Range"> {
     sheetId: number;
     range: { row: number; column: number };
   }) {
-    const spreadSheet = this.#context.store.spreadsheet.get(payload.spreadsheetId);
-    if (!spreadSheet) {
-      return null;
-    }
-    const sheets = spreadSheet.sheets;
-    if (!sheets) {
-      return null;
-    }
-    const sheet = sheets.get(payload.sheetId);
-    if (!sheet) {
-      return null;
-    }
+    const sheet = this.#getSheet(payload.spreadsheetId, payload.sheetId);
     return sheet.cells[payload.range.row - 1][payload.range.column - 1];
   }
   getValues(payload: {
@@ -32,18 +37,7 @@ export class RangeHandler implements IRuntimeService<"Range"> {
     sheetId: number;
     range: { row: number; column: number; numRows: number; numColumns: number };
   }) {
-    const spreadSheet = this.#context.store.spreadsheet.get(payload.spreadsheetId);
-    if (!spreadSheet) {
-      return [[]];
-    }
-    const sheets = spreadSheet.sheets;
-    if (!sheets) {
-      return [[]];
-    }
-    const sheet = sheets.get(payload.sheetId);
-    if (!sheet) {
-      return [[]];
-    }
+    const sheet = this.#getSheet(payload.spreadsheetId, payload.sheetId);
     const cells = sheet.cells;
     const rowStart = payload.range.numRows === 0 ? 0 : payload.range.row - 1;
     const rowEnd = payload.range.numRows === 0 ? cells.length : rowStart + payload.range.numRows;
@@ -62,18 +56,7 @@ export class RangeHandler implements IRuntimeService<"Range"> {
     range: { row: number; column: number; numRows: number; numColumns: number };
     value: any;
   }) {
-    const spreadSheet = this.#context.store.spreadsheet.get(payload.spreadsheetId);
-    if (!spreadSheet) {
-      return;
-    }
-    const sheets = spreadSheet.sheets;
-    if (!sheets) {
-      return;
-    }
-    const sheet = sheets.get(payload.sheetId);
-    if (!sheet) {
-      return;
-    }
+    const sheet = this.#getSheet(payload.spreadsheetId, payload.sheetId);
     const cells = sheet.cells;
     const rowStart = payload.range.numRows === 0 ? 0 : payload.range.row - 1;
     const rowEnd = payload.range.numRows === 0 ? cells.length : rowStart + payload.range.numRows;
@@ -92,18 +75,7 @@ export class RangeHandler implements IRuntimeService<"Range"> {
     range: { row: number; column: number; numRows: number; numColumns: number };
     values: any[][];
   }) {
-    const spreadSheet = this.#context.store.spreadsheet.get(payload.spreadsheetId);
-    if (!spreadSheet) {
-      return;
-    }
-    const sheets = spreadSheet.sheets;
-    if (!sheets) {
-      return;
-    }
-    const sheet = sheets.get(payload.sheetId);
-    if (!sheet) {
-      return;
-    }
+    const sheet = this.#getSheet(payload.spreadsheetId, payload.sheetId);
     const cells = sheet.cells;
     const rowStart = payload.range.numRows === 0 ? 0 : payload.range.row - 1;
     const rowEnd = payload.range.numRows === 0 ? cells.length : rowStart + payload.range.numRows;
