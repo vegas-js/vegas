@@ -1,7 +1,7 @@
 import vm from "node:vm";
 import worker from "node:worker_threads";
 
-import { invokeFunction } from "./invocation";
+import { invokeScriptFunction } from "./invocation";
 import { createObjectFactories } from "./objectFactories";
 import {
   createRangeService,
@@ -54,12 +54,7 @@ export const scriptContext = createScriptContext({
 script.runInContext(scriptContext);
 
 port.on("message", async (data: GASWorkerData) => {
-  const targetFn = scriptContext[data.fn];
-  if (typeof targetFn !== "function") {
-    throw new Error(`${data.fn} is not a function`);
-  }
-
-  const result = await invokeFunction(targetFn, ...data.args);
+  const result = await invokeScriptFunction(scriptContext, data.fn, data.args);
   port.postMessage({ message: "resolve", payload: result });
 });
 
