@@ -1,38 +1,34 @@
 import { expect, test } from "vitest";
 
-import type { ServeContext } from "../context";
+import type { SpreadsheetStore } from "./range";
 import { RangeHandler } from "./range";
 
-function createContext(): ServeContext {
-  return {
-    store: {
-      spreadsheet: new Map([
-        [
-          "spreadsheet-1",
-          {
-            name: "Spreadsheet 1",
-            sheets: new Map([
-              [
-                1,
-                {
-                  name: "Sheet1",
-                  cells: [
-                    ["A1", "B1", "C1"],
-                    ["A2", "B2", "C2"],
-                    ["A3", "B3", "C3"],
-                  ],
-                },
+function createStore(): SpreadsheetStore {
+  return new Map([
+    [
+      "spreadsheet-1",
+      {
+        name: "Spreadsheet 1",
+        sheets: new Map([
+          [
+            1,
+            {
+              name: "Sheet1",
+              cells: [
+                ["A1", "B1", "C1"],
+                ["A2", "B2", "C2"],
+                ["A3", "B3", "C3"],
               ],
-            ]),
-          },
-        ],
-      ]),
-    },
-  } as unknown as ServeContext;
+            },
+          ],
+        ]),
+      },
+    ],
+  ]);
 }
 
 test("gets a value from the specified cell", () => {
-  const handler = new RangeHandler(createContext());
+  const handler = new RangeHandler(createStore());
 
   expect(
     handler.getValue({
@@ -44,7 +40,7 @@ test("gets a value from the specified cell", () => {
 });
 
 test("gets values from the specified range", () => {
-  const handler = new RangeHandler(createContext());
+  const handler = new RangeHandler(createStore());
 
   expect(
     handler.getValues({
@@ -59,8 +55,8 @@ test("gets values from the specified range", () => {
 });
 
 test("sets the same value to the specified range", () => {
-  const context = createContext();
-  const handler = new RangeHandler(context);
+  const store = createStore();
+  const handler = new RangeHandler(store);
   handler.setValue({
     spreadsheetId: "spreadsheet-1",
     sheetId: 1,
@@ -68,7 +64,7 @@ test("sets the same value to the specified range", () => {
     value: "X",
   });
 
-  expect(context.store.spreadsheet.get("spreadsheet-1")!.sheets.get(1)!.cells).toEqual([
+  expect(store.get("spreadsheet-1")!.sheets.get(1)!.cells).toEqual([
     ["A1", "X", "X"],
     ["A2", "X", "X"],
     ["A3", "B3", "C3"],
@@ -76,8 +72,8 @@ test("sets the same value to the specified range", () => {
 });
 
 test("sets values to the specified range", () => {
-  const context = createContext();
-  const handler = new RangeHandler(context);
+  const store = createStore();
+  const handler = new RangeHandler(store);
   handler.setValues({
     spreadsheetId: "spreadsheet-1",
     sheetId: 1,
@@ -88,7 +84,7 @@ test("sets values to the specified range", () => {
     ],
   });
 
-  expect(context.store.spreadsheet.get("spreadsheet-1")!.sheets.get(1)!.cells).toEqual([
+  expect(store.get("spreadsheet-1")!.sheets.get(1)!.cells).toEqual([
     ["A1", "B1", "C1"],
     ["A2", "X1", "Y1"],
     ["A3", "X2", "Y2"],
@@ -96,7 +92,7 @@ test("sets values to the specified range", () => {
 });
 
 test("throws when spreadsheet does not exist", () => {
-  const handler = new RangeHandler(createContext());
+  const handler = new RangeHandler(createStore());
 
   expect(() =>
     handler.getValue({
@@ -108,7 +104,7 @@ test("throws when spreadsheet does not exist", () => {
 });
 
 test("throws when sheet does not exist", () => {
-  const handler = new RangeHandler(createContext());
+  const handler = new RangeHandler(createStore());
 
   expect(() =>
     handler.getValue({

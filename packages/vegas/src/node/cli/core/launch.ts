@@ -73,7 +73,7 @@ function createRuntimeServiceRegistry(context: ServeContext): RuntimeServiceRegi
     now: () => Date.now(),
   };
   return {
-    Range: new RangeHandler(context),
+    Range: new RangeHandler(context.store.spreadsheet),
     Session: new SessionHandler(context),
     Cache: new CacheHandler(context.store.cache, systemClock),
     Properties: new PropertiesHandler(context.store.properties),

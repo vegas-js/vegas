@@ -1,15 +1,22 @@
 import type { RuntimeServiceImplementation } from "../../../runtime/protocol";
-import type { ServeContext } from "../context";
+
+export type SpreadsheetStore = Map<
+  string,
+  {
+    name: string;
+    sheets: Map<number, { name: string; cells: any[][] }>;
+  }
+>;
 
 export class RangeHandler implements RuntimeServiceImplementation<"Range"> {
-  readonly #context: ServeContext;
+  readonly #store: SpreadsheetStore;
 
-  constructor(context: ServeContext) {
-    this.#context = context;
+  constructor(store: SpreadsheetStore) {
+    this.#store = store;
   }
 
   #getSheet(spreadsheetId: string, sheetId: number) {
-    const spreadsheet = this.#context.store.spreadsheet.get(spreadsheetId);
+    const spreadsheet = this.#store.get(spreadsheetId);
 
     if (!spreadsheet) {
       throw new Error(`Spreadsheet not found: ${spreadsheetId}`);
