@@ -1,4 +1,4 @@
-import { CreateRange, RequestLegacySync } from "../..";
+import type { CreateRange, RequestLegacySync } from "../../types";
 
 // https://developers.google.com/apps-script/reference/spreadsheet/sheet
 export class Sheet implements GoogleAppsScript.Spreadsheet.Sheet {

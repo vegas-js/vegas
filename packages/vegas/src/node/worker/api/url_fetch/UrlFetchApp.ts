@@ -1,4 +1,4 @@
-import { RequestLegacySync } from "../..";
+import type { RequestLegacySync } from "../../types";
 import { HttpResponse } from "./HTTPResponse";
 
 // https://developers.google.com/apps-script/reference/url-fetch/url-fetch-app

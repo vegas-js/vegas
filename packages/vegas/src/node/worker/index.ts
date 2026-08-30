@@ -30,6 +30,16 @@ import {
   createPropertiesService,
 } from "./remoteServices";
 import { createRuntimeServiceCaller } from "./runtimeTransport";
+import type {
+  CreateFile,
+  CreateFolder,
+  CreateHtmlOutput,
+  CreateHtmlTemplate,
+  CreateRange,
+  CreateSheet,
+  CreateSpreadsheet,
+  RequestLegacySync,
+} from "./types";
 
 const sharedArray: Int32Array = worker.workerData.sharedArray;
 const port: worker.MessagePort = worker.workerData.port;
@@ -39,69 +49,32 @@ type GASWorkerData = {
   args: any[];
 };
 
-type LegacyRequest = {
-  message: string;
-  payload?: unknown;
-};
-function requestLegacySync(request: LegacyRequest, timeout?: number) {
+const requestLegacySync: RequestLegacySync = (request, timeout) => {
   Atomics.store(sharedArray, 0, 1);
   port.postMessage(request);
   Atomics.wait(sharedArray, 0, 1, timeout);
   const received = worker.receiveMessageOnPort(port);
 
   return received?.message ?? null;
-}
-export type RequestLegacySync = typeof requestLegacySync;
+};
+
 const callService = createRuntimeServiceCaller(sharedArray, port);
 const rangeService = createRangeService(callService);
 const sessionService = createSessionService(callService);
 const cacheService = createCacheService(callService);
 const propertiesService = createPropertiesService(callService);
 
-function createRange(
-  spreadsheetId: string,
-  sheetId: number,
-  row: number,
-  column: number,
-  numRows: number,
-  numColumns: number,
-): GoogleAppsScript.Spreadsheet.Range {
-  return new Range(spreadsheetId, sheetId, row, column, numRows, numColumns, rangeService);
-}
-export type CreateRange = typeof createRange;
-
-function createSheet(spreadsheetId: string, sheetId: number): GoogleAppsScript.Spreadsheet.Sheet {
-  return new Sheet(spreadsheetId, sheetId, createRange, requestLegacySync);
-}
-export type CreateSheet = typeof createSheet;
-
-function createSpreadsheet(spreadsheetId: string): GoogleAppsScript.Spreadsheet.Spreadsheet {
-  return new Spreadsheet(spreadsheetId, createSheet, requestLegacySync);
-}
-export type CreateSpreadsheet = typeof createSpreadsheet;
-
-function createHtmlOutput(
-  content: string,
-  defaultXFrameOptionsMode: GoogleAppsScript.HTML.XFrameOptionsMode,
-): GoogleAppsScript.HTML.HtmlOutput {
-  return new HtmlOutput(content, defaultXFrameOptionsMode);
-}
-export type CreateHtmlOutput = typeof createHtmlOutput;
-
-function createHtmlTemplate(content: string): GoogleAppsScript.HTML.HtmlTemplate {
-  return new HtmlTemplate(content);
-}
-export type CreateHtmlTemplate = typeof createHtmlTemplate;
-
-function createFolder(): GoogleAppsScript.Drive.Folder {
-  return new Folder();
-}
-export type CreateFolder = typeof createFolder;
-
-function createFile(): GoogleAppsScript.Drive.File {
-  return new File();
-}
-export type CreateFile = typeof createFile;
+const createRange: CreateRange = (spreadsheetId, sheetId, row, column, numRows, numColumns) =>
+  new Range(spreadsheetId, sheetId, row, column, numRows, numColumns, rangeService);
+const createSheet: CreateSheet = (spreadsheetId, sheetId) =>
+  new Sheet(spreadsheetId, sheetId, createRange, requestLegacySync);
+const createSpreadsheet: CreateSpreadsheet = (spreadsheetId) =>
+  new Spreadsheet(spreadsheetId, createSheet, requestLegacySync);
+const createHtmlOutput: CreateHtmlOutput = (content, defaultXFrameOptionsMode) =>
+  new HtmlOutput(content, defaultXFrameOptionsMode);
+const createHtmlTemplate: CreateHtmlTemplate = (content) => new HtmlTemplate(content);
+const createFolder: CreateFolder = () => new Folder();
+const createFile: CreateFile = () => new File();
 
 const script = new vm.Script(worker.workerData.code);
 export const scriptContext = vm.createContext({

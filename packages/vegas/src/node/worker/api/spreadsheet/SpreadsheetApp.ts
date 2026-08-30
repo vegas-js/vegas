@@ -1,4 +1,4 @@
-import { CreateSpreadsheet, RequestLegacySync } from "../..";
+import type { CreateSpreadsheet, RequestLegacySync } from "../../types";
 
 // https://developers.google.com/apps-script/reference/spreadsheet/spreadsheet-app
 export class SpreadsheetApp implements GoogleAppsScript.Spreadsheet.SpreadsheetApp {

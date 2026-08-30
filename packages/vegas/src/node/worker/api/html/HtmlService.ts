@@ -1,4 +1,4 @@
-import { CreateHtmlOutput, CreateHtmlTemplate, RequestLegacySync } from "../..";
+import type { CreateHtmlOutput, CreateHtmlTemplate, RequestLegacySync } from "../../types";
 import { GASAPI } from "../GASAPI";
 
 // https://developers.google.com/apps-script/reference/html/html-service
