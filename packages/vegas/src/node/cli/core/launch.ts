@@ -1,7 +1,11 @@
 import path from "node:path";
 import worker from "node:worker_threads";
 
-import type { RuntimeRequest, RuntimeSerializedError } from "../../runtime/protocol";
+import type {
+  RuntimeRequest,
+  RuntimeSerializedError,
+  RuntimeServiceRegistry,
+} from "../../runtime/protocol";
 import { ServeContext } from "./context";
 import {
   HtmlServiceHandler,
@@ -50,47 +54,28 @@ class GASHandler {
 
 const handler = new GASHandler();
 
-async function dispatchRuntimeRequest(context: ServeContext, request: RuntimeRequest) {
-  const rangeHandler = new RangeHandler(context);
-  const sessionHandler = new SessionHandler(context);
+type DynamicRuntimeOperation = (...args: unknown[]) => unknown;
 
-  switch (request.service) {
-    case "Range": {
-      switch (request.method) {
-        case "getValue": {
-          return rangeHandler.getValue(...request.args);
-        }
-        case "getValues": {
-          return rangeHandler.getValues(...request.args);
-        }
-        case "setValue": {
-          return rangeHandler.setValue(...request.args);
-        }
-        case "setValues": {
-          return rangeHandler.setValues(...request.args);
-        }
-      }
-    }
-    case "Session": {
-      switch (request.method) {
-        case "getActiveUser": {
-          return sessionHandler.getActiveUser(...request.args);
-        }
-        case "getActiveUserLocale": {
-          return sessionHandler.getActiveUserLocale(...request.args);
-        }
-        case "getEffectiveUser": {
-          return sessionHandler.getEffectiveUser(...request.args);
-        }
-        case "getScriptTimeZone": {
-          return sessionHandler.getScriptTimeZone(...request.args);
-        }
-        case "getTemporaryActiveUserKey": {
-          return sessionHandler.getTemporaryActiveUserKey(...request.args);
-        }
-      }
-    }
+type DynamicRuntimeService = Record<string, DynamicRuntimeOperation>;
+
+type DynamicRuntimeRegistry = Record<string, DynamicRuntimeService>;
+
+async function dispatchRuntimeRequest(services: RuntimeServiceRegistry, request: RuntimeRequest) {
+  const registry = services as unknown as DynamicRuntimeRegistry;
+
+  const service = registry[request.service];
+
+  if (!service) {
+    throw new Error(`Unknown runtime service: ${request.service}`);
   }
+
+  const operation = service[request.method];
+
+  if (typeof operation !== "function") {
+    throw new Error(`Unknown runtime method: ${request.service}.${request.method}`);
+  }
+
+  return await Reflect.apply(operation, service, request.args);
 }
 
 function serializeError(error: unknown): RuntimeSerializedError {
@@ -111,11 +96,11 @@ function serializeError(error: unknown): RuntimeSerializedError {
 async function handleRuntimeRequest(
   port: worker.MessagePort,
   sharedArray: Int32Array,
-  context: ServeContext,
+  services: RuntimeServiceRegistry,
   request: RuntimeRequest,
 ) {
   try {
-    const result = await dispatchRuntimeRequest(context, request);
+    const result = await dispatchRuntimeRequest(services, request);
 
     port.postMessage({ type: "service-result", result });
   } catch (error) {
@@ -126,9 +111,17 @@ async function handleRuntimeRequest(
   }
 }
 
+function createRuntimeServiceRegistry(context: ServeContext): RuntimeServiceRegistry {
+  return {
+    Range: new RangeHandler(context),
+    Session: new SessionHandler(context),
+  };
+}
+
 export function launchGAS(context: ServeContext, fn: string, ...args: any[]): Promise<any> {
   const sourcePath = path.join(context.config.output.dir, "Code.js");
   const code = context.vfs.readFileSync(sourcePath, "utf8");
+  const runtimeServices = createRuntimeServiceRegistry(context);
   return new Promise((resolve, reject) => {
     const sharedBuffer = new SharedArrayBuffer(4);
     const sharedArray = new Int32Array(sharedBuffer);
@@ -153,10 +146,10 @@ export function launchGAS(context: ServeContext, fn: string, ...args: any[]): Pr
 
       try {
         if (data.type === "service-call") {
-          await handleRuntimeRequest(port1, sharedArray, context, data);
-        } else {
-          await (handler as any)[data.message](port1, sharedArray, context, data.payload);
+          await handleRuntimeRequest(port1, sharedArray, runtimeServices, data);
+          return;
         }
+        await (handler as any)[data.message](port1, sharedArray, context, data.payload);
       } catch (err: any) {
         port1.close();
         console.error(err);

@@ -118,3 +118,7 @@ export type RuntimeSerializedError = {
 export type RuntimeResponse<Result = unknown> =
   | { type: "service-result"; result: Result }
   | { type: "service-error"; error: RuntimeSerializedError };
+
+export type RuntimeServiceRegistry = {
+  [Service in RuntimeService]: RuntimeServiceImplementation<Service>;
+};
