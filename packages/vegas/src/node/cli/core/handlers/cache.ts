@@ -1,24 +1,29 @@
 import type { RuntimeServiceImplementation } from "../../../runtime/protocol";
 import type { RuntimeScope } from "../../../runtime/scope";
-import type { ServeContext } from "../context";
+
+export type CacheStore = {
+  document: Record<string, { value: string; expired: number }>;
+  script: Record<string, { value: string; expired: number }>;
+  user: Record<string, { value: string; expired: number }>;
+};
 
 export class CacheHandler implements RuntimeServiceImplementation<"Cache"> {
-  readonly #context: ServeContext;
+  readonly #store: CacheStore;
 
-  constructor(context: ServeContext) {
-    this.#context = context;
+  constructor(store: CacheStore) {
+    this.#store = store;
   }
 
   #getScopedCache(scope: RuntimeScope) {
     switch (scope) {
       case "document": {
-        return this.#context.store.cache.document;
+        return this.#store.document;
       }
       case "script": {
-        return this.#context.store.cache.script;
+        return this.#store.script;
       }
       case "user": {
-        return this.#context.store.cache.user;
+        return this.#store.user;
       }
       default: {
         return null;

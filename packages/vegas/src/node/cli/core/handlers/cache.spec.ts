@@ -1,32 +1,27 @@
 import { afterEach, expect, test, vi } from "vitest";
 
 import { RuntimeScope } from "../../../runtime/scope";
-import type { ServeContext } from "../context";
+import type { CacheStore } from "./cache";
 import { CacheHandler } from "./cache";
 
-function createContext(): ServeContext {
+function createStore(): CacheStore {
   return {
-    store: {
-      cache: {
-        document: {},
-        script: {},
-        user: {},
-      },
-    },
-  } as unknown as ServeContext;
+    document: {},
+    script: {},
+    user: {},
+  };
 }
 
 afterEach(() => vi.restoreAllMocks());
 
 test("returns null for missing key", () => {
-  const handler = new CacheHandler(createContext());
+  const handler = new CacheHandler(createStore());
 
   expect(handler.get(RuntimeScope.SCRIPT, "missing")).toBeNull();
 });
 
 test("expires cached value", () => {
-  const context = createContext();
-  const handler = new CacheHandler(context);
+  const handler = new CacheHandler(createStore());
   const now = vi.spyOn(Date, "now");
 
   now.mockReturnValue(1_000);
@@ -41,7 +36,7 @@ test("expires cached value", () => {
 
 test("isolates cache values by scope", () => {
   vi.spyOn(Date, "now").mockReturnValue(1_000);
-  const handler = new CacheHandler(createContext());
+  const handler = new CacheHandler(createStore());
   handler.put(RuntimeScope.DOCUMENT, "key", "document", 600);
   handler.put(RuntimeScope.SCRIPT, "key", "script", 600);
   handler.put(RuntimeScope.USER, "key", "user", 600);
@@ -52,12 +47,12 @@ test("isolates cache values by scope", () => {
 });
 
 test("putAll uses the same expiration for all values", () => {
-  const context = createContext();
-  const handler = new CacheHandler(context);
+  const store = createStore();
+  const handler = new CacheHandler(store);
   vi.spyOn(Date, "now").mockReturnValue(1_000);
   handler.putAll(RuntimeScope.SCRIPT, { foo: "foo", bar: "bar" }, 10);
 
-  expect(context.store.cache.script).toEqual({
+  expect(store.script).toEqual({
     foo: { value: "foo", expired: 11_000 },
     bar: { value: "bar", expired: 11_000 },
   });

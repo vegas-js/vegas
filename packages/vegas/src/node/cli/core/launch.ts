@@ -72,7 +72,7 @@ function createRuntimeServiceRegistry(context: ServeContext): RuntimeServiceRegi
   return {
     Range: new RangeHandler(context),
     Session: new SessionHandler(context),
-    Cache: new CacheHandler(context),
+    Cache: new CacheHandler(context.store.cache),
     Properties: new PropertiesHandler(context.store.properties),
   };
 }
