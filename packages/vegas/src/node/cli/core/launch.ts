@@ -4,12 +4,16 @@ import worker from "node:worker_threads";
 import { dispatchRuntimeRequest } from "../../runtime/dispatcher";
 import { serializeRuntimeError } from "../../runtime/errorCodec";
 import type { Clock } from "../../runtime/host/services";
-import { CacheHandler, PropertiesHandler, RangeHandler } from "../../runtime/host/services";
+import {
+  CacheHandler,
+  PropertiesHandler,
+  RangeHandler,
+  SessionHandler,
+} from "../../runtime/host/services";
 import type { RuntimeRequest, RuntimeServiceRegistry } from "../../runtime/protocol";
 import { ServeContext } from "./context";
 import {
   HtmlServiceHandler,
-  SessionHandler,
   SpreadsheetAppHandler,
   SheetHandler,
   UrlFetchAppHandler,

@@ -1,4 +1,4 @@
-import type { RuntimeServiceImplementation } from "../../../runtime/protocol";
+import type { RuntimeServiceImplementation } from "../../protocol";
 
 export type SessionEnvironment = {
   executeAs: "USER_ACCESSING" | "USER_DEPLOYING";
