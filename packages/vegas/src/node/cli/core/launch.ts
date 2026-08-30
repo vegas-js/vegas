@@ -2,11 +2,8 @@ import path from "node:path";
 import worker from "node:worker_threads";
 
 import { dispatchRuntimeRequest } from "../../runtime/dispatcher";
-import type {
-  RuntimeRequest,
-  RuntimeSerializedError,
-  RuntimeServiceRegistry,
-} from "../../runtime/protocol";
+import { serializeRuntimeError } from "../../runtime/errorCodec";
+import type { RuntimeRequest, RuntimeServiceRegistry } from "../../runtime/protocol";
 import { ServeContext } from "./context";
 import {
   HtmlServiceHandler,
@@ -55,21 +52,6 @@ class GASHandler {
 
 const handler = new GASHandler();
 
-function serializeError(error: unknown): RuntimeSerializedError {
-  if (error instanceof Error) {
-    return {
-      name: error.name,
-      message: error.message,
-      stack: error.stack,
-    };
-  }
-
-  return {
-    name: "Error",
-    message: String(error),
-  };
-}
-
 async function handleRuntimeRequest(
   port: worker.MessagePort,
   sharedArray: Int32Array,
@@ -81,7 +63,7 @@ async function handleRuntimeRequest(
 
     port.postMessage({ type: "service-result", result });
   } catch (error) {
-    port.postMessage({ type: "service-error", error: serializeError(error) });
+    port.postMessage({ type: "service-error", error: serializeRuntimeError(error) });
   } finally {
     Atomics.store(sharedArray, 0, 0);
     Atomics.notify(sharedArray, 0);

@@ -1,12 +1,12 @@
 import vm from "node:vm";
 import worker from "node:worker_threads";
 
+import { deserializeRuntimeError } from "../runtime/errorCodec";
 import type {
   RuntimeMethod,
   RuntimeRequestFor,
   RuntimeResponse,
   RuntimeResult,
-  RuntimeSerializedError,
   RuntimeService,
   RuntimeServicePort,
   ServiceCaller,
@@ -49,17 +49,6 @@ const Scope = {
 
 export type Scope = (typeof Scope)[keyof typeof Scope];
 
-function deserializeError(serialized: RuntimeSerializedError): Error {
-  const error = new Error(serialized.message);
-  error.name = serialized.name;
-
-  if (serialized.stack) {
-    error.stack = serialized.stack;
-  }
-
-  return error;
-}
-
 type LegacyRequest = {
   message: string;
   payload?: unknown;
@@ -94,7 +83,7 @@ function requestRuntimeSync<Service extends RuntimeService, Method extends Runti
       return response.result;
     }
     case "service-error": {
-      throw deserializeError(response.error);
+      throw deserializeRuntimeError(response.error);
     }
     default: {
       throw new Error(`Invalid runtime response: ${request.service}.${request.method}`);
