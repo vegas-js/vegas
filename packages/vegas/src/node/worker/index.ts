@@ -1,14 +1,8 @@
 import vm from "node:vm";
 import worker from "node:worker_threads";
 
-import { File } from "./api/drive/File";
-import { Folder } from "./api/drive/Folder";
-import { HtmlOutput } from "./api/html/HtmlOutput";
-import { HtmlTemplate } from "./api/html/HtmlTemplate";
-import { Range } from "./api/spreadsheet/Range";
-import { Sheet } from "./api/spreadsheet/Sheet";
-import { Spreadsheet } from "./api/spreadsheet/Spreadsheet";
 import { invokeFunction } from "./invocation";
+import { createObjectFactories } from "./objectFactories";
 import {
   createRangeService,
   createSessionService,
@@ -17,16 +11,7 @@ import {
 } from "./remoteServices";
 import { createRuntimeServiceCaller } from "./runtimeTransport";
 import { createScriptContext } from "./scriptContext";
-import type {
-  CreateFile,
-  CreateFolder,
-  CreateHtmlOutput,
-  CreateHtmlTemplate,
-  CreateRange,
-  CreateSheet,
-  CreateSpreadsheet,
-  RequestLegacySync,
-} from "./types";
+import type { RequestLegacySync } from "./types";
 
 const sharedArray: Int32Array = worker.workerData.sharedArray;
 const port: worker.MessagePort = worker.workerData.port;
@@ -51,17 +36,8 @@ const sessionService = createSessionService(callService);
 const cacheService = createCacheService(callService);
 const propertiesService = createPropertiesService(callService);
 
-const createRange: CreateRange = (spreadsheetId, sheetId, row, column, numRows, numColumns) =>
-  new Range(spreadsheetId, sheetId, row, column, numRows, numColumns, rangeService);
-const createSheet: CreateSheet = (spreadsheetId, sheetId) =>
-  new Sheet(spreadsheetId, sheetId, createRange, requestLegacySync);
-const createSpreadsheet: CreateSpreadsheet = (spreadsheetId) =>
-  new Spreadsheet(spreadsheetId, createSheet, requestLegacySync);
-const createHtmlOutput: CreateHtmlOutput = (content, defaultXFrameOptionsMode) =>
-  new HtmlOutput(content, defaultXFrameOptionsMode);
-const createHtmlTemplate: CreateHtmlTemplate = (content) => new HtmlTemplate(content);
-const createFolder: CreateFolder = () => new Folder();
-const createFile: CreateFile = () => new File();
+const { createFile, createFolder, createHtmlOutput, createHtmlTemplate, createSpreadsheet } =
+  createObjectFactories(requestLegacySync, rangeService);
 
 const script = new vm.Script(worker.workerData.code);
 export const scriptContext = createScriptContext({
