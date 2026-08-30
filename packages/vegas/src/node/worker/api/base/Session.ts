@@ -1,30 +1,30 @@
-import type { ServiceCaller } from "../../../runtime/protocol";
+import type { RuntimeServicePort } from "../../../runtime/protocol";
 import { User } from "./User";
 
 // https://developers.google.com/apps-script/reference/base/session
 export class Session implements GoogleAppsScript.Base.Session {
-  #callService: ServiceCaller;
+  #service: RuntimeServicePort<"Session">;
 
-  constructor(callService: ServiceCaller) {
-    this.#callService = callService;
+  constructor(service: RuntimeServicePort<"Session">) {
+    this.#service = service;
   }
 
   getActiveUser = () => {
-    const email = this.#callService("Session", "getActiveUser");
+    const email = this.#service.getActiveUser();
     return new User(email);
   };
   getActiveUserLocale = () => {
-    return this.#callService("Session", "getActiveUserLocale");
+    return this.#service.getActiveUserLocale();
   };
   getEffectiveUser = () => {
-    const email = this.#callService("Session", "getEffectiveUser");
+    const email = this.#service.getEffectiveUser();
     return new User(email);
   };
   getScriptTimeZone = () => {
-    return this.#callService("Session", "getScriptTimeZone");
+    return this.#service.getScriptTimeZone();
   };
   getTemporaryActiveUserKey = () => {
-    return this.#callService("Session", "getTemporaryActiveUserKey");
+    return this.#service.getTemporaryActiveUserKey();
   };
   /** @deprecated DO NOT USE */
   getTimeZone = () => {

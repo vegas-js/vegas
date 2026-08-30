@@ -1,14 +1,23 @@
 import { describe, expect, test } from "vitest";
 
-import { ServiceCaller } from "../../../runtime/protocol";
+import type { RuntimeServicePort } from "../../../runtime/protocol";
 import { Range } from "./Range";
+
+function createRangeService(
+  overrides: Partial<RuntimeServicePort<"Range">> = {},
+): RuntimeServicePort<"Range"> {
+  return {
+    getValue: () => [[]],
+    getValues: () => [[]],
+    setValue: () => {},
+    setValues: () => {},
+    ...overrides,
+  };
+}
 
 describe("getCell", () => {
   test("check argument boundaries", () => {
-    const callService: ServiceCaller = () => {
-      throw new Error("unexpected service call");
-    };
-    const range = new Range("", 0, 1, 1, 100, 100, callService);
+    const range = new Range("", 0, 1, 1, 100, 100, createRangeService());
 
     // minimum boundaries
     expect(() => range.getCell(1, 1)).not.toThrow();

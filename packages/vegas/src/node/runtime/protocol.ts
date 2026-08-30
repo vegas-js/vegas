@@ -56,6 +56,8 @@ export interface RuntimeProtocol {
 
 export type RuntimeService = Extract<keyof RuntimeProtocol, string>;
 
+export type RuntimeServicePort<Service extends RuntimeService> = RuntimeProtocol[Service];
+
 export type RuntimeMethod<Service extends RuntimeService> = Extract<
   keyof RuntimeProtocol[Service],
   string
@@ -98,3 +100,11 @@ export type ServiceCaller = <Service extends RuntimeService, Method extends Runt
   method: Method,
   ...args: RuntimeArgs<Service, Method>
 ) => RuntimeResult<Service, Method>;
+
+type Awaitable<T> = T | Promise<T>;
+
+export type IRuntimeService<Service extends RuntimeService> = {
+  [Method in RuntimeMethod<Service>]: (
+    ...args: RuntimeArgs<Service, Method>
+  ) => Awaitable<RuntimeResult<Service, Method>>;
+};

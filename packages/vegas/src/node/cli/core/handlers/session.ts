@@ -1,31 +1,38 @@
-import { ServeContext } from "../context";
+import type { IRuntimeService } from "../../../runtime/protocol";
+import type { ServeContext } from "../context";
 
-export class SessionHandler {
-  getActiveUser(ctx: ServeContext) {
+export class SessionHandler implements IRuntimeService<"Session"> {
+  readonly #context: ServeContext;
+
+  constructor(context: ServeContext) {
+    this.#context = context;
+  }
+
+  getActiveUser() {
     const email =
-      ctx.config.gas.webapp!.executeAs === "USER_ACCESSING"
-        ? (ctx.mock["Session"]?.activeUserEmail ?? "active@gmail.com")
-        : (ctx.mock["Session"]?.effectiveUserEmail ?? "effective@gmail.com");
+      this.#context.config.gas.webapp!.executeAs === "USER_ACCESSING"
+        ? (this.#context.mock["Session"]?.activeUserEmail ?? "active@gmail.com")
+        : (this.#context.mock["Session"]?.effectiveUserEmail ?? "effective@gmail.com");
     return email;
   }
-  getActiveUserLocale(ctx: ServeContext) {
-    const userLocale = ctx.mock["Session"]?.activeUserLocale ?? "en";
+  getActiveUserLocale() {
+    const userLocale = this.#context.mock["Session"]?.activeUserLocale ?? "en";
     return userLocale;
   }
-  getEffectiveUser(ctx: ServeContext) {
+  getEffectiveUser() {
     const email =
-      ctx.config.gas.webapp!.executeAs === "USER_ACCESSING"
-        ? (ctx.mock["Session"]?.activeUserEmail ?? "active@gmail.com")
-        : (ctx.mock["Session"]?.effectiveUserEmail ?? "effective@gmail.com");
+      this.#context.config.gas.webapp!.executeAs === "USER_ACCESSING"
+        ? (this.#context.mock["Session"]?.activeUserEmail ?? "active@gmail.com")
+        : (this.#context.mock["Session"]?.effectiveUserEmail ?? "effective@gmail.com");
     return email;
   }
-  getScriptTimeZone(ctx: ServeContext) {
-    const timeZone = ctx.config.gas.timeZone ?? "UTC";
+  getScriptTimeZone() {
+    const timeZone = this.#context.config.gas.timeZone ?? "UTC";
     return timeZone;
   }
-  getTemporaryActiveUserKey(ctx: ServeContext) {
+  getTemporaryActiveUserKey() {
     const key =
-      ctx.mock["Session"]?.temporaryActiveUserKey ??
+      this.#context.mock["Session"]?.temporaryActiveUserKey ??
       "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
     return key;
   }

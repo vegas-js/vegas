@@ -1,4 +1,4 @@
-import type { ServiceCaller } from "../../../runtime/protocol";
+import type { RuntimeServicePort } from "../../../runtime/protocol";
 
 // https://developers.google.com/apps-script/reference/spreadsheet/range
 export class Range implements GoogleAppsScript.Spreadsheet.Range {
@@ -8,7 +8,7 @@ export class Range implements GoogleAppsScript.Spreadsheet.Range {
   #column: GoogleAppsScript.Integer;
   #numRows: GoogleAppsScript.Integer;
   #numColumns: GoogleAppsScript.Integer;
-  #callService: ServiceCaller;
+  #service: RuntimeServicePort<"Range">;
 
   constructor(
     spreadsheetId: string,
@@ -17,7 +17,7 @@ export class Range implements GoogleAppsScript.Spreadsheet.Range {
     column: GoogleAppsScript.Integer,
     numRows: GoogleAppsScript.Integer,
     numColumns: GoogleAppsScript.Integer,
-    callService: ServiceCaller,
+    service: RuntimeServicePort<"Range">,
   ) {
     this.#spreadsheetId = spreadsheetId;
     this.#sheetId = sheetId;
@@ -25,7 +25,7 @@ export class Range implements GoogleAppsScript.Spreadsheet.Range {
     this.#column = column;
     this.#numRows = numRows;
     this.#numColumns = numColumns;
-    this.#callService = callService;
+    this.#service = service;
   }
 
   activate = () => {
@@ -151,7 +151,7 @@ export class Range implements GoogleAppsScript.Spreadsheet.Range {
         this.#column + column - 1,
         1,
         1,
-        this.#callService,
+        this.#service,
       );
     } else {
       throw new Error("out of range.");
@@ -323,7 +323,7 @@ export class Range implements GoogleAppsScript.Spreadsheet.Range {
     throw new Error("Method not implemented.");
   };
   getValue = () => {
-    return this.#callService("Range", "getValue", {
+    return this.#service.getValue({
       spreadsheetId: this.#spreadsheetId,
       sheetId: this.#sheetId,
       range: {
@@ -333,7 +333,7 @@ export class Range implements GoogleAppsScript.Spreadsheet.Range {
     });
   };
   getValues = () => {
-    return this.#callService("Range", "getValues", {
+    return this.#service.getValues({
       spreadsheetId: this.#spreadsheetId,
       sheetId: this.#sheetId,
       range: {
@@ -562,7 +562,7 @@ export class Range implements GoogleAppsScript.Spreadsheet.Range {
     throw new Error("Method not implemented.");
   };
   setValue = (value: any) => {
-    this.#callService("Range", "setValue", {
+    this.#service.setValue({
       spreadsheetId: this.#spreadsheetId,
       sheetId: this.#sheetId,
       range: {
@@ -582,7 +582,7 @@ export class Range implements GoogleAppsScript.Spreadsheet.Range {
         "The number of columns in the data does not match the number of columns in the range",
       );
     }
-    this.#callService("Range", "setValues", {
+    this.#service.setValues({
       spreadsheetId: this.#spreadsheetId,
       sheetId: this.#sheetId,
       range: {

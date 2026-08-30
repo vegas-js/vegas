@@ -6,6 +6,7 @@ import type {
   RuntimeRequestFor,
   RuntimeResult,
   RuntimeService,
+  RuntimeServicePort,
   ServiceCaller,
 } from "../runtime/protocol";
 import { Console } from "./api/base/console";
@@ -74,6 +75,23 @@ function requestRuntimeSync<Service extends RuntimeService, Method extends Runti
 const callService: ServiceCaller = (service, method, ...args) => {
   return requestRuntimeSync({ type: "service-call", service, method, args });
 };
+function createRangeService(callService: ServiceCaller): RuntimeServicePort<"Range"> {
+  return {
+    getValue: (...args) => callService("Range", "getValue", ...args),
+    getValues: (...args) => callService("Range", "getValues", ...args),
+    setValue: (...args) => callService("Range", "setValue", ...args),
+    setValues: (...args) => callService("Range", "setValues", ...args),
+  };
+}
+function createSessionService(callService: ServiceCaller): RuntimeServicePort<"Session"> {
+  return {
+    getActiveUser: () => callService("Session", "getActiveUser"),
+    getActiveUserLocale: () => callService("Session", "getActiveUserLocale"),
+    getEffectiveUser: () => callService("Session", "getEffectiveUser"),
+    getScriptTimeZone: () => callService("Session", "getScriptTimeZone"),
+    getTemporaryActiveUserKey: () => callService("Session", "getTemporaryActiveUserKey"),
+  };
+}
 
 function createRange(
   spreadsheetId: string,
@@ -83,7 +101,15 @@ function createRange(
   numRows: number,
   numColumns: number,
 ): GoogleAppsScript.Spreadsheet.Range {
-  return new Range(spreadsheetId, sheetId, row, column, numRows, numColumns, callService);
+  return new Range(
+    spreadsheetId,
+    sheetId,
+    row,
+    column,
+    numRows,
+    numColumns,
+    createRangeService(callService),
+  );
 }
 export type CreateRange = typeof createRange;
 
@@ -210,7 +236,7 @@ export const scriptContext = vm.createContext({
   Browser: undefined,
   Logger: new Logger(),
   MimeType: undefined,
-  Session: new Session(callService),
+  Session: new Session(createSessionService(callService)),
   console: new Console(),
   /* Cache */
   CacheService: new CacheService(

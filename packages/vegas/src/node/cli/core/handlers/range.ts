@@ -1,11 +1,19 @@
-import { ServeContext } from "../context";
+import type { IRuntimeService } from "../../../runtime/protocol";
+import type { ServeContext } from "../context";
 
-export class RangeHandler {
-  getValue(
-    ctx: ServeContext,
-    payload: { spreadsheetId: string; sheetId: number; range: { row: number; column: number } },
-  ) {
-    const spreadSheet = ctx.store.spreadsheet.get(payload.spreadsheetId);
+export class RangeHandler implements IRuntimeService<"Range"> {
+  readonly #context: ServeContext;
+
+  constructor(context: ServeContext) {
+    this.#context = context;
+  }
+
+  getValue(payload: {
+    spreadsheetId: string;
+    sheetId: number;
+    range: { row: number; column: number };
+  }) {
+    const spreadSheet = this.#context.store.spreadsheet.get(payload.spreadsheetId);
     if (!spreadSheet) {
       return null;
     }
@@ -19,25 +27,22 @@ export class RangeHandler {
     }
     return sheet.cells[payload.range.row - 1][payload.range.column - 1];
   }
-  getValues(
-    ctx: ServeContext,
-    payload: {
-      spreadsheetId: string;
-      sheetId: number;
-      range: { row: number; column: number; numRows: number; numColumns: number };
-    },
-  ) {
-    const spreadSheet = ctx.store.spreadsheet.get(payload.spreadsheetId);
+  getValues(payload: {
+    spreadsheetId: string;
+    sheetId: number;
+    range: { row: number; column: number; numRows: number; numColumns: number };
+  }) {
+    const spreadSheet = this.#context.store.spreadsheet.get(payload.spreadsheetId);
     if (!spreadSheet) {
-      return null;
+      return [[]];
     }
     const sheets = spreadSheet.sheets;
     if (!sheets) {
-      return null;
+      return [[]];
     }
     const sheet = sheets.get(payload.sheetId);
     if (!sheet) {
-      return null;
+      return [[]];
     }
     const cells = sheet.cells;
     const rowStart = payload.range.numRows === 0 ? 0 : payload.range.row - 1;
@@ -51,16 +56,13 @@ export class RangeHandler {
       return arr.slice(columnStart, columnEnd);
     });
   }
-  setValue(
-    ctx: ServeContext,
-    payload: {
-      spreadsheetId: string;
-      sheetId: number;
-      range: { row: number; column: number; numRows: number; numColumns: number };
-      value: any;
-    },
-  ) {
-    const spreadSheet = ctx.store.spreadsheet.get(payload.spreadsheetId);
+  setValue(payload: {
+    spreadsheetId: string;
+    sheetId: number;
+    range: { row: number; column: number; numRows: number; numColumns: number };
+    value: any;
+  }) {
+    const spreadSheet = this.#context.store.spreadsheet.get(payload.spreadsheetId);
     if (!spreadSheet) {
       return;
     }
@@ -84,16 +86,13 @@ export class RangeHandler {
       }
     }
   }
-  setValues(
-    ctx: ServeContext,
-    payload: {
-      spreadsheetId: string;
-      sheetId: number;
-      range: { row: number; column: number; numRows: number; numColumns: number };
-      values: any[][];
-    },
-  ) {
-    const spreadSheet = ctx.store.spreadsheet.get(payload.spreadsheetId);
+  setValues(payload: {
+    spreadsheetId: string;
+    sheetId: number;
+    range: { row: number; column: number; numRows: number; numColumns: number };
+    values: any[][];
+  }) {
+    const spreadSheet = this.#context.store.spreadsheet.get(payload.spreadsheetId);
     if (!spreadSheet) {
       return;
     }

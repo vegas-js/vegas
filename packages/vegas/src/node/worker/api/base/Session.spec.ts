@@ -1,26 +1,40 @@
 import { describe, expect, test, vi } from "vitest";
 
-import type { ServiceCaller } from "../../../runtime/protocol";
+import type { RuntimeServicePort } from "../../../runtime/protocol";
 import { Session } from "./Session";
+
+function createSessionService(
+  overrides: Partial<RuntimeServicePort<"Session">> = {},
+): RuntimeServicePort<"Session"> {
+  return {
+    getActiveUser: () => "",
+    getActiveUserLocale: () => "",
+    getEffectiveUser: () => "",
+    getScriptTimeZone: () => "",
+    getTemporaryActiveUserKey: () => "",
+    ...overrides,
+  };
+}
 
 describe("getActiveUser", () => {
   test("call callService with specific args", () => {
-    const mockCallService = vi.fn((_service, _method, ..._args) => {});
-    const session = new Session(mockCallService as ServiceCaller);
+    const getActiveUser = vi.fn();
+    const session = new Session(createSessionService({ getActiveUser }));
     session.getActiveUser();
-    expect(mockCallService).toHaveBeenCalledWith("Session", "getActiveUser");
+    const args = getActiveUser.mock.lastCall;
+    expect(args?.length).toBe(0);
   });
 
   test("call callService only once", () => {
-    const mockCallService = vi.fn((_service, _method, ..._args) => {});
-    const session = new Session(mockCallService as ServiceCaller);
+    const getActiveUser = vi.fn();
+    const session = new Session(createSessionService({ getActiveUser }));
     session.getActiveUser();
-    expect(mockCallService).toHaveBeenCalledOnce();
+    expect(getActiveUser).toHaveBeenCalledOnce();
   });
 
   test("returns a User object containing the return value of callService", () => {
-    const mockCallService = vi.fn((_service, _method, ..._args) => "active@example.com");
-    const session = new Session(mockCallService as ServiceCaller);
+    const getActiveUser = vi.fn(() => "active@example.com");
+    const session = new Session(createSessionService({ getActiveUser }));
     const user = session.getActiveUser();
     expect(user.getEmail()).toBe("active@example.com");
   });
@@ -28,45 +42,46 @@ describe("getActiveUser", () => {
 
 describe("getActiveUserLocale", () => {
   test("call callService with specific args", () => {
-    const mockCallService = vi.fn((_service, _method, ..._args) => {});
-    const session = new Session(mockCallService as ServiceCaller);
+    const getActiveUserLocale = vi.fn();
+    const session = new Session(createSessionService({ getActiveUserLocale }));
     session.getActiveUserLocale();
-    expect(mockCallService).toHaveBeenCalledWith("Session", "getActiveUserLocale");
+    const args = getActiveUserLocale.mock.lastCall;
+    expect(args?.length).toBe(0);
   });
 
   test("call callService only once", () => {
-    const mockCallService = vi.fn((_service, _method, ..._args) => {});
-    const session = new Session(mockCallService as ServiceCaller);
+    const getActiveUserLocale = vi.fn();
+    const session = new Session(createSessionService({ getActiveUserLocale }));
     session.getActiveUserLocale();
-    expect(mockCallService).toHaveBeenCalledOnce();
+    expect(getActiveUserLocale).toHaveBeenCalledOnce();
   });
 
   test("return the user locale of the callService return value", () => {
-    const mockCallService = vi.fn((_service, _method, ..._args) => "en");
-    const session = new Session(mockCallService as ServiceCaller);
-    const locale = session.getActiveUserLocale();
-    expect(locale).toBe("en");
+    const getActiveUserLocale = vi.fn(() => "en");
+    const session = new Session(createSessionService({ getActiveUserLocale }));
+    expect(session.getActiveUserLocale()).toBe("en");
   });
 });
 
 describe("getEffectiveUser", () => {
   test("call callService with specific args", () => {
-    const mockCallService = vi.fn((_service, _method, ..._args) => {});
-    const session = new Session(mockCallService as ServiceCaller);
+    const getEffectiveUser = vi.fn();
+    const session = new Session(createSessionService({ getEffectiveUser }));
     session.getEffectiveUser();
-    expect(mockCallService).toHaveBeenCalledWith("Session", "getEffectiveUser");
+    const args = getEffectiveUser.mock.lastCall;
+    expect(args?.length).toBe(0);
   });
 
   test("call callService only once", () => {
-    const mockCallService = vi.fn((_service, _method, ..._args) => {});
-    const session = new Session(mockCallService as ServiceCaller);
+    const getEffectiveUser = vi.fn();
+    const session = new Session(createSessionService({ getEffectiveUser }));
     session.getEffectiveUser();
-    expect(mockCallService).toHaveBeenCalledOnce();
+    expect(getEffectiveUser).toHaveBeenCalledOnce();
   });
 
   test("returns a User object containing the return value of callService", () => {
-    const mockCallService = vi.fn((_service, _method, ..._args) => "effective@example.com");
-    const session = new Session(mockCallService as ServiceCaller);
+    const getEffectiveUser = vi.fn(() => "effective@example.com");
+    const session = new Session(createSessionService({ getEffectiveUser }));
     const user = session.getEffectiveUser();
     expect(user.getEmail()).toBe("effective@example.com");
   });
@@ -74,22 +89,23 @@ describe("getEffectiveUser", () => {
 
 describe("getScriptTimeZone", () => {
   test("call callService with specific args", () => {
-    const mockCallService = vi.fn((_service, _method, ..._args) => {});
-    const session = new Session(mockCallService as ServiceCaller);
+    const getScriptTimeZone = vi.fn();
+    const session = new Session(createSessionService({ getScriptTimeZone }));
     session.getScriptTimeZone();
-    expect(mockCallService).toHaveBeenCalledWith("Session", "getScriptTimeZone");
+    const args = getScriptTimeZone.mock.lastCall;
+    expect(args?.length).toBe(0);
   });
 
   test("call callService only once", () => {
-    const mockCallService = vi.fn((_service, _method, ..._args) => {});
-    const session = new Session(mockCallService as ServiceCaller);
+    const getScriptTimeZone = vi.fn();
+    const session = new Session(createSessionService({ getScriptTimeZone }));
     session.getScriptTimeZone();
-    expect(mockCallService).toHaveBeenCalledOnce();
+    expect(getScriptTimeZone).toHaveBeenCalledOnce();
   });
 
   test("return the timezone of the callService return value", () => {
-    const mockCallService = vi.fn((_service, _method, ..._args) => "Etc/UTC");
-    const session = new Session(mockCallService as ServiceCaller);
+    const getScriptTimeZone = vi.fn(() => "Etc/UTC");
+    const session = new Session(createSessionService({ getScriptTimeZone }));
     const timeZone = session.getScriptTimeZone();
     expect(timeZone).toBe("Etc/UTC");
   });
@@ -97,22 +113,23 @@ describe("getScriptTimeZone", () => {
 
 describe("getTemporaryActiveUserKey", () => {
   test("call callService with specific args", () => {
-    const mockCallService = vi.fn((_service, _method, ..._args) => {});
-    const session = new Session(mockCallService as ServiceCaller);
+    const getTemporaryActiveUserKey = vi.fn();
+    const session = new Session(createSessionService({ getTemporaryActiveUserKey }));
     session.getTemporaryActiveUserKey();
-    expect(mockCallService).toHaveBeenCalledWith("Session", "getTemporaryActiveUserKey");
+    const args = getTemporaryActiveUserKey.mock.lastCall;
+    expect(args?.length).toBe(0);
   });
 
   test("call callService only once", () => {
-    const mockCallService = vi.fn((_service, _method, ..._args) => {});
-    const session = new Session(mockCallService as ServiceCaller);
+    const getTemporaryActiveUserKey = vi.fn();
+    const session = new Session(createSessionService({ getTemporaryActiveUserKey }));
     session.getTemporaryActiveUserKey();
-    expect(mockCallService).toHaveBeenCalledOnce();
+    expect(getTemporaryActiveUserKey).toHaveBeenCalledOnce();
   });
 
   test("return the temporary key of the callService return value", () => {
-    const mockCallService = vi.fn((_service, _method, ..._args) => "-- Active user key --");
-    const session = new Session(mockCallService as ServiceCaller);
+    const getTemporaryActiveUserKey = vi.fn(() => "-- Active user key --");
+    const session = new Session(createSessionService({ getTemporaryActiveUserKey }));
     const temporaryActiveUserKey = session.getTemporaryActiveUserKey();
     expect(temporaryActiveUserKey).toBe("-- Active user key --");
   });
@@ -120,20 +137,14 @@ describe("getTemporaryActiveUserKey", () => {
 
 describe("getTimeZone", () => {
   test("always throw an exception with message", () => {
-    const mockCallService = vi.fn((_service, _method, ..._args) => {
-      throw new Error("unexpected service call");
-    });
-    const session = new Session(mockCallService as ServiceCaller);
+    const session = new Session(createSessionService());
     expect(() => session.getTimeZone()).toThrow("Session#getTimeZone() is deprecated. Do not use.");
   });
 });
 
 describe("getUser", () => {
   test("always throw an exception with message", () => {
-    const mockCallService = vi.fn((_service, _method, ..._args) => {
-      throw new Error("unexpected service call");
-    });
-    const session = new Session(mockCallService as ServiceCaller);
+    const session = new Session(createSessionService());
     expect(() => session.getUser()).toThrow("Session#getUser() is deprecated. Do not use.");
   });
 });

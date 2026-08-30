@@ -20,12 +20,10 @@ class GASHandler {
   constructor() {
     this.#handlers = {
       HtmlService: new HtmlServiceHandler(),
-      Session: new SessionHandler(),
       Cache: new CacheHandler(),
       Properties: new PropertiesHandler(),
       SpreadsheetApp: new SpreadsheetAppHandler(),
       Sheet: new SheetHandler(),
-      Range: new RangeHandler(),
       UrlFetchApp: new UrlFetchAppHandler(),
     };
 
@@ -51,43 +49,44 @@ class GASHandler {
 }
 
 const handler = new GASHandler();
-const rangeHandler = new RangeHandler();
-const sessionHandler = new SessionHandler();
 
-async function dispatchRuntimeRequest(ctx: ServeContext, request: RuntimeRequest) {
+async function dispatchRuntimeRequest(context: ServeContext, request: RuntimeRequest) {
+  const rangeHandler = new RangeHandler(context);
+  const sessionHandler = new SessionHandler(context);
+
   switch (request.service) {
     case "Range": {
       switch (request.method) {
         case "getValue": {
-          return rangeHandler.getValue(ctx, ...request.args);
+          return rangeHandler.getValue(...request.args);
         }
         case "getValues": {
-          return rangeHandler.getValues(ctx, ...request.args);
+          return rangeHandler.getValues(...request.args);
         }
         case "setValue": {
-          return rangeHandler.setValue(ctx, ...request.args);
+          return rangeHandler.setValue(...request.args);
         }
         case "setValues": {
-          return rangeHandler.setValues(ctx, ...request.args);
+          return rangeHandler.setValues(...request.args);
         }
       }
     }
     case "Session": {
       switch (request.method) {
         case "getActiveUser": {
-          return sessionHandler.getActiveUser(ctx, ...request.args);
+          return sessionHandler.getActiveUser(...request.args);
         }
         case "getActiveUserLocale": {
-          return sessionHandler.getActiveUserLocale(ctx, ...request.args);
+          return sessionHandler.getActiveUserLocale(...request.args);
         }
         case "getEffectiveUser": {
-          return sessionHandler.getEffectiveUser(ctx, ...request.args);
+          return sessionHandler.getEffectiveUser(...request.args);
         }
         case "getScriptTimeZone": {
-          return sessionHandler.getScriptTimeZone(ctx, ...request.args);
+          return sessionHandler.getScriptTimeZone(...request.args);
         }
         case "getTemporaryActiveUserKey": {
-          return sessionHandler.getTemporaryActiveUserKey(ctx, ...request.args);
+          return sessionHandler.getTemporaryActiveUserKey(...request.args);
         }
       }
     }
@@ -97,11 +96,11 @@ async function dispatchRuntimeRequest(ctx: ServeContext, request: RuntimeRequest
 async function handleRuntimeRequest(
   port: worker.MessagePort,
   sharedArray: Int32Array,
-  ctx: ServeContext,
+  context: ServeContext,
   request: RuntimeRequest,
 ) {
   try {
-    const result = await dispatchRuntimeRequest(ctx, request);
+    const result = await dispatchRuntimeRequest(context, request);
 
     if (result !== undefined) {
       port.postMessage(result);
@@ -112,9 +111,9 @@ async function handleRuntimeRequest(
   }
 }
 
-export function launchGAS(ctx: ServeContext, fn: string, ...args: any[]): Promise<any> {
-  const sourcePath = path.join(ctx.config.output.dir, "Code.js");
-  const code = ctx.vfs.readFileSync(sourcePath, "utf8");
+export function launchGAS(context: ServeContext, fn: string, ...args: any[]): Promise<any> {
+  const sourcePath = path.join(context.config.output.dir, "Code.js");
+  const code = context.vfs.readFileSync(sourcePath, "utf8");
   return new Promise((resolve, reject) => {
     const sharedBuffer = new SharedArrayBuffer(4);
     const sharedArray = new Int32Array(sharedBuffer);
@@ -139,9 +138,9 @@ export function launchGAS(ctx: ServeContext, fn: string, ...args: any[]): Promis
 
       try {
         if (data.type === "service-call") {
-          await handleRuntimeRequest(port1, sharedArray, ctx, data);
+          await handleRuntimeRequest(port1, sharedArray, context, data);
         } else {
-          await (handler as any)[data.message](port1, sharedArray, ctx, data.payload);
+          await (handler as any)[data.message](port1, sharedArray, context, data.payload);
         }
       } catch (err: any) {
         port1.close();
