@@ -71,8 +71,8 @@ function requestRuntimeSync<Service extends RuntimeService, Method extends Runti
 
   return received?.message ?? null;
 }
-const callService: ServiceCaller = (service, method, payload) => {
-  return requestRuntimeSync({ type: "service-call", service, method, payload });
+const callService: ServiceCaller = (service, method, ...args) => {
+  return requestRuntimeSync({ type: "service-call", service, method, args });
 };
 
 function createRange(

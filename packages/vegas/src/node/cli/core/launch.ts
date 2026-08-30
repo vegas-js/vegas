@@ -1,7 +1,7 @@
 import path from "node:path";
 import worker from "node:worker_threads";
 
-import { RuntimeRequest } from "../../runtime/protocol";
+import type { RuntimeRequest } from "../../runtime/protocol";
 import { ServeContext } from "./context";
 import {
   HtmlServiceHandler,
@@ -58,16 +58,16 @@ async function dispatchRuntimeRequest(ctx: ServeContext, request: RuntimeRequest
     case "Range": {
       switch (request.method) {
         case "getValue": {
-          return rangeHandler.getValue(ctx, request.payload);
+          return rangeHandler.getValue(ctx, ...request.args);
         }
         case "getValues": {
-          return rangeHandler.getValues(ctx, request.payload);
+          return rangeHandler.getValues(ctx, ...request.args);
         }
         case "setValue": {
-          return rangeHandler.setValue(ctx, request.payload);
+          return rangeHandler.setValue(ctx, ...request.args);
         }
         case "setValues": {
-          return rangeHandler.setValues(ctx, request.payload);
+          return rangeHandler.setValues(ctx, ...request.args);
         }
       }
     }

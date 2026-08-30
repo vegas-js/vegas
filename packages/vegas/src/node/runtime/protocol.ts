@@ -53,6 +53,11 @@ export type RuntimeMethod<Service extends RuntimeService> = Extract<
   string
 >;
 
+export type RuntimeArgs<
+  Service extends RuntimeService,
+  Method extends RuntimeMethod<Service>,
+> = Parameters<RuntimeOperation<Service, Method>>;
+
 export type RuntimeRequestFor<
   Service extends RuntimeService,
   Method extends RuntimeMethod<Service>,
@@ -60,7 +65,7 @@ export type RuntimeRequestFor<
   type: "service-call";
   service: Service;
   method: Method;
-  payload: RuntimePayload<Service, Method>;
+  args: RuntimeArgs<Service, Method>;
 };
 
 export type RuntimeRequest = {
@@ -69,16 +74,11 @@ export type RuntimeRequest = {
   }[RuntimeMethod<Service>];
 }[RuntimeService];
 
-type AnyOperation = (payload: any) => any;
+type AnyOperation = (...args: any[]) => any;
 export type RuntimeOperation<
   Service extends RuntimeService,
   Method extends RuntimeMethod<Service>,
 > = Extract<RuntimeProtocol[Service][Method], AnyOperation>;
-
-export type RuntimePayload<
-  Service extends RuntimeService,
-  Method extends RuntimeMethod<Service>,
-> = Parameters<RuntimeOperation<Service, Method>>[0];
 
 export type RuntimeResult<
   Service extends RuntimeService,
@@ -88,5 +88,5 @@ export type RuntimeResult<
 export type ServiceCaller = <Service extends RuntimeService, Method extends RuntimeMethod<Service>>(
   service: Service,
   method: Method,
-  payload: RuntimePayload<Service, Method>,
+  ...args: RuntimeArgs<Service, Method>
 ) => RuntimeResult<Service, Method>;
