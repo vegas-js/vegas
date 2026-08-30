@@ -8,6 +8,7 @@ import { HtmlTemplate } from "./api/html/HtmlTemplate";
 import { Range } from "./api/spreadsheet/Range";
 import { Sheet } from "./api/spreadsheet/Sheet";
 import { Spreadsheet } from "./api/spreadsheet/Spreadsheet";
+import { invokeFunction } from "./invocation";
 import {
   createRangeService,
   createSessionService,
@@ -76,43 +77,13 @@ export const scriptContext = createScriptContext({
 });
 script.runInContext(scriptContext);
 
-interface DoGetResult {
-  metaTags: { name: string; content: string }[];
-  title: string;
-  faviconUrl: string;
-  content: string;
-  xFrameOptionsMode: string;
-}
-
-async function invokeFn(fn: Function, ...args: any[]) {
-  const result = await fn(...args);
-  if (fn.name === "doGet") {
-    return {
-      metaTags: result.getMetaTags().map((metaTag: any) => {
-        return { name: metaTag.getName(), content: metaTag.getContent() };
-      }),
-      title: result.getTitle(),
-      faviconUrl: result.getFaviconUrl(),
-      content: result.getContent(),
-      xFrameOptionsMode: (result as any).getXFrameOptionsMode(),
-    } satisfies DoGetResult;
-  } else if (fn.name === "doPost") {
-    return {
-      mimeType: typeof result.getMimeType === "function" ? result.getMimeType() : "text/html",
-      content: result.getContent(),
-    };
-  }
-
-  return result;
-}
-
 port.on("message", async (data: GASWorkerData) => {
   const targetFn = scriptContext[data.fn];
   if (typeof targetFn !== "function") {
     throw new Error(`${data.fn} is not a function`);
   }
 
-  const result = await invokeFn(targetFn, ...data.args);
+  const result = await invokeFunction(targetFn, ...data.args);
   port.postMessage({ message: "resolve", payload: result });
 });
 
