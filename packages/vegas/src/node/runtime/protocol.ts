@@ -44,6 +44,14 @@ export interface RuntimeProtocol {
       values: unknown[][];
     }) => void;
   };
+
+  Session: {
+    getActiveUser: () => string;
+    getActiveUserLocale: () => string;
+    getEffectiveUser: () => string;
+    getScriptTimeZone: () => string;
+    getTemporaryActiveUserKey: () => string;
+  };
 }
 
 export type RuntimeService = Extract<keyof RuntimeProtocol, string>;

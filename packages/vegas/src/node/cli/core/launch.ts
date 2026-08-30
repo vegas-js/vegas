@@ -52,6 +52,7 @@ class GASHandler {
 
 const handler = new GASHandler();
 const rangeHandler = new RangeHandler();
+const sessionHandler = new SessionHandler();
 
 async function dispatchRuntimeRequest(ctx: ServeContext, request: RuntimeRequest) {
   switch (request.service) {
@@ -68,6 +69,25 @@ async function dispatchRuntimeRequest(ctx: ServeContext, request: RuntimeRequest
         }
         case "setValues": {
           return rangeHandler.setValues(ctx, ...request.args);
+        }
+      }
+    }
+    case "Session": {
+      switch (request.method) {
+        case "getActiveUser": {
+          return sessionHandler.getActiveUser(ctx, ...request.args);
+        }
+        case "getActiveUserLocale": {
+          return sessionHandler.getActiveUserLocale(ctx, ...request.args);
+        }
+        case "getEffectiveUser": {
+          return sessionHandler.getEffectiveUser(ctx, ...request.args);
+        }
+        case "getScriptTimeZone": {
+          return sessionHandler.getScriptTimeZone(ctx, ...request.args);
+        }
+        case "getTemporaryActiveUserKey": {
+          return sessionHandler.getTemporaryActiveUserKey(ctx, ...request.args);
         }
       }
     }

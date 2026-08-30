@@ -210,7 +210,7 @@ export const scriptContext = vm.createContext({
   Browser: undefined,
   Logger: new Logger(),
   MimeType: undefined,
-  Session: new Session(requestLegacySync),
+  Session: new Session(callService),
   console: new Console(),
   /* Cache */
   CacheService: new CacheService(

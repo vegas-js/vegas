@@ -1,35 +1,30 @@
-import { RequestLegacySync } from "../..";
+import type { ServiceCaller } from "../../../runtime/protocol";
 import { User } from "./User";
 
 // https://developers.google.com/apps-script/reference/base/session
 export class Session implements GoogleAppsScript.Base.Session {
-  #requestSync: RequestLegacySync;
+  #callService: ServiceCaller;
 
-  constructor(requestSync: RequestLegacySync) {
-    this.#requestSync = requestSync;
+  constructor(callService: ServiceCaller) {
+    this.#callService = callService;
   }
 
   getActiveUser = () => {
-    const email = this.#requestSync({ message: `${this.constructor.name}#getActiveUser` });
+    const email = this.#callService("Session", "getActiveUser");
     return new User(email);
   };
   getActiveUserLocale = () => {
-    const locale = this.#requestSync({ message: `${this.constructor.name}#getActiveUserLocale` });
-    return locale;
+    return this.#callService("Session", "getActiveUserLocale");
   };
   getEffectiveUser = () => {
-    const email = this.#requestSync({ message: `${this.constructor.name}#getEffectiveUser` });
+    const email = this.#callService("Session", "getEffectiveUser");
     return new User(email);
   };
   getScriptTimeZone = () => {
-    const timeZone = this.#requestSync({ message: `${this.constructor.name}#getScriptTimeZone` });
-    return timeZone;
+    return this.#callService("Session", "getScriptTimeZone");
   };
   getTemporaryActiveUserKey = () => {
-    const temporaryKey = this.#requestSync({
-      message: `${this.constructor.name}#getTemporaryActiveUserKey`,
-    });
-    return temporaryKey;
+    return this.#callService("Session", "getTemporaryActiveUserKey");
   };
   /** @deprecated DO NOT USE */
   getTimeZone = () => {
