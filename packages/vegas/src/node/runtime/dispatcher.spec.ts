@@ -18,6 +18,27 @@ function createRegistry(overrides: Partial<RuntimeServiceRegistry> = {}): Runtim
       getScriptTimeZone: () => "",
       getTemporaryActiveUserKey: () => "",
     },
+    Cache: {
+      get: () => null,
+      getAll: () => {
+        return {};
+      },
+      put: () => {},
+      putAll: () => {},
+      remove: () => {},
+      removeAll: () => {},
+    },
+    Properties: {
+      deleteAllProperties: () => {},
+      deleteProperty: () => {},
+      getKeys: () => [],
+      getProperties: () => {
+        return {};
+      },
+      getProperty: () => null,
+      setProperties: () => {},
+      setProperty: () => {},
+    },
     ...overrides,
   };
 }

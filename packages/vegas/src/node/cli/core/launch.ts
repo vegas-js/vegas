@@ -22,7 +22,6 @@ class GASHandler {
   constructor() {
     this.#handlers = {
       HtmlService: new HtmlServiceHandler(),
-      Cache: new CacheHandler(),
       SpreadsheetApp: new SpreadsheetAppHandler(),
       Sheet: new SheetHandler(),
       UrlFetchApp: new UrlFetchAppHandler(),
@@ -73,6 +72,7 @@ function createRuntimeServiceRegistry(context: ServeContext): RuntimeServiceRegi
   return {
     Range: new RangeHandler(context),
     Session: new SessionHandler(context),
+    Cache: new CacheHandler(context),
     Properties: new PropertiesHandler(context),
   };
 }

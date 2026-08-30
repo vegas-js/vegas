@@ -1,11 +1,28 @@
 import { describe, expect, test } from "vitest";
 
+import type { RuntimeServicePort } from "../../../runtime/protocol";
 import { Cache } from "./Cache";
 import { CacheService } from "./CacheService";
 
-const documentCache = new Cache("document", () => {});
-const scriptCache = new Cache("script", () => {});
-const userCache = new Cache("user", () => {});
+function createCacheService(
+  overrides: Partial<RuntimeServicePort<"Cache">> = {},
+): RuntimeServicePort<"Cache"> {
+  return {
+    get: () => null,
+    getAll: () => {
+      return {};
+    },
+    put: () => {},
+    putAll: () => {},
+    remove: () => {},
+    removeAll: () => {},
+    ...overrides,
+  };
+}
+
+const documentCache = new Cache("document", createCacheService());
+const scriptCache = new Cache("script", createCacheService());
+const userCache = new Cache("user", createCacheService());
 
 test("get document scope", () => {
   const cacheService = new CacheService(documentCache, scriptCache, userCache);

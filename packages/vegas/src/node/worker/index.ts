@@ -103,6 +103,16 @@ function createSessionService(callService: ServiceCaller): RuntimeServicePort<"S
     getTemporaryActiveUserKey: () => callService("Session", "getTemporaryActiveUserKey"),
   };
 }
+function createCacheService(callService: ServiceCaller): RuntimeServicePort<"Cache"> {
+  return {
+    get: (...args) => callService("Cache", "get", ...args),
+    getAll: (...args) => callService("Cache", "getAll", ...args),
+    put: (...args) => callService("Cache", "put", ...args),
+    putAll: (...args) => callService("Cache", "putAll", ...args),
+    remove: (...args) => callService("Cache", "remove", ...args),
+    removeAll: (...args) => callService("Cache", "removeAll", ...args),
+  };
+}
 function createPropertiesService(callService: ServiceCaller): RuntimeServicePort<"Properties"> {
   return {
     deleteAllProperties: (...args) => callService("Properties", "deleteAllProperties", ...args),
@@ -116,6 +126,7 @@ function createPropertiesService(callService: ServiceCaller): RuntimeServicePort
 }
 const rangeService = createRangeService(callService);
 const sessionService = createSessionService(callService);
+const cacheService = createCacheService(callService);
 const propertiesService = createPropertiesService(callService);
 
 function createRange(
@@ -257,9 +268,9 @@ export const scriptContext = vm.createContext({
   console: new Console(),
   /* Cache */
   CacheService: new CacheService(
-    new Cache(RuntimeScope.DOCUMENT, requestLegacySync),
-    new Cache(RuntimeScope.SCRIPT, requestLegacySync),
-    new Cache(RuntimeScope.USER, requestLegacySync),
+    new Cache(RuntimeScope.DOCUMENT, cacheService),
+    new Cache(RuntimeScope.SCRIPT, cacheService),
+    new Cache(RuntimeScope.USER, cacheService),
   ),
   /* Lock */
   LockService: new LockService(

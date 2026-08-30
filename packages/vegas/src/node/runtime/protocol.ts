@@ -55,6 +55,19 @@ export interface RuntimeProtocol {
     getTemporaryActiveUserKey: () => string;
   };
 
+  Cache: {
+    get: (scope: RuntimeScope, key: string) => string | null;
+    getAll: (scope: RuntimeScope, keys: string[]) => Record<string, string>;
+    put: (scope: RuntimeScope, key: string, value: string, expirationInSeconds: number) => void;
+    putAll: (
+      scope: RuntimeScope,
+      values: Record<string, string>,
+      expirationInSeconds: number,
+    ) => void;
+    remove: (scope: RuntimeScope, key: string) => void;
+    removeAll: (scope: RuntimeScope, keys: string[]) => void;
+  };
+
   Properties: {
     deleteAllProperties: (scope: RuntimeScope) => void;
     deleteProperty: (scope: RuntimeScope, key: string) => void;
