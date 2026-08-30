@@ -103,8 +103,20 @@ function createSessionService(callService: ServiceCaller): RuntimeServicePort<"S
     getTemporaryActiveUserKey: () => callService("Session", "getTemporaryActiveUserKey"),
   };
 }
+function createPropertiesService(callService: ServiceCaller): RuntimeServicePort<"Properties"> {
+  return {
+    deleteAllProperties: (...args) => callService("Properties", "deleteAllProperties", ...args),
+    deleteProperty: (...args) => callService("Properties", "deleteProperty", ...args),
+    getKeys: (...args) => callService("Properties", "getKeys", ...args),
+    getProperties: (...args) => callService("Properties", "getProperties", ...args),
+    getProperty: (...args) => callService("Properties", "getProperty", ...args),
+    setProperties: (...args) => callService("Properties", "setProperties", ...args),
+    setProperty: (...args) => callService("Properties", "setProperty", ...args),
+  };
+}
 const rangeService = createRangeService(callService);
 const sessionService = createSessionService(callService);
+const propertiesService = createPropertiesService(callService);
 
 function createRange(
   spreadsheetId: string,
@@ -257,9 +269,9 @@ export const scriptContext = vm.createContext({
   ),
   /* Properties */
   PropertiesService: new PropertiesService(
-    new Properties(RuntimeScope.DOCUMENT, requestLegacySync),
-    new Properties(RuntimeScope.SCRIPT, requestLegacySync),
-    new Properties(RuntimeScope.USER, requestLegacySync),
+    new Properties(RuntimeScope.DOCUMENT, propertiesService),
+    new Properties(RuntimeScope.SCRIPT, propertiesService),
+    new Properties(RuntimeScope.USER, propertiesService),
   ),
   // ScriptProperties is Deprecated.
   // UserProperties is Deprecated.

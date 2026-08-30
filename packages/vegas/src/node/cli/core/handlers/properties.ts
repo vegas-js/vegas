@@ -1,17 +1,24 @@
+import type { RuntimeServiceImplementation } from "../../../runtime/protocol";
 import type { RuntimeScope } from "../../../runtime/scope";
 import type { ServeContext } from "../context";
 
-export class PropertiesHandler {
-  #getScopedProperties(scope: RuntimeScope, ctx: ServeContext) {
+export class PropertiesHandler implements RuntimeServiceImplementation<"Properties"> {
+  readonly #context: ServeContext;
+
+  constructor(context: ServeContext) {
+    this.#context = context;
+  }
+
+  #getScopedProperties(scope: RuntimeScope) {
     switch (scope) {
       case "document": {
-        return ctx.store.properties.document;
+        return this.#context.store.properties.document;
       }
       case "script": {
-        return ctx.store.properties.script;
+        return this.#context.store.properties.script;
       }
       case "user": {
-        return ctx.store.properties.user;
+        return this.#context.store.properties.user;
       }
       default: {
         return null;
@@ -19,63 +26,67 @@ export class PropertiesHandler {
     }
   }
 
-  deleteAllProperties(ctx: ServeContext, payload: any) {
-    const property = this.#getScopedProperties(payload.scope, ctx);
-
+  deleteAllProperties(scope: RuntimeScope) {
+    const property = this.#getScopedProperties(scope);
     if (property) {
       Object.keys(property).forEach((key) => {
         delete property[key];
       });
     }
   }
-  deleteProperty(ctx: ServeContext, payload: any) {
-    const property = this.#getScopedProperties(payload.scope, ctx);
 
+  deleteProperty(scope: RuntimeScope, key: string) {
+    const property = this.#getScopedProperties(scope);
     if (property) {
-      delete property[payload.key];
+      delete property[key];
     }
   }
-  getKeys(ctx: ServeContext, payload: any) {
-    const property = this.#getScopedProperties(payload.scope, ctx);
+
+  getKeys(scope: RuntimeScope) {
+    const property = this.#getScopedProperties(scope);
 
     return Object.keys(property ?? {});
   }
-  getProperties(ctx: ServeContext, payload: any) {
-    const property = this.#getScopedProperties(payload.scope, ctx);
 
-    const obj: Record<string, string> = {};
+  getProperties(scope: RuntimeScope) {
+    const property = this.#getScopedProperties(scope);
+    const result: Record<string, string> = {};
     if (property) {
       Object.keys(property).forEach((key) => {
-        obj[key] = property[key];
+        result[key] = property[key];
       });
     }
-    return obj;
+
+    return result;
   }
-  getProperty(ctx: ServeContext, payload: any) {
-    const property = this.#getScopedProperties(payload.scope, ctx);
 
-    return property ? property[payload.key] : null;
+  getProperty(scope: RuntimeScope, key: string) {
+    const property = this.#getScopedProperties(scope);
+
+    return property ? (property[key] ?? null) : null;
   }
-  setProperties(ctx: ServeContext, payload: any) {
-    const property = this.#getScopedProperties(payload.scope, ctx);
 
-    if (property) {
-      if (payload.deleteAllOthers) {
-        Object.keys(property).forEach((key) => {
-          delete property[key];
-        });
-      }
+  setProperties(scope: RuntimeScope, properties: Record<string, string>, deleteAllOthers: boolean) {
+    const property = this.#getScopedProperties(scope);
+    if (!property) {
+      return;
+    }
 
-      Object.keys(payload.properties).forEach((key) => {
-        property[key] = payload.properties[key];
+    if (deleteAllOthers) {
+      Object.keys(property).forEach((key) => {
+        delete property[key];
       });
     }
-  }
-  setProperty(ctx: ServeContext, payload: any) {
-    const property = this.#getScopedProperties(payload.scope, ctx);
 
+    Object.entries(properties).forEach(([key, value]) => {
+      property[key] = value;
+    });
+  }
+
+  setProperty(scope: RuntimeScope, key: string, value: string) {
+    const property = this.#getScopedProperties(scope);
     if (property) {
-      property[payload.property.key] = payload.property.value;
+      property[key] = value;
     }
   }
 }

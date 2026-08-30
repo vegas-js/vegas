@@ -1,67 +1,39 @@
-import type { RequestLegacySync } from "../..";
+import type { RuntimeServicePort } from "../../../runtime/protocol";
 import type { RuntimeScope } from "../../../runtime/scope";
 
 // https://developers.google.com/apps-script/reference/properties/properties
 export class Properties implements GoogleAppsScript.Properties.Properties {
   readonly #scope: RuntimeScope;
-  readonly #requestSync: RequestLegacySync;
+  readonly #service: RuntimeServicePort<"Properties">;
 
-  constructor(scope: RuntimeScope, requestSync: RequestLegacySync) {
+  constructor(scope: RuntimeScope, service: RuntimeServicePort<"Properties">) {
     this.#scope = scope;
-    this.#requestSync = requestSync;
+    this.#service = service;
   }
 
   deleteAllProperties = () => {
-    this.#requestSync({
-      message: `${this.constructor.name}#deleteAllProperties`,
-      payload: { scope: this.#scope },
-    });
+    this.#service.deleteAllProperties(this.#scope);
     return this;
   };
   deleteProperty = (key: string) => {
-    this.#requestSync({
-      message: `${this.constructor.name}#deleteProperty`,
-      payload: { scope: this.#scope, key },
-    });
+    this.#service.deleteProperty(this.#scope, key);
     return this;
   };
   getKeys = () => {
-    return this.#requestSync({
-      message: `${this.constructor.name}#getKeys`,
-      payload: { scope: this.#scope },
-    });
+    return this.#service.getKeys(this.#scope);
   };
   getProperties = () => {
-    return this.#requestSync({
-      message: `${this.constructor.name}#getProperties`,
-      payload: { scope: this.#scope },
-    });
+    return this.#service.getProperties(this.#scope);
   };
   getProperty = (key: string) => {
-    return this.#requestSync({
-      message: `${this.constructor.name}#getProperty`,
-      payload: { scope: this.#scope, key },
-    });
+    return this.#service.getProperty(this.#scope, key);
   };
-  setProperties = (properties: object, deleteAllOthers: boolean = false) => {
-    this.#requestSync({
-      message: `${this.constructor.name}#setProperties`,
-      payload: {
-        scope: this.#scope,
-        properties,
-        deleteAllOthers,
-      },
-    });
+  setProperties = (properties: Record<string, string>, deleteAllOthers: boolean = false) => {
+    this.#service.setProperties(this.#scope, properties, deleteAllOthers);
     return this;
   };
   setProperty = (key: string, value: string) => {
-    this.#requestSync({
-      message: `${this.constructor.name}#setProperty`,
-      payload: {
-        scope: this.#scope,
-        property: { key, value },
-      },
-    });
+    this.#service.setProperty(this.#scope, key, value);
     return this;
   };
 }

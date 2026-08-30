@@ -1,3 +1,5 @@
+import type { RuntimeScope } from "./scope";
+
 export interface RuntimeProtocol {
   Range: {
     getValue: (payload: {
@@ -51,6 +53,20 @@ export interface RuntimeProtocol {
     getEffectiveUser: () => string;
     getScriptTimeZone: () => string;
     getTemporaryActiveUserKey: () => string;
+  };
+
+  Properties: {
+    deleteAllProperties: (scope: RuntimeScope) => void;
+    deleteProperty: (scope: RuntimeScope, key: string) => void;
+    getKeys: (scope: RuntimeScope) => string[];
+    getProperties: (scope: RuntimeScope) => Record<string, string>;
+    getProperty: (scope: RuntimeScope, key: string) => string | null;
+    setProperties: (
+      scope: RuntimeScope,
+      properties: Record<string, string>,
+      deleteAllOthers: boolean,
+    ) => void;
+    setProperty: (scope: RuntimeScope, key: string, value: string) => void;
   };
 }
 
