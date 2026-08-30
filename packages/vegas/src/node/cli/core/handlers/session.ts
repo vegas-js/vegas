@@ -1,39 +1,41 @@
 import type { RuntimeServiceImplementation } from "../../../runtime/protocol";
-import type { ServeContext } from "../context";
+
+export type SessionEnvironment = {
+  executeAs: "USER_ACCESSING" | "USER_DEPLOYING";
+  timeZone?: string;
+  activeUserEmail?: string;
+  effectiveUserEmail?: string;
+  activeUserLocale?: string;
+  temporaryActiveUserKey?: string;
+};
 
 export class SessionHandler implements RuntimeServiceImplementation<"Session"> {
-  readonly #context: ServeContext;
+  readonly #environment: SessionEnvironment;
 
-  constructor(context: ServeContext) {
-    this.#context = context;
+  constructor(environment: SessionEnvironment) {
+    this.#environment = environment;
   }
 
   getActiveUser() {
-    const email =
-      this.#context.config.gas.webapp!.executeAs === "USER_ACCESSING"
-        ? (this.#context.mock["Session"]?.activeUserEmail ?? "active@gmail.com")
-        : (this.#context.mock["Session"]?.effectiveUserEmail ?? "effective@gmail.com");
-    return email;
+    return this.#environment.executeAs === "USER_ACCESSING"
+      ? (this.#environment.activeUserEmail ?? "active@gmail.com")
+      : (this.#environment.effectiveUserEmail ?? "effective@gmail.com");
   }
   getActiveUserLocale() {
-    const userLocale = this.#context.mock["Session"]?.activeUserLocale ?? "en";
-    return userLocale;
+    return this.#environment.activeUserLocale ?? "en";
   }
   getEffectiveUser() {
-    const email =
-      this.#context.config.gas.webapp!.executeAs === "USER_ACCESSING"
-        ? (this.#context.mock["Session"]?.activeUserEmail ?? "active@gmail.com")
-        : (this.#context.mock["Session"]?.effectiveUserEmail ?? "effective@gmail.com");
-    return email;
+    return this.#environment.executeAs === "USER_ACCESSING"
+      ? (this.#environment.activeUserEmail ?? "active@gmail.com")
+      : (this.#environment.effectiveUserEmail ?? "effective@gmail.com");
   }
   getScriptTimeZone() {
-    const timeZone = this.#context.config.gas.timeZone ?? "UTC";
-    return timeZone;
+    return this.#environment.timeZone ?? "UTC";
   }
   getTemporaryActiveUserKey() {
-    const key =
-      this.#context.mock["Session"]?.temporaryActiveUserKey ??
-      "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
-    return key;
+    return (
+      this.#environment.temporaryActiveUserKey ??
+      "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+    );
   }
 }

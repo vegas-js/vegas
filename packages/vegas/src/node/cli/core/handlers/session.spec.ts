@@ -1,42 +1,21 @@
 import { expect, test } from "vitest";
 
-import type { ServeContext } from "../context";
+import type { SessionEnvironment } from "./session";
 import { SessionHandler } from "./session";
 
-type ExecuteAs = "USER_ACCESSING" | "USER_DEPLOYING";
-
-function createContext({
-  executeAs = "USER_ACCESSING",
-  timeZone = "UTC",
-  sessionMock = {},
-}: {
-  executeAs?: ExecuteAs;
-  timeZone?: string;
-  sessionMock?: Record<string, string>;
-} = {}): ServeContext {
+function createEnvironment(overrides: Partial<SessionEnvironment> = {}): SessionEnvironment {
   return {
-    config: {
-      gas: {
-        webapp: {
-          executeAs,
-        },
-        timeZone,
-      },
-    },
-    mock: {
-      Session: sessionMock,
-    },
-  } as unknown as ServeContext;
+    executeAs: "USER_ACCESSING",
+    timeZone: "UTC",
+    ...overrides,
+  };
 }
 
 test("uses active user when executing as accessing user", () => {
   const handler = new SessionHandler(
-    createContext({
-      executeAs: "USER_ACCESSING",
-      sessionMock: {
-        activeUserEmail: "active@example.com",
-        effectiveUserEmail: "effective@example.com",
-      },
+    createEnvironment({
+      activeUserEmail: "active@example.com",
+      effectiveUserEmail: "effective@example.com",
     }),
   );
 
@@ -46,12 +25,10 @@ test("uses active user when executing as accessing user", () => {
 
 test("uses effective user when executing as deploying user", () => {
   const handler = new SessionHandler(
-    createContext({
+    createEnvironment({
       executeAs: "USER_DEPLOYING",
-      sessionMock: {
-        activeUserEmail: "active@example.com",
-        effectiveUserEmail: "effective@example.com",
-      },
+      activeUserEmail: "active@example.com",
+      effectiveUserEmail: "effective@example.com",
     }),
   );
 
@@ -60,41 +37,27 @@ test("uses effective user when executing as deploying user", () => {
 });
 
 test("gets active user locale", () => {
-  const handler = new SessionHandler(
-    createContext({
-      sessionMock: {
-        activeUserLocale: "en",
-      },
-    }),
-  );
+  const handler = new SessionHandler(createEnvironment({ activeUserLocale: "ja" }));
 
-  expect(handler.getActiveUserLocale()).toBe("en");
+  expect(handler.getActiveUserLocale()).toBe("ja");
 });
 
 test("gets script time zone", () => {
-  const handler = new SessionHandler(
-    createContext({
-      timeZone: "America/New_York",
-    }),
-  );
+  const handler = new SessionHandler(createEnvironment({ timeZone: "Asia/Tokyo" }));
 
-  expect(handler.getScriptTimeZone()).toBe("America/New_York");
+  expect(handler.getScriptTimeZone()).toBe("Asia/Tokyo");
 });
 
 test("gets temporary active user key", () => {
   const handler = new SessionHandler(
-    createContext({
-      sessionMock: {
-        temporaryActiveUserKey: "temporary-key",
-      },
-    }),
+    createEnvironment({ temporaryActiveUserKey: "-- Active user key --" }),
   );
 
-  expect(handler.getTemporaryActiveUserKey()).toBe("temporary-key");
+  expect(handler.getTemporaryActiveUserKey()).toBe("-- Active user key --");
 });
 
 test("uses default session values", () => {
-  const handler = new SessionHandler(createContext());
+  const handler = new SessionHandler(createEnvironment());
 
   expect(handler.getActiveUser()).toBe("active@gmail.com");
   expect(handler.getActiveUserLocale()).toBe("en");

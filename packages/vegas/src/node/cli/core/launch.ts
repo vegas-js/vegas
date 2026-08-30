@@ -73,7 +73,14 @@ function createRuntimeServiceRegistry(context: ServeContext): RuntimeServiceRegi
   };
   return {
     Range: new RangeHandler(context.store.spreadsheet),
-    Session: new SessionHandler(context),
+    Session: new SessionHandler({
+      executeAs: context.config.gas.webapp!.executeAs!,
+      timeZone: context.config.gas.timeZone,
+      activeUserEmail: context.mock["Session"]?.activeUserEmail,
+      effectiveUserEmail: context.mock["Session"]?.effectiveUserEmail,
+      activeUserLocale: context.mock["Session"]?.activeUserLocale,
+      temporaryActiveUserKey: context.mock["Session"]?.temporaryActiveUserKey,
+    }),
     Cache: new CacheHandler(context.store.cache, systemClock),
     Properties: new PropertiesHandler(context.store.properties),
   };
