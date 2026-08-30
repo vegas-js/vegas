@@ -1,6 +1,6 @@
 import { expect, test } from "vitest";
 
-import { RuntimeScope } from "../../../runtime/scope";
+import { RuntimeScope } from "../../scope";
 import type { CacheStore, Clock } from "./cache";
 import { CacheHandler } from "./cache";
 

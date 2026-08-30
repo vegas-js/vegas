@@ -1,5 +1,5 @@
-import type { RuntimeServiceImplementation } from "../../../runtime/protocol";
-import type { RuntimeScope } from "../../../runtime/scope";
+import type { RuntimeServiceImplementation } from "../../protocol";
+import type { RuntimeScope } from "../../scope";
 
 export type CacheStore = {
   document: Record<string, { value: string; expired: number }>;

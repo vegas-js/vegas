@@ -3,19 +3,18 @@ import worker from "node:worker_threads";
 
 import { dispatchRuntimeRequest } from "../../runtime/dispatcher";
 import { serializeRuntimeError } from "../../runtime/errorCodec";
+import type { Clock } from "../../runtime/host/services";
+import { CacheHandler, PropertiesHandler } from "../../runtime/host/services";
 import type { RuntimeRequest, RuntimeServiceRegistry } from "../../runtime/protocol";
 import { ServeContext } from "./context";
 import {
   HtmlServiceHandler,
   SessionHandler,
-  CacheHandler,
-  PropertiesHandler,
   SpreadsheetAppHandler,
   SheetHandler,
   RangeHandler,
   UrlFetchAppHandler,
 } from "./handlers";
-import type { Clock } from "./handlers/cache";
 
 class GASHandler {
   #handlers: Record<string, Record<string, any>>;

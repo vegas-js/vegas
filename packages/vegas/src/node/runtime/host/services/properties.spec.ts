@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import { RuntimeScope } from "../../../runtime/scope";
+import { RuntimeScope } from "../../scope";
 import type { PropertiesStore } from "./properties";
 import { PropertiesHandler } from "./properties";
 
