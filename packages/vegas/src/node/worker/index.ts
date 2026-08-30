@@ -1,4 +1,3 @@
-import vm from "node:vm";
 import worker from "node:worker_threads";
 
 import { invokeScriptFunction } from "./invocation";
@@ -11,6 +10,7 @@ import {
 } from "./remoteServices";
 import { createRuntimeServiceCaller } from "./runtimeTransport";
 import { createScriptContext } from "./scriptContext";
+import { evaluateScript } from "./scriptRuntime";
 import type { RequestLegacySync } from "./types";
 
 const sharedArray: Int32Array = worker.workerData.sharedArray;
@@ -39,7 +39,6 @@ const propertiesService = createPropertiesService(callService);
 const { createFile, createFolder, createHtmlOutput, createHtmlTemplate, createSpreadsheet } =
   createObjectFactories(requestLegacySync, rangeService);
 
-const script = new vm.Script(worker.workerData.code);
 export const scriptContext = createScriptContext({
   requestLegacySync,
   createFile,
@@ -51,7 +50,7 @@ export const scriptContext = createScriptContext({
   cacheService,
   propertiesService,
 });
-script.runInContext(scriptContext);
+evaluateScript(worker.workerData.code, scriptContext);
 
 port.on("message", async (data: GASWorkerData) => {
   const result = await invokeScriptFunction(scriptContext, data.fn, data.args);
