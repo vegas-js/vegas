@@ -1,15 +1,6 @@
 import vm from "node:vm";
 import worker from "node:worker_threads";
 
-import { deserializeRuntimeError } from "../runtime/errorCodec";
-import type {
-  RuntimeMethod,
-  RuntimeRequestFor,
-  RuntimeResponse,
-  RuntimeResult,
-  RuntimeService,
-  ServiceCaller,
-} from "../runtime/protocol";
 import { RuntimeScope } from "../runtime/scope";
 import { Console } from "./api/base/console";
 import { Logger } from "./api/base/Logger";
@@ -38,6 +29,7 @@ import {
   createCacheService,
   createPropertiesService,
 } from "./remoteServices";
+import { createRuntimeServiceCaller } from "./runtimeTransport";
 
 const sharedArray: Int32Array = worker.workerData.sharedArray;
 const port: worker.MessagePort = worker.workerData.port;
@@ -60,37 +52,7 @@ function requestLegacySync(request: LegacyRequest, timeout?: number) {
   return received?.message ?? null;
 }
 export type RequestLegacySync = typeof requestLegacySync;
-function requestRuntimeSync<Service extends RuntimeService, Method extends RuntimeMethod<Service>>(
-  request: RuntimeRequestFor<Service, Method>,
-): RuntimeResult<Service, Method> {
-  Atomics.store(sharedArray, 0, 1);
-  port.postMessage(request);
-
-  Atomics.wait(sharedArray, 0, 1);
-
-  const received = worker.receiveMessageOnPort(port);
-
-  if (!received) {
-    throw new Error(`Runtime service returned no response: ${request.service}.${request.method}`);
-  }
-
-  const response = received.message as RuntimeResponse<RuntimeResult<Service, Method>>;
-
-  switch (response.type) {
-    case "service-result": {
-      return response.result;
-    }
-    case "service-error": {
-      throw deserializeRuntimeError(response.error);
-    }
-    default: {
-      throw new Error(`Invalid runtime response: ${request.service}.${request.method}`);
-    }
-  }
-}
-const callService: ServiceCaller = (service, method, ...args) => {
-  return requestRuntimeSync({ type: "service-call", service, method, args });
-};
+const callService = createRuntimeServiceCaller(sharedArray, port);
 const rangeService = createRangeService(callService);
 const sessionService = createSessionService(callService);
 const cacheService = createCacheService(callService);
