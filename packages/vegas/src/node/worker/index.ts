@@ -8,7 +8,6 @@ import type {
   RuntimeResponse,
   RuntimeResult,
   RuntimeService,
-  RuntimeServicePort,
   ServiceCaller,
 } from "../runtime/protocol";
 import { RuntimeScope } from "../runtime/scope";
@@ -33,6 +32,12 @@ import { Spreadsheet } from "./api/spreadsheet/Spreadsheet";
 import { SpreadsheetApp } from "./api/spreadsheet/SpreadsheetApp";
 import { UrlFetchApp } from "./api/url_fetch/UrlFetchApp";
 import { Utilities } from "./api/utilities/Utilities";
+import {
+  createRangeService,
+  createSessionService,
+  createCacheService,
+  createPropertiesService,
+} from "./remoteServices";
 
 const sharedArray: Int32Array = worker.workerData.sharedArray;
 const port: worker.MessagePort = worker.workerData.port;
@@ -86,44 +91,6 @@ function requestRuntimeSync<Service extends RuntimeService, Method extends Runti
 const callService: ServiceCaller = (service, method, ...args) => {
   return requestRuntimeSync({ type: "service-call", service, method, args });
 };
-function createRangeService(callService: ServiceCaller): RuntimeServicePort<"Range"> {
-  return {
-    getValue: (...args) => callService("Range", "getValue", ...args),
-    getValues: (...args) => callService("Range", "getValues", ...args),
-    setValue: (...args) => callService("Range", "setValue", ...args),
-    setValues: (...args) => callService("Range", "setValues", ...args),
-  };
-}
-function createSessionService(callService: ServiceCaller): RuntimeServicePort<"Session"> {
-  return {
-    getActiveUser: () => callService("Session", "getActiveUser"),
-    getActiveUserLocale: () => callService("Session", "getActiveUserLocale"),
-    getEffectiveUser: () => callService("Session", "getEffectiveUser"),
-    getScriptTimeZone: () => callService("Session", "getScriptTimeZone"),
-    getTemporaryActiveUserKey: () => callService("Session", "getTemporaryActiveUserKey"),
-  };
-}
-function createCacheService(callService: ServiceCaller): RuntimeServicePort<"Cache"> {
-  return {
-    get: (...args) => callService("Cache", "get", ...args),
-    getAll: (...args) => callService("Cache", "getAll", ...args),
-    put: (...args) => callService("Cache", "put", ...args),
-    putAll: (...args) => callService("Cache", "putAll", ...args),
-    remove: (...args) => callService("Cache", "remove", ...args),
-    removeAll: (...args) => callService("Cache", "removeAll", ...args),
-  };
-}
-function createPropertiesService(callService: ServiceCaller): RuntimeServicePort<"Properties"> {
-  return {
-    deleteAllProperties: (...args) => callService("Properties", "deleteAllProperties", ...args),
-    deleteProperty: (...args) => callService("Properties", "deleteProperty", ...args),
-    getKeys: (...args) => callService("Properties", "getKeys", ...args),
-    getProperties: (...args) => callService("Properties", "getProperties", ...args),
-    getProperty: (...args) => callService("Properties", "getProperty", ...args),
-    setProperties: (...args) => callService("Properties", "setProperties", ...args),
-    setProperty: (...args) => callService("Properties", "setProperty", ...args),
-  };
-}
 const rangeService = createRangeService(callService);
 const sessionService = createSessionService(callService);
 const cacheService = createCacheService(callService);
