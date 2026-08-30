@@ -15,6 +15,7 @@ import {
   RangeHandler,
   UrlFetchAppHandler,
 } from "./handlers";
+import type { Clock } from "./handlers/cache";
 
 class GASHandler {
   #handlers: Record<string, Record<string, any>>;
@@ -69,10 +70,13 @@ async function handleRuntimeRequest(
 }
 
 function createRuntimeServiceRegistry(context: ServeContext): RuntimeServiceRegistry {
+  const systemClock: Clock = {
+    now: () => Date.now(),
+  };
   return {
     Range: new RangeHandler(context),
     Session: new SessionHandler(context),
-    Cache: new CacheHandler(context.store.cache),
+    Cache: new CacheHandler(context.store.cache, systemClock),
     Properties: new PropertiesHandler(context.store.properties),
   };
 }

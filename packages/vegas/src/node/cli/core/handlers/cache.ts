@@ -7,11 +7,17 @@ export type CacheStore = {
   user: Record<string, { value: string; expired: number }>;
 };
 
+export type Clock = {
+  now(): number;
+};
+
 export class CacheHandler implements RuntimeServiceImplementation<"Cache"> {
   readonly #store: CacheStore;
+  readonly #clock: Clock;
 
-  constructor(store: CacheStore) {
+  constructor(store: CacheStore, clock: Clock) {
     this.#store = store;
+    this.#clock = clock;
   }
 
   #getScopedCache(scope: RuntimeScope) {
@@ -32,7 +38,7 @@ export class CacheHandler implements RuntimeServiceImplementation<"Cache"> {
   }
 
   #deleteExpiredCache(cache: Record<string, { value: string; expired: number }>) {
-    const now = Date.now();
+    const now = this.#clock.now();
     Object.entries(cache).forEach(([key, data]) => {
       if (data.expired <= now) {
         delete cache[key];
@@ -85,7 +91,7 @@ export class CacheHandler implements RuntimeServiceImplementation<"Cache"> {
       return;
     }
 
-    const expired = Date.now() + expirationInSeconds * 1000;
+    const expired = this.#clock.now() + expirationInSeconds * 1000;
     cache[key] = { value, expired };
 
     this.#deleteOverflowCache(cache);
@@ -96,7 +102,7 @@ export class CacheHandler implements RuntimeServiceImplementation<"Cache"> {
       return;
     }
 
-    const expired = Date.now() + expirationInSeconds * 1000;
+    const expired = this.#clock.now() + expirationInSeconds * 1000;
     Object.entries(values).forEach(([key, value]) => {
       cache[key] = { value, expired };
     });
