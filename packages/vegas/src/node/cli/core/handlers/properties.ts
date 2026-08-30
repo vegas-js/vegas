@@ -1,24 +1,29 @@
 import type { RuntimeServiceImplementation } from "../../../runtime/protocol";
 import type { RuntimeScope } from "../../../runtime/scope";
-import type { ServeContext } from "../context";
+
+export type PropertiesStore = {
+  document: Record<string, string>;
+  script: Record<string, string>;
+  user: Record<string, string>;
+};
 
 export class PropertiesHandler implements RuntimeServiceImplementation<"Properties"> {
-  readonly #context: ServeContext;
+  readonly #store: PropertiesStore;
 
-  constructor(context: ServeContext) {
-    this.#context = context;
+  constructor(store: PropertiesStore) {
+    this.#store = store;
   }
 
   #getScopedProperties(scope: RuntimeScope) {
     switch (scope) {
       case "document": {
-        return this.#context.store.properties.document;
+        return this.#store.document;
       }
       case "script": {
-        return this.#context.store.properties.script;
+        return this.#store.script;
       }
       case "user": {
-        return this.#context.store.properties.user;
+        return this.#store.user;
       }
       default: {
         return null;

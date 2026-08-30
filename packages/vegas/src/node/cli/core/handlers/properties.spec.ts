@@ -1,23 +1,19 @@
 import { describe, expect, test } from "vitest";
 
 import { RuntimeScope } from "../../../runtime/scope";
-import type { ServeContext } from "../context";
+import type { PropertiesStore } from "./properties";
 import { PropertiesHandler } from "./properties";
 
-function createContext(): ServeContext {
+function createStore(): PropertiesStore {
   return {
-    store: {
-      properties: {
-        document: {},
-        script: {},
-        user: {},
-      },
-    },
-  } as unknown as ServeContext;
+    document: {},
+    script: {},
+    user: {},
+  };
 }
 
 test("sets, gets and deletes property", () => {
-  const handler = new PropertiesHandler(createContext());
+  const handler = new PropertiesHandler(createStore());
 
   handler.setProperty(RuntimeScope.SCRIPT, "foo", "bar");
   expect(handler.getProperty(RuntimeScope.SCRIPT, "foo")).toBe("bar");
@@ -27,7 +23,7 @@ test("sets, gets and deletes property", () => {
 });
 
 test("isolates properties by scope", () => {
-  const handler = new PropertiesHandler(createContext());
+  const handler = new PropertiesHandler(createStore());
   handler.setProperty(RuntimeScope.DOCUMENT, "key", "document");
   handler.setProperty(RuntimeScope.SCRIPT, "key", "script");
   handler.setProperty(RuntimeScope.USER, "key", "user");
@@ -39,7 +35,7 @@ test("isolates properties by scope", () => {
 
 describe("setProperties", () => {
   test("setProperties preserves existing values", () => {
-    const handler = new PropertiesHandler(createContext());
+    const handler = new PropertiesHandler(createStore());
     handler.setProperty(RuntimeScope.SCRIPT, "existing", "value");
     handler.setProperties(
       RuntimeScope.SCRIPT,
@@ -56,7 +52,7 @@ describe("setProperties", () => {
   });
 
   test("setProperties replaces existing values when deleteAllOthers is true", () => {
-    const handler = new PropertiesHandler(createContext());
+    const handler = new PropertiesHandler(createStore());
     handler.setProperty(RuntimeScope.SCRIPT, "existing", "value");
     handler.setProperties(
       RuntimeScope.SCRIPT,
