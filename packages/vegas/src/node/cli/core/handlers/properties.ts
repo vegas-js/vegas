@@ -1,8 +1,8 @@
-import { Scope } from "../../../worker";
-import { ServeContext } from "../context";
+import type { RuntimeScope } from "../../../runtime/scope";
+import type { ServeContext } from "../context";
 
 export class PropertiesHandler {
-  #getScopedProperties(scope: Scope, ctx: ServeContext) {
+  #getScopedProperties(scope: RuntimeScope, ctx: ServeContext) {
     switch (scope) {
       case "document": {
         return ctx.store.properties.document;

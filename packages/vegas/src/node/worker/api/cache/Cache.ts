@@ -1,11 +1,12 @@
-import { RequestLegacySync, Scope } from "../..";
+import type { RequestLegacySync } from "../..";
+import type { RuntimeScope } from "../../../runtime/scope";
 
 // https://developers.google.com/apps-script/reference/cache/cache
 export class Cache implements GoogleAppsScript.Cache.Cache {
-  readonly #scope: Scope;
+  readonly #scope: RuntimeScope;
   readonly #requestSync: RequestLegacySync;
 
-  constructor(scope: Scope, requestSync: RequestLegacySync) {
+  constructor(scope: RuntimeScope, requestSync: RequestLegacySync) {
     this.#scope = scope;
     this.#requestSync = requestSync;
   }

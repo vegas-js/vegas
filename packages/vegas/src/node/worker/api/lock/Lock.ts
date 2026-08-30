@@ -1,13 +1,14 @@
-import { RequestLegacySync, Scope } from "../..";
+import type { RequestLegacySync } from "../..";
+import type { RuntimeScope } from "../../../runtime/scope";
 
 // https://developers.google.com/apps-script/reference/lock/lock
 export class Lock implements GoogleAppsScript.Lock.Lock {
-  readonly #scope: Scope;
+  readonly #scope: RuntimeScope;
   #requestSync: RequestLegacySync;
   #id: string | null;
   #isLocked: boolean;
 
-  constructor(scope: Scope, requestSync: RequestLegacySync) {
+  constructor(scope: RuntimeScope, requestSync: RequestLegacySync) {
     this.#scope = scope;
     this.#requestSync = requestSync;
     this.#id = null;
@@ -43,7 +44,10 @@ export class Lock implements GoogleAppsScript.Lock.Lock {
     const id = (process.report.getReport() as any).javascriptStack.stack[1];
     if (
       !this.#requestSync(
-        { message: `${this.constructor.name}#waitLock`, payload: { scope: this.#scope, id } },
+        {
+          message: `${this.constructor.name}#waitLock`,
+          payload: { scope: this.#scope, id },
+        },
         timeoutInMillis,
       )
     ) {

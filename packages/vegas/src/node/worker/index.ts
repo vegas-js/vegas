@@ -11,6 +11,7 @@ import type {
   RuntimeServicePort,
   ServiceCaller,
 } from "../runtime/protocol";
+import { RuntimeScope } from "../runtime/scope";
 import { Console } from "./api/base/console";
 import { Logger } from "./api/base/Logger";
 import { Session } from "./api/base/Session";
@@ -41,22 +42,14 @@ type GASWorkerData = {
   args: any[];
 };
 
-const Scope = {
-  DOCUMENT: "document",
-  SCRIPT: "script",
-  USER: "user",
-} as const;
-
-export type Scope = (typeof Scope)[keyof typeof Scope];
-
 type LegacyRequest = {
   message: string;
   payload?: unknown;
 };
-function requestLegacySync(request: LegacyRequest) {
+function requestLegacySync(request: LegacyRequest, timeout?: number) {
   Atomics.store(sharedArray, 0, 1);
   port.postMessage(request);
-  Atomics.wait(sharedArray, 0, 1);
+  Atomics.wait(sharedArray, 0, 1, timeout);
   const received = worker.receiveMessageOnPort(port);
 
   return received?.message ?? null;
@@ -252,21 +245,21 @@ export const scriptContext = vm.createContext({
   console: new Console(),
   /* Cache */
   CacheService: new CacheService(
-    new Cache(Scope.DOCUMENT, requestLegacySync),
-    new Cache(Scope.SCRIPT, requestLegacySync),
-    new Cache(Scope.USER, requestLegacySync),
+    new Cache(RuntimeScope.DOCUMENT, requestLegacySync),
+    new Cache(RuntimeScope.SCRIPT, requestLegacySync),
+    new Cache(RuntimeScope.USER, requestLegacySync),
   ),
   /* Lock */
   LockService: new LockService(
-    new Lock(Scope.DOCUMENT, requestLegacySync),
-    new Lock(Scope.SCRIPT, requestLegacySync),
-    new Lock(Scope.USER, requestLegacySync),
+    new Lock(RuntimeScope.DOCUMENT, requestLegacySync),
+    new Lock(RuntimeScope.SCRIPT, requestLegacySync),
+    new Lock(RuntimeScope.USER, requestLegacySync),
   ),
   /* Properties */
   PropertiesService: new PropertiesService(
-    new Properties(Scope.DOCUMENT, requestLegacySync),
-    new Properties(Scope.SCRIPT, requestLegacySync),
-    new Properties(Scope.USER, requestLegacySync),
+    new Properties(RuntimeScope.DOCUMENT, requestLegacySync),
+    new Properties(RuntimeScope.SCRIPT, requestLegacySync),
+    new Properties(RuntimeScope.USER, requestLegacySync),
   ),
   // ScriptProperties is Deprecated.
   // UserProperties is Deprecated.

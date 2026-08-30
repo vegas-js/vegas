@@ -1,8 +1,8 @@
-import { Scope } from "../../../worker";
-import { ServeContext } from "../context";
+import type { RuntimeScope } from "../../../runtime/scope";
+import type { ServeContext } from "../context";
 
 export class CacheHandler {
-  #getScopedCache(scope: Scope, ctx: ServeContext) {
+  #getScopedCache(scope: RuntimeScope, ctx: ServeContext) {
     switch (scope) {
       case "document": {
         return ctx.store.cache.document;
