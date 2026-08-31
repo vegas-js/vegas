@@ -1,5 +1,5 @@
 import type { RuntimeServicePort } from "../../../runtime/protocol";
-import type { CreateHtmlOutput, CreateHtmlTemplate, RequestLegacySync } from "../../types";
+import type { CreateHtmlOutput, CreateHtmlTemplate } from "../../types";
 import { GASAPI } from "../GASAPI";
 
 // https://developers.google.com/apps-script/reference/html/html-service
@@ -7,19 +7,16 @@ export class HtmlService extends GASAPI implements GoogleAppsScript.HTML.HtmlSer
   #createHtmlOutput: CreateHtmlOutput;
   #createHtmlTemplate: CreateHtmlTemplate;
   #service: RuntimeServicePort<"Html">;
-  #requestSync: RequestLegacySync;
 
   constructor(
     createHtmlOutput: CreateHtmlOutput,
     createHtmlTemplate: CreateHtmlTemplate,
     service: RuntimeServicePort<"Html">,
-    requestSync: RequestLegacySync,
   ) {
     super();
     this.#createHtmlOutput = createHtmlOutput;
     this.#createHtmlTemplate = createHtmlTemplate;
     this.#service = service;
-    this.#requestSync = requestSync;
   }
 
   initTemplateExp() {
@@ -52,12 +49,12 @@ export class HtmlService extends GASAPI implements GoogleAppsScript.HTML.HtmlSer
     return this.#createHtmlOutput(htmlOrBlob ?? "", this.XFrameOptionsMode.DEFAULT);
   }
   createHtmlOutputFromFile(filename: string): GoogleAppsScript.HTML.HtmlOutput {
-    const message = this.#service.getFileContent(filename);
-    if (!message) {
+    const content = this.#service.getFileContent(filename);
+    if (!content) {
       throw new Error(`No HTML file named ${filename} was found.`);
     }
 
-    return this.createHtmlOutput(message);
+    return this.createHtmlOutput(content);
   }
   createTemplate(html: string): GoogleAppsScript.HTML.HtmlTemplate;
   createTemplate(blob: GoogleAppsScript.Base.BlobSource): GoogleAppsScript.HTML.HtmlTemplate;
@@ -69,15 +66,12 @@ export class HtmlService extends GASAPI implements GoogleAppsScript.HTML.HtmlSer
     return this.#createHtmlTemplate(htmlOrBlob ?? "");
   }
   createTemplateFromFile(filename: string): GoogleAppsScript.HTML.HtmlTemplate {
-    const message = this.#requestSync({
-      message: `${this.constructor.name}#createTemplateFromFile`,
-      payload: filename,
-    });
-    if (!message) {
+    const content = this.#service.getFileContent(filename);
+    if (!content) {
       throw new Error(`No HTML file named ${filename} was found.`);
     }
 
-    return this.#createHtmlTemplate(message);
+    return this.#createHtmlTemplate(content);
   }
   getUserAgent(): string {
     throw new Error("Function not implemented.");

@@ -142,12 +142,7 @@ export function createScriptContext(dependencies: ScriptContextDependencies): vm
     /* Content */
     ContentService: undefined,
     /* HTML */
-    HtmlService: new HtmlService(
-      createHtmlOutput,
-      createHtmlTemplate,
-      htmlService,
-      requestLegacySync,
-    ),
+    HtmlService: new HtmlService(createHtmlOutput, createHtmlTemplate, htmlService),
     /* Mail */
     MailApp: undefined,
     /* Base */

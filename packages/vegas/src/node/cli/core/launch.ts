@@ -7,14 +7,13 @@ import { createRuntimeServiceRegistry } from "../../runtime/host/registry";
 import type { Clock, Fetcher, HtmlResourceResolver } from "../../runtime/host/services";
 import type { RuntimeRequest, RuntimeServiceRegistry } from "../../runtime/protocol";
 import { ServeContext } from "./context";
-import { HtmlServiceHandler, SpreadsheetAppHandler, SheetHandler } from "./handlers";
+import { SpreadsheetAppHandler, SheetHandler } from "./handlers";
 
 class GASHandler {
   #handlers: Record<string, Record<string, any>>;
 
   constructor() {
     this.#handlers = {
-      HtmlService: new HtmlServiceHandler(),
       SpreadsheetApp: new SpreadsheetAppHandler(),
       Sheet: new SheetHandler(),
     };

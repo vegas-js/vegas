@@ -9,12 +9,7 @@ const unexpected = () => {
 
 test("createHtmlOutput(string)", () => {
   const createHtmlOutput = vi.fn((content, mode) => new HtmlOutput(content, mode));
-  const service = new HtmlService(
-    createHtmlOutput,
-    unexpected,
-    { getFileContent: () => "" },
-    unexpected,
-  );
+  const service = new HtmlService(createHtmlOutput, unexpected, { getFileContent: () => "" });
   const output = service.createHtmlOutput("<h1>Hello</h1>");
 
   expect(createHtmlOutput).toHaveBeenCalledWith(
@@ -28,12 +23,7 @@ test("createHtmlOutput(string)", () => {
 test("createTemplate(string)", () => {
   const template = {};
   const createHtmlTemplate = vi.fn(() => template as any);
-  const service = new HtmlService(
-    unexpected,
-    createHtmlTemplate,
-    { getFileContent: () => "" },
-    unexpected,
-  );
+  const service = new HtmlService(unexpected, createHtmlTemplate, { getFileContent: () => "" });
 
   expect(service.createTemplate("<p><?= value ?></p>")).toBe(template);
   expect(createHtmlTemplate).toHaveBeenCalledWith("<p><?= value ?></p>");
@@ -42,7 +32,7 @@ test("createTemplate(string)", () => {
 test("createHtmlOutputFromFile success", () => {
   const createHtmlOutput = vi.fn((content, mode) => new HtmlOutput(content, mode));
   const getFileContent = vi.fn(() => "<h1>from file</h1>");
-  const service = new HtmlService(createHtmlOutput, unexpected, { getFileContent }, unexpected);
+  const service = new HtmlService(createHtmlOutput, unexpected, { getFileContent });
   const output = service.createHtmlOutputFromFile("index");
 
   expect(getFileContent).toHaveBeenCalledWith("index");
@@ -50,13 +40,7 @@ test("createHtmlOutputFromFile success", () => {
 });
 
 test("createHtmlOutputFromFile missing", () => {
-  const requestSync = vi.fn(() => null);
-  const service = new HtmlService(
-    unexpected,
-    unexpected,
-    { getFileContent: () => "" },
-    requestSync,
-  );
+  const service = new HtmlService(unexpected, unexpected, { getFileContent: () => "" });
 
   expect(() => service.createHtmlOutputFromFile("index")).toThrow(
     "No HTML file named index was found.",
@@ -66,31 +50,17 @@ test("createHtmlOutputFromFile missing", () => {
 test("createTemplateFromFile success", () => {
   const template = {};
   const createHtmlTemplate = vi.fn(() => template as any);
-  const requestSync = vi.fn(() => "<h1>from file</h1>");
-  const service = new HtmlService(
-    unexpected,
-    createHtmlTemplate,
-    { getFileContent: () => "" },
-    requestSync,
-  );
+  const getFileContent = vi.fn(() => "<h1>from file</h1>");
+  const service = new HtmlService(unexpected, createHtmlTemplate, { getFileContent });
   const result = service.createTemplateFromFile("index");
 
   expect(createHtmlTemplate).toHaveBeenCalledWith("<h1>from file</h1>");
-  expect(requestSync).toHaveBeenCalledWith({
-    message: "HtmlService#createTemplateFromFile",
-    payload: "index",
-  });
+  expect(getFileContent).toHaveBeenCalledWith("index");
   expect(result).toBe(template);
 });
 
 test("createTemplateFromFile missing", () => {
-  const requestSync = vi.fn(() => null);
-  const service = new HtmlService(
-    unexpected,
-    unexpected,
-    { getFileContent: () => "" },
-    requestSync,
-  );
+  const service = new HtmlService(unexpected, unexpected, { getFileContent: () => "" });
 
   expect(() => service.createTemplateFromFile("index")).toThrow(
     "No HTML file named index was found.",
