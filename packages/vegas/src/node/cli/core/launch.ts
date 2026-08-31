@@ -3,13 +3,8 @@ import worker from "node:worker_threads";
 
 import { dispatchRuntimeRequest } from "../../runtime/dispatcher";
 import { serializeRuntimeError } from "../../runtime/errorCodec";
+import { createRuntimeServiceRegistry } from "../../runtime/host/registry";
 import type { Clock } from "../../runtime/host/services";
-import {
-  CacheHandler,
-  PropertiesHandler,
-  RangeHandler,
-  SessionHandler,
-} from "../../runtime/host/services";
 import type { RuntimeRequest, RuntimeServiceRegistry } from "../../runtime/protocol";
 import { ServeContext } from "./context";
 import {
@@ -71,29 +66,27 @@ async function handleRuntimeRequest(
   }
 }
 
-function createRuntimeServiceRegistry(context: ServeContext): RuntimeServiceRegistry {
+export function launchGAS(context: ServeContext, fn: string, ...args: any[]): Promise<any> {
+  const sourcePath = path.join(context.config.output.dir, "Code.js");
+  const code = context.vfs.readFileSync(sourcePath, "utf8");
   const systemClock: Clock = {
     now: () => Date.now(),
   };
-  return {
-    Range: new RangeHandler(context.store.spreadsheet),
-    Session: new SessionHandler({
+  const runtimeServices = createRuntimeServiceRegistry({
+    spreadsheetStore: context.store.spreadsheet,
+    cacheStore: context.store.cache,
+    propertiesStore: context.store.properties,
+    sessionEnvironment: {
       executeAs: context.config.gas.webapp!.executeAs!,
       timeZone: context.config.gas.timeZone,
       activeUserEmail: context.mock["Session"]?.activeUserEmail,
       effectiveUserEmail: context.mock["Session"]?.effectiveUserEmail,
       activeUserLocale: context.mock["Session"]?.activeUserLocale,
       temporaryActiveUserKey: context.mock["Session"]?.temporaryActiveUserKey,
-    }),
-    Cache: new CacheHandler(context.store.cache, systemClock),
-    Properties: new PropertiesHandler(context.store.properties),
-  };
-}
+    },
+    clock: systemClock,
+  });
 
-export function launchGAS(context: ServeContext, fn: string, ...args: any[]): Promise<any> {
-  const sourcePath = path.join(context.config.output.dir, "Code.js");
-  const code = context.vfs.readFileSync(sourcePath, "utf8");
-  const runtimeServices = createRuntimeServiceRegistry(context);
   return new Promise((resolve, reject) => {
     const sharedBuffer = new SharedArrayBuffer(4);
     const sharedArray = new Int32Array(sharedBuffer);
