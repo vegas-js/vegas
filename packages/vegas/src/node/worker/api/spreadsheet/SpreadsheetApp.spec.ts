@@ -10,7 +10,7 @@ test("create default", () => {
   const spreadsheet = {};
   const createSpreadsheet = vi.fn(() => spreadsheet as any);
   const create = vi.fn(() => "spreadsheet-id");
-  const app = new SpreadsheetApp(createSpreadsheet, { create }, unexpected);
+  const app = new SpreadsheetApp(createSpreadsheet, { create });
   const result = app.create("Test");
 
   expect(create).toHaveBeenCalledWith({
@@ -26,7 +26,7 @@ test("create explicit size", () => {
   const spreadsheet = {};
   const createSpreadsheet = vi.fn(() => spreadsheet as any);
   const create = vi.fn(() => "spreadsheet-id");
-  const app = new SpreadsheetApp(createSpreadsheet, { create }, unexpected);
+  const app = new SpreadsheetApp(createSpreadsheet, { create });
   const result = app.create("Test", 10, 5);
 
   expect(create).toHaveBeenCalledWith({
@@ -41,44 +41,32 @@ test("create explicit size", () => {
 test("openById", () => {
   const spreadsheet = {};
   const createSpreadsheet = vi.fn(() => spreadsheet as any);
-  const requestSync = vi.fn(() => "spreadsheet-id");
-  const app = new SpreadsheetApp(createSpreadsheet, { create: unexpected }, requestSync);
-  app.openById("spreadsheet-id");
+  const app = new SpreadsheetApp(createSpreadsheet, { create: unexpected });
+  const result = app.openById("spreadsheet-id");
 
   expect(createSpreadsheet).toHaveBeenCalledWith("spreadsheet-id");
-  expect(requestSync).toHaveBeenCalledWith({
-    message: "SpreadsheetApp#openById",
-    payload: { id: "spreadsheet-id" },
-  });
+  expect(result).toBe(spreadsheet);
 });
 
 test("open(file)", () => {
   const spreadsheet = {};
   const createSpreadsheet = vi.fn(() => spreadsheet as any);
-  const requestSync = vi.fn(() => "spreadsheet-id");
-  const app = new SpreadsheetApp(createSpreadsheet, { create: unexpected }, requestSync);
+  const app = new SpreadsheetApp(createSpreadsheet, { create: unexpected });
   const file = {
     getId: vi.fn(() => "spreadsheet-id"),
   } as unknown as GoogleAppsScript.Drive.File;
-  app.open(file);
+  const result = app.open(file);
 
   expect(createSpreadsheet).toHaveBeenCalledWith("spreadsheet-id");
-  expect(requestSync).toHaveBeenCalledWith({
-    message: "SpreadsheetApp#openById",
-    payload: { id: "spreadsheet-id" },
-  });
+  expect(result).toBe(spreadsheet);
 });
 
 test("openByUrl", () => {
   const spreadsheet = {};
   const createSpreadsheet = vi.fn(() => spreadsheet as any);
-  const requestSync = vi.fn(() => "abc123");
-  const app = new SpreadsheetApp(createSpreadsheet, { create: unexpected }, requestSync);
-  app.openByUrl("https://docs.google.com/spreadsheets/d/abc123/edit");
+  const app = new SpreadsheetApp(createSpreadsheet, { create: unexpected });
+  const result = app.openByUrl("https://docs.google.com/spreadsheets/d/abc123/edit");
 
   expect(createSpreadsheet).toHaveBeenCalledWith("abc123");
-  expect(requestSync).toHaveBeenCalledWith({
-    message: "SpreadsheetApp#openById",
-    payload: { id: "abc123" },
-  });
+  expect(result).toBe(spreadsheet);
 });

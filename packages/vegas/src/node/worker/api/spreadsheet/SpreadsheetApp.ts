@@ -1,20 +1,14 @@
-import { RuntimeServicePort } from "../../../runtime/protocol";
-import type { CreateSpreadsheet, RequestLegacySync } from "../../types";
+import type { RuntimeServicePort } from "../../../runtime/protocol";
+import type { CreateSpreadsheet } from "../../types";
 
 // https://developers.google.com/apps-script/reference/spreadsheet/spreadsheet-app
 export class SpreadsheetApp implements GoogleAppsScript.Spreadsheet.SpreadsheetApp {
   readonly #createSpreadsheet: CreateSpreadsheet;
   readonly #service: RuntimeServicePort<"SpreadsheetApp">;
-  readonly #requestSync: RequestLegacySync;
 
-  constructor(
-    createSpreadsheet: CreateSpreadsheet,
-    service: RuntimeServicePort<"SpreadsheetApp">,
-    requestSync: RequestLegacySync,
-  ) {
+  constructor(createSpreadsheet: CreateSpreadsheet, service: RuntimeServicePort<"SpreadsheetApp">) {
     this.#createSpreadsheet = createSpreadsheet;
     this.#service = service;
-    this.#requestSync = requestSync;
   }
 
   AutoFillSeries = { DEFAULT_SERIES: 0, ALTERNATE_SERIES: 1 };
@@ -244,10 +238,6 @@ export class SpreadsheetApp implements GoogleAppsScript.Spreadsheet.SpreadsheetA
     return this.openById(id);
   };
   openById = (id: string) => {
-    this.#requestSync({
-      message: `${this.constructor.name}#openById`,
-      payload: { id },
-    });
     return this.#createSpreadsheet(id);
   };
   openByUrl = (url: string) => {

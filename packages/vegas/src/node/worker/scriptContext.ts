@@ -83,7 +83,7 @@ export function createScriptContext(dependencies: ScriptContextDependencies): vm
     /* Gmail */
     GmailApp: undefined,
     /* Sheets */
-    SpreadsheetApp: new SpreadsheetApp(createSpreadsheet, spreadsheetAppService, requestLegacySync),
+    SpreadsheetApp: new SpreadsheetApp(createSpreadsheet, spreadsheetAppService),
     /* Slides */
     SlidesApp: undefined,
     /* Workspace */
