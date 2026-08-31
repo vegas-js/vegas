@@ -98,3 +98,23 @@ test("Html resource resolver dependency injection", async () => {
   expect(resolve).toHaveBeenCalledWith("index");
   expect(result).toBe("<h1>Hello</h1>");
 });
+
+test("SpreadsheetApp create", async () => {
+  const dependencies = createDependencies();
+  const registry = createRuntimeServiceRegistry(dependencies);
+  const id = await registry.SpreadsheetApp.create({
+    name: "Test",
+    rows: 2,
+    columns: 3,
+  });
+  const spreadsheet = dependencies.spreadsheetStore.get(id);
+
+  expect(spreadsheet?.name).toBe("Test");
+  expect(spreadsheet?.sheets.get(0)).toEqual({
+    name: "sheet1",
+    cells: [
+      ["", "", ""],
+      ["", "", ""],
+    ],
+  });
+});

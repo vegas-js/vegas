@@ -16,6 +16,7 @@ import type {
   SessionEnvironment,
   SpreadsheetStore,
 } from "./services";
+import { SpreadsheetAppHandler } from "./services/spreadsheetApp";
 
 export type RuntimeHostDependencies = {
   spreadsheetStore: SpreadsheetStore;
@@ -31,6 +32,7 @@ export function createRuntimeServiceRegistry(
   dependencies: RuntimeHostDependencies,
 ): RuntimeServiceRegistry {
   return {
+    SpreadsheetApp: new SpreadsheetAppHandler(dependencies.spreadsheetStore),
     Range: new RangeHandler(dependencies.spreadsheetStore),
     UrlFetch: new UrlFetchHandler(dependencies.fetcher),
     Html: new HtmlHandler(dependencies.htmlResourceResolver),

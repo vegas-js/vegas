@@ -5,6 +5,9 @@ import type { RuntimeRequest, RuntimeServiceRegistry } from "./protocol";
 
 function createRegistry(overrides: Partial<RuntimeServiceRegistry> = {}): RuntimeServiceRegistry {
   return {
+    SpreadsheetApp: {
+      create: () => "spreadsheet-id",
+    },
     Range: {
       getValue: () => undefined,
       getValues: () => [],
