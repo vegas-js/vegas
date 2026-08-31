@@ -103,3 +103,31 @@ test("return a value from doGet to the actual GAS global", async () => {
     content: "<h1>Hello</h1>",
   });
 });
+
+test("return a value from doPost to the actual GAS global", async () => {
+  const context = createContext({
+    createHtmlOutput: (content: string, mode: GoogleAppsScript.HTML.XFrameOptionsMode) =>
+      new HtmlOutput(content, mode),
+  });
+  evaluateScript(
+    `
+    function doPost(e) {
+      return HtmlService.createHtmlOutput(
+        e.postData.contents
+      );
+    }`,
+    context,
+  );
+  const result = await invokeScriptFunction(context, "doPost", [
+    {
+      postData: {
+        contents: "Hello from POST",
+      },
+    },
+  ]);
+
+  expect(result).toEqual({
+    mimeType: "text/html",
+    content: "Hello from POST",
+  });
+});
