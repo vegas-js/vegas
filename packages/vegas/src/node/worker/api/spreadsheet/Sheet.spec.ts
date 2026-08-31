@@ -1,4 +1,4 @@
-import { expect, test, vi } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 
 import { Sheet } from "./Sheet";
 
@@ -63,4 +63,110 @@ test("range delegation in getSheetValues", () => {
   expect(createRange).toHaveBeenCalledWith("spreadsheet-id", 123, 2, 3, 4, 5);
   expect(range.getValues).toHaveBeenCalled();
   expect(result).toEqual([["value"]]);
+});
+
+test("clearContents", () => {
+  const requestSync = vi.fn();
+  const sheet = new Sheet("spreadsheet-id", 123, vi.fn(), requestSync);
+  const result = sheet.clearContents();
+
+  expect(requestSync).toHaveBeenCalledWith({
+    message: "Sheet#clearContents",
+    payload: {
+      spreadsheetId: "spreadsheet-id",
+      sheetId: 123,
+    },
+  });
+  expect(result).toBe(sheet);
+});
+
+describe("row deletion", () => {
+  test("deleteRow", () => {
+    const requestSync = vi.fn();
+    const sheet = new Sheet("spreadsheet-id", 123, vi.fn(), requestSync);
+    const result = sheet.deleteRow(4);
+
+    expect(requestSync).toHaveBeenCalledWith({
+      message: "Sheet#deleteRow",
+      payload: {
+        spreadsheetId: "spreadsheet-id",
+        sheetId: 123,
+        rowPosition: 4,
+      },
+    });
+    expect(result).toBe(sheet);
+  });
+
+  test("deleteRows", () => {
+    const requestSync = vi.fn();
+    const sheet = new Sheet("spreadsheet-id", 123, vi.fn(), requestSync);
+    const result = sheet.deleteRows(4, 3);
+
+    expect(requestSync).toHaveBeenCalledWith({
+      message: "Sheet#deleteRows",
+      payload: {
+        spreadsheetId: "spreadsheet-id",
+        sheetId: 123,
+        rowPosition: 4,
+        howMany: 3,
+      },
+    });
+    expect(result).toBe(sheet);
+  });
+});
+
+describe("column deletion", () => {
+  test("deleteColumn", () => {
+    const requestSync = vi.fn();
+    const sheet = new Sheet("spreadsheet-id", 123, vi.fn(), requestSync);
+    const result = sheet.deleteColumn(5);
+
+    expect(requestSync).toHaveBeenCalledWith({
+      message: "Sheet#deleteColumn",
+      payload: {
+        spreadsheetId: "spreadsheet-id",
+        sheetId: 123,
+        columnPosition: 5,
+      },
+    });
+    expect(result).toBe(sheet);
+  });
+
+  test("deleteColumns", () => {
+    const requestSync = vi.fn();
+    const sheet = new Sheet("spreadsheet-id", 123, vi.fn(), requestSync);
+    const result = sheet.deleteColumns(5, 2);
+
+    expect(requestSync).toHaveBeenCalledWith({
+      message: "Sheet#deleteColumns",
+      payload: {
+        spreadsheetId: "spreadsheet-id",
+        sheetId: 123,
+        columnPosition: 5,
+        howMany: 2,
+      },
+    });
+    expect(result).toBe(sheet);
+  });
+});
+
+test.each([
+  ["getLastRow", "Sheet#getLastRow", 10],
+  ["getLastColumn", "Sheet#getLastColumn", 5],
+  ["getMaxRows", "Sheet#getMaxRows", 1000],
+  ["getMaxColumns", "Sheet#getMaxColumns", 26],
+  ["getSheetName", "Sheet#getSheetName", "Sheet1"],
+])("query", (target, message, value) => {
+  const requestSync = vi.fn(() => value);
+  const sheet = new Sheet("spreadsheet-id", 123, vi.fn(), requestSync);
+  const result = (sheet as any)[target]();
+
+  expect(result).toBe(value);
+  expect(requestSync).toHaveBeenCalledWith({
+    message,
+    payload: {
+      spreadsheetId: "spreadsheet-id",
+      sheetId: 123,
+    },
+  });
 });
