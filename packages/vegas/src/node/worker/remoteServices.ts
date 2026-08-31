@@ -8,6 +8,16 @@ export function createSpreadsheetAppService(
   };
 }
 
+export function createSheetService(callService: ServiceCaller): RuntimeServicePort<"Sheet"> {
+  return {
+    getLastRow: (...args) => callService("Sheet", "getLastRow", ...args),
+    getLastColumn: (...args) => callService("Sheet", "getLastColumn", ...args),
+    getMaxRows: (...args) => callService("Sheet", "getMaxRows", ...args),
+    getMaxColumns: (...args) => callService("Sheet", "getMaxColumns", ...args),
+    getSheetName: (...args) => callService("Sheet", "getSheetName", ...args),
+  };
+}
+
 export function createRangeService(callService: ServiceCaller): RuntimeServicePort<"Range"> {
   return {
     getValue: (...args) => callService("Range", "getValue", ...args),

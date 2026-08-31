@@ -31,12 +31,13 @@ type ObjectFactories = {
 export function createObjectFactories(
   requestLegacySync: RequestLegacySync,
   rangeService: RuntimeServicePort<"Range">,
+  sheetService: RuntimeServicePort<"Sheet">,
   evaluateHtmlTemplate: EvaluateHtmlTemplate,
 ): ObjectFactories {
   const createRange: CreateRange = (spreadsheetId, sheetId, row, column, numRows, numColumns) =>
     new Range(spreadsheetId, sheetId, row, column, numRows, numColumns, rangeService);
   const createSheet: CreateSheet = (spreadsheetId, sheetId) =>
-    new Sheet(spreadsheetId, sheetId, createRange, requestLegacySync);
+    new Sheet(spreadsheetId, sheetId, createRange, sheetService, requestLegacySync);
   const createSpreadsheet: CreateSpreadsheet = (spreadsheetId) =>
     new Spreadsheet(spreadsheetId, createSheet, requestLegacySync);
   const createHtmlOutput: CreateHtmlOutput = (content, defaultXFrameOptionsMode) =>

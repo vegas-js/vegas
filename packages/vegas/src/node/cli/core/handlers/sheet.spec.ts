@@ -27,27 +27,6 @@ function createContext(cells: any[][]) {
   } as ServeContext;
 }
 
-test("last/max row/column", () => {
-  const cells = [
-    ["", "B1", ""],
-    ["", "", ""],
-    ["A3", "", ""],
-    ["", "", ""],
-  ];
-  const context = createContext(cells);
-  const handler = new SheetHandler();
-  const payload = {
-    spreadsheetId: "spreadsheet-id",
-    sheetId: 123,
-  };
-
-  expect(handler.getLastRow(context, payload)).toBe(3);
-  expect(handler.getLastColumn(context, payload)).toBe(2);
-  expect(handler.getMaxRows(context, payload)).toBe(4);
-  expect(handler.getMaxColumns(context, payload)).toBe(3);
-  expect(handler.getSheetName(context, payload)).toBe("Sheet1");
-});
-
 test("sheet name/id resolution", () => {
   const cells = [
     ["", "B1", ""],

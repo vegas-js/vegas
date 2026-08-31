@@ -1,21 +1,25 @@
+import type { RuntimeServicePort } from "../../../runtime/protocol";
 import type { CreateRange, RequestLegacySync } from "../../types";
 
 // https://developers.google.com/apps-script/reference/spreadsheet/sheet
 export class Sheet implements GoogleAppsScript.Spreadsheet.Sheet {
-  #spreadsheetId: string;
-  #sheetId: number;
-  #createRange: CreateRange;
-  #requestSync: RequestLegacySync;
+  readonly #spreadsheetId: string;
+  readonly #sheetId: number;
+  readonly #createRange: CreateRange;
+  readonly #service: RuntimeServicePort<"Sheet">;
+  readonly #requestSync: RequestLegacySync;
 
   constructor(
     spreadsheetId: string,
     sheetId: number,
     createRange: CreateRange,
+    service: RuntimeServicePort<"Sheet">,
     requestSync: RequestLegacySync,
   ) {
     this.#spreadsheetId = spreadsheetId;
     this.#sheetId = sheetId;
     this.#createRange = createRange;
+    this.#service = service;
     this.#requestSync = requestSync;
   }
 
@@ -192,28 +196,28 @@ export class Sheet implements GoogleAppsScript.Spreadsheet.Sheet {
     throw new Error("Method not implemented.");
   };
   getLastColumn = () => {
-    return this.#requestSync({
-      message: `${this.constructor.name}#getLastColumn`,
-      payload: { spreadsheetId: this.#spreadsheetId, sheetId: this.#sheetId },
-    });
+    return this.#service.getLastColumn({
+      spreadsheetId: this.#spreadsheetId,
+      sheetId: this.#sheetId,
+    })!;
   };
   getLastRow = () => {
-    return this.#requestSync({
-      message: `${this.constructor.name}#getLastRow`,
-      payload: { spreadsheetId: this.#spreadsheetId, sheetId: this.#sheetId },
-    });
+    return this.#service.getLastRow({
+      spreadsheetId: this.#spreadsheetId,
+      sheetId: this.#sheetId,
+    })!;
   };
   getMaxColumns = () => {
-    return this.#requestSync({
-      message: `${this.constructor.name}#getMaxColumns`,
-      payload: { spreadsheetId: this.#spreadsheetId, sheetId: this.#sheetId },
-    });
+    return this.#service.getMaxColumns({
+      spreadsheetId: this.#spreadsheetId,
+      sheetId: this.#sheetId,
+    })!;
   };
   getMaxRows = () => {
-    return this.#requestSync({
-      message: `${this.constructor.name}#getMaxRows`,
-      payload: { spreadsheetId: this.#spreadsheetId, sheetId: this.#sheetId },
-    });
+    return this.#service.getMaxRows({
+      spreadsheetId: this.#spreadsheetId,
+      sheetId: this.#sheetId,
+    })!;
   };
   getName = () => {
     throw new Error("Method not implemented.");
@@ -315,10 +319,10 @@ export class Sheet implements GoogleAppsScript.Spreadsheet.Sheet {
     return this.#sheetId;
   };
   getSheetName = () => {
-    return this.#requestSync({
-      message: `${this.constructor.name}#getSheetName`,
-      payload: { spreadsheetId: this.#spreadsheetId, sheetId: this.#sheetId },
-    });
+    return this.#service.getSheetName({
+      spreadsheetId: this.#spreadsheetId,
+      sheetId: this.#sheetId,
+    })!;
   };
   getSheetValues = (
     startRow: GoogleAppsScript.Integer,
