@@ -22,6 +22,10 @@ function createContext(overrides: Partial<ScriptContextDependencies> = {}) {
 
     logSink: { write: unexpected },
 
+    spreadsheetAppService: {
+      create: unexpected,
+    },
+
     urlFetchService: {
       fetch: unexpected,
       fetchAll: unexpected,

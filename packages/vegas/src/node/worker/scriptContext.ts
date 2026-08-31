@@ -37,6 +37,7 @@ export type ScriptContextDependencies = {
 
   logSink: RuntimeLogSink;
 
+  spreadsheetAppService: RuntimeServicePort<"SpreadsheetApp">;
   urlFetchService: RuntimeServicePort<"UrlFetch">;
   htmlService: RuntimeServicePort<"Html">;
   sessionService: RuntimeServicePort<"Session">;
@@ -53,6 +54,7 @@ export function createScriptContext(dependencies: ScriptContextDependencies): vm
     createHtmlTemplate,
     createSpreadsheet,
     logSink,
+    spreadsheetAppService,
     urlFetchService,
     htmlService,
     sessionService,
@@ -81,7 +83,7 @@ export function createScriptContext(dependencies: ScriptContextDependencies): vm
     /* Gmail */
     GmailApp: undefined,
     /* Sheets */
-    SpreadsheetApp: new SpreadsheetApp(createSpreadsheet, requestLegacySync),
+    SpreadsheetApp: new SpreadsheetApp(createSpreadsheet, spreadsheetAppService, requestLegacySync),
     /* Slides */
     SlidesApp: undefined,
     /* Workspace */

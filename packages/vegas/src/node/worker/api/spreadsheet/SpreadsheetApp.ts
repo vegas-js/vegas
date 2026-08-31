@@ -1,12 +1,19 @@
+import { RuntimeServicePort } from "../../../runtime/protocol";
 import type { CreateSpreadsheet, RequestLegacySync } from "../../types";
 
 // https://developers.google.com/apps-script/reference/spreadsheet/spreadsheet-app
 export class SpreadsheetApp implements GoogleAppsScript.Spreadsheet.SpreadsheetApp {
-  #createSpreadsheet: CreateSpreadsheet;
-  #requestSync: RequestLegacySync;
+  readonly #createSpreadsheet: CreateSpreadsheet;
+  readonly #service: RuntimeServicePort<"SpreadsheetApp">;
+  readonly #requestSync: RequestLegacySync;
 
-  constructor(createSpreadsheet: CreateSpreadsheet, requestSync: RequestLegacySync) {
+  constructor(
+    createSpreadsheet: CreateSpreadsheet,
+    service: RuntimeServicePort<"SpreadsheetApp">,
+    requestSync: RequestLegacySync,
+  ) {
     this.#createSpreadsheet = createSpreadsheet;
+    this.#service = service;
     this.#requestSync = requestSync;
   }
 
@@ -172,10 +179,7 @@ export class SpreadsheetApp implements GoogleAppsScript.Spreadsheet.SpreadsheetA
     rows: GoogleAppsScript.Integer = 1000,
     columns: GoogleAppsScript.Integer = 26,
   ) => {
-    const spreadSheetId = this.#requestSync({
-      message: `${this.constructor.name}#create`,
-      payload: { name, rows, columns },
-    });
+    const spreadSheetId = this.#service.create({ name, rows, columns });
     return this.#createSpreadsheet(spreadSheetId);
   };
   enableAllDataSourcesExecution = () => {

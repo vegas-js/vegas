@@ -1,5 +1,13 @@
 import type { RuntimeServicePort, ServiceCaller } from "../runtime/protocol";
 
+export function createSpreadsheetAppService(
+  callService: ServiceCaller,
+): RuntimeServicePort<"SpreadsheetApp"> {
+  return {
+    create: (...args) => callService("SpreadsheetApp", "create", ...args),
+  };
+}
+
 export function createRangeService(callService: ServiceCaller): RuntimeServicePort<"Range"> {
   return {
     getValue: (...args) => callService("Range", "getValue", ...args),
