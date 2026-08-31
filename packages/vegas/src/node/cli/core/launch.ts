@@ -4,7 +4,7 @@ import worker from "node:worker_threads";
 import { dispatchRuntimeRequest } from "../../runtime/dispatcher";
 import { serializeRuntimeError } from "../../runtime/errorCodec";
 import { createRuntimeServiceRegistry } from "../../runtime/host/registry";
-import type { Clock, Fetcher } from "../../runtime/host/services";
+import type { Clock, Fetcher, HtmlResourceResolver } from "../../runtime/host/services";
 import type { RuntimeRequest, RuntimeServiceRegistry } from "../../runtime/protocol";
 import { ServeContext } from "./context";
 import { HtmlServiceHandler, SpreadsheetAppHandler, SheetHandler } from "./handlers";
@@ -83,12 +83,20 @@ const fetcher: Fetcher = {
 export function launchGAS(context: ServeContext, fn: string, ...args: any[]): Promise<any> {
   const sourcePath = path.join(context.config.output.dir, "Code.js");
   const code = context.vfs.readFileSync(sourcePath, "utf8");
+  const htmlResourceResolver: HtmlResourceResolver = {
+    resolve(filename) {
+      const filePath = `${path.join(context.config.output.dir, path.parse(filename).name)}.html`;
+
+      return context.vfs.readFileSync(filePath, "utf8");
+    },
+  };
   const systemClock: Clock = {
     now: () => Date.now(),
   };
   const runtimeServices = createRuntimeServiceRegistry({
     spreadsheetStore: context.store.spreadsheet,
     fetcher,
+    htmlResourceResolver,
     cacheStore: context.store.cache,
     propertiesStore: context.store.properties,
     sessionEnvironment: {

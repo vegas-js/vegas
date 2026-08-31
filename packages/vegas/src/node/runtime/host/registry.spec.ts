@@ -18,6 +18,7 @@ function createDependencies(
         };
       },
     },
+    htmlResourceResolver: { resolve: () => "" },
     cacheStore: {
       document: {},
       script: {},
@@ -81,4 +82,19 @@ test("UrlFetch dependency injection", async () => {
     body: "hello",
   });
   expect(result.responseCode).toBe(201);
+});
+
+test("Html resource resolver dependency injection", async () => {
+  const resolve = vi.fn(() => "<h1>Hello</h1>");
+  const registry = createRuntimeServiceRegistry(
+    createDependencies({
+      htmlResourceResolver: {
+        resolve,
+      },
+    }),
+  );
+  const result = await registry.Html.getFileContent("index");
+
+  expect(resolve).toHaveBeenCalledWith("index");
+  expect(result).toBe("<h1>Hello</h1>");
 });

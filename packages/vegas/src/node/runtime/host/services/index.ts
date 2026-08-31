@@ -4,6 +4,8 @@ export type { PropertiesStore } from "./properties";
 export { PropertiesHandler } from "./properties";
 export type { SpreadsheetStore } from "./range";
 export { RangeHandler } from "./range";
+export type { HtmlResourceResolver } from "./html";
+export { HtmlHandler } from "./html";
 export type { SessionEnvironment } from "./session";
 export { SessionHandler } from "./session";
 export type { Fetcher } from "./urlFetch";

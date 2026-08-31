@@ -1,6 +1,7 @@
 import type { RuntimeServiceRegistry } from "../protocol";
 import {
   CacheHandler,
+  HtmlHandler,
   PropertiesHandler,
   RangeHandler,
   SessionHandler,
@@ -10,6 +11,7 @@ import type {
   CacheStore,
   Clock,
   Fetcher,
+  HtmlResourceResolver,
   PropertiesStore,
   SessionEnvironment,
   SpreadsheetStore,
@@ -18,6 +20,7 @@ import type {
 export type RuntimeHostDependencies = {
   spreadsheetStore: SpreadsheetStore;
   fetcher: Fetcher;
+  htmlResourceResolver: HtmlResourceResolver;
   cacheStore: CacheStore;
   propertiesStore: PropertiesStore;
   sessionEnvironment: SessionEnvironment;
@@ -30,6 +33,7 @@ export function createRuntimeServiceRegistry(
   return {
     Range: new RangeHandler(dependencies.spreadsheetStore),
     UrlFetch: new UrlFetchHandler(dependencies.fetcher),
+    Html: new HtmlHandler(dependencies.htmlResourceResolver),
     Session: new SessionHandler(dependencies.sessionEnvironment),
     Cache: new CacheHandler(dependencies.cacheStore, dependencies.clock),
     Properties: new PropertiesHandler(dependencies.propertiesStore),

@@ -52,6 +52,10 @@ export interface RuntimeProtocol {
     fetchAll: (requests: RuntimeFetchRequest[]) => RuntimeFetchResponse[];
   };
 
+  Html: {
+    getFileContent: (filename: string) => string;
+  };
+
   Session: {
     getActiveUser: () => string;
     getActiveUserLocale: () => string;
