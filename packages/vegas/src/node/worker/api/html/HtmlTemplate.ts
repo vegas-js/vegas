@@ -1,14 +1,14 @@
-import vm from "node:vm";
-
-import { scriptContext } from "../..";
+import type { EvaluateHtmlTemplate } from "../../types";
 import { GASAPI } from "../GASAPI";
 
 export class HtmlTemplate extends GASAPI implements GoogleAppsScript.HTML.HtmlTemplate {
   #code: string;
+  #evaluateTemplate: EvaluateHtmlTemplate;
 
-  constructor(code: string) {
+  constructor(code: string, evaluateTemplate: EvaluateHtmlTemplate) {
     super();
     this.#code = this.#parse(code);
+    this.#evaluateTemplate = evaluateTemplate;
   }
 
   #generateCode() {
@@ -64,13 +64,14 @@ export class HtmlTemplate extends GASAPI implements GoogleAppsScript.HTML.HtmlTe
   [propName: string]: any;
 
   evaluate(): GoogleAppsScript.HTML.HtmlOutput {
-    const copyContext = { ...scriptContext };
+    const bindings: Record<string, unknown> = {};
     Object.entries(this).forEach(([key, value]) => {
       if (!["evaluate", "getCode", "getCodeWithComments", "getRawContent"].includes(key)) {
-        copyContext[key] = value;
+        bindings[key] = value;
       }
     });
-    return vm.runInContext(this.#generateCode(), vm.createContext(copyContext));
+
+    return this.#evaluateTemplate(this.#generateCode(), bindings);
   }
   getCode(): string {
     return this.#generateCode();

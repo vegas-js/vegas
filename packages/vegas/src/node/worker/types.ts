@@ -28,6 +28,11 @@ export type CreateHtmlOutput = (
 
 export type CreateHtmlTemplate = (content: string) => GoogleAppsScript.HTML.HtmlTemplate;
 
+export type EvaluateHtmlTemplate = (
+  code: string,
+  bindings: Record<string, unknown>,
+) => GoogleAppsScript.HTML.HtmlOutput;
+
 export type CreateFolder = () => GoogleAppsScript.Drive.Folder;
 
 export type CreateFile = () => GoogleAppsScript.Drive.File;

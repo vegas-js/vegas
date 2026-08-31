@@ -14,6 +14,7 @@ import type {
   CreateRange,
   CreateSheet,
   CreateSpreadsheet,
+  EvaluateHtmlTemplate,
   RequestLegacySync,
 } from "./types";
 
@@ -30,6 +31,7 @@ type ObjectFactories = {
 export function createObjectFactories(
   requestLegacySync: RequestLegacySync,
   rangeService: RuntimeServicePort<"Range">,
+  evaluateHtmlTemplate: EvaluateHtmlTemplate,
 ): ObjectFactories {
   const createRange: CreateRange = (spreadsheetId, sheetId, row, column, numRows, numColumns) =>
     new Range(spreadsheetId, sheetId, row, column, numRows, numColumns, rangeService);
@@ -39,7 +41,8 @@ export function createObjectFactories(
     new Spreadsheet(spreadsheetId, createSheet, requestLegacySync);
   const createHtmlOutput: CreateHtmlOutput = (content, defaultXFrameOptionsMode) =>
     new HtmlOutput(content, defaultXFrameOptionsMode);
-  const createHtmlTemplate: CreateHtmlTemplate = (content) => new HtmlTemplate(content);
+  const createHtmlTemplate: CreateHtmlTemplate = (content) =>
+    new HtmlTemplate(content, evaluateHtmlTemplate);
   const createFolder: CreateFolder = () => new Folder();
   const createFile: CreateFile = () => new File();
 

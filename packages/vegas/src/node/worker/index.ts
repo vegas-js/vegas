@@ -10,8 +10,8 @@ import {
 } from "./remoteServices";
 import { createRuntimeServiceCaller } from "./runtimeTransport";
 import { createScriptContext } from "./scriptContext";
-import { evaluateScript } from "./scriptRuntime";
-import type { RequestLegacySync } from "./types";
+import { evaluateScript, evaluateScriptWithBindings } from "./scriptRuntime";
+import type { EvaluateHtmlTemplate, RequestLegacySync } from "./types";
 
 const sharedArray: Int32Array = worker.workerData.sharedArray;
 const port: worker.MessagePort = worker.workerData.port;
@@ -36,20 +36,24 @@ const sessionService = createSessionService(callService);
 const cacheService = createCacheService(callService);
 const propertiesService = createPropertiesService(callService);
 
-const { createFile, createFolder, createHtmlOutput, createHtmlTemplate, createSpreadsheet } =
-  createObjectFactories(requestLegacySync, rangeService);
+let scriptContext: ReturnType<typeof createScriptContext> | undefined;
+const evaluateHtmlTemplate: EvaluateHtmlTemplate = (code, bindings) => {
+  if (!scriptContext) {
+    throw new Error("Script context is not initialized");
+  }
 
-export const scriptContext = createScriptContext({
+  return evaluateScriptWithBindings(code, scriptContext, bindings);
+};
+
+const factories = createObjectFactories(requestLegacySync, rangeService, evaluateHtmlTemplate);
+scriptContext = createScriptContext({
   requestLegacySync,
-  createFile,
-  createFolder,
-  createHtmlOutput,
-  createHtmlTemplate,
-  createSpreadsheet,
   sessionService,
   cacheService,
   propertiesService,
+  ...factories,
 });
+
 evaluateScript(worker.workerData.code, scriptContext);
 
 port.on("message", async (data: GASWorkerData) => {
