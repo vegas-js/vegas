@@ -5,6 +5,14 @@ export interface RuntimeProtocol {
     create: (payload: { name: string; rows: number; columns: number }) => string;
   };
 
+  Sheet: {
+    getLastRow: (payload: { spreadsheetId: string; sheetId: number }) => number | null;
+    getLastColumn: (payload: { spreadsheetId: string; sheetId: number }) => number | null;
+    getMaxRows: (payload: { spreadsheetId: string; sheetId: number }) => number | null;
+    getMaxColumns: (payload: { spreadsheetId: string; sheetId: number }) => number | null;
+    getSheetName: (payload: { spreadsheetId: string; sheetId: number }) => string | null;
+  };
+
   Range: {
     getValue: (payload: {
       spreadsheetId: string;

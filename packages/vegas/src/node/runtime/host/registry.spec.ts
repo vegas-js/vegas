@@ -118,3 +118,46 @@ test("SpreadsheetApp create", async () => {
     ],
   });
 });
+
+test("call SheetHandler methods", async () => {
+  const dependencies = createDependencies();
+  const registry = createRuntimeServiceRegistry(dependencies);
+  const store = dependencies.spreadsheetStore;
+  store.set("spreadsheet-id", {
+    name: "Book",
+    sheets: new Map([
+      [
+        123,
+        {
+          name: "Sheet1",
+          cells: [
+            ["", "value", ""],
+            ["", "", ""],
+          ],
+        },
+      ],
+    ]),
+  });
+
+  expect(
+    await registry.Sheet.getLastRow({
+      spreadsheetId: "spreadsheet-id",
+      sheetId: 123,
+    }),
+  ).toBe(1);
+  expect(
+    await registry.Sheet.getLastColumn({
+      spreadsheetId: "spreadsheet-id",
+      sheetId: 123,
+    }),
+  ).toBe(2);
+  expect(await registry.Sheet.getMaxRows({ spreadsheetId: "spreadsheet-id", sheetId: 123 })).toBe(
+    2,
+  );
+  expect(
+    await registry.Sheet.getMaxColumns({ spreadsheetId: "spreadsheet-id", sheetId: 123 }),
+  ).toBe(3);
+  expect(await registry.Sheet.getSheetName({ spreadsheetId: "spreadsheet-id", sheetId: 123 })).toBe(
+    "Sheet1",
+  );
+});

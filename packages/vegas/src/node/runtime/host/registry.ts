@@ -5,6 +5,7 @@ import {
   PropertiesHandler,
   RangeHandler,
   SessionHandler,
+  SheetHandler,
   UrlFetchHandler,
 } from "./services";
 import type {
@@ -33,6 +34,7 @@ export function createRuntimeServiceRegistry(
 ): RuntimeServiceRegistry {
   return {
     SpreadsheetApp: new SpreadsheetAppHandler(dependencies.spreadsheetStore),
+    Sheet: new SheetHandler(dependencies.spreadsheetStore),
     Range: new RangeHandler(dependencies.spreadsheetStore),
     UrlFetch: new UrlFetchHandler(dependencies.fetcher),
     Html: new HtmlHandler(dependencies.htmlResourceResolver),

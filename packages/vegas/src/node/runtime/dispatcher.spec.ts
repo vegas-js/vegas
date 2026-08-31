@@ -8,6 +8,13 @@ function createRegistry(overrides: Partial<RuntimeServiceRegistry> = {}): Runtim
     SpreadsheetApp: {
       create: () => "spreadsheet-id",
     },
+    Sheet: {
+      getLastRow: () => 0,
+      getLastColumn: () => 0,
+      getMaxRows: () => 0,
+      getMaxColumns: () => 0,
+      getSheetName: () => null,
+    },
     Range: {
       getValue: () => undefined,
       getValues: () => [],

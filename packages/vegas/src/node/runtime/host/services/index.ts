@@ -3,6 +3,7 @@ export { CacheHandler } from "./cache";
 export type { PropertiesStore } from "./properties";
 export { PropertiesHandler } from "./properties";
 export type { SpreadsheetStore } from "./range";
+export { SheetHandler } from "./sheet";
 export { RangeHandler } from "./range";
 export type { HtmlResourceResolver } from "./html";
 export { HtmlHandler } from "./html";
