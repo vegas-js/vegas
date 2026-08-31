@@ -1,6 +1,7 @@
 // oxlint-disable no-wrapper-object-types
 import util from "node:util";
 
+import type { RuntimeLogMethod, RuntimeLogSink } from "../../../runtime/logging";
 import { GASAPI } from "../GASAPI";
 
 const logPrefixFormat = `${util.styleText(["black", "bgGreenBright"], "%s")}  %s%s`;
@@ -83,20 +84,18 @@ function jsonReplacer(this: any, key: string, value: any): any {
 
 // https://developers.google.com/apps-script/reference/base/console
 export class Console extends GASAPI {
+  readonly #logSink: RuntimeLogSink;
   readonly #logTitle: string;
   readonly #timer: Map<string, number>;
 
-  constructor() {
+  constructor(logSink: RuntimeLogSink) {
     super();
+    this.#logSink = logSink;
     this.#logTitle = "console(GAS)";
     this.#timer = new Map();
   }
 
-  #output(
-    output: (message?: any, ...optionalParams: any[]) => void,
-    prefix: string,
-    ...data: unknown[]
-  ) {
+  #output(method: RuntimeLogMethod, prefix: string, ...data: unknown[]) {
     let outputLog = "";
     if (data.length > 0) {
       const formatOrObject = data[0];
@@ -151,7 +150,7 @@ export class Console extends GASAPI {
         }
       }
     }
-    output(prefix, outputLog.replace(/\n/g, `\n${"".padEnd(36)}`));
+    this.#logSink.write(method, prefix, outputLog.replace(/\n/g, `\n${"".padEnd(36)}`));
   }
 
   error(): void;
@@ -159,21 +158,21 @@ export class Console extends GASAPI {
   error(formatOrObject: any, ...values: any[]): void;
   error(...data: unknown[]): void {
     const logPrefix = getLogPrefix(this.#logTitle, "Error");
-    this.#output(console.error, logPrefix, ...data);
+    this.#output("error", logPrefix, ...data);
   }
   info(): void;
   info(formatOrObject: Object, ...values: Object[]): void;
   info(formatOrObject: any, ...values: any[]): void;
   info(...data: unknown[]): void {
     const logPrefix = getLogPrefix(this.#logTitle, "Info");
-    this.#output(console.info, logPrefix, ...data);
+    this.#output("info", logPrefix, ...data);
   }
   log(): void;
   log(formatOrObject: Object, ...values: Object[]): void;
   log(formatOrObject: any, ...values: any[]): void;
   log(...data: unknown[]): void {
     const logPrefix = getLogPrefix(this.#logTitle, "Info");
-    this.#output(console.debug, logPrefix, ...data);
+    this.#output("debug", logPrefix, ...data);
   }
   time(label: string): void {
     this.#timer.set(label, performance.now());
@@ -185,7 +184,7 @@ export class Console extends GASAPI {
       this.#timer.delete(label);
       const logPrefix = getLogPrefix(this.#logTitle, "Debug");
       const outputLog = util.format("%s: %dms", label, (endTime - startTime).toFixed(0));
-      this.#output(console.log, logPrefix, outputLog.replace(/\n/g, `\n${"".padEnd(36)}`));
+      this.#output("log", logPrefix, outputLog.replace(/\n/g, `\n${"".padEnd(36)}`));
     } else {
       throw new Error(
         `The parameters (${label}) don't match the method signature for console.timeEnd.`,
@@ -197,6 +196,6 @@ export class Console extends GASAPI {
   warn(formatOrObject: any, ...values: any[]): void;
   warn(...data: unknown[]): void {
     const logPrefix = getLogPrefix(this.#logTitle, "Warning");
-    this.#output(console.warn, logPrefix, ...data);
+    this.#output("warn", logPrefix, ...data);
   }
 }

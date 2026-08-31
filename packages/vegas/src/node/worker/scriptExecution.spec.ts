@@ -1,4 +1,4 @@
-import { expect, test } from "vitest";
+import { expect, test, vi } from "vitest";
 
 import { HtmlOutput } from "./api/html/HtmlOutput";
 import { invokeScriptFunction } from "./invocation";
@@ -19,6 +19,8 @@ function createContext(overrides: Partial<ScriptContextDependencies> = {}) {
     createHtmlOutput: unexpected,
     createHtmlTemplate: unexpected,
     createSpreadsheet: unexpected,
+
+    logSink: { write: unexpected },
 
     sessionService: {
       getActiveUser: unexpected,
@@ -130,4 +132,16 @@ test("return a value from doPost to the actual GAS global", async () => {
     mimeType: "text/html",
     content: "Hello from POST",
   });
+});
+
+test("user code reaches the injected sink", () => {
+  const write = vi.fn();
+  const context = createContext({
+    logSink: { write },
+  });
+  evaluateScript(`console.log('from user script');`, context);
+  const [_method, _prefix, value] = write.mock.lastCall ?? ["", "", ""];
+
+  expect(write).toHaveBeenCalledOnce();
+  expect(value).toBe("from user script");
 });

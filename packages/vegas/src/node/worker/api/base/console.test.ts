@@ -1,12 +1,19 @@
 import { describe, expect, test, vi } from "vitest";
 
+import type { RuntimeLogSink } from "../../../runtime/logging";
 import { HtmlService } from "../html/HtmlService";
 import { Console } from "./console";
+
+const consoleSink: RuntimeLogSink = {
+  write(method, prefix, message) {
+    globalThis.console[method](prefix, message);
+  },
+};
 
 describe("direct output", () => {
   test("with prefix", () => {
     using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-    const gasConsole = new Console();
+    const gasConsole = new Console(consoleSink);
     gasConsole.log();
     const args = consoleMock.mock.lastCall;
     expect(args?.[0]).toMatch(/ console\(GAS\)   \d{2}:\d{2}:\d{2}  Info      /);
@@ -14,7 +21,7 @@ describe("direct output", () => {
 
   test("empty line", () => {
     using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-    const gasConsole = new Console();
+    const gasConsole = new Console(consoleSink);
     gasConsole.log();
     const args = consoleMock.mock.lastCall;
     expect(args?.[1]).toBe("");
@@ -23,7 +30,7 @@ describe("direct output", () => {
   describe("boolean", () => {
     test("true", () => {
       using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-      const gasConsole = new Console();
+      const gasConsole = new Console(consoleSink);
       gasConsole.log(true);
       const args = consoleMock.mock.lastCall;
       expect(args?.[1]).toBe("true");
@@ -31,7 +38,7 @@ describe("direct output", () => {
 
     test("false", () => {
       using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-      const gasConsole = new Console();
+      const gasConsole = new Console(consoleSink);
       gasConsole.log(false);
       const args = consoleMock.mock.lastCall;
       expect(args?.[1]).toBe("false");
@@ -41,7 +48,7 @@ describe("direct output", () => {
   describe("number", () => {
     test("decimal", () => {
       using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-      const gasConsole = new Console();
+      const gasConsole = new Console(consoleSink);
       gasConsole.log(0);
       const args = consoleMock.mock.lastCall;
       expect(args?.[1]).toBe("0");
@@ -49,7 +56,7 @@ describe("direct output", () => {
 
     test("replace any digits with 0 if they exceed 18", () => {
       using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-      const gasConsole = new Console();
+      const gasConsole = new Console(consoleSink);
       // oxlint-disable-next-line no-loss-of-precision
       gasConsole.log(12345678901234567890);
       const args = consoleMock.mock.lastCall;
@@ -58,7 +65,7 @@ describe("direct output", () => {
 
     test("with 18 or more decimal places are truncated", () => {
       using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-      const gasConsole = new Console();
+      const gasConsole = new Console(consoleSink);
       // oxlint-disable-next-line no-loss-of-precision
       gasConsole.log(3.14159265358979323846);
       const args = consoleMock.mock.lastCall;
@@ -67,7 +74,7 @@ describe("direct output", () => {
 
     test("Infinity", () => {
       using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-      const gasConsole = new Console();
+      const gasConsole = new Console(consoleSink);
       gasConsole.log(Infinity);
       const args = consoleMock.mock.lastCall;
       expect(args?.[1]).toBe("Infinity");
@@ -75,7 +82,7 @@ describe("direct output", () => {
 
     test("NaN", () => {
       using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-      const gasConsole = new Console();
+      const gasConsole = new Console(consoleSink);
       gasConsole.log(NaN);
       const args = consoleMock.mock.lastCall;
       expect(args?.[1]).toBe("NaN");
@@ -84,7 +91,7 @@ describe("direct output", () => {
 
   test("empty string", () => {
     using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-    const gasConsole = new Console();
+    const gasConsole = new Console(consoleSink);
     gasConsole.log("");
     const args = consoleMock.mock.lastCall;
     expect(args?.[1]).toBe("");
@@ -92,7 +99,7 @@ describe("direct output", () => {
 
   test("string", () => {
     using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-    const gasConsole = new Console();
+    const gasConsole = new Console(consoleSink);
     gasConsole.log("Hello, world!");
     const args = consoleMock.mock.lastCall;
     expect(args?.[1]).toBe("Hello, world!");
@@ -100,7 +107,7 @@ describe("direct output", () => {
 
   test("symbol", () => {
     using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-    const gasConsole = new Console();
+    const gasConsole = new Console(consoleSink);
     gasConsole.log(Symbol.for("sym"));
     const args = consoleMock.mock.lastCall;
     expect(args?.[1]).toBe("{}");
@@ -108,7 +115,7 @@ describe("direct output", () => {
 
   test("null", () => {
     using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-    const gasConsole = new Console();
+    const gasConsole = new Console(consoleSink);
     gasConsole.log(null);
     const args = consoleMock.mock.lastCall;
     expect(args?.[1]).toBe("null");
@@ -116,7 +123,7 @@ describe("direct output", () => {
 
   test("undefined", () => {
     using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-    const gasConsole = new Console();
+    const gasConsole = new Console(consoleSink);
     gasConsole.log(undefined);
     const args = consoleMock.mock.lastCall;
     expect(args?.[1]).toBe("undefined");
@@ -124,7 +131,7 @@ describe("direct output", () => {
 
   test("{}", () => {
     using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-    const gasConsole = new Console();
+    const gasConsole = new Console(consoleSink);
     gasConsole.log({});
     const args = consoleMock.mock.lastCall;
     expect(args?.[1]).toBe("{}");
@@ -132,7 +139,7 @@ describe("direct output", () => {
 
   test("{} with properties", () => {
     using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-    const gasConsole = new Console();
+    const gasConsole = new Console(consoleSink);
     gasConsole.log({ a: 0, b: 1, c: 2, d: 3, e: 4, f: 5, g: 6, h: 7, i: 8, j: 9, k: 0 });
     const args = consoleMock.mock.lastCall;
     expect(args?.[1]).toBe("{ a: 0, b: 1, c: 2, d: 3, e: 4, f: 5, g: 6, h: 7, i: 8, j: 9, k: 0 }");
@@ -140,7 +147,7 @@ describe("direct output", () => {
 
   test("{} with message property", () => {
     using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-    const gasConsole = new Console();
+    const gasConsole = new Console(consoleSink);
     gasConsole.log({ message: "object message" });
     const args = consoleMock.mock.lastCall;
     expect(args?.[1]).toBe("{ message: 'object message' }");
@@ -148,7 +155,7 @@ describe("direct output", () => {
 
   test("{} with toString property", () => {
     using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-    const gasConsole = new Console();
+    const gasConsole = new Console(consoleSink);
     gasConsole.log({ toString: () => "object toString" });
     const args = consoleMock.mock.lastCall;
     expect(args?.[1]).toBe("{ toString: [Function: toString] }");
@@ -156,7 +163,7 @@ describe("direct output", () => {
 
   test("{} with message and toString property", () => {
     using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-    const gasConsole = new Console();
+    const gasConsole = new Console(consoleSink);
     gasConsole.log({ message: "object message", toString: () => "object toString" });
     const args = consoleMock.mock.lastCall;
     expect(args?.[1]).toBe("{ message: 'object message', toString: [Function: toString] }");
@@ -164,7 +171,7 @@ describe("direct output", () => {
 
   test("{} with message and toString property (nested)", () => {
     using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-    const gasConsole = new Console();
+    const gasConsole = new Console(consoleSink);
     gasConsole.log({
       nestedObject: { message: "object message", toString: () => "object toString" },
     });
@@ -176,7 +183,7 @@ describe("direct output", () => {
 
   test("[]", () => {
     using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-    const gasConsole = new Console();
+    const gasConsole = new Console(consoleSink);
     gasConsole.log([]);
     const args = consoleMock.mock.lastCall;
     expect(args?.[1]).toBe("[]");
@@ -184,7 +191,7 @@ describe("direct output", () => {
 
   test("[] with values", () => {
     using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-    const gasConsole = new Console();
+    const gasConsole = new Console(consoleSink);
     gasConsole.log([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0]);
     const args = consoleMock.mock.lastCall;
     expect(args?.[1]).toBe("[ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0 ]");
@@ -192,7 +199,7 @@ describe("direct output", () => {
 
   test("regexp", () => {
     using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-    const gasConsole = new Console();
+    const gasConsole = new Console(consoleSink);
     gasConsole.log(/regexp/);
     const args = consoleMock.mock.lastCall;
     expect(args?.[1]).toBe("/regexp/");
@@ -201,7 +208,7 @@ describe("direct output", () => {
   describe("function", () => {
     test("arrow", () => {
       using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-      const gasConsole = new Console();
+      const gasConsole = new Console(consoleSink);
       gasConsole.log(() => {});
       const args = consoleMock.mock.lastCall;
       expect(args?.[1]).toBe("[Function]");
@@ -209,7 +216,7 @@ describe("direct output", () => {
 
     test("anonymous", () => {
       using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-      const gasConsole = new Console();
+      const gasConsole = new Console(consoleSink);
       gasConsole.log(function () {});
       const args = consoleMock.mock.lastCall;
       expect(args?.[1]).toBe("[Function]");
@@ -217,7 +224,7 @@ describe("direct output", () => {
 
     test("named", () => {
       using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-      const gasConsole = new Console();
+      const gasConsole = new Console(consoleSink);
       gasConsole.log(function namedFn() {});
       const args = consoleMock.mock.lastCall;
       expect(args?.[1]).toBe("[Function: namedFn]");
@@ -228,7 +235,7 @@ describe("direct output", () => {
     describe("definition", () => {
       test("anonymous", () => {
         using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-        const gasConsole = new Console();
+        const gasConsole = new Console(consoleSink);
         gasConsole.log(class {});
         const args = consoleMock.mock.lastCall;
         expect(args?.[1]).toBe("[Function]");
@@ -236,7 +243,7 @@ describe("direct output", () => {
 
       test("named", () => {
         using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-        const gasConsole = new Console();
+        const gasConsole = new Console(consoleSink);
         class NamedClass {
           member1: number;
           member2: number;
@@ -254,7 +261,7 @@ describe("direct output", () => {
 
       test("anonymous with member", () => {
         using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-        const gasConsole = new Console();
+        const gasConsole = new Console(consoleSink);
         gasConsole.log(
           class {
             member1: number;
@@ -273,7 +280,7 @@ describe("direct output", () => {
 
       test("instance", () => {
         using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-        const gasConsole = new Console();
+        const gasConsole = new Console(consoleSink);
         class NamedClass {
           member1: number;
           member2: number;
@@ -291,7 +298,7 @@ describe("direct output", () => {
 
       test("GAS API", () => {
         using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-        const gasConsole = new Console();
+        const gasConsole = new Console(consoleSink);
         gasConsole.log(new HtmlService((() => {}) as any, (() => {}) as any, (() => {}) as any));
         const args = consoleMock.mock.lastCall;
         expect(args?.[1]).toMatch(/^{ toString: \[Function\],/g);
@@ -311,7 +318,7 @@ describe("direct output", () => {
 
       test("instance (nested)", () => {
         using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-        const gasConsole = new Console();
+        const gasConsole = new Console(consoleSink);
         class NamedClass {
           member1: number;
           member2: number;
@@ -329,7 +336,7 @@ describe("direct output", () => {
 
       test("GAS API (nested)", () => {
         using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-        const gasConsole = new Console();
+        const gasConsole = new Console(consoleSink);
         gasConsole.log({
           nestedGASAPI: new HtmlService((() => {}) as any, (() => {}) as any, (() => {}) as any),
         });
@@ -357,7 +364,7 @@ describe("output with string format", () => {
   describe("boolean", () => {
     test("true", () => {
       using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-      const gasConsole = new Console();
+      const gasConsole = new Console(consoleSink);
       gasConsole.log("%s", true);
       const args = consoleMock.mock.lastCall;
       expect(args?.[1]).toBe("true");
@@ -365,7 +372,7 @@ describe("output with string format", () => {
 
     test("false", () => {
       using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-      const gasConsole = new Console();
+      const gasConsole = new Console(consoleSink);
       gasConsole.log("%s", false);
       const args = consoleMock.mock.lastCall;
       expect(args?.[1]).toBe("false");
@@ -375,7 +382,7 @@ describe("output with string format", () => {
   describe("number", () => {
     test("decimal", () => {
       using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-      const gasConsole = new Console();
+      const gasConsole = new Console(consoleSink);
       gasConsole.log("%s", 0);
       const args = consoleMock.mock.lastCall;
       expect(args?.[1]).toBe("0");
@@ -383,7 +390,7 @@ describe("output with string format", () => {
 
     test("replace any digits with 0 if they exceed 18", () => {
       using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-      const gasConsole = new Console();
+      const gasConsole = new Console(consoleSink);
       // oxlint-disable-next-line no-loss-of-precision
       gasConsole.log("%s", 12345678901234567890);
       const args = consoleMock.mock.lastCall;
@@ -392,7 +399,7 @@ describe("output with string format", () => {
 
     test("with 18 or more decimal places are truncated", () => {
       using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-      const gasConsole = new Console();
+      const gasConsole = new Console(consoleSink);
       // oxlint-disable-next-line no-loss-of-precision
       gasConsole.log("%s", 3.14159265358979323846);
       const args = consoleMock.mock.lastCall;
@@ -401,7 +408,7 @@ describe("output with string format", () => {
 
     test("Infinity", () => {
       using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-      const gasConsole = new Console();
+      const gasConsole = new Console(consoleSink);
       gasConsole.log("%s", Infinity);
       const args = consoleMock.mock.lastCall;
       expect(args?.[1]).toBe("Infinity");
@@ -409,7 +416,7 @@ describe("output with string format", () => {
 
     test("NaN", () => {
       using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-      const gasConsole = new Console();
+      const gasConsole = new Console(consoleSink);
       gasConsole.log("%s", NaN);
       const args = consoleMock.mock.lastCall;
       expect(args?.[1]).toBe("NaN");
@@ -418,7 +425,7 @@ describe("output with string format", () => {
 
   test("empty string", () => {
     using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-    const gasConsole = new Console();
+    const gasConsole = new Console(consoleSink);
     gasConsole.log("%s", "");
     const args = consoleMock.mock.lastCall;
     expect(args?.[1]).toBe("");
@@ -426,7 +433,7 @@ describe("output with string format", () => {
 
   test("string", () => {
     using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-    const gasConsole = new Console();
+    const gasConsole = new Console(consoleSink);
     gasConsole.log("%s", "Hello, world!");
     const args = consoleMock.mock.lastCall;
     expect(args?.[1]).toBe("Hello, world!");
@@ -434,7 +441,7 @@ describe("output with string format", () => {
 
   test("symbol", () => {
     using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-    const gasConsole = new Console();
+    const gasConsole = new Console(consoleSink);
     gasConsole.log("%s", Symbol.for("sym"));
     const args = consoleMock.mock.lastCall;
     expect(args?.[1]).toBe("Symbol(sym)");
@@ -442,7 +449,7 @@ describe("output with string format", () => {
 
   test("null", () => {
     using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-    const gasConsole = new Console();
+    const gasConsole = new Console(consoleSink);
     gasConsole.log("%s", null);
     const args = consoleMock.mock.lastCall;
     expect(args?.[1]).toBe("null");
@@ -450,7 +457,7 @@ describe("output with string format", () => {
 
   test("undefined", () => {
     using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-    const gasConsole = new Console();
+    const gasConsole = new Console(consoleSink);
     gasConsole.log("%s", undefined);
     const args = consoleMock.mock.lastCall;
     expect(args?.[1]).toBe("undefined");
@@ -458,7 +465,7 @@ describe("output with string format", () => {
 
   test("{}", () => {
     using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-    const gasConsole = new Console();
+    const gasConsole = new Console(consoleSink);
     gasConsole.log("%s", {});
     const args = consoleMock.mock.lastCall;
     expect(args?.[1]).toBe("[object Object]");
@@ -466,7 +473,7 @@ describe("output with string format", () => {
 
   test("{} with properties", () => {
     using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-    const gasConsole = new Console();
+    const gasConsole = new Console(consoleSink);
     gasConsole.log("%s", { a: 0, b: 1, c: 2, d: 3, e: 4, f: 5, g: 6, h: 7, i: 8, j: 9, k: 0 });
     const args = consoleMock.mock.lastCall;
     expect(args?.[1]).toBe("[object Object]");
@@ -474,7 +481,7 @@ describe("output with string format", () => {
 
   test("{} with message property", () => {
     using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-    const gasConsole = new Console();
+    const gasConsole = new Console(consoleSink);
     gasConsole.log("%s", { message: "object message" });
     const args = consoleMock.mock.lastCall;
     expect(args?.[1]).toBe("[object Object]");
@@ -482,7 +489,7 @@ describe("output with string format", () => {
 
   test("{} with toString property", () => {
     using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-    const gasConsole = new Console();
+    const gasConsole = new Console(consoleSink);
     gasConsole.log("%s", { toString: () => "object toString" });
     const args = consoleMock.mock.lastCall;
     expect(args?.[1]).toBe("object toString");
@@ -490,7 +497,7 @@ describe("output with string format", () => {
 
   test("{} with message and toString property", () => {
     using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-    const gasConsole = new Console();
+    const gasConsole = new Console(consoleSink);
     gasConsole.log("%s", { message: "object message", toString: () => "object toString" });
     const args = consoleMock.mock.lastCall;
     expect(args?.[1]).toBe("object toString");
@@ -498,7 +505,7 @@ describe("output with string format", () => {
 
   test("{} with message and toString property (nested)", () => {
     using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-    const gasConsole = new Console();
+    const gasConsole = new Console(consoleSink);
     gasConsole.log("%s", {
       nestedObject: { message: "object message", toString: () => "object toString" },
     });
@@ -508,7 +515,7 @@ describe("output with string format", () => {
 
   test("[]", () => {
     using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-    const gasConsole = new Console();
+    const gasConsole = new Console(consoleSink);
     gasConsole.log("%s", []);
     const args = consoleMock.mock.lastCall;
     expect(args?.[1]).toBe("");
@@ -516,7 +523,7 @@ describe("output with string format", () => {
 
   test("[] with values", () => {
     using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-    const gasConsole = new Console();
+    const gasConsole = new Console(consoleSink);
     gasConsole.log("%s", [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0]);
     const args = consoleMock.mock.lastCall;
     expect(args?.[1]).toBe("0,1,2,3,4,5,6,7,8,9,0");
@@ -524,7 +531,7 @@ describe("output with string format", () => {
 
   test("regexp", () => {
     using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-    const gasConsole = new Console();
+    const gasConsole = new Console(consoleSink);
     gasConsole.log("%s", /regexp/);
     const args = consoleMock.mock.lastCall;
     expect(args?.[1]).toBe("/regexp/");
@@ -533,7 +540,7 @@ describe("output with string format", () => {
   describe("function", () => {
     test("arrow", () => {
       using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-      const gasConsole = new Console();
+      const gasConsole = new Console(consoleSink);
       gasConsole.log("%s", () => {});
       const args = consoleMock.mock.lastCall;
       expect(args?.[1]).toBe("() => {}");
@@ -541,7 +548,7 @@ describe("output with string format", () => {
 
     test("anonymous", () => {
       using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-      const gasConsole = new Console();
+      const gasConsole = new Console(consoleSink);
       gasConsole.log("%s", function () {});
       const args = consoleMock.mock.lastCall;
       expect(args?.[1]).toBe("function () {}");
@@ -549,7 +556,7 @@ describe("output with string format", () => {
 
     test("named", () => {
       using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-      const gasConsole = new Console();
+      const gasConsole = new Console(consoleSink);
       gasConsole.log("%s", function namedFn() {});
       const args = consoleMock.mock.lastCall;
       expect(args?.[1]).toBe("function namedFn() {}");
@@ -560,7 +567,7 @@ describe("output with string format", () => {
     describe("definition", () => {
       test("anonymous", () => {
         using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-        const gasConsole = new Console();
+        const gasConsole = new Console(consoleSink);
         gasConsole.log("%s", class {});
         const args = consoleMock.mock.lastCall;
         expect(args?.[1]).toBe("class {}");
@@ -568,7 +575,7 @@ describe("output with string format", () => {
 
       test("named", () => {
         using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-        const gasConsole = new Console();
+        const gasConsole = new Console(consoleSink);
         class NamedClass {
           member1: number;
           member2: number;
@@ -588,7 +595,7 @@ describe("output with string format", () => {
 
       test("anonymous with member", () => {
         using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-        const gasConsole = new Console();
+        const gasConsole = new Console(consoleSink);
         gasConsole.log(
           "%s",
           class {
@@ -610,7 +617,7 @@ describe("output with string format", () => {
 
       test("instance", () => {
         using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-        const gasConsole = new Console();
+        const gasConsole = new Console(consoleSink);
         class NamedClass {
           member1: number;
           member2: number;
@@ -628,7 +635,7 @@ describe("output with string format", () => {
 
       test("GAS API", () => {
         using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-        const gasConsole = new Console();
+        const gasConsole = new Console(consoleSink);
         gasConsole.log(
           "%s",
           new HtmlService((() => {}) as any, (() => {}) as any, (() => {}) as any),
@@ -639,7 +646,7 @@ describe("output with string format", () => {
 
       test("instance (nested)", () => {
         using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-        const gasConsole = new Console();
+        const gasConsole = new Console(consoleSink);
         class NamedClass {
           member1: number;
           member2: number;
@@ -657,7 +664,7 @@ describe("output with string format", () => {
 
       test("GAS API (nested)", () => {
         using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-        const gasConsole = new Console();
+        const gasConsole = new Console(consoleSink);
         gasConsole.log("%s", {
           nestedGASAPI: new HtmlService((() => {}) as any, (() => {}) as any, (() => {}) as any),
         });
@@ -672,7 +679,7 @@ describe("output with number format", () => {
   describe("boolean", () => {
     test("true", () => {
       using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-      const gasConsole = new Console();
+      const gasConsole = new Console(consoleSink);
       gasConsole.log("%d", true);
       const args = consoleMock.mock.lastCall;
       expect(args?.[1]).toBe("1");
@@ -680,7 +687,7 @@ describe("output with number format", () => {
 
     test("false", () => {
       using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-      const gasConsole = new Console();
+      const gasConsole = new Console(consoleSink);
       gasConsole.log("%d", false);
       const args = consoleMock.mock.lastCall;
       expect(args?.[1]).toBe("0");
@@ -690,7 +697,7 @@ describe("output with number format", () => {
   describe("number", () => {
     test("decimal", () => {
       using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-      const gasConsole = new Console();
+      const gasConsole = new Console(consoleSink);
       gasConsole.log("%d", 0);
       const args = consoleMock.mock.lastCall;
       expect(args?.[1]).toBe("0");
@@ -698,7 +705,7 @@ describe("output with number format", () => {
 
     test("replace any digits with 0 if they exceed 18", () => {
       using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-      const gasConsole = new Console();
+      const gasConsole = new Console(consoleSink);
       // oxlint-disable-next-line no-loss-of-precision
       gasConsole.log("%d", 12345678901234567890);
       const args = consoleMock.mock.lastCall;
@@ -707,7 +714,7 @@ describe("output with number format", () => {
 
     test("with 18 or more decimal places are truncated", () => {
       using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-      const gasConsole = new Console();
+      const gasConsole = new Console(consoleSink);
       // oxlint-disable-next-line no-loss-of-precision
       gasConsole.log("%d", 3.14159265358979323846);
       const args = consoleMock.mock.lastCall;
@@ -716,7 +723,7 @@ describe("output with number format", () => {
 
     test("Infinity", () => {
       using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-      const gasConsole = new Console();
+      const gasConsole = new Console(consoleSink);
       gasConsole.log("%d", Infinity);
       const args = consoleMock.mock.lastCall;
       expect(args?.[1]).toBe("Infinity");
@@ -724,7 +731,7 @@ describe("output with number format", () => {
 
     test("NaN", () => {
       using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-      const gasConsole = new Console();
+      const gasConsole = new Console(consoleSink);
       gasConsole.log("%d", NaN);
       const args = consoleMock.mock.lastCall;
       expect(args?.[1]).toBe("NaN");
@@ -733,7 +740,7 @@ describe("output with number format", () => {
 
   test("empty string", () => {
     using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-    const gasConsole = new Console();
+    const gasConsole = new Console(consoleSink);
     gasConsole.log("%d", "");
     const args = consoleMock.mock.lastCall;
     expect(args?.[1]).toBe("0");
@@ -741,7 +748,7 @@ describe("output with number format", () => {
 
   test("string", () => {
     using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-    const gasConsole = new Console();
+    const gasConsole = new Console(consoleSink);
     gasConsole.log("%d", "Hello, world!");
     const args = consoleMock.mock.lastCall;
     expect(args?.[1]).toBe("NaN");
@@ -749,7 +756,7 @@ describe("output with number format", () => {
 
   test("null", () => {
     using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-    const gasConsole = new Console();
+    const gasConsole = new Console(consoleSink);
     gasConsole.log("%d", null);
     const args = consoleMock.mock.lastCall;
     expect(args?.[1]).toBe("0");
@@ -757,7 +764,7 @@ describe("output with number format", () => {
 
   test("undefined", () => {
     using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-    const gasConsole = new Console();
+    const gasConsole = new Console(consoleSink);
     gasConsole.log("%d", undefined);
     const args = consoleMock.mock.lastCall;
     expect(args?.[1]).toBe("NaN");
@@ -765,7 +772,7 @@ describe("output with number format", () => {
 
   test("{}", () => {
     using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-    const gasConsole = new Console();
+    const gasConsole = new Console(consoleSink);
     gasConsole.log("%d", {});
     const args = consoleMock.mock.lastCall;
     expect(args?.[1]).toBe("NaN");
@@ -773,7 +780,7 @@ describe("output with number format", () => {
 
   test("{} with properties", () => {
     using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-    const gasConsole = new Console();
+    const gasConsole = new Console(consoleSink);
     gasConsole.log("%d", { a: 0, b: 1, c: 2, d: 3, e: 4, f: 5, g: 6, h: 7, i: 8, j: 9, k: 0 });
     const args = consoleMock.mock.lastCall;
     expect(args?.[1]).toBe("NaN");
@@ -781,7 +788,7 @@ describe("output with number format", () => {
 
   test("{} with message property", () => {
     using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-    const gasConsole = new Console();
+    const gasConsole = new Console(consoleSink);
     gasConsole.log("%d", { message: "object message" });
     const args = consoleMock.mock.lastCall;
     expect(args?.[1]).toBe("NaN");
@@ -789,7 +796,7 @@ describe("output with number format", () => {
 
   test("{} with toString property", () => {
     using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-    const gasConsole = new Console();
+    const gasConsole = new Console(consoleSink);
     gasConsole.log("%d", { toString: () => "object toString" });
     const args = consoleMock.mock.lastCall;
     expect(args?.[1]).toBe("NaN");
@@ -797,7 +804,7 @@ describe("output with number format", () => {
 
   test("{} with message and toString property", () => {
     using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-    const gasConsole = new Console();
+    const gasConsole = new Console(consoleSink);
     gasConsole.log("%d", { message: "object message", toString: () => "object toString" });
     const args = consoleMock.mock.lastCall;
     expect(args?.[1]).toBe("NaN");
@@ -805,7 +812,7 @@ describe("output with number format", () => {
 
   test("{} with message and toString property (nested)", () => {
     using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-    const gasConsole = new Console();
+    const gasConsole = new Console(consoleSink);
     gasConsole.log("%d", {
       nestedObject: { message: "object message", toString: () => "object toString" },
     });
@@ -815,7 +822,7 @@ describe("output with number format", () => {
 
   test("[]", () => {
     using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-    const gasConsole = new Console();
+    const gasConsole = new Console(consoleSink);
     gasConsole.log("%d", []);
     const args = consoleMock.mock.lastCall;
     expect(args?.[1]).toBe("0");
@@ -823,7 +830,7 @@ describe("output with number format", () => {
 
   test("[] with values", () => {
     using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-    const gasConsole = new Console();
+    const gasConsole = new Console(consoleSink);
     gasConsole.log("%d", [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0]);
     const args = consoleMock.mock.lastCall;
     expect(args?.[1]).toBe("NaN");
@@ -831,7 +838,7 @@ describe("output with number format", () => {
 
   test("regexp", () => {
     using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-    const gasConsole = new Console();
+    const gasConsole = new Console(consoleSink);
     gasConsole.log("%d", /regexp/);
     const args = consoleMock.mock.lastCall;
     expect(args?.[1]).toBe("NaN");
@@ -840,7 +847,7 @@ describe("output with number format", () => {
   describe("function", () => {
     test("arrow", () => {
       using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-      const gasConsole = new Console();
+      const gasConsole = new Console(consoleSink);
       gasConsole.log("%d", () => {});
       const args = consoleMock.mock.lastCall;
       expect(args?.[1]).toBe("NaN");
@@ -848,7 +855,7 @@ describe("output with number format", () => {
 
     test("anonymous", () => {
       using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-      const gasConsole = new Console();
+      const gasConsole = new Console(consoleSink);
       gasConsole.log("%d", function () {});
       const args = consoleMock.mock.lastCall;
       expect(args?.[1]).toBe("NaN");
@@ -856,7 +863,7 @@ describe("output with number format", () => {
 
     test("named", () => {
       using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-      const gasConsole = new Console();
+      const gasConsole = new Console(consoleSink);
       gasConsole.log("%d", function namedFn() {});
       const args = consoleMock.mock.lastCall;
       expect(args?.[1]).toBe("NaN");
@@ -867,7 +874,7 @@ describe("output with number format", () => {
     describe("definition", () => {
       test("anonymous", () => {
         using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-        const gasConsole = new Console();
+        const gasConsole = new Console(consoleSink);
         gasConsole.log("%d", class {});
         const args = consoleMock.mock.lastCall;
         expect(args?.[1]).toBe("NaN");
@@ -875,7 +882,7 @@ describe("output with number format", () => {
 
       test("named", () => {
         using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-        const gasConsole = new Console();
+        const gasConsole = new Console(consoleSink);
         class NamedClass {
           member1: number;
           member2: number;
@@ -893,7 +900,7 @@ describe("output with number format", () => {
 
       test("anonymous with member", () => {
         using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-        const gasConsole = new Console();
+        const gasConsole = new Console(consoleSink);
         gasConsole.log(
           "%d",
           class {
@@ -913,7 +920,7 @@ describe("output with number format", () => {
 
       test("instance", () => {
         using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-        const gasConsole = new Console();
+        const gasConsole = new Console(consoleSink);
         class NamedClass {
           member1: number;
           member2: number;
@@ -931,7 +938,7 @@ describe("output with number format", () => {
 
       test("GAS API", () => {
         using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-        const gasConsole = new Console();
+        const gasConsole = new Console(consoleSink);
         gasConsole.log(
           "%d",
           new HtmlService((() => {}) as any, (() => {}) as any, (() => {}) as any),
@@ -942,7 +949,7 @@ describe("output with number format", () => {
 
       test("instance (nested)", () => {
         using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-        const gasConsole = new Console();
+        const gasConsole = new Console(consoleSink);
         class NamedClass {
           member1: number;
           member2: number;
@@ -960,7 +967,7 @@ describe("output with number format", () => {
 
       test("GAS API (nested)", () => {
         using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-        const gasConsole = new Console();
+        const gasConsole = new Console(consoleSink);
         gasConsole.log("%d", {
           nestedGASAPI: new HtmlService((() => {}) as any, (() => {}) as any, (() => {}) as any),
         });
@@ -975,7 +982,7 @@ describe("output with json format", () => {
   describe("boolean", () => {
     test("true", () => {
       using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-      const gasConsole = new Console();
+      const gasConsole = new Console(consoleSink);
       gasConsole.log("%j", true);
       const args = consoleMock.mock.lastCall;
       expect(args?.[1]).toBe("true");
@@ -983,7 +990,7 @@ describe("output with json format", () => {
 
     test("false", () => {
       using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-      const gasConsole = new Console();
+      const gasConsole = new Console(consoleSink);
       gasConsole.log("%j", false);
       const args = consoleMock.mock.lastCall;
       expect(args?.[1]).toBe("false");
@@ -993,7 +1000,7 @@ describe("output with json format", () => {
   describe("number", () => {
     test("decimal", () => {
       using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-      const gasConsole = new Console();
+      const gasConsole = new Console(consoleSink);
       gasConsole.log("%j", 0);
       const args = consoleMock.mock.lastCall;
       expect(args?.[1]).toBe("0");
@@ -1001,7 +1008,7 @@ describe("output with json format", () => {
 
     test("replace any digits with 0 if they exceed 18", () => {
       using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-      const gasConsole = new Console();
+      const gasConsole = new Console(consoleSink);
       // oxlint-disable-next-line no-loss-of-precision
       gasConsole.log("%j", 12345678901234567890);
       const args = consoleMock.mock.lastCall;
@@ -1010,7 +1017,7 @@ describe("output with json format", () => {
 
     test("with 18 or more decimal places are truncated", () => {
       using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-      const gasConsole = new Console();
+      const gasConsole = new Console(consoleSink);
       // oxlint-disable-next-line no-loss-of-precision
       gasConsole.log("%j", 3.14159265358979323846);
       const args = consoleMock.mock.lastCall;
@@ -1019,7 +1026,7 @@ describe("output with json format", () => {
 
     test("Infinity", () => {
       using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-      const gasConsole = new Console();
+      const gasConsole = new Console(consoleSink);
       gasConsole.log("%j", Infinity);
       const args = consoleMock.mock.lastCall;
       expect(args?.[1]).toBe("null");
@@ -1027,7 +1034,7 @@ describe("output with json format", () => {
 
     test("NaN", () => {
       using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-      const gasConsole = new Console();
+      const gasConsole = new Console(consoleSink);
       gasConsole.log("%j", NaN);
       const args = consoleMock.mock.lastCall;
       expect(args?.[1]).toBe("null");
@@ -1036,7 +1043,7 @@ describe("output with json format", () => {
 
   test("empty string", () => {
     using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-    const gasConsole = new Console();
+    const gasConsole = new Console(consoleSink);
     gasConsole.log("%j", "");
     const args = consoleMock.mock.lastCall;
     expect(args?.[1]).toBe('""');
@@ -1044,7 +1051,7 @@ describe("output with json format", () => {
 
   test("string", () => {
     using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-    const gasConsole = new Console();
+    const gasConsole = new Console(consoleSink);
     gasConsole.log("%j", "Hello, world!");
     const args = consoleMock.mock.lastCall;
     expect(args?.[1]).toBe('"Hello, world!"');
@@ -1052,7 +1059,7 @@ describe("output with json format", () => {
 
   test("symbol", () => {
     using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-    const gasConsole = new Console();
+    const gasConsole = new Console(consoleSink);
     gasConsole.log("%j", Symbol.for("sym"));
     const args = consoleMock.mock.lastCall;
     expect(args?.[1]).toBe("undefined");
@@ -1060,7 +1067,7 @@ describe("output with json format", () => {
 
   test("null", () => {
     using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-    const gasConsole = new Console();
+    const gasConsole = new Console(consoleSink);
     gasConsole.log("%j", null);
     const args = consoleMock.mock.lastCall;
     expect(args?.[1]).toBe("null");
@@ -1068,7 +1075,7 @@ describe("output with json format", () => {
 
   test("undefined", () => {
     using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-    const gasConsole = new Console();
+    const gasConsole = new Console(consoleSink);
     gasConsole.log("%j", undefined);
     const args = consoleMock.mock.lastCall;
     expect(args?.[1]).toBe("undefined");
@@ -1076,7 +1083,7 @@ describe("output with json format", () => {
 
   test("{}", () => {
     using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-    const gasConsole = new Console();
+    const gasConsole = new Console(consoleSink);
     gasConsole.log("%j", {});
     const args = consoleMock.mock.lastCall;
     expect(args?.[1]).toBe("{}");
@@ -1084,7 +1091,7 @@ describe("output with json format", () => {
 
   test("{} with properties", () => {
     using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-    const gasConsole = new Console();
+    const gasConsole = new Console(consoleSink);
     gasConsole.log("%j", { a: 0, b: 1, c: 2, d: 3, e: 4, f: 5, g: 6, h: 7, i: 8, j: 9, k: 0 });
     const args = consoleMock.mock.lastCall;
     expect(args?.[1]).toBe('{"a":0,"b":1,"c":2,"d":3,"e":4,"f":5,"g":6,"h":7,"i":8,"j":9,"k":0}');
@@ -1092,7 +1099,7 @@ describe("output with json format", () => {
 
   test("{} with message property", () => {
     using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-    const gasConsole = new Console();
+    const gasConsole = new Console(consoleSink);
     gasConsole.log("%j", { message: "object message" });
     const args = consoleMock.mock.lastCall;
     expect(args?.[1]).toBe('{"message":"object message"}');
@@ -1100,7 +1107,7 @@ describe("output with json format", () => {
 
   test("{} with toString property", () => {
     using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-    const gasConsole = new Console();
+    const gasConsole = new Console(consoleSink);
     gasConsole.log("%j", { toString: () => "object toString" });
     const args = consoleMock.mock.lastCall;
     expect(args?.[1]).toBe("{}");
@@ -1108,7 +1115,7 @@ describe("output with json format", () => {
 
   test("{} with message and toString property", () => {
     using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-    const gasConsole = new Console();
+    const gasConsole = new Console(consoleSink);
     gasConsole.log("%j", { message: "object message", toString: () => "object toString" });
     const args = consoleMock.mock.lastCall;
     expect(args?.[1]).toBe('{"message":"object message"}');
@@ -1116,7 +1123,7 @@ describe("output with json format", () => {
 
   test("{} with message and toString property (nested)", () => {
     using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-    const gasConsole = new Console();
+    const gasConsole = new Console(consoleSink);
     gasConsole.log("%j", {
       nestedObject: { message: "object message", toString: () => "object toString" },
     });
@@ -1126,7 +1133,7 @@ describe("output with json format", () => {
 
   test("[]", () => {
     using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-    const gasConsole = new Console();
+    const gasConsole = new Console(consoleSink);
     gasConsole.log("%j", []);
     const args = consoleMock.mock.lastCall;
     expect(args?.[1]).toBe("[]");
@@ -1134,7 +1141,7 @@ describe("output with json format", () => {
 
   test("[] with values", () => {
     using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-    const gasConsole = new Console();
+    const gasConsole = new Console(consoleSink);
     gasConsole.log("%j", [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0]);
     const args = consoleMock.mock.lastCall;
     expect(args?.[1]).toBe("[0,1,2,3,4,5,6,7,8,9,0]");
@@ -1142,7 +1149,7 @@ describe("output with json format", () => {
 
   test("regexp", () => {
     using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-    const gasConsole = new Console();
+    const gasConsole = new Console(consoleSink);
     gasConsole.log("%j", /regexp/);
     const args = consoleMock.mock.lastCall;
     expect(args?.[1]).toBe("{}");
@@ -1151,7 +1158,7 @@ describe("output with json format", () => {
   describe("function", () => {
     test("arrow", () => {
       using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-      const gasConsole = new Console();
+      const gasConsole = new Console(consoleSink);
       gasConsole.log("%j", () => {});
       const args = consoleMock.mock.lastCall;
       expect(args?.[1]).toBe("undefined");
@@ -1159,7 +1166,7 @@ describe("output with json format", () => {
 
     test("anonymous", () => {
       using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-      const gasConsole = new Console();
+      const gasConsole = new Console(consoleSink);
       gasConsole.log("%j", function () {});
       const args = consoleMock.mock.lastCall;
       expect(args?.[1]).toBe("undefined");
@@ -1167,7 +1174,7 @@ describe("output with json format", () => {
 
     test("named", () => {
       using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-      const gasConsole = new Console();
+      const gasConsole = new Console(consoleSink);
       gasConsole.log("%j", function namedFn() {});
       const args = consoleMock.mock.lastCall;
       expect(args?.[1]).toBe("undefined");
@@ -1178,7 +1185,7 @@ describe("output with json format", () => {
     describe("definition", () => {
       test("anonymous", () => {
         using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-        const gasConsole = new Console();
+        const gasConsole = new Console(consoleSink);
         gasConsole.log("%j", class {});
         const args = consoleMock.mock.lastCall;
         expect(args?.[1]).toBe("undefined");
@@ -1186,7 +1193,7 @@ describe("output with json format", () => {
 
       test("named", () => {
         using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-        const gasConsole = new Console();
+        const gasConsole = new Console(consoleSink);
         class NamedClass {
           member1: number;
           member2: number;
@@ -1204,7 +1211,7 @@ describe("output with json format", () => {
 
       test("anonymous with member", () => {
         using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-        const gasConsole = new Console();
+        const gasConsole = new Console(consoleSink);
         gasConsole.log(
           "%j",
           class {
@@ -1224,7 +1231,7 @@ describe("output with json format", () => {
 
       test("instance", () => {
         using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-        const gasConsole = new Console();
+        const gasConsole = new Console(consoleSink);
         class NamedClass {
           member1: number;
           member2: number;
@@ -1242,7 +1249,7 @@ describe("output with json format", () => {
 
       test("GAS API", () => {
         using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-        const gasConsole = new Console();
+        const gasConsole = new Console(consoleSink);
         gasConsole.log(
           "%j",
           new HtmlService((() => {}) as any, (() => {}) as any, (() => {}) as any),
@@ -1254,7 +1261,7 @@ describe("output with json format", () => {
 
     test("instance (nested)", () => {
       using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-      const gasConsole = new Console();
+      const gasConsole = new Console(consoleSink);
       class NamedClass {
         member1: number;
         member2: number;
@@ -1272,7 +1279,7 @@ describe("output with json format", () => {
 
     test("GAS API (nested)", () => {
       using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-      const gasConsole = new Console();
+      const gasConsole = new Console(consoleSink);
       gasConsole.log("%j", {
         nestedGASAPI: new HtmlService((() => {}) as any, (() => {}) as any, (() => {}) as any),
       });
@@ -1287,7 +1294,7 @@ describe("output with json format", () => {
 describe("log level", () => {
   test("info", () => {
     using consoleMock = vi.spyOn(console, "info").mockImplementation(() => {});
-    const gasConsole = new Console();
+    const gasConsole = new Console(consoleSink);
     gasConsole.info();
     const args = consoleMock.mock.lastCall;
     expect(args?.[0]).toMatch(/Info/);
@@ -1295,7 +1302,7 @@ describe("log level", () => {
 
   test("log (info)", () => {
     using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-    const gasConsole = new Console();
+    const gasConsole = new Console(consoleSink);
     gasConsole.log();
     const args = consoleMock.mock.lastCall;
     expect(args?.[0]).toMatch(/Info/);
@@ -1303,7 +1310,7 @@ describe("log level", () => {
 
   test("warn", () => {
     using consoleMock = vi.spyOn(console, "warn").mockImplementation(() => {});
-    const gasConsole = new Console();
+    const gasConsole = new Console(consoleSink);
     gasConsole.warn();
     const args = consoleMock.mock.lastCall;
     expect(args?.[0]).toMatch(/Warning/);
@@ -1311,7 +1318,7 @@ describe("log level", () => {
 
   test("error", () => {
     using consoleMock = vi.spyOn(console, "error").mockImplementation(() => {});
-    const gasConsole = new Console();
+    const gasConsole = new Console(consoleSink);
     gasConsole.error();
     const args = consoleMock.mock.lastCall;
     expect(args?.[0]).toMatch(/Error/);
@@ -1321,7 +1328,7 @@ describe("log level", () => {
 describe("timer", () => {
   test("with debug level", () => {
     using consoleMock = vi.spyOn(console, "log").mockImplementation(() => {});
-    const gasConsole = new Console();
+    const gasConsole = new Console(consoleSink);
     gasConsole.time("");
     gasConsole.timeEnd("");
     const args = consoleMock.mock.lastCall;
@@ -1330,7 +1337,7 @@ describe("timer", () => {
 
   test("with empty label", () => {
     using consoleMock = vi.spyOn(console, "log").mockImplementation(() => {});
-    const gasConsole = new Console();
+    const gasConsole = new Console(consoleSink);
     gasConsole.time("");
     gasConsole.timeEnd("");
     const args = consoleMock.mock.lastCall;
@@ -1339,7 +1346,7 @@ describe("timer", () => {
 
   test("with label", () => {
     using consoleMock = vi.spyOn(console, "log").mockImplementation(() => {});
-    const gasConsole = new Console();
+    const gasConsole = new Console(consoleSink);
     gasConsole.time("label");
     gasConsole.timeEnd("label");
     const args = consoleMock.mock.lastCall;
@@ -1347,14 +1354,14 @@ describe("timer", () => {
   });
 
   test("call timeEnd first and throw an error", () => {
-    const gasConsole = new Console();
+    const gasConsole = new Console(consoleSink);
     expect(() => gasConsole.timeEnd("")).toThrow(
       /^The parameters \(.*\) don't match the method signature for console\.timeEnd\.$/,
     );
   });
 
   test("calling timeEnd twice in a row throws an error", () => {
-    const gasConsole = new Console();
+    const gasConsole = new Console(consoleSink);
     gasConsole.time("");
     gasConsole.timeEnd("");
     expect(() => gasConsole.timeEnd("")).toThrow(
@@ -1366,7 +1373,7 @@ describe("timer", () => {
 describe("other", () => {
   test("mix format", () => {
     using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-    const gasConsole = new Console();
+    const gasConsole = new Console(consoleSink);
     gasConsole.log("%s %% %d %j", {}, 0, {});
     const args = consoleMock.mock.lastCall;
     expect(args?.[1]).toBe("[object Object] % 0 {}");
@@ -1374,7 +1381,7 @@ describe("other", () => {
 
   test("ignore unknown format", () => {
     using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-    const gasConsole = new Console();
+    const gasConsole = new Console(consoleSink);
     gasConsole.log("%s %% %i %d %j", {}, 0, {});
     const args = consoleMock.mock.lastCall;
     expect(args?.[1]).toBe("[object Object] % %i 0 {}");
@@ -1382,7 +1389,7 @@ describe("other", () => {
 
   test("duplicate format", () => {
     using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-    const gasConsole = new Console();
+    const gasConsole = new Console(consoleSink);
     gasConsole.log("%s %%%dd %j %d", {}, 0, {}, 10);
     const args = consoleMock.mock.lastCall;
     expect(args?.[1]).toBe("[object Object] %0d {} 10");
@@ -1390,7 +1397,7 @@ describe("other", () => {
 
   test("few format", () => {
     using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-    const gasConsole = new Console();
+    const gasConsole = new Console(consoleSink);
     gasConsole.log("%s %d %j %d", {}, 0, {}, 10, "a", 10, {});
     const args = consoleMock.mock.lastCall;
     expect(args?.[1]).toBe("[object Object] 0 {} 10 a 10 {}");
@@ -1398,7 +1405,7 @@ describe("other", () => {
 
   test("no format", () => {
     using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
-    const gasConsole = new Console();
+    const gasConsole = new Console(consoleSink);
     gasConsole.log({}, 0, {}, 10, "a");
     const args = consoleMock.mock.lastCall;
     expect(args?.[1]).toBe("{} 0 {} 10 'a'");

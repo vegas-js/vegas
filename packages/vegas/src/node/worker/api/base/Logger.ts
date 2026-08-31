@@ -1,4 +1,5 @@
 // oxlint-disable no-wrapper-object-types
+import type { RuntimeLogSink } from "../../../runtime/logging";
 import { GASAPI } from "../GASAPI";
 import { getLogPrefix } from "./console";
 
@@ -20,12 +21,14 @@ function convertNumberOutput(num: unknown): string {
 
 // https://developers.google.com/apps-script/reference/base/logger
 export class Logger extends GASAPI implements GoogleAppsScript.Base.Logger {
+  readonly #logSink: RuntimeLogSink;
   readonly #logTitle: string;
   readonly #formatter: Intl.DateTimeFormat;
   outputLogs: { prefix: string; value: string }[];
 
-  constructor() {
+  constructor(logSink: RuntimeLogSink) {
     super();
+    this.#logSink = logSink;
     this.#logTitle = "Logger (GAS)";
     this.#formatter = new Intl.DateTimeFormat("en-US", {
       weekday: "short",
@@ -141,7 +144,7 @@ export class Logger extends GASAPI implements GoogleAppsScript.Base.Logger {
       logLevel.toUpperCase(),
     ].join(" ");
     this.outputLogs.push({ prefix, value: outputLog });
-    console.log(logPrefix, outputLog.replace(/\n/g, `\n${"".padEnd(36)}`));
+    this.#logSink.write("log", logPrefix, outputLog.replace(/\n/g, `\n${"".padEnd(36)}`));
 
     return this;
   }

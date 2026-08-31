@@ -1,5 +1,6 @@
 import worker from "node:worker_threads";
 
+import type { RuntimeLogSink } from "../runtime/logging";
 import { invokeScriptFunction } from "./invocation";
 import { createObjectFactories } from "./objectFactories";
 import {
@@ -45,9 +46,16 @@ const evaluateHtmlTemplate: EvaluateHtmlTemplate = (code, bindings) => {
   return evaluateScriptWithBindings(code, scriptContext, bindings);
 };
 
+const logSink: RuntimeLogSink = {
+  write(method, prefix, message) {
+    globalThis.console[method](prefix, message);
+  },
+};
+
 const factories = createObjectFactories(requestLegacySync, rangeService, evaluateHtmlTemplate);
 scriptContext = createScriptContext({
   requestLegacySync,
+  logSink,
   sessionService,
   cacheService,
   propertiesService,

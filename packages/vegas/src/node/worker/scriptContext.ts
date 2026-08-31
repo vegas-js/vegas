@@ -1,5 +1,6 @@
 import vm from "node:vm";
 
+import type { RuntimeLogSink } from "../runtime/logging";
 import type { RuntimeServicePort } from "../runtime/protocol";
 import { RuntimeScope } from "../runtime/scope";
 import { Console } from "./api/base/console";
@@ -34,6 +35,8 @@ export type ScriptContextDependencies = {
   createHtmlTemplate: CreateHtmlTemplate;
   createSpreadsheet: CreateSpreadsheet;
 
+  logSink: RuntimeLogSink;
+
   sessionService: RuntimeServicePort<"Session">;
   cacheService: RuntimeServicePort<"Cache">;
   propertiesService: RuntimeServicePort<"Properties">;
@@ -47,6 +50,7 @@ export function createScriptContext(dependencies: ScriptContextDependencies): vm
     createHtmlOutput,
     createHtmlTemplate,
     createSpreadsheet,
+    logSink,
     sessionService,
     cacheService,
     propertiesService,
@@ -139,10 +143,10 @@ export function createScriptContext(dependencies: ScriptContextDependencies): vm
     MailApp: undefined,
     /* Base */
     Browser: undefined,
-    Logger: new Logger(),
+    Logger: new Logger(logSink),
     MimeType: undefined,
     Session: new Session(sessionService),
-    console: new Console(),
+    console: new Console(logSink),
     /* Cache */
     CacheService: new CacheService(
       new Cache(RuntimeScope.DOCUMENT, cacheService),
