@@ -1,12 +1,12 @@
-import type { RequestLegacySync } from "../../types";
+import type { RuntimeFetchRequest, RuntimeServicePort } from "../../../runtime/protocol";
 import { HttpResponse } from "./HTTPResponse";
 
 // https://developers.google.com/apps-script/reference/url-fetch/url-fetch-app
 export class UrlFetchApp implements GoogleAppsScript.URL_Fetch.UrlFetchApp {
-  #requestSync: RequestLegacySync;
+  readonly #service: RuntimeServicePort<"UrlFetch">;
 
-  constructor(requestSync: RequestLegacySync) {
-    this.#requestSync = requestSync;
+  constructor(service: RuntimeServicePort<"UrlFetch">) {
+    this.#service = service;
   }
 
   #createRequest(url: string, params?: GoogleAppsScript.URL_Fetch.URLFetchRequestOptions) {
@@ -39,46 +39,38 @@ export class UrlFetchApp implements GoogleAppsScript.URL_Fetch.UrlFetchApp {
   fetch = (url: string, params?: GoogleAppsScript.URL_Fetch.URLFetchRequestOptions) => {
     const requestParam = this.#createRequest(url, params);
 
-    const init: RequestInit = {
+    const result = this.#service.fetch({
+      url,
       method: requestParam.method,
       headers: {
         ...requestParam.headers,
         "Content-Type": requestParam.contentType!,
       },
       redirect: (requestParam.followRedirects ?? true) ? "follow" : "manual",
-      body: requestParam.payload as any,
-    };
-
-    const result = this.#requestSync({
-      message: `${this.constructor.name}#fetch`,
-      payload: { url, init },
+      body: requestParam.payload,
     });
 
-    return new HttpResponse(result?.headers, result?.content, result?.responseCode);
+    return new HttpResponse(result.headers, result.content, result.responseCode);
   };
   fetchAll = (requests: Array<GoogleAppsScript.URL_Fetch.URLFetchRequest | string>) => {
-    const fetchRequests: { url: string; init?: RequestInit }[] = requests.map((request) => {
+    const fetchRequests: RuntimeFetchRequest[] = requests.map((request) => {
       if (typeof request === "string") {
         return { url: request };
       } else {
         const requestParam = this.#createRequest(request.url, request);
-        const init: RequestInit = {
+        return {
+          url: request.url,
           method: requestParam.method,
           headers: {
             ...requestParam.headers,
             "Content-Type": requestParam.contentType!,
           },
           redirect: (requestParam.followRedirects ?? true) ? "follow" : "manual",
-          body: requestParam.payload as any,
+          body: requestParam.payload,
         };
-        return { url: request.url, init };
       }
     });
-
-    const results = this.#requestSync({
-      message: `${this.constructor.name}#fetchAll`,
-      payload: { fetchRequests },
-    });
+    const results = this.#service.fetchAll(fetchRequests);
 
     return results.map((result: any) => {
       return new HttpResponse(result?.headers, result?.content, result?.responseCode);

@@ -22,6 +22,11 @@ function createContext(overrides: Partial<ScriptContextDependencies> = {}) {
 
     logSink: { write: unexpected },
 
+    urlFetchService: {
+      fetch: unexpected,
+      fetchAll: unexpected,
+    },
+
     sessionService: {
       getActiveUser: unexpected,
       getEffectiveUser: unexpected,

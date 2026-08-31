@@ -9,6 +9,13 @@ export function createRangeService(callService: ServiceCaller): RuntimeServicePo
   };
 }
 
+export function createUrlFetchService(callService: ServiceCaller): RuntimeServicePort<"UrlFetch"> {
+  return {
+    fetch: (...args) => callService("UrlFetch", "fetch", ...args),
+    fetchAll: (...args) => callService("UrlFetch", "fetchAll", ...args),
+  };
+}
+
 export function createSessionService(callService: ServiceCaller): RuntimeServicePort<"Session"> {
   return {
     getActiveUser: () => callService("Session", "getActiveUser"),

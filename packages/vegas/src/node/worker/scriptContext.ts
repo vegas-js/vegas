@@ -37,6 +37,7 @@ export type ScriptContextDependencies = {
 
   logSink: RuntimeLogSink;
 
+  urlFetchService: RuntimeServicePort<"UrlFetch">;
   sessionService: RuntimeServicePort<"Session">;
   cacheService: RuntimeServicePort<"Cache">;
   propertiesService: RuntimeServicePort<"Properties">;
@@ -51,6 +52,7 @@ export function createScriptContext(dependencies: ScriptContextDependencies): vm
     createHtmlTemplate,
     createSpreadsheet,
     logSink,
+    urlFetchService,
     sessionService,
     cacheService,
     propertiesService,
@@ -126,7 +128,7 @@ export function createScriptContext(dependencies: ScriptContextDependencies): vm
     /* JDBC */
     Jdbc: undefined,
     /* URL Fetch */
-    UrlFetchApp: new UrlFetchApp(requestLegacySync),
+    UrlFetchApp: new UrlFetchApp(urlFetchService),
     /* Optimization */
     LinearOptimizationService: undefined,
     /* Utilities */

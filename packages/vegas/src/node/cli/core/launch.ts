@@ -7,12 +7,7 @@ import { createRuntimeServiceRegistry } from "../../runtime/host/registry";
 import type { Clock, Fetcher } from "../../runtime/host/services";
 import type { RuntimeRequest, RuntimeServiceRegistry } from "../../runtime/protocol";
 import { ServeContext } from "./context";
-import {
-  HtmlServiceHandler,
-  SpreadsheetAppHandler,
-  SheetHandler,
-  UrlFetchAppHandler,
-} from "./handlers";
+import { HtmlServiceHandler, SpreadsheetAppHandler, SheetHandler } from "./handlers";
 
 class GASHandler {
   #handlers: Record<string, Record<string, any>>;
@@ -22,7 +17,6 @@ class GASHandler {
       HtmlService: new HtmlServiceHandler(),
       SpreadsheetApp: new SpreadsheetAppHandler(),
       Sheet: new SheetHandler(),
-      UrlFetchApp: new UrlFetchAppHandler(),
     };
 
     const proxyHandler: ProxyHandler<this> = {

@@ -7,7 +7,14 @@ const unexpected = () => {
 };
 
 test("getRequest() returns default value", () => {
-  const app = new UrlFetchApp(unexpected);
+  const fetch = vi.fn(() => ({
+    headers: {
+      "Content-Type": "text/plain",
+    },
+    content: [72, 101, 108, 108, 111],
+    responseCode: 201,
+  }));
+  const app = new UrlFetchApp({ fetch, fetchAll: unexpected });
 
   expect(app.getRequest("https://example.com")).toEqual({
     url: "https://example.com",
@@ -19,14 +26,14 @@ test("getRequest() returns default value", () => {
 });
 
 test("fetch() correctly constructs legacy requests", () => {
-  const requestSync = vi.fn(() => {
-    return {
-      headers: { "Content-Type": "text/plain" },
-      content: [72, 101, 108, 108, 111],
-      responseCode: 201,
-    };
-  });
-  const app = new UrlFetchApp(requestSync);
+  const fetch = vi.fn(() => ({
+    headers: {
+      "Content-Type": "text/plain",
+    },
+    content: [72, 101, 108, 108, 111],
+    responseCode: 201,
+  }));
+  const app = new UrlFetchApp({ fetch, fetchAll: unexpected });
   const response = app.fetch("https://example.com", {
     contentType: "text/plain",
     method: "post",
@@ -36,20 +43,15 @@ test("fetch() correctly constructs legacy requests", () => {
     payload: "hello",
   });
 
-  expect(requestSync).toHaveBeenCalledWith({
-    message: "UrlFetchApp#fetch",
-    payload: {
-      url: "https://example.com",
-      init: {
-        method: "post",
-        headers: {
-          "X-Test": "value",
-          "Content-Type": "text/plain",
-        },
-        redirect: "follow",
-        body: "hello",
-      },
+  expect(fetch).toHaveBeenCalledWith({
+    url: "https://example.com",
+    method: "post",
+    headers: {
+      "X-Test": "value",
+      "Content-Type": "text/plain",
     },
+    redirect: "follow",
+    body: "hello",
   });
   expect(response.getResponseCode()).toBe(201);
   expect(response.getContent()).toEqual([72, 101, 108, 108, 111]);
@@ -58,17 +60,23 @@ test("fetch() correctly constructs legacy requests", () => {
 });
 
 test("request order and response order for fetchAll()", () => {
-  const requestSync = vi.fn(() => {
-    return [
-      {
-        responseCode: 201,
+  const fetchAll = vi.fn(() => [
+    {
+      responseCode: 201,
+      headers: {
+        "Content-Type": "text/plain",
       },
-      {
-        responseCode: 202,
+      content: [72, 101, 108, 108, 111],
+    },
+    {
+      responseCode: 202,
+      headers: {
+        "Content-Type": "text/plain",
       },
-    ];
-  });
-  const app = new UrlFetchApp(requestSync);
+      content: [72, 101, 108, 108, 111],
+    },
+  ]);
+  const app = new UrlFetchApp({ fetch: unexpected, fetchAll });
   const responses = app.fetchAll([
     "https://example.com/a",
     {
@@ -78,38 +86,33 @@ test("request order and response order for fetchAll()", () => {
     },
   ]);
 
-  expect(requestSync).toHaveBeenCalledWith({
-    message: "UrlFetchApp#fetchAll",
-    payload: {
-      fetchRequests: [
-        {
-          url: "https://example.com/a",
-        },
-        {
-          url: "https://example.com/b",
-          init: {
-            method: "post",
-            headers: {
-              "Content-Type": "application/x-www-form-urlencoded",
-            },
-            redirect: "follow",
-            body: "body",
-          },
-        },
-      ],
+  expect(fetchAll).toHaveBeenCalledWith([
+    {
+      url: "https://example.com/a",
     },
-  });
+    {
+      url: "https://example.com/b",
+      method: "post",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      redirect: "follow",
+      body: "body",
+    },
+  ]);
   expect(responses[0].getResponseCode()).toBe(201);
   expect(responses[1].getResponseCode()).toBe(202);
 });
 
 test("followRedirects true", () => {
-  const requestSync = vi.fn(() => {
-    return {
-      responseCode: 200,
-    };
-  });
-  const app = new UrlFetchApp(requestSync);
+  const fetch = vi.fn(() => ({
+    headers: {
+      "Content-Type": "text/plain",
+    },
+    content: [72, 101, 108, 108, 111],
+    responseCode: 200,
+  }));
+  const app = new UrlFetchApp({ fetch, fetchAll: unexpected });
   app.fetch("https://example.com", {
     method: "post",
     contentType: "text/plain",
@@ -117,18 +120,13 @@ test("followRedirects true", () => {
     payload: "hello",
   });
 
-  expect(requestSync).toHaveBeenCalledWith({
-    message: "UrlFetchApp#fetch",
-    payload: {
-      url: "https://example.com",
-      init: {
-        method: "post",
-        headers: {
-          "Content-Type": "text/plain",
-        },
-        redirect: "follow",
-        body: "hello",
-      },
+  expect(fetch).toHaveBeenCalledWith({
+    url: "https://example.com",
+    method: "post",
+    headers: {
+      "Content-Type": "text/plain",
     },
+    redirect: "follow",
+    body: "hello",
   });
 });
