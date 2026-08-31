@@ -27,6 +27,10 @@ function createContext(overrides: Partial<ScriptContextDependencies> = {}) {
       fetchAll: unexpected,
     },
 
+    htmlService: {
+      getFileContent: unexpected,
+    },
+
     sessionService: {
       getActiveUser: unexpected,
       getEffectiveUser: unexpected,

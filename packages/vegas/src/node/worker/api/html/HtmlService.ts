@@ -1,3 +1,4 @@
+import type { RuntimeServicePort } from "../../../runtime/protocol";
 import type { CreateHtmlOutput, CreateHtmlTemplate, RequestLegacySync } from "../../types";
 import { GASAPI } from "../GASAPI";
 
@@ -5,16 +6,19 @@ import { GASAPI } from "../GASAPI";
 export class HtmlService extends GASAPI implements GoogleAppsScript.HTML.HtmlService {
   #createHtmlOutput: CreateHtmlOutput;
   #createHtmlTemplate: CreateHtmlTemplate;
+  #service: RuntimeServicePort<"Html">;
   #requestSync: RequestLegacySync;
 
   constructor(
     createHtmlOutput: CreateHtmlOutput,
     createHtmlTemplate: CreateHtmlTemplate,
+    service: RuntimeServicePort<"Html">,
     requestSync: RequestLegacySync,
   ) {
     super();
     this.#createHtmlOutput = createHtmlOutput;
     this.#createHtmlTemplate = createHtmlTemplate;
+    this.#service = service;
     this.#requestSync = requestSync;
   }
 
@@ -48,10 +52,7 @@ export class HtmlService extends GASAPI implements GoogleAppsScript.HTML.HtmlSer
     return this.#createHtmlOutput(htmlOrBlob ?? "", this.XFrameOptionsMode.DEFAULT);
   }
   createHtmlOutputFromFile(filename: string): GoogleAppsScript.HTML.HtmlOutput {
-    const message = this.#requestSync({
-      message: `${this.constructor.name}#createHtmlOutputFromFile`,
-      payload: filename,
-    });
+    const message = this.#service.getFileContent(filename);
     if (!message) {
       throw new Error(`No HTML file named ${filename} was found.`);
     }

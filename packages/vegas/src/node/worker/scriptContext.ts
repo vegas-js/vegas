@@ -38,6 +38,7 @@ export type ScriptContextDependencies = {
   logSink: RuntimeLogSink;
 
   urlFetchService: RuntimeServicePort<"UrlFetch">;
+  htmlService: RuntimeServicePort<"Html">;
   sessionService: RuntimeServicePort<"Session">;
   cacheService: RuntimeServicePort<"Cache">;
   propertiesService: RuntimeServicePort<"Properties">;
@@ -53,6 +54,7 @@ export function createScriptContext(dependencies: ScriptContextDependencies): vm
     createSpreadsheet,
     logSink,
     urlFetchService,
+    htmlService,
     sessionService,
     cacheService,
     propertiesService,
@@ -140,7 +142,12 @@ export function createScriptContext(dependencies: ScriptContextDependencies): vm
     /* Content */
     ContentService: undefined,
     /* HTML */
-    HtmlService: new HtmlService(createHtmlOutput, createHtmlTemplate, requestLegacySync),
+    HtmlService: new HtmlService(
+      createHtmlOutput,
+      createHtmlTemplate,
+      htmlService,
+      requestLegacySync,
+    ),
     /* Mail */
     MailApp: undefined,
     /* Base */

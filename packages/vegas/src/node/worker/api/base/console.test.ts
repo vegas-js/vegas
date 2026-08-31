@@ -299,7 +299,14 @@ describe("direct output", () => {
       test("GAS API", () => {
         using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
         const gasConsole = new Console(consoleSink);
-        gasConsole.log(new HtmlService((() => {}) as any, (() => {}) as any, (() => {}) as any));
+        gasConsole.log(
+          new HtmlService(
+            (() => {}) as any,
+            (() => {}) as any,
+            { getFileContent: () => "" },
+            (() => {}) as any,
+          ),
+        );
         const args = consoleMock.mock.lastCall;
         expect(args?.[1]).toMatch(/^{ toString: \[Function\],/g);
         expect(args?.[1]).toMatch(/createHtmlOutputFromFile: \[Function\],/);
@@ -338,7 +345,12 @@ describe("direct output", () => {
         using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
         const gasConsole = new Console(consoleSink);
         gasConsole.log({
-          nestedGASAPI: new HtmlService((() => {}) as any, (() => {}) as any, (() => {}) as any),
+          nestedGASAPI: new HtmlService(
+            (() => {}) as any,
+            (() => {}) as any,
+            { getFileContent: () => "" },
+            (() => {}) as any,
+          ),
         });
         const args = consoleMock.mock.lastCall;
         expect(args?.[1]).toMatch(/^{ nestedGASAPI:/g);
@@ -638,7 +650,12 @@ describe("output with string format", () => {
         const gasConsole = new Console(consoleSink);
         gasConsole.log(
           "%s",
-          new HtmlService((() => {}) as any, (() => {}) as any, (() => {}) as any),
+          new HtmlService(
+            (() => {}) as any,
+            (() => {}) as any,
+            { getFileContent: () => "" },
+            (() => {}) as any,
+          ),
         );
         const args = consoleMock.mock.lastCall;
         expect(args?.[1]).toBe("HtmlService");
@@ -666,7 +683,12 @@ describe("output with string format", () => {
         using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
         const gasConsole = new Console(consoleSink);
         gasConsole.log("%s", {
-          nestedGASAPI: new HtmlService((() => {}) as any, (() => {}) as any, (() => {}) as any),
+          nestedGASAPI: new HtmlService(
+            (() => {}) as any,
+            (() => {}) as any,
+            { getFileContent: () => "" },
+            (() => {}) as any,
+          ),
         });
         const args = consoleMock.mock.lastCall;
         expect(args?.[1]).toBe("[object Object]");
@@ -941,7 +963,12 @@ describe("output with number format", () => {
         const gasConsole = new Console(consoleSink);
         gasConsole.log(
           "%d",
-          new HtmlService((() => {}) as any, (() => {}) as any, (() => {}) as any),
+          new HtmlService(
+            (() => {}) as any,
+            (() => {}) as any,
+            { getFileContent: () => "" },
+            (() => {}) as any,
+          ),
         );
         const args = consoleMock.mock.lastCall;
         expect(args?.[1]).toBe("NaN");
@@ -969,7 +996,12 @@ describe("output with number format", () => {
         using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
         const gasConsole = new Console(consoleSink);
         gasConsole.log("%d", {
-          nestedGASAPI: new HtmlService((() => {}) as any, (() => {}) as any, (() => {}) as any),
+          nestedGASAPI: new HtmlService(
+            (() => {}) as any,
+            (() => {}) as any,
+            { getFileContent: () => "" },
+            (() => {}) as any,
+          ),
         });
         const args = consoleMock.mock.lastCall;
         expect(args?.[1]).toBe("NaN");
@@ -1252,7 +1284,12 @@ describe("output with json format", () => {
         const gasConsole = new Console(consoleSink);
         gasConsole.log(
           "%j",
-          new HtmlService((() => {}) as any, (() => {}) as any, (() => {}) as any),
+          new HtmlService(
+            (() => {}) as any,
+            (() => {}) as any,
+            { getFileContent: () => "" },
+            (() => {}) as any,
+          ),
         );
         const args = consoleMock.mock.lastCall;
         expect(args?.[1]).toBe('{"SandboxMode":"EMULATED","XFrameOptionsMode":"DEFAULT"}');
@@ -1281,7 +1318,12 @@ describe("output with json format", () => {
       using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
       const gasConsole = new Console(consoleSink);
       gasConsole.log("%j", {
-        nestedGASAPI: new HtmlService((() => {}) as any, (() => {}) as any, (() => {}) as any),
+        nestedGASAPI: new HtmlService(
+          (() => {}) as any,
+          (() => {}) as any,
+          { getFileContent: () => "" },
+          (() => {}) as any,
+        ),
       });
       const args = consoleMock.mock.lastCall;
       expect(args?.[1]).toBe(

@@ -9,6 +9,7 @@ import {
   createCacheService,
   createPropertiesService,
   createUrlFetchService,
+  createHtmlService,
 } from "./remoteServices";
 import { createRuntimeServiceCaller } from "./runtimeTransport";
 import { createScriptContext } from "./scriptContext";
@@ -35,6 +36,7 @@ const requestLegacySync: RequestLegacySync = (request, timeout) => {
 const callService = createRuntimeServiceCaller(sharedArray, port);
 const rangeService = createRangeService(callService);
 const urlFetchService = createUrlFetchService(callService);
+const htmlService = createHtmlService(callService);
 const sessionService = createSessionService(callService);
 const cacheService = createCacheService(callService);
 const propertiesService = createPropertiesService(callService);
@@ -59,6 +61,7 @@ scriptContext = createScriptContext({
   requestLegacySync,
   logSink,
   urlFetchService,
+  htmlService,
   sessionService,
   cacheService,
   propertiesService,

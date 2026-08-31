@@ -16,6 +16,12 @@ export function createUrlFetchService(callService: ServiceCaller): RuntimeServic
   };
 }
 
+export function createHtmlService(callService: ServiceCaller): RuntimeServicePort<"Html"> {
+  return {
+    getFileContent: (...args) => callService("Html", "getFileContent", ...args),
+  };
+}
+
 export function createSessionService(callService: ServiceCaller): RuntimeServicePort<"Session"> {
   return {
     getActiveUser: () => callService("Session", "getActiveUser"),
