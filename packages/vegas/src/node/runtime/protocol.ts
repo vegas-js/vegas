@@ -47,6 +47,11 @@ export interface RuntimeProtocol {
     }) => void;
   };
 
+  UrlFetch: {
+    fetch: (request: RuntimeFetchRequest) => RuntimeFetchResponse;
+    fetchAll: (requests: RuntimeFetchRequest[]) => RuntimeFetchResponse[];
+  };
+
   Session: {
     getActiveUser: () => string;
     getActiveUserLocale: () => string;
@@ -150,4 +155,18 @@ export type RuntimeResponse<Result = unknown> =
 
 export type RuntimeServiceRegistry = {
   [Service in RuntimeService]: RuntimeServiceImplementation<Service>;
+};
+
+export type RuntimeFetchRequest = {
+  url: string;
+  method?: string;
+  headers?: Record<string, string>;
+  redirect?: "follow" | "manual";
+  body?: unknown;
+};
+
+export type RuntimeFetchResponse = {
+  headers: Record<string, string>;
+  content: number[];
+  responseCode: number;
 };

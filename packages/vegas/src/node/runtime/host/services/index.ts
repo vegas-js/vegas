@@ -6,3 +6,5 @@ export type { SpreadsheetStore } from "./range";
 export { RangeHandler } from "./range";
 export type { SessionEnvironment } from "./session";
 export { SessionHandler } from "./session";
+export type { Fetcher } from "./urlFetch";
+export { UrlFetchHandler } from "./urlFetch";

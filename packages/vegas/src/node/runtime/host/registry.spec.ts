@@ -1,4 +1,4 @@
-import { expect, test } from "vitest";
+import { expect, test, vi } from "vitest";
 
 import { RuntimeScope } from "../scope";
 import type { RuntimeHostDependencies } from "./registry";
@@ -9,6 +9,15 @@ function createDependencies(
 ): RuntimeHostDependencies {
   return {
     spreadsheetStore: new Map(),
+    fetcher: {
+      async fetch() {
+        return {
+          headers: {},
+          content: [],
+          responseCode: 200,
+        };
+      },
+    },
     cacheStore: {
       document: {},
       script: {},
@@ -47,4 +56,29 @@ test("dependency injection", async () => {
   await registry.Cache.put(RuntimeScope.SCRIPT, "key", "value", expired);
 
   expect(dependencies.cacheStore.script["key"].expired).toBe(basetime + expired * 1000);
+});
+
+test("UrlFetch dependency injection", async () => {
+  const fetch = vi.fn(async () => ({
+    headers: {},
+    content: [1, 2, 3],
+    responseCode: 201,
+  }));
+  const registry = createRuntimeServiceRegistry(
+    createDependencies({
+      fetcher: { fetch },
+    }),
+  );
+  const result = await registry.UrlFetch.fetch({
+    url: "https://example.com",
+    method: "post",
+    body: "hello",
+  });
+
+  expect(fetch).toHaveBeenCalledWith({
+    url: "https://example.com",
+    method: "post",
+    body: "hello",
+  });
+  expect(result.responseCode).toBe(201);
 });

@@ -11,6 +11,14 @@ function createRegistry(overrides: Partial<RuntimeServiceRegistry> = {}): Runtim
       setValue: () => {},
       setValues: () => {},
     },
+    UrlFetch: {
+      fetch: () => ({
+        headers: {},
+        content: [],
+        responseCode: 200,
+      }),
+      fetchAll: () => [],
+    },
     Session: {
       getActiveUser: () => "",
       getActiveUserLocale: () => "",

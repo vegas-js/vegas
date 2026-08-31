@@ -4,7 +4,7 @@ import worker from "node:worker_threads";
 import { dispatchRuntimeRequest } from "../../runtime/dispatcher";
 import { serializeRuntimeError } from "../../runtime/errorCodec";
 import { createRuntimeServiceRegistry } from "../../runtime/host/registry";
-import type { Clock } from "../../runtime/host/services";
+import type { Clock, Fetcher } from "../../runtime/host/services";
 import type { RuntimeRequest, RuntimeServiceRegistry } from "../../runtime/protocol";
 import { ServeContext } from "./context";
 import {
@@ -66,6 +66,26 @@ async function handleRuntimeRequest(
   }
 }
 
+const fetcher: Fetcher = {
+  async fetch(request) {
+    const { url, body, ...init } = request;
+    const response = await fetch(url, {
+      ...init,
+      body: body as BodyInit,
+    });
+    const headers: Record<string, string> = {};
+    response.headers.forEach((value, key) => {
+      headers[key] = value;
+    });
+
+    return {
+      headers,
+      content: Array.from(await response.bytes()),
+      responseCode: response.status,
+    };
+  },
+};
+
 export function launchGAS(context: ServeContext, fn: string, ...args: any[]): Promise<any> {
   const sourcePath = path.join(context.config.output.dir, "Code.js");
   const code = context.vfs.readFileSync(sourcePath, "utf8");
@@ -74,6 +94,7 @@ export function launchGAS(context: ServeContext, fn: string, ...args: any[]): Pr
   };
   const runtimeServices = createRuntimeServiceRegistry({
     spreadsheetStore: context.store.spreadsheet,
+    fetcher,
     cacheStore: context.store.cache,
     propertiesStore: context.store.properties,
     sessionEnvironment: {
