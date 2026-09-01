@@ -1,4 +1,4 @@
-const GLOBAL_NAMES = [
+const IMPLEMENTED_GLOBAL_NAMES = [
   "DriveApp",
   "SpreadsheetApp",
   "UrlFetchApp",
@@ -12,7 +12,17 @@ const GLOBAL_NAMES = [
   "PropertiesService",
 ] as const;
 
-type GlobalName = (typeof GLOBAL_NAMES)[number];
+const PENDING_BUILTIN_GLOBAL_NAMES = [
+  "CalendarApp",
+  "DocumentApp",
+  "GmailApp",
+  "MimeType",
+  "ScriptApp",
+] as const;
+
+type GlobalName =
+  | (typeof IMPLEMENTED_GLOBAL_NAMES)[number]
+  | (typeof PENDING_BUILTIN_GLOBAL_NAMES)[number];
 
 interface GlobalSurfaceEntry {
   name: GlobalName;
@@ -49,6 +59,10 @@ function describeGlobal(name: GlobalName): GlobalSurfaceEntry {
   };
 }
 
-export function captureReferenceGlobalSurface(): GlobalSurfaceEntry[] {
-  return GLOBAL_NAMES.map((name) => describeGlobal(name));
+export function captureReferenceGlobalSurface() {
+  return IMPLEMENTED_GLOBAL_NAMES.map(describeGlobal);
+}
+
+export function captureReferenceBuiltinGlobalSurface() {
+  return PENDING_BUILTIN_GLOBAL_NAMES.map(describeGlobal);
 }

@@ -2,6 +2,7 @@ export interface ReferenceCaseDefinition {
   name: string;
   functionName: string;
   fixtureFile: string;
+  runtimeTest: "required" | "pending";
 }
 
 export const referenceCases: readonly ReferenceCaseDefinition[] = [
@@ -9,10 +10,36 @@ export const referenceCases: readonly ReferenceCaseDefinition[] = [
     name: "smoke",
     functionName: "captureReferenceSmoke",
     fixtureFile: "smoke.json",
+    runtimeTest: "required",
   },
   {
     name: "global-surface",
     functionName: "captureReferenceGlobalSurface",
     fixtureFile: "global-surface.json",
+    runtimeTest: "required",
+  },
+  {
+    name: "builtin-global-surface",
+    functionName: "captureReferenceBuiltinGlobalSurface",
+    fixtureFile: "builtin-global-surface.json",
+    runtimeTest: "pending",
+  },
+  {
+    name: "global-object-surface",
+    functionName: "captureReferenceGlobalObjectSurface",
+    fixtureFile: "global-object-surface.json",
+    runtimeTest: "pending",
+  },
+  {
+    name: "enum-like-surface",
+    functionName: "captureReferenceEnumLikeSurface",
+    fixtureFile: "enum-like-surface.json",
+    runtimeTest: "pending",
+  },
+  {
+    name: "enum-member-surface",
+    functionName: "captureReferenceEnumMemberSurface",
+    fixtureFile: "enum-member-surface.json",
+    runtimeTest: "pending",
   },
 ];

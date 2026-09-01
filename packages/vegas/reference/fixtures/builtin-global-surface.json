@@ -1,0 +1,74 @@
+{
+  "metadata": {
+    "schemaVersion": 1,
+    "runtime": "V8",
+    "caseRevision": "ef92d4329628950a72ba3bded50f260b68a5216426a00dc3c44866afab3ffb90"
+  },
+  "result": [
+    {
+      "descriptor": {
+        "configurable": true,
+        "enumerable": false,
+        "getter": false,
+        "setter": false,
+        "writable": true
+      },
+      "name": "CalendarApp",
+      "own": true,
+      "present": true,
+      "type": "object"
+    },
+    {
+      "descriptor": {
+        "configurable": true,
+        "enumerable": false,
+        "getter": false,
+        "setter": false,
+        "writable": true
+      },
+      "name": "DocumentApp",
+      "own": true,
+      "present": true,
+      "type": "object"
+    },
+    {
+      "descriptor": {
+        "configurable": true,
+        "enumerable": false,
+        "getter": false,
+        "setter": false,
+        "writable": true
+      },
+      "name": "GmailApp",
+      "own": true,
+      "present": true,
+      "type": "object"
+    },
+    {
+      "descriptor": {
+        "configurable": true,
+        "enumerable": false,
+        "getter": false,
+        "setter": false,
+        "writable": true
+      },
+      "name": "MimeType",
+      "own": true,
+      "present": true,
+      "type": "object"
+    },
+    {
+      "descriptor": {
+        "configurable": true,
+        "enumerable": false,
+        "getter": false,
+        "setter": false,
+        "writable": true
+      },
+      "name": "ScriptApp",
+      "own": true,
+      "present": true,
+      "type": "object"
+    }
+  ]
+}

@@ -17,6 +17,7 @@ import { PropertiesService } from "./api/properties/PropertiesService";
 import { SpreadsheetApp } from "./api/spreadsheet/SpreadsheetApp";
 import { UrlFetchApp } from "./api/url_fetch/UrlFetchApp";
 import { Utilities } from "./api/utilities/Utilities";
+import { installGasGlobal } from "./global/installGasGlobal";
 import type {
   RequestLegacySync,
   CreateFile,
@@ -44,15 +45,6 @@ export type ScriptContextDependencies = {
   cacheService: RuntimeServicePort<"Cache">;
   propertiesService: RuntimeServicePort<"Properties">;
 };
-
-function installGasGlobal(context: vm.Context, name: string, value: unknown): void {
-  Object.defineProperty(context, name, {
-    value,
-    configurable: true,
-    enumerable: false,
-    writable: true,
-  });
-}
 
 export function createScriptContext(dependencies: ScriptContextDependencies): vm.Context {
   const {

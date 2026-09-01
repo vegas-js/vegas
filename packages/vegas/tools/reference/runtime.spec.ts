@@ -18,6 +18,11 @@ if (!bundled) {
 }
 
 for (const referenceCase of referenceCases) {
+  if (referenceCase.runtimeTest === "pending") {
+    test.todo(`Vegas runtime matches GAS reference: ${referenceCase.name}`);
+    continue;
+  }
+
   test(`Vegas runtime matches GAS reference: ${referenceCase.name}`, async () => {
     const executor = createVegasReferenceExecutor(bundled.source);
 

@@ -1,0 +1,1702 @@
+{
+  "metadata": {
+    "schemaVersion": 1,
+    "runtime": "V8",
+    "caseRevision": "ef92d4329628950a72ba3bded50f260b68a5216426a00dc3c44866afab3ffb90"
+  },
+  "result": [
+    {
+      "name": "CalendarApp",
+      "properties": [
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "toString",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "createCalendar",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "getDefaultCalendar",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "getAllCalendars",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "getCalendarsByName",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "getCalendarById",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "newRecurrence",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "openByName",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "openByEmailAddress",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "getAllOwnedCalendars",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "getOwnedCalendarsByName",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "getOwnedCalendarById",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "subscribeToCalendar",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "getName",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "isHidden",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "setName",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "getId",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "setHidden",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "setTimeZone",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "getTimeZone",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "setColor",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "setDescription",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "getDescription",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "createEventSeries",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "createAllDayEvent",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "isOwnedByMe",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "setSelected",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "isSelected",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "getEventById",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "getEventSeriesById",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "getEvents",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "getEventsForDay",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "getColor",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "createEventFromDescription",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "isMyPrimaryCalendar",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "createAllDayEventSeries",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "createEvent",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "getTitle",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "Color",
+          "setter": false,
+          "type": "object",
+          "writable": false
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "EventColor",
+          "setter": false,
+          "type": "object",
+          "writable": false
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "EventTransparency",
+          "setter": false,
+          "type": "object",
+          "writable": false
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "EventType",
+          "setter": false,
+          "type": "object",
+          "writable": false
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "GuestStatus",
+          "setter": false,
+          "type": "object",
+          "writable": false
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "Month",
+          "setter": false,
+          "type": "object",
+          "writable": false
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "Visibility",
+          "setter": false,
+          "type": "object",
+          "writable": false
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "Weekday",
+          "setter": false,
+          "type": "object",
+          "writable": false
+        }
+      ],
+      "prototypeIsObjectPrototype": true,
+      "prototypePropertyNames": [
+        "constructor",
+        "__defineGetter__",
+        "__defineSetter__",
+        "hasOwnProperty",
+        "__lookupGetter__",
+        "__lookupSetter__",
+        "isPrototypeOf",
+        "propertyIsEnumerable",
+        "toString",
+        "valueOf",
+        "__proto__",
+        "toLocaleString"
+      ]
+    },
+    {
+      "name": "DocumentApp",
+      "properties": [
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "toString",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "create",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "openById",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "openByUrl",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "getUi",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "getActiveDocument",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "Attribute",
+          "setter": false,
+          "type": "object",
+          "writable": false
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "ElementType",
+          "setter": false,
+          "type": "object",
+          "writable": false
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "FontFamily",
+          "setter": false,
+          "type": "object",
+          "writable": false
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "GlyphType",
+          "setter": false,
+          "type": "object",
+          "writable": false
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "HorizontalAlignment",
+          "setter": false,
+          "type": "object",
+          "writable": false
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "ParagraphHeading",
+          "setter": false,
+          "type": "object",
+          "writable": false
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "PositionedLayout",
+          "setter": false,
+          "type": "object",
+          "writable": false
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "TabType",
+          "setter": false,
+          "type": "object",
+          "writable": false
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "TextAlignment",
+          "setter": false,
+          "type": "object",
+          "writable": false
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "VerticalAlignment",
+          "setter": false,
+          "type": "object",
+          "writable": false
+        }
+      ],
+      "prototypeIsObjectPrototype": true,
+      "prototypePropertyNames": [
+        "constructor",
+        "__defineGetter__",
+        "__defineSetter__",
+        "hasOwnProperty",
+        "__lookupGetter__",
+        "__lookupSetter__",
+        "isPrototypeOf",
+        "propertyIsEnumerable",
+        "toString",
+        "valueOf",
+        "__proto__",
+        "toLocaleString"
+      ]
+    },
+    {
+      "name": "GmailApp",
+      "properties": [
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "toString",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "search",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "getAliases",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "getThreadById",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "getSpamUnreadCount",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "getUserLabels",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "getUserLabelByName",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "getInboxThreads",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "getSpamThreads",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "getTrashThreads",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "getStarredThreads",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "getChatThreads",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "getDraftMessages",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "moveThreadToTrash",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "moveThreadsToTrash",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "moveMessageToTrash",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "starMessage",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "starMessages",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "unstarMessage",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "unstarMessages",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "moveThreadToInbox",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "markThreadRead",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "markThreadsRead",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "markThreadUnread",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "markThreadsUnread",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "moveThreadToSpam",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "moveThreadsToSpam",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "markMessageRead",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "markMessagesRead",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "markMessageUnread",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "markMessagesUnread",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "refreshThread",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "refreshThreads",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "refreshMessage",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "refreshMessages",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "getMessageById",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "moveThreadsToInbox",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "getInboxUnreadCount",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "getPriorityInboxUnreadCount",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "getStarredUnreadCount",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "getPriorityInboxThreads",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "moveMessagesToTrash",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "moveThreadToArchive",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "moveThreadsToArchive",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "markThreadImportant",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "markThreadsImportant",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "markThreadUnimportant",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "markThreadsUnimportant",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "getMessagesForThread",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "getMessagesForThreads",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "setCurrentMessageAccessToken",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "deleteLabel",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "createLabel",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "createDraft",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "getDraft",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "getDrafts",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "sendEmail",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "LabelType",
+          "setter": false,
+          "type": "object",
+          "writable": false
+        }
+      ],
+      "prototypeIsObjectPrototype": true,
+      "prototypePropertyNames": [
+        "constructor",
+        "__defineGetter__",
+        "__defineSetter__",
+        "hasOwnProperty",
+        "__lookupGetter__",
+        "__lookupSetter__",
+        "isPrototypeOf",
+        "propertyIsEnumerable",
+        "toString",
+        "valueOf",
+        "__proto__",
+        "toLocaleString"
+      ]
+    },
+    {
+      "name": "MimeType",
+      "properties": [
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "toString",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "BMP",
+          "setter": false,
+          "type": "string",
+          "writable": false
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "CSS",
+          "setter": false,
+          "type": "string",
+          "writable": false
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "CSV",
+          "setter": false,
+          "type": "string",
+          "writable": false
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "FOLDER",
+          "setter": false,
+          "type": "string",
+          "writable": false
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "GIF",
+          "setter": false,
+          "type": "string",
+          "writable": false
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "GOOGLE_APPS_SCRIPT",
+          "setter": false,
+          "type": "string",
+          "writable": false
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "GOOGLE_DOCS",
+          "setter": false,
+          "type": "string",
+          "writable": false
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "GOOGLE_DRAWINGS",
+          "setter": false,
+          "type": "string",
+          "writable": false
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "GOOGLE_FORMS",
+          "setter": false,
+          "type": "string",
+          "writable": false
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "GOOGLE_SHEETS",
+          "setter": false,
+          "type": "string",
+          "writable": false
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "GOOGLE_SITES",
+          "setter": false,
+          "type": "string",
+          "writable": false
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "GOOGLE_SLIDES",
+          "setter": false,
+          "type": "string",
+          "writable": false
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "HTML",
+          "setter": false,
+          "type": "string",
+          "writable": false
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "JAVASCRIPT",
+          "setter": false,
+          "type": "string",
+          "writable": false
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "JPEG",
+          "setter": false,
+          "type": "string",
+          "writable": false
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "MICROSOFT_EXCEL",
+          "setter": false,
+          "type": "string",
+          "writable": false
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "MICROSOFT_EXCEL_LEGACY",
+          "setter": false,
+          "type": "string",
+          "writable": false
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "MICROSOFT_POWERPOINT",
+          "setter": false,
+          "type": "string",
+          "writable": false
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "MICROSOFT_POWERPOINT_LEGACY",
+          "setter": false,
+          "type": "string",
+          "writable": false
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "MICROSOFT_WORD",
+          "setter": false,
+          "type": "string",
+          "writable": false
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "MICROSOFT_WORD_LEGACY",
+          "setter": false,
+          "type": "string",
+          "writable": false
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "OPENDOCUMENT_GRAPHICS",
+          "setter": false,
+          "type": "string",
+          "writable": false
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "OPENDOCUMENT_PRESENTATION",
+          "setter": false,
+          "type": "string",
+          "writable": false
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "OPENDOCUMENT_SPREADSHEET",
+          "setter": false,
+          "type": "string",
+          "writable": false
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "OPENDOCUMENT_TEXT",
+          "setter": false,
+          "type": "string",
+          "writable": false
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "PDF",
+          "setter": false,
+          "type": "string",
+          "writable": false
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "PLAIN_TEXT",
+          "setter": false,
+          "type": "string",
+          "writable": false
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "PNG",
+          "setter": false,
+          "type": "string",
+          "writable": false
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "RTF",
+          "setter": false,
+          "type": "string",
+          "writable": false
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "SHORTCUT",
+          "setter": false,
+          "type": "string",
+          "writable": false
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "SVG",
+          "setter": false,
+          "type": "string",
+          "writable": false
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "ZIP",
+          "setter": false,
+          "type": "string",
+          "writable": false
+        }
+      ],
+      "prototypeIsObjectPrototype": true,
+      "prototypePropertyNames": [
+        "constructor",
+        "__defineGetter__",
+        "__defineSetter__",
+        "hasOwnProperty",
+        "__lookupGetter__",
+        "__lookupSetter__",
+        "isPrototypeOf",
+        "propertyIsEnumerable",
+        "toString",
+        "valueOf",
+        "__proto__",
+        "toLocaleString"
+      ]
+    },
+    {
+      "name": "ScriptApp",
+      "properties": [
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "toString",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "getResource",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "getScriptId",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "newTrigger",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "deleteTrigger",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "getAuthorizationInfo",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "getInstallationSource",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "getUserTriggers",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "getScriptTriggers",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "getProjectTriggers",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "requireScopes",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "requireAllScopes",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "invalidateAuth",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "newStateToken",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "getOAuthToken",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "getIdentityToken",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "getProjectKey",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "getService",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "AuthMode",
+          "setter": false,
+          "type": "object",
+          "writable": false
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "AuthorizationStatus",
+          "setter": false,
+          "type": "object",
+          "writable": false
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "EventType",
+          "setter": false,
+          "type": "object",
+          "writable": false
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "InstallationSource",
+          "setter": false,
+          "type": "object",
+          "writable": false
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "TriggerSource",
+          "setter": false,
+          "type": "object",
+          "writable": false
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "WeekDay",
+          "setter": false,
+          "type": "object",
+          "writable": false
+        }
+      ],
+      "prototypeIsObjectPrototype": true,
+      "prototypePropertyNames": [
+        "constructor",
+        "__defineGetter__",
+        "__defineSetter__",
+        "hasOwnProperty",
+        "__lookupGetter__",
+        "__lookupSetter__",
+        "isPrototypeOf",
+        "propertyIsEnumerable",
+        "toString",
+        "valueOf",
+        "__proto__",
+        "toLocaleString"
+      ]
+    }
+  ]
+}

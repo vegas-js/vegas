@@ -1,0 +1,273 @@
+{
+  "metadata": {
+    "schemaVersion": 1,
+    "runtime": "V8",
+    "caseRevision": "ef92d4329628950a72ba3bded50f260b68a5216426a00dc3c44866afab3ffb90"
+  },
+  "result": {
+    "compareTo": {
+      "fullToFull": {
+        "error": null,
+        "ok": true,
+        "result": {
+          "stringify": "0",
+          "type": "number",
+          "value": 0
+        }
+      },
+      "fullToNone": {
+        "error": null,
+        "ok": true,
+        "result": {
+          "stringify": "3",
+          "type": "number",
+          "value": 3
+        }
+      },
+      "noneToFull": {
+        "error": null,
+        "ok": true,
+        "result": {
+          "stringify": "-3",
+          "type": "number",
+          "value": -3
+        }
+      }
+    },
+    "identityGraph": {
+      "containerIsNone": true,
+      "fullFullIsFull": true,
+      "fullNoneIsNone": true,
+      "noneFullIsFull": true,
+      "noneNoneIsNone": true
+    },
+    "members": [
+      {
+        "helpers": {
+          "name": {
+            "error": null,
+            "ok": true,
+            "result": {
+              "stringify": "NONE",
+              "type": "string",
+              "value": "NONE"
+            }
+          },
+          "ordinal": {
+            "error": null,
+            "ok": true,
+            "result": {
+              "stringify": "0",
+              "type": "number",
+              "value": 0
+            }
+          },
+          "toJSON": {
+            "error": null,
+            "ok": true,
+            "result": {
+              "stringify": "NONE",
+              "type": "string",
+              "value": "NONE"
+            }
+          }
+        },
+        "name": "ScriptApp.AuthMode.NONE",
+        "ownPropertyNames": [
+          "toString",
+          "name",
+          "toJSON",
+          "ordinal",
+          "compareTo",
+          "NONE",
+          "CUSTOM_FUNCTION",
+          "LIMITED",
+          "FULL"
+        ],
+        "prototypeIsObjectPrototype": true,
+        "sameAsContainer": true,
+        "stringify": "NONE"
+      },
+      {
+        "helpers": {
+          "name": {
+            "error": null,
+            "ok": true,
+            "result": {
+              "stringify": "FULL",
+              "type": "string",
+              "value": "FULL"
+            }
+          },
+          "ordinal": {
+            "error": null,
+            "ok": true,
+            "result": {
+              "stringify": "3",
+              "type": "number",
+              "value": 3
+            }
+          },
+          "toJSON": {
+            "error": null,
+            "ok": true,
+            "result": {
+              "stringify": "FULL",
+              "type": "string",
+              "value": "FULL"
+            }
+          }
+        },
+        "name": "ScriptApp.AuthMode.FULL",
+        "ownPropertyNames": [
+          "toString",
+          "name",
+          "toJSON",
+          "ordinal",
+          "compareTo",
+          "NONE",
+          "CUSTOM_FUNCTION",
+          "LIMITED",
+          "FULL"
+        ],
+        "prototypeIsObjectPrototype": true,
+        "sameAsContainer": false,
+        "stringify": "FULL"
+      },
+      {
+        "helpers": {
+          "name": {
+            "error": null,
+            "ok": true,
+            "result": {
+              "stringify": "FEBRUARY",
+              "type": "string",
+              "value": "FEBRUARY"
+            }
+          },
+          "ordinal": {
+            "error": null,
+            "ok": true,
+            "result": {
+              "stringify": "1",
+              "type": "number",
+              "value": 1
+            }
+          },
+          "toJSON": {
+            "error": null,
+            "ok": true,
+            "result": {
+              "stringify": "FEBRUARY",
+              "type": "string",
+              "value": "FEBRUARY"
+            }
+          }
+        },
+        "name": "CalendarApp.Month.FEBRUARY",
+        "ownPropertyNames": [
+          "toString",
+          "name",
+          "toJSON",
+          "ordinal",
+          "compareTo",
+          "JANUARY",
+          "FEBRUARY",
+          "MARCH",
+          "APRIL",
+          "MAY",
+          "JUNE",
+          "JULY",
+          "AUGUST",
+          "SEPTEMBER",
+          "OCTOBER",
+          "NOVEMBER",
+          "DECEMBER"
+        ],
+        "prototypeIsObjectPrototype": true,
+        "sameAsContainer": false,
+        "stringify": "FEBRUARY"
+      },
+      {
+        "helpers": {
+          "name": {
+            "error": null,
+            "ok": true,
+            "result": {
+              "stringify": "BACKGROUND_COLOR",
+              "type": "string",
+              "value": "BACKGROUND_COLOR"
+            }
+          },
+          "ordinal": {
+            "error": null,
+            "ok": true,
+            "result": {
+              "stringify": "0",
+              "type": "number",
+              "value": 0
+            }
+          },
+          "toJSON": {
+            "error": null,
+            "ok": true,
+            "result": {
+              "stringify": "BACKGROUND_COLOR",
+              "type": "string",
+              "value": "BACKGROUND_COLOR"
+            }
+          }
+        },
+        "name": "DocumentApp.Attribute.BACKGROUND_COLOR",
+        "ownPropertyNames": [
+          "toString",
+          "name",
+          "toJSON",
+          "ordinal",
+          "compareTo",
+          "BACKGROUND_COLOR",
+          "BOLD",
+          "BORDER_COLOR",
+          "BORDER_WIDTH",
+          "CODE",
+          "FONT_FAMILY",
+          "FONT_SIZE",
+          "FOREGROUND_COLOR",
+          "HEADING",
+          "HEIGHT",
+          "HORIZONTAL_ALIGNMENT",
+          "INDENT_END",
+          "INDENT_FIRST_LINE",
+          "INDENT_START",
+          "ITALIC",
+          "GLYPH_TYPE",
+          "LEFT_TO_RIGHT",
+          "LINE_SPACING",
+          "LINK_URL",
+          "LIST_ID",
+          "MARGIN_BOTTOM",
+          "MARGIN_LEFT",
+          "MARGIN_RIGHT",
+          "MARGIN_TOP",
+          "NESTING_LEVEL",
+          "MINIMUM_HEIGHT",
+          "PADDING_BOTTOM",
+          "PADDING_LEFT",
+          "PADDING_RIGHT",
+          "PADDING_TOP",
+          "PAGE_HEIGHT",
+          "PAGE_WIDTH",
+          "SPACING_AFTER",
+          "SPACING_BEFORE",
+          "STRIKETHROUGH",
+          "UNDERLINE",
+          "VERTICAL_ALIGNMENT",
+          "WIDTH"
+        ],
+        "prototypeIsObjectPrototype": true,
+        "sameAsContainer": false,
+        "stringify": "BACKGROUND_COLOR"
+      }
+    ]
+  }
+}
