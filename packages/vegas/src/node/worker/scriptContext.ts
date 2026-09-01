@@ -45,6 +45,15 @@ export type ScriptContextDependencies = {
   propertiesService: RuntimeServicePort<"Properties">;
 };
 
+function installGasGlobal(context: vm.Context, name: string, value: unknown): void {
+  Object.defineProperty(context, name, {
+    value,
+    configurable: true,
+    enumerable: false,
+    writable: true,
+  });
+}
+
 export function createScriptContext(dependencies: ScriptContextDependencies): vm.Context {
   const {
     requestLegacySync,
@@ -62,7 +71,43 @@ export function createScriptContext(dependencies: ScriptContextDependencies): vm
     propertiesService,
   } = dependencies;
 
-  return vm.createContext({
+  const gasGlobals = {
+    /* Drive */
+    DriveApp: new DriveApp(createFile, createFolder, requestLegacySync),
+    /* Sheets */
+    SpreadsheetApp: new SpreadsheetApp(createSpreadsheet, spreadsheetAppService),
+    /* URL Fetch */
+    UrlFetchApp: new UrlFetchApp(urlFetchService),
+    /* Utilities */
+    Utilities: new Utilities(),
+    /* HTML */
+    HtmlService: new HtmlService(createHtmlOutput, createHtmlTemplate, htmlService),
+    Logger: new Logger(logSink),
+    Session: new Session(sessionService),
+    console: new Console(logSink),
+    /* Cache */
+    CacheService: new CacheService(
+      new Cache(RuntimeScope.DOCUMENT, cacheService),
+      new Cache(RuntimeScope.SCRIPT, cacheService),
+      new Cache(RuntimeScope.USER, cacheService),
+    ),
+    /* Lock */
+    LockService: new LockService(
+      new Lock(RuntimeScope.DOCUMENT, requestLegacySync),
+      new Lock(RuntimeScope.SCRIPT, requestLegacySync),
+      new Lock(RuntimeScope.USER, requestLegacySync),
+    ),
+    /* Properties */
+    PropertiesService: new PropertiesService(
+      new Properties(RuntimeScope.DOCUMENT, propertiesService),
+      new Properties(RuntimeScope.SCRIPT, propertiesService),
+      new Properties(RuntimeScope.USER, propertiesService),
+    ),
+    // ScriptProperties is Deprecated.
+    // UserProperties is Deprecated.
+  };
+
+  const context = vm.createContext({
     /* Admin Console */
     AdminDirectory: undefined, // Advanced services. Low priority.
     AdminLicenseManager: undefined, // Advanced services. Low priority.
@@ -77,13 +122,13 @@ export function createScriptContext(dependencies: ScriptContextDependencies): vm
     /* Docs */
     DocumentApp: undefined,
     /* Drive */
-    DriveApp: new DriveApp(createFile, createFolder, requestLegacySync),
+    // DriveApp: new DriveApp(createFile, createFolder, requestLegacySync),
     /* Forms */
     FormApp: undefined,
     /* Gmail */
     GmailApp: undefined,
     /* Sheets */
-    SpreadsheetApp: new SpreadsheetApp(createSpreadsheet, spreadsheetAppService),
+    // SpreadsheetApp: new SpreadsheetApp(createSpreadsheet, spreadsheetAppService),
     /* Slides */
     SlidesApp: undefined,
     /* Workspace */
@@ -132,11 +177,11 @@ export function createScriptContext(dependencies: ScriptContextDependencies): vm
     /* JDBC */
     Jdbc: undefined,
     /* URL Fetch */
-    UrlFetchApp: new UrlFetchApp(urlFetchService),
+    // UrlFetchApp: new UrlFetchApp(urlFetchService),
     /* Optimization */
     LinearOptimizationService: undefined,
     /* Utilities */
-    Utilities: new Utilities(),
+    // Utilities: new Utilities(),
     /* XML */
     XmlService: undefined,
     /* Charts */
@@ -144,36 +189,42 @@ export function createScriptContext(dependencies: ScriptContextDependencies): vm
     /* Content */
     ContentService: undefined,
     /* HTML */
-    HtmlService: new HtmlService(createHtmlOutput, createHtmlTemplate, htmlService),
+    // HtmlService: new HtmlService(createHtmlOutput, createHtmlTemplate, htmlService),
     /* Mail */
     MailApp: undefined,
     /* Base */
     Browser: undefined,
-    Logger: new Logger(logSink),
+    // Logger: new Logger(logSink),
     MimeType: undefined,
-    Session: new Session(sessionService),
-    console: new Console(logSink),
+    // Session: new Session(sessionService),
+    // console: new Console(logSink),
     /* Cache */
-    CacheService: new CacheService(
-      new Cache(RuntimeScope.DOCUMENT, cacheService),
-      new Cache(RuntimeScope.SCRIPT, cacheService),
-      new Cache(RuntimeScope.USER, cacheService),
-    ),
+    // CacheService: new CacheService(
+    //   new Cache(RuntimeScope.DOCUMENT, cacheService),
+    //   new Cache(RuntimeScope.SCRIPT, cacheService),
+    //   new Cache(RuntimeScope.USER, cacheService),
+    // ),
     /* Lock */
-    LockService: new LockService(
-      new Lock(RuntimeScope.DOCUMENT, requestLegacySync),
-      new Lock(RuntimeScope.SCRIPT, requestLegacySync),
-      new Lock(RuntimeScope.USER, requestLegacySync),
-    ),
+    // LockService: new LockService(
+    //   new Lock(RuntimeScope.DOCUMENT, requestLegacySync),
+    //   new Lock(RuntimeScope.SCRIPT, requestLegacySync),
+    //   new Lock(RuntimeScope.USER, requestLegacySync),
+    // ),
     /* Properties */
-    PropertiesService: new PropertiesService(
-      new Properties(RuntimeScope.DOCUMENT, propertiesService),
-      new Properties(RuntimeScope.SCRIPT, propertiesService),
-      new Properties(RuntimeScope.USER, propertiesService),
-    ),
+    // PropertiesService: new PropertiesService(
+    //   new Properties(RuntimeScope.DOCUMENT, propertiesService),
+    //   new Properties(RuntimeScope.SCRIPT, propertiesService),
+    //   new Properties(RuntimeScope.USER, propertiesService),
+    // ),
     // ScriptProperties is Deprecated.
     // UserProperties is Deprecated.
     /* Script */
     ScriptApp: undefined,
   });
+
+  for (const [name, value] of Object.entries(gasGlobals)) {
+    installGasGlobal(context, name, value);
+  }
+
+  return context;
 }

@@ -10,4 +10,9 @@ export const referenceCases: readonly ReferenceCaseDefinition[] = [
     functionName: "captureReferenceSmoke",
     fixtureFile: "smoke.json",
   },
+  {
+    name: "global-surface",
+    functionName: "captureReferenceGlobalSurface",
+    fixtureFile: "global-surface.json",
+  },
 ];
