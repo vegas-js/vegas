@@ -1,4 +1,4 @@
-import { fileURLToPath } from "node:url";
+import url from "node:url";
 
 import { createReferenceClient } from "./client";
 import { loadOAuthConfig, loadReferenceConfig } from "./config";
@@ -7,9 +7,11 @@ import { writeReferenceFixture } from "./fixtureStore";
 import { createAccessTokenProvider } from "./oauth";
 import { computeCaseRevision, loadReferenceProjectFiles, updateReferenceProject } from "./project";
 
-const referenceDir = fileURLToPath(new URL("../../reference/", import.meta.url));
+const referenceDir = url.fileURLToPath(new URL("../../reference/", import.meta.url));
 
-const fixturePath = fileURLToPath(new URL("../../reference/fixtures/smoke.json", import.meta.url));
+const fixturePath = url.fileURLToPath(
+  new URL("../../reference/fixtures/smoke.json", import.meta.url),
+);
 
 const config = loadReferenceConfig();
 const oauthConfig = loadOAuthConfig();

@@ -1,6 +1,6 @@
-import { createHash } from "node:crypto";
-import { readdir, readFile } from "node:fs/promises";
-import { basename, join } from "node:path";
+import crypto from "node:crypto";
+import fsPromises from "node:fs/promises";
+import path from "node:path";
 
 import type { AccessTokenProvider, ReferenceConfig } from "./types";
 
@@ -13,17 +13,20 @@ export interface ReferenceProjectFile {
 export async function loadReferenceProjectFiles(
   referenceDir: string,
 ): Promise<ReferenceProjectFile[]> {
-  const manifestSource = await readFile(join(referenceDir, "appsscript.json"), "utf8");
-  const entries = await readdir(join(referenceDir, "cases"), {
+  const manifestSource = await fsPromises.readFile(
+    path.join(referenceDir, "appsscript.json"),
+    "utf8",
+  );
+  const entries = await fsPromises.readdir(path.join(referenceDir, "cases"), {
     withFileTypes: true,
   });
   const caseFiles = await Promise.all(
     entries
       .filter((entry) => entry.isFile() && entry.name.endsWith(".js"))
       .map(async (entry) => ({
-        name: basename(entry.name, ".js"),
+        name: path.basename(entry.name, ".js"),
         type: "SERVER_JS" as const,
-        source: await readFile(join(referenceDir, "cases", entry.name), "utf8"),
+        source: await fsPromises.readFile(path.join(referenceDir, "cases", entry.name), "utf8"),
       })),
   );
 
@@ -50,7 +53,7 @@ export function computeCaseRevision(files: readonly ReferenceProjectFile[]): str
       source,
     }));
 
-  return createHash("sha256").update(JSON.stringify(canonicalFiles)).digest("hex");
+  return crypto.createHash("sha256").update(JSON.stringify(canonicalFiles)).digest("hex");
 }
 
 export async function updateReferenceProject(

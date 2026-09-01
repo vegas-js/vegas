@@ -1,15 +1,17 @@
-import { mkdir, writeFile } from "node:fs/promises";
-import { dirname } from "node:path";
+import fsPromises from "node:fs/promises";
+import path from "node:path";
 
 import type { ReferenceFixture } from "./types";
 
-export async function writeReferenceFixture(
-  path: string,
-  fixture: ReferenceFixture,
-): Promise<void> {
-  await mkdir(dirname(path), {
+export async function readReferenceFixture(path: string): Promise<ReferenceFixture> {
+  const content = await fsPromises.readFile(path, "utf8");
+  return JSON.parse(content) as ReferenceFixture;
+}
+
+export async function writeReferenceFixture(p: string, fixture: ReferenceFixture): Promise<void> {
+  await fsPromises.mkdir(path.dirname(p), {
     recursive: true,
   });
 
-  await writeFile(path, `${JSON.stringify(fixture, null, 2)}\n`, "utf8");
+  await fsPromises.writeFile(p, `${JSON.stringify(fixture, null, 2)}\n`, "utf8");
 }

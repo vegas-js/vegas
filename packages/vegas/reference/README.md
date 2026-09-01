@@ -24,7 +24,15 @@ Set the following environment variables:
 Then run:
 
 ```bash
-pnpm reference:update
+# Monitor actual GAS and update the committed fixture
+$ pnpm reference:update
+
+# Just measure the actual GAS and compare it to the committed fixture
+# About exit codes:
+#   0  match
+#   1  harness/API/auth failure
+#   2  reference drift
+$ pnpm reference:verify
 ```
 
 The command:
