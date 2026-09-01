@@ -2,6 +2,7 @@ import crypto from "node:crypto";
 import fsPromises from "node:fs/promises";
 import path from "node:path";
 
+import { bundleReferenceCases } from "./bundle";
 import type { AccessTokenProvider, ReferenceConfig } from "./types";
 
 export interface ReferenceProjectFile {
@@ -17,18 +18,7 @@ export async function loadReferenceProjectFiles(
     path.join(referenceDir, "appsscript.json"),
     "utf8",
   );
-  const entries = await fsPromises.readdir(path.join(referenceDir, "cases"), {
-    withFileTypes: true,
-  });
-  const caseFiles = await Promise.all(
-    entries
-      .filter((entry) => entry.isFile() && entry.name.endsWith(".js"))
-      .map(async (entry) => ({
-        name: path.basename(entry.name, ".js"),
-        type: "SERVER_JS" as const,
-        source: await fsPromises.readFile(path.join(referenceDir, "cases", entry.name), "utf8"),
-      })),
-  );
+  const bundledSource = await bundleReferenceCases(referenceDir);
 
   return [
     {
@@ -36,7 +26,11 @@ export async function loadReferenceProjectFiles(
       type: "JSON",
       source: manifestSource,
     },
-    ...caseFiles,
+    {
+      name: "Code",
+      type: "SERVER_JS",
+      source: bundledSource,
+    },
   ];
 }
 

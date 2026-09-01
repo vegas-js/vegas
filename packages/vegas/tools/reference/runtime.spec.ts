@@ -14,11 +14,11 @@ test("Vegas runtime matches the GAS smoke reference", async () => {
   );
   const files = await loadReferenceProjectFiles(referenceDir);
   const caseRevision = computeCaseRevision(files);
-  const smoke = files.find((file) => file.name === "smoke" && file.type === "SERVER_JS");
-  if (!smoke) {
-    throw new Error("Reference case smoke.js was not found");
+  const bundled = files.find((file) => file.name === "Code" && file.type === "SERVER_JS");
+  if (!bundled) {
+    throw new Error("Reference case Code.js was not found");
   }
-  const executor = createVegasReferenceExecutor(smoke.source);
+  const executor = createVegasReferenceExecutor(bundled.source);
   const actual = await acquireReferenceFixture(executor, "captureReferenceSmoke", caseRevision);
   const expected = await readReferenceFixture(fixturePath);
 

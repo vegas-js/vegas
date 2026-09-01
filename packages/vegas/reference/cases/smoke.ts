@@ -1,5 +1,4 @@
-// oxlint-disable-next-line no-unused-vars
-function captureReferenceSmoke() {
+export function captureReferenceSmoke() {
   return {
     string: String("value"),
     number: String(1),
