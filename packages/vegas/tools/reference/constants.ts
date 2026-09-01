@@ -1,0 +1,1 @@
+export const REFERENCE_SCHEMA_VERSION = 1;
