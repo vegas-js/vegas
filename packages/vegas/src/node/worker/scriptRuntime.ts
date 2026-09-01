@@ -10,11 +10,31 @@ export function evaluateScriptWithBindings<T>(
   baseContext: vm.Context,
   bindings: Record<string, unknown>,
 ): T {
-  const context = vm.createContext({
-    ...baseContext,
-    ...bindings,
-  });
-  const script = new vm.Script(code);
+  const previousDescriptors: Array<readonly [string, PropertyDescriptor | undefined]> = [];
 
-  return script.runInContext(context) as T;
+  try {
+    for (const [name, value] of Object.entries(bindings)) {
+      const previousDescriptor = Object.getOwnPropertyDescriptor(baseContext, name);
+      Object.defineProperty(baseContext, name, {
+        value,
+        configurable: true,
+        enumerable: true,
+        writable: true,
+      });
+      previousDescriptors.push([name, previousDescriptor]);
+    }
+    const script = new vm.Script(code);
+
+    return script.runInContext(baseContext) as T;
+  } finally {
+    for (let i = previousDescriptors.length - 1; i >= 0; i--) {
+      const [name, previousDescriptor] = previousDescriptors[i];
+      if (previousDescriptor) {
+        Object.defineProperty(baseContext, name, previousDescriptor);
+      } else if (!Reflect.deleteProperty(baseContext, name)) {
+        // oxlint-disable-next-line no-unsafe-finally
+        throw new Error(`Failed to restore script binding: ${name}`);
+      }
+    }
+  }
 }
