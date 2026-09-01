@@ -13,6 +13,7 @@
     "preinstall": "npx only-allow pnpm",
     "lint": "oxlint",
     "format": "oxfmt",
+    "reference:update": "tsx packages/vegas/tools/reference/update.ts",
     "test": "vitest run",
     "coverage": "vitest run --coverage",
     "build": "tsdown --config-loader unrun --workspace",
