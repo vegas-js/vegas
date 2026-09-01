@@ -1,6 +1,6 @@
 export function normalizeReferenceResult(value: unknown): unknown {
   if (Array.isArray(value)) {
-    return value.map(normalizeReferenceResult);
+    return Array.from(value, normalizeReferenceResult);
   }
 
   if (value !== null && typeof value === "object") {

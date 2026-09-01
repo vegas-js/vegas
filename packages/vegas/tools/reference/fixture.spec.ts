@@ -2,10 +2,10 @@ import { expect, test } from "vitest";
 
 import { REFERENCE_SCHEMA_VERSION } from "./constants";
 import { acquireReferenceFixture } from "./fixture";
-import type { GASReferenceClient } from "./types";
+import type { ReferenceExecutor } from "./types";
 
 test("builds a reference fixture", async () => {
-  const client: GASReferenceClient = {
+  const executor: ReferenceExecutor = {
     async execute() {
       return {
         value: "result",
@@ -14,7 +14,7 @@ test("builds a reference fixture", async () => {
   };
 
   await expect(
-    acquireReferenceFixture(client, "captureReferenceSmoke", "revision"),
+    acquireReferenceFixture(executor, "captureReferenceSmoke", "revision"),
   ).resolves.toEqual({
     metadata: {
       schemaVersion: REFERENCE_SCHEMA_VERSION,

@@ -1,4 +1,4 @@
-import type { AccessTokenProvider, GASReferenceClient, ReferenceConfig } from "./types";
+import type { AccessTokenProvider, ReferenceExecutor, ReferenceConfig } from "./types";
 
 interface ScriptRunOperation {
   done?: boolean;
@@ -13,7 +13,7 @@ interface ScriptRunOperation {
   };
 }
 
-class AppsScriptReferenceClient implements GASReferenceClient {
+class AppsScriptReferenceClient implements ReferenceExecutor {
   readonly #config: ReferenceConfig;
   readonly #accessTokenProvider: AccessTokenProvider;
 

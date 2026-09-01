@@ -1,3 +1,5 @@
+import vm from "node:vm";
+
 import { expect, test } from "vitest";
 
 import { normalizeReferenceResult } from "./normalize";
@@ -37,5 +39,18 @@ test("preserves array order", () => {
     { a: 1, b: 2 },
     "second",
     "third",
+  ]);
+});
+
+test("normalizes arrays into the current realm", () => {
+  const value = vm.runInNewContext(`[{ b: 2, a: 1 }]`);
+  const normalized = normalizeReferenceResult(value);
+
+  expect(Object.getPrototypeOf(normalized)).toBe(Array.prototype);
+  expect(normalized).toStrictEqual([
+    {
+      a: 1,
+      b: 2,
+    },
   ]);
 });

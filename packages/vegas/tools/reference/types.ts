@@ -9,7 +9,7 @@ export interface ReferenceFixture<T = unknown> {
   result: T;
 }
 
-export interface GASReferenceClient {
+export interface ReferenceExecutor {
   execute(functionName: string): Promise<unknown>;
 }
 

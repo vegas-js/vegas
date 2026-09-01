@@ -1,13 +1,13 @@
 import { acquireReference } from "./acquire";
 import { REFERENCE_SCHEMA_VERSION } from "./constants";
-import type { GASReferenceClient, ReferenceFixture } from "./types";
+import type { ReferenceExecutor, ReferenceFixture } from "./types";
 
 export async function acquireReferenceFixture(
-  client: GASReferenceClient,
+  executor: ReferenceExecutor,
   functionName: string,
   caseRevision: string,
 ): Promise<ReferenceFixture> {
-  const result = await acquireReference(client, functionName);
+  const result = await acquireReference(executor, functionName);
 
   return {
     metadata: {

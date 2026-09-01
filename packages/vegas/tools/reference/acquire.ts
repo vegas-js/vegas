@@ -1,10 +1,10 @@
 import { normalizeReferenceResult } from "./normalize";
-import type { GASReferenceClient } from "./types";
+import type { ReferenceExecutor } from "./types";
 
 export async function acquireReference(
-  client: GASReferenceClient,
+  executor: ReferenceExecutor,
   functionName: string,
 ): Promise<unknown> {
-  const result = await client.execute(functionName);
+  const result = await executor.execute(functionName);
   return normalizeReferenceResult(result);
 }
