@@ -1,6 +1,6 @@
 import { expect, test, vi } from "vitest";
 
-import { RuntimeServicePort } from "../../protocol";
+import type { RuntimeServicePort } from "../../protocol";
 import { RuntimeScope } from "../../scope";
 import { createPropertiesService } from "./facade";
 
