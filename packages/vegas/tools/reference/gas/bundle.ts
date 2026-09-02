@@ -2,7 +2,7 @@ import path from "node:path";
 
 import { build, TsdownPlugin } from "tsdown";
 
-import { appendGasExportBridge } from "../../../src/node/cli/core/plugins/exportbridge";
+import { appendGasExportBridge } from "../../../src/node/core/gasExportBridge";
 
 function referenceExportBridge(): TsdownPlugin {
   return {
