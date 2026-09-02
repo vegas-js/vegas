@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import type { RuntimeServicePort } from "../../../runtime/protocol";
+import type { RuntimeServicePort } from "../../protocol";
 import { Cache } from "./Cache";
 import { CacheService } from "./CacheService";
 

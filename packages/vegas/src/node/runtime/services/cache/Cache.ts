@@ -1,5 +1,5 @@
-import type { RuntimeServicePort } from "../../../runtime/protocol";
-import type { RuntimeScope } from "../../../runtime/scope";
+import type { RuntimeServicePort } from "../../protocol";
+import type { RuntimeScope } from "../../scope";
 
 // https://developers.google.com/apps-script/reference/cache/cache
 export class Cache implements GoogleAppsScript.Cache.Cache {

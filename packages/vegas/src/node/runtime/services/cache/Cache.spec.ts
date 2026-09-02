@@ -1,7 +1,7 @@
 import { expect, test, vi } from "vitest";
 
-import type { RuntimeServicePort } from "../../../runtime/protocol";
-import { RuntimeScope } from "../../../runtime/scope";
+import type { RuntimeServicePort } from "../../protocol";
+import { RuntimeScope } from "../../scope";
 import { Cache } from "./Cache";
 
 function createCacheService(

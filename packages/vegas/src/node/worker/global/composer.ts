@@ -7,6 +7,7 @@ import { createVmGasObjectFactory } from "../../runtime/globals/object";
 import type { RuntimeLogSink } from "../../runtime/logging";
 import type { RuntimeServicePort } from "../../runtime/protocol";
 import { RuntimeScope } from "../../runtime/scope";
+import { createCacheService } from "../../runtime/services/cache/facade";
 import { createPropertiesService } from "../../runtime/services/properties/facade";
 import { Console } from "../api/base/console";
 import { Logger } from "../api/base/Logger";
@@ -25,7 +26,6 @@ import type {
   CreateSpreadsheet,
   RequestLegacySync,
 } from "../types";
-import { createCacheService } from "./cacheService";
 import { createMimeType } from "./mimeType";
 import { createSession } from "./session";
 

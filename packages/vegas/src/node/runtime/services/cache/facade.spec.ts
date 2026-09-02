@@ -1,7 +1,7 @@
 import { expect, test } from "vitest";
 
-import type { RuntimeServicePort } from "../../runtime/protocol";
-import { createCacheService } from "./cacheService";
+import type { RuntimeServicePort } from "../../protocol";
+import { createCacheService } from "./facade";
 
 const service: RuntimeServicePort<"Cache"> = {
   get: () => null,
