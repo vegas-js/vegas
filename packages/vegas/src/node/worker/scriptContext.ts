@@ -4,7 +4,7 @@ import {
   composeGasGlobals,
   createLegacyUnsupportedGlobalSeed,
   type GasGlobalComposerDependencies,
-} from "./global/composer";
+} from "../runtime/globals/composer";
 
 export type ScriptContextDependencies = GasGlobalComposerDependencies;
 

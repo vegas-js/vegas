@@ -1,33 +1,33 @@
 import type { Context } from "node:vm";
 
-import type { RuntimeGlobalEnvironment } from "../../runtime/environment";
-import { resolveRuntimeGlobalNamespace } from "../../runtime/globalNamespace";
-import { installGasGlobal } from "../../runtime/globals/install";
-import { createVmGasObjectFactory } from "../../runtime/globals/object";
-import type { RequestLegacySync } from "../../runtime/legacy/transport";
-import type { RuntimeLogSink } from "../../runtime/logging";
+import type { RuntimeGlobalEnvironment } from "../environment";
+import { resolveRuntimeGlobalNamespace } from "../globalNamespace";
+import type { RequestLegacySync } from "../legacy/transport";
+import type { RuntimeLogSink } from "../logging";
 import type {
   CreateFile,
   CreateFolder,
   CreateHtmlOutput,
   CreateHtmlTemplate,
   CreateSpreadsheet,
-} from "../../runtime/objects/types";
-import type { RuntimeServicePort } from "../../runtime/protocol";
-import { RuntimeScope } from "../../runtime/scope";
-import { Console } from "../../runtime/services/base/console";
-import { Logger } from "../../runtime/services/base/Logger";
-import { createMimeType } from "../../runtime/services/base/mimeType";
-import { createSession } from "../../runtime/services/base/sessionFacade";
-import { createCacheService } from "../../runtime/services/cache/facade";
-import { DriveApp } from "../../runtime/services/drive/DriveApp";
-import { HtmlService } from "../../runtime/services/html/HtmlService";
-import { Lock } from "../../runtime/services/lock/Lock";
-import { LockService } from "../../runtime/services/lock/LockService";
-import { createPropertiesService } from "../../runtime/services/properties/facade";
-import { SpreadsheetApp } from "../../runtime/services/spreadsheet/SpreadsheetApp";
-import { UrlFetchApp } from "../../runtime/services/url-fetch/UrlFetchApp";
-import { Utilities } from "../../runtime/services/utilities/Utilities";
+} from "../objects/types";
+import type { RuntimeServicePort } from "../protocol";
+import { RuntimeScope } from "../scope";
+import { Console } from "../services/base/console";
+import { Logger } from "../services/base/Logger";
+import { createMimeType } from "../services/base/mimeType";
+import { createSession } from "../services/base/sessionFacade";
+import { createCacheService } from "../services/cache/facade";
+import { DriveApp } from "../services/drive/DriveApp";
+import { HtmlService } from "../services/html/HtmlService";
+import { Lock } from "../services/lock/Lock";
+import { LockService } from "../services/lock/LockService";
+import { createPropertiesService } from "../services/properties/facade";
+import { SpreadsheetApp } from "../services/spreadsheet/SpreadsheetApp";
+import { UrlFetchApp } from "../services/url-fetch/UrlFetchApp";
+import { Utilities } from "../services/utilities/Utilities";
+import { installGasGlobal } from "./install";
+import { createVmGasObjectFactory } from "./object";
 
 export interface GasGlobalComposerDependencies {
   environment: RuntimeGlobalEnvironment;
