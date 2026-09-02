@@ -57,6 +57,12 @@ function createReferencePropertiesService(): RuntimeServicePort<"Properties"> {
 
 function createReferenceDependencies(): ScriptContextDependencies {
   return {
+    environment: {
+      properties: {
+        documentProperties: "unavailable",
+      },
+    },
+
     requestLegacySync: unexpected,
 
     createFile: unexpected,
@@ -100,7 +106,6 @@ function createReferenceDependencies(): ScriptContextDependencies {
     },
 
     propertiesService: createReferencePropertiesService(),
-    documentPropertiesAvailable: false,
   };
 }
 

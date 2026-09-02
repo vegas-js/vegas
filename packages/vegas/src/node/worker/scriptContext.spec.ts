@@ -1,5 +1,6 @@
 import { expect, test } from "vitest";
 
+import type { RuntimeGlobalEnvironment } from "../runtime/environment";
 import { createScriptContext, type ScriptContextDependencies } from "./scriptContext";
 
 const GAS_GLOBAL_NAMES = [
@@ -16,12 +17,28 @@ const GAS_GLOBAL_NAMES = [
   "PropertiesService",
 ] as const;
 
+const DOCUMENT_PROPERTIES_AVAILABLE_ENVIRONMENT: RuntimeGlobalEnvironment = {
+  properties: {
+    documentProperties: "available",
+  },
+};
+
+const DOCUMENT_PROPERTIES_UNAVAILABLE_ENVIRONMENT: RuntimeGlobalEnvironment = {
+  properties: {
+    documentProperties: "unavailable",
+  },
+};
+
 function unexpected(): never {
   throw new Error("Unexpected dependency call while creating script context");
 }
 
-function createDependencies(): ScriptContextDependencies {
+function createDependencies(
+  environment: RuntimeGlobalEnvironment = DOCUMENT_PROPERTIES_AVAILABLE_ENVIRONMENT,
+): ScriptContextDependencies {
   return {
+    environment,
+
     requestLegacySync: unexpected,
 
     createFile: unexpected,
@@ -95,3 +112,22 @@ test.each(GAS_GLOBAL_NAMES)(
     expect(descriptor).not.toHaveProperty("set");
   },
 );
+
+test("disables DocumentProperties through the runtime global environment", () => {
+  const context = createScriptContext(
+    createDependencies(DOCUMENT_PROPERTIES_UNAVAILABLE_ENVIRONMENT),
+  );
+
+  expect(context.PropertiesService.getDocumentProperties()).toBeNull();
+});
+
+test("enables DocumentProperties through the runtime global environment", () => {
+  const context = createScriptContext(
+    createDependencies(DOCUMENT_PROPERTIES_AVAILABLE_ENVIRONMENT),
+  );
+
+  const properties = context.PropertiesService.getDocumentProperties();
+
+  expect(properties).not.toBeNull();
+  expect(String(properties)).toBe("DocumentProperties");
+});

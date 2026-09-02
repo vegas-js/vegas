@@ -2,6 +2,7 @@ import path from "node:path";
 import worker from "node:worker_threads";
 
 import { dispatchRuntimeRequest } from "../../runtime/dispatcher";
+import type { RuntimeGlobalEnvironment } from "../../runtime/environment";
 import { serializeRuntimeError } from "../../runtime/errorCodec";
 import { createRuntimeServiceRegistry } from "../../runtime/host/registry";
 import type { Clock, Fetcher, HtmlResourceResolver } from "../../runtime/host/services";
@@ -107,6 +108,11 @@ export function launchGAS(context: ServeContext, fn: string, ...args: any[]): Pr
     },
     clock: systemClock,
   });
+  const runtimeEnvironment: RuntimeGlobalEnvironment = {
+    properties: {
+      documentProperties: "available",
+    },
+  };
 
   return new Promise((resolve, reject) => {
     const sharedBuffer = new SharedArrayBuffer(4);
@@ -115,7 +121,7 @@ export function launchGAS(context: ServeContext, fn: string, ...args: any[]): Pr
     const gasWorker = new worker.Worker(path.join(import.meta.dirname, "worker.js"), {
       env: { ...process.env, FORCE_COLOR: "1" },
       transferList: [port2],
-      workerData: { code, sharedArray, port: port2 },
+      workerData: { code, sharedArray, port: port2, environment: runtimeEnvironment },
     });
 
     gasWorker.on("error", (err: any) => {

@@ -12,6 +12,12 @@ const unexpected = () => {
 
 function createContext(overrides: Partial<ScriptContextDependencies> = {}) {
   return createScriptContext({
+    environment: {
+      properties: {
+        documentProperties: "unavailable",
+      },
+    },
+
     requestLegacySync: unexpected,
 
     createFile: unexpected,

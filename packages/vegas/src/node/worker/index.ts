@@ -1,5 +1,6 @@
 import worker from "node:worker_threads";
 
+import { RuntimeGlobalEnvironment } from "../runtime/environment";
 import type { RuntimeLogSink } from "../runtime/logging";
 import { invokeScriptFunction } from "./invocation";
 import { createObjectFactories } from "./objectFactories";
@@ -18,13 +19,22 @@ import { createScriptContext } from "./scriptContext";
 import { evaluateScript, evaluateScriptWithBindings } from "./scriptRuntime";
 import type { EvaluateHtmlTemplate, RequestLegacySync } from "./types";
 
-const sharedArray: Int32Array = worker.workerData.sharedArray;
-const port: worker.MessagePort = worker.workerData.port;
+type RuntimeWorkerData = {
+  code: string;
+  sharedArray: Int32Array;
+  port: worker.MessagePort;
+  environment: RuntimeGlobalEnvironment;
+};
 
 type GASWorkerData = {
   fn: string;
   args: any[];
 };
+
+const workerData = worker.workerData as RuntimeWorkerData;
+
+const sharedArray = workerData.sharedArray;
+const port = workerData.port;
 
 const requestLegacySync: RequestLegacySync = (request, timeout) => {
   Atomics.store(sharedArray, 0, 1);
@@ -67,10 +77,12 @@ const factories = createObjectFactories(
   evaluateHtmlTemplate,
 );
 scriptContext = createScriptContext({
+  environment: workerData.environment,
+
   requestLegacySync,
+
   logSink,
   spreadsheetAppService,
-
   urlFetchService,
   htmlService,
   sessionService,
@@ -79,7 +91,7 @@ scriptContext = createScriptContext({
   ...factories,
 });
 
-evaluateScript(worker.workerData.code, scriptContext);
+evaluateScript(workerData.code, scriptContext);
 
 port.on("message", async (data: GASWorkerData) => {
   const result = await invokeScriptFunction(scriptContext, data.fn, data.args);
