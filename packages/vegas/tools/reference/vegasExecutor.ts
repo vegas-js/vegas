@@ -1,10 +1,10 @@
 import { invokeScriptFunction } from "../../src/node/runtime/execution/invocation";
-import { evaluateScript } from "../../src/node/runtime/execution/scriptRuntime";
-import { RuntimeServicePort } from "../../src/node/runtime/protocol";
 import {
   createScriptContext,
   type ScriptContextDependencies,
-} from "../../src/node/worker/scriptContext";
+} from "../../src/node/runtime/execution/scriptContext";
+import { evaluateScript } from "../../src/node/runtime/execution/scriptRuntime";
+import { RuntimeServicePort } from "../../src/node/runtime/protocol";
 import type { ReferenceExecutor } from "./types";
 
 function unexpected(): never {

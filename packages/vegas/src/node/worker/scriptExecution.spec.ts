@@ -1,11 +1,12 @@
 import { expect, test, vi } from "vitest";
 
 import { invokeScriptFunction } from "../runtime/execution/invocation";
+import {
+  createScriptContext,
+  type ScriptContextDependencies,
+} from "../runtime/execution/scriptContext";
 import { evaluateScript } from "../runtime/execution/scriptRuntime";
 import { HtmlOutput } from "../runtime/services/html/HtmlOutput";
-import type { ScriptContextDependencies } from "./scriptContext";
-import { createScriptContext } from "./scriptContext";
-
 const unexpected = () => {
   throw new Error("Unexpected dependency call");
 };

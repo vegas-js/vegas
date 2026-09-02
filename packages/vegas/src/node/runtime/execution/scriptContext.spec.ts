@@ -1,6 +1,6 @@
 import { expect, test } from "vitest";
 
-import type { RuntimeGlobalEnvironment } from "../runtime/environment";
+import type { RuntimeGlobalEnvironment } from "../environment";
 import { createScriptContext, type ScriptContextDependencies } from "./scriptContext";
 
 const GAS_GLOBAL_NAMES = [

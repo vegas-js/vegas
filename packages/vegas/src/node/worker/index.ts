@@ -2,6 +2,7 @@ import worker from "node:worker_threads";
 
 import { RuntimeGlobalEnvironment } from "../runtime/environment";
 import { invokeScriptFunction } from "../runtime/execution/invocation";
+import { createScriptContext } from "../runtime/execution/scriptContext";
 import { evaluateScript, evaluateScriptWithBindings } from "../runtime/execution/scriptRuntime";
 import type { EvaluateHtmlTemplate } from "../runtime/execution/types";
 import type { RequestLegacySync } from "../runtime/legacy/transport";
@@ -18,7 +19,6 @@ import {
   createSheetService,
 } from "./remoteServices";
 import { createRuntimeServiceCaller } from "./runtimeTransport";
-import { createScriptContext } from "./scriptContext";
 
 type RuntimeWorkerData = {
   code: string;
