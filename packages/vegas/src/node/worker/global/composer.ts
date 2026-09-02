@@ -1,6 +1,7 @@
 import type { Context } from "node:vm";
 
 import type { RuntimeGlobalEnvironment } from "../../runtime/environment";
+import { resolveRuntimeGlobalNamespace } from "../../runtime/globalNamespace";
 import type { RuntimeLogSink } from "../../runtime/logging";
 import type { RuntimeServicePort } from "../../runtime/protocol";
 import { RuntimeScope } from "../../runtime/scope";
@@ -255,6 +256,17 @@ export function composeGasGlobals(
       createObject: createGasObject,
     }),
   } satisfies Record<string, unknown>;
+
+  resolveRuntimeGlobalNamespace([
+    {
+      source: "builtin",
+      names: LEGACY_UNSUPPORTED_GLOBAL_NAMES,
+    },
+    {
+      source: "builtin",
+      names: Object.keys(gasGlobals),
+    },
+  ]);
 
   for (const [name, value] of Object.entries(gasGlobals)) {
     installGasGlobal(context, name, value);
