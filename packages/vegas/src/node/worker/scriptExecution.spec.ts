@@ -1,6 +1,6 @@
 import { expect, test, vi } from "vitest";
 
-import { HtmlOutput } from "./api/html/HtmlOutput";
+import { HtmlOutput } from "../runtime/services/html/HtmlOutput";
 import { invokeScriptFunction } from "./invocation";
 import type { ScriptContextDependencies } from "./scriptContext";
 import { createScriptContext } from "./scriptContext";

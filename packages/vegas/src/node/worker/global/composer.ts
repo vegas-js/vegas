@@ -5,29 +5,23 @@ import { resolveRuntimeGlobalNamespace } from "../../runtime/globalNamespace";
 import { installGasGlobal } from "../../runtime/globals/install";
 import { createVmGasObjectFactory } from "../../runtime/globals/object";
 import type { RuntimeLogSink } from "../../runtime/logging";
+import type { CreateHtmlOutput, CreateHtmlTemplate } from "../../runtime/objects/types";
 import type { RuntimeServicePort } from "../../runtime/protocol";
 import { RuntimeScope } from "../../runtime/scope";
 import { createMimeType } from "../../runtime/services/base/mimeType";
 import { createSession } from "../../runtime/services/base/sessionFacade";
 import { createCacheService } from "../../runtime/services/cache/facade";
+import { HtmlService } from "../../runtime/services/html/HtmlService";
 import { createPropertiesService } from "../../runtime/services/properties/facade";
 import { Utilities } from "../../runtime/services/utilities/Utilities";
 import { Console } from "../api/base/console";
 import { Logger } from "../api/base/Logger";
 import { DriveApp } from "../api/drive/DriveApp";
-import { HtmlService } from "../api/html/HtmlService";
 import { Lock } from "../api/lock/Lock";
 import { LockService } from "../api/lock/LockService";
 import { SpreadsheetApp } from "../api/spreadsheet/SpreadsheetApp";
 import { UrlFetchApp } from "../api/url_fetch/UrlFetchApp";
-import type {
-  CreateFile,
-  CreateFolder,
-  CreateHtmlOutput,
-  CreateHtmlTemplate,
-  CreateSpreadsheet,
-  RequestLegacySync,
-} from "../types";
+import type { CreateFile, CreateFolder, CreateSpreadsheet, RequestLegacySync } from "../types";
 
 export interface GasGlobalComposerDependencies {
   environment: RuntimeGlobalEnvironment;

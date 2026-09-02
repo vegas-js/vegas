@@ -1,6 +1,6 @@
-import { GASAPI } from "../../../runtime/legacy/GASAPI";
-import type { RuntimeServicePort } from "../../../runtime/protocol";
-import type { CreateHtmlOutput, CreateHtmlTemplate } from "../../types";
+import { GASAPI } from "../../legacy/GASAPI";
+import type { CreateHtmlOutput, CreateHtmlTemplate } from "../../objects/types";
+import type { RuntimeServicePort } from "../../protocol";
 
 // https://developers.google.com/apps-script/reference/html/html-service
 export class HtmlService extends GASAPI implements GoogleAppsScript.HTML.HtmlService {

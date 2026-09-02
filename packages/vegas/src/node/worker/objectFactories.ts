@@ -1,20 +1,19 @@
+import type { EvaluateHtmlTemplate } from "../runtime/execution/types";
+import type { CreateHtmlOutput, CreateHtmlTemplate } from "../runtime/objects/types";
 import type { RuntimeServicePort } from "../runtime/protocol";
+import { HtmlOutput } from "../runtime/services/html/HtmlOutput";
+import { HtmlTemplate } from "../runtime/services/html/HtmlTemplate";
 import { File } from "./api/drive/File";
 import { Folder } from "./api/drive/Folder";
-import { HtmlOutput } from "./api/html/HtmlOutput";
-import { HtmlTemplate } from "./api/html/HtmlTemplate";
 import { Range } from "./api/spreadsheet/Range";
 import { Sheet } from "./api/spreadsheet/Sheet";
 import { Spreadsheet } from "./api/spreadsheet/Spreadsheet";
 import type {
   CreateFile,
   CreateFolder,
-  CreateHtmlOutput,
-  CreateHtmlTemplate,
   CreateRange,
   CreateSheet,
   CreateSpreadsheet,
-  EvaluateHtmlTemplate,
   RequestLegacySync,
 } from "./types";
 
