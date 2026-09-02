@@ -2,6 +2,8 @@ import type { Context } from "node:vm";
 
 import type { RuntimeGlobalEnvironment } from "../../runtime/environment";
 import { resolveRuntimeGlobalNamespace } from "../../runtime/globalNamespace";
+import { installGasGlobal } from "../../runtime/globals/install";
+import { createVmGasObjectFactory } from "../../runtime/globals/object";
 import type { RuntimeLogSink } from "../../runtime/logging";
 import type { RuntimeServicePort } from "../../runtime/protocol";
 import { RuntimeScope } from "../../runtime/scope";
@@ -23,8 +25,6 @@ import type {
   RequestLegacySync,
 } from "../types";
 import { createCacheService } from "./cacheService";
-import { createVmGasObjectFactory } from "./createGasObject";
-import { installGasGlobal } from "./installGasGlobal";
 import { createMimeType } from "./mimeType";
 import { createPropertiesService } from "./properties";
 import { createSession } from "./session";

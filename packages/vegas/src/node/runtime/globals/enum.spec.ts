@@ -2,8 +2,8 @@ import vm from "node:vm";
 
 import { expect, test } from "vitest";
 
-import { createGasEnum } from "./createGasEnum";
-import { createVmGasObjectFactory } from "./createGasObject";
+import { createGasEnum } from "./enum";
+import { createVmGasObjectFactory } from "./object";
 
 function createAuthMode() {
   return createGasEnum({

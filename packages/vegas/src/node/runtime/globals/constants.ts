@@ -1,4 +1,4 @@
-import type { CreateGasObject } from "./createGasObject";
+import type { CreateGasObject } from "./object";
 
 export type GasConstants<T extends Record<string, unknown>> = Readonly<T> & {
   toString(): string;

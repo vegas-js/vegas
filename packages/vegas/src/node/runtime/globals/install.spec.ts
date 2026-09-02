@@ -1,6 +1,6 @@
 import { expect, test } from "vitest";
 
-import { installGasGlobal } from "./installGasGlobal";
+import { installGasGlobal } from "./install";
 
 test("installs a GAS-compatible global property", () => {
   const target = {};

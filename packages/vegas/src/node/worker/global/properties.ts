@@ -1,8 +1,8 @@
+import type { CreateGasObject } from "../../runtime/globals/object";
+import { createGasServiceObject } from "../../runtime/globals/serviceObject";
 import type { RuntimeServicePort } from "../../runtime/protocol";
 import { RuntimeScope } from "../../runtime/scope";
 import { Properties } from "../api/properties/Properties";
-import type { CreateGasObject } from "./createGasObject";
-import { createGasServiceObject } from "./createGasServiceObject";
 
 function createProperties(
   scope: RuntimeScope,

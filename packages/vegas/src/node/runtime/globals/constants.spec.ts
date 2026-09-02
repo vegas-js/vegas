@@ -2,8 +2,8 @@ import vm from "node:vm";
 
 import { expect, test } from "vitest";
 
-import { createGasConstants } from "./createGasConstants";
-import { createVmGasObjectFactory } from "./createGasObject";
+import { createGasConstants } from "./constants";
+import { createVmGasObjectFactory } from "./object";
 
 test("creates an object in the supplied VM realm", () => {
   const context = vm.createContext({});

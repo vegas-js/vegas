@@ -1,4 +1,4 @@
-import type { CreateGasObject } from "./createGasObject";
+import type { CreateGasObject } from "./object";
 
 export type GasEnumValue<TMember extends string> = {
   toString(): string;

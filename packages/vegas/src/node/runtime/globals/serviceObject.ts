@@ -1,4 +1,4 @@
-import type { CreateGasObject } from "./createGasObject";
+import type { CreateGasObject } from "./object";
 
 type GasServiceObjectEntry =
   | {

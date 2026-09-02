@@ -1,9 +1,9 @@
+import type { CreateGasObject } from "../../runtime/globals/object";
+import { createGasServiceObject } from "../../runtime/globals/serviceObject";
 import { RuntimeServicePort } from "../../runtime/protocol";
 import { RuntimeScope } from "../../runtime/scope";
 import { Cache } from "../api/cache/Cache";
 import { CacheService } from "../api/cache/CacheService";
-import type { CreateGasObject } from "./createGasObject";
-import { createGasServiceObject } from "./createGasServiceObject";
 
 export function createCacheService(
   cacheService: RuntimeServicePort<"Cache">,

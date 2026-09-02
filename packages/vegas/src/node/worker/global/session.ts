@@ -1,7 +1,7 @@
+import type { CreateGasObject } from "../../runtime/globals/object";
+import { createGasServiceObject } from "../../runtime/globals/serviceObject";
 import type { RuntimeServicePort } from "../../runtime/protocol";
 import { Session } from "../api/base/Session";
-import type { CreateGasObject } from "./createGasObject";
-import { createGasServiceObject } from "./createGasServiceObject";
 
 export function createSession(
   sessionService: RuntimeServicePort<"Session">,
