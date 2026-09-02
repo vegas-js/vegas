@@ -4,6 +4,7 @@ import type { RuntimeGlobalEnvironment } from "../../runtime/environment";
 import { resolveRuntimeGlobalNamespace } from "../../runtime/globalNamespace";
 import { installGasGlobal } from "../../runtime/globals/install";
 import { createVmGasObjectFactory } from "../../runtime/globals/object";
+import type { RequestLegacySync } from "../../runtime/legacy/transport";
 import type { RuntimeLogSink } from "../../runtime/logging";
 import type { CreateHtmlOutput, CreateHtmlTemplate } from "../../runtime/objects/types";
 import type { RuntimeServicePort } from "../../runtime/protocol";
@@ -21,7 +22,7 @@ import { DriveApp } from "../api/drive/DriveApp";
 import { Lock } from "../api/lock/Lock";
 import { LockService } from "../api/lock/LockService";
 import { SpreadsheetApp } from "../api/spreadsheet/SpreadsheetApp";
-import type { CreateFile, CreateFolder, CreateSpreadsheet, RequestLegacySync } from "../types";
+import type { CreateFile, CreateFolder, CreateSpreadsheet } from "../types";
 
 export interface GasGlobalComposerDependencies {
   environment: RuntimeGlobalEnvironment;

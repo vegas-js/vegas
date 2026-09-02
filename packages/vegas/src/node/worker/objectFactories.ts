@@ -1,4 +1,5 @@
 import type { EvaluateHtmlTemplate } from "../runtime/execution/types";
+import type { RequestLegacySync } from "../runtime/legacy/transport";
 import type { CreateHtmlOutput, CreateHtmlTemplate } from "../runtime/objects/types";
 import type { RuntimeServicePort } from "../runtime/protocol";
 import { HtmlOutput } from "../runtime/services/html/HtmlOutput";
@@ -14,7 +15,6 @@ import type {
   CreateRange,
   CreateSheet,
   CreateSpreadsheet,
-  RequestLegacySync,
 } from "./types";
 
 type ObjectFactories = {
