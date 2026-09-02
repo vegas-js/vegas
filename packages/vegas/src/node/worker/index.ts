@@ -1,6 +1,7 @@
 import worker from "node:worker_threads";
 
 import { RuntimeGlobalEnvironment } from "../runtime/environment";
+import { evaluateScript, evaluateScriptWithBindings } from "../runtime/execution/scriptRuntime";
 import type { EvaluateHtmlTemplate } from "../runtime/execution/types";
 import type { RequestLegacySync } from "../runtime/legacy/transport";
 import type { RuntimeLogSink } from "../runtime/logging";
@@ -18,7 +19,6 @@ import {
 } from "./remoteServices";
 import { createRuntimeServiceCaller } from "./runtimeTransport";
 import { createScriptContext } from "./scriptContext";
-import { evaluateScript, evaluateScriptWithBindings } from "./scriptRuntime";
 
 type RuntimeWorkerData = {
   code: string;
