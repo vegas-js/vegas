@@ -11,6 +11,7 @@ import { createMimeType } from "../../runtime/services/base/mimeType";
 import { createSession } from "../../runtime/services/base/sessionFacade";
 import { createCacheService } from "../../runtime/services/cache/facade";
 import { createPropertiesService } from "../../runtime/services/properties/facade";
+import { Utilities } from "../../runtime/services/utilities/Utilities";
 import { Console } from "../api/base/console";
 import { Logger } from "../api/base/Logger";
 import { DriveApp } from "../api/drive/DriveApp";
@@ -19,7 +20,6 @@ import { Lock } from "../api/lock/Lock";
 import { LockService } from "../api/lock/LockService";
 import { SpreadsheetApp } from "../api/spreadsheet/SpreadsheetApp";
 import { UrlFetchApp } from "../api/url_fetch/UrlFetchApp";
-import { Utilities } from "../api/utilities/Utilities";
 import type {
   CreateFile,
   CreateFolder,
