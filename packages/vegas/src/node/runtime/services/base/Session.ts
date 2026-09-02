@@ -1,4 +1,4 @@
-import type { RuntimeServicePort } from "../../../runtime/protocol";
+import type { RuntimeServicePort } from "../../protocol";
 import { User } from "./User";
 
 // https://developers.google.com/apps-script/reference/base/session

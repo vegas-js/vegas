@@ -7,6 +7,7 @@ import { createVmGasObjectFactory } from "../../runtime/globals/object";
 import type { RuntimeLogSink } from "../../runtime/logging";
 import type { RuntimeServicePort } from "../../runtime/protocol";
 import { RuntimeScope } from "../../runtime/scope";
+import { createSession } from "../../runtime/services/base/sessionFacade";
 import { createCacheService } from "../../runtime/services/cache/facade";
 import { createPropertiesService } from "../../runtime/services/properties/facade";
 import { Console } from "../api/base/console";
@@ -27,7 +28,6 @@ import type {
   RequestLegacySync,
 } from "../types";
 import { createMimeType } from "./mimeType";
-import { createSession } from "./session";
 
 export interface GasGlobalComposerDependencies {
   environment: RuntimeGlobalEnvironment;

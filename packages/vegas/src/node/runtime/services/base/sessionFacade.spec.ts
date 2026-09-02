@@ -1,7 +1,7 @@
 import { expect, test } from "vitest";
 
-import type { RuntimeServicePort } from "../../runtime/protocol";
-import { createSession } from "./session";
+import type { RuntimeServicePort } from "../../protocol";
+import { createSession } from "./sessionFacade";
 
 const service: RuntimeServicePort<"Session"> = {
   getActiveUser: () => "",
