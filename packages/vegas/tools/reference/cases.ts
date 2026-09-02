@@ -48,4 +48,10 @@ export const referenceCases: readonly ReferenceCaseDefinition[] = [
     fixtureFile: "enum-member-surface.json",
     runtimeTest: "pending",
   },
+  {
+    name: "cache-service-surface",
+    functionName: "captureReferenceCacheServiceSurface",
+    fixtureFile: "cache-service-surface.json",
+    runtimeTest: "required",
+  },
 ];

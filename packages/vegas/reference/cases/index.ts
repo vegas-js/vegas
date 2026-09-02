@@ -7,3 +7,4 @@ export {
 export { captureReferenceGlobalObjectSurface } from "./globalObjectSurface";
 export { captureReferenceMimeTypeSurface } from "./mimeTypeSurface";
 export { captureReferenceSmoke } from "./smoke";
+export { captureReferenceCacheServiceSurface } from "./cacheServiceSurface";

@@ -17,6 +17,7 @@ import { PropertiesService } from "./api/properties/PropertiesService";
 import { SpreadsheetApp } from "./api/spreadsheet/SpreadsheetApp";
 import { UrlFetchApp } from "./api/url_fetch/UrlFetchApp";
 import { Utilities } from "./api/utilities/Utilities";
+import { createCacheService } from "./global/cacheService";
 import { createVmGasObjectFactory } from "./global/createGasObject";
 import { installGasGlobal } from "./global/installGasGlobal";
 import { createMimeType } from "./global/mimeType";
@@ -197,11 +198,7 @@ export function createScriptContext(dependencies: ScriptContextDependencies): vm
     Session: new Session(sessionService),
     console: new Console(logSink),
     /* Cache */
-    CacheService: new CacheService(
-      new Cache(RuntimeScope.DOCUMENT, cacheService),
-      new Cache(RuntimeScope.SCRIPT, cacheService),
-      new Cache(RuntimeScope.USER, cacheService),
-    ),
+    CacheService: createCacheService(cacheService, createGasObject),
     /* Lock */
     LockService: new LockService(
       new Lock(RuntimeScope.DOCUMENT, requestLegacySync),

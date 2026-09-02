@@ -11,23 +11,29 @@ interface GlobalObjectProperty {
 }
 
 function describeProperties(value: object): GlobalObjectProperty[] {
-  return Object.getOwnPropertyNames(value).map((propertyName) => {
-    const descriptor = Object.getOwnPropertyDescriptor(value, propertyName);
+  return Object.getOwnPropertyNames(value)
+    .map((propertyName) => {
+      const descriptor = Object.getOwnPropertyDescriptor(value, propertyName);
 
-    if (!descriptor) {
-      throw new Error(`Missing descriptor for ${propertyName}`);
-    }
+      if (!descriptor) {
+        throw new Error(`Missing descriptor for ${propertyName}`);
+      }
 
-    return {
-      name: propertyName,
-      type: "value" in descriptor ? typeof descriptor.value : "accessor",
-      configurable: descriptor.configurable ?? false,
-      enumerable: descriptor.enumerable ?? false,
-      writable: "writable" in descriptor ? (descriptor.writable ?? false) : null,
-      getter: typeof descriptor.get === "function",
-      setter: typeof descriptor.set === "function",
-    };
-  });
+      return {
+        name: propertyName,
+        type: "value" in descriptor ? typeof descriptor.value : "accessor",
+        configurable: descriptor.configurable ?? false,
+        enumerable: descriptor.enumerable ?? false,
+        writable: "writable" in descriptor ? (descriptor.writable ?? false) : null,
+        getter: typeof descriptor.get === "function",
+        setter: typeof descriptor.set === "function",
+      };
+    })
+    .sort((a, b) => {
+      if (a.name < b.name) return -1;
+      if (a.name > b.name) return 1;
+      return 0;
+    });
 }
 
 export function captureReferenceGlobalObjectSurface() {
