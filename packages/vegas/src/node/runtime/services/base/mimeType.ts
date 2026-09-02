@@ -1,5 +1,5 @@
-import { createGasConstants } from "../../runtime/globals/constants";
-import type { CreateGasObject } from "../../runtime/globals/object";
+import { createGasConstants } from "../../globals/constants";
+import type { CreateGasObject } from "../../globals/object";
 
 const MIME_TYPES = {
   BMP: "image/bmp",
