@@ -5,7 +5,7 @@ import {
 } from "../../src/node/runtime/execution/scriptContext";
 import { evaluateScript } from "../../src/node/runtime/execution/scriptRuntime";
 import { RuntimeServicePort } from "../../src/node/runtime/protocol";
-import type { ReferenceExecutor } from "./types";
+import type { ReferenceExecutor } from "./core/types";
 
 function unexpected(): never {
   throw new Error("Unexpected dependency call while executing reference case");

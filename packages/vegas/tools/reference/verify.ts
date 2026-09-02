@@ -1,11 +1,11 @@
 import path from "node:path";
 import url from "node:url";
 
-import { referenceCases } from "./cases";
 import { createReferenceClient } from "./client";
-import { compareReference } from "./compare";
 import { loadOAuthConfig, loadReferenceConfig } from "./config";
-import { acquireReferenceFixture } from "./fixture";
+import { referenceCases } from "./core/cases";
+import { compareReference } from "./core/compare";
+import { acquireReferenceFixture } from "./core/fixture";
 import { readReferenceFixture } from "./fixtureStore";
 import { createAccessTokenProvider } from "./oauth";
 import { computeCaseRevision, loadReferenceProjectFiles, updateReferenceProject } from "./project";

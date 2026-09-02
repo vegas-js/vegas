@@ -3,8 +3,8 @@ import url from "node:url";
 
 import { expect, test } from "vitest";
 
-import { referenceCases } from "./cases";
-import { acquireReferenceFixture } from "./fixture";
+import { referenceCases } from "./core/cases";
+import { acquireReferenceFixture } from "./core/fixture";
 import { readReferenceFixture } from "./fixtureStore";
 import { computeCaseRevision, loadReferenceProjectFiles } from "./project";
 import { createVegasReferenceExecutor } from "./vegasExecutor";

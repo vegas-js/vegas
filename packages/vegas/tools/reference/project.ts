@@ -3,7 +3,7 @@ import fsPromises from "node:fs/promises";
 import path from "node:path";
 
 import { bundleReferenceCases } from "./bundle";
-import type { AccessTokenProvider, ReferenceConfig } from "./types";
+import type { AccessTokenProvider, ReferenceConfig } from "./core/types";
 
 export interface ReferenceProjectFile {
   name: string;

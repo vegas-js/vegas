@@ -1,6 +1,6 @@
-import { acquireReference } from "./acquire";
 import { createReferenceClient } from "./client";
 import { loadOAuthConfig, loadReferenceConfig } from "./config";
+import { acquireReference } from "./core/acquire";
 import { createAccessTokenProvider } from "./oauth";
 
 const config = loadReferenceConfig();

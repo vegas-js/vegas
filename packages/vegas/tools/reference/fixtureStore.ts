@@ -1,7 +1,7 @@
 import fsPromises from "node:fs/promises";
 import path from "node:path";
 
-import type { ReferenceFixture } from "./types";
+import type { ReferenceFixture } from "./core/types";
 
 export async function readReferenceFixture(path: string): Promise<ReferenceFixture> {
   const content = await fsPromises.readFile(path, "utf8");

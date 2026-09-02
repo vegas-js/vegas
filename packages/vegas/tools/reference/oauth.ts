@@ -1,4 +1,4 @@
-import type { AccessTokenProvider, OAuthConfig } from "./types";
+import type { AccessTokenProvider, OAuthConfig } from "./core/types";
 
 interface TokenResponse {
   access_token?: string;
