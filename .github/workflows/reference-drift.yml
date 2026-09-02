@@ -1,0 +1,126 @@
+name: Reference Drift
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 15 * * 1"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: reference-drift
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    name: Verify GAS reference fixtures
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    env:
+      GAS_REFERENCE_SCRIPT_ID: ${{ secrets.GAS_REFERENCE_SCRIPT_ID }}
+      GAS_REFERENCE_DEPLOYMENT_ID: ${{ secrets.GAS_REFERENCE_DEPLOYMENT_ID }}
+      GAS_REFERENCE_OAUTH_CLIENT_ID: ${{ secrets.GAS_REFERENCE_OAUTH_CLIENT_ID }}
+      GAS_REFERENCE_OAUTH_CLIENT_SECRET: ${{ secrets.GAS_REFERENCE_OAUTH_CLIENT_SECRET }}
+      GAS_REFERENCE_REFRESH_TOKEN: ${{ secrets.GAS_REFERENCE_REFRESH_TOKEN }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ">=22.18.0"
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Validate reference credentials
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          required_variables=(
+            GAS_REFERENCE_SCRIPT_ID
+            GAS_REFERENCE_DEPLOYMENT_ID
+            GAS_REFERENCE_OAUTH_CLIENT_ID
+            GAS_REFERENCE_OAUTH_CLIENT_SECRET
+            GAS_REFERENCE_REFRESH_TOKEN
+          )
+
+          missing=0
+
+          for name in "${required_variables[@]}"; do
+            if [[ -z "${!name:-}" ]]; then
+              echo "::error::$name is not configured"
+              missing=1
+            fi
+          done
+
+          if [[ "$missing" -ne 0 ]]; then
+            {
+              echo "### GAS reference verification"
+              echo
+              echo "Required repository secrets are not configured."
+            } >> "$GITHUB_STEP_SUMMARY"
+
+            exit 1
+          fi
+
+      - name: Verify reference fixtures
+        shell: bash
+        run: |
+          set +e
+
+          pnpm reference:verify
+          status=$?
+
+          set -e
+
+          case "$status" in
+            0)
+              {
+                echo "### GAS reference: match"
+                echo
+                echo "Committed reference fixtures match the current GAS runtime observations."
+              } >> "$GITHUB_STEP_SUMMARY"
+              ;;
+
+            1)
+              {
+                echo "### GAS reference: operational failure"
+                echo
+                echo "The reference harness could not complete successfully."
+                echo "Check authentication, API availability, quotas, and the workflow log."
+              } >> "$GITHUB_STEP_SUMMARY"
+              ;;
+
+            2)
+              {
+                echo "### GAS reference: drift detected"
+                echo
+                echo "At least one committed reference fixture differs from the current GAS runtime observation."
+                echo "Review the workflow log before updating any fixture."
+              } >> "$GITHUB_STEP_SUMMARY"
+              ;;
+
+            *)
+              {
+                echo "### GAS reference: unexpected failure"
+                echo
+                echo "reference:verify exited with unexpected status: $status"
+              } >> "$GITHUB_STEP_SUMMARY"
+
+              status=1
+              ;;
+          esac
+
+          exit "$status"
