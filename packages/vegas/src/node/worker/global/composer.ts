@@ -7,6 +7,8 @@ import { createVmGasObjectFactory } from "../../runtime/globals/object";
 import type { RequestLegacySync } from "../../runtime/legacy/transport";
 import type { RuntimeLogSink } from "../../runtime/logging";
 import type {
+  CreateFile,
+  CreateFolder,
   CreateHtmlOutput,
   CreateHtmlTemplate,
   CreateSpreadsheet,
@@ -18,6 +20,7 @@ import { Logger } from "../../runtime/services/base/Logger";
 import { createMimeType } from "../../runtime/services/base/mimeType";
 import { createSession } from "../../runtime/services/base/sessionFacade";
 import { createCacheService } from "../../runtime/services/cache/facade";
+import { DriveApp } from "../../runtime/services/drive/DriveApp";
 import { HtmlService } from "../../runtime/services/html/HtmlService";
 import { Lock } from "../../runtime/services/lock/Lock";
 import { LockService } from "../../runtime/services/lock/LockService";
@@ -25,8 +28,6 @@ import { createPropertiesService } from "../../runtime/services/properties/facad
 import { SpreadsheetApp } from "../../runtime/services/spreadsheet/SpreadsheetApp";
 import { UrlFetchApp } from "../../runtime/services/url-fetch/UrlFetchApp";
 import { Utilities } from "../../runtime/services/utilities/Utilities";
-import { DriveApp } from "../api/drive/DriveApp";
-import type { CreateFile, CreateFolder } from "../types";
 
 export interface GasGlobalComposerDependencies {
   environment: RuntimeGlobalEnvironment;

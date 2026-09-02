@@ -1,5 +1,5 @@
-import type { RequestLegacySync } from "../../../runtime/legacy/transport";
-import type { CreateFile, CreateFolder } from "../../types";
+import type { RequestLegacySync } from "../../legacy/transport";
+import type { CreateFile, CreateFolder } from "../../objects/types";
 
 // https://developers.google.com/apps-script/reference/drive/drive-app
 export class DriveApp implements GoogleAppsScript.Drive.DriveApp {

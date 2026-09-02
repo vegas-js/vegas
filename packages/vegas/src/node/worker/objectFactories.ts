@@ -1,6 +1,8 @@
 import type { EvaluateHtmlTemplate } from "../runtime/execution/types";
 import type { RequestLegacySync } from "../runtime/legacy/transport";
 import type {
+  CreateFile,
+  CreateFolder,
   CreateHtmlOutput,
   CreateHtmlTemplate,
   CreateRange,
@@ -8,14 +10,13 @@ import type {
   CreateSpreadsheet,
 } from "../runtime/objects/types";
 import type { RuntimeServicePort } from "../runtime/protocol";
+import { File } from "../runtime/services/drive/File";
+import { Folder } from "../runtime/services/drive/Folder";
 import { HtmlOutput } from "../runtime/services/html/HtmlOutput";
 import { HtmlTemplate } from "../runtime/services/html/HtmlTemplate";
 import { Range } from "../runtime/services/spreadsheet/Range";
 import { Sheet } from "../runtime/services/spreadsheet/Sheet";
 import { Spreadsheet } from "../runtime/services/spreadsheet/Spreadsheet";
-import { File } from "./api/drive/File";
-import { Folder } from "./api/drive/Folder";
-import type { CreateFile, CreateFolder } from "./types";
 
 type ObjectFactories = {
   createRange: CreateRange;
