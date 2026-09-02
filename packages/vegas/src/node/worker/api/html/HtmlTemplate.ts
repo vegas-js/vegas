@@ -1,5 +1,5 @@
+import { GASAPI } from "../../../runtime/legacy/GASAPI";
 import type { EvaluateHtmlTemplate } from "../../types";
-import { GASAPI } from "../GASAPI";
 
 export class HtmlTemplate extends GASAPI implements GoogleAppsScript.HTML.HtmlTemplate {
   #code: string;
