@@ -3,7 +3,7 @@ import url from "node:url";
 
 import { referenceCases } from "./core/cases";
 import { acquireReferenceFixture } from "./core/fixture";
-import { writeReferenceFixture } from "./fixtureStore";
+import { writeReferenceFixture } from "./fixtures/store";
 import { createReferenceClient } from "./gas/client";
 import { loadOAuthConfig, loadReferenceConfig } from "./gas/config";
 import { createAccessTokenProvider } from "./gas/oauth";

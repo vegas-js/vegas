@@ -5,7 +5,7 @@ import { expect, test } from "vitest";
 
 import { referenceCases } from "./core/cases";
 import { acquireReferenceFixture } from "./core/fixture";
-import { readReferenceFixture } from "./fixtureStore";
+import { readReferenceFixture } from "./fixtures/store";
 import { computeCaseRevision, loadReferenceProjectFiles } from "./gas/project";
 import { createVegasReferenceExecutor } from "./vegasExecutor";
 

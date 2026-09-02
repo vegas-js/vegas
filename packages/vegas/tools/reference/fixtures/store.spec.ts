@@ -4,7 +4,7 @@ import path from "node:path";
 
 import { afterEach, expect, test } from "vitest";
 
-import { readReferenceFixture, writeReferenceFixture } from "./fixtureStore";
+import { readReferenceFixture, writeReferenceFixture } from "./store";
 
 const paths: string[] = [];
 
