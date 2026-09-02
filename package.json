@@ -15,7 +15,7 @@
     "format": "oxfmt",
     "reference:update": "tsx packages/vegas/tools/reference/update.ts",
     "reference:verify": "tsx packages/vegas/tools/reference/verify.ts",
-    "reference:test": "vitest run packages/vegas/tools/reference/runtime.spec.ts",
+    "reference:test": "vitest run packages/vegas/tools/reference/vegas/runtime.spec.ts",
     "test": "vitest run",
     "coverage": "vitest run --coverage",
     "build": "tsdown --config-loader unrun --workspace",

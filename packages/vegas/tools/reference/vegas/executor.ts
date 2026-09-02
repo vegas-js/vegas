@@ -1,11 +1,11 @@
-import { invokeScriptFunction } from "../../src/node/runtime/execution/invocation";
+import { invokeScriptFunction } from "../../../src/node/runtime/execution/invocation";
 import {
   createScriptContext,
   type ScriptContextDependencies,
-} from "../../src/node/runtime/execution/scriptContext";
-import { evaluateScript } from "../../src/node/runtime/execution/scriptRuntime";
-import { RuntimeServicePort } from "../../src/node/runtime/protocol";
-import type { ReferenceExecutor } from "./core/types";
+} from "../../../src/node/runtime/execution/scriptContext";
+import { evaluateScript } from "../../../src/node/runtime/execution/scriptRuntime";
+import { RuntimeServicePort } from "../../../src/node/runtime/protocol";
+import type { ReferenceExecutor } from "../core/types";
 
 function unexpected(): never {
   throw new Error("Unexpected dependency call while executing reference case");

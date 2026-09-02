@@ -3,13 +3,13 @@ import url from "node:url";
 
 import { expect, test } from "vitest";
 
-import { referenceCases } from "./core/cases";
-import { acquireReferenceFixture } from "./core/fixture";
-import { readReferenceFixture } from "./fixtures/store";
-import { computeCaseRevision, loadReferenceProjectFiles } from "./gas/project";
-import { createVegasReferenceExecutor } from "./vegasExecutor";
+import { referenceCases } from "../core/cases";
+import { acquireReferenceFixture } from "../core/fixture";
+import { readReferenceFixture } from "../fixtures/store";
+import { computeCaseRevision, loadReferenceProjectFiles } from "../gas/project";
+import { createVegasReferenceExecutor } from "./executor";
 
-const referenceDir = url.fileURLToPath(new URL("../../reference/", import.meta.url));
+const referenceDir = url.fileURLToPath(new URL("../../../reference/", import.meta.url));
 const files = await loadReferenceProjectFiles(referenceDir);
 const caseRevision = computeCaseRevision(files);
 const bundled = files.find((file) => file.name === "Code" && file.type === "SERVER_JS");
