@@ -6,7 +6,11 @@ import { installGasGlobal } from "../../runtime/globals/install";
 import { createVmGasObjectFactory } from "../../runtime/globals/object";
 import type { RequestLegacySync } from "../../runtime/legacy/transport";
 import type { RuntimeLogSink } from "../../runtime/logging";
-import type { CreateHtmlOutput, CreateHtmlTemplate } from "../../runtime/objects/types";
+import type {
+  CreateHtmlOutput,
+  CreateHtmlTemplate,
+  CreateSpreadsheet,
+} from "../../runtime/objects/types";
 import type { RuntimeServicePort } from "../../runtime/protocol";
 import { RuntimeScope } from "../../runtime/scope";
 import { createMimeType } from "../../runtime/services/base/mimeType";
@@ -16,13 +20,13 @@ import { HtmlService } from "../../runtime/services/html/HtmlService";
 import { Lock } from "../../runtime/services/lock/Lock";
 import { LockService } from "../../runtime/services/lock/LockService";
 import { createPropertiesService } from "../../runtime/services/properties/facade";
+import { SpreadsheetApp } from "../../runtime/services/spreadsheet/SpreadsheetApp";
 import { UrlFetchApp } from "../../runtime/services/url-fetch/UrlFetchApp";
 import { Utilities } from "../../runtime/services/utilities/Utilities";
 import { Console } from "../api/base/console";
 import { Logger } from "../api/base/Logger";
 import { DriveApp } from "../api/drive/DriveApp";
-import { SpreadsheetApp } from "../api/spreadsheet/SpreadsheetApp";
-import type { CreateFile, CreateFolder, CreateSpreadsheet } from "../types";
+import type { CreateFile, CreateFolder } from "../types";
 
 export interface GasGlobalComposerDependencies {
   environment: RuntimeGlobalEnvironment;

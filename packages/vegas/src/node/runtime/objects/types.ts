@@ -12,6 +12,8 @@ export type CreateSheet = (
   sheetId: number,
 ) => GoogleAppsScript.Spreadsheet.Sheet;
 
+export type CreateSpreadsheet = (spreadsheetId: string) => GoogleAppsScript.Spreadsheet.Spreadsheet;
+
 export type CreateHtmlOutput = (
   content: string,
   defaultXFrameOptionsMode: GoogleAppsScript.HTML.XFrameOptionsMode,

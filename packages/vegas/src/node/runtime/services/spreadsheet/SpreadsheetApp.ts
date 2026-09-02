@@ -1,5 +1,5 @@
-import type { RuntimeServicePort } from "../../../runtime/protocol";
-import type { CreateSpreadsheet } from "../../types";
+import type { CreateSpreadsheet } from "../../objects/types";
+import type { RuntimeServicePort } from "../../protocol";
 
 // https://developers.google.com/apps-script/reference/spreadsheet/spreadsheet-app
 export class SpreadsheetApp implements GoogleAppsScript.Spreadsheet.SpreadsheetApp {
