@@ -1,7 +1,7 @@
 import { describe, expect, test, vi } from "vitest";
 
-import type { RuntimeLogSink } from "../../../runtime/logging";
-import { HtmlService } from "../../../runtime/services/html/HtmlService";
+import type { RuntimeLogSink } from "../../logging";
+import { HtmlService } from "../../services/html/HtmlService";
 import { Console } from "./console";
 
 const consoleSink: RuntimeLogSink = {

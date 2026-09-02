@@ -1,8 +1,8 @@
 // oxlint-disable no-wrapper-object-types
 import util from "node:util";
 
-import { GASAPI } from "../../../runtime/legacy/GASAPI";
-import type { RuntimeLogMethod, RuntimeLogSink } from "../../../runtime/logging";
+import { GASAPI } from "../../legacy/GASAPI";
+import type { RuntimeLogMethod, RuntimeLogSink } from "../../logging";
 
 const logPrefixFormat = `${util.styleText(["black", "bgGreenBright"], "%s")}  %s%s`;
 

@@ -1,6 +1,6 @@
 // oxlint-disable no-wrapper-object-types
-import { GASAPI } from "../../../runtime/legacy/GASAPI";
-import type { RuntimeLogSink } from "../../../runtime/logging";
+import { GASAPI } from "../../legacy/GASAPI";
+import type { RuntimeLogSink } from "../../logging";
 import { getLogPrefix } from "./console";
 
 function convertNumberOutput(num: unknown): string {

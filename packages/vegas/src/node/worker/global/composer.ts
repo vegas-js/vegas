@@ -13,6 +13,8 @@ import type {
 } from "../../runtime/objects/types";
 import type { RuntimeServicePort } from "../../runtime/protocol";
 import { RuntimeScope } from "../../runtime/scope";
+import { Console } from "../../runtime/services/base/console";
+import { Logger } from "../../runtime/services/base/Logger";
 import { createMimeType } from "../../runtime/services/base/mimeType";
 import { createSession } from "../../runtime/services/base/sessionFacade";
 import { createCacheService } from "../../runtime/services/cache/facade";
@@ -23,8 +25,6 @@ import { createPropertiesService } from "../../runtime/services/properties/facad
 import { SpreadsheetApp } from "../../runtime/services/spreadsheet/SpreadsheetApp";
 import { UrlFetchApp } from "../../runtime/services/url-fetch/UrlFetchApp";
 import { Utilities } from "../../runtime/services/utilities/Utilities";
-import { Console } from "../api/base/console";
-import { Logger } from "../api/base/Logger";
 import { DriveApp } from "../api/drive/DriveApp";
 import type { CreateFile, CreateFolder } from "../types";
 
