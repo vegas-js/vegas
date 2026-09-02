@@ -1,6 +1,9 @@
+import vm from "node:vm";
+
 import { expect, test } from "vitest";
 
 import { createGasEnum } from "./createGasEnum";
+import { createVmGasObjectFactory } from "./createGasObject";
 
 function createAuthMode() {
   return createGasEnum({
@@ -8,6 +11,29 @@ function createAuthMode() {
     representative: "NONE",
   });
 }
+
+test("creates enum members in the supplied VM realm", () => {
+  const context = vm.createContext({});
+  const createObject = createVmGasObjectFactory(context);
+  const authMode = createGasEnum(
+    {
+      members: ["NONE", "FULL"],
+      representative: "NONE",
+    },
+    createObject,
+  );
+  context.AuthMode = authMode;
+
+  expect(
+    vm.runInContext(
+      `
+        Object.getPrototypeOf(AuthMode) === Object.prototype &&
+        Object.getPrototypeOf(AuthMode.FULL) === Object.prototype
+      `,
+      context,
+    ),
+  ).toBe(true);
+});
 
 test("creates GAS enum identity graph", () => {
   const authMode = createAuthMode();

@@ -5,4 +5,5 @@ export {
   captureReferenceBuiltinGlobalSurface,
 } from "./globalSurface";
 export { captureReferenceGlobalObjectSurface } from "./globalObjectSurface";
+export { captureReferenceMimeTypeSurface } from "./mimeTypeSurface";
 export { captureReferenceSmoke } from "./smoke";

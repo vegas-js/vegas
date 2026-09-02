@@ -19,6 +19,12 @@ export const referenceCases: readonly ReferenceCaseDefinition[] = [
     runtimeTest: "required",
   },
   {
+    name: "mime-type-surface",
+    functionName: "captureReferenceMimeTypeSurface",
+    fixtureFile: "mime-type-surface.json",
+    runtimeTest: "required",
+  },
+  {
     name: "builtin-global-surface",
     functionName: "captureReferenceBuiltinGlobalSurface",
     fixtureFile: "builtin-global-surface.json",

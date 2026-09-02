@@ -17,7 +17,9 @@ import { PropertiesService } from "./api/properties/PropertiesService";
 import { SpreadsheetApp } from "./api/spreadsheet/SpreadsheetApp";
 import { UrlFetchApp } from "./api/url_fetch/UrlFetchApp";
 import { Utilities } from "./api/utilities/Utilities";
+import { createVmGasObjectFactory } from "./global/createGasObject";
 import { installGasGlobal } from "./global/installGasGlobal";
+import { createMimeType } from "./global/mimeType";
 import type {
   RequestLegacySync,
   CreateFile,
@@ -62,42 +64,6 @@ export function createScriptContext(dependencies: ScriptContextDependencies): vm
     cacheService,
     propertiesService,
   } = dependencies;
-
-  const gasGlobals = {
-    /* Drive */
-    DriveApp: new DriveApp(createFile, createFolder, requestLegacySync),
-    /* Sheets */
-    SpreadsheetApp: new SpreadsheetApp(createSpreadsheet, spreadsheetAppService),
-    /* URL Fetch */
-    UrlFetchApp: new UrlFetchApp(urlFetchService),
-    /* Utilities */
-    Utilities: new Utilities(),
-    /* HTML */
-    HtmlService: new HtmlService(createHtmlOutput, createHtmlTemplate, htmlService),
-    Logger: new Logger(logSink),
-    Session: new Session(sessionService),
-    console: new Console(logSink),
-    /* Cache */
-    CacheService: new CacheService(
-      new Cache(RuntimeScope.DOCUMENT, cacheService),
-      new Cache(RuntimeScope.SCRIPT, cacheService),
-      new Cache(RuntimeScope.USER, cacheService),
-    ),
-    /* Lock */
-    LockService: new LockService(
-      new Lock(RuntimeScope.DOCUMENT, requestLegacySync),
-      new Lock(RuntimeScope.SCRIPT, requestLegacySync),
-      new Lock(RuntimeScope.USER, requestLegacySync),
-    ),
-    /* Properties */
-    PropertiesService: new PropertiesService(
-      new Properties(RuntimeScope.DOCUMENT, propertiesService),
-      new Properties(RuntimeScope.SCRIPT, propertiesService),
-      new Properties(RuntimeScope.USER, propertiesService),
-    ),
-    // ScriptProperties is Deprecated.
-    // UserProperties is Deprecated.
-  };
 
   const context = vm.createContext({
     /* Admin Console */
@@ -187,7 +153,6 @@ export function createScriptContext(dependencies: ScriptContextDependencies): vm
     /* Base */
     Browser: undefined,
     // Logger: new Logger(logSink),
-    MimeType: undefined,
     // Session: new Session(sessionService),
     // console: new Console(logSink),
     /* Cache */
@@ -213,6 +178,45 @@ export function createScriptContext(dependencies: ScriptContextDependencies): vm
     /* Script */
     ScriptApp: undefined,
   });
+
+  const createGasObject = createVmGasObjectFactory(context);
+
+  const gasGlobals = {
+    /* Drive */
+    DriveApp: new DriveApp(createFile, createFolder, requestLegacySync),
+    /* Sheets */
+    SpreadsheetApp: new SpreadsheetApp(createSpreadsheet, spreadsheetAppService),
+    /* URL Fetch */
+    UrlFetchApp: new UrlFetchApp(urlFetchService),
+    /* Utilities */
+    Utilities: new Utilities(),
+    /* HTML */
+    HtmlService: new HtmlService(createHtmlOutput, createHtmlTemplate, htmlService),
+    Logger: new Logger(logSink),
+    MimeType: createMimeType(createGasObject),
+    Session: new Session(sessionService),
+    console: new Console(logSink),
+    /* Cache */
+    CacheService: new CacheService(
+      new Cache(RuntimeScope.DOCUMENT, cacheService),
+      new Cache(RuntimeScope.SCRIPT, cacheService),
+      new Cache(RuntimeScope.USER, cacheService),
+    ),
+    /* Lock */
+    LockService: new LockService(
+      new Lock(RuntimeScope.DOCUMENT, requestLegacySync),
+      new Lock(RuntimeScope.SCRIPT, requestLegacySync),
+      new Lock(RuntimeScope.USER, requestLegacySync),
+    ),
+    /* Properties */
+    PropertiesService: new PropertiesService(
+      new Properties(RuntimeScope.DOCUMENT, propertiesService),
+      new Properties(RuntimeScope.SCRIPT, propertiesService),
+      new Properties(RuntimeScope.USER, propertiesService),
+    ),
+    // ScriptProperties is Deprecated.
+    // UserProperties is Deprecated.
+  };
 
   for (const [name, value] of Object.entries(gasGlobals)) {
     installGasGlobal(context, name, value);

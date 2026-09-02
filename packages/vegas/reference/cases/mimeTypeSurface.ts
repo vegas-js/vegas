@@ -1,6 +1,4 @@
-const GLOBAL_NAMES = ["CalendarApp", "DocumentApp", "GmailApp", "ScriptApp"] as const;
-
-interface GlobalObjectProperty {
+interface MimeTypeProperty {
   name: string;
   type: string;
   configurable: boolean;
@@ -8,12 +6,13 @@ interface GlobalObjectProperty {
   writable: boolean | null;
   getter: boolean;
   setter: boolean;
+  stringify: string | null;
+  value: string | null;
 }
 
-function describeProperties(value: object): GlobalObjectProperty[] {
+function describeProperties(value: object): MimeTypeProperty[] {
   return Object.getOwnPropertyNames(value).map((propertyName) => {
     const descriptor = Object.getOwnPropertyDescriptor(value, propertyName);
-
     if (!descriptor) {
       throw new Error(`Missing descriptor for ${propertyName}`);
     }
@@ -26,31 +25,29 @@ function describeProperties(value: object): GlobalObjectProperty[] {
       writable: "writable" in descriptor ? (descriptor.writable ?? false) : null,
       getter: typeof descriptor.get === "function",
       setter: typeof descriptor.set === "function",
+      stringify:
+        "value" in descriptor && typeof descriptor.value !== "function"
+          ? String(descriptor.value)
+          : null,
+      value: typeof descriptor.value === "string" ? descriptor.value : null,
     };
   });
 }
 
-export function captureReferenceGlobalObjectSurface() {
+export function captureReferenceMimeTypeSurface() {
   const globals = globalThis as unknown as Record<string, unknown>;
-
-  return GLOBAL_NAMES.map((name) => {
-    const value = globals[name];
-    if (value === null || (typeof value !== "object" && typeof value !== "function")) {
-      return {
-        name,
-        properties: null,
-        prototypeIsObjectPrototype: null,
-        prototypePropertyNames: null,
-      };
-    }
-
-    const prototype = Object.getPrototypeOf(value) as object | null;
-
+  const mimeType = globals.MimeType;
+  if (mimeType === null || typeof mimeType !== "object") {
     return {
-      name,
-      properties: describeProperties(value),
-      prototypeIsObjectPrototype: Object.getPrototypeOf(value) === Object.prototype,
-      prototypePropertyNames: prototype === null ? null : Object.getOwnPropertyNames(prototype),
+      properties: null,
+      prototypeIsObjectPrototype: null,
+      stringify: null,
     };
-  });
+  }
+
+  return {
+    properties: describeProperties(mimeType),
+    prototypeIsObjectPrototype: Object.getPrototypeOf(mimeType) === Object.prototype,
+    stringify: String(mimeType as any),
+  };
 }

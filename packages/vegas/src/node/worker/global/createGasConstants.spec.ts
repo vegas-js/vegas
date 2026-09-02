@@ -1,6 +1,26 @@
+import vm from "node:vm";
+
 import { expect, test } from "vitest";
 
 import { createGasConstants } from "./createGasConstants";
+import { createVmGasObjectFactory } from "./createGasObject";
+
+test("creates an object in the supplied VM realm", () => {
+  const context = vm.createContext({});
+  const createObject = createVmGasObjectFactory(context);
+  const constants = createGasConstants(
+    "MimeType",
+    {
+      PDF: "application/pdf",
+    },
+    createObject,
+  );
+  context.MimeType = constants;
+
+  expect(vm.runInContext("Object.getPrototypeOf(MimeType) === Object.prototype", context)).toBe(
+    true,
+  );
+});
 
 test("creates GAS constant object semantics", () => {
   const mimeType = createGasConstants("MimeType", {

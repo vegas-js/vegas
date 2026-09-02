@@ -1,3 +1,5 @@
+import type { CreateGasObject } from "./createGasObject";
+
 export type GasEnumValue<TMember extends string> = {
   toString(): string;
   name(): string;
@@ -7,6 +9,8 @@ export type GasEnumValue<TMember extends string> = {
 } & {
   [K in TMember]: GasEnumValue<TMember>;
 };
+
+const defaultCreateGasObject: CreateGasObject = () => ({});
 
 export interface GasEnumDefinition<TMember extends string> {
   members: readonly TMember[];
@@ -37,11 +41,12 @@ function defineMember(target: object, name: string, value: object): void {
 
 export function createGasEnum<const TMember extends string>(
   definition: GasEnumDefinition<TMember>,
+  createObject: CreateGasObject = defaultCreateGasObject,
 ): GasEnumValue<TMember> {
   const values = new Map<TMember, GasEnumValue<TMember>>();
 
   for (const [ordinal, memberName] of definition.members.entries()) {
-    const value = {} as GasEnumValue<TMember>;
+    const value = createObject() as GasEnumValue<TMember>;
 
     defineHelper(value, "toString", () => memberName);
     defineHelper(value, "name", () => memberName);

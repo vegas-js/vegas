@@ -1,5 +1,4 @@
 const GLOBAL_NAMES = [
-  "MimeType",
   "ScriptApp.AuthMode",
   "CalendarApp.Month",
   "DocumentApp.Attribute",

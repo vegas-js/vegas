@@ -5,6 +5,7 @@ const IMPLEMENTED_GLOBAL_NAMES = [
   "Utilities",
   "HtmlService",
   "Logger",
+  "MimeType",
   "Session",
   "console",
   "CacheService",
@@ -16,7 +17,6 @@ const PENDING_BUILTIN_GLOBAL_NAMES = [
   "CalendarApp",
   "DocumentApp",
   "GmailApp",
-  "MimeType",
   "ScriptApp",
 ] as const;
 

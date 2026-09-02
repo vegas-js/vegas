@@ -1,0 +1,376 @@
+{
+  "metadata": {
+    "schemaVersion": 1,
+    "runtime": "V8",
+    "caseRevision": "1798f6934b4d4ccbeb603d44b37e73584797bf3fa33acfa7023c9b4e0ed388fc"
+  },
+  "result": {
+    "properties": [
+      {
+        "configurable": true,
+        "enumerable": true,
+        "getter": false,
+        "name": "toString",
+        "setter": false,
+        "stringify": null,
+        "type": "function",
+        "value": null,
+        "writable": true
+      },
+      {
+        "configurable": true,
+        "enumerable": true,
+        "getter": false,
+        "name": "BMP",
+        "setter": false,
+        "stringify": "image/bmp",
+        "type": "string",
+        "value": "image/bmp",
+        "writable": false
+      },
+      {
+        "configurable": true,
+        "enumerable": true,
+        "getter": false,
+        "name": "CSS",
+        "setter": false,
+        "stringify": "text/css",
+        "type": "string",
+        "value": "text/css",
+        "writable": false
+      },
+      {
+        "configurable": true,
+        "enumerable": true,
+        "getter": false,
+        "name": "CSV",
+        "setter": false,
+        "stringify": "text/csv",
+        "type": "string",
+        "value": "text/csv",
+        "writable": false
+      },
+      {
+        "configurable": true,
+        "enumerable": true,
+        "getter": false,
+        "name": "FOLDER",
+        "setter": false,
+        "stringify": "application/vnd.google-apps.folder",
+        "type": "string",
+        "value": "application/vnd.google-apps.folder",
+        "writable": false
+      },
+      {
+        "configurable": true,
+        "enumerable": true,
+        "getter": false,
+        "name": "GIF",
+        "setter": false,
+        "stringify": "image/gif",
+        "type": "string",
+        "value": "image/gif",
+        "writable": false
+      },
+      {
+        "configurable": true,
+        "enumerable": true,
+        "getter": false,
+        "name": "GOOGLE_APPS_SCRIPT",
+        "setter": false,
+        "stringify": "application/vnd.google-apps.script",
+        "type": "string",
+        "value": "application/vnd.google-apps.script",
+        "writable": false
+      },
+      {
+        "configurable": true,
+        "enumerable": true,
+        "getter": false,
+        "name": "GOOGLE_DOCS",
+        "setter": false,
+        "stringify": "application/vnd.google-apps.document",
+        "type": "string",
+        "value": "application/vnd.google-apps.document",
+        "writable": false
+      },
+      {
+        "configurable": true,
+        "enumerable": true,
+        "getter": false,
+        "name": "GOOGLE_DRAWINGS",
+        "setter": false,
+        "stringify": "application/vnd.google-apps.drawing",
+        "type": "string",
+        "value": "application/vnd.google-apps.drawing",
+        "writable": false
+      },
+      {
+        "configurable": true,
+        "enumerable": true,
+        "getter": false,
+        "name": "GOOGLE_FORMS",
+        "setter": false,
+        "stringify": "application/vnd.google-apps.form",
+        "type": "string",
+        "value": "application/vnd.google-apps.form",
+        "writable": false
+      },
+      {
+        "configurable": true,
+        "enumerable": true,
+        "getter": false,
+        "name": "GOOGLE_SHEETS",
+        "setter": false,
+        "stringify": "application/vnd.google-apps.spreadsheet",
+        "type": "string",
+        "value": "application/vnd.google-apps.spreadsheet",
+        "writable": false
+      },
+      {
+        "configurable": true,
+        "enumerable": true,
+        "getter": false,
+        "name": "GOOGLE_SITES",
+        "setter": false,
+        "stringify": "application/vnd.google-apps.site",
+        "type": "string",
+        "value": "application/vnd.google-apps.site",
+        "writable": false
+      },
+      {
+        "configurable": true,
+        "enumerable": true,
+        "getter": false,
+        "name": "GOOGLE_SLIDES",
+        "setter": false,
+        "stringify": "application/vnd.google-apps.presentation",
+        "type": "string",
+        "value": "application/vnd.google-apps.presentation",
+        "writable": false
+      },
+      {
+        "configurable": true,
+        "enumerable": true,
+        "getter": false,
+        "name": "HTML",
+        "setter": false,
+        "stringify": "text/html",
+        "type": "string",
+        "value": "text/html",
+        "writable": false
+      },
+      {
+        "configurable": true,
+        "enumerable": true,
+        "getter": false,
+        "name": "JAVASCRIPT",
+        "setter": false,
+        "stringify": "application/javascript",
+        "type": "string",
+        "value": "application/javascript",
+        "writable": false
+      },
+      {
+        "configurable": true,
+        "enumerable": true,
+        "getter": false,
+        "name": "JPEG",
+        "setter": false,
+        "stringify": "image/jpeg",
+        "type": "string",
+        "value": "image/jpeg",
+        "writable": false
+      },
+      {
+        "configurable": true,
+        "enumerable": true,
+        "getter": false,
+        "name": "MICROSOFT_EXCEL",
+        "setter": false,
+        "stringify": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        "type": "string",
+        "value": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        "writable": false
+      },
+      {
+        "configurable": true,
+        "enumerable": true,
+        "getter": false,
+        "name": "MICROSOFT_EXCEL_LEGACY",
+        "setter": false,
+        "stringify": "application/vnd.ms-excel",
+        "type": "string",
+        "value": "application/vnd.ms-excel",
+        "writable": false
+      },
+      {
+        "configurable": true,
+        "enumerable": true,
+        "getter": false,
+        "name": "MICROSOFT_POWERPOINT",
+        "setter": false,
+        "stringify": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+        "type": "string",
+        "value": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+        "writable": false
+      },
+      {
+        "configurable": true,
+        "enumerable": true,
+        "getter": false,
+        "name": "MICROSOFT_POWERPOINT_LEGACY",
+        "setter": false,
+        "stringify": "application/vnd.ms-powerpoint",
+        "type": "string",
+        "value": "application/vnd.ms-powerpoint",
+        "writable": false
+      },
+      {
+        "configurable": true,
+        "enumerable": true,
+        "getter": false,
+        "name": "MICROSOFT_WORD",
+        "setter": false,
+        "stringify": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        "type": "string",
+        "value": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        "writable": false
+      },
+      {
+        "configurable": true,
+        "enumerable": true,
+        "getter": false,
+        "name": "MICROSOFT_WORD_LEGACY",
+        "setter": false,
+        "stringify": "application/msword",
+        "type": "string",
+        "value": "application/msword",
+        "writable": false
+      },
+      {
+        "configurable": true,
+        "enumerable": true,
+        "getter": false,
+        "name": "OPENDOCUMENT_GRAPHICS",
+        "setter": false,
+        "stringify": "application/vnd.oasis.opendocument.graphics",
+        "type": "string",
+        "value": "application/vnd.oasis.opendocument.graphics",
+        "writable": false
+      },
+      {
+        "configurable": true,
+        "enumerable": true,
+        "getter": false,
+        "name": "OPENDOCUMENT_PRESENTATION",
+        "setter": false,
+        "stringify": "application/vnd.oasis.opendocument.presentation",
+        "type": "string",
+        "value": "application/vnd.oasis.opendocument.presentation",
+        "writable": false
+      },
+      {
+        "configurable": true,
+        "enumerable": true,
+        "getter": false,
+        "name": "OPENDOCUMENT_SPREADSHEET",
+        "setter": false,
+        "stringify": "application/vnd.oasis.opendocument.spreadsheet",
+        "type": "string",
+        "value": "application/vnd.oasis.opendocument.spreadsheet",
+        "writable": false
+      },
+      {
+        "configurable": true,
+        "enumerable": true,
+        "getter": false,
+        "name": "OPENDOCUMENT_TEXT",
+        "setter": false,
+        "stringify": "application/vnd.oasis.opendocument.text",
+        "type": "string",
+        "value": "application/vnd.oasis.opendocument.text",
+        "writable": false
+      },
+      {
+        "configurable": true,
+        "enumerable": true,
+        "getter": false,
+        "name": "PDF",
+        "setter": false,
+        "stringify": "application/pdf",
+        "type": "string",
+        "value": "application/pdf",
+        "writable": false
+      },
+      {
+        "configurable": true,
+        "enumerable": true,
+        "getter": false,
+        "name": "PLAIN_TEXT",
+        "setter": false,
+        "stringify": "text/plain",
+        "type": "string",
+        "value": "text/plain",
+        "writable": false
+      },
+      {
+        "configurable": true,
+        "enumerable": true,
+        "getter": false,
+        "name": "PNG",
+        "setter": false,
+        "stringify": "image/png",
+        "type": "string",
+        "value": "image/png",
+        "writable": false
+      },
+      {
+        "configurable": true,
+        "enumerable": true,
+        "getter": false,
+        "name": "RTF",
+        "setter": false,
+        "stringify": "application/rtf",
+        "type": "string",
+        "value": "application/rtf",
+        "writable": false
+      },
+      {
+        "configurable": true,
+        "enumerable": true,
+        "getter": false,
+        "name": "SHORTCUT",
+        "setter": false,
+        "stringify": "application/vnd.google-apps.shortcut",
+        "type": "string",
+        "value": "application/vnd.google-apps.shortcut",
+        "writable": false
+      },
+      {
+        "configurable": true,
+        "enumerable": true,
+        "getter": false,
+        "name": "SVG",
+        "setter": false,
+        "stringify": "image/svg+xml",
+        "type": "string",
+        "value": "image/svg+xml",
+        "writable": false
+      },
+      {
+        "configurable": true,
+        "enumerable": true,
+        "getter": false,
+        "name": "ZIP",
+        "setter": false,
+        "stringify": "application/zip",
+        "type": "string",
+        "value": "application/zip",
+        "writable": false
+      }
+    ],
+    "prototypeIsObjectPrototype": true,
+    "stringify": "MimeType"
+  }
+}
