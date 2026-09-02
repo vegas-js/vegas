@@ -13,14 +13,14 @@ import { createMimeType } from "../../runtime/services/base/mimeType";
 import { createSession } from "../../runtime/services/base/sessionFacade";
 import { createCacheService } from "../../runtime/services/cache/facade";
 import { HtmlService } from "../../runtime/services/html/HtmlService";
+import { Lock } from "../../runtime/services/lock/Lock";
+import { LockService } from "../../runtime/services/lock/LockService";
 import { createPropertiesService } from "../../runtime/services/properties/facade";
 import { UrlFetchApp } from "../../runtime/services/url-fetch/UrlFetchApp";
 import { Utilities } from "../../runtime/services/utilities/Utilities";
 import { Console } from "../api/base/console";
 import { Logger } from "../api/base/Logger";
 import { DriveApp } from "../api/drive/DriveApp";
-import { Lock } from "../api/lock/Lock";
-import { LockService } from "../api/lock/LockService";
 import { SpreadsheetApp } from "../api/spreadsheet/SpreadsheetApp";
 import type { CreateFile, CreateFolder, CreateSpreadsheet } from "../types";
 

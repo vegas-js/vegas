@@ -1,5 +1,5 @@
-import type { RequestLegacySync } from "../../../runtime/legacy/transport";
-import type { RuntimeScope } from "../../../runtime/scope";
+import type { RequestLegacySync } from "../../legacy/transport";
+import type { RuntimeScope } from "../../scope";
 
 // https://developers.google.com/apps-script/reference/lock/lock
 export class Lock implements GoogleAppsScript.Lock.Lock {
