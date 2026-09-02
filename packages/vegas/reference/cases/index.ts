@@ -10,3 +10,7 @@ export { captureReferenceSmoke } from "./smoke";
 export { captureReferenceCacheServiceSurface } from "./cacheServiceSurface";
 export { captureReferenceSessionServiceSurface } from "./sessionServiceSurface";
 export { captureReferenceSessionDeprecatedSemantics } from "./sessionDeprecatedSemantics";
+export { captureReferencePropertiesServiceSurface } from "./propertiesServiceSurface";
+export { captureReferencePropertiesServiceSemantics } from "./propertiesServiceSemantics";
+export { captureReferencePropertiesObjectSurface } from "./propertiesObjectSurface";
+export { captureReferencePropertiesObjectSemantics } from "./propertiesObjectSemantics";

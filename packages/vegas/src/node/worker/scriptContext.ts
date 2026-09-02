@@ -9,8 +9,6 @@ import { DriveApp } from "./api/drive/DriveApp";
 import { HtmlService } from "./api/html/HtmlService";
 import { Lock } from "./api/lock/Lock";
 import { LockService } from "./api/lock/LockService";
-import { Properties } from "./api/properties/Properties";
-import { PropertiesService } from "./api/properties/PropertiesService";
 import { SpreadsheetApp } from "./api/spreadsheet/SpreadsheetApp";
 import { UrlFetchApp } from "./api/url_fetch/UrlFetchApp";
 import { Utilities } from "./api/utilities/Utilities";
@@ -18,6 +16,7 @@ import { createCacheService } from "./global/cacheService";
 import { createVmGasObjectFactory } from "./global/createGasObject";
 import { installGasGlobal } from "./global/installGasGlobal";
 import { createMimeType } from "./global/mimeType";
+import { createPropertiesService } from "./global/properties";
 import { createSession } from "./global/session";
 import type {
   RequestLegacySync,
@@ -45,6 +44,7 @@ export type ScriptContextDependencies = {
   sessionService: RuntimeServicePort<"Session">;
   cacheService: RuntimeServicePort<"Cache">;
   propertiesService: RuntimeServicePort<"Properties">;
+  documentPropertiesAvailable?: boolean;
 };
 
 export function createScriptContext(dependencies: ScriptContextDependencies): vm.Context {
@@ -62,6 +62,7 @@ export function createScriptContext(dependencies: ScriptContextDependencies): vm
     sessionService,
     cacheService,
     propertiesService,
+    documentPropertiesAvailable,
   } = dependencies;
 
   const context = vm.createContext({
@@ -204,11 +205,10 @@ export function createScriptContext(dependencies: ScriptContextDependencies): vm
       new Lock(RuntimeScope.USER, requestLegacySync),
     ),
     /* Properties */
-    PropertiesService: new PropertiesService(
-      new Properties(RuntimeScope.DOCUMENT, propertiesService),
-      new Properties(RuntimeScope.SCRIPT, propertiesService),
-      new Properties(RuntimeScope.USER, propertiesService),
-    ),
+    PropertiesService: createPropertiesService(propertiesService, {
+      documentPropertiesAvailable: documentPropertiesAvailable ?? true,
+      createObject: createGasObject,
+    }),
     // ScriptProperties is Deprecated.
     // UserProperties is Deprecated.
   };

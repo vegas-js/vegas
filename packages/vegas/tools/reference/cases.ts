@@ -66,4 +66,28 @@ export const referenceCases: readonly ReferenceCaseDefinition[] = [
     fixtureFile: "session-deprecated-semantics.json",
     runtimeTest: "required",
   },
+  {
+    name: "properties-service-surface",
+    functionName: "captureReferencePropertiesServiceSurface",
+    fixtureFile: "properties-service-surface.json",
+    runtimeTest: "required",
+  },
+  {
+    name: "properties-service-semantics",
+    functionName: "captureReferencePropertiesServiceSemantics",
+    fixtureFile: "properties-service-semantics.json",
+    runtimeTest: "required",
+  },
+  {
+    name: "properties-object-surface",
+    functionName: "captureReferencePropertiesObjectSurface",
+    fixtureFile: "properties-object-surface.json",
+    runtimeTest: "required",
+  },
+  {
+    name: "properties-object-semantics",
+    functionName: "captureReferencePropertiesObjectSemantics",
+    fixtureFile: "properties-object-semantics.json",
+    runtimeTest: "required",
+  },
 ];

@@ -10,7 +10,7 @@
         "configurable": true,
         "enumerable": true,
         "getter": false,
-        "name": "getDocumentCache",
+        "name": "getDocumentProperties",
         "setter": false,
         "type": "function",
         "writable": true
@@ -19,7 +19,7 @@
         "configurable": true,
         "enumerable": true,
         "getter": false,
-        "name": "getPrivateCache",
+        "name": "getScriptProperties",
         "setter": false,
         "type": "function",
         "writable": true
@@ -28,25 +28,7 @@
         "configurable": true,
         "enumerable": true,
         "getter": false,
-        "name": "getPublicCache",
-        "setter": false,
-        "type": "function",
-        "writable": true
-      },
-      {
-        "configurable": true,
-        "enumerable": true,
-        "getter": false,
-        "name": "getScriptCache",
-        "setter": false,
-        "type": "function",
-        "writable": true
-      },
-      {
-        "configurable": true,
-        "enumerable": true,
-        "getter": false,
-        "name": "getUserCache",
+        "name": "getUserProperties",
         "setter": false,
         "type": "function",
         "writable": true
@@ -62,6 +44,6 @@
       }
     ],
     "prototypeIsObjectPrototype": true,
-    "stringify": "CacheService"
+    "stringify": "PropertiesService"
   }
 }

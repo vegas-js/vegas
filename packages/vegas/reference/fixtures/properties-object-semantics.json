@@ -5,8 +5,9 @@
     "caseRevision": "8025034b18f625c7f78e8aa26504e2211cc53a30ba1e6de55673c976096c7f22"
   },
   "result": {
-    "number": "1",
-    "string": "value",
-    "undefinedType": "undefined"
+    "deletePropertyReturnsReceiver": true,
+    "distinctObjects": true,
+    "setPropertyReturnsReceiver": true,
+    "sharedBackingStore": true
   }
 }

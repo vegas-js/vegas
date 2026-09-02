@@ -1,3 +1,4 @@
+import { RuntimeServicePort } from "../../src/node/runtime/protocol";
 import { invokeScriptFunction } from "../../src/node/worker/invocation";
 import {
   createScriptContext,
@@ -8,6 +9,50 @@ import type { ReferenceExecutor } from "./types";
 
 function unexpected(): never {
   throw new Error("Unexpected dependency call while executing reference case");
+}
+
+function createReferencePropertiesService(): RuntimeServicePort<"Properties"> {
+  const stores = new Map<unknown, Map<string, string>>();
+  const getStore = (scope: unknown) => {
+    let store = stores.get(scope);
+    if (!store) {
+      store = new Map<string, string>();
+      stores.set(scope, store);
+    }
+
+    return store;
+  };
+
+  return {
+    deleteAllProperties: (scope) => {
+      getStore(scope).clear();
+    },
+    deleteProperty: (scope, key) => {
+      getStore(scope).delete(key);
+    },
+    getKeys: (scope) => {
+      return [...getStore(scope).keys()];
+    },
+    getProperties: (scope) => {
+      return Object.fromEntries(getStore(scope));
+    },
+
+    getProperty: (scope, key) => {
+      return getStore(scope).get(key) ?? null;
+    },
+    setProperties: (scope, properties, deleteAllOthers) => {
+      const store = getStore(scope);
+      if (deleteAllOthers) {
+        store.clear();
+      }
+      for (const [key, value] of Object.entries(properties)) {
+        store.set(key, value);
+      }
+    },
+    setProperty: (scope, key, value) => {
+      getStore(scope).set(key, value);
+    },
+  };
 }
 
 function createReferenceDependencies(): ScriptContextDependencies {
@@ -54,15 +99,8 @@ function createReferenceDependencies(): ScriptContextDependencies {
       removeAll: unexpected,
     },
 
-    propertiesService: {
-      deleteAllProperties: unexpected,
-      deleteProperty: unexpected,
-      getKeys: unexpected,
-      getProperties: unexpected,
-      getProperty: unexpected,
-      setProperties: unexpected,
-      setProperty: unexpected,
-    },
+    propertiesService: createReferencePropertiesService(),
+    documentPropertiesAvailable: false,
   };
 }
 

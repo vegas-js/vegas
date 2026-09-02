@@ -1,0 +1,32 @@
+{
+  "metadata": {
+    "schemaVersion": 1,
+    "runtime": "V8",
+    "caseRevision": "8025034b18f625c7f78e8aa26504e2211cc53a30ba1e6de55673c976096c7f22"
+  },
+  "result": {
+    "document": {
+      "isNull": true,
+      "stableIdentity": true,
+      "stringify": null,
+      "type": "object"
+    },
+    "identity": {
+      "documentEqualsScript": false,
+      "documentEqualsUser": false,
+      "scriptEqualsUser": false
+    },
+    "script": {
+      "isNull": false,
+      "stableIdentity": false,
+      "stringify": "ScriptProperties",
+      "type": "object"
+    },
+    "user": {
+      "isNull": false,
+      "stableIdentity": false,
+      "stringify": "UserProperties",
+      "type": "object"
+    }
+  }
+}

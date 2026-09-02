@@ -1,0 +1,165 @@
+{
+  "metadata": {
+    "schemaVersion": 1,
+    "runtime": "V8",
+    "caseRevision": "8025034b18f625c7f78e8aa26504e2211cc53a30ba1e6de55673c976096c7f22"
+  },
+  "result": {
+    "script": {
+      "properties": [
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "deleteAllProperties",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "deleteProperty",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "getKeys",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "getProperties",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "getProperty",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "setProperties",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "setProperty",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "toString",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        }
+      ],
+      "prototypeIsObjectPrototype": true,
+      "stringify": "ScriptProperties"
+    },
+    "user": {
+      "properties": [
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "deleteAllProperties",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "deleteProperty",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "getKeys",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "getProperties",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "getProperty",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "setProperties",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "setProperty",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "toString",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        }
+      ],
+      "prototypeIsObjectPrototype": true,
+      "stringify": "UserProperties"
+    }
+  }
+}
