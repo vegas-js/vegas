@@ -1,6 +1,6 @@
-import type { RequestLegacySync } from "../../../runtime/legacy/transport";
-import type { RuntimeServicePort } from "../../../runtime/protocol";
-import type { CreateRange } from "../../types";
+import type { RequestLegacySync } from "../../legacy/transport";
+import type { CreateRange } from "../../objects/types";
+import type { RuntimeServicePort } from "../../protocol";
 
 // https://developers.google.com/apps-script/reference/spreadsheet/sheet
 export class Sheet implements GoogleAppsScript.Spreadsheet.Sheet {

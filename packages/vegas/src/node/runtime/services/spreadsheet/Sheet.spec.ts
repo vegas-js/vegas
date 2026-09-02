@@ -1,6 +1,6 @@
 import { describe, expect, test, vi } from "vitest";
 
-import type { RuntimeServicePort } from "../../../runtime/protocol";
+import type { RuntimeServicePort } from "../../protocol";
 import { Sheet } from "./Sheet";
 
 const unexpected = () => {
