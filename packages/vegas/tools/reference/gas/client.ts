@@ -1,4 +1,4 @@
-import type { AccessTokenProvider, ReferenceExecutor, ReferenceConfig } from "./core/types";
+import type { AccessTokenProvider, ReferenceExecutor, ReferenceConfig } from "../core/types";
 
 interface ScriptRunOperation {
   done?: boolean;

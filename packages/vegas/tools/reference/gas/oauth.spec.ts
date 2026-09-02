@@ -1,6 +1,6 @@
 import { afterEach, expect, test, vi } from "vitest";
 
-import type { OAuthConfig } from "./core/types";
+import type { OAuthConfig } from "../core/types";
 import { createAccessTokenProvider } from "./oauth";
 
 afterEach(() => vi.unstubAllGlobals());

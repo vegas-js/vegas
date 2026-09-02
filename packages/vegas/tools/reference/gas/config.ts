@@ -1,4 +1,4 @@
-import type { OAuthConfig, ReferenceConfig } from "./core/types";
+import type { OAuthConfig, ReferenceConfig } from "../core/types";
 
 export function loadReferenceConfig(): ReferenceConfig {
   const deploymentId = process.env.GAS_REFERENCE_DEPLOYMENT_ID;

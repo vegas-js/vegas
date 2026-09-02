@@ -1,6 +1,6 @@
 import { afterEach, expect, test, vi } from "vitest";
 
-import type { AccessTokenProvider, ReferenceConfig } from "./core/types";
+import type { AccessTokenProvider, ReferenceConfig } from "../core/types";
 import { computeCaseRevision, updateReferenceProject } from "./project";
 
 afterEach(() => {

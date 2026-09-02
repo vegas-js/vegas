@@ -2,8 +2,8 @@ import crypto from "node:crypto";
 import fsPromises from "node:fs/promises";
 import path from "node:path";
 
+import type { AccessTokenProvider, ReferenceConfig } from "../core/types";
 import { bundleReferenceCases } from "./bundle";
-import type { AccessTokenProvider, ReferenceConfig } from "./core/types";
 
 export interface ReferenceProjectFile {
   name: string;

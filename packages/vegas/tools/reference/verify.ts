@@ -1,14 +1,18 @@
 import path from "node:path";
 import url from "node:url";
 
-import { createReferenceClient } from "./client";
-import { loadOAuthConfig, loadReferenceConfig } from "./config";
 import { referenceCases } from "./core/cases";
 import { compareReference } from "./core/compare";
 import { acquireReferenceFixture } from "./core/fixture";
 import { readReferenceFixture } from "./fixtureStore";
-import { createAccessTokenProvider } from "./oauth";
-import { computeCaseRevision, loadReferenceProjectFiles, updateReferenceProject } from "./project";
+import { createReferenceClient } from "./gas/client";
+import { loadOAuthConfig, loadReferenceConfig } from "./gas/config";
+import { createAccessTokenProvider } from "./gas/oauth";
+import {
+  computeCaseRevision,
+  loadReferenceProjectFiles,
+  updateReferenceProject,
+} from "./gas/project";
 
 async function main(): Promise<void> {
   const referenceDir = url.fileURLToPath(new URL("../../reference/", import.meta.url));

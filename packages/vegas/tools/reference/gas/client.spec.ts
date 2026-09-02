@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, test, vi } from "vitest";
 
+import type { AccessTokenProvider, ReferenceConfig } from "../core/types";
 import { createReferenceClient } from "./client";
-import type { AccessTokenProvider, ReferenceConfig } from "./core/types";
 
 const config: ReferenceConfig = {
   scriptId: "script-id",

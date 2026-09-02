@@ -6,7 +6,7 @@ import { expect, test } from "vitest";
 import { referenceCases } from "./core/cases";
 import { acquireReferenceFixture } from "./core/fixture";
 import { readReferenceFixture } from "./fixtureStore";
-import { computeCaseRevision, loadReferenceProjectFiles } from "./project";
+import { computeCaseRevision, loadReferenceProjectFiles } from "./gas/project";
 import { createVegasReferenceExecutor } from "./vegasExecutor";
 
 const referenceDir = url.fileURLToPath(new URL("../../reference/", import.meta.url));
