@@ -7,6 +7,11 @@ export type CreateRange = (
   numColumns: number,
 ) => GoogleAppsScript.Spreadsheet.Range;
 
+export type CreateSheet = (
+  spreadsheetId: string,
+  sheetId: number,
+) => GoogleAppsScript.Spreadsheet.Sheet;
+
 export type CreateHtmlOutput = (
   content: string,
   defaultXFrameOptionsMode: GoogleAppsScript.HTML.XFrameOptionsMode,
