@@ -1,6 +1,6 @@
+import { invokeScriptFunction } from "../../src/node/runtime/execution/invocation";
 import { evaluateScript } from "../../src/node/runtime/execution/scriptRuntime";
 import { RuntimeServicePort } from "../../src/node/runtime/protocol";
-import { invokeScriptFunction } from "../../src/node/worker/invocation";
 import {
   createScriptContext,
   type ScriptContextDependencies,

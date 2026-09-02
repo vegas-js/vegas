@@ -1,11 +1,11 @@
 import worker from "node:worker_threads";
 
 import { RuntimeGlobalEnvironment } from "../runtime/environment";
+import { invokeScriptFunction } from "../runtime/execution/invocation";
 import { evaluateScript, evaluateScriptWithBindings } from "../runtime/execution/scriptRuntime";
 import type { EvaluateHtmlTemplate } from "../runtime/execution/types";
 import type { RequestLegacySync } from "../runtime/legacy/transport";
 import type { RuntimeLogSink } from "../runtime/logging";
-import { invokeScriptFunction } from "./invocation";
 import { createObjectFactories } from "./objectFactories";
 import {
   createRangeService,
