@@ -6,8 +6,6 @@ import { RuntimeScope } from "../runtime/scope";
 import { Console } from "./api/base/console";
 import { Logger } from "./api/base/Logger";
 import { Session } from "./api/base/Session";
-import { Cache } from "./api/cache/Cache";
-import { CacheService } from "./api/cache/CacheService";
 import { DriveApp } from "./api/drive/DriveApp";
 import { HtmlService } from "./api/html/HtmlService";
 import { Lock } from "./api/lock/Lock";
