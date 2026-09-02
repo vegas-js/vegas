@@ -4,9 +4,9 @@ import type { CreateHtmlOutput, CreateHtmlTemplate } from "../runtime/objects/ty
 import type { RuntimeServicePort } from "../runtime/protocol";
 import { HtmlOutput } from "../runtime/services/html/HtmlOutput";
 import { HtmlTemplate } from "../runtime/services/html/HtmlTemplate";
+import { Range } from "../runtime/services/spreadsheet/Range";
 import { File } from "./api/drive/File";
 import { Folder } from "./api/drive/Folder";
-import { Range } from "./api/spreadsheet/Range";
 import { Sheet } from "./api/spreadsheet/Sheet";
 import { Spreadsheet } from "./api/spreadsheet/Spreadsheet";
 import type {

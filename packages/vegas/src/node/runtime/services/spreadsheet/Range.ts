@@ -1,4 +1,4 @@
-import type { RuntimeServicePort } from "../../../runtime/protocol";
+import type { RuntimeServicePort } from "../../protocol";
 
 // https://developers.google.com/apps-script/reference/spreadsheet/range
 export class Range implements GoogleAppsScript.Spreadsheet.Range {
