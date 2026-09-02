@@ -38,11 +38,11 @@ function createReferenceDependencies(): ScriptContextDependencies {
     },
 
     sessionService: {
-      getActiveUser: unexpected,
-      getEffectiveUser: unexpected,
-      getActiveUserLocale: unexpected,
-      getScriptTimeZone: unexpected,
-      getTemporaryActiveUserKey: unexpected,
+      getActiveUser: () => "active@example.invalid",
+      getEffectiveUser: () => "effective@example.invalid",
+      getActiveUserLocale: () => "en",
+      getScriptTimeZone: () => "Etc/UTC",
+      getTemporaryActiveUserKey: () => "reference-user-key",
     },
 
     cacheService: {

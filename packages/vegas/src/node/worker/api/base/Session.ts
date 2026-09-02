@@ -28,10 +28,10 @@ export class Session implements GoogleAppsScript.Base.Session {
   };
   /** @deprecated DO NOT USE */
   getTimeZone = () => {
-    throw new Error("Session#getTimeZone() is deprecated. Do not use.");
+    return this.getScriptTimeZone();
   };
   /** @deprecated DO NOT USE */
   getUser = () => {
-    throw new Error("Session#getUser() is deprecated. Do not use.");
+    return this.getActiveUser();
   };
 }

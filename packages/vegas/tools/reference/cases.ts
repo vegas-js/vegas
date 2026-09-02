@@ -54,4 +54,16 @@ export const referenceCases: readonly ReferenceCaseDefinition[] = [
     fixtureFile: "cache-service-surface.json",
     runtimeTest: "required",
   },
+  {
+    name: "session-service-surface",
+    functionName: "captureReferenceSessionServiceSurface",
+    fixtureFile: "session-service-surface.json",
+    runtimeTest: "required",
+  },
+  {
+    name: "session-deprecated-semantics",
+    functionName: "captureReferenceSessionDeprecatedSemantics",
+    fixtureFile: "session-deprecated-semantics.json",
+    runtimeTest: "required",
+  },
 ];

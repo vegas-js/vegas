@@ -1,0 +1,21 @@
+{
+  "metadata": {
+    "schemaVersion": 1,
+    "runtime": "V8",
+    "caseRevision": "d36857503e7ba3a0457027b7de5cca405520ec2a4f87c932abaa4743558096ff"
+  },
+  "result": {
+    "getTimeZone": {
+      "errorMessage": null,
+      "errorName": null,
+      "sameAsScriptTimeZone": true,
+      "threw": false
+    },
+    "getUser": {
+      "errorMessage": null,
+      "errorName": null,
+      "sameEmailAsActiveUser": true,
+      "threw": false
+    }
+  }
+}

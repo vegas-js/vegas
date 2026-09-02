@@ -10,7 +10,7 @@
         "configurable": true,
         "enumerable": true,
         "getter": false,
-        "name": "getDocumentCache",
+        "name": "getActiveUser",
         "setter": false,
         "type": "function",
         "writable": true
@@ -19,7 +19,7 @@
         "configurable": true,
         "enumerable": true,
         "getter": false,
-        "name": "getPrivateCache",
+        "name": "getActiveUserLocale",
         "setter": false,
         "type": "function",
         "writable": true
@@ -28,7 +28,7 @@
         "configurable": true,
         "enumerable": true,
         "getter": false,
-        "name": "getPublicCache",
+        "name": "getEffectiveUser",
         "setter": false,
         "type": "function",
         "writable": true
@@ -37,7 +37,7 @@
         "configurable": true,
         "enumerable": true,
         "getter": false,
-        "name": "getScriptCache",
+        "name": "getScriptTimeZone",
         "setter": false,
         "type": "function",
         "writable": true
@@ -46,7 +46,25 @@
         "configurable": true,
         "enumerable": true,
         "getter": false,
-        "name": "getUserCache",
+        "name": "getTemporaryActiveUserKey",
+        "setter": false,
+        "type": "function",
+        "writable": true
+      },
+      {
+        "configurable": true,
+        "enumerable": true,
+        "getter": false,
+        "name": "getTimeZone",
+        "setter": false,
+        "type": "function",
+        "writable": true
+      },
+      {
+        "configurable": true,
+        "enumerable": true,
+        "getter": false,
+        "name": "getUser",
         "setter": false,
         "type": "function",
         "writable": true
@@ -62,6 +80,6 @@
       }
     ],
     "prototypeIsObjectPrototype": true,
-    "stringify": "CacheService"
+    "stringify": "Session"
   }
 }

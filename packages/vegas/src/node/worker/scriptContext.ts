@@ -5,7 +5,6 @@ import type { RuntimeServicePort } from "../runtime/protocol";
 import { RuntimeScope } from "../runtime/scope";
 import { Console } from "./api/base/console";
 import { Logger } from "./api/base/Logger";
-import { Session } from "./api/base/Session";
 import { DriveApp } from "./api/drive/DriveApp";
 import { HtmlService } from "./api/html/HtmlService";
 import { Lock } from "./api/lock/Lock";
@@ -19,6 +18,7 @@ import { createCacheService } from "./global/cacheService";
 import { createVmGasObjectFactory } from "./global/createGasObject";
 import { installGasGlobal } from "./global/installGasGlobal";
 import { createMimeType } from "./global/mimeType";
+import { createSession } from "./global/session";
 import type {
   RequestLegacySync,
   CreateFile,
@@ -193,7 +193,7 @@ export function createScriptContext(dependencies: ScriptContextDependencies): vm
     HtmlService: new HtmlService(createHtmlOutput, createHtmlTemplate, htmlService),
     Logger: new Logger(logSink),
     MimeType: createMimeType(createGasObject),
-    Session: new Session(sessionService),
+    Session: createSession(sessionService, createGasObject),
     console: new Console(logSink),
     /* Cache */
     CacheService: createCacheService(cacheService, createGasObject),

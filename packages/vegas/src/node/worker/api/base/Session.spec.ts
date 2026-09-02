@@ -136,15 +136,49 @@ describe("getTemporaryActiveUserKey", () => {
 });
 
 describe("getTimeZone", () => {
-  test("always throw an exception with message", () => {
-    const session = new Session(createSessionService());
-    expect(() => session.getTimeZone()).toThrow("Session#getTimeZone() is deprecated. Do not use.");
+  test("call callService with specific args via getScriptTimeZone", () => {
+    const getScriptTimeZone = vi.fn();
+    const session = new Session(createSessionService({ getScriptTimeZone }));
+    session.getTimeZone();
+    const args = getScriptTimeZone.mock.lastCall;
+    expect(args?.length).toBe(0);
+  });
+
+  test("call callService only once via getScriptTimeZone", () => {
+    const getScriptTimeZone = vi.fn();
+    const session = new Session(createSessionService({ getScriptTimeZone }));
+    session.getTimeZone();
+    expect(getScriptTimeZone).toHaveBeenCalledOnce();
+  });
+
+  test("return the timezone of the callService return value via getScriptTimeZone", () => {
+    const getScriptTimeZone = vi.fn(() => "Etc/UTC");
+    const session = new Session(createSessionService({ getScriptTimeZone }));
+    const timeZone = session.getTimeZone();
+    expect(timeZone).toBe("Etc/UTC");
   });
 });
 
 describe("getUser", () => {
-  test("always throw an exception with message", () => {
-    const session = new Session(createSessionService());
-    expect(() => session.getUser()).toThrow("Session#getUser() is deprecated. Do not use.");
+  test("call callService with specific args via getActiveUser", () => {
+    const getActiveUser = vi.fn();
+    const session = new Session(createSessionService({ getActiveUser }));
+    session.getUser();
+    const args = getActiveUser.mock.lastCall;
+    expect(args?.length).toBe(0);
+  });
+
+  test("call callService only once via getActiveUser", () => {
+    const getActiveUser = vi.fn();
+    const session = new Session(createSessionService({ getActiveUser }));
+    session.getUser();
+    expect(getActiveUser).toHaveBeenCalledOnce();
+  });
+
+  test("returns a User object containing the return value of callService via getActiveUser", () => {
+    const getActiveUser = vi.fn(() => "active@example.com");
+    const session = new Session(createSessionService({ getActiveUser }));
+    const user = session.getUser();
+    expect(user.getEmail()).toBe("active@example.com");
   });
 });
