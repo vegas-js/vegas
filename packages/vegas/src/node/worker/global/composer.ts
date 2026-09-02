@@ -7,6 +7,7 @@ import { createVmGasObjectFactory } from "../../runtime/globals/object";
 import type { RuntimeLogSink } from "../../runtime/logging";
 import type { RuntimeServicePort } from "../../runtime/protocol";
 import { RuntimeScope } from "../../runtime/scope";
+import { createPropertiesService } from "../../runtime/services/properties/facade";
 import { Console } from "../api/base/console";
 import { Logger } from "../api/base/Logger";
 import { DriveApp } from "../api/drive/DriveApp";
@@ -26,7 +27,6 @@ import type {
 } from "../types";
 import { createCacheService } from "./cacheService";
 import { createMimeType } from "./mimeType";
-import { createPropertiesService } from "./properties";
 import { createSession } from "./session";
 
 export interface GasGlobalComposerDependencies {

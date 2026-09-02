@@ -1,8 +1,8 @@
 import { expect, test, vi } from "vitest";
 
-import { RuntimeServicePort } from "../../runtime/protocol";
-import { RuntimeScope } from "../../runtime/scope";
-import { createPropertiesService } from "./properties";
+import { RuntimeServicePort } from "../../protocol";
+import { RuntimeScope } from "../../scope";
+import { createPropertiesService } from "./facade";
 
 interface PropertiesFacade {
   deleteAllProperties(): PropertiesFacade;
