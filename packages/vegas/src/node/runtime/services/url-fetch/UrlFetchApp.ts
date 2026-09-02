@@ -1,4 +1,4 @@
-import type { RuntimeFetchRequest, RuntimeServicePort } from "../../../runtime/protocol";
+import type { RuntimeFetchRequest, RuntimeServicePort } from "../../protocol";
 import { HttpResponse } from "./HTTPResponse";
 
 // https://developers.google.com/apps-script/reference/url-fetch/url-fetch-app
