@@ -67,6 +67,12 @@ export const referenceCases: readonly ReferenceCaseDefinition[] = [
     runtimeTest: "required",
   },
   {
+    name: "url-fetch-app-surface",
+    functionName: "captureReferenceUrlFetchAppSurface",
+    fixtureFile: "url-fetch-app-surface.json",
+    runtimeTest: "required",
+  },
+  {
     name: "session-service-surface",
     functionName: "captureReferenceSessionServiceSurface",
     fixtureFile: "session-service-surface.json",

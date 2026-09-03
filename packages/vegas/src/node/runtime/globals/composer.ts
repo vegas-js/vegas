@@ -22,7 +22,7 @@ import { createHtmlService } from "../services/html/facade";
 import { createLockService } from "../services/lock/facade";
 import { createPropertiesService } from "../services/properties/facade";
 import { SpreadsheetApp } from "../services/spreadsheet/SpreadsheetApp";
-import { UrlFetchApp } from "../services/url-fetch/UrlFetchApp";
+import { createUrlFetchApp } from "../services/url-fetch/facade";
 import { Utilities } from "../services/utilities/Utilities";
 import { installGasGlobal } from "./install";
 import { createVmGasObjectFactory } from "./object";
@@ -224,7 +224,7 @@ export function composeGasGlobals(
     SpreadsheetApp: new SpreadsheetApp(createSpreadsheet, spreadsheetAppService),
 
     /* URL Fetch */
-    UrlFetchApp: new UrlFetchApp(urlFetchService),
+    UrlFetchApp: createUrlFetchApp(urlFetchService, createGasObject),
 
     /* Utilities */
     Utilities: new Utilities(),
