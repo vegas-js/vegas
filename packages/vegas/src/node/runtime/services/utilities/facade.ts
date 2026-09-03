@@ -1,7 +1,7 @@
 import { createGasEnum } from "../../globals/enum";
 import type { CreateGasObject } from "../../globals/object";
 import { createGasServiceObject } from "../../globals/serviceObject";
-import { createBlobFacadeFactory } from "../base/blobFacade";
+import { createBlobFacadeFactory, type BlobFacadeFactory } from "../base/blobFacade";
 import { Utilities } from "./Utilities";
 
 function normalizeEnumOrdinal<T>(value: T): T {
@@ -27,7 +27,10 @@ function unsupportedInternalUtilitiesMethod(): never {
   throw new Error("Function not implemented.");
 }
 
-export function createUtilities(createObject?: CreateGasObject) {
+export function createUtilities(
+  createObject?: CreateGasObject,
+  injectedBlobFacadeFactory?: BlobFacadeFactory,
+) {
   const charset = createGasEnum(
     {
       members: ["US_ASCII", "UTF_8"],
@@ -61,7 +64,7 @@ export function createUtilities(createObject?: CreateGasObject) {
   );
 
   const implementation = new Utilities();
-  const blobFacadeFactory = createBlobFacadeFactory(createObject);
+  const blobFacadeFactory = injectedBlobFacadeFactory ?? createBlobFacadeFactory(createObject);
 
   const wrapBlobs = (blobs: GoogleAppsScript.Base.Blob[]): GoogleAppsScript.Base.Blob[] =>
     blobs.map((blob) => blobFacadeFactory.create(blob));

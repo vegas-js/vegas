@@ -1,0 +1,242 @@
+{
+  "constructorInfo": {
+    "isObjectConstructor": true,
+    "name": "Object",
+    "ownership": {
+      "owner": "prototype",
+      "prototypeDepth": 0
+    },
+    "type": "function"
+  },
+  "methodOwnership": {
+    "getAllHeaders": {
+      "owner": "own",
+      "prototypeDepth": null
+    },
+    "getAs": {
+      "owner": "own",
+      "prototypeDepth": null
+    },
+    "getBlob": {
+      "owner": "own",
+      "prototypeDepth": null
+    },
+    "getContent": {
+      "owner": "own",
+      "prototypeDepth": null
+    },
+    "getContentText": {
+      "owner": "own",
+      "prototypeDepth": null
+    },
+    "getHeaders": {
+      "owner": "own",
+      "prototypeDepth": null
+    },
+    "getResponseCode": {
+      "owner": "own",
+      "prototypeDepth": null
+    },
+    "toString": {
+      "owner": "own",
+      "prototypeDepth": null
+    }
+  },
+  "objectTag": "[object Object]",
+  "properties": [
+    {
+      "configurable": true,
+      "enumerable": true,
+      "getter": false,
+      "name": "getAllHeaders",
+      "setter": false,
+      "type": "function",
+      "writable": true
+    },
+    {
+      "configurable": true,
+      "enumerable": true,
+      "getter": false,
+      "name": "getAs",
+      "setter": false,
+      "type": "function",
+      "writable": true
+    },
+    {
+      "configurable": true,
+      "enumerable": true,
+      "getter": false,
+      "name": "getBlob",
+      "setter": false,
+      "type": "function",
+      "writable": true
+    },
+    {
+      "configurable": true,
+      "enumerable": true,
+      "getter": false,
+      "name": "getContent",
+      "setter": false,
+      "type": "function",
+      "writable": true
+    },
+    {
+      "configurable": true,
+      "enumerable": true,
+      "getter": false,
+      "name": "getContentText",
+      "setter": false,
+      "type": "function",
+      "writable": true
+    },
+    {
+      "configurable": true,
+      "enumerable": true,
+      "getter": false,
+      "name": "getHeaders",
+      "setter": false,
+      "type": "function",
+      "writable": true
+    },
+    {
+      "configurable": true,
+      "enumerable": true,
+      "getter": false,
+      "name": "getResponseCode",
+      "setter": false,
+      "type": "function",
+      "writable": true
+    },
+    {
+      "configurable": true,
+      "enumerable": true,
+      "getter": false,
+      "name": "toString",
+      "setter": false,
+      "type": "function",
+      "writable": true
+    }
+  ],
+  "prototypeChain": [
+    {
+      "depth": 0,
+      "isObjectPrototype": true,
+      "ownConstructorName": "Object",
+      "ownConstructorType": "function",
+      "properties": [
+        {
+          "configurable": true,
+          "enumerable": false,
+          "getter": false,
+          "name": "__defineGetter__",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": false,
+          "getter": false,
+          "name": "__defineSetter__",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": false,
+          "getter": false,
+          "name": "__lookupGetter__",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": false,
+          "getter": false,
+          "name": "__lookupSetter__",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": false,
+          "getter": true,
+          "name": "__proto__",
+          "setter": true,
+          "type": "accessor",
+          "writable": null
+        },
+        {
+          "configurable": true,
+          "enumerable": false,
+          "getter": false,
+          "name": "constructor",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": false,
+          "getter": false,
+          "name": "hasOwnProperty",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": false,
+          "getter": false,
+          "name": "isPrototypeOf",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": false,
+          "getter": false,
+          "name": "propertyIsEnumerable",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": false,
+          "getter": false,
+          "name": "toLocaleString",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": false,
+          "getter": false,
+          "name": "toString",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": false,
+          "getter": false,
+          "name": "valueOf",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        }
+      ]
+    }
+  ],
+  "prototypeIsNull": false,
+  "prototypeIsObjectPrototype": true,
+  "stringifyEqualsContentText": true,
+  "type": "object"
+}

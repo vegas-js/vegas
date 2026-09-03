@@ -87,8 +87,8 @@ function createReferenceDependencies(): ScriptContextDependencies {
     },
 
     urlFetchService: {
-      fetch: unexpected,
-      fetchAll: unexpected,
+      fetch: () => createReferenceFetchResponse(),
+      fetchAll: (requests) => requests.map(() => createReferenceFetchResponse()),
     },
 
     htmlService: {
@@ -113,6 +113,17 @@ function createReferenceDependencies(): ScriptContextDependencies {
     },
 
     propertiesService: createReferencePropertiesService(),
+  };
+}
+
+function createReferenceFetchResponse() {
+  return {
+    headers: {
+      "Content-Type": "text/plain",
+      "X-Vegas-Reference": "true",
+    },
+    content: Array.from(Buffer.from("vegas-reference-response", "utf8")),
+    responseCode: 200,
   };
 }
 

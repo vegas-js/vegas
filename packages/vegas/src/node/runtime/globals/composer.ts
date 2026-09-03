@@ -12,6 +12,7 @@ import type {
   CreateSpreadsheet,
 } from "../objects/types";
 import type { RuntimeServicePort } from "../protocol";
+import { createBlobFacadeFactory } from "../services/base/blobFacade";
 import { createConsole } from "../services/base/consoleFacade";
 import { createLogger } from "../services/base/loggerFacade";
 import { createMimeType } from "../services/base/mimeType";
@@ -223,6 +224,8 @@ export function composeGasGlobals(
   const createGasObject = createVmGasObjectFactory(context);
   const createGasArray = createVmGasArrayFactory(context);
 
+  const blobFacadeFactory = createBlobFacadeFactory(createGasObject);
+
   const resolvedHtmlOutputFacadeFactory =
     htmlOutputFacadeFactory ?? createHtmlOutputFacadeFactory();
 
@@ -234,10 +237,14 @@ export function composeGasGlobals(
     SpreadsheetApp: createSpreadsheetApp(createSpreadsheet, spreadsheetAppService, createGasObject),
 
     /* URL Fetch */
-    UrlFetchApp: createUrlFetchApp(urlFetchService, createGasObject),
+    UrlFetchApp: createUrlFetchApp(urlFetchService, {
+      createObject: createGasObject,
+      createArray: createGasArray,
+      blobFacadeFactory,
+    }),
 
     /* Utilities */
-    Utilities: createUtilities(createGasObject),
+    Utilities: createUtilities(createGasObject, blobFacadeFactory),
 
     /* HTML */
     HtmlService: createHtmlService(createHtmlOutput, createHtmlTemplate, htmlService, {

@@ -1,0 +1,17 @@
+{
+  "fetchAllIsArray": true,
+  "fetchAllResponsesSameObject": false,
+  "fetchRepeatedSameObject": false,
+  "fetchResponseSameAsFetchAllResponse": false,
+  "getBlobHasGetBlob": false,
+  "getBlobObjectTag": "[object Object]",
+  "getBlobPrototypeIsObjectPrototype": true,
+  "getBlobRepeatedSameObject": false,
+  "getBlobStringify": "Blob",
+  "getContentIsArray": true,
+  "getContentPrototypeIsArrayPrototype": true,
+  "getContentRepeatedSameArray": false,
+  "getHeadersObjectTag": "[object Object]",
+  "getHeadersPrototypeIsObjectPrototype": true,
+  "getHeadersRepeatedSameObject": false
+}

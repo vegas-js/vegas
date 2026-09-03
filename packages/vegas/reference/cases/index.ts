@@ -20,6 +20,8 @@ export { captureReferenceHtmlOutputObjectIdentity } from "./htmlOutputObjectIden
 export { captureReferenceHtmlTemplateObjectSurface } from "./htmlTemplateObjectSurface";
 export { captureReferenceHtmlTemplateObjectBinding } from "./htmlTemplateObjectBinding";
 export { captureReferenceHtmlTemplateObjectIdentity } from "./htmlTemplateObjectIdentity";
+export { captureReferenceHttpResponseObjectSurface } from "./httpResponseObjectSurface";
+export { captureReferenceHttpResponseObjectIdentity } from "./httpResponseObjectIdentity";
 export { captureReferenceUrlFetchAppSurface } from "./urlFetchAppSurface";
 export { captureReferenceUtilitiesSurface } from "./utilitiesSurface";
 export { captureReferenceBlobObjectSurface } from "./blobObjectSurface";

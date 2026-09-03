@@ -1,3 +1,5 @@
+import { Blob } from "../base/Blob";
+
 // https://developers.google.com/apps-script/reference/url-fetch/http-response
 export class HttpResponse implements GoogleAppsScript.URL_Fetch.HTTPResponse {
   readonly #headers: GoogleAppsScript.URL_Fetch.HttpHeaders;
@@ -21,7 +23,7 @@ export class HttpResponse implements GoogleAppsScript.URL_Fetch.HTTPResponse {
     throw new Error("Method not implemented.");
   };
   getBlob = () => {
-    throw new Error("Method not implemented.");
+    return new Blob().setBytes(Array.from(this.#content));
   };
   getContent = () => {
     return Array.from(this.#content);

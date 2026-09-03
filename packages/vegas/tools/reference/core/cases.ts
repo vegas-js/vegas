@@ -127,6 +127,18 @@ export const referenceCases: readonly ReferenceCaseDefinition[] = [
     runtimeTest: "required",
   },
   {
+    name: "http-response-object-surface",
+    functionName: "captureReferenceHttpResponseObjectSurface",
+    fixtureFile: "http-response-object-surface.json",
+    runtimeTest: "required",
+  },
+  {
+    name: "http-response-object-identity",
+    functionName: "captureReferenceHttpResponseObjectIdentity",
+    fixtureFile: "http-response-object-identity.json",
+    runtimeTest: "required",
+  },
+  {
     name: "url-fetch-app-surface",
     functionName: "captureReferenceUrlFetchAppSurface",
     fixtureFile: "url-fetch-app-surface.json",
