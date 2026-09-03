@@ -2,12 +2,13 @@ import type { CreateGasObject } from "../../globals/object";
 import { createGasServiceObject } from "../../globals/serviceObject";
 import type { RuntimeServicePort } from "../../protocol";
 import { Session } from "./Session";
+import { createUser } from "./userFacade";
 
 export function createSession(
   sessionService: RuntimeServicePort<"Session">,
   createObject?: CreateGasObject,
 ) {
-  const implementation = new Session(sessionService);
+  const implementation = new Session(sessionService, (email) => createUser(email, createObject));
 
   return createGasServiceObject(
     {

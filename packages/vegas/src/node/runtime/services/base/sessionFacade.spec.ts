@@ -29,3 +29,11 @@ test("creates GAS-compatible Session facade", () => {
   expect(Object.hasOwn(session, "getUser")).toBe(true);
   expect(Object.hasOwn(session, "toString")).toBe(true);
 });
+
+test("returns fresh User facades", () => {
+  const session = createSession(service) as any;
+
+  expect(session.getActiveUser()).not.toBe(session.getActiveUser());
+  expect(session.getEffectiveUser()).not.toBe(session.getEffectiveUser());
+  expect(session.getUser()).not.toBe(session.getActiveUser());
+});

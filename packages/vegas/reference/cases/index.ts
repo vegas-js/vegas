@@ -18,6 +18,8 @@ export { captureReferenceLoggerSurface } from "./loggerSurface";
 export { captureReferenceConsoleSurface } from "./consoleSurface";
 export { captureReferenceSessionServiceSurface } from "./sessionServiceSurface";
 export { captureReferenceSessionDeprecatedSemantics } from "./sessionDeprecatedSemantics";
+export { captureReferenceUserObjectSurface } from "./userObjectSurface";
+export { captureReferenceUserObjectIdentity } from "./userObjectIdentity";
 export { captureReferencePropertiesServiceSurface } from "./propertiesServiceSurface";
 export { captureReferencePropertiesServiceSemantics } from "./propertiesServiceSemantics";
 export { captureReferencePropertiesObjectSurface } from "./propertiesObjectSurface";

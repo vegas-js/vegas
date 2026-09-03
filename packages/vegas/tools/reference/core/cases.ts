@@ -115,6 +115,18 @@ export const referenceCases: readonly ReferenceCaseDefinition[] = [
     runtimeTest: "required",
   },
   {
+    name: "user-object-surface",
+    functionName: "captureReferenceUserObjectSurface",
+    fixtureFile: "user-object-surface.json",
+    runtimeTest: "required",
+  },
+  {
+    name: "user-object-identity",
+    functionName: "captureReferenceUserObjectIdentity",
+    fixtureFile: "user-object-identity.json",
+    runtimeTest: "required",
+  },
+  {
     name: "properties-service-surface",
     functionName: "captureReferencePropertiesServiceSurface",
     fixtureFile: "properties-service-surface.json",

@@ -1,4 +1,6 @@
 // https://developers.google.com/apps-script/reference/base/user
+export type CreateUser = (email: string) => GoogleAppsScript.Base.User;
+
 export class User implements GoogleAppsScript.Base.User {
   readonly #email: string;
 
