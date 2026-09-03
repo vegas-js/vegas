@@ -1,0 +1,949 @@
+{
+  "metadata": {
+    "schemaVersion": 1,
+    "runtime": "V8",
+    "caseRevision": "deef6a3b7d0d923b2576a14106ee1e5a9c75671cd11998d41a75b59aecb3d741"
+  },
+  "result": {
+    "enumLikeProperties": [
+      {
+        "compareTo": {
+          "EMULATED": {
+            "EMULATED": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "0",
+                "type": "number",
+                "value": 0
+              }
+            },
+            "IFRAME": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "-1",
+                "type": "number",
+                "value": -1
+              }
+            },
+            "NATIVE": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "-2",
+                "type": "number",
+                "value": -2
+              }
+            }
+          },
+          "IFRAME": {
+            "EMULATED": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "1",
+                "type": "number",
+                "value": 1
+              }
+            },
+            "IFRAME": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "0",
+                "type": "number",
+                "value": 0
+              }
+            },
+            "NATIVE": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "-1",
+                "type": "number",
+                "value": -1
+              }
+            }
+          },
+          "NATIVE": {
+            "EMULATED": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "2",
+                "type": "number",
+                "value": 2
+              }
+            },
+            "IFRAME": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "1",
+                "type": "number",
+                "value": 1
+              }
+            },
+            "NATIVE": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "0",
+                "type": "number",
+                "value": 0
+              }
+            }
+          }
+        },
+        "memberNames": [
+          "EMULATED",
+          "IFRAME",
+          "NATIVE"
+        ],
+        "members": [
+          {
+            "helpers": {
+              "name": {
+                "error": null,
+                "ok": true,
+                "result": {
+                  "stringify": "EMULATED",
+                  "type": "string",
+                  "value": "EMULATED"
+                }
+              },
+              "ordinal": {
+                "error": null,
+                "ok": true,
+                "result": {
+                  "stringify": "0",
+                  "type": "number",
+                  "value": 0
+                }
+              },
+              "toJSON": {
+                "error": null,
+                "ok": true,
+                "result": {
+                  "stringify": "EMULATED",
+                  "type": "string",
+                  "value": "EMULATED"
+                }
+              }
+            },
+            "identity": {
+              "EMULATED": true,
+              "IFRAME": true,
+              "NATIVE": true
+            },
+            "name": "EMULATED",
+            "properties": [
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "compareTo",
+                "setter": false,
+                "type": "function",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "EMULATED",
+                "setter": false,
+                "type": "object",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "IFRAME",
+                "setter": false,
+                "type": "object",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "name",
+                "setter": false,
+                "type": "function",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "NATIVE",
+                "setter": false,
+                "type": "object",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "ordinal",
+                "setter": false,
+                "type": "function",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "toJSON",
+                "setter": false,
+                "type": "function",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "toString",
+                "setter": false,
+                "type": "function",
+                "writable": true
+              }
+            ],
+            "prototypeIsObjectPrototype": true,
+            "sameAsContainer": true,
+            "stringify": "EMULATED"
+          },
+          {
+            "helpers": {
+              "name": {
+                "error": null,
+                "ok": true,
+                "result": {
+                  "stringify": "IFRAME",
+                  "type": "string",
+                  "value": "IFRAME"
+                }
+              },
+              "ordinal": {
+                "error": null,
+                "ok": true,
+                "result": {
+                  "stringify": "1",
+                  "type": "number",
+                  "value": 1
+                }
+              },
+              "toJSON": {
+                "error": null,
+                "ok": true,
+                "result": {
+                  "stringify": "IFRAME",
+                  "type": "string",
+                  "value": "IFRAME"
+                }
+              }
+            },
+            "identity": {
+              "EMULATED": true,
+              "IFRAME": true,
+              "NATIVE": true
+            },
+            "name": "IFRAME",
+            "properties": [
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "compareTo",
+                "setter": false,
+                "type": "function",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "EMULATED",
+                "setter": false,
+                "type": "object",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "IFRAME",
+                "setter": false,
+                "type": "object",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "name",
+                "setter": false,
+                "type": "function",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "NATIVE",
+                "setter": false,
+                "type": "object",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "ordinal",
+                "setter": false,
+                "type": "function",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "toJSON",
+                "setter": false,
+                "type": "function",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "toString",
+                "setter": false,
+                "type": "function",
+                "writable": true
+              }
+            ],
+            "prototypeIsObjectPrototype": true,
+            "sameAsContainer": false,
+            "stringify": "IFRAME"
+          },
+          {
+            "helpers": {
+              "name": {
+                "error": null,
+                "ok": true,
+                "result": {
+                  "stringify": "NATIVE",
+                  "type": "string",
+                  "value": "NATIVE"
+                }
+              },
+              "ordinal": {
+                "error": null,
+                "ok": true,
+                "result": {
+                  "stringify": "2",
+                  "type": "number",
+                  "value": 2
+                }
+              },
+              "toJSON": {
+                "error": null,
+                "ok": true,
+                "result": {
+                  "stringify": "NATIVE",
+                  "type": "string",
+                  "value": "NATIVE"
+                }
+              }
+            },
+            "identity": {
+              "EMULATED": true,
+              "IFRAME": true,
+              "NATIVE": true
+            },
+            "name": "NATIVE",
+            "properties": [
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "compareTo",
+                "setter": false,
+                "type": "function",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "EMULATED",
+                "setter": false,
+                "type": "object",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "IFRAME",
+                "setter": false,
+                "type": "object",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "name",
+                "setter": false,
+                "type": "function",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "NATIVE",
+                "setter": false,
+                "type": "object",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "ordinal",
+                "setter": false,
+                "type": "function",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "toJSON",
+                "setter": false,
+                "type": "function",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "toString",
+                "setter": false,
+                "type": "function",
+                "writable": true
+              }
+            ],
+            "prototypeIsObjectPrototype": true,
+            "sameAsContainer": false,
+            "stringify": "NATIVE"
+          }
+        ],
+        "name": "HtmlService.SandboxMode",
+        "properties": [
+          {
+            "configurable": true,
+            "enumerable": true,
+            "getter": false,
+            "name": "compareTo",
+            "setter": false,
+            "type": "function",
+            "writable": true
+          },
+          {
+            "configurable": true,
+            "enumerable": true,
+            "getter": false,
+            "name": "EMULATED",
+            "setter": false,
+            "type": "object",
+            "writable": true
+          },
+          {
+            "configurable": true,
+            "enumerable": true,
+            "getter": false,
+            "name": "IFRAME",
+            "setter": false,
+            "type": "object",
+            "writable": true
+          },
+          {
+            "configurable": true,
+            "enumerable": true,
+            "getter": false,
+            "name": "name",
+            "setter": false,
+            "type": "function",
+            "writable": true
+          },
+          {
+            "configurable": true,
+            "enumerable": true,
+            "getter": false,
+            "name": "NATIVE",
+            "setter": false,
+            "type": "object",
+            "writable": true
+          },
+          {
+            "configurable": true,
+            "enumerable": true,
+            "getter": false,
+            "name": "ordinal",
+            "setter": false,
+            "type": "function",
+            "writable": true
+          },
+          {
+            "configurable": true,
+            "enumerable": true,
+            "getter": false,
+            "name": "toJSON",
+            "setter": false,
+            "type": "function",
+            "writable": true
+          },
+          {
+            "configurable": true,
+            "enumerable": true,
+            "getter": false,
+            "name": "toString",
+            "setter": false,
+            "type": "function",
+            "writable": true
+          }
+        ],
+        "prototypeIsObjectPrototype": true,
+        "stringify": "EMULATED"
+      },
+      {
+        "compareTo": {
+          "ALLOWALL": {
+            "ALLOWALL": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "0",
+                "type": "number",
+                "value": 0
+              }
+            },
+            "DEFAULT": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "-1",
+                "type": "number",
+                "value": -1
+              }
+            }
+          },
+          "DEFAULT": {
+            "ALLOWALL": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "1",
+                "type": "number",
+                "value": 1
+              }
+            },
+            "DEFAULT": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "0",
+                "type": "number",
+                "value": 0
+              }
+            }
+          }
+        },
+        "memberNames": [
+          "ALLOWALL",
+          "DEFAULT"
+        ],
+        "members": [
+          {
+            "helpers": {
+              "name": {
+                "error": null,
+                "ok": true,
+                "result": {
+                  "stringify": "ALLOWALL",
+                  "type": "string",
+                  "value": "ALLOWALL"
+                }
+              },
+              "ordinal": {
+                "error": null,
+                "ok": true,
+                "result": {
+                  "stringify": "0",
+                  "type": "number",
+                  "value": 0
+                }
+              },
+              "toJSON": {
+                "error": null,
+                "ok": true,
+                "result": {
+                  "stringify": "ALLOWALL",
+                  "type": "string",
+                  "value": "ALLOWALL"
+                }
+              }
+            },
+            "identity": {
+              "ALLOWALL": true,
+              "DEFAULT": true
+            },
+            "name": "ALLOWALL",
+            "properties": [
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "ALLOWALL",
+                "setter": false,
+                "type": "object",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "compareTo",
+                "setter": false,
+                "type": "function",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "DEFAULT",
+                "setter": false,
+                "type": "object",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "name",
+                "setter": false,
+                "type": "function",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "ordinal",
+                "setter": false,
+                "type": "function",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "toJSON",
+                "setter": false,
+                "type": "function",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "toString",
+                "setter": false,
+                "type": "function",
+                "writable": true
+              }
+            ],
+            "prototypeIsObjectPrototype": true,
+            "sameAsContainer": false,
+            "stringify": "ALLOWALL"
+          },
+          {
+            "helpers": {
+              "name": {
+                "error": null,
+                "ok": true,
+                "result": {
+                  "stringify": "DEFAULT",
+                  "type": "string",
+                  "value": "DEFAULT"
+                }
+              },
+              "ordinal": {
+                "error": null,
+                "ok": true,
+                "result": {
+                  "stringify": "1",
+                  "type": "number",
+                  "value": 1
+                }
+              },
+              "toJSON": {
+                "error": null,
+                "ok": true,
+                "result": {
+                  "stringify": "DEFAULT",
+                  "type": "string",
+                  "value": "DEFAULT"
+                }
+              }
+            },
+            "identity": {
+              "ALLOWALL": true,
+              "DEFAULT": true
+            },
+            "name": "DEFAULT",
+            "properties": [
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "ALLOWALL",
+                "setter": false,
+                "type": "object",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "compareTo",
+                "setter": false,
+                "type": "function",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "DEFAULT",
+                "setter": false,
+                "type": "object",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "name",
+                "setter": false,
+                "type": "function",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "ordinal",
+                "setter": false,
+                "type": "function",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "toJSON",
+                "setter": false,
+                "type": "function",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "toString",
+                "setter": false,
+                "type": "function",
+                "writable": true
+              }
+            ],
+            "prototypeIsObjectPrototype": true,
+            "sameAsContainer": true,
+            "stringify": "DEFAULT"
+          }
+        ],
+        "name": "HtmlService.XFrameOptionsMode",
+        "properties": [
+          {
+            "configurable": true,
+            "enumerable": true,
+            "getter": false,
+            "name": "ALLOWALL",
+            "setter": false,
+            "type": "object",
+            "writable": true
+          },
+          {
+            "configurable": true,
+            "enumerable": true,
+            "getter": false,
+            "name": "compareTo",
+            "setter": false,
+            "type": "function",
+            "writable": true
+          },
+          {
+            "configurable": true,
+            "enumerable": true,
+            "getter": false,
+            "name": "DEFAULT",
+            "setter": false,
+            "type": "object",
+            "writable": true
+          },
+          {
+            "configurable": true,
+            "enumerable": true,
+            "getter": false,
+            "name": "name",
+            "setter": false,
+            "type": "function",
+            "writable": true
+          },
+          {
+            "configurable": true,
+            "enumerable": true,
+            "getter": false,
+            "name": "ordinal",
+            "setter": false,
+            "type": "function",
+            "writable": true
+          },
+          {
+            "configurable": true,
+            "enumerable": true,
+            "getter": false,
+            "name": "toJSON",
+            "setter": false,
+            "type": "function",
+            "writable": true
+          },
+          {
+            "configurable": true,
+            "enumerable": true,
+            "getter": false,
+            "name": "toString",
+            "setter": false,
+            "type": "function",
+            "writable": true
+          }
+        ],
+        "prototypeIsObjectPrototype": true,
+        "stringify": "DEFAULT"
+      }
+    ],
+    "properties": [
+      {
+        "configurable": true,
+        "enumerable": true,
+        "getter": false,
+        "name": "createHtmlOutput",
+        "setter": false,
+        "type": "function",
+        "writable": true
+      },
+      {
+        "configurable": true,
+        "enumerable": true,
+        "getter": false,
+        "name": "createHtmlOutputFromFile",
+        "setter": false,
+        "type": "function",
+        "writable": true
+      },
+      {
+        "configurable": true,
+        "enumerable": true,
+        "getter": false,
+        "name": "createTemplate",
+        "setter": false,
+        "type": "function",
+        "writable": true
+      },
+      {
+        "configurable": true,
+        "enumerable": true,
+        "getter": false,
+        "name": "createTemplateFromFile",
+        "setter": false,
+        "type": "function",
+        "writable": true
+      },
+      {
+        "configurable": true,
+        "enumerable": true,
+        "getter": false,
+        "name": "getUserAgent",
+        "setter": false,
+        "type": "function",
+        "writable": true
+      },
+      {
+        "configurable": true,
+        "enumerable": true,
+        "getter": false,
+        "name": "initTemplate",
+        "setter": false,
+        "type": "function",
+        "writable": false
+      },
+      {
+        "configurable": true,
+        "enumerable": true,
+        "getter": false,
+        "name": "initTemplateExp",
+        "setter": false,
+        "type": "function",
+        "writable": false
+      },
+      {
+        "configurable": true,
+        "enumerable": true,
+        "getter": false,
+        "name": "SandboxMode",
+        "setter": false,
+        "type": "object",
+        "writable": false
+      },
+      {
+        "configurable": true,
+        "enumerable": true,
+        "getter": false,
+        "name": "toString",
+        "setter": false,
+        "type": "function",
+        "writable": true
+      },
+      {
+        "configurable": true,
+        "enumerable": true,
+        "getter": false,
+        "name": "XFrameOptionsMode",
+        "setter": false,
+        "type": "object",
+        "writable": false
+      }
+    ],
+    "prototypeIsObjectPrototype": true,
+    "stringify": "HtmlService",
+    "type": "object"
+  }
+}

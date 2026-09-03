@@ -7,16 +7,19 @@ export class HtmlService extends GASAPI implements GoogleAppsScript.HTML.HtmlSer
   #createHtmlOutput: CreateHtmlOutput;
   #createHtmlTemplate: CreateHtmlTemplate;
   #service: RuntimeServicePort<"Html">;
+  #defaultXFrameOptionsMode: GoogleAppsScript.HTML.XFrameOptionsMode;
 
   constructor(
     createHtmlOutput: CreateHtmlOutput,
     createHtmlTemplate: CreateHtmlTemplate,
     service: RuntimeServicePort<"Html">,
+    defaultXFrameOptionsMode?: GoogleAppsScript.HTML.XFrameOptionsMode,
   ) {
     super();
     this.#createHtmlOutput = createHtmlOutput;
     this.#createHtmlTemplate = createHtmlTemplate;
     this.#service = service;
+    this.#defaultXFrameOptionsMode = defaultXFrameOptionsMode ?? this.XFrameOptionsMode.DEFAULT;
   }
 
   initTemplateExp() {
@@ -31,7 +34,7 @@ export class HtmlService extends GASAPI implements GoogleAppsScript.HTML.HtmlSer
       flush() {
         this.$out.setContent(content);
       },
-      $out: this.#createHtmlOutput("", this.XFrameOptionsMode.DEFAULT),
+      $out: this.#createHtmlOutput("", this.#defaultXFrameOptionsMode),
     };
   }
 
@@ -46,7 +49,7 @@ export class HtmlService extends GASAPI implements GoogleAppsScript.HTML.HtmlSer
       throw new Error("Method not implemented.");
     }
 
-    return this.#createHtmlOutput(htmlOrBlob ?? "", this.XFrameOptionsMode.DEFAULT);
+    return this.#createHtmlOutput(htmlOrBlob ?? "", this.#defaultXFrameOptionsMode);
   }
   createHtmlOutputFromFile(filename: string): GoogleAppsScript.HTML.HtmlOutput {
     const content = this.#service.getFileContent(filename);

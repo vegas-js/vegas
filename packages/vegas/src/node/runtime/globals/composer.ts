@@ -18,7 +18,7 @@ import { createMimeType } from "../services/base/mimeType";
 import { createSession } from "../services/base/sessionFacade";
 import { createCacheService } from "../services/cache/facade";
 import { DriveApp } from "../services/drive/DriveApp";
-import { HtmlService } from "../services/html/HtmlService";
+import { createHtmlService } from "../services/html/facade";
 import { createLockService } from "../services/lock/facade";
 import { createPropertiesService } from "../services/properties/facade";
 import { SpreadsheetApp } from "../services/spreadsheet/SpreadsheetApp";
@@ -230,7 +230,12 @@ export function composeGasGlobals(
     Utilities: new Utilities(),
 
     /* HTML */
-    HtmlService: new HtmlService(createHtmlOutput, createHtmlTemplate, htmlService),
+    HtmlService: createHtmlService(
+      createHtmlOutput,
+      createHtmlTemplate,
+      htmlService,
+      createGasObject,
+    ),
 
     /* Base */
     Logger: new Logger(logSink),

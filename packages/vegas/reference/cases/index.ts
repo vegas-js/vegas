@@ -9,6 +9,7 @@ export { captureReferenceMimeTypeSurface } from "./mimeTypeSurface";
 export { captureReferenceSmoke } from "./smoke";
 export { captureReferenceCacheServiceSurface } from "./cacheServiceSurface";
 export { captureReferenceLockServiceSurface } from "./lockServiceSurface";
+export { captureReferenceHtmlServiceSurface } from "./htmlServiceSurface";
 export { captureReferenceSessionServiceSurface } from "./sessionServiceSurface";
 export { captureReferenceSessionDeprecatedSemantics } from "./sessionDeprecatedSemantics";
 export { captureReferencePropertiesServiceSurface } from "./propertiesServiceSurface";
