@@ -7,7 +7,7 @@ import { evaluateScript, evaluateScriptWithBindings } from "../runtime/execution
 import type { EvaluateHtmlTemplate } from "../runtime/execution/types";
 import type { RequestLegacySync } from "../runtime/legacy/transport";
 import type { RuntimeLogSink } from "../runtime/logging";
-import { createObjectFactories } from "./objectFactories";
+import { createRuntimeObjectFactories } from "../runtime/objects/factories";
 import {
   createRangeService,
   createSessionService,
@@ -71,12 +71,12 @@ const logSink: RuntimeLogSink = {
   },
 };
 
-const factories = createObjectFactories(
+const factories = createRuntimeObjectFactories({
   requestLegacySync,
   rangeService,
   sheetService,
   evaluateHtmlTemplate,
-);
+});
 scriptContext = createScriptContext({
   environment: workerData.environment,
 

@@ -1,5 +1,13 @@
-import type { EvaluateHtmlTemplate } from "../runtime/execution/types";
-import type { RequestLegacySync } from "../runtime/legacy/transport";
+import type { EvaluateHtmlTemplate } from "../execution/types";
+import type { RequestLegacySync } from "../legacy/transport";
+import type { RuntimeServicePort } from "../protocol";
+import { File } from "../services/drive/File";
+import { Folder } from "../services/drive/Folder";
+import { HtmlOutput } from "../services/html/HtmlOutput";
+import { HtmlTemplate } from "../services/html/HtmlTemplate";
+import { Range } from "../services/spreadsheet/Range";
+import { Sheet } from "../services/spreadsheet/Sheet";
+import { Spreadsheet } from "../services/spreadsheet/Spreadsheet";
 import type {
   CreateFile,
   CreateFolder,
@@ -8,17 +16,16 @@ import type {
   CreateRange,
   CreateSheet,
   CreateSpreadsheet,
-} from "../runtime/objects/types";
-import type { RuntimeServicePort } from "../runtime/protocol";
-import { File } from "../runtime/services/drive/File";
-import { Folder } from "../runtime/services/drive/Folder";
-import { HtmlOutput } from "../runtime/services/html/HtmlOutput";
-import { HtmlTemplate } from "../runtime/services/html/HtmlTemplate";
-import { Range } from "../runtime/services/spreadsheet/Range";
-import { Sheet } from "../runtime/services/spreadsheet/Sheet";
-import { Spreadsheet } from "../runtime/services/spreadsheet/Spreadsheet";
+} from "./types";
 
-type ObjectFactories = {
+export type RuntimeObjectFactoryDependencies = {
+  requestLegacySync: RequestLegacySync;
+  rangeService: RuntimeServicePort<"Range">;
+  sheetService: RuntimeServicePort<"Sheet">;
+  evaluateHtmlTemplate: EvaluateHtmlTemplate;
+};
+
+export type RuntimeObjectFactories = {
   createRange: CreateRange;
   createSheet: CreateSheet;
   createSpreadsheet: CreateSpreadsheet;
@@ -28,23 +35,28 @@ type ObjectFactories = {
   createFile: CreateFile;
 };
 
-export function createObjectFactories(
-  requestLegacySync: RequestLegacySync,
-  rangeService: RuntimeServicePort<"Range">,
-  sheetService: RuntimeServicePort<"Sheet">,
-  evaluateHtmlTemplate: EvaluateHtmlTemplate,
-): ObjectFactories {
+export function createRuntimeObjectFactories(
+  dependencies: RuntimeObjectFactoryDependencies,
+): RuntimeObjectFactories {
+  const { requestLegacySync, rangeService, sheetService, evaluateHtmlTemplate } = dependencies;
+
   const createRange: CreateRange = (spreadsheetId, sheetId, row, column, numRows, numColumns) =>
     new Range(spreadsheetId, sheetId, row, column, numRows, numColumns, rangeService);
+
   const createSheet: CreateSheet = (spreadsheetId, sheetId) =>
     new Sheet(spreadsheetId, sheetId, createRange, sheetService, requestLegacySync);
+
   const createSpreadsheet: CreateSpreadsheet = (spreadsheetId) =>
     new Spreadsheet(spreadsheetId, createSheet, requestLegacySync);
+
   const createHtmlOutput: CreateHtmlOutput = (content, defaultXFrameOptionsMode) =>
     new HtmlOutput(content, defaultXFrameOptionsMode);
+
   const createHtmlTemplate: CreateHtmlTemplate = (content) =>
     new HtmlTemplate(content, evaluateHtmlTemplate);
+
   const createFolder: CreateFolder = () => new Folder();
+
   const createFile: CreateFile = () => new File();
 
   return {
