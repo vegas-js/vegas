@@ -3,8 +3,8 @@ import url from "node:url";
 
 import { referenceCases } from "../core/cases";
 import { compareReference } from "../core/compare";
-import { acquireReferenceFixture } from "../core/fixture";
-import { readReferenceFixture } from "../fixtures/store";
+import { acquireReferenceResult, createReferenceMetadata } from "../core/fixture";
+import { readReferenceResult, readReferenceMetadata } from "../fixtures/store";
 import { createReferenceClient } from "../gas/client";
 import { loadOAuthConfig, loadReferenceConfig } from "../gas/config";
 import { createAccessTokenProvider } from "../gas/oauth";
@@ -25,15 +25,36 @@ async function main(): Promise<void> {
   const files = await loadReferenceProjectFiles(referenceDir);
 
   const caseRevision = computeCaseRevision(files);
+  const actualMetadata = createReferenceMetadata(caseRevision);
 
   await updateReferenceProject(config, accessTokenProvider, files);
 
   let driftDetected = false;
+
+  const expectedMetadata = await readReferenceMetadata(path.join(referenceDir, "metadata.json"));
+  const metadataComparison = compareReference(expectedMetadata, actualMetadata);
+
+  if (!metadataComparison.equal) {
+    driftDetected = true;
+
+    console.error("Reference metadata drift detected");
+    console.error(
+      JSON.stringify(
+        {
+          expected: metadataComparison.expected,
+          actual: metadataComparison.actual,
+        },
+        null,
+        2,
+      ),
+    );
+  }
+
   for (const referenceCase of referenceCases) {
     const client = createReferenceClient(config, accessTokenProvider);
-    const actual = await acquireReferenceFixture(client, referenceCase.functionName, caseRevision);
+    const actual = await acquireReferenceResult(client, referenceCase.functionName);
 
-    const expected = await readReferenceFixture(
+    const expected = await readReferenceResult(
       path.join(referenceDir, "fixtures", referenceCase.fixtureFile),
     );
 

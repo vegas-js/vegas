@@ -1,49 +1,42 @@
 {
-  "metadata": {
-    "schemaVersion": 1,
-    "runtime": "V8",
-    "caseRevision": "dff144db1bb830632c6544a3c525771d83a7dd727769d38f24d3660f93d606b7"
-  },
-  "result": {
-    "properties": [
-      {
-        "configurable": true,
-        "enumerable": true,
-        "getter": false,
-        "name": "getDocumentProperties",
-        "setter": false,
-        "type": "function",
-        "writable": true
-      },
-      {
-        "configurable": true,
-        "enumerable": true,
-        "getter": false,
-        "name": "getScriptProperties",
-        "setter": false,
-        "type": "function",
-        "writable": true
-      },
-      {
-        "configurable": true,
-        "enumerable": true,
-        "getter": false,
-        "name": "getUserProperties",
-        "setter": false,
-        "type": "function",
-        "writable": true
-      },
-      {
-        "configurable": true,
-        "enumerable": true,
-        "getter": false,
-        "name": "toString",
-        "setter": false,
-        "type": "function",
-        "writable": true
-      }
-    ],
-    "prototypeIsObjectPrototype": true,
-    "stringify": "PropertiesService"
-  }
+  "properties": [
+    {
+      "configurable": true,
+      "enumerable": true,
+      "getter": false,
+      "name": "getDocumentProperties",
+      "setter": false,
+      "type": "function",
+      "writable": true
+    },
+    {
+      "configurable": true,
+      "enumerable": true,
+      "getter": false,
+      "name": "getScriptProperties",
+      "setter": false,
+      "type": "function",
+      "writable": true
+    },
+    {
+      "configurable": true,
+      "enumerable": true,
+      "getter": false,
+      "name": "getUserProperties",
+      "setter": false,
+      "type": "function",
+      "writable": true
+    },
+    {
+      "configurable": true,
+      "enumerable": true,
+      "getter": false,
+      "name": "toString",
+      "setter": false,
+      "type": "function",
+      "writable": true
+    }
+  ],
+  "prototypeIsObjectPrototype": true,
+  "stringify": "PropertiesService"
 }

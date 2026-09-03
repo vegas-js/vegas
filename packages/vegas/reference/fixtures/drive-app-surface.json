@@ -1,2956 +1,2949 @@
 {
-  "metadata": {
-    "schemaVersion": 1,
-    "runtime": "V8",
-    "caseRevision": "dff144db1bb830632c6544a3c525771d83a7dd727769d38f24d3660f93d606b7"
-  },
-  "result": {
-    "enumLikeProperties": [
-      {
-        "memberNames": [
-          "ANYONE",
-          "ANYONE_WITH_LINK",
-          "DOMAIN",
-          "DOMAIN_WITH_LINK",
-          "PRIVATE"
-        ],
-        "members": [
-          {
-            "compareTo": {
-              "ANYONE": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "0",
-                  "type": "number",
-                  "value": 0
-                }
-              },
-              "ANYONE_WITH_LINK": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "-1",
-                  "type": "number",
-                  "value": -1
-                }
-              },
-              "DOMAIN": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "-2",
-                  "type": "number",
-                  "value": -2
-                }
-              },
-              "DOMAIN_WITH_LINK": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "-3",
-                  "type": "number",
-                  "value": -3
-                }
-              },
-              "PRIVATE": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "-4",
-                  "type": "number",
-                  "value": -4
-                }
+  "enumLikeProperties": [
+    {
+      "memberNames": [
+        "ANYONE",
+        "ANYONE_WITH_LINK",
+        "DOMAIN",
+        "DOMAIN_WITH_LINK",
+        "PRIVATE"
+      ],
+      "members": [
+        {
+          "compareTo": {
+            "ANYONE": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "0",
+                "type": "number",
+                "value": 0
               }
             },
-            "helpers": {
-              "name": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "ANYONE",
-                  "type": "string",
-                  "value": "ANYONE"
-                }
-              },
-              "ordinal": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "0",
-                  "type": "number",
-                  "value": 0
-                }
-              },
-              "toJSON": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "ANYONE",
-                  "type": "string",
-                  "value": "ANYONE"
-                }
+            "ANYONE_WITH_LINK": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "-1",
+                "type": "number",
+                "value": -1
               }
             },
-            "identity": {
-              "ANYONE": true,
-              "ANYONE_WITH_LINK": true,
-              "DOMAIN": true,
-              "DOMAIN_WITH_LINK": true,
-              "PRIVATE": true
-            },
-            "name": "ANYONE",
-            "properties": [
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "ANYONE",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "ANYONE_WITH_LINK",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "compareTo",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "DOMAIN",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "DOMAIN_WITH_LINK",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "name",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "ordinal",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "PRIVATE",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "toJSON",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "toString",
-                "setter": false,
-                "type": "function",
-                "writable": true
+            "DOMAIN": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "-2",
+                "type": "number",
+                "value": -2
               }
-            ],
-            "prototypeIsObjectPrototype": true,
-            "sameAsContainer": false,
-            "stringify": "ANYONE"
+            },
+            "DOMAIN_WITH_LINK": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "-3",
+                "type": "number",
+                "value": -3
+              }
+            },
+            "PRIVATE": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "-4",
+                "type": "number",
+                "value": -4
+              }
+            }
           },
-          {
-            "compareTo": {
-              "ANYONE": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "1",
-                  "type": "number",
-                  "value": 1
-                }
-              },
-              "ANYONE_WITH_LINK": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "0",
-                  "type": "number",
-                  "value": 0
-                }
-              },
-              "DOMAIN": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "-1",
-                  "type": "number",
-                  "value": -1
-                }
-              },
-              "DOMAIN_WITH_LINK": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "-2",
-                  "type": "number",
-                  "value": -2
-                }
-              },
-              "PRIVATE": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "-3",
-                  "type": "number",
-                  "value": -3
-                }
+          "helpers": {
+            "name": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "ANYONE",
+                "type": "string",
+                "value": "ANYONE"
               }
             },
-            "helpers": {
-              "name": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "ANYONE_WITH_LINK",
-                  "type": "string",
-                  "value": "ANYONE_WITH_LINK"
-                }
-              },
-              "ordinal": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "1",
-                  "type": "number",
-                  "value": 1
-                }
-              },
-              "toJSON": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "ANYONE_WITH_LINK",
-                  "type": "string",
-                  "value": "ANYONE_WITH_LINK"
-                }
+            "ordinal": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "0",
+                "type": "number",
+                "value": 0
               }
             },
-            "identity": {
-              "ANYONE": true,
-              "ANYONE_WITH_LINK": true,
-              "DOMAIN": true,
-              "DOMAIN_WITH_LINK": true,
-              "PRIVATE": true
-            },
-            "name": "ANYONE_WITH_LINK",
-            "properties": [
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "ANYONE",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "ANYONE_WITH_LINK",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "compareTo",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "DOMAIN",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "DOMAIN_WITH_LINK",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "name",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "ordinal",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "PRIVATE",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "toJSON",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "toString",
-                "setter": false,
-                "type": "function",
-                "writable": true
+            "toJSON": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "ANYONE",
+                "type": "string",
+                "value": "ANYONE"
               }
-            ],
-            "prototypeIsObjectPrototype": true,
-            "sameAsContainer": false,
-            "stringify": "ANYONE_WITH_LINK"
+            }
           },
-          {
-            "compareTo": {
-              "ANYONE": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "2",
-                  "type": "number",
-                  "value": 2
-                }
-              },
-              "ANYONE_WITH_LINK": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "1",
-                  "type": "number",
-                  "value": 1
-                }
-              },
-              "DOMAIN": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "0",
-                  "type": "number",
-                  "value": 0
-                }
-              },
-              "DOMAIN_WITH_LINK": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "-1",
-                  "type": "number",
-                  "value": -1
-                }
-              },
-              "PRIVATE": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "-2",
-                  "type": "number",
-                  "value": -2
-                }
-              }
-            },
-            "helpers": {
-              "name": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "DOMAIN",
-                  "type": "string",
-                  "value": "DOMAIN"
-                }
-              },
-              "ordinal": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "2",
-                  "type": "number",
-                  "value": 2
-                }
-              },
-              "toJSON": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "DOMAIN",
-                  "type": "string",
-                  "value": "DOMAIN"
-                }
-              }
-            },
-            "identity": {
-              "ANYONE": true,
-              "ANYONE_WITH_LINK": true,
-              "DOMAIN": true,
-              "DOMAIN_WITH_LINK": true,
-              "PRIVATE": true
-            },
-            "name": "DOMAIN",
-            "properties": [
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "ANYONE",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "ANYONE_WITH_LINK",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "compareTo",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "DOMAIN",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "DOMAIN_WITH_LINK",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "name",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "ordinal",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "PRIVATE",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "toJSON",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "toString",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              }
-            ],
-            "prototypeIsObjectPrototype": true,
-            "sameAsContainer": false,
-            "stringify": "DOMAIN"
+          "identity": {
+            "ANYONE": true,
+            "ANYONE_WITH_LINK": true,
+            "DOMAIN": true,
+            "DOMAIN_WITH_LINK": true,
+            "PRIVATE": true
           },
-          {
-            "compareTo": {
-              "ANYONE": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "3",
-                  "type": "number",
-                  "value": 3
-                }
-              },
-              "ANYONE_WITH_LINK": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "2",
-                  "type": "number",
-                  "value": 2
-                }
-              },
-              "DOMAIN": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "1",
-                  "type": "number",
-                  "value": 1
-                }
-              },
-              "DOMAIN_WITH_LINK": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "0",
-                  "type": "number",
-                  "value": 0
-                }
-              },
-              "PRIVATE": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "-1",
-                  "type": "number",
-                  "value": -1
-                }
+          "name": "ANYONE",
+          "properties": [
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "ANYONE",
+              "setter": false,
+              "type": "object",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "ANYONE_WITH_LINK",
+              "setter": false,
+              "type": "object",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "compareTo",
+              "setter": false,
+              "type": "function",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "DOMAIN",
+              "setter": false,
+              "type": "object",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "DOMAIN_WITH_LINK",
+              "setter": false,
+              "type": "object",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "name",
+              "setter": false,
+              "type": "function",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "ordinal",
+              "setter": false,
+              "type": "function",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "PRIVATE",
+              "setter": false,
+              "type": "object",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "toJSON",
+              "setter": false,
+              "type": "function",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "toString",
+              "setter": false,
+              "type": "function",
+              "writable": true
+            }
+          ],
+          "prototypeIsObjectPrototype": true,
+          "sameAsContainer": false,
+          "stringify": "ANYONE"
+        },
+        {
+          "compareTo": {
+            "ANYONE": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "1",
+                "type": "number",
+                "value": 1
               }
             },
-            "helpers": {
-              "name": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "DOMAIN_WITH_LINK",
-                  "type": "string",
-                  "value": "DOMAIN_WITH_LINK"
-                }
-              },
-              "ordinal": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "3",
-                  "type": "number",
-                  "value": 3
-                }
-              },
-              "toJSON": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "DOMAIN_WITH_LINK",
-                  "type": "string",
-                  "value": "DOMAIN_WITH_LINK"
-                }
+            "ANYONE_WITH_LINK": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "0",
+                "type": "number",
+                "value": 0
               }
             },
-            "identity": {
-              "ANYONE": true,
-              "ANYONE_WITH_LINK": true,
-              "DOMAIN": true,
-              "DOMAIN_WITH_LINK": true,
-              "PRIVATE": true
-            },
-            "name": "DOMAIN_WITH_LINK",
-            "properties": [
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "ANYONE",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "ANYONE_WITH_LINK",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "compareTo",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "DOMAIN",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "DOMAIN_WITH_LINK",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "name",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "ordinal",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "PRIVATE",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "toJSON",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "toString",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              }
-            ],
-            "prototypeIsObjectPrototype": true,
-            "sameAsContainer": false,
-            "stringify": "DOMAIN_WITH_LINK"
-          },
-          {
-            "compareTo": {
-              "ANYONE": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "4",
-                  "type": "number",
-                  "value": 4
-                }
-              },
-              "ANYONE_WITH_LINK": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "3",
-                  "type": "number",
-                  "value": 3
-                }
-              },
-              "DOMAIN": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "2",
-                  "type": "number",
-                  "value": 2
-                }
-              },
-              "DOMAIN_WITH_LINK": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "1",
-                  "type": "number",
-                  "value": 1
-                }
-              },
-              "PRIVATE": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "0",
-                  "type": "number",
-                  "value": 0
-                }
+            "DOMAIN": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "-1",
+                "type": "number",
+                "value": -1
               }
             },
-            "helpers": {
-              "name": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "PRIVATE",
-                  "type": "string",
-                  "value": "PRIVATE"
-                }
-              },
-              "ordinal": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "4",
-                  "type": "number",
-                  "value": 4
-                }
-              },
-              "toJSON": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "PRIVATE",
-                  "type": "string",
-                  "value": "PRIVATE"
-                }
+            "DOMAIN_WITH_LINK": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "-2",
+                "type": "number",
+                "value": -2
               }
             },
-            "identity": {
-              "ANYONE": true,
-              "ANYONE_WITH_LINK": true,
-              "DOMAIN": true,
-              "DOMAIN_WITH_LINK": true,
-              "PRIVATE": true
-            },
-            "name": "PRIVATE",
-            "properties": [
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "ANYONE",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "ANYONE_WITH_LINK",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "compareTo",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "DOMAIN",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "DOMAIN_WITH_LINK",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "name",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "ordinal",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "PRIVATE",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "toJSON",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "toString",
-                "setter": false,
-                "type": "function",
-                "writable": true
+            "PRIVATE": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "-3",
+                "type": "number",
+                "value": -3
               }
-            ],
-            "prototypeIsObjectPrototype": true,
-            "sameAsContainer": true,
-            "stringify": "PRIVATE"
-          }
-        ],
-        "name": "DriveApp.Access",
-        "properties": [
-          {
-            "configurable": true,
-            "enumerable": true,
-            "getter": false,
-            "name": "ANYONE",
-            "setter": false,
-            "type": "object",
-            "writable": true
+            }
           },
-          {
-            "configurable": true,
-            "enumerable": true,
-            "getter": false,
-            "name": "ANYONE_WITH_LINK",
-            "setter": false,
-            "type": "object",
-            "writable": true
-          },
-          {
-            "configurable": true,
-            "enumerable": true,
-            "getter": false,
-            "name": "compareTo",
-            "setter": false,
-            "type": "function",
-            "writable": true
-          },
-          {
-            "configurable": true,
-            "enumerable": true,
-            "getter": false,
-            "name": "DOMAIN",
-            "setter": false,
-            "type": "object",
-            "writable": true
-          },
-          {
-            "configurable": true,
-            "enumerable": true,
-            "getter": false,
-            "name": "DOMAIN_WITH_LINK",
-            "setter": false,
-            "type": "object",
-            "writable": true
-          },
-          {
-            "configurable": true,
-            "enumerable": true,
-            "getter": false,
-            "name": "name",
-            "setter": false,
-            "type": "function",
-            "writable": true
-          },
-          {
-            "configurable": true,
-            "enumerable": true,
-            "getter": false,
-            "name": "ordinal",
-            "setter": false,
-            "type": "function",
-            "writable": true
-          },
-          {
-            "configurable": true,
-            "enumerable": true,
-            "getter": false,
-            "name": "PRIVATE",
-            "setter": false,
-            "type": "object",
-            "writable": true
-          },
-          {
-            "configurable": true,
-            "enumerable": true,
-            "getter": false,
-            "name": "toJSON",
-            "setter": false,
-            "type": "function",
-            "writable": true
-          },
-          {
-            "configurable": true,
-            "enumerable": true,
-            "getter": false,
-            "name": "toString",
-            "setter": false,
-            "type": "function",
-            "writable": true
-          }
-        ],
-        "prototypeIsObjectPrototype": true,
-        "stringify": "PRIVATE"
-      },
-      {
-        "memberNames": [
-          "COMMENT",
-          "EDIT",
-          "FILE_ORGANIZER",
-          "NONE",
-          "ORGANIZER",
-          "OWNER",
-          "VIEW"
-        ],
-        "members": [
-          {
-            "compareTo": {
-              "COMMENT": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "0",
-                  "type": "number",
-                  "value": 0
-                }
-              },
-              "EDIT": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "1",
-                  "type": "number",
-                  "value": 1
-                }
-              },
-              "FILE_ORGANIZER": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "-3",
-                  "type": "number",
-                  "value": -3
-                }
-              },
-              "NONE": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "-4",
-                  "type": "number",
-                  "value": -4
-                }
-              },
-              "ORGANIZER": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "-2",
-                  "type": "number",
-                  "value": -2
-                }
-              },
-              "OWNER": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "-1",
-                  "type": "number",
-                  "value": -1
-                }
-              },
-              "VIEW": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "2",
-                  "type": "number",
-                  "value": 2
-                }
+          "helpers": {
+            "name": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "ANYONE_WITH_LINK",
+                "type": "string",
+                "value": "ANYONE_WITH_LINK"
               }
             },
-            "helpers": {
-              "name": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "COMMENT",
-                  "type": "string",
-                  "value": "COMMENT"
-                }
-              },
-              "ordinal": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "2",
-                  "type": "number",
-                  "value": 2
-                }
-              },
-              "toJSON": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "COMMENT",
-                  "type": "string",
-                  "value": "COMMENT"
-                }
+            "ordinal": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "1",
+                "type": "number",
+                "value": 1
               }
             },
-            "identity": {
-              "COMMENT": true,
-              "EDIT": true,
-              "FILE_ORGANIZER": true,
-              "NONE": true,
-              "ORGANIZER": true,
-              "OWNER": true,
-              "VIEW": true
-            },
-            "name": "COMMENT",
-            "properties": [
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "COMMENT",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "compareTo",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "EDIT",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "FILE_ORGANIZER",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "name",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "NONE",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "ordinal",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "ORGANIZER",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "OWNER",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "toJSON",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "toString",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "VIEW",
-                "setter": false,
-                "type": "object",
-                "writable": true
+            "toJSON": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "ANYONE_WITH_LINK",
+                "type": "string",
+                "value": "ANYONE_WITH_LINK"
               }
-            ],
-            "prototypeIsObjectPrototype": true,
-            "sameAsContainer": false,
-            "stringify": "COMMENT"
+            }
           },
-          {
-            "compareTo": {
-              "COMMENT": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "-1",
-                  "type": "number",
-                  "value": -1
-                }
-              },
-              "EDIT": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "0",
-                  "type": "number",
-                  "value": 0
-                }
-              },
-              "FILE_ORGANIZER": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "-4",
-                  "type": "number",
-                  "value": -4
-                }
-              },
-              "NONE": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "-5",
-                  "type": "number",
-                  "value": -5
-                }
-              },
-              "ORGANIZER": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "-3",
-                  "type": "number",
-                  "value": -3
-                }
-              },
-              "OWNER": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "-2",
-                  "type": "number",
-                  "value": -2
-                }
-              },
-              "VIEW": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "1",
-                  "type": "number",
-                  "value": 1
-                }
-              }
-            },
-            "helpers": {
-              "name": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "EDIT",
-                  "type": "string",
-                  "value": "EDIT"
-                }
-              },
-              "ordinal": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "1",
-                  "type": "number",
-                  "value": 1
-                }
-              },
-              "toJSON": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "EDIT",
-                  "type": "string",
-                  "value": "EDIT"
-                }
-              }
-            },
-            "identity": {
-              "COMMENT": true,
-              "EDIT": true,
-              "FILE_ORGANIZER": true,
-              "NONE": true,
-              "ORGANIZER": true,
-              "OWNER": true,
-              "VIEW": true
-            },
-            "name": "EDIT",
-            "properties": [
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "COMMENT",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "compareTo",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "EDIT",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "FILE_ORGANIZER",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "name",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "NONE",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "ordinal",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "ORGANIZER",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "OWNER",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "toJSON",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "toString",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "VIEW",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              }
-            ],
-            "prototypeIsObjectPrototype": true,
-            "sameAsContainer": false,
-            "stringify": "EDIT"
+          "identity": {
+            "ANYONE": true,
+            "ANYONE_WITH_LINK": true,
+            "DOMAIN": true,
+            "DOMAIN_WITH_LINK": true,
+            "PRIVATE": true
           },
-          {
-            "compareTo": {
-              "COMMENT": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "3",
-                  "type": "number",
-                  "value": 3
-                }
-              },
-              "EDIT": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "4",
-                  "type": "number",
-                  "value": 4
-                }
-              },
-              "FILE_ORGANIZER": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "0",
-                  "type": "number",
-                  "value": 0
-                }
-              },
-              "NONE": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "-1",
-                  "type": "number",
-                  "value": -1
-                }
-              },
-              "ORGANIZER": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "1",
-                  "type": "number",
-                  "value": 1
-                }
-              },
-              "OWNER": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "2",
-                  "type": "number",
-                  "value": 2
-                }
-              },
-              "VIEW": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "5",
-                  "type": "number",
-                  "value": 5
-                }
+          "name": "ANYONE_WITH_LINK",
+          "properties": [
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "ANYONE",
+              "setter": false,
+              "type": "object",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "ANYONE_WITH_LINK",
+              "setter": false,
+              "type": "object",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "compareTo",
+              "setter": false,
+              "type": "function",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "DOMAIN",
+              "setter": false,
+              "type": "object",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "DOMAIN_WITH_LINK",
+              "setter": false,
+              "type": "object",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "name",
+              "setter": false,
+              "type": "function",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "ordinal",
+              "setter": false,
+              "type": "function",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "PRIVATE",
+              "setter": false,
+              "type": "object",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "toJSON",
+              "setter": false,
+              "type": "function",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "toString",
+              "setter": false,
+              "type": "function",
+              "writable": true
+            }
+          ],
+          "prototypeIsObjectPrototype": true,
+          "sameAsContainer": false,
+          "stringify": "ANYONE_WITH_LINK"
+        },
+        {
+          "compareTo": {
+            "ANYONE": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "2",
+                "type": "number",
+                "value": 2
               }
             },
-            "helpers": {
-              "name": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "FILE_ORGANIZER",
-                  "type": "string",
-                  "value": "FILE_ORGANIZER"
-                }
-              },
-              "ordinal": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "5",
-                  "type": "number",
-                  "value": 5
-                }
-              },
-              "toJSON": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "FILE_ORGANIZER",
-                  "type": "string",
-                  "value": "FILE_ORGANIZER"
-                }
+            "ANYONE_WITH_LINK": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "1",
+                "type": "number",
+                "value": 1
               }
             },
-            "identity": {
-              "COMMENT": true,
-              "EDIT": true,
-              "FILE_ORGANIZER": true,
-              "NONE": true,
-              "ORGANIZER": true,
-              "OWNER": true,
-              "VIEW": true
-            },
-            "name": "FILE_ORGANIZER",
-            "properties": [
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "COMMENT",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "compareTo",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "EDIT",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "FILE_ORGANIZER",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "name",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "NONE",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "ordinal",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "ORGANIZER",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "OWNER",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "toJSON",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "toString",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "VIEW",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              }
-            ],
-            "prototypeIsObjectPrototype": true,
-            "sameAsContainer": false,
-            "stringify": "FILE_ORGANIZER"
-          },
-          {
-            "compareTo": {
-              "COMMENT": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "4",
-                  "type": "number",
-                  "value": 4
-                }
-              },
-              "EDIT": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "5",
-                  "type": "number",
-                  "value": 5
-                }
-              },
-              "FILE_ORGANIZER": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "1",
-                  "type": "number",
-                  "value": 1
-                }
-              },
-              "NONE": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "0",
-                  "type": "number",
-                  "value": 0
-                }
-              },
-              "ORGANIZER": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "2",
-                  "type": "number",
-                  "value": 2
-                }
-              },
-              "OWNER": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "3",
-                  "type": "number",
-                  "value": 3
-                }
-              },
-              "VIEW": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "6",
-                  "type": "number",
-                  "value": 6
-                }
+            "DOMAIN": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "0",
+                "type": "number",
+                "value": 0
               }
             },
-            "helpers": {
-              "name": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "NONE",
-                  "type": "string",
-                  "value": "NONE"
-                }
-              },
-              "ordinal": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "6",
-                  "type": "number",
-                  "value": 6
-                }
-              },
-              "toJSON": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "NONE",
-                  "type": "string",
-                  "value": "NONE"
-                }
+            "DOMAIN_WITH_LINK": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "-1",
+                "type": "number",
+                "value": -1
               }
             },
-            "identity": {
-              "COMMENT": true,
-              "EDIT": true,
-              "FILE_ORGANIZER": true,
-              "NONE": true,
-              "ORGANIZER": true,
-              "OWNER": true,
-              "VIEW": true
-            },
-            "name": "NONE",
-            "properties": [
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "COMMENT",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "compareTo",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "EDIT",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "FILE_ORGANIZER",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "name",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "NONE",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "ordinal",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "ORGANIZER",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "OWNER",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "toJSON",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "toString",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "VIEW",
-                "setter": false,
-                "type": "object",
-                "writable": true
+            "PRIVATE": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "-2",
+                "type": "number",
+                "value": -2
               }
-            ],
-            "prototypeIsObjectPrototype": true,
-            "sameAsContainer": false,
-            "stringify": "NONE"
+            }
           },
-          {
-            "compareTo": {
-              "COMMENT": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "2",
-                  "type": "number",
-                  "value": 2
-                }
-              },
-              "EDIT": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "3",
-                  "type": "number",
-                  "value": 3
-                }
-              },
-              "FILE_ORGANIZER": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "-1",
-                  "type": "number",
-                  "value": -1
-                }
-              },
-              "NONE": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "-2",
-                  "type": "number",
-                  "value": -2
-                }
-              },
-              "ORGANIZER": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "0",
-                  "type": "number",
-                  "value": 0
-                }
-              },
-              "OWNER": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "1",
-                  "type": "number",
-                  "value": 1
-                }
-              },
-              "VIEW": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "4",
-                  "type": "number",
-                  "value": 4
-                }
+          "helpers": {
+            "name": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "DOMAIN",
+                "type": "string",
+                "value": "DOMAIN"
               }
             },
-            "helpers": {
-              "name": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "ORGANIZER",
-                  "type": "string",
-                  "value": "ORGANIZER"
-                }
-              },
-              "ordinal": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "4",
-                  "type": "number",
-                  "value": 4
-                }
-              },
-              "toJSON": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "ORGANIZER",
-                  "type": "string",
-                  "value": "ORGANIZER"
-                }
+            "ordinal": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "2",
+                "type": "number",
+                "value": 2
               }
             },
-            "identity": {
-              "COMMENT": true,
-              "EDIT": true,
-              "FILE_ORGANIZER": true,
-              "NONE": true,
-              "ORGANIZER": true,
-              "OWNER": true,
-              "VIEW": true
-            },
-            "name": "ORGANIZER",
-            "properties": [
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "COMMENT",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "compareTo",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "EDIT",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "FILE_ORGANIZER",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "name",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "NONE",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "ordinal",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "ORGANIZER",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "OWNER",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "toJSON",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "toString",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "VIEW",
-                "setter": false,
-                "type": "object",
-                "writable": true
+            "toJSON": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "DOMAIN",
+                "type": "string",
+                "value": "DOMAIN"
               }
-            ],
-            "prototypeIsObjectPrototype": true,
-            "sameAsContainer": false,
-            "stringify": "ORGANIZER"
+            }
           },
-          {
-            "compareTo": {
-              "COMMENT": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "1",
-                  "type": "number",
-                  "value": 1
-                }
-              },
-              "EDIT": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "2",
-                  "type": "number",
-                  "value": 2
-                }
-              },
-              "FILE_ORGANIZER": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "-2",
-                  "type": "number",
-                  "value": -2
-                }
-              },
-              "NONE": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "-3",
-                  "type": "number",
-                  "value": -3
-                }
-              },
-              "ORGANIZER": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "-1",
-                  "type": "number",
-                  "value": -1
-                }
-              },
-              "OWNER": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "0",
-                  "type": "number",
-                  "value": 0
-                }
-              },
-              "VIEW": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "3",
-                  "type": "number",
-                  "value": 3
-                }
+          "identity": {
+            "ANYONE": true,
+            "ANYONE_WITH_LINK": true,
+            "DOMAIN": true,
+            "DOMAIN_WITH_LINK": true,
+            "PRIVATE": true
+          },
+          "name": "DOMAIN",
+          "properties": [
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "ANYONE",
+              "setter": false,
+              "type": "object",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "ANYONE_WITH_LINK",
+              "setter": false,
+              "type": "object",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "compareTo",
+              "setter": false,
+              "type": "function",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "DOMAIN",
+              "setter": false,
+              "type": "object",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "DOMAIN_WITH_LINK",
+              "setter": false,
+              "type": "object",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "name",
+              "setter": false,
+              "type": "function",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "ordinal",
+              "setter": false,
+              "type": "function",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "PRIVATE",
+              "setter": false,
+              "type": "object",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "toJSON",
+              "setter": false,
+              "type": "function",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "toString",
+              "setter": false,
+              "type": "function",
+              "writable": true
+            }
+          ],
+          "prototypeIsObjectPrototype": true,
+          "sameAsContainer": false,
+          "stringify": "DOMAIN"
+        },
+        {
+          "compareTo": {
+            "ANYONE": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "3",
+                "type": "number",
+                "value": 3
               }
             },
-            "helpers": {
-              "name": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "OWNER",
-                  "type": "string",
-                  "value": "OWNER"
-                }
-              },
-              "ordinal": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "3",
-                  "type": "number",
-                  "value": 3
-                }
-              },
-              "toJSON": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "OWNER",
-                  "type": "string",
-                  "value": "OWNER"
-                }
+            "ANYONE_WITH_LINK": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "2",
+                "type": "number",
+                "value": 2
               }
             },
-            "identity": {
-              "COMMENT": true,
-              "EDIT": true,
-              "FILE_ORGANIZER": true,
-              "NONE": true,
-              "ORGANIZER": true,
-              "OWNER": true,
-              "VIEW": true
-            },
-            "name": "OWNER",
-            "properties": [
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "COMMENT",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "compareTo",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "EDIT",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "FILE_ORGANIZER",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "name",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "NONE",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "ordinal",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "ORGANIZER",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "OWNER",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "toJSON",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "toString",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "VIEW",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              }
-            ],
-            "prototypeIsObjectPrototype": true,
-            "sameAsContainer": false,
-            "stringify": "OWNER"
-          },
-          {
-            "compareTo": {
-              "COMMENT": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "-2",
-                  "type": "number",
-                  "value": -2
-                }
-              },
-              "EDIT": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "-1",
-                  "type": "number",
-                  "value": -1
-                }
-              },
-              "FILE_ORGANIZER": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "-5",
-                  "type": "number",
-                  "value": -5
-                }
-              },
-              "NONE": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "-6",
-                  "type": "number",
-                  "value": -6
-                }
-              },
-              "ORGANIZER": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "-4",
-                  "type": "number",
-                  "value": -4
-                }
-              },
-              "OWNER": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "-3",
-                  "type": "number",
-                  "value": -3
-                }
-              },
-              "VIEW": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "0",
-                  "type": "number",
-                  "value": 0
-                }
+            "DOMAIN": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "1",
+                "type": "number",
+                "value": 1
               }
             },
-            "helpers": {
-              "name": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "VIEW",
-                  "type": "string",
-                  "value": "VIEW"
-                }
-              },
-              "ordinal": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "0",
-                  "type": "number",
-                  "value": 0
-                }
-              },
-              "toJSON": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "VIEW",
-                  "type": "string",
-                  "value": "VIEW"
-                }
+            "DOMAIN_WITH_LINK": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "0",
+                "type": "number",
+                "value": 0
               }
             },
-            "identity": {
-              "COMMENT": true,
-              "EDIT": true,
-              "FILE_ORGANIZER": true,
-              "NONE": true,
-              "ORGANIZER": true,
-              "OWNER": true,
-              "VIEW": true
-            },
-            "name": "VIEW",
-            "properties": [
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "COMMENT",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "compareTo",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "EDIT",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "FILE_ORGANIZER",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "name",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "NONE",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "ordinal",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "ORGANIZER",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "OWNER",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "toJSON",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "toString",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "VIEW",
-                "setter": false,
-                "type": "object",
-                "writable": true
+            "PRIVATE": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "-1",
+                "type": "number",
+                "value": -1
               }
-            ],
-            "prototypeIsObjectPrototype": true,
-            "sameAsContainer": true,
-            "stringify": "VIEW"
-          }
-        ],
-        "name": "DriveApp.Permission",
-        "properties": [
-          {
-            "configurable": true,
-            "enumerable": true,
-            "getter": false,
-            "name": "COMMENT",
-            "setter": false,
-            "type": "object",
-            "writable": true
+            }
           },
-          {
-            "configurable": true,
-            "enumerable": true,
-            "getter": false,
-            "name": "compareTo",
-            "setter": false,
-            "type": "function",
-            "writable": true
+          "helpers": {
+            "name": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "DOMAIN_WITH_LINK",
+                "type": "string",
+                "value": "DOMAIN_WITH_LINK"
+              }
+            },
+            "ordinal": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "3",
+                "type": "number",
+                "value": 3
+              }
+            },
+            "toJSON": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "DOMAIN_WITH_LINK",
+                "type": "string",
+                "value": "DOMAIN_WITH_LINK"
+              }
+            }
           },
-          {
-            "configurable": true,
-            "enumerable": true,
-            "getter": false,
-            "name": "EDIT",
-            "setter": false,
-            "type": "object",
-            "writable": true
+          "identity": {
+            "ANYONE": true,
+            "ANYONE_WITH_LINK": true,
+            "DOMAIN": true,
+            "DOMAIN_WITH_LINK": true,
+            "PRIVATE": true
           },
-          {
-            "configurable": true,
-            "enumerable": true,
-            "getter": false,
-            "name": "FILE_ORGANIZER",
-            "setter": false,
-            "type": "object",
-            "writable": true
+          "name": "DOMAIN_WITH_LINK",
+          "properties": [
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "ANYONE",
+              "setter": false,
+              "type": "object",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "ANYONE_WITH_LINK",
+              "setter": false,
+              "type": "object",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "compareTo",
+              "setter": false,
+              "type": "function",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "DOMAIN",
+              "setter": false,
+              "type": "object",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "DOMAIN_WITH_LINK",
+              "setter": false,
+              "type": "object",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "name",
+              "setter": false,
+              "type": "function",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "ordinal",
+              "setter": false,
+              "type": "function",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "PRIVATE",
+              "setter": false,
+              "type": "object",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "toJSON",
+              "setter": false,
+              "type": "function",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "toString",
+              "setter": false,
+              "type": "function",
+              "writable": true
+            }
+          ],
+          "prototypeIsObjectPrototype": true,
+          "sameAsContainer": false,
+          "stringify": "DOMAIN_WITH_LINK"
+        },
+        {
+          "compareTo": {
+            "ANYONE": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "4",
+                "type": "number",
+                "value": 4
+              }
+            },
+            "ANYONE_WITH_LINK": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "3",
+                "type": "number",
+                "value": 3
+              }
+            },
+            "DOMAIN": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "2",
+                "type": "number",
+                "value": 2
+              }
+            },
+            "DOMAIN_WITH_LINK": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "1",
+                "type": "number",
+                "value": 1
+              }
+            },
+            "PRIVATE": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "0",
+                "type": "number",
+                "value": 0
+              }
+            }
           },
-          {
-            "configurable": true,
-            "enumerable": true,
-            "getter": false,
-            "name": "name",
-            "setter": false,
-            "type": "function",
-            "writable": true
+          "helpers": {
+            "name": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "PRIVATE",
+                "type": "string",
+                "value": "PRIVATE"
+              }
+            },
+            "ordinal": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "4",
+                "type": "number",
+                "value": 4
+              }
+            },
+            "toJSON": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "PRIVATE",
+                "type": "string",
+                "value": "PRIVATE"
+              }
+            }
           },
-          {
-            "configurable": true,
-            "enumerable": true,
-            "getter": false,
-            "name": "NONE",
-            "setter": false,
-            "type": "object",
-            "writable": true
+          "identity": {
+            "ANYONE": true,
+            "ANYONE_WITH_LINK": true,
+            "DOMAIN": true,
+            "DOMAIN_WITH_LINK": true,
+            "PRIVATE": true
           },
-          {
-            "configurable": true,
-            "enumerable": true,
-            "getter": false,
-            "name": "ordinal",
-            "setter": false,
-            "type": "function",
-            "writable": true
+          "name": "PRIVATE",
+          "properties": [
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "ANYONE",
+              "setter": false,
+              "type": "object",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "ANYONE_WITH_LINK",
+              "setter": false,
+              "type": "object",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "compareTo",
+              "setter": false,
+              "type": "function",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "DOMAIN",
+              "setter": false,
+              "type": "object",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "DOMAIN_WITH_LINK",
+              "setter": false,
+              "type": "object",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "name",
+              "setter": false,
+              "type": "function",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "ordinal",
+              "setter": false,
+              "type": "function",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "PRIVATE",
+              "setter": false,
+              "type": "object",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "toJSON",
+              "setter": false,
+              "type": "function",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "toString",
+              "setter": false,
+              "type": "function",
+              "writable": true
+            }
+          ],
+          "prototypeIsObjectPrototype": true,
+          "sameAsContainer": true,
+          "stringify": "PRIVATE"
+        }
+      ],
+      "name": "DriveApp.Access",
+      "properties": [
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "ANYONE",
+          "setter": false,
+          "type": "object",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "ANYONE_WITH_LINK",
+          "setter": false,
+          "type": "object",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "compareTo",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "DOMAIN",
+          "setter": false,
+          "type": "object",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "DOMAIN_WITH_LINK",
+          "setter": false,
+          "type": "object",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "name",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "ordinal",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "PRIVATE",
+          "setter": false,
+          "type": "object",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "toJSON",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "toString",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        }
+      ],
+      "prototypeIsObjectPrototype": true,
+      "stringify": "PRIVATE"
+    },
+    {
+      "memberNames": [
+        "COMMENT",
+        "EDIT",
+        "FILE_ORGANIZER",
+        "NONE",
+        "ORGANIZER",
+        "OWNER",
+        "VIEW"
+      ],
+      "members": [
+        {
+          "compareTo": {
+            "COMMENT": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "0",
+                "type": "number",
+                "value": 0
+              }
+            },
+            "EDIT": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "1",
+                "type": "number",
+                "value": 1
+              }
+            },
+            "FILE_ORGANIZER": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "-3",
+                "type": "number",
+                "value": -3
+              }
+            },
+            "NONE": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "-4",
+                "type": "number",
+                "value": -4
+              }
+            },
+            "ORGANIZER": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "-2",
+                "type": "number",
+                "value": -2
+              }
+            },
+            "OWNER": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "-1",
+                "type": "number",
+                "value": -1
+              }
+            },
+            "VIEW": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "2",
+                "type": "number",
+                "value": 2
+              }
+            }
           },
-          {
-            "configurable": true,
-            "enumerable": true,
-            "getter": false,
-            "name": "ORGANIZER",
-            "setter": false,
-            "type": "object",
-            "writable": true
+          "helpers": {
+            "name": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "COMMENT",
+                "type": "string",
+                "value": "COMMENT"
+              }
+            },
+            "ordinal": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "2",
+                "type": "number",
+                "value": 2
+              }
+            },
+            "toJSON": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "COMMENT",
+                "type": "string",
+                "value": "COMMENT"
+              }
+            }
           },
-          {
-            "configurable": true,
-            "enumerable": true,
-            "getter": false,
-            "name": "OWNER",
-            "setter": false,
-            "type": "object",
-            "writable": true
+          "identity": {
+            "COMMENT": true,
+            "EDIT": true,
+            "FILE_ORGANIZER": true,
+            "NONE": true,
+            "ORGANIZER": true,
+            "OWNER": true,
+            "VIEW": true
           },
-          {
-            "configurable": true,
-            "enumerable": true,
-            "getter": false,
-            "name": "toJSON",
-            "setter": false,
-            "type": "function",
-            "writable": true
+          "name": "COMMENT",
+          "properties": [
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "COMMENT",
+              "setter": false,
+              "type": "object",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "compareTo",
+              "setter": false,
+              "type": "function",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "EDIT",
+              "setter": false,
+              "type": "object",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "FILE_ORGANIZER",
+              "setter": false,
+              "type": "object",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "name",
+              "setter": false,
+              "type": "function",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "NONE",
+              "setter": false,
+              "type": "object",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "ordinal",
+              "setter": false,
+              "type": "function",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "ORGANIZER",
+              "setter": false,
+              "type": "object",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "OWNER",
+              "setter": false,
+              "type": "object",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "toJSON",
+              "setter": false,
+              "type": "function",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "toString",
+              "setter": false,
+              "type": "function",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "VIEW",
+              "setter": false,
+              "type": "object",
+              "writable": true
+            }
+          ],
+          "prototypeIsObjectPrototype": true,
+          "sameAsContainer": false,
+          "stringify": "COMMENT"
+        },
+        {
+          "compareTo": {
+            "COMMENT": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "-1",
+                "type": "number",
+                "value": -1
+              }
+            },
+            "EDIT": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "0",
+                "type": "number",
+                "value": 0
+              }
+            },
+            "FILE_ORGANIZER": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "-4",
+                "type": "number",
+                "value": -4
+              }
+            },
+            "NONE": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "-5",
+                "type": "number",
+                "value": -5
+              }
+            },
+            "ORGANIZER": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "-3",
+                "type": "number",
+                "value": -3
+              }
+            },
+            "OWNER": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "-2",
+                "type": "number",
+                "value": -2
+              }
+            },
+            "VIEW": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "1",
+                "type": "number",
+                "value": 1
+              }
+            }
           },
-          {
-            "configurable": true,
-            "enumerable": true,
-            "getter": false,
-            "name": "toString",
-            "setter": false,
-            "type": "function",
-            "writable": true
+          "helpers": {
+            "name": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "EDIT",
+                "type": "string",
+                "value": "EDIT"
+              }
+            },
+            "ordinal": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "1",
+                "type": "number",
+                "value": 1
+              }
+            },
+            "toJSON": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "EDIT",
+                "type": "string",
+                "value": "EDIT"
+              }
+            }
           },
-          {
-            "configurable": true,
-            "enumerable": true,
-            "getter": false,
-            "name": "VIEW",
-            "setter": false,
-            "type": "object",
-            "writable": true
-          }
-        ],
-        "prototypeIsObjectPrototype": true,
-        "stringify": "VIEW"
-      }
-    ],
-    "properties": [
-      {
-        "configurable": true,
-        "enumerable": true,
-        "getter": false,
-        "name": "Access",
-        "setter": false,
-        "type": "object",
-        "writable": false
-      },
-      {
-        "configurable": true,
-        "enumerable": true,
-        "getter": false,
-        "name": "addFile",
-        "setter": false,
-        "type": "function",
-        "writable": true
-      },
-      {
-        "configurable": true,
-        "enumerable": true,
-        "getter": false,
-        "name": "addFolder",
-        "setter": false,
-        "type": "function",
-        "writable": true
-      },
-      {
-        "configurable": true,
-        "enumerable": true,
-        "getter": false,
-        "name": "continueFileIterator",
-        "setter": false,
-        "type": "function",
-        "writable": true
-      },
-      {
-        "configurable": true,
-        "enumerable": true,
-        "getter": false,
-        "name": "continueFolderIterator",
-        "setter": false,
-        "type": "function",
-        "writable": true
-      },
-      {
-        "configurable": true,
-        "enumerable": true,
-        "getter": false,
-        "name": "createFile",
-        "setter": false,
-        "type": "function",
-        "writable": true
-      },
-      {
-        "configurable": true,
-        "enumerable": true,
-        "getter": false,
-        "name": "createFolder",
-        "setter": false,
-        "type": "function",
-        "writable": true
-      },
-      {
-        "configurable": true,
-        "enumerable": true,
-        "getter": false,
-        "name": "createShortcut",
-        "setter": false,
-        "type": "function",
-        "writable": true
-      },
-      {
-        "configurable": true,
-        "enumerable": true,
-        "getter": false,
-        "name": "createShortcutForTargetIdAndResourceKey",
-        "setter": false,
-        "type": "function",
-        "writable": true
-      },
-      {
-        "configurable": true,
-        "enumerable": true,
-        "getter": false,
-        "name": "enforceSingleParent",
-        "setter": false,
-        "type": "function",
-        "writable": true
-      },
-      {
-        "configurable": true,
-        "enumerable": true,
-        "getter": false,
-        "name": "getFileById",
-        "setter": false,
-        "type": "function",
-        "writable": true
-      },
-      {
-        "configurable": true,
-        "enumerable": true,
-        "getter": false,
-        "name": "getFileByIdAndResourceKey",
-        "setter": false,
-        "type": "function",
-        "writable": true
-      },
-      {
-        "configurable": true,
-        "enumerable": true,
-        "getter": false,
-        "name": "getFiles",
-        "setter": false,
-        "type": "function",
-        "writable": true
-      },
-      {
-        "configurable": true,
-        "enumerable": true,
-        "getter": false,
-        "name": "getFilesByName",
-        "setter": false,
-        "type": "function",
-        "writable": true
-      },
-      {
-        "configurable": true,
-        "enumerable": true,
-        "getter": false,
-        "name": "getFilesByType",
-        "setter": false,
-        "type": "function",
-        "writable": true
-      },
-      {
-        "configurable": true,
-        "enumerable": true,
-        "getter": false,
-        "name": "getFolderById",
-        "setter": false,
-        "type": "function",
-        "writable": true
-      },
-      {
-        "configurable": true,
-        "enumerable": true,
-        "getter": false,
-        "name": "getFolderByIdAndResourceKey",
-        "setter": false,
-        "type": "function",
-        "writable": true
-      },
-      {
-        "configurable": true,
-        "enumerable": true,
-        "getter": false,
-        "name": "getFolders",
-        "setter": false,
-        "type": "function",
-        "writable": true
-      },
-      {
-        "configurable": true,
-        "enumerable": true,
-        "getter": false,
-        "name": "getFoldersByName",
-        "setter": false,
-        "type": "function",
-        "writable": true
-      },
-      {
-        "configurable": true,
-        "enumerable": true,
-        "getter": false,
-        "name": "getRootFolder",
-        "setter": false,
-        "type": "function",
-        "writable": true
-      },
-      {
-        "configurable": true,
-        "enumerable": true,
-        "getter": false,
-        "name": "getStorageLimit",
-        "setter": false,
-        "type": "function",
-        "writable": true
-      },
-      {
-        "configurable": true,
-        "enumerable": true,
-        "getter": false,
-        "name": "getStorageUsed",
-        "setter": false,
-        "type": "function",
-        "writable": true
-      },
-      {
-        "configurable": true,
-        "enumerable": true,
-        "getter": false,
-        "name": "getTrashedFiles",
-        "setter": false,
-        "type": "function",
-        "writable": true
-      },
-      {
-        "configurable": true,
-        "enumerable": true,
-        "getter": false,
-        "name": "getTrashedFolders",
-        "setter": false,
-        "type": "function",
-        "writable": true
-      },
-      {
-        "configurable": true,
-        "enumerable": true,
-        "getter": false,
-        "name": "Permission",
-        "setter": false,
-        "type": "object",
-        "writable": false
-      },
-      {
-        "configurable": true,
-        "enumerable": true,
-        "getter": false,
-        "name": "removeFile",
-        "setter": false,
-        "type": "function",
-        "writable": true
-      },
-      {
-        "configurable": true,
-        "enumerable": true,
-        "getter": false,
-        "name": "removeFolder",
-        "setter": false,
-        "type": "function",
-        "writable": true
-      },
-      {
-        "configurable": true,
-        "enumerable": true,
-        "getter": false,
-        "name": "searchFiles",
-        "setter": false,
-        "type": "function",
-        "writable": true
-      },
-      {
-        "configurable": true,
-        "enumerable": true,
-        "getter": false,
-        "name": "searchFolders",
-        "setter": false,
-        "type": "function",
-        "writable": true
-      },
-      {
-        "configurable": true,
-        "enumerable": true,
-        "getter": false,
-        "name": "toString",
-        "setter": false,
-        "type": "function",
-        "writable": true
-      }
-    ],
-    "prototypeIsObjectPrototype": true,
-    "stringify": "Drive",
-    "type": "object"
-  }
+          "identity": {
+            "COMMENT": true,
+            "EDIT": true,
+            "FILE_ORGANIZER": true,
+            "NONE": true,
+            "ORGANIZER": true,
+            "OWNER": true,
+            "VIEW": true
+          },
+          "name": "EDIT",
+          "properties": [
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "COMMENT",
+              "setter": false,
+              "type": "object",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "compareTo",
+              "setter": false,
+              "type": "function",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "EDIT",
+              "setter": false,
+              "type": "object",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "FILE_ORGANIZER",
+              "setter": false,
+              "type": "object",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "name",
+              "setter": false,
+              "type": "function",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "NONE",
+              "setter": false,
+              "type": "object",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "ordinal",
+              "setter": false,
+              "type": "function",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "ORGANIZER",
+              "setter": false,
+              "type": "object",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "OWNER",
+              "setter": false,
+              "type": "object",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "toJSON",
+              "setter": false,
+              "type": "function",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "toString",
+              "setter": false,
+              "type": "function",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "VIEW",
+              "setter": false,
+              "type": "object",
+              "writable": true
+            }
+          ],
+          "prototypeIsObjectPrototype": true,
+          "sameAsContainer": false,
+          "stringify": "EDIT"
+        },
+        {
+          "compareTo": {
+            "COMMENT": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "3",
+                "type": "number",
+                "value": 3
+              }
+            },
+            "EDIT": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "4",
+                "type": "number",
+                "value": 4
+              }
+            },
+            "FILE_ORGANIZER": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "0",
+                "type": "number",
+                "value": 0
+              }
+            },
+            "NONE": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "-1",
+                "type": "number",
+                "value": -1
+              }
+            },
+            "ORGANIZER": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "1",
+                "type": "number",
+                "value": 1
+              }
+            },
+            "OWNER": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "2",
+                "type": "number",
+                "value": 2
+              }
+            },
+            "VIEW": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "5",
+                "type": "number",
+                "value": 5
+              }
+            }
+          },
+          "helpers": {
+            "name": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "FILE_ORGANIZER",
+                "type": "string",
+                "value": "FILE_ORGANIZER"
+              }
+            },
+            "ordinal": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "5",
+                "type": "number",
+                "value": 5
+              }
+            },
+            "toJSON": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "FILE_ORGANIZER",
+                "type": "string",
+                "value": "FILE_ORGANIZER"
+              }
+            }
+          },
+          "identity": {
+            "COMMENT": true,
+            "EDIT": true,
+            "FILE_ORGANIZER": true,
+            "NONE": true,
+            "ORGANIZER": true,
+            "OWNER": true,
+            "VIEW": true
+          },
+          "name": "FILE_ORGANIZER",
+          "properties": [
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "COMMENT",
+              "setter": false,
+              "type": "object",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "compareTo",
+              "setter": false,
+              "type": "function",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "EDIT",
+              "setter": false,
+              "type": "object",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "FILE_ORGANIZER",
+              "setter": false,
+              "type": "object",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "name",
+              "setter": false,
+              "type": "function",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "NONE",
+              "setter": false,
+              "type": "object",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "ordinal",
+              "setter": false,
+              "type": "function",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "ORGANIZER",
+              "setter": false,
+              "type": "object",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "OWNER",
+              "setter": false,
+              "type": "object",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "toJSON",
+              "setter": false,
+              "type": "function",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "toString",
+              "setter": false,
+              "type": "function",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "VIEW",
+              "setter": false,
+              "type": "object",
+              "writable": true
+            }
+          ],
+          "prototypeIsObjectPrototype": true,
+          "sameAsContainer": false,
+          "stringify": "FILE_ORGANIZER"
+        },
+        {
+          "compareTo": {
+            "COMMENT": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "4",
+                "type": "number",
+                "value": 4
+              }
+            },
+            "EDIT": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "5",
+                "type": "number",
+                "value": 5
+              }
+            },
+            "FILE_ORGANIZER": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "1",
+                "type": "number",
+                "value": 1
+              }
+            },
+            "NONE": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "0",
+                "type": "number",
+                "value": 0
+              }
+            },
+            "ORGANIZER": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "2",
+                "type": "number",
+                "value": 2
+              }
+            },
+            "OWNER": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "3",
+                "type": "number",
+                "value": 3
+              }
+            },
+            "VIEW": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "6",
+                "type": "number",
+                "value": 6
+              }
+            }
+          },
+          "helpers": {
+            "name": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "NONE",
+                "type": "string",
+                "value": "NONE"
+              }
+            },
+            "ordinal": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "6",
+                "type": "number",
+                "value": 6
+              }
+            },
+            "toJSON": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "NONE",
+                "type": "string",
+                "value": "NONE"
+              }
+            }
+          },
+          "identity": {
+            "COMMENT": true,
+            "EDIT": true,
+            "FILE_ORGANIZER": true,
+            "NONE": true,
+            "ORGANIZER": true,
+            "OWNER": true,
+            "VIEW": true
+          },
+          "name": "NONE",
+          "properties": [
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "COMMENT",
+              "setter": false,
+              "type": "object",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "compareTo",
+              "setter": false,
+              "type": "function",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "EDIT",
+              "setter": false,
+              "type": "object",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "FILE_ORGANIZER",
+              "setter": false,
+              "type": "object",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "name",
+              "setter": false,
+              "type": "function",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "NONE",
+              "setter": false,
+              "type": "object",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "ordinal",
+              "setter": false,
+              "type": "function",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "ORGANIZER",
+              "setter": false,
+              "type": "object",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "OWNER",
+              "setter": false,
+              "type": "object",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "toJSON",
+              "setter": false,
+              "type": "function",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "toString",
+              "setter": false,
+              "type": "function",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "VIEW",
+              "setter": false,
+              "type": "object",
+              "writable": true
+            }
+          ],
+          "prototypeIsObjectPrototype": true,
+          "sameAsContainer": false,
+          "stringify": "NONE"
+        },
+        {
+          "compareTo": {
+            "COMMENT": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "2",
+                "type": "number",
+                "value": 2
+              }
+            },
+            "EDIT": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "3",
+                "type": "number",
+                "value": 3
+              }
+            },
+            "FILE_ORGANIZER": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "-1",
+                "type": "number",
+                "value": -1
+              }
+            },
+            "NONE": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "-2",
+                "type": "number",
+                "value": -2
+              }
+            },
+            "ORGANIZER": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "0",
+                "type": "number",
+                "value": 0
+              }
+            },
+            "OWNER": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "1",
+                "type": "number",
+                "value": 1
+              }
+            },
+            "VIEW": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "4",
+                "type": "number",
+                "value": 4
+              }
+            }
+          },
+          "helpers": {
+            "name": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "ORGANIZER",
+                "type": "string",
+                "value": "ORGANIZER"
+              }
+            },
+            "ordinal": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "4",
+                "type": "number",
+                "value": 4
+              }
+            },
+            "toJSON": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "ORGANIZER",
+                "type": "string",
+                "value": "ORGANIZER"
+              }
+            }
+          },
+          "identity": {
+            "COMMENT": true,
+            "EDIT": true,
+            "FILE_ORGANIZER": true,
+            "NONE": true,
+            "ORGANIZER": true,
+            "OWNER": true,
+            "VIEW": true
+          },
+          "name": "ORGANIZER",
+          "properties": [
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "COMMENT",
+              "setter": false,
+              "type": "object",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "compareTo",
+              "setter": false,
+              "type": "function",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "EDIT",
+              "setter": false,
+              "type": "object",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "FILE_ORGANIZER",
+              "setter": false,
+              "type": "object",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "name",
+              "setter": false,
+              "type": "function",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "NONE",
+              "setter": false,
+              "type": "object",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "ordinal",
+              "setter": false,
+              "type": "function",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "ORGANIZER",
+              "setter": false,
+              "type": "object",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "OWNER",
+              "setter": false,
+              "type": "object",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "toJSON",
+              "setter": false,
+              "type": "function",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "toString",
+              "setter": false,
+              "type": "function",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "VIEW",
+              "setter": false,
+              "type": "object",
+              "writable": true
+            }
+          ],
+          "prototypeIsObjectPrototype": true,
+          "sameAsContainer": false,
+          "stringify": "ORGANIZER"
+        },
+        {
+          "compareTo": {
+            "COMMENT": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "1",
+                "type": "number",
+                "value": 1
+              }
+            },
+            "EDIT": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "2",
+                "type": "number",
+                "value": 2
+              }
+            },
+            "FILE_ORGANIZER": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "-2",
+                "type": "number",
+                "value": -2
+              }
+            },
+            "NONE": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "-3",
+                "type": "number",
+                "value": -3
+              }
+            },
+            "ORGANIZER": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "-1",
+                "type": "number",
+                "value": -1
+              }
+            },
+            "OWNER": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "0",
+                "type": "number",
+                "value": 0
+              }
+            },
+            "VIEW": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "3",
+                "type": "number",
+                "value": 3
+              }
+            }
+          },
+          "helpers": {
+            "name": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "OWNER",
+                "type": "string",
+                "value": "OWNER"
+              }
+            },
+            "ordinal": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "3",
+                "type": "number",
+                "value": 3
+              }
+            },
+            "toJSON": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "OWNER",
+                "type": "string",
+                "value": "OWNER"
+              }
+            }
+          },
+          "identity": {
+            "COMMENT": true,
+            "EDIT": true,
+            "FILE_ORGANIZER": true,
+            "NONE": true,
+            "ORGANIZER": true,
+            "OWNER": true,
+            "VIEW": true
+          },
+          "name": "OWNER",
+          "properties": [
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "COMMENT",
+              "setter": false,
+              "type": "object",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "compareTo",
+              "setter": false,
+              "type": "function",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "EDIT",
+              "setter": false,
+              "type": "object",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "FILE_ORGANIZER",
+              "setter": false,
+              "type": "object",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "name",
+              "setter": false,
+              "type": "function",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "NONE",
+              "setter": false,
+              "type": "object",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "ordinal",
+              "setter": false,
+              "type": "function",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "ORGANIZER",
+              "setter": false,
+              "type": "object",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "OWNER",
+              "setter": false,
+              "type": "object",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "toJSON",
+              "setter": false,
+              "type": "function",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "toString",
+              "setter": false,
+              "type": "function",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "VIEW",
+              "setter": false,
+              "type": "object",
+              "writable": true
+            }
+          ],
+          "prototypeIsObjectPrototype": true,
+          "sameAsContainer": false,
+          "stringify": "OWNER"
+        },
+        {
+          "compareTo": {
+            "COMMENT": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "-2",
+                "type": "number",
+                "value": -2
+              }
+            },
+            "EDIT": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "-1",
+                "type": "number",
+                "value": -1
+              }
+            },
+            "FILE_ORGANIZER": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "-5",
+                "type": "number",
+                "value": -5
+              }
+            },
+            "NONE": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "-6",
+                "type": "number",
+                "value": -6
+              }
+            },
+            "ORGANIZER": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "-4",
+                "type": "number",
+                "value": -4
+              }
+            },
+            "OWNER": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "-3",
+                "type": "number",
+                "value": -3
+              }
+            },
+            "VIEW": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "0",
+                "type": "number",
+                "value": 0
+              }
+            }
+          },
+          "helpers": {
+            "name": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "VIEW",
+                "type": "string",
+                "value": "VIEW"
+              }
+            },
+            "ordinal": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "0",
+                "type": "number",
+                "value": 0
+              }
+            },
+            "toJSON": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "stringify": "VIEW",
+                "type": "string",
+                "value": "VIEW"
+              }
+            }
+          },
+          "identity": {
+            "COMMENT": true,
+            "EDIT": true,
+            "FILE_ORGANIZER": true,
+            "NONE": true,
+            "ORGANIZER": true,
+            "OWNER": true,
+            "VIEW": true
+          },
+          "name": "VIEW",
+          "properties": [
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "COMMENT",
+              "setter": false,
+              "type": "object",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "compareTo",
+              "setter": false,
+              "type": "function",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "EDIT",
+              "setter": false,
+              "type": "object",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "FILE_ORGANIZER",
+              "setter": false,
+              "type": "object",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "name",
+              "setter": false,
+              "type": "function",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "NONE",
+              "setter": false,
+              "type": "object",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "ordinal",
+              "setter": false,
+              "type": "function",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "ORGANIZER",
+              "setter": false,
+              "type": "object",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "OWNER",
+              "setter": false,
+              "type": "object",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "toJSON",
+              "setter": false,
+              "type": "function",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "toString",
+              "setter": false,
+              "type": "function",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "VIEW",
+              "setter": false,
+              "type": "object",
+              "writable": true
+            }
+          ],
+          "prototypeIsObjectPrototype": true,
+          "sameAsContainer": true,
+          "stringify": "VIEW"
+        }
+      ],
+      "name": "DriveApp.Permission",
+      "properties": [
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "COMMENT",
+          "setter": false,
+          "type": "object",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "compareTo",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "EDIT",
+          "setter": false,
+          "type": "object",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "FILE_ORGANIZER",
+          "setter": false,
+          "type": "object",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "name",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "NONE",
+          "setter": false,
+          "type": "object",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "ordinal",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "ORGANIZER",
+          "setter": false,
+          "type": "object",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "OWNER",
+          "setter": false,
+          "type": "object",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "toJSON",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "toString",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": true,
+          "getter": false,
+          "name": "VIEW",
+          "setter": false,
+          "type": "object",
+          "writable": true
+        }
+      ],
+      "prototypeIsObjectPrototype": true,
+      "stringify": "VIEW"
+    }
+  ],
+  "properties": [
+    {
+      "configurable": true,
+      "enumerable": true,
+      "getter": false,
+      "name": "Access",
+      "setter": false,
+      "type": "object",
+      "writable": false
+    },
+    {
+      "configurable": true,
+      "enumerable": true,
+      "getter": false,
+      "name": "addFile",
+      "setter": false,
+      "type": "function",
+      "writable": true
+    },
+    {
+      "configurable": true,
+      "enumerable": true,
+      "getter": false,
+      "name": "addFolder",
+      "setter": false,
+      "type": "function",
+      "writable": true
+    },
+    {
+      "configurable": true,
+      "enumerable": true,
+      "getter": false,
+      "name": "continueFileIterator",
+      "setter": false,
+      "type": "function",
+      "writable": true
+    },
+    {
+      "configurable": true,
+      "enumerable": true,
+      "getter": false,
+      "name": "continueFolderIterator",
+      "setter": false,
+      "type": "function",
+      "writable": true
+    },
+    {
+      "configurable": true,
+      "enumerable": true,
+      "getter": false,
+      "name": "createFile",
+      "setter": false,
+      "type": "function",
+      "writable": true
+    },
+    {
+      "configurable": true,
+      "enumerable": true,
+      "getter": false,
+      "name": "createFolder",
+      "setter": false,
+      "type": "function",
+      "writable": true
+    },
+    {
+      "configurable": true,
+      "enumerable": true,
+      "getter": false,
+      "name": "createShortcut",
+      "setter": false,
+      "type": "function",
+      "writable": true
+    },
+    {
+      "configurable": true,
+      "enumerable": true,
+      "getter": false,
+      "name": "createShortcutForTargetIdAndResourceKey",
+      "setter": false,
+      "type": "function",
+      "writable": true
+    },
+    {
+      "configurable": true,
+      "enumerable": true,
+      "getter": false,
+      "name": "enforceSingleParent",
+      "setter": false,
+      "type": "function",
+      "writable": true
+    },
+    {
+      "configurable": true,
+      "enumerable": true,
+      "getter": false,
+      "name": "getFileById",
+      "setter": false,
+      "type": "function",
+      "writable": true
+    },
+    {
+      "configurable": true,
+      "enumerable": true,
+      "getter": false,
+      "name": "getFileByIdAndResourceKey",
+      "setter": false,
+      "type": "function",
+      "writable": true
+    },
+    {
+      "configurable": true,
+      "enumerable": true,
+      "getter": false,
+      "name": "getFiles",
+      "setter": false,
+      "type": "function",
+      "writable": true
+    },
+    {
+      "configurable": true,
+      "enumerable": true,
+      "getter": false,
+      "name": "getFilesByName",
+      "setter": false,
+      "type": "function",
+      "writable": true
+    },
+    {
+      "configurable": true,
+      "enumerable": true,
+      "getter": false,
+      "name": "getFilesByType",
+      "setter": false,
+      "type": "function",
+      "writable": true
+    },
+    {
+      "configurable": true,
+      "enumerable": true,
+      "getter": false,
+      "name": "getFolderById",
+      "setter": false,
+      "type": "function",
+      "writable": true
+    },
+    {
+      "configurable": true,
+      "enumerable": true,
+      "getter": false,
+      "name": "getFolderByIdAndResourceKey",
+      "setter": false,
+      "type": "function",
+      "writable": true
+    },
+    {
+      "configurable": true,
+      "enumerable": true,
+      "getter": false,
+      "name": "getFolders",
+      "setter": false,
+      "type": "function",
+      "writable": true
+    },
+    {
+      "configurable": true,
+      "enumerable": true,
+      "getter": false,
+      "name": "getFoldersByName",
+      "setter": false,
+      "type": "function",
+      "writable": true
+    },
+    {
+      "configurable": true,
+      "enumerable": true,
+      "getter": false,
+      "name": "getRootFolder",
+      "setter": false,
+      "type": "function",
+      "writable": true
+    },
+    {
+      "configurable": true,
+      "enumerable": true,
+      "getter": false,
+      "name": "getStorageLimit",
+      "setter": false,
+      "type": "function",
+      "writable": true
+    },
+    {
+      "configurable": true,
+      "enumerable": true,
+      "getter": false,
+      "name": "getStorageUsed",
+      "setter": false,
+      "type": "function",
+      "writable": true
+    },
+    {
+      "configurable": true,
+      "enumerable": true,
+      "getter": false,
+      "name": "getTrashedFiles",
+      "setter": false,
+      "type": "function",
+      "writable": true
+    },
+    {
+      "configurable": true,
+      "enumerable": true,
+      "getter": false,
+      "name": "getTrashedFolders",
+      "setter": false,
+      "type": "function",
+      "writable": true
+    },
+    {
+      "configurable": true,
+      "enumerable": true,
+      "getter": false,
+      "name": "Permission",
+      "setter": false,
+      "type": "object",
+      "writable": false
+    },
+    {
+      "configurable": true,
+      "enumerable": true,
+      "getter": false,
+      "name": "removeFile",
+      "setter": false,
+      "type": "function",
+      "writable": true
+    },
+    {
+      "configurable": true,
+      "enumerable": true,
+      "getter": false,
+      "name": "removeFolder",
+      "setter": false,
+      "type": "function",
+      "writable": true
+    },
+    {
+      "configurable": true,
+      "enumerable": true,
+      "getter": false,
+      "name": "searchFiles",
+      "setter": false,
+      "type": "function",
+      "writable": true
+    },
+    {
+      "configurable": true,
+      "enumerable": true,
+      "getter": false,
+      "name": "searchFolders",
+      "setter": false,
+      "type": "function",
+      "writable": true
+    },
+    {
+      "configurable": true,
+      "enumerable": true,
+      "getter": false,
+      "name": "toString",
+      "setter": false,
+      "type": "function",
+      "writable": true
+    }
+  ],
+  "prototypeIsObjectPrototype": true,
+  "stringify": "Drive",
+  "type": "object"
 }

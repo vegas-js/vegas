@@ -1,12 +1,5 @@
 {
-  "metadata": {
-    "schemaVersion": 1,
-    "runtime": "V8",
-    "caseRevision": "dff144db1bb830632c6544a3c525771d83a7dd727769d38f24d3660f93d606b7"
-  },
-  "result": {
-    "number": "1",
-    "string": "value",
-    "undefinedType": "undefined"
-  }
+  "number": "1",
+  "string": "value",
+  "undefinedType": "undefined"
 }

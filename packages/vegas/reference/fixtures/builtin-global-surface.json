@@ -1,61 +1,54 @@
-{
-  "metadata": {
-    "schemaVersion": 1,
-    "runtime": "V8",
-    "caseRevision": "dff144db1bb830632c6544a3c525771d83a7dd727769d38f24d3660f93d606b7"
+[
+  {
+    "descriptor": {
+      "configurable": true,
+      "enumerable": false,
+      "getter": false,
+      "setter": false,
+      "writable": true
+    },
+    "name": "CalendarApp",
+    "own": true,
+    "present": true,
+    "type": "object"
   },
-  "result": [
-    {
-      "descriptor": {
-        "configurable": true,
-        "enumerable": false,
-        "getter": false,
-        "setter": false,
-        "writable": true
-      },
-      "name": "CalendarApp",
-      "own": true,
-      "present": true,
-      "type": "object"
+  {
+    "descriptor": {
+      "configurable": true,
+      "enumerable": false,
+      "getter": false,
+      "setter": false,
+      "writable": true
     },
-    {
-      "descriptor": {
-        "configurable": true,
-        "enumerable": false,
-        "getter": false,
-        "setter": false,
-        "writable": true
-      },
-      "name": "DocumentApp",
-      "own": true,
-      "present": true,
-      "type": "object"
+    "name": "DocumentApp",
+    "own": true,
+    "present": true,
+    "type": "object"
+  },
+  {
+    "descriptor": {
+      "configurable": true,
+      "enumerable": false,
+      "getter": false,
+      "setter": false,
+      "writable": true
     },
-    {
-      "descriptor": {
-        "configurable": true,
-        "enumerable": false,
-        "getter": false,
-        "setter": false,
-        "writable": true
-      },
-      "name": "GmailApp",
-      "own": true,
-      "present": true,
-      "type": "object"
+    "name": "GmailApp",
+    "own": true,
+    "present": true,
+    "type": "object"
+  },
+  {
+    "descriptor": {
+      "configurable": true,
+      "enumerable": false,
+      "getter": false,
+      "setter": false,
+      "writable": true
     },
-    {
-      "descriptor": {
-        "configurable": true,
-        "enumerable": false,
-        "getter": false,
-        "setter": false,
-        "writable": true
-      },
-      "name": "ScriptApp",
-      "own": true,
-      "present": true,
-      "type": "object"
-    }
-  ]
-}
+    "name": "ScriptApp",
+    "own": true,
+    "present": true,
+    "type": "object"
+  }
+]

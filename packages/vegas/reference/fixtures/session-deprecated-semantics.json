@@ -1,21 +1,14 @@
 {
-  "metadata": {
-    "schemaVersion": 1,
-    "runtime": "V8",
-    "caseRevision": "dff144db1bb830632c6544a3c525771d83a7dd727769d38f24d3660f93d606b7"
+  "getTimeZone": {
+    "errorMessage": null,
+    "errorName": null,
+    "sameAsScriptTimeZone": true,
+    "threw": false
   },
-  "result": {
-    "getTimeZone": {
-      "errorMessage": null,
-      "errorName": null,
-      "sameAsScriptTimeZone": true,
-      "threw": false
-    },
-    "getUser": {
-      "errorMessage": null,
-      "errorName": null,
-      "sameEmailAsActiveUser": true,
-      "threw": false
-    }
+  "getUser": {
+    "errorMessage": null,
+    "errorName": null,
+    "sameEmailAsActiveUser": true,
+    "threw": false
   }
 }

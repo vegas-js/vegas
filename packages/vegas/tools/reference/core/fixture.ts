@@ -1,20 +1,16 @@
 import { acquireReference } from "./acquire";
-import { REFERENCE_SCHEMA_VERSION } from "./constants";
-import type { ReferenceExecutor, ReferenceFixture } from "./types";
+import type { ReferenceExecutor, ReferenceResult, ReferenceMetadata } from "./types";
 
-export async function acquireReferenceFixture(
+export async function acquireReferenceResult(
   executor: ReferenceExecutor,
   functionName: string,
-  caseRevision: string,
-): Promise<ReferenceFixture> {
-  const result = await acquireReference(executor, functionName);
+): Promise<ReferenceResult> {
+  return acquireReference(executor, functionName) as Promise<ReferenceResult>;
+}
 
+export function createReferenceMetadata(caseRevision: string): ReferenceMetadata {
   return {
-    metadata: {
-      schemaVersion: REFERENCE_SCHEMA_VERSION,
-      runtime: "V8",
-      caseRevision,
-    },
-    result,
+    runtime: "V8",
+    caseRevision,
   };
 }

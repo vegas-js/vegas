@@ -1,17 +1,36 @@
 import fsPromises from "node:fs/promises";
 import path from "node:path";
 
-import type { ReferenceFixture } from "../core/types";
+import type { ReferenceResult, ReferenceMetadata } from "../core/types";
 
-export async function readReferenceFixture(path: string): Promise<ReferenceFixture> {
-  const content = await fsPromises.readFile(path, "utf8");
-  return JSON.parse(content) as ReferenceFixture;
+async function readJson<T>(p: string): Promise<T> {
+  const content = await fsPromises.readFile(p, "utf8");
+  return JSON.parse(content) as T;
 }
 
-export async function writeReferenceFixture(p: string, fixture: ReferenceFixture): Promise<void> {
+async function writeJson(p: string, value: unknown): Promise<void> {
   await fsPromises.mkdir(path.dirname(p), {
     recursive: true,
   });
 
-  await fsPromises.writeFile(p, `${JSON.stringify(fixture, null, 2)}\n`, "utf8");
+  await fsPromises.writeFile(p, `${JSON.stringify(value, null, 2)}\n`, "utf8");
+}
+
+export async function readReferenceMetadata(p: string): Promise<ReferenceMetadata> {
+  return readJson<ReferenceMetadata>(p);
+}
+
+export async function writeReferenceMetadata(
+  p: string,
+  metadata: ReferenceMetadata,
+): Promise<void> {
+  await writeJson(p, metadata);
+}
+
+export async function readReferenceResult(p: string): Promise<ReferenceResult> {
+  return readJson<ReferenceResult>(p);
+}
+
+export async function writeReferenceResult(p: string, fixture: ReferenceResult): Promise<void> {
+  await writeJson(p, fixture);
 }

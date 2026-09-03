@@ -1,67 +1,60 @@
 {
-  "metadata": {
-    "schemaVersion": 1,
-    "runtime": "V8",
-    "caseRevision": "dff144db1bb830632c6544a3c525771d83a7dd727769d38f24d3660f93d606b7"
-  },
-  "result": {
-    "properties": [
-      {
-        "configurable": true,
-        "enumerable": true,
-        "getter": false,
-        "name": "getDocumentCache",
-        "setter": false,
-        "type": "function",
-        "writable": true
-      },
-      {
-        "configurable": true,
-        "enumerable": true,
-        "getter": false,
-        "name": "getPrivateCache",
-        "setter": false,
-        "type": "function",
-        "writable": true
-      },
-      {
-        "configurable": true,
-        "enumerable": true,
-        "getter": false,
-        "name": "getPublicCache",
-        "setter": false,
-        "type": "function",
-        "writable": true
-      },
-      {
-        "configurable": true,
-        "enumerable": true,
-        "getter": false,
-        "name": "getScriptCache",
-        "setter": false,
-        "type": "function",
-        "writable": true
-      },
-      {
-        "configurable": true,
-        "enumerable": true,
-        "getter": false,
-        "name": "getUserCache",
-        "setter": false,
-        "type": "function",
-        "writable": true
-      },
-      {
-        "configurable": true,
-        "enumerable": true,
-        "getter": false,
-        "name": "toString",
-        "setter": false,
-        "type": "function",
-        "writable": true
-      }
-    ],
-    "prototypeIsObjectPrototype": true,
-    "stringify": "CacheService"
-  }
+  "properties": [
+    {
+      "configurable": true,
+      "enumerable": true,
+      "getter": false,
+      "name": "getDocumentCache",
+      "setter": false,
+      "type": "function",
+      "writable": true
+    },
+    {
+      "configurable": true,
+      "enumerable": true,
+      "getter": false,
+      "name": "getPrivateCache",
+      "setter": false,
+      "type": "function",
+      "writable": true
+    },
+    {
+      "configurable": true,
+      "enumerable": true,
+      "getter": false,
+      "name": "getPublicCache",
+      "setter": false,
+      "type": "function",
+      "writable": true
+    },
+    {
+      "configurable": true,
+      "enumerable": true,
+      "getter": false,
+      "name": "getScriptCache",
+      "setter": false,
+      "type": "function",
+      "writable": true
+    },
+    {
+      "configurable": true,
+      "enumerable": true,
+      "getter": false,
+      "name": "getUserCache",
+      "setter": false,
+      "type": "function",
+      "writable": true
+    },
+    {
+      "configurable": true,
+      "enumerable": true,
+      "getter": false,
+      "name": "toString",
+      "setter": false,
+      "type": "function",
+      "writable": true
+    }
+  ],
+  "prototypeIsObjectPrototype": true,
+  "stringify": "CacheService"
 }

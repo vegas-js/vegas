@@ -1,32 +1,25 @@
 {
-  "metadata": {
-    "schemaVersion": 1,
-    "runtime": "V8",
-    "caseRevision": "dff144db1bb830632c6544a3c525771d83a7dd727769d38f24d3660f93d606b7"
+  "document": {
+    "isNull": true,
+    "stableIdentity": true,
+    "stringify": null,
+    "type": "object"
   },
-  "result": {
-    "document": {
-      "isNull": true,
-      "stableIdentity": true,
-      "stringify": null,
-      "type": "object"
-    },
-    "identity": {
-      "documentEqualsScript": false,
-      "documentEqualsUser": false,
-      "scriptEqualsUser": false
-    },
-    "script": {
-      "isNull": false,
-      "stableIdentity": false,
-      "stringify": "ScriptProperties",
-      "type": "object"
-    },
-    "user": {
-      "isNull": false,
-      "stableIdentity": false,
-      "stringify": "UserProperties",
-      "type": "object"
-    }
+  "identity": {
+    "documentEqualsScript": false,
+    "documentEqualsUser": false,
+    "scriptEqualsUser": false
+  },
+  "script": {
+    "isNull": false,
+    "stableIdentity": false,
+    "stringify": "ScriptProperties",
+    "type": "object"
+  },
+  "user": {
+    "isNull": false,
+    "stableIdentity": false,
+    "stringify": "UserProperties",
+    "type": "object"
   }
 }

@@ -1,165 +1,158 @@
-{
-  "metadata": {
-    "schemaVersion": 1,
-    "runtime": "V8",
-    "caseRevision": "dff144db1bb830632c6544a3c525771d83a7dd727769d38f24d3660f93d606b7"
+[
+  {
+    "descriptor": {
+      "configurable": true,
+      "enumerable": false,
+      "getter": false,
+      "setter": false,
+      "writable": true
+    },
+    "name": "DriveApp",
+    "own": true,
+    "present": true,
+    "type": "object"
   },
-  "result": [
-    {
-      "descriptor": {
-        "configurable": true,
-        "enumerable": false,
-        "getter": false,
-        "setter": false,
-        "writable": true
-      },
-      "name": "DriveApp",
-      "own": true,
-      "present": true,
-      "type": "object"
+  {
+    "descriptor": {
+      "configurable": true,
+      "enumerable": false,
+      "getter": false,
+      "setter": false,
+      "writable": true
     },
-    {
-      "descriptor": {
-        "configurable": true,
-        "enumerable": false,
-        "getter": false,
-        "setter": false,
-        "writable": true
-      },
-      "name": "SpreadsheetApp",
-      "own": true,
-      "present": true,
-      "type": "object"
+    "name": "SpreadsheetApp",
+    "own": true,
+    "present": true,
+    "type": "object"
+  },
+  {
+    "descriptor": {
+      "configurable": true,
+      "enumerable": false,
+      "getter": false,
+      "setter": false,
+      "writable": true
     },
-    {
-      "descriptor": {
-        "configurable": true,
-        "enumerable": false,
-        "getter": false,
-        "setter": false,
-        "writable": true
-      },
-      "name": "UrlFetchApp",
-      "own": true,
-      "present": true,
-      "type": "object"
+    "name": "UrlFetchApp",
+    "own": true,
+    "present": true,
+    "type": "object"
+  },
+  {
+    "descriptor": {
+      "configurable": true,
+      "enumerable": false,
+      "getter": false,
+      "setter": false,
+      "writable": true
     },
-    {
-      "descriptor": {
-        "configurable": true,
-        "enumerable": false,
-        "getter": false,
-        "setter": false,
-        "writable": true
-      },
-      "name": "Utilities",
-      "own": true,
-      "present": true,
-      "type": "object"
+    "name": "Utilities",
+    "own": true,
+    "present": true,
+    "type": "object"
+  },
+  {
+    "descriptor": {
+      "configurable": true,
+      "enumerable": false,
+      "getter": false,
+      "setter": false,
+      "writable": true
     },
-    {
-      "descriptor": {
-        "configurable": true,
-        "enumerable": false,
-        "getter": false,
-        "setter": false,
-        "writable": true
-      },
-      "name": "HtmlService",
-      "own": true,
-      "present": true,
-      "type": "object"
+    "name": "HtmlService",
+    "own": true,
+    "present": true,
+    "type": "object"
+  },
+  {
+    "descriptor": {
+      "configurable": true,
+      "enumerable": false,
+      "getter": false,
+      "setter": false,
+      "writable": true
     },
-    {
-      "descriptor": {
-        "configurable": true,
-        "enumerable": false,
-        "getter": false,
-        "setter": false,
-        "writable": true
-      },
-      "name": "Logger",
-      "own": true,
-      "present": true,
-      "type": "object"
+    "name": "Logger",
+    "own": true,
+    "present": true,
+    "type": "object"
+  },
+  {
+    "descriptor": {
+      "configurable": true,
+      "enumerable": false,
+      "getter": false,
+      "setter": false,
+      "writable": true
     },
-    {
-      "descriptor": {
-        "configurable": true,
-        "enumerable": false,
-        "getter": false,
-        "setter": false,
-        "writable": true
-      },
-      "name": "MimeType",
-      "own": true,
-      "present": true,
-      "type": "object"
+    "name": "MimeType",
+    "own": true,
+    "present": true,
+    "type": "object"
+  },
+  {
+    "descriptor": {
+      "configurable": true,
+      "enumerable": false,
+      "getter": false,
+      "setter": false,
+      "writable": true
     },
-    {
-      "descriptor": {
-        "configurable": true,
-        "enumerable": false,
-        "getter": false,
-        "setter": false,
-        "writable": true
-      },
-      "name": "Session",
-      "own": true,
-      "present": true,
-      "type": "object"
+    "name": "Session",
+    "own": true,
+    "present": true,
+    "type": "object"
+  },
+  {
+    "descriptor": {
+      "configurable": true,
+      "enumerable": false,
+      "getter": false,
+      "setter": false,
+      "writable": true
     },
-    {
-      "descriptor": {
-        "configurable": true,
-        "enumerable": false,
-        "getter": false,
-        "setter": false,
-        "writable": true
-      },
-      "name": "console",
-      "own": true,
-      "present": true,
-      "type": "object"
+    "name": "console",
+    "own": true,
+    "present": true,
+    "type": "object"
+  },
+  {
+    "descriptor": {
+      "configurable": true,
+      "enumerable": false,
+      "getter": false,
+      "setter": false,
+      "writable": true
     },
-    {
-      "descriptor": {
-        "configurable": true,
-        "enumerable": false,
-        "getter": false,
-        "setter": false,
-        "writable": true
-      },
-      "name": "CacheService",
-      "own": true,
-      "present": true,
-      "type": "object"
+    "name": "CacheService",
+    "own": true,
+    "present": true,
+    "type": "object"
+  },
+  {
+    "descriptor": {
+      "configurable": true,
+      "enumerable": false,
+      "getter": false,
+      "setter": false,
+      "writable": true
     },
-    {
-      "descriptor": {
-        "configurable": true,
-        "enumerable": false,
-        "getter": false,
-        "setter": false,
-        "writable": true
-      },
-      "name": "LockService",
-      "own": true,
-      "present": true,
-      "type": "object"
+    "name": "LockService",
+    "own": true,
+    "present": true,
+    "type": "object"
+  },
+  {
+    "descriptor": {
+      "configurable": true,
+      "enumerable": false,
+      "getter": false,
+      "setter": false,
+      "writable": true
     },
-    {
-      "descriptor": {
-        "configurable": true,
-        "enumerable": false,
-        "getter": false,
-        "setter": false,
-        "writable": true
-      },
-      "name": "PropertiesService",
-      "own": true,
-      "present": true,
-      "type": "object"
-    }
-  ]
-}
+    "name": "PropertiesService",
+    "own": true,
+    "present": true,
+    "type": "object"
+  }
+]

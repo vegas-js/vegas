@@ -1,68 +1,61 @@
 {
-  "metadata": {
-    "schemaVersion": 1,
-    "runtime": "V8",
-    "caseRevision": "dff144db1bb830632c6544a3c525771d83a7dd727769d38f24d3660f93d606b7"
-  },
-  "result": {
-    "properties": [
-      {
-        "configurable": true,
-        "enumerable": true,
-        "getter": false,
-        "name": "getDocumentLock",
-        "setter": false,
-        "type": "function",
-        "writable": true
-      },
-      {
-        "configurable": true,
-        "enumerable": true,
-        "getter": false,
-        "name": "getPrivateLock",
-        "setter": false,
-        "type": "function",
-        "writable": true
-      },
-      {
-        "configurable": true,
-        "enumerable": true,
-        "getter": false,
-        "name": "getPublicLock",
-        "setter": false,
-        "type": "function",
-        "writable": true
-      },
-      {
-        "configurable": true,
-        "enumerable": true,
-        "getter": false,
-        "name": "getScriptLock",
-        "setter": false,
-        "type": "function",
-        "writable": true
-      },
-      {
-        "configurable": true,
-        "enumerable": true,
-        "getter": false,
-        "name": "getUserLock",
-        "setter": false,
-        "type": "function",
-        "writable": true
-      },
-      {
-        "configurable": true,
-        "enumerable": true,
-        "getter": false,
-        "name": "toString",
-        "setter": false,
-        "type": "function",
-        "writable": true
-      }
-    ],
-    "prototypeIsObjectPrototype": true,
-    "stringify": "LockService",
-    "type": "object"
-  }
+  "properties": [
+    {
+      "configurable": true,
+      "enumerable": true,
+      "getter": false,
+      "name": "getDocumentLock",
+      "setter": false,
+      "type": "function",
+      "writable": true
+    },
+    {
+      "configurable": true,
+      "enumerable": true,
+      "getter": false,
+      "name": "getPrivateLock",
+      "setter": false,
+      "type": "function",
+      "writable": true
+    },
+    {
+      "configurable": true,
+      "enumerable": true,
+      "getter": false,
+      "name": "getPublicLock",
+      "setter": false,
+      "type": "function",
+      "writable": true
+    },
+    {
+      "configurable": true,
+      "enumerable": true,
+      "getter": false,
+      "name": "getScriptLock",
+      "setter": false,
+      "type": "function",
+      "writable": true
+    },
+    {
+      "configurable": true,
+      "enumerable": true,
+      "getter": false,
+      "name": "getUserLock",
+      "setter": false,
+      "type": "function",
+      "writable": true
+    },
+    {
+      "configurable": true,
+      "enumerable": true,
+      "getter": false,
+      "name": "toString",
+      "setter": false,
+      "type": "function",
+      "writable": true
+    }
+  ],
+  "prototypeIsObjectPrototype": true,
+  "stringify": "LockService",
+  "type": "object"
 }

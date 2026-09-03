@@ -1,68 +1,61 @@
 {
-  "metadata": {
-    "schemaVersion": 1,
-    "runtime": "V8",
-    "caseRevision": "dff144db1bb830632c6544a3c525771d83a7dd727769d38f24d3660f93d606b7"
-  },
-  "result": {
-    "properties": [
-      {
-        "configurable": true,
-        "enumerable": true,
-        "getter": false,
-        "name": "addOAuthService",
-        "setter": false,
-        "type": "function",
-        "writable": true
-      },
-      {
-        "configurable": true,
-        "enumerable": true,
-        "getter": false,
-        "name": "fetch",
-        "setter": false,
-        "type": "function",
-        "writable": true
-      },
-      {
-        "configurable": true,
-        "enumerable": true,
-        "getter": false,
-        "name": "fetchAll",
-        "setter": false,
-        "type": "function",
-        "writable": true
-      },
-      {
-        "configurable": true,
-        "enumerable": true,
-        "getter": false,
-        "name": "getRequest",
-        "setter": false,
-        "type": "function",
-        "writable": true
-      },
-      {
-        "configurable": true,
-        "enumerable": true,
-        "getter": false,
-        "name": "removeOAuthService",
-        "setter": false,
-        "type": "function",
-        "writable": true
-      },
-      {
-        "configurable": true,
-        "enumerable": true,
-        "getter": false,
-        "name": "toString",
-        "setter": false,
-        "type": "function",
-        "writable": true
-      }
-    ],
-    "prototypeIsObjectPrototype": true,
-    "stringify": "UrlFetchApp",
-    "type": "object"
-  }
+  "properties": [
+    {
+      "configurable": true,
+      "enumerable": true,
+      "getter": false,
+      "name": "addOAuthService",
+      "setter": false,
+      "type": "function",
+      "writable": true
+    },
+    {
+      "configurable": true,
+      "enumerable": true,
+      "getter": false,
+      "name": "fetch",
+      "setter": false,
+      "type": "function",
+      "writable": true
+    },
+    {
+      "configurable": true,
+      "enumerable": true,
+      "getter": false,
+      "name": "fetchAll",
+      "setter": false,
+      "type": "function",
+      "writable": true
+    },
+    {
+      "configurable": true,
+      "enumerable": true,
+      "getter": false,
+      "name": "getRequest",
+      "setter": false,
+      "type": "function",
+      "writable": true
+    },
+    {
+      "configurable": true,
+      "enumerable": true,
+      "getter": false,
+      "name": "removeOAuthService",
+      "setter": false,
+      "type": "function",
+      "writable": true
+    },
+    {
+      "configurable": true,
+      "enumerable": true,
+      "getter": false,
+      "name": "toString",
+      "setter": false,
+      "type": "function",
+      "writable": true
+    }
+  ],
+  "prototypeIsObjectPrototype": true,
+  "stringify": "UrlFetchApp",
+  "type": "object"
 }

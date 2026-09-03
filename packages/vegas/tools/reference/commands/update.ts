@@ -2,8 +2,8 @@ import path from "node:path";
 import url from "node:url";
 
 import { referenceCases } from "../core/cases";
-import { acquireReferenceFixture } from "../core/fixture";
-import { writeReferenceFixture } from "../fixtures/store";
+import { acquireReferenceResult, createReferenceMetadata } from "../core/fixture";
+import { writeReferenceResult, writeReferenceMetadata } from "../fixtures/store";
 import { createReferenceClient } from "../gas/client";
 import { loadOAuthConfig, loadReferenceConfig } from "../gas/config";
 import { createAccessTokenProvider } from "../gas/oauth";
@@ -22,16 +22,32 @@ const accessTokenProvider = createAccessTokenProvider(oauthConfig);
 const files = await loadReferenceProjectFiles(referenceDir);
 
 const caseRevision = computeCaseRevision(files);
+const metadata = createReferenceMetadata(caseRevision);
 
 await updateReferenceProject(config, accessTokenProvider, files);
+const acquiredFixtures: Array<{
+  path: string;
+  fixture: Awaited<ReturnType<typeof acquireReferenceResult>>;
+}> = [];
 
 for (const referenceCase of referenceCases) {
   const client = createReferenceClient(config, accessTokenProvider);
-  const fixture = await acquireReferenceFixture(client, referenceCase.functionName, caseRevision);
+  const fixture = await acquireReferenceResult(client, referenceCase.functionName);
 
   const fixturePath = path.join(referenceDir, "fixtures", referenceCase.fixtureFile);
 
-  await writeReferenceFixture(fixturePath, fixture);
+  acquiredFixtures.push({
+    path: fixturePath,
+    fixture,
+  });
+}
+
+for (const { path: fixturePath, fixture } of acquiredFixtures) {
+  await writeReferenceResult(fixturePath, fixture);
 
   console.log(fixturePath);
 }
+
+const metadataPath = path.join(referenceDir, "metadata.json");
+await writeReferenceMetadata(metadataPath, metadata);
+console.log(metadataPath);
