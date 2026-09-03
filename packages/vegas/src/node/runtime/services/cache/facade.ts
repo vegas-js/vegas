@@ -3,17 +3,28 @@ import { createGasServiceObject } from "../../globals/serviceObject";
 import type { RuntimeServicePort } from "../../protocol";
 import { RuntimeScope } from "../../scope";
 import { Cache } from "./Cache";
-import { CacheService } from "./CacheService";
+import { createCacheFacade } from "./cacheObjectFacade";
+
+export interface CreateCacheServiceOptions {
+  documentCacheAvailable?: boolean;
+  createObject?: CreateGasObject;
+}
 
 export function createCacheService(
   cacheService: RuntimeServicePort<"Cache">,
-  createObject?: CreateGasObject,
+  options: CreateCacheServiceOptions = {},
 ) {
-  const implementation = new CacheService(
-    new Cache(RuntimeScope.DOCUMENT, cacheService),
-    new Cache(RuntimeScope.SCRIPT, cacheService),
-    new Cache(RuntimeScope.USER, cacheService),
-  );
+  const { documentCacheAvailable = true, createObject } = options;
+
+  const documentCache = documentCacheAvailable
+    ? new Cache(RuntimeScope.DOCUMENT, cacheService)
+    : null;
+
+  const createScriptCache = () =>
+    createCacheFacade(RuntimeScope.SCRIPT, "ScriptCache", cacheService, createObject);
+
+  const createUserCache = () =>
+    createCacheFacade(RuntimeScope.USER, "UserCache", cacheService, createObject);
 
   const value = createGasServiceObject(
     {
@@ -25,27 +36,27 @@ export function createCacheService(
         },
         {
           name: "getDocumentCache",
-          value: () => implementation.getDocumentCache(),
+          value: () => documentCache,
           writable: true,
         },
         {
           name: "getScriptCache",
-          value: () => implementation.getScriptCache(),
+          value: () => createScriptCache(),
           writable: true,
         },
         {
           name: "getUserCache",
-          value: () => implementation.getUserCache(),
+          value: () => createUserCache(),
           writable: true,
         },
         {
           name: "getPrivateCache",
-          value: () => implementation.getUserCache(),
+          value: () => createUserCache(),
           writable: true,
         },
         {
           name: "getPublicCache",
-          value: () => implementation.getScriptCache(),
+          value: () => createScriptCache(),
           writable: true,
         },
       ],

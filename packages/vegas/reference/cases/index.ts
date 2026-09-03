@@ -8,6 +8,8 @@ export { captureReferenceGlobalObjectSurface } from "./globalObjectSurface";
 export { captureReferenceMimeTypeSurface } from "./mimeTypeSurface";
 export { captureReferenceSmoke } from "./smoke";
 export { captureReferenceCacheServiceSurface } from "./cacheServiceSurface";
+export { captureReferenceCacheObjectSurface } from "./cacheObjectSurface";
+export { captureReferenceCacheObjectIdentity } from "./cacheObjectIdentity";
 export { captureReferenceLockServiceSurface } from "./lockServiceSurface";
 export { captureReferenceHtmlServiceSurface } from "./htmlServiceSurface";
 export { captureReferenceUrlFetchAppSurface } from "./urlFetchAppSurface";

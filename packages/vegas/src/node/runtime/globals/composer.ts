@@ -244,7 +244,10 @@ export function composeGasGlobals(
     console: createConsole(logSink, createGasObject),
 
     /* Cache */
-    CacheService: createCacheService(cacheService, createGasObject),
+    CacheService: createCacheService(cacheService, {
+      documentCacheAvailable: environment.properties.documentProperties === "available",
+      createObject: createGasObject,
+    }),
 
     /* Lock */
     LockService: createLockService(requestLegacySync, createGasObject),
