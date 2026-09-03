@@ -1,23 +1,9 @@
 import worker from "node:worker_threads";
 
-import { RuntimeGlobalEnvironment } from "../runtime/environment";
-import { invokeScriptFunction } from "../runtime/execution/invocation";
-import { createScriptContext } from "../runtime/execution/scriptContext";
-import { evaluateScript, evaluateScriptWithBindings } from "../runtime/execution/scriptRuntime";
-import type { EvaluateHtmlTemplate } from "../runtime/execution/types";
+import type { RuntimeGlobalEnvironment } from "../runtime/environment";
+import { createScriptRuntime } from "../runtime/execution/bootstrap";
 import type { RequestLegacySync } from "../runtime/legacy/transport";
 import type { RuntimeLogSink } from "../runtime/logging";
-import { createRuntimeObjectFactories } from "../runtime/objects/factories";
-import {
-  createRangeService,
-  createSessionService,
-  createCacheService,
-  createPropertiesService,
-  createUrlFetchService,
-  createHtmlService,
-  createSpreadsheetAppService,
-  createSheetService,
-} from "./remoteServices";
 import { createRuntimeServiceCaller } from "./runtimeTransport";
 
 type RuntimeWorkerData = {
@@ -47,23 +33,6 @@ const requestLegacySync: RequestLegacySync = (request, timeout) => {
 };
 
 const callService = createRuntimeServiceCaller(sharedArray, port);
-const spreadsheetAppService = createSpreadsheetAppService(callService);
-const rangeService = createRangeService(callService);
-const sheetService = createSheetService(callService);
-const urlFetchService = createUrlFetchService(callService);
-const htmlService = createHtmlService(callService);
-const sessionService = createSessionService(callService);
-const cacheService = createCacheService(callService);
-const propertiesService = createPropertiesService(callService);
-
-let scriptContext: ReturnType<typeof createScriptContext> | undefined;
-const evaluateHtmlTemplate: EvaluateHtmlTemplate = (code, bindings) => {
-  if (!scriptContext) {
-    throw new Error("Script context is not initialized");
-  }
-
-  return evaluateScriptWithBindings(code, scriptContext, bindings);
-};
 
 const logSink: RuntimeLogSink = {
   write(method, prefix, message) {
@@ -71,31 +40,16 @@ const logSink: RuntimeLogSink = {
   },
 };
 
-const factories = createRuntimeObjectFactories({
-  requestLegacySync,
-  rangeService,
-  sheetService,
-  evaluateHtmlTemplate,
-});
-scriptContext = createScriptContext({
+const runtime = createScriptRuntime({
+  code: workerData.code,
   environment: workerData.environment,
-
   requestLegacySync,
-
   logSink,
-  spreadsheetAppService,
-  urlFetchService,
-  htmlService,
-  sessionService,
-  cacheService,
-  propertiesService,
-  ...factories,
+  callService,
 });
-
-evaluateScript(workerData.code, scriptContext);
 
 port.on("message", async (data: GASWorkerData) => {
-  const result = await invokeScriptFunction(scriptContext, data.fn, data.args);
+  const result = await runtime.invoke(data.fn, data.args);
   port.postMessage({ message: "resolve", payload: result });
 });
 
