@@ -1,0 +1,19 @@
+{
+  "bindingIsOwnProperty": true,
+  "bindingValue": "vegas-reference",
+  "descriptor": {
+    "configurable": true,
+    "enumerable": true,
+    "getter": false,
+    "setter": false,
+    "writable": true
+  },
+  "ownPropertyNames": [
+    "evaluate",
+    "getCode",
+    "getCodeWithComments",
+    "getRawContent",
+    "referenceValue",
+    "toString"
+  ]
+}

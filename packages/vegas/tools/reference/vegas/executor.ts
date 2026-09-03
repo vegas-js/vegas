@@ -3,10 +3,15 @@ import {
   createScriptContext,
   type ScriptContextDependencies,
 } from "../../../src/node/runtime/execution/scriptContext";
-import { evaluateScript } from "../../../src/node/runtime/execution/scriptRuntime";
+import {
+  evaluateScript,
+  evaluateScriptWithBindings,
+} from "../../../src/node/runtime/execution/scriptRuntime";
+import type { EvaluateHtmlTemplate } from "../../../src/node/runtime/execution/types";
 import { RuntimeServicePort } from "../../../src/node/runtime/protocol";
 import { HtmlOutput } from "../../../src/node/runtime/services/html/HtmlOutput";
 import { createHtmlOutputFacadeFactory } from "../../../src/node/runtime/services/html/htmlOutputFacade";
+import { HtmlTemplate } from "../../../src/node/runtime/services/html/HtmlTemplate";
 import type { ReferenceExecutor } from "../core/types";
 
 function unexpected(): never {
@@ -114,12 +119,25 @@ function createReferenceDependencies(): ScriptContextDependencies {
 export function createVegasReferenceExecutor(source: string): ReferenceExecutor {
   const htmlOutputFacadeFactory = createHtmlOutputFacadeFactory();
 
+  let templateContext: ReturnType<typeof createScriptContext> | undefined;
+
+  const evaluateHtmlTemplate: EvaluateHtmlTemplate = (templateCode, bindings) => {
+    if (!templateContext) {
+      throw new Error("Reference script context is not initialized");
+    }
+
+    return evaluateScriptWithBindings(templateCode, templateContext, bindings);
+  };
+
   const context = createScriptContext({
     ...createReferenceDependencies(),
     htmlOutputFacadeFactory,
     createHtmlOutput: (content: string, mode: GoogleAppsScript.HTML.XFrameOptionsMode) =>
       new HtmlOutput(content, mode),
+    createHtmlTemplate: (content: string) => new HtmlTemplate(content, evaluateHtmlTemplate),
   });
+
+  templateContext = context;
 
   evaluateScript(source, context);
 

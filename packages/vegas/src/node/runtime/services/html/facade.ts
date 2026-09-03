@@ -9,6 +9,7 @@ import {
   type HtmlOutputImplementation,
 } from "./htmlOutputFacade";
 import { HtmlService } from "./HtmlService";
+import { createHtmlTemplateFacade, type HtmlTemplateImplementation } from "./htmlTemplateFacade";
 
 export interface CreateHtmlServiceOptions {
   createObject?: CreateGasObject;
@@ -55,9 +56,15 @@ export function createHtmlService(
       },
     );
 
+  const createHtmlTemplateFacadeObject: CreateHtmlTemplate = (content) =>
+    createHtmlTemplateFacade(
+      createHtmlTemplate(content) as HtmlTemplateImplementation,
+      createObject,
+    );
+
   const implementation = new HtmlService(
     createHtmlOutputFacade,
-    createHtmlTemplate,
+    createHtmlTemplateFacadeObject,
     service,
     defaultXFrameOptionsMode,
   );

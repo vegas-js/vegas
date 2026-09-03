@@ -109,6 +109,24 @@ export const referenceCases: readonly ReferenceCaseDefinition[] = [
     runtimeTest: "required",
   },
   {
+    name: "html-template-object-surface",
+    functionName: "captureReferenceHtmlTemplateObjectSurface",
+    fixtureFile: "html-template-object-surface.json",
+    runtimeTest: "required",
+  },
+  {
+    name: "html-template-object-binding",
+    functionName: "captureReferenceHtmlTemplateObjectBinding",
+    fixtureFile: "html-template-object-binding.json",
+    runtimeTest: "required",
+  },
+  {
+    name: "html-template-object-identity",
+    functionName: "captureReferenceHtmlTemplateObjectIdentity",
+    fixtureFile: "html-template-object-identity.json",
+    runtimeTest: "required",
+  },
+  {
     name: "url-fetch-app-surface",
     functionName: "captureReferenceUrlFetchAppSurface",
     fixtureFile: "url-fetch-app-surface.json",

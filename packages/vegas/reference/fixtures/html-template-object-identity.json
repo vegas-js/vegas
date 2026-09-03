@@ -1,0 +1,7 @@
+{
+  "createTemplateRepeatedSameObject": false,
+  "evaluateRepeatedSameObject": false,
+  "evaluateReturnsHtmlOutput": true,
+  "evaluatedOutputHasInternalXFrameGetter": false,
+  "evaluatedOutputPrototypeIsObjectPrototype": true
+}

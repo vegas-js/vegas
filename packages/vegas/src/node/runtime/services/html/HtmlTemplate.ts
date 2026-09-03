@@ -63,6 +63,10 @@ export class HtmlTemplate extends GASAPI implements GoogleAppsScript.HTML.HtmlTe
 
   [propName: string]: any;
 
+  evaluateWithBindings(bindings: Record<string, unknown>): GoogleAppsScript.HTML.HtmlOutput {
+    return this.#evaluateTemplate(this.#generateCode(), bindings);
+  }
+
   evaluate(): GoogleAppsScript.HTML.HtmlOutput {
     const bindings: Record<string, unknown> = {};
     Object.entries(this).forEach(([key, value]) => {
@@ -71,7 +75,7 @@ export class HtmlTemplate extends GASAPI implements GoogleAppsScript.HTML.HtmlTe
       }
     });
 
-    return this.#evaluateTemplate(this.#generateCode(), bindings);
+    return this.evaluateWithBindings(bindings);
   }
   getCode(): string {
     return this.#generateCode();
