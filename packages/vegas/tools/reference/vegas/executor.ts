@@ -5,6 +5,8 @@ import {
 } from "../../../src/node/runtime/execution/scriptContext";
 import { evaluateScript } from "../../../src/node/runtime/execution/scriptRuntime";
 import { RuntimeServicePort } from "../../../src/node/runtime/protocol";
+import { HtmlOutput } from "../../../src/node/runtime/services/html/HtmlOutput";
+import { createHtmlOutputFacadeFactory } from "../../../src/node/runtime/services/html/htmlOutputFacade";
 import type { ReferenceExecutor } from "../core/types";
 
 function unexpected(): never {
@@ -110,13 +112,22 @@ function createReferenceDependencies(): ScriptContextDependencies {
 }
 
 export function createVegasReferenceExecutor(source: string): ReferenceExecutor {
-  const context = createScriptContext(createReferenceDependencies());
+  const htmlOutputFacadeFactory = createHtmlOutputFacadeFactory();
+
+  const context = createScriptContext({
+    ...createReferenceDependencies(),
+    htmlOutputFacadeFactory,
+    createHtmlOutput: (content: string, mode: GoogleAppsScript.HTML.XFrameOptionsMode) =>
+      new HtmlOutput(content, mode),
+  });
 
   evaluateScript(source, context);
 
   return {
     execute(functionName) {
-      return invokeScriptFunction(context, functionName, []);
+      return invokeScriptFunction(context, functionName, [], {
+        getHtmlOutputXFrameOptionsMode: (htmlOutputFacadeFactory as any).resolveXFrameOptionsMode,
+      });
     },
   };
 }

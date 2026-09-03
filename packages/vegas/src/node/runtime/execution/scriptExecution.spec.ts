@@ -1,6 +1,7 @@
 import { expect, test, vi } from "vitest";
 
 import { HtmlOutput } from "../services/html/HtmlOutput";
+import { createHtmlOutputFacadeFactory } from "../services/html/htmlOutputFacade";
 import { invokeScriptFunction } from "./invocation";
 import { createScriptContext, type ScriptContextDependencies } from "./scriptContext";
 import { evaluateScript } from "./scriptRuntime";
@@ -105,7 +106,10 @@ test("user code accessible to typed service", async () => {
 });
 
 test("return a value from doGet to the actual GAS global", async () => {
+  const htmlOutputFacadeFactory = createHtmlOutputFacadeFactory();
+
   const context = createContext({
+    htmlOutputFacadeFactory,
     createHtmlOutput: (content: string, mode: GoogleAppsScript.HTML.XFrameOptionsMode) =>
       new HtmlOutput(content, mode),
   });
@@ -120,7 +124,9 @@ test("return a value from doGet to the actual GAS global", async () => {
     context,
   );
 
-  const result = await invokeScriptFunction(context, "doGet", []);
+  const result = await invokeScriptFunction(context, "doGet", [], {
+    getHtmlOutputXFrameOptionsMode: (htmlOutputFacadeFactory as any).resolveXFrameOptionsMode,
+  });
 
   expect(result).toMatchObject({
     title: "Hello",

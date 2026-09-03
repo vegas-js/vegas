@@ -19,16 +19,21 @@ import { createSession } from "../services/base/sessionFacade";
 import { createCacheService } from "../services/cache/facade";
 import { createDriveApp } from "../services/drive/facade";
 import { createHtmlService } from "../services/html/facade";
+import {
+  createHtmlOutputFacadeFactory,
+  type HtmlOutputFacadeFactory,
+} from "../services/html/htmlOutputFacade";
 import { createLockService } from "../services/lock/facade";
 import { createPropertiesService } from "../services/properties/facade";
 import { createSpreadsheetApp } from "../services/spreadsheet/facade";
 import { createUrlFetchApp } from "../services/url-fetch/facade";
 import { createUtilities } from "../services/utilities/facade";
 import { installGasGlobal } from "./install";
-import { createVmGasObjectFactory } from "./object";
+import { createVmGasArrayFactory, createVmGasObjectFactory } from "./object";
 
 export interface GasGlobalComposerDependencies {
   environment: RuntimeGlobalEnvironment;
+  htmlOutputFacadeFactory?: HtmlOutputFacadeFactory;
 
   requestLegacySync: RequestLegacySync;
 
@@ -199,6 +204,7 @@ export function composeGasGlobals(
 ): void {
   const {
     environment,
+    htmlOutputFacadeFactory,
     requestLegacySync,
     createFile,
     createFolder,
@@ -215,6 +221,10 @@ export function composeGasGlobals(
   } = dependencies;
 
   const createGasObject = createVmGasObjectFactory(context);
+  const createGasArray = createVmGasArrayFactory(context);
+
+  const resolvedHtmlOutputFacadeFactory =
+    htmlOutputFacadeFactory ?? createHtmlOutputFacadeFactory();
 
   const gasGlobals = {
     /* Drive */
@@ -230,12 +240,11 @@ export function composeGasGlobals(
     Utilities: createUtilities(createGasObject),
 
     /* HTML */
-    HtmlService: createHtmlService(
-      createHtmlOutput,
-      createHtmlTemplate,
-      htmlService,
-      createGasObject,
-    ),
+    HtmlService: createHtmlService(createHtmlOutput, createHtmlTemplate, htmlService, {
+      createObject: createGasObject,
+      createArray: createGasArray,
+      htmlOutputFacadeFactory: resolvedHtmlOutputFacadeFactory,
+    }),
 
     /* Base */
     Logger: createLogger(logSink, createGasObject),

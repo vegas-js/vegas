@@ -1,16 +1,32 @@
 import { createGasEnum } from "../../globals/enum";
-import type { CreateGasObject } from "../../globals/object";
+import type { CreateGasArray, CreateGasObject } from "../../globals/object";
 import { createGasServiceObject } from "../../globals/serviceObject";
 import type { CreateHtmlOutput, CreateHtmlTemplate } from "../../objects/types";
 import type { RuntimeServicePort } from "../../protocol";
+import {
+  createHtmlOutputFacadeFactory,
+  type HtmlOutputFacadeFactory,
+  type HtmlOutputImplementation,
+} from "./htmlOutputFacade";
 import { HtmlService } from "./HtmlService";
+
+export interface CreateHtmlServiceOptions {
+  createObject?: CreateGasObject;
+  createArray?: CreateGasArray;
+  htmlOutputFacadeFactory?: HtmlOutputFacadeFactory;
+}
 
 export function createHtmlService(
   createHtmlOutput: CreateHtmlOutput,
   createHtmlTemplate: CreateHtmlTemplate,
   service: RuntimeServicePort<"Html">,
-  createObject?: CreateGasObject,
+  options: CreateHtmlServiceOptions = {},
 ) {
+  const {
+    createObject,
+    createArray,
+    htmlOutputFacadeFactory = createHtmlOutputFacadeFactory(),
+  } = options;
   const sandboxMode = createGasEnum(
     {
       members: ["EMULATED", "IFRAME", "NATIVE"],
@@ -30,8 +46,17 @@ export function createHtmlService(
   const defaultXFrameOptionsMode =
     xFrameOptionsMode.DEFAULT as unknown as GoogleAppsScript.HTML.XFrameOptionsMode;
 
+  const createHtmlOutputFacade: CreateHtmlOutput = (content, xFrameOptionsMode) =>
+    htmlOutputFacadeFactory.create(
+      createHtmlOutput(content, xFrameOptionsMode) as HtmlOutputImplementation,
+      {
+        createObject,
+        createArray,
+      },
+    );
+
   const implementation = new HtmlService(
-    createHtmlOutput,
+    createHtmlOutputFacade,
     createHtmlTemplate,
     service,
     defaultXFrameOptionsMode,

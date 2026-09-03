@@ -1,0 +1,16 @@
+{
+  "addMetaTagReturnsReceiver": true,
+  "appendReturnsReceiver": true,
+  "appendUntrustedReturnsReceiver": true,
+  "clearReturnsReceiver": true,
+  "createHtmlOutputRepeatedSameObject": false,
+  "getMetaTagsRepeatedSameArray": false,
+  "getMetaTagsRepeatedSameMetaTag": true,
+  "setContentReturnsReceiver": true,
+  "setFaviconUrlReturnsReceiver": true,
+  "setHeightReturnsReceiver": true,
+  "setSandboxModeReturnsReceiver": true,
+  "setTitleReturnsReceiver": true,
+  "setWidthReturnsReceiver": true,
+  "setXFrameOptionsModeReturnsReceiver": true
+}

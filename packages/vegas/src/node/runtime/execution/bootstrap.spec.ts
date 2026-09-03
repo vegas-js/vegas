@@ -67,3 +67,44 @@ test("evaluates HTML templates in the script context and restores template bindi
     "script-scope|template-binding|script-global",
   );
 });
+
+test("serializes HtmlOutput without exposing its internal X-Frame getter", async () => {
+  const runtime = createScriptRuntime(
+    createDependencies(`
+        function inspectHtmlOutput() {
+          const output = HtmlService.createHtmlOutput(
+            "<p>content</p>"
+          );
+
+          return {
+            hasOwnXFrameGetter:
+              Object.prototype.hasOwnProperty.call(
+                output,
+                "getXFrameOptionsMode"
+              ),
+            xFrameGetterType:
+              typeof output.getXFrameOptionsMode
+          };
+        }
+
+        function doGet() {
+          return HtmlService
+            .createHtmlOutput("<p>content</p>")
+            .setTitle("Vegas");
+        }
+      `),
+  );
+
+  await expect(runtime.invoke("inspectHtmlOutput", [])).resolves.toEqual({
+    hasOwnXFrameGetter: false,
+    xFrameGetterType: "undefined",
+  });
+
+  await expect(runtime.invoke("doGet", [])).resolves.toEqual({
+    metaTags: [],
+    title: "Vegas",
+    faviconUrl: "",
+    content: "<p>content</p>",
+    xFrameOptionsMode: "SAMEORIGIN",
+  });
+});

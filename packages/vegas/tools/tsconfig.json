@@ -1,5 +1,5 @@
 {
   "compilerOptions": {
-    "types": ["node", "tsdown"]
+    "types": ["google-apps-script", "node", "tsdown"]
   }
 }

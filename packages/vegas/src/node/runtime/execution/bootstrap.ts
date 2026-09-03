@@ -4,6 +4,7 @@ import type { RuntimeLogSink } from "../logging";
 import { createRuntimeObjectFactories } from "../objects/factories";
 import type { ServiceCaller } from "../protocol";
 import { createRuntimeServicePorts } from "../servicePorts";
+import { createHtmlOutputFacadeFactory } from "../services/html/htmlOutputFacade";
 import { invokeScriptFunction } from "./invocation";
 import { createScriptContext } from "./scriptContext";
 import { evaluateScript, evaluateScriptWithBindings } from "./scriptRuntime";
@@ -23,6 +24,8 @@ export interface ScriptRuntime {
 
 export function createScriptRuntime(dependencies: ScriptRuntimeDependencies): ScriptRuntime {
   const { code, environment, requestLegacySync, logSink, callService } = dependencies;
+
+  const htmlOutputFacadeFactory = createHtmlOutputFacadeFactory();
 
   const {
     spreadsheetAppService,
@@ -54,6 +57,7 @@ export function createScriptRuntime(dependencies: ScriptRuntimeDependencies): Sc
 
   const scriptContext = createScriptContext({
     environment,
+    htmlOutputFacadeFactory,
     requestLegacySync,
     logSink,
     spreadsheetAppService,
@@ -71,7 +75,9 @@ export function createScriptRuntime(dependencies: ScriptRuntimeDependencies): Sc
 
   return {
     invoke(functionName, args) {
-      return invokeScriptFunction(scriptContext, functionName, args);
+      return invokeScriptFunction(scriptContext, functionName, args, {
+        getHtmlOutputXFrameOptionsMode: (htmlOutputFacadeFactory as any).resolveXFrameOptionsMode,
+      });
     },
   };
 }

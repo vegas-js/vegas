@@ -1,0 +1,415 @@
+{
+  "constructorInfo": {
+    "isObjectConstructor": true,
+    "name": "Object",
+    "ownership": {
+      "owner": "prototype",
+      "prototypeDepth": 0
+    },
+    "type": "function"
+  },
+  "methodOwnership": {
+    "addMetaTag": {
+      "owner": "own",
+      "prototypeDepth": null
+    },
+    "append": {
+      "owner": "own",
+      "prototypeDepth": null
+    },
+    "appendUntrusted": {
+      "owner": "own",
+      "prototypeDepth": null
+    },
+    "asTemplate": {
+      "owner": "own",
+      "prototypeDepth": null
+    },
+    "clear": {
+      "owner": "own",
+      "prototypeDepth": null
+    },
+    "getAs": {
+      "owner": "own",
+      "prototypeDepth": null
+    },
+    "getBlob": {
+      "owner": "own",
+      "prototypeDepth": null
+    },
+    "getContent": {
+      "owner": "own",
+      "prototypeDepth": null
+    },
+    "getFaviconUrl": {
+      "owner": "own",
+      "prototypeDepth": null
+    },
+    "getHeight": {
+      "owner": "own",
+      "prototypeDepth": null
+    },
+    "getMetaTags": {
+      "owner": "own",
+      "prototypeDepth": null
+    },
+    "getTitle": {
+      "owner": "own",
+      "prototypeDepth": null
+    },
+    "getWidth": {
+      "owner": "own",
+      "prototypeDepth": null
+    },
+    "getXFrameOptionsMode": {
+      "owner": "missing",
+      "prototypeDepth": null
+    },
+    "setContent": {
+      "owner": "own",
+      "prototypeDepth": null
+    },
+    "setFaviconUrl": {
+      "owner": "own",
+      "prototypeDepth": null
+    },
+    "setHeight": {
+      "owner": "own",
+      "prototypeDepth": null
+    },
+    "setSandboxMode": {
+      "owner": "own",
+      "prototypeDepth": null
+    },
+    "setTitle": {
+      "owner": "own",
+      "prototypeDepth": null
+    },
+    "setWidth": {
+      "owner": "own",
+      "prototypeDepth": null
+    },
+    "setXFrameOptionsMode": {
+      "owner": "own",
+      "prototypeDepth": null
+    },
+    "toString": {
+      "owner": "own",
+      "prototypeDepth": null
+    }
+  },
+  "objectTag": "[object Object]",
+  "properties": [
+    {
+      "configurable": true,
+      "enumerable": true,
+      "getter": false,
+      "name": "addMetaTag",
+      "setter": false,
+      "type": "function",
+      "writable": true
+    },
+    {
+      "configurable": true,
+      "enumerable": true,
+      "getter": false,
+      "name": "append",
+      "setter": false,
+      "type": "function",
+      "writable": true
+    },
+    {
+      "configurable": true,
+      "enumerable": true,
+      "getter": false,
+      "name": "appendUntrusted",
+      "setter": false,
+      "type": "function",
+      "writable": true
+    },
+    {
+      "configurable": true,
+      "enumerable": true,
+      "getter": false,
+      "name": "asTemplate",
+      "setter": false,
+      "type": "function",
+      "writable": true
+    },
+    {
+      "configurable": true,
+      "enumerable": true,
+      "getter": false,
+      "name": "clear",
+      "setter": false,
+      "type": "function",
+      "writable": true
+    },
+    {
+      "configurable": true,
+      "enumerable": true,
+      "getter": false,
+      "name": "getAs",
+      "setter": false,
+      "type": "function",
+      "writable": true
+    },
+    {
+      "configurable": true,
+      "enumerable": true,
+      "getter": false,
+      "name": "getBlob",
+      "setter": false,
+      "type": "function",
+      "writable": true
+    },
+    {
+      "configurable": true,
+      "enumerable": true,
+      "getter": false,
+      "name": "getContent",
+      "setter": false,
+      "type": "function",
+      "writable": true
+    },
+    {
+      "configurable": true,
+      "enumerable": true,
+      "getter": false,
+      "name": "getFaviconUrl",
+      "setter": false,
+      "type": "function",
+      "writable": true
+    },
+    {
+      "configurable": true,
+      "enumerable": true,
+      "getter": false,
+      "name": "getHeight",
+      "setter": false,
+      "type": "function",
+      "writable": true
+    },
+    {
+      "configurable": true,
+      "enumerable": true,
+      "getter": false,
+      "name": "getMetaTags",
+      "setter": false,
+      "type": "function",
+      "writable": true
+    },
+    {
+      "configurable": true,
+      "enumerable": true,
+      "getter": false,
+      "name": "getTitle",
+      "setter": false,
+      "type": "function",
+      "writable": true
+    },
+    {
+      "configurable": true,
+      "enumerable": true,
+      "getter": false,
+      "name": "getWidth",
+      "setter": false,
+      "type": "function",
+      "writable": true
+    },
+    {
+      "configurable": true,
+      "enumerable": true,
+      "getter": false,
+      "name": "setContent",
+      "setter": false,
+      "type": "function",
+      "writable": true
+    },
+    {
+      "configurable": true,
+      "enumerable": true,
+      "getter": false,
+      "name": "setFaviconUrl",
+      "setter": false,
+      "type": "function",
+      "writable": true
+    },
+    {
+      "configurable": true,
+      "enumerable": true,
+      "getter": false,
+      "name": "setHeight",
+      "setter": false,
+      "type": "function",
+      "writable": true
+    },
+    {
+      "configurable": true,
+      "enumerable": true,
+      "getter": false,
+      "name": "setSandboxMode",
+      "setter": false,
+      "type": "function",
+      "writable": true
+    },
+    {
+      "configurable": true,
+      "enumerable": true,
+      "getter": false,
+      "name": "setTitle",
+      "setter": false,
+      "type": "function",
+      "writable": true
+    },
+    {
+      "configurable": true,
+      "enumerable": true,
+      "getter": false,
+      "name": "setWidth",
+      "setter": false,
+      "type": "function",
+      "writable": true
+    },
+    {
+      "configurable": true,
+      "enumerable": true,
+      "getter": false,
+      "name": "setXFrameOptionsMode",
+      "setter": false,
+      "type": "function",
+      "writable": true
+    },
+    {
+      "configurable": true,
+      "enumerable": true,
+      "getter": false,
+      "name": "toString",
+      "setter": false,
+      "type": "function",
+      "writable": true
+    }
+  ],
+  "prototypeChain": [
+    {
+      "depth": 0,
+      "isObjectPrototype": true,
+      "ownConstructorName": "Object",
+      "ownConstructorType": "function",
+      "properties": [
+        {
+          "configurable": true,
+          "enumerable": false,
+          "getter": false,
+          "name": "__defineGetter__",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": false,
+          "getter": false,
+          "name": "__defineSetter__",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": false,
+          "getter": false,
+          "name": "__lookupGetter__",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": false,
+          "getter": false,
+          "name": "__lookupSetter__",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": false,
+          "getter": true,
+          "name": "__proto__",
+          "setter": true,
+          "type": "accessor",
+          "writable": null
+        },
+        {
+          "configurable": true,
+          "enumerable": false,
+          "getter": false,
+          "name": "constructor",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": false,
+          "getter": false,
+          "name": "hasOwnProperty",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": false,
+          "getter": false,
+          "name": "isPrototypeOf",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": false,
+          "getter": false,
+          "name": "propertyIsEnumerable",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": false,
+          "getter": false,
+          "name": "toLocaleString",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": false,
+          "getter": false,
+          "name": "toString",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        },
+        {
+          "configurable": true,
+          "enumerable": false,
+          "getter": false,
+          "name": "valueOf",
+          "setter": false,
+          "type": "function",
+          "writable": true
+        }
+      ]
+    }
+  ],
+  "prototypeIsNull": false,
+  "prototypeIsObjectPrototype": true,
+  "stringify": "HtmlOutput",
+  "type": "object"
+}

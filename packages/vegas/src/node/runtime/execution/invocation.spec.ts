@@ -69,6 +69,35 @@ describe("invokeFunction", () => {
   });
 });
 
+test("serializes doGet result through an HtmlOutput adapter", async () => {
+  const output = {
+    getMetaTags: () => [],
+    getTitle: () => "html document",
+    getFaviconUrl: () => "",
+    getContent: () => "content",
+  };
+
+  function doGet() {
+    return output;
+  }
+
+  const getHtmlOutputXFrameOptionsMode = vi.fn(() => "SAMEORIGIN");
+
+  await expect(
+    invokeScriptFunction({ doGet }, "doGet", [], {
+      getHtmlOutputXFrameOptionsMode,
+    }),
+  ).resolves.toEqual({
+    metaTags: [],
+    title: "html document",
+    faviconUrl: "",
+    content: "content",
+    xFrameOptionsMode: "SAMEORIGIN",
+  });
+
+  expect(getHtmlOutputXFrameOptionsMode).toHaveBeenCalledWith(output);
+});
+
 describe("invokeScriptFunction", () => {
   test("call a function with a specified name", async () => {
     const func = vi.fn();
