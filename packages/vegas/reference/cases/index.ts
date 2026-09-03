@@ -12,6 +12,7 @@ export { captureReferenceLockServiceSurface } from "./lockServiceSurface";
 export { captureReferenceHtmlServiceSurface } from "./htmlServiceSurface";
 export { captureReferenceUrlFetchAppSurface } from "./urlFetchAppSurface";
 export { captureReferenceUtilitiesSurface } from "./utilitiesSurface";
+export { captureReferenceSpreadsheetAppSurface } from "./spreadsheetAppSurface";
 export { captureReferenceSessionServiceSurface } from "./sessionServiceSurface";
 export { captureReferenceSessionDeprecatedSemantics } from "./sessionDeprecatedSemantics";
 export { captureReferencePropertiesServiceSurface } from "./propertiesServiceSurface";

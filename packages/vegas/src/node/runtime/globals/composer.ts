@@ -21,7 +21,7 @@ import { DriveApp } from "../services/drive/DriveApp";
 import { createHtmlService } from "../services/html/facade";
 import { createLockService } from "../services/lock/facade";
 import { createPropertiesService } from "../services/properties/facade";
-import { SpreadsheetApp } from "../services/spreadsheet/SpreadsheetApp";
+import { createSpreadsheetApp } from "../services/spreadsheet/facade";
 import { createUrlFetchApp } from "../services/url-fetch/facade";
 import { createUtilities } from "../services/utilities/facade";
 import { installGasGlobal } from "./install";
@@ -221,7 +221,7 @@ export function composeGasGlobals(
     DriveApp: new DriveApp(createFile, createFolder, requestLegacySync),
 
     /* Sheets */
-    SpreadsheetApp: new SpreadsheetApp(createSpreadsheet, spreadsheetAppService),
+    SpreadsheetApp: createSpreadsheetApp(createSpreadsheet, spreadsheetAppService, createGasObject),
 
     /* URL Fetch */
     UrlFetchApp: createUrlFetchApp(urlFetchService, createGasObject),

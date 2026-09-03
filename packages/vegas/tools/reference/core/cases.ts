@@ -79,6 +79,12 @@ export const referenceCases: readonly ReferenceCaseDefinition[] = [
     runtimeTest: "required",
   },
   {
+    name: "spreadsheet-app-surface",
+    functionName: "captureReferenceSpreadsheetAppSurface",
+    fixtureFile: "spreadsheet-app-surface.json",
+    runtimeTest: "required",
+  },
+  {
     name: "session-service-surface",
     functionName: "captureReferenceSessionServiceSurface",
     fixtureFile: "session-service-surface.json",
