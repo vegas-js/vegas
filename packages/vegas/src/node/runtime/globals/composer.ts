@@ -12,7 +12,7 @@ import type {
   CreateSpreadsheet,
 } from "../objects/types";
 import type { RuntimeServicePort } from "../protocol";
-import { Console } from "../services/base/console";
+import { createConsole } from "../services/base/consoleFacade";
 import { createLogger } from "../services/base/loggerFacade";
 import { createMimeType } from "../services/base/mimeType";
 import { createSession } from "../services/base/sessionFacade";
@@ -241,7 +241,7 @@ export function composeGasGlobals(
     Logger: createLogger(logSink, createGasObject),
     MimeType: createMimeType(createGasObject),
     Session: createSession(sessionService, createGasObject),
-    console: new Console(logSink),
+    console: createConsole(logSink, createGasObject),
 
     /* Cache */
     CacheService: createCacheService(cacheService, createGasObject),

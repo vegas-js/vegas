@@ -15,6 +15,7 @@ export { captureReferenceUtilitiesSurface } from "./utilitiesSurface";
 export { captureReferenceSpreadsheetAppSurface } from "./spreadsheetAppSurface";
 export { captureReferenceDriveAppSurface } from "./driveAppSurface";
 export { captureReferenceLoggerSurface } from "./loggerSurface";
+export { captureReferenceConsoleSurface } from "./consoleSurface";
 export { captureReferenceSessionServiceSurface } from "./sessionServiceSurface";
 export { captureReferenceSessionDeprecatedSemantics } from "./sessionDeprecatedSemantics";
 export { captureReferencePropertiesServiceSurface } from "./propertiesServiceSurface";

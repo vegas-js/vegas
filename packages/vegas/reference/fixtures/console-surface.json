@@ -10,55 +10,10 @@
         "configurable": true,
         "enumerable": true,
         "getter": false,
-        "name": "clear",
+        "name": "error",
         "setter": false,
         "type": "function",
-        "writable": true
-      },
-      {
-        "configurable": true,
-        "enumerable": true,
-        "getter": false,
-        "name": "config",
-        "setter": false,
-        "type": "function",
-        "writable": true
-      },
-      {
-        "configurable": true,
-        "enumerable": true,
-        "getter": false,
-        "name": "fine",
-        "setter": false,
-        "type": "function",
-        "writable": true
-      },
-      {
-        "configurable": true,
-        "enumerable": true,
-        "getter": false,
-        "name": "finer",
-        "setter": false,
-        "type": "function",
-        "writable": true
-      },
-      {
-        "configurable": true,
-        "enumerable": true,
-        "getter": false,
-        "name": "finest",
-        "setter": false,
-        "type": "function",
-        "writable": true
-      },
-      {
-        "configurable": true,
-        "enumerable": true,
-        "getter": false,
-        "name": "getLog",
-        "setter": false,
-        "type": "function",
-        "writable": true
+        "writable": false
       },
       {
         "configurable": true,
@@ -67,7 +22,7 @@
         "name": "info",
         "setter": false,
         "type": "function",
-        "writable": true
+        "writable": false
       },
       {
         "configurable": true,
@@ -76,13 +31,22 @@
         "name": "log",
         "setter": false,
         "type": "function",
+        "writable": false
+      },
+      {
+        "configurable": true,
+        "enumerable": true,
+        "getter": false,
+        "name": "time",
+        "setter": false,
+        "type": "function",
         "writable": true
       },
       {
         "configurable": true,
         "enumerable": true,
         "getter": false,
-        "name": "severe",
+        "name": "timeEnd",
         "setter": false,
         "type": "function",
         "writable": true
@@ -100,14 +64,14 @@
         "configurable": true,
         "enumerable": true,
         "getter": false,
-        "name": "warning",
+        "name": "warn",
         "setter": false,
         "type": "function",
-        "writable": true
+        "writable": false
       }
     ],
     "prototypeIsObjectPrototype": true,
-    "stringify": "Logger",
+    "stringify": "console",
     "type": "object"
   }
 }
