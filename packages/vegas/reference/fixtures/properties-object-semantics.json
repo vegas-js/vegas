@@ -2,7 +2,7 @@
   "metadata": {
     "schemaVersion": 1,
     "runtime": "V8",
-    "caseRevision": "8025034b18f625c7f78e8aa26504e2211cc53a30ba1e6de55673c976096c7f22"
+    "caseRevision": "b78419fb912cb8384ccfe3c003b114c000b38eb279d8c8b5311be0ae5ca20ae4"
   },
   "result": {
     "deletePropertyReturnsReceiver": true,

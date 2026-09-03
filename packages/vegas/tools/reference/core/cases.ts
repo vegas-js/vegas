@@ -55,6 +55,12 @@ export const referenceCases: readonly ReferenceCaseDefinition[] = [
     runtimeTest: "required",
   },
   {
+    name: "lock-service-surface",
+    functionName: "captureReferenceLockServiceSurface",
+    fixtureFile: "lock-service-surface.json",
+    runtimeTest: "required",
+  },
+  {
     name: "session-service-surface",
     functionName: "captureReferenceSessionServiceSurface",
     fixtureFile: "session-service-surface.json",

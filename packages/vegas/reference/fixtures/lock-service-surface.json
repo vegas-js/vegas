@@ -10,7 +10,7 @@
         "configurable": true,
         "enumerable": true,
         "getter": false,
-        "name": "getDocumentProperties",
+        "name": "getDocumentLock",
         "setter": false,
         "type": "function",
         "writable": true
@@ -19,7 +19,7 @@
         "configurable": true,
         "enumerable": true,
         "getter": false,
-        "name": "getScriptProperties",
+        "name": "getPrivateLock",
         "setter": false,
         "type": "function",
         "writable": true
@@ -28,7 +28,25 @@
         "configurable": true,
         "enumerable": true,
         "getter": false,
-        "name": "getUserProperties",
+        "name": "getPublicLock",
+        "setter": false,
+        "type": "function",
+        "writable": true
+      },
+      {
+        "configurable": true,
+        "enumerable": true,
+        "getter": false,
+        "name": "getScriptLock",
+        "setter": false,
+        "type": "function",
+        "writable": true
+      },
+      {
+        "configurable": true,
+        "enumerable": true,
+        "getter": false,
+        "name": "getUserLock",
         "setter": false,
         "type": "function",
         "writable": true
@@ -44,6 +62,7 @@
       }
     ],
     "prototypeIsObjectPrototype": true,
-    "stringify": "PropertiesService"
+    "stringify": "LockService",
+    "type": "object"
   }
 }

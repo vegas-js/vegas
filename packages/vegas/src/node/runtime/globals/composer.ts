@@ -12,7 +12,6 @@ import type {
   CreateSpreadsheet,
 } from "../objects/types";
 import type { RuntimeServicePort } from "../protocol";
-import { RuntimeScope } from "../scope";
 import { Console } from "../services/base/console";
 import { Logger } from "../services/base/Logger";
 import { createMimeType } from "../services/base/mimeType";
@@ -20,8 +19,7 @@ import { createSession } from "../services/base/sessionFacade";
 import { createCacheService } from "../services/cache/facade";
 import { DriveApp } from "../services/drive/DriveApp";
 import { HtmlService } from "../services/html/HtmlService";
-import { Lock } from "../services/lock/Lock";
-import { LockService } from "../services/lock/LockService";
+import { createLockService } from "../services/lock/facade";
 import { createPropertiesService } from "../services/properties/facade";
 import { SpreadsheetApp } from "../services/spreadsheet/SpreadsheetApp";
 import { UrlFetchApp } from "../services/url-fetch/UrlFetchApp";
@@ -244,11 +242,7 @@ export function composeGasGlobals(
     CacheService: createCacheService(cacheService, createGasObject),
 
     /* Lock */
-    LockService: new LockService(
-      new Lock(RuntimeScope.DOCUMENT, requestLegacySync),
-      new Lock(RuntimeScope.SCRIPT, requestLegacySync),
-      new Lock(RuntimeScope.USER, requestLegacySync),
-    ),
+    LockService: createLockService(requestLegacySync, createGasObject),
 
     /* Properties */
     PropertiesService: createPropertiesService(propertiesService, {
