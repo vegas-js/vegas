@@ -1,12 +1,10 @@
 import { expect, test, vi } from "vitest";
 
-import { invokeScriptFunction } from "../runtime/execution/invocation";
-import {
-  createScriptContext,
-  type ScriptContextDependencies,
-} from "../runtime/execution/scriptContext";
-import { evaluateScript } from "../runtime/execution/scriptRuntime";
-import { HtmlOutput } from "../runtime/services/html/HtmlOutput";
+import { HtmlOutput } from "../services/html/HtmlOutput";
+import { invokeScriptFunction } from "./invocation";
+import { createScriptContext, type ScriptContextDependencies } from "./scriptContext";
+import { evaluateScript } from "./scriptRuntime";
+
 const unexpected = () => {
   throw new Error("Unexpected dependency call");
 };
@@ -82,6 +80,7 @@ test("user code accessible to typed service", async () => {
       getTemporaryActiveUserKey: () => "-- Active user key --",
     },
   });
+
   evaluateScript(
     `
     function execute(name) {
@@ -94,6 +93,7 @@ test("user code accessible to typed service", async () => {
     }`,
     context,
   );
+
   const result = await invokeScriptFunction(context, "execute", ["Vegas"]);
 
   expect(result).toEqual({
@@ -109,6 +109,7 @@ test("return a value from doGet to the actual GAS global", async () => {
     createHtmlOutput: (content: string, mode: GoogleAppsScript.HTML.XFrameOptionsMode) =>
       new HtmlOutput(content, mode),
   });
+
   evaluateScript(
     `
     function doGet() {
@@ -118,6 +119,7 @@ test("return a value from doGet to the actual GAS global", async () => {
     }`,
     context,
   );
+
   const result = await invokeScriptFunction(context, "doGet", []);
 
   expect(result).toMatchObject({
@@ -131,6 +133,7 @@ test("return a value from doPost to the actual GAS global", async () => {
     createHtmlOutput: (content: string, mode: GoogleAppsScript.HTML.XFrameOptionsMode) =>
       new HtmlOutput(content, mode),
   });
+
   evaluateScript(
     `
     function doPost(e) {
@@ -140,6 +143,7 @@ test("return a value from doPost to the actual GAS global", async () => {
     }`,
     context,
   );
+
   const result = await invokeScriptFunction(context, "doPost", [
     {
       postData: {
@@ -159,7 +163,9 @@ test("user code reaches the injected sink", () => {
   const context = createContext({
     logSink: { write },
   });
+
   evaluateScript(`console.log('from user script');`, context);
+
   const [_method, _prefix, value] = write.mock.lastCall ?? ["", "", ""];
 
   expect(write).toHaveBeenCalledOnce();
