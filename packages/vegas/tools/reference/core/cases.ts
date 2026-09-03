@@ -85,6 +85,12 @@ export const referenceCases: readonly ReferenceCaseDefinition[] = [
     runtimeTest: "required",
   },
   {
+    name: "drive-app-surface",
+    functionName: "captureReferenceDriveAppSurface",
+    fixtureFile: "drive-app-surface.json",
+    runtimeTest: "required",
+  },
+  {
     name: "session-service-surface",
     functionName: "captureReferenceSessionServiceSurface",
     fixtureFile: "session-service-surface.json",

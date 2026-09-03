@@ -17,7 +17,7 @@ import { Logger } from "../services/base/Logger";
 import { createMimeType } from "../services/base/mimeType";
 import { createSession } from "../services/base/sessionFacade";
 import { createCacheService } from "../services/cache/facade";
-import { DriveApp } from "../services/drive/DriveApp";
+import { createDriveApp } from "../services/drive/facade";
 import { createHtmlService } from "../services/html/facade";
 import { createLockService } from "../services/lock/facade";
 import { createPropertiesService } from "../services/properties/facade";
@@ -218,7 +218,7 @@ export function composeGasGlobals(
 
   const gasGlobals = {
     /* Drive */
-    DriveApp: new DriveApp(createFile, createFolder, requestLegacySync),
+    DriveApp: createDriveApp(createFile, createFolder, requestLegacySync, createGasObject),
 
     /* Sheets */
     SpreadsheetApp: createSpreadsheetApp(createSpreadsheet, spreadsheetAppService, createGasObject),

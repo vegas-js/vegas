@@ -8,13 +8,16 @@
     "enumLikeProperties": [
       {
         "memberNames": [
-          "US_ASCII",
-          "UTF_8"
+          "ANYONE",
+          "ANYONE_WITH_LINK",
+          "DOMAIN",
+          "DOMAIN_WITH_LINK",
+          "PRIVATE"
         ],
         "members": [
           {
             "compareTo": {
-              "US_ASCII": {
+              "ANYONE": {
                 "error": null,
                 "ok": true,
                 "result": {
@@ -23,7 +26,577 @@
                   "value": 0
                 }
               },
-              "UTF_8": {
+              "ANYONE_WITH_LINK": {
+                "error": null,
+                "ok": true,
+                "result": {
+                  "stringify": "-1",
+                  "type": "number",
+                  "value": -1
+                }
+              },
+              "DOMAIN": {
+                "error": null,
+                "ok": true,
+                "result": {
+                  "stringify": "-2",
+                  "type": "number",
+                  "value": -2
+                }
+              },
+              "DOMAIN_WITH_LINK": {
+                "error": null,
+                "ok": true,
+                "result": {
+                  "stringify": "-3",
+                  "type": "number",
+                  "value": -3
+                }
+              },
+              "PRIVATE": {
+                "error": null,
+                "ok": true,
+                "result": {
+                  "stringify": "-4",
+                  "type": "number",
+                  "value": -4
+                }
+              }
+            },
+            "helpers": {
+              "name": {
+                "error": null,
+                "ok": true,
+                "result": {
+                  "stringify": "ANYONE",
+                  "type": "string",
+                  "value": "ANYONE"
+                }
+              },
+              "ordinal": {
+                "error": null,
+                "ok": true,
+                "result": {
+                  "stringify": "0",
+                  "type": "number",
+                  "value": 0
+                }
+              },
+              "toJSON": {
+                "error": null,
+                "ok": true,
+                "result": {
+                  "stringify": "ANYONE",
+                  "type": "string",
+                  "value": "ANYONE"
+                }
+              }
+            },
+            "identity": {
+              "ANYONE": true,
+              "ANYONE_WITH_LINK": true,
+              "DOMAIN": true,
+              "DOMAIN_WITH_LINK": true,
+              "PRIVATE": true
+            },
+            "name": "ANYONE",
+            "properties": [
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "ANYONE",
+                "setter": false,
+                "type": "object",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "ANYONE_WITH_LINK",
+                "setter": false,
+                "type": "object",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "compareTo",
+                "setter": false,
+                "type": "function",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "DOMAIN",
+                "setter": false,
+                "type": "object",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "DOMAIN_WITH_LINK",
+                "setter": false,
+                "type": "object",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "name",
+                "setter": false,
+                "type": "function",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "ordinal",
+                "setter": false,
+                "type": "function",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "PRIVATE",
+                "setter": false,
+                "type": "object",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "toJSON",
+                "setter": false,
+                "type": "function",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "toString",
+                "setter": false,
+                "type": "function",
+                "writable": true
+              }
+            ],
+            "prototypeIsObjectPrototype": true,
+            "sameAsContainer": false,
+            "stringify": "ANYONE"
+          },
+          {
+            "compareTo": {
+              "ANYONE": {
+                "error": null,
+                "ok": true,
+                "result": {
+                  "stringify": "1",
+                  "type": "number",
+                  "value": 1
+                }
+              },
+              "ANYONE_WITH_LINK": {
+                "error": null,
+                "ok": true,
+                "result": {
+                  "stringify": "0",
+                  "type": "number",
+                  "value": 0
+                }
+              },
+              "DOMAIN": {
+                "error": null,
+                "ok": true,
+                "result": {
+                  "stringify": "-1",
+                  "type": "number",
+                  "value": -1
+                }
+              },
+              "DOMAIN_WITH_LINK": {
+                "error": null,
+                "ok": true,
+                "result": {
+                  "stringify": "-2",
+                  "type": "number",
+                  "value": -2
+                }
+              },
+              "PRIVATE": {
+                "error": null,
+                "ok": true,
+                "result": {
+                  "stringify": "-3",
+                  "type": "number",
+                  "value": -3
+                }
+              }
+            },
+            "helpers": {
+              "name": {
+                "error": null,
+                "ok": true,
+                "result": {
+                  "stringify": "ANYONE_WITH_LINK",
+                  "type": "string",
+                  "value": "ANYONE_WITH_LINK"
+                }
+              },
+              "ordinal": {
+                "error": null,
+                "ok": true,
+                "result": {
+                  "stringify": "1",
+                  "type": "number",
+                  "value": 1
+                }
+              },
+              "toJSON": {
+                "error": null,
+                "ok": true,
+                "result": {
+                  "stringify": "ANYONE_WITH_LINK",
+                  "type": "string",
+                  "value": "ANYONE_WITH_LINK"
+                }
+              }
+            },
+            "identity": {
+              "ANYONE": true,
+              "ANYONE_WITH_LINK": true,
+              "DOMAIN": true,
+              "DOMAIN_WITH_LINK": true,
+              "PRIVATE": true
+            },
+            "name": "ANYONE_WITH_LINK",
+            "properties": [
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "ANYONE",
+                "setter": false,
+                "type": "object",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "ANYONE_WITH_LINK",
+                "setter": false,
+                "type": "object",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "compareTo",
+                "setter": false,
+                "type": "function",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "DOMAIN",
+                "setter": false,
+                "type": "object",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "DOMAIN_WITH_LINK",
+                "setter": false,
+                "type": "object",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "name",
+                "setter": false,
+                "type": "function",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "ordinal",
+                "setter": false,
+                "type": "function",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "PRIVATE",
+                "setter": false,
+                "type": "object",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "toJSON",
+                "setter": false,
+                "type": "function",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "toString",
+                "setter": false,
+                "type": "function",
+                "writable": true
+              }
+            ],
+            "prototypeIsObjectPrototype": true,
+            "sameAsContainer": false,
+            "stringify": "ANYONE_WITH_LINK"
+          },
+          {
+            "compareTo": {
+              "ANYONE": {
+                "error": null,
+                "ok": true,
+                "result": {
+                  "stringify": "2",
+                  "type": "number",
+                  "value": 2
+                }
+              },
+              "ANYONE_WITH_LINK": {
+                "error": null,
+                "ok": true,
+                "result": {
+                  "stringify": "1",
+                  "type": "number",
+                  "value": 1
+                }
+              },
+              "DOMAIN": {
+                "error": null,
+                "ok": true,
+                "result": {
+                  "stringify": "0",
+                  "type": "number",
+                  "value": 0
+                }
+              },
+              "DOMAIN_WITH_LINK": {
+                "error": null,
+                "ok": true,
+                "result": {
+                  "stringify": "-1",
+                  "type": "number",
+                  "value": -1
+                }
+              },
+              "PRIVATE": {
+                "error": null,
+                "ok": true,
+                "result": {
+                  "stringify": "-2",
+                  "type": "number",
+                  "value": -2
+                }
+              }
+            },
+            "helpers": {
+              "name": {
+                "error": null,
+                "ok": true,
+                "result": {
+                  "stringify": "DOMAIN",
+                  "type": "string",
+                  "value": "DOMAIN"
+                }
+              },
+              "ordinal": {
+                "error": null,
+                "ok": true,
+                "result": {
+                  "stringify": "2",
+                  "type": "number",
+                  "value": 2
+                }
+              },
+              "toJSON": {
+                "error": null,
+                "ok": true,
+                "result": {
+                  "stringify": "DOMAIN",
+                  "type": "string",
+                  "value": "DOMAIN"
+                }
+              }
+            },
+            "identity": {
+              "ANYONE": true,
+              "ANYONE_WITH_LINK": true,
+              "DOMAIN": true,
+              "DOMAIN_WITH_LINK": true,
+              "PRIVATE": true
+            },
+            "name": "DOMAIN",
+            "properties": [
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "ANYONE",
+                "setter": false,
+                "type": "object",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "ANYONE_WITH_LINK",
+                "setter": false,
+                "type": "object",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "compareTo",
+                "setter": false,
+                "type": "function",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "DOMAIN",
+                "setter": false,
+                "type": "object",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "DOMAIN_WITH_LINK",
+                "setter": false,
+                "type": "object",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "name",
+                "setter": false,
+                "type": "function",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "ordinal",
+                "setter": false,
+                "type": "function",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "PRIVATE",
+                "setter": false,
+                "type": "object",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "toJSON",
+                "setter": false,
+                "type": "function",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "toString",
+                "setter": false,
+                "type": "function",
+                "writable": true
+              }
+            ],
+            "prototypeIsObjectPrototype": true,
+            "sameAsContainer": false,
+            "stringify": "DOMAIN"
+          },
+          {
+            "compareTo": {
+              "ANYONE": {
+                "error": null,
+                "ok": true,
+                "result": {
+                  "stringify": "3",
+                  "type": "number",
+                  "value": 3
+                }
+              },
+              "ANYONE_WITH_LINK": {
+                "error": null,
+                "ok": true,
+                "result": {
+                  "stringify": "2",
+                  "type": "number",
+                  "value": 2
+                }
+              },
+              "DOMAIN": {
+                "error": null,
+                "ok": true,
+                "result": {
+                  "stringify": "1",
+                  "type": "number",
+                  "value": 1
+                }
+              },
+              "DOMAIN_WITH_LINK": {
+                "error": null,
+                "ok": true,
+                "result": {
+                  "stringify": "0",
+                  "type": "number",
+                  "value": 0
+                }
+              },
+              "PRIVATE": {
                 "error": null,
                 "ok": true,
                 "result": {
@@ -38,36 +611,57 @@
                 "error": null,
                 "ok": true,
                 "result": {
-                  "stringify": "US_ASCII",
+                  "stringify": "DOMAIN_WITH_LINK",
                   "type": "string",
-                  "value": "US_ASCII"
+                  "value": "DOMAIN_WITH_LINK"
                 }
               },
               "ordinal": {
                 "error": null,
                 "ok": true,
                 "result": {
-                  "stringify": "0",
+                  "stringify": "3",
                   "type": "number",
-                  "value": 0
+                  "value": 3
                 }
               },
               "toJSON": {
                 "error": null,
                 "ok": true,
                 "result": {
-                  "stringify": "US_ASCII",
+                  "stringify": "DOMAIN_WITH_LINK",
                   "type": "string",
-                  "value": "US_ASCII"
+                  "value": "DOMAIN_WITH_LINK"
                 }
               }
             },
             "identity": {
-              "US_ASCII": true,
-              "UTF_8": true
+              "ANYONE": true,
+              "ANYONE_WITH_LINK": true,
+              "DOMAIN": true,
+              "DOMAIN_WITH_LINK": true,
+              "PRIVATE": true
             },
-            "name": "US_ASCII",
+            "name": "DOMAIN_WITH_LINK",
             "properties": [
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "ANYONE",
+                "setter": false,
+                "type": "object",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "ANYONE_WITH_LINK",
+                "setter": false,
+                "type": "object",
+                "writable": true
+              },
               {
                 "configurable": true,
                 "enumerable": true,
@@ -75,6 +669,24 @@
                 "name": "compareTo",
                 "setter": false,
                 "type": "function",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "DOMAIN",
+                "setter": false,
+                "type": "object",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "DOMAIN_WITH_LINK",
+                "setter": false,
+                "type": "object",
                 "writable": true
               },
               {
@@ -99,6 +711,15 @@
                 "configurable": true,
                 "enumerable": true,
                 "getter": false,
+                "name": "PRIVATE",
+                "setter": false,
+                "type": "object",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
                 "name": "toJSON",
                 "setter": false,
                 "type": "function",
@@ -112,33 +733,42 @@
                 "setter": false,
                 "type": "function",
                 "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "US_ASCII",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "UTF_8",
-                "setter": false,
-                "type": "object",
-                "writable": true
               }
             ],
             "prototypeIsObjectPrototype": true,
-            "sameAsContainer": true,
-            "stringify": "US_ASCII"
+            "sameAsContainer": false,
+            "stringify": "DOMAIN_WITH_LINK"
           },
           {
             "compareTo": {
-              "US_ASCII": {
+              "ANYONE": {
+                "error": null,
+                "ok": true,
+                "result": {
+                  "stringify": "4",
+                  "type": "number",
+                  "value": 4
+                }
+              },
+              "ANYONE_WITH_LINK": {
+                "error": null,
+                "ok": true,
+                "result": {
+                  "stringify": "3",
+                  "type": "number",
+                  "value": 3
+                }
+              },
+              "DOMAIN": {
+                "error": null,
+                "ok": true,
+                "result": {
+                  "stringify": "2",
+                  "type": "number",
+                  "value": 2
+                }
+              },
+              "DOMAIN_WITH_LINK": {
                 "error": null,
                 "ok": true,
                 "result": {
@@ -147,7 +777,7 @@
                   "value": 1
                 }
               },
-              "UTF_8": {
+              "PRIVATE": {
                 "error": null,
                 "ok": true,
                 "result": {
@@ -162,36 +792,57 @@
                 "error": null,
                 "ok": true,
                 "result": {
-                  "stringify": "UTF_8",
+                  "stringify": "PRIVATE",
                   "type": "string",
-                  "value": "UTF_8"
+                  "value": "PRIVATE"
                 }
               },
               "ordinal": {
                 "error": null,
                 "ok": true,
                 "result": {
-                  "stringify": "1",
+                  "stringify": "4",
                   "type": "number",
-                  "value": 1
+                  "value": 4
                 }
               },
               "toJSON": {
                 "error": null,
                 "ok": true,
                 "result": {
-                  "stringify": "UTF_8",
+                  "stringify": "PRIVATE",
                   "type": "string",
-                  "value": "UTF_8"
+                  "value": "PRIVATE"
                 }
               }
             },
             "identity": {
-              "US_ASCII": true,
-              "UTF_8": true
+              "ANYONE": true,
+              "ANYONE_WITH_LINK": true,
+              "DOMAIN": true,
+              "DOMAIN_WITH_LINK": true,
+              "PRIVATE": true
             },
-            "name": "UTF_8",
+            "name": "PRIVATE",
             "properties": [
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "ANYONE",
+                "setter": false,
+                "type": "object",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "ANYONE_WITH_LINK",
+                "setter": false,
+                "type": "object",
+                "writable": true
+              },
               {
                 "configurable": true,
                 "enumerable": true,
@@ -199,6 +850,24 @@
                 "name": "compareTo",
                 "setter": false,
                 "type": "function",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "DOMAIN",
+                "setter": false,
+                "type": "object",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "DOMAIN_WITH_LINK",
+                "setter": false,
+                "type": "object",
                 "writable": true
               },
               {
@@ -223,6 +892,15 @@
                 "configurable": true,
                 "enumerable": true,
                 "getter": false,
+                "name": "PRIVATE",
+                "setter": false,
+                "type": "object",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
                 "name": "toJSON",
                 "setter": false,
                 "type": "function",
@@ -236,33 +914,33 @@
                 "setter": false,
                 "type": "function",
                 "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "US_ASCII",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "UTF_8",
-                "setter": false,
-                "type": "object",
-                "writable": true
               }
             ],
             "prototypeIsObjectPrototype": true,
-            "sameAsContainer": false,
-            "stringify": "UTF_8"
+            "sameAsContainer": true,
+            "stringify": "PRIVATE"
           }
         ],
-        "name": "Utilities.Charset",
+        "name": "DriveApp.Access",
         "properties": [
+          {
+            "configurable": true,
+            "enumerable": true,
+            "getter": false,
+            "name": "ANYONE",
+            "setter": false,
+            "type": "object",
+            "writable": true
+          },
+          {
+            "configurable": true,
+            "enumerable": true,
+            "getter": false,
+            "name": "ANYONE_WITH_LINK",
+            "setter": false,
+            "type": "object",
+            "writable": true
+          },
           {
             "configurable": true,
             "enumerable": true,
@@ -270,6 +948,24 @@
             "name": "compareTo",
             "setter": false,
             "type": "function",
+            "writable": true
+          },
+          {
+            "configurable": true,
+            "enumerable": true,
+            "getter": false,
+            "name": "DOMAIN",
+            "setter": false,
+            "type": "object",
+            "writable": true
+          },
+          {
+            "configurable": true,
+            "enumerable": true,
+            "getter": false,
+            "name": "DOMAIN_WITH_LINK",
+            "setter": false,
+            "type": "object",
             "writable": true
           },
           {
@@ -294,6 +990,15 @@
             "configurable": true,
             "enumerable": true,
             "getter": false,
+            "name": "PRIVATE",
+            "setter": false,
+            "type": "object",
+            "writable": true
+          },
+          {
+            "configurable": true,
+            "enumerable": true,
+            "getter": false,
             "name": "toJSON",
             "setter": false,
             "type": "function",
@@ -307,42 +1012,25 @@
             "setter": false,
             "type": "function",
             "writable": true
-          },
-          {
-            "configurable": true,
-            "enumerable": true,
-            "getter": false,
-            "name": "US_ASCII",
-            "setter": false,
-            "type": "object",
-            "writable": true
-          },
-          {
-            "configurable": true,
-            "enumerable": true,
-            "getter": false,
-            "name": "UTF_8",
-            "setter": false,
-            "type": "object",
-            "writable": true
           }
         ],
         "prototypeIsObjectPrototype": true,
-        "stringify": "US_ASCII"
+        "stringify": "PRIVATE"
       },
       {
         "memberNames": [
-          "MD2",
-          "MD5",
-          "SHA_1",
-          "SHA_256",
-          "SHA_384",
-          "SHA_512"
+          "COMMENT",
+          "EDIT",
+          "FILE_ORGANIZER",
+          "NONE",
+          "ORGANIZER",
+          "OWNER",
+          "VIEW"
         ],
         "members": [
           {
             "compareTo": {
-              "MD2": {
+              "COMMENT": {
                 "error": null,
                 "ok": true,
                 "result": {
@@ -351,25 +1039,16 @@
                   "value": 0
                 }
               },
-              "MD5": {
+              "EDIT": {
                 "error": null,
                 "ok": true,
                 "result": {
-                  "stringify": "-1",
+                  "stringify": "1",
                   "type": "number",
-                  "value": -1
+                  "value": 1
                 }
               },
-              "SHA_1": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "-2",
-                  "type": "number",
-                  "value": -2
-                }
-              },
-              "SHA_256": {
+              "FILE_ORGANIZER": {
                 "error": null,
                 "ok": true,
                 "result": {
@@ -378,7 +1057,7 @@
                   "value": -3
                 }
               },
-              "SHA_384": {
+              "NONE": {
                 "error": null,
                 "ok": true,
                 "result": {
@@ -387,7 +1066,217 @@
                   "value": -4
                 }
               },
-              "SHA_512": {
+              "ORGANIZER": {
+                "error": null,
+                "ok": true,
+                "result": {
+                  "stringify": "-2",
+                  "type": "number",
+                  "value": -2
+                }
+              },
+              "OWNER": {
+                "error": null,
+                "ok": true,
+                "result": {
+                  "stringify": "-1",
+                  "type": "number",
+                  "value": -1
+                }
+              },
+              "VIEW": {
+                "error": null,
+                "ok": true,
+                "result": {
+                  "stringify": "2",
+                  "type": "number",
+                  "value": 2
+                }
+              }
+            },
+            "helpers": {
+              "name": {
+                "error": null,
+                "ok": true,
+                "result": {
+                  "stringify": "COMMENT",
+                  "type": "string",
+                  "value": "COMMENT"
+                }
+              },
+              "ordinal": {
+                "error": null,
+                "ok": true,
+                "result": {
+                  "stringify": "2",
+                  "type": "number",
+                  "value": 2
+                }
+              },
+              "toJSON": {
+                "error": null,
+                "ok": true,
+                "result": {
+                  "stringify": "COMMENT",
+                  "type": "string",
+                  "value": "COMMENT"
+                }
+              }
+            },
+            "identity": {
+              "COMMENT": true,
+              "EDIT": true,
+              "FILE_ORGANIZER": true,
+              "NONE": true,
+              "ORGANIZER": true,
+              "OWNER": true,
+              "VIEW": true
+            },
+            "name": "COMMENT",
+            "properties": [
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "COMMENT",
+                "setter": false,
+                "type": "object",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "compareTo",
+                "setter": false,
+                "type": "function",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "EDIT",
+                "setter": false,
+                "type": "object",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "FILE_ORGANIZER",
+                "setter": false,
+                "type": "object",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "name",
+                "setter": false,
+                "type": "function",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "NONE",
+                "setter": false,
+                "type": "object",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "ordinal",
+                "setter": false,
+                "type": "function",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "ORGANIZER",
+                "setter": false,
+                "type": "object",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "OWNER",
+                "setter": false,
+                "type": "object",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "toJSON",
+                "setter": false,
+                "type": "function",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "toString",
+                "setter": false,
+                "type": "function",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "VIEW",
+                "setter": false,
+                "type": "object",
+                "writable": true
+              }
+            ],
+            "prototypeIsObjectPrototype": true,
+            "sameAsContainer": false,
+            "stringify": "COMMENT"
+          },
+          {
+            "compareTo": {
+              "COMMENT": {
+                "error": null,
+                "ok": true,
+                "result": {
+                  "stringify": "-1",
+                  "type": "number",
+                  "value": -1
+                }
+              },
+              "EDIT": {
+                "error": null,
+                "ok": true,
+                "result": {
+                  "stringify": "0",
+                  "type": "number",
+                  "value": 0
+                }
+              },
+              "FILE_ORGANIZER": {
+                "error": null,
+                "ok": true,
+                "result": {
+                  "stringify": "-4",
+                  "type": "number",
+                  "value": -4
+                }
+              },
+              "NONE": {
                 "error": null,
                 "ok": true,
                 "result": {
@@ -395,190 +1284,8 @@
                   "type": "number",
                   "value": -5
                 }
-              }
-            },
-            "helpers": {
-              "name": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "MD2",
-                  "type": "string",
-                  "value": "MD2"
-                }
               },
-              "ordinal": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "0",
-                  "type": "number",
-                  "value": 0
-                }
-              },
-              "toJSON": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "MD2",
-                  "type": "string",
-                  "value": "MD2"
-                }
-              }
-            },
-            "identity": {
-              "MD2": true,
-              "MD5": true,
-              "SHA_1": true,
-              "SHA_256": true,
-              "SHA_384": true,
-              "SHA_512": true
-            },
-            "name": "MD2",
-            "properties": [
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "compareTo",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "MD2",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "MD5",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "name",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "ordinal",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "SHA_1",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "SHA_256",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "SHA_384",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "SHA_512",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "toJSON",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "toString",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              }
-            ],
-            "prototypeIsObjectPrototype": true,
-            "sameAsContainer": false,
-            "stringify": "MD2"
-          },
-          {
-            "compareTo": {
-              "MD2": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "1",
-                  "type": "number",
-                  "value": 1
-                }
-              },
-              "MD5": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "0",
-                  "type": "number",
-                  "value": 0
-                }
-              },
-              "SHA_1": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "-1",
-                  "type": "number",
-                  "value": -1
-                }
-              },
-              "SHA_256": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "-2",
-                  "type": "number",
-                  "value": -2
-                }
-              },
-              "SHA_384": {
+              "ORGANIZER": {
                 "error": null,
                 "ok": true,
                 "result": {
@@ -587,198 +1294,7 @@
                   "value": -3
                 }
               },
-              "SHA_512": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "-4",
-                  "type": "number",
-                  "value": -4
-                }
-              }
-            },
-            "helpers": {
-              "name": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "MD5",
-                  "type": "string",
-                  "value": "MD5"
-                }
-              },
-              "ordinal": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "1",
-                  "type": "number",
-                  "value": 1
-                }
-              },
-              "toJSON": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "MD5",
-                  "type": "string",
-                  "value": "MD5"
-                }
-              }
-            },
-            "identity": {
-              "MD2": true,
-              "MD5": true,
-              "SHA_1": true,
-              "SHA_256": true,
-              "SHA_384": true,
-              "SHA_512": true
-            },
-            "name": "MD5",
-            "properties": [
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "compareTo",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "MD2",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "MD5",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "name",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "ordinal",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "SHA_1",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "SHA_256",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "SHA_384",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "SHA_512",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "toJSON",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "toString",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              }
-            ],
-            "prototypeIsObjectPrototype": true,
-            "sameAsContainer": false,
-            "stringify": "MD5"
-          },
-          {
-            "compareTo": {
-              "MD2": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "2",
-                  "type": "number",
-                  "value": 2
-                }
-              },
-              "MD5": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "1",
-                  "type": "number",
-                  "value": 1
-                }
-              },
-              "SHA_1": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "0",
-                  "type": "number",
-                  "value": 0
-                }
-              },
-              "SHA_256": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "-1",
-                  "type": "number",
-                  "value": -1
-                }
-              },
-              "SHA_384": {
+              "OWNER": {
                 "error": null,
                 "ok": true,
                 "result": {
@@ -787,13 +1303,13 @@
                   "value": -2
                 }
               },
-              "SHA_512": {
+              "VIEW": {
                 "error": null,
                 "ok": true,
                 "result": {
-                  "stringify": "-3",
+                  "stringify": "1",
                   "type": "number",
-                  "value": -3
+                  "value": 1
                 }
               }
             },
@@ -802,165 +1318,12 @@
                 "error": null,
                 "ok": true,
                 "result": {
-                  "stringify": "SHA_1",
+                  "stringify": "EDIT",
                   "type": "string",
-                  "value": "SHA_1"
+                  "value": "EDIT"
                 }
               },
               "ordinal": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "2",
-                  "type": "number",
-                  "value": 2
-                }
-              },
-              "toJSON": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "SHA_1",
-                  "type": "string",
-                  "value": "SHA_1"
-                }
-              }
-            },
-            "identity": {
-              "MD2": true,
-              "MD5": true,
-              "SHA_1": true,
-              "SHA_256": true,
-              "SHA_384": true,
-              "SHA_512": true
-            },
-            "name": "SHA_1",
-            "properties": [
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "compareTo",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "MD2",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "MD5",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "name",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "ordinal",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "SHA_1",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "SHA_256",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "SHA_384",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "SHA_512",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "toJSON",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "toString",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              }
-            ],
-            "prototypeIsObjectPrototype": true,
-            "sameAsContainer": false,
-            "stringify": "SHA_1"
-          },
-          {
-            "compareTo": {
-              "MD2": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "3",
-                  "type": "number",
-                  "value": 3
-                }
-              },
-              "MD5": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "2",
-                  "type": "number",
-                  "value": 2
-                }
-              },
-              "SHA_1": {
                 "error": null,
                 "ok": true,
                 "result": {
@@ -969,73 +1332,36 @@
                   "value": 1
                 }
               },
-              "SHA_256": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "0",
-                  "type": "number",
-                  "value": 0
-                }
-              },
-              "SHA_384": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "-1",
-                  "type": "number",
-                  "value": -1
-                }
-              },
-              "SHA_512": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "-2",
-                  "type": "number",
-                  "value": -2
-                }
-              }
-            },
-            "helpers": {
-              "name": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "SHA_256",
-                  "type": "string",
-                  "value": "SHA_256"
-                }
-              },
-              "ordinal": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "3",
-                  "type": "number",
-                  "value": 3
-                }
-              },
               "toJSON": {
                 "error": null,
                 "ok": true,
                 "result": {
-                  "stringify": "SHA_256",
+                  "stringify": "EDIT",
                   "type": "string",
-                  "value": "SHA_256"
+                  "value": "EDIT"
                 }
               }
             },
             "identity": {
-              "MD2": true,
-              "MD5": true,
-              "SHA_1": true,
-              "SHA_256": true,
-              "SHA_384": true,
-              "SHA_512": true
+              "COMMENT": true,
+              "EDIT": true,
+              "FILE_ORGANIZER": true,
+              "NONE": true,
+              "ORGANIZER": true,
+              "OWNER": true,
+              "VIEW": true
             },
-            "name": "SHA_256",
+            "name": "EDIT",
             "properties": [
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "COMMENT",
+                "setter": false,
+                "type": "object",
+                "writable": true
+              },
               {
                 "configurable": true,
                 "enumerable": true,
@@ -1049,7 +1375,7 @@
                 "configurable": true,
                 "enumerable": true,
                 "getter": false,
-                "name": "MD2",
+                "name": "EDIT",
                 "setter": false,
                 "type": "object",
                 "writable": true
@@ -1058,7 +1384,7 @@
                 "configurable": true,
                 "enumerable": true,
                 "getter": false,
-                "name": "MD5",
+                "name": "FILE_ORGANIZER",
                 "setter": false,
                 "type": "object",
                 "writable": true
@@ -1076,6 +1402,15 @@
                 "configurable": true,
                 "enumerable": true,
                 "getter": false,
+                "name": "NONE",
+                "setter": false,
+                "type": "object",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
                 "name": "ordinal",
                 "setter": false,
                 "type": "function",
@@ -1085,7 +1420,7 @@
                 "configurable": true,
                 "enumerable": true,
                 "getter": false,
-                "name": "SHA_1",
+                "name": "ORGANIZER",
                 "setter": false,
                 "type": "object",
                 "writable": true
@@ -1094,25 +1429,7 @@
                 "configurable": true,
                 "enumerable": true,
                 "getter": false,
-                "name": "SHA_256",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "SHA_384",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "SHA_512",
+                "name": "OWNER",
                 "setter": false,
                 "type": "object",
                 "writable": true
@@ -1134,24 +1451,24 @@
                 "setter": false,
                 "type": "function",
                 "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "VIEW",
+                "setter": false,
+                "type": "object",
+                "writable": true
               }
             ],
             "prototypeIsObjectPrototype": true,
             "sameAsContainer": false,
-            "stringify": "SHA_256"
+            "stringify": "EDIT"
           },
           {
             "compareTo": {
-              "MD2": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "4",
-                  "type": "number",
-                  "value": 4
-                }
-              },
-              "MD5": {
+              "COMMENT": {
                 "error": null,
                 "ok": true,
                 "result": {
@@ -1160,16 +1477,34 @@
                   "value": 3
                 }
               },
-              "SHA_1": {
+              "EDIT": {
                 "error": null,
                 "ok": true,
                 "result": {
-                  "stringify": "2",
+                  "stringify": "4",
                   "type": "number",
-                  "value": 2
+                  "value": 4
                 }
               },
-              "SHA_256": {
+              "FILE_ORGANIZER": {
+                "error": null,
+                "ok": true,
+                "result": {
+                  "stringify": "0",
+                  "type": "number",
+                  "value": 0
+                }
+              },
+              "NONE": {
+                "error": null,
+                "ok": true,
+                "result": {
+                  "stringify": "-1",
+                  "type": "number",
+                  "value": -1
+                }
+              },
+              "ORGANIZER": {
                 "error": null,
                 "ok": true,
                 "result": {
@@ -1178,171 +1513,16 @@
                   "value": 1
                 }
               },
-              "SHA_384": {
+              "OWNER": {
                 "error": null,
                 "ok": true,
                 "result": {
-                  "stringify": "0",
+                  "stringify": "2",
                   "type": "number",
-                  "value": 0
+                  "value": 2
                 }
               },
-              "SHA_512": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "-1",
-                  "type": "number",
-                  "value": -1
-                }
-              }
-            },
-            "helpers": {
-              "name": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "SHA_384",
-                  "type": "string",
-                  "value": "SHA_384"
-                }
-              },
-              "ordinal": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "4",
-                  "type": "number",
-                  "value": 4
-                }
-              },
-              "toJSON": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "SHA_384",
-                  "type": "string",
-                  "value": "SHA_384"
-                }
-              }
-            },
-            "identity": {
-              "MD2": true,
-              "MD5": true,
-              "SHA_1": true,
-              "SHA_256": true,
-              "SHA_384": true,
-              "SHA_512": true
-            },
-            "name": "SHA_384",
-            "properties": [
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "compareTo",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "MD2",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "MD5",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "name",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "ordinal",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "SHA_1",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "SHA_256",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "SHA_384",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "SHA_512",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "toJSON",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "toString",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              }
-            ],
-            "prototypeIsObjectPrototype": true,
-            "sameAsContainer": false,
-            "stringify": "SHA_384"
-          },
-          {
-            "compareTo": {
-              "MD2": {
+              "VIEW": {
                 "error": null,
                 "ok": true,
                 "result": {
@@ -1350,51 +1530,6 @@
                   "type": "number",
                   "value": 5
                 }
-              },
-              "MD5": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "4",
-                  "type": "number",
-                  "value": 4
-                }
-              },
-              "SHA_1": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "3",
-                  "type": "number",
-                  "value": 3
-                }
-              },
-              "SHA_256": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "2",
-                  "type": "number",
-                  "value": 2
-                }
-              },
-              "SHA_384": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "1",
-                  "type": "number",
-                  "value": 1
-                }
-              },
-              "SHA_512": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "0",
-                  "type": "number",
-                  "value": 0
-                }
               }
             },
             "helpers": {
@@ -1402,9 +1537,9 @@
                 "error": null,
                 "ok": true,
                 "result": {
-                  "stringify": "SHA_512",
+                  "stringify": "FILE_ORGANIZER",
                   "type": "string",
-                  "value": "SHA_512"
+                  "value": "FILE_ORGANIZER"
                 }
               },
               "ordinal": {
@@ -1420,22 +1555,32 @@
                 "error": null,
                 "ok": true,
                 "result": {
-                  "stringify": "SHA_512",
+                  "stringify": "FILE_ORGANIZER",
                   "type": "string",
-                  "value": "SHA_512"
+                  "value": "FILE_ORGANIZER"
                 }
               }
             },
             "identity": {
-              "MD2": true,
-              "MD5": true,
-              "SHA_1": true,
-              "SHA_256": true,
-              "SHA_384": true,
-              "SHA_512": true
+              "COMMENT": true,
+              "EDIT": true,
+              "FILE_ORGANIZER": true,
+              "NONE": true,
+              "ORGANIZER": true,
+              "OWNER": true,
+              "VIEW": true
             },
-            "name": "SHA_512",
+            "name": "FILE_ORGANIZER",
             "properties": [
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "COMMENT",
+                "setter": false,
+                "type": "object",
+                "writable": true
+              },
               {
                 "configurable": true,
                 "enumerable": true,
@@ -1449,7 +1594,7 @@
                 "configurable": true,
                 "enumerable": true,
                 "getter": false,
-                "name": "MD2",
+                "name": "EDIT",
                 "setter": false,
                 "type": "object",
                 "writable": true
@@ -1458,7 +1603,7 @@
                 "configurable": true,
                 "enumerable": true,
                 "getter": false,
-                "name": "MD5",
+                "name": "FILE_ORGANIZER",
                 "setter": false,
                 "type": "object",
                 "writable": true
@@ -1476,6 +1621,15 @@
                 "configurable": true,
                 "enumerable": true,
                 "getter": false,
+                "name": "NONE",
+                "setter": false,
+                "type": "object",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
                 "name": "ordinal",
                 "setter": false,
                 "type": "function",
@@ -1485,7 +1639,7 @@
                 "configurable": true,
                 "enumerable": true,
                 "getter": false,
-                "name": "SHA_1",
+                "name": "ORGANIZER",
                 "setter": false,
                 "type": "object",
                 "writable": true
@@ -1494,25 +1648,7 @@
                 "configurable": true,
                 "enumerable": true,
                 "getter": false,
-                "name": "SHA_256",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "SHA_384",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "SHA_512",
+                "name": "OWNER",
                 "setter": false,
                 "type": "object",
                 "writable": true
@@ -1534,130 +1670,51 @@
                 "setter": false,
                 "type": "function",
                 "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "VIEW",
+                "setter": false,
+                "type": "object",
+                "writable": true
               }
             ],
             "prototypeIsObjectPrototype": true,
-            "sameAsContainer": true,
-            "stringify": "SHA_512"
-          }
-        ],
-        "name": "Utilities.DigestAlgorithm",
-        "properties": [
-          {
-            "configurable": true,
-            "enumerable": true,
-            "getter": false,
-            "name": "compareTo",
-            "setter": false,
-            "type": "function",
-            "writable": true
+            "sameAsContainer": false,
+            "stringify": "FILE_ORGANIZER"
           },
-          {
-            "configurable": true,
-            "enumerable": true,
-            "getter": false,
-            "name": "MD2",
-            "setter": false,
-            "type": "object",
-            "writable": true
-          },
-          {
-            "configurable": true,
-            "enumerable": true,
-            "getter": false,
-            "name": "MD5",
-            "setter": false,
-            "type": "object",
-            "writable": true
-          },
-          {
-            "configurable": true,
-            "enumerable": true,
-            "getter": false,
-            "name": "name",
-            "setter": false,
-            "type": "function",
-            "writable": true
-          },
-          {
-            "configurable": true,
-            "enumerable": true,
-            "getter": false,
-            "name": "ordinal",
-            "setter": false,
-            "type": "function",
-            "writable": true
-          },
-          {
-            "configurable": true,
-            "enumerable": true,
-            "getter": false,
-            "name": "SHA_1",
-            "setter": false,
-            "type": "object",
-            "writable": true
-          },
-          {
-            "configurable": true,
-            "enumerable": true,
-            "getter": false,
-            "name": "SHA_256",
-            "setter": false,
-            "type": "object",
-            "writable": true
-          },
-          {
-            "configurable": true,
-            "enumerable": true,
-            "getter": false,
-            "name": "SHA_384",
-            "setter": false,
-            "type": "object",
-            "writable": true
-          },
-          {
-            "configurable": true,
-            "enumerable": true,
-            "getter": false,
-            "name": "SHA_512",
-            "setter": false,
-            "type": "object",
-            "writable": true
-          },
-          {
-            "configurable": true,
-            "enumerable": true,
-            "getter": false,
-            "name": "toJSON",
-            "setter": false,
-            "type": "function",
-            "writable": true
-          },
-          {
-            "configurable": true,
-            "enumerable": true,
-            "getter": false,
-            "name": "toString",
-            "setter": false,
-            "type": "function",
-            "writable": true
-          }
-        ],
-        "prototypeIsObjectPrototype": true,
-        "stringify": "SHA_512"
-      },
-      {
-        "memberNames": [
-          "HMAC_MD5",
-          "HMAC_SHA_1",
-          "HMAC_SHA_256",
-          "HMAC_SHA_384",
-          "HMAC_SHA_512"
-        ],
-        "members": [
           {
             "compareTo": {
-              "HMAC_MD5": {
+              "COMMENT": {
+                "error": null,
+                "ok": true,
+                "result": {
+                  "stringify": "4",
+                  "type": "number",
+                  "value": 4
+                }
+              },
+              "EDIT": {
+                "error": null,
+                "ok": true,
+                "result": {
+                  "stringify": "5",
+                  "type": "number",
+                  "value": 5
+                }
+              },
+              "FILE_ORGANIZER": {
+                "error": null,
+                "ok": true,
+                "result": {
+                  "stringify": "1",
+                  "type": "number",
+                  "value": 1
+                }
+              },
+              "NONE": {
                 "error": null,
                 "ok": true,
                 "result": {
@@ -1666,7 +1723,208 @@
                   "value": 0
                 }
               },
-              "HMAC_SHA_1": {
+              "ORGANIZER": {
+                "error": null,
+                "ok": true,
+                "result": {
+                  "stringify": "2",
+                  "type": "number",
+                  "value": 2
+                }
+              },
+              "OWNER": {
+                "error": null,
+                "ok": true,
+                "result": {
+                  "stringify": "3",
+                  "type": "number",
+                  "value": 3
+                }
+              },
+              "VIEW": {
+                "error": null,
+                "ok": true,
+                "result": {
+                  "stringify": "6",
+                  "type": "number",
+                  "value": 6
+                }
+              }
+            },
+            "helpers": {
+              "name": {
+                "error": null,
+                "ok": true,
+                "result": {
+                  "stringify": "NONE",
+                  "type": "string",
+                  "value": "NONE"
+                }
+              },
+              "ordinal": {
+                "error": null,
+                "ok": true,
+                "result": {
+                  "stringify": "6",
+                  "type": "number",
+                  "value": 6
+                }
+              },
+              "toJSON": {
+                "error": null,
+                "ok": true,
+                "result": {
+                  "stringify": "NONE",
+                  "type": "string",
+                  "value": "NONE"
+                }
+              }
+            },
+            "identity": {
+              "COMMENT": true,
+              "EDIT": true,
+              "FILE_ORGANIZER": true,
+              "NONE": true,
+              "ORGANIZER": true,
+              "OWNER": true,
+              "VIEW": true
+            },
+            "name": "NONE",
+            "properties": [
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "COMMENT",
+                "setter": false,
+                "type": "object",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "compareTo",
+                "setter": false,
+                "type": "function",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "EDIT",
+                "setter": false,
+                "type": "object",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "FILE_ORGANIZER",
+                "setter": false,
+                "type": "object",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "name",
+                "setter": false,
+                "type": "function",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "NONE",
+                "setter": false,
+                "type": "object",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "ordinal",
+                "setter": false,
+                "type": "function",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "ORGANIZER",
+                "setter": false,
+                "type": "object",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "OWNER",
+                "setter": false,
+                "type": "object",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "toJSON",
+                "setter": false,
+                "type": "function",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "toString",
+                "setter": false,
+                "type": "function",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "VIEW",
+                "setter": false,
+                "type": "object",
+                "writable": true
+              }
+            ],
+            "prototypeIsObjectPrototype": true,
+            "sameAsContainer": false,
+            "stringify": "NONE"
+          },
+          {
+            "compareTo": {
+              "COMMENT": {
+                "error": null,
+                "ok": true,
+                "result": {
+                  "stringify": "2",
+                  "type": "number",
+                  "value": 2
+                }
+              },
+              "EDIT": {
+                "error": null,
+                "ok": true,
+                "result": {
+                  "stringify": "3",
+                  "type": "number",
+                  "value": 3
+                }
+              },
+              "FILE_ORGANIZER": {
                 "error": null,
                 "ok": true,
                 "result": {
@@ -1675,7 +1933,7 @@
                   "value": -1
                 }
               },
-              "HMAC_SHA_256": {
+              "NONE": {
                 "error": null,
                 "ok": true,
                 "result": {
@@ -1684,7 +1942,217 @@
                   "value": -2
                 }
               },
-              "HMAC_SHA_384": {
+              "ORGANIZER": {
+                "error": null,
+                "ok": true,
+                "result": {
+                  "stringify": "0",
+                  "type": "number",
+                  "value": 0
+                }
+              },
+              "OWNER": {
+                "error": null,
+                "ok": true,
+                "result": {
+                  "stringify": "1",
+                  "type": "number",
+                  "value": 1
+                }
+              },
+              "VIEW": {
+                "error": null,
+                "ok": true,
+                "result": {
+                  "stringify": "4",
+                  "type": "number",
+                  "value": 4
+                }
+              }
+            },
+            "helpers": {
+              "name": {
+                "error": null,
+                "ok": true,
+                "result": {
+                  "stringify": "ORGANIZER",
+                  "type": "string",
+                  "value": "ORGANIZER"
+                }
+              },
+              "ordinal": {
+                "error": null,
+                "ok": true,
+                "result": {
+                  "stringify": "4",
+                  "type": "number",
+                  "value": 4
+                }
+              },
+              "toJSON": {
+                "error": null,
+                "ok": true,
+                "result": {
+                  "stringify": "ORGANIZER",
+                  "type": "string",
+                  "value": "ORGANIZER"
+                }
+              }
+            },
+            "identity": {
+              "COMMENT": true,
+              "EDIT": true,
+              "FILE_ORGANIZER": true,
+              "NONE": true,
+              "ORGANIZER": true,
+              "OWNER": true,
+              "VIEW": true
+            },
+            "name": "ORGANIZER",
+            "properties": [
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "COMMENT",
+                "setter": false,
+                "type": "object",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "compareTo",
+                "setter": false,
+                "type": "function",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "EDIT",
+                "setter": false,
+                "type": "object",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "FILE_ORGANIZER",
+                "setter": false,
+                "type": "object",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "name",
+                "setter": false,
+                "type": "function",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "NONE",
+                "setter": false,
+                "type": "object",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "ordinal",
+                "setter": false,
+                "type": "function",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "ORGANIZER",
+                "setter": false,
+                "type": "object",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "OWNER",
+                "setter": false,
+                "type": "object",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "toJSON",
+                "setter": false,
+                "type": "function",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "toString",
+                "setter": false,
+                "type": "function",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "VIEW",
+                "setter": false,
+                "type": "object",
+                "writable": true
+              }
+            ],
+            "prototypeIsObjectPrototype": true,
+            "sameAsContainer": false,
+            "stringify": "ORGANIZER"
+          },
+          {
+            "compareTo": {
+              "COMMENT": {
+                "error": null,
+                "ok": true,
+                "result": {
+                  "stringify": "1",
+                  "type": "number",
+                  "value": 1
+                }
+              },
+              "EDIT": {
+                "error": null,
+                "ok": true,
+                "result": {
+                  "stringify": "2",
+                  "type": "number",
+                  "value": 2
+                }
+              },
+              "FILE_ORGANIZER": {
+                "error": null,
+                "ok": true,
+                "result": {
+                  "stringify": "-2",
+                  "type": "number",
+                  "value": -2
+                }
+              },
+              "NONE": {
                 "error": null,
                 "ok": true,
                 "result": {
@@ -1693,7 +2161,226 @@
                   "value": -3
                 }
               },
-              "HMAC_SHA_512": {
+              "ORGANIZER": {
+                "error": null,
+                "ok": true,
+                "result": {
+                  "stringify": "-1",
+                  "type": "number",
+                  "value": -1
+                }
+              },
+              "OWNER": {
+                "error": null,
+                "ok": true,
+                "result": {
+                  "stringify": "0",
+                  "type": "number",
+                  "value": 0
+                }
+              },
+              "VIEW": {
+                "error": null,
+                "ok": true,
+                "result": {
+                  "stringify": "3",
+                  "type": "number",
+                  "value": 3
+                }
+              }
+            },
+            "helpers": {
+              "name": {
+                "error": null,
+                "ok": true,
+                "result": {
+                  "stringify": "OWNER",
+                  "type": "string",
+                  "value": "OWNER"
+                }
+              },
+              "ordinal": {
+                "error": null,
+                "ok": true,
+                "result": {
+                  "stringify": "3",
+                  "type": "number",
+                  "value": 3
+                }
+              },
+              "toJSON": {
+                "error": null,
+                "ok": true,
+                "result": {
+                  "stringify": "OWNER",
+                  "type": "string",
+                  "value": "OWNER"
+                }
+              }
+            },
+            "identity": {
+              "COMMENT": true,
+              "EDIT": true,
+              "FILE_ORGANIZER": true,
+              "NONE": true,
+              "ORGANIZER": true,
+              "OWNER": true,
+              "VIEW": true
+            },
+            "name": "OWNER",
+            "properties": [
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "COMMENT",
+                "setter": false,
+                "type": "object",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "compareTo",
+                "setter": false,
+                "type": "function",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "EDIT",
+                "setter": false,
+                "type": "object",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "FILE_ORGANIZER",
+                "setter": false,
+                "type": "object",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "name",
+                "setter": false,
+                "type": "function",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "NONE",
+                "setter": false,
+                "type": "object",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "ordinal",
+                "setter": false,
+                "type": "function",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "ORGANIZER",
+                "setter": false,
+                "type": "object",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "OWNER",
+                "setter": false,
+                "type": "object",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "toJSON",
+                "setter": false,
+                "type": "function",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "toString",
+                "setter": false,
+                "type": "function",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "VIEW",
+                "setter": false,
+                "type": "object",
+                "writable": true
+              }
+            ],
+            "prototypeIsObjectPrototype": true,
+            "sameAsContainer": false,
+            "stringify": "OWNER"
+          },
+          {
+            "compareTo": {
+              "COMMENT": {
+                "error": null,
+                "ok": true,
+                "result": {
+                  "stringify": "-2",
+                  "type": "number",
+                  "value": -2
+                }
+              },
+              "EDIT": {
+                "error": null,
+                "ok": true,
+                "result": {
+                  "stringify": "-1",
+                  "type": "number",
+                  "value": -1
+                }
+              },
+              "FILE_ORGANIZER": {
+                "error": null,
+                "ok": true,
+                "result": {
+                  "stringify": "-5",
+                  "type": "number",
+                  "value": -5
+                }
+              },
+              "NONE": {
+                "error": null,
+                "ok": true,
+                "result": {
+                  "stringify": "-6",
+                  "type": "number",
+                  "value": -6
+                }
+              },
+              "ORGANIZER": {
                 "error": null,
                 "ok": true,
                 "result": {
@@ -1701,180 +2388,8 @@
                   "type": "number",
                   "value": -4
                 }
-              }
-            },
-            "helpers": {
-              "name": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "HMAC_MD5",
-                  "type": "string",
-                  "value": "HMAC_MD5"
-                }
               },
-              "ordinal": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "0",
-                  "type": "number",
-                  "value": 0
-                }
-              },
-              "toJSON": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "HMAC_MD5",
-                  "type": "string",
-                  "value": "HMAC_MD5"
-                }
-              }
-            },
-            "identity": {
-              "HMAC_MD5": true,
-              "HMAC_SHA_1": true,
-              "HMAC_SHA_256": true,
-              "HMAC_SHA_384": true,
-              "HMAC_SHA_512": true
-            },
-            "name": "HMAC_MD5",
-            "properties": [
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "compareTo",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "HMAC_MD5",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "HMAC_SHA_1",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "HMAC_SHA_256",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "HMAC_SHA_384",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "HMAC_SHA_512",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "name",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "ordinal",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "toJSON",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "toString",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              }
-            ],
-            "prototypeIsObjectPrototype": true,
-            "sameAsContainer": false,
-            "stringify": "HMAC_MD5"
-          },
-          {
-            "compareTo": {
-              "HMAC_MD5": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "1",
-                  "type": "number",
-                  "value": 1
-                }
-              },
-              "HMAC_SHA_1": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "0",
-                  "type": "number",
-                  "value": 0
-                }
-              },
-              "HMAC_SHA_256": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "-1",
-                  "type": "number",
-                  "value": -1
-                }
-              },
-              "HMAC_SHA_384": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "-2",
-                  "type": "number",
-                  "value": -2
-                }
-              },
-              "HMAC_SHA_512": {
+              "OWNER": {
                 "error": null,
                 "ok": true,
                 "result": {
@@ -1882,542 +2397,8 @@
                   "type": "number",
                   "value": -3
                 }
-              }
-            },
-            "helpers": {
-              "name": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "HMAC_SHA_1",
-                  "type": "string",
-                  "value": "HMAC_SHA_1"
-                }
               },
-              "ordinal": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "1",
-                  "type": "number",
-                  "value": 1
-                }
-              },
-              "toJSON": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "HMAC_SHA_1",
-                  "type": "string",
-                  "value": "HMAC_SHA_1"
-                }
-              }
-            },
-            "identity": {
-              "HMAC_MD5": true,
-              "HMAC_SHA_1": true,
-              "HMAC_SHA_256": true,
-              "HMAC_SHA_384": true,
-              "HMAC_SHA_512": true
-            },
-            "name": "HMAC_SHA_1",
-            "properties": [
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "compareTo",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "HMAC_MD5",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "HMAC_SHA_1",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "HMAC_SHA_256",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "HMAC_SHA_384",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "HMAC_SHA_512",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "name",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "ordinal",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "toJSON",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "toString",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              }
-            ],
-            "prototypeIsObjectPrototype": true,
-            "sameAsContainer": false,
-            "stringify": "HMAC_SHA_1"
-          },
-          {
-            "compareTo": {
-              "HMAC_MD5": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "2",
-                  "type": "number",
-                  "value": 2
-                }
-              },
-              "HMAC_SHA_1": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "1",
-                  "type": "number",
-                  "value": 1
-                }
-              },
-              "HMAC_SHA_256": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "0",
-                  "type": "number",
-                  "value": 0
-                }
-              },
-              "HMAC_SHA_384": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "-1",
-                  "type": "number",
-                  "value": -1
-                }
-              },
-              "HMAC_SHA_512": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "-2",
-                  "type": "number",
-                  "value": -2
-                }
-              }
-            },
-            "helpers": {
-              "name": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "HMAC_SHA_256",
-                  "type": "string",
-                  "value": "HMAC_SHA_256"
-                }
-              },
-              "ordinal": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "2",
-                  "type": "number",
-                  "value": 2
-                }
-              },
-              "toJSON": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "HMAC_SHA_256",
-                  "type": "string",
-                  "value": "HMAC_SHA_256"
-                }
-              }
-            },
-            "identity": {
-              "HMAC_MD5": true,
-              "HMAC_SHA_1": true,
-              "HMAC_SHA_256": true,
-              "HMAC_SHA_384": true,
-              "HMAC_SHA_512": true
-            },
-            "name": "HMAC_SHA_256",
-            "properties": [
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "compareTo",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "HMAC_MD5",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "HMAC_SHA_1",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "HMAC_SHA_256",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "HMAC_SHA_384",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "HMAC_SHA_512",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "name",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "ordinal",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "toJSON",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "toString",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              }
-            ],
-            "prototypeIsObjectPrototype": true,
-            "sameAsContainer": false,
-            "stringify": "HMAC_SHA_256"
-          },
-          {
-            "compareTo": {
-              "HMAC_MD5": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "3",
-                  "type": "number",
-                  "value": 3
-                }
-              },
-              "HMAC_SHA_1": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "2",
-                  "type": "number",
-                  "value": 2
-                }
-              },
-              "HMAC_SHA_256": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "1",
-                  "type": "number",
-                  "value": 1
-                }
-              },
-              "HMAC_SHA_384": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "0",
-                  "type": "number",
-                  "value": 0
-                }
-              },
-              "HMAC_SHA_512": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "-1",
-                  "type": "number",
-                  "value": -1
-                }
-              }
-            },
-            "helpers": {
-              "name": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "HMAC_SHA_384",
-                  "type": "string",
-                  "value": "HMAC_SHA_384"
-                }
-              },
-              "ordinal": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "3",
-                  "type": "number",
-                  "value": 3
-                }
-              },
-              "toJSON": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "HMAC_SHA_384",
-                  "type": "string",
-                  "value": "HMAC_SHA_384"
-                }
-              }
-            },
-            "identity": {
-              "HMAC_MD5": true,
-              "HMAC_SHA_1": true,
-              "HMAC_SHA_256": true,
-              "HMAC_SHA_384": true,
-              "HMAC_SHA_512": true
-            },
-            "name": "HMAC_SHA_384",
-            "properties": [
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "compareTo",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "HMAC_MD5",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "HMAC_SHA_1",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "HMAC_SHA_256",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "HMAC_SHA_384",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "HMAC_SHA_512",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "name",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "ordinal",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "toJSON",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "toString",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              }
-            ],
-            "prototypeIsObjectPrototype": true,
-            "sameAsContainer": false,
-            "stringify": "HMAC_SHA_384"
-          },
-          {
-            "compareTo": {
-              "HMAC_MD5": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "4",
-                  "type": "number",
-                  "value": 4
-                }
-              },
-              "HMAC_SHA_1": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "3",
-                  "type": "number",
-                  "value": 3
-                }
-              },
-              "HMAC_SHA_256": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "2",
-                  "type": "number",
-                  "value": 2
-                }
-              },
-              "HMAC_SHA_384": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "1",
-                  "type": "number",
-                  "value": 1
-                }
-              },
-              "HMAC_SHA_512": {
+              "VIEW": {
                 "error": null,
                 "ok": true,
                 "result": {
@@ -2432,39 +2413,50 @@
                 "error": null,
                 "ok": true,
                 "result": {
-                  "stringify": "HMAC_SHA_512",
+                  "stringify": "VIEW",
                   "type": "string",
-                  "value": "HMAC_SHA_512"
+                  "value": "VIEW"
                 }
               },
               "ordinal": {
                 "error": null,
                 "ok": true,
                 "result": {
-                  "stringify": "4",
+                  "stringify": "0",
                   "type": "number",
-                  "value": 4
+                  "value": 0
                 }
               },
               "toJSON": {
                 "error": null,
                 "ok": true,
                 "result": {
-                  "stringify": "HMAC_SHA_512",
+                  "stringify": "VIEW",
                   "type": "string",
-                  "value": "HMAC_SHA_512"
+                  "value": "VIEW"
                 }
               }
             },
             "identity": {
-              "HMAC_MD5": true,
-              "HMAC_SHA_1": true,
-              "HMAC_SHA_256": true,
-              "HMAC_SHA_384": true,
-              "HMAC_SHA_512": true
+              "COMMENT": true,
+              "EDIT": true,
+              "FILE_ORGANIZER": true,
+              "NONE": true,
+              "ORGANIZER": true,
+              "OWNER": true,
+              "VIEW": true
             },
-            "name": "HMAC_SHA_512",
+            "name": "VIEW",
             "properties": [
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "COMMENT",
+                "setter": false,
+                "type": "object",
+                "writable": true
+              },
               {
                 "configurable": true,
                 "enumerable": true,
@@ -2478,7 +2470,7 @@
                 "configurable": true,
                 "enumerable": true,
                 "getter": false,
-                "name": "HMAC_MD5",
+                "name": "EDIT",
                 "setter": false,
                 "type": "object",
                 "writable": true
@@ -2487,34 +2479,7 @@
                 "configurable": true,
                 "enumerable": true,
                 "getter": false,
-                "name": "HMAC_SHA_1",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "HMAC_SHA_256",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "HMAC_SHA_384",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "HMAC_SHA_512",
+                "name": "FILE_ORGANIZER",
                 "setter": false,
                 "type": "object",
                 "writable": true
@@ -2532,9 +2497,36 @@
                 "configurable": true,
                 "enumerable": true,
                 "getter": false,
+                "name": "NONE",
+                "setter": false,
+                "type": "object",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
                 "name": "ordinal",
                 "setter": false,
                 "type": "function",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "ORGANIZER",
+                "setter": false,
+                "type": "object",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "OWNER",
+                "setter": false,
+                "type": "object",
                 "writable": true
               },
               {
@@ -2553,16 +2545,34 @@
                 "name": "toString",
                 "setter": false,
                 "type": "function",
+                "writable": true
+              },
+              {
+                "configurable": true,
+                "enumerable": true,
+                "getter": false,
+                "name": "VIEW",
+                "setter": false,
+                "type": "object",
                 "writable": true
               }
             ],
             "prototypeIsObjectPrototype": true,
             "sameAsContainer": true,
-            "stringify": "HMAC_SHA_512"
+            "stringify": "VIEW"
           }
         ],
-        "name": "Utilities.MacAlgorithm",
+        "name": "DriveApp.Permission",
         "properties": [
+          {
+            "configurable": true,
+            "enumerable": true,
+            "getter": false,
+            "name": "COMMENT",
+            "setter": false,
+            "type": "object",
+            "writable": true
+          },
           {
             "configurable": true,
             "enumerable": true,
@@ -2576,7 +2586,7 @@
             "configurable": true,
             "enumerable": true,
             "getter": false,
-            "name": "HMAC_MD5",
+            "name": "EDIT",
             "setter": false,
             "type": "object",
             "writable": true
@@ -2585,34 +2595,7 @@
             "configurable": true,
             "enumerable": true,
             "getter": false,
-            "name": "HMAC_SHA_1",
-            "setter": false,
-            "type": "object",
-            "writable": true
-          },
-          {
-            "configurable": true,
-            "enumerable": true,
-            "getter": false,
-            "name": "HMAC_SHA_256",
-            "setter": false,
-            "type": "object",
-            "writable": true
-          },
-          {
-            "configurable": true,
-            "enumerable": true,
-            "getter": false,
-            "name": "HMAC_SHA_384",
-            "setter": false,
-            "type": "object",
-            "writable": true
-          },
-          {
-            "configurable": true,
-            "enumerable": true,
-            "getter": false,
-            "name": "HMAC_SHA_512",
+            "name": "FILE_ORGANIZER",
             "setter": false,
             "type": "object",
             "writable": true
@@ -2630,322 +2613,7 @@
             "configurable": true,
             "enumerable": true,
             "getter": false,
-            "name": "ordinal",
-            "setter": false,
-            "type": "function",
-            "writable": true
-          },
-          {
-            "configurable": true,
-            "enumerable": true,
-            "getter": false,
-            "name": "toJSON",
-            "setter": false,
-            "type": "function",
-            "writable": true
-          },
-          {
-            "configurable": true,
-            "enumerable": true,
-            "getter": false,
-            "name": "toString",
-            "setter": false,
-            "type": "function",
-            "writable": true
-          }
-        ],
-        "prototypeIsObjectPrototype": true,
-        "stringify": "HMAC_SHA_512"
-      },
-      {
-        "memberNames": [
-          "RSA_SHA_1",
-          "RSA_SHA_256"
-        ],
-        "members": [
-          {
-            "compareTo": {
-              "RSA_SHA_1": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "0",
-                  "type": "number",
-                  "value": 0
-                }
-              },
-              "RSA_SHA_256": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "-1",
-                  "type": "number",
-                  "value": -1
-                }
-              }
-            },
-            "helpers": {
-              "name": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "RSA_SHA_1",
-                  "type": "string",
-                  "value": "RSA_SHA_1"
-                }
-              },
-              "ordinal": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "0",
-                  "type": "number",
-                  "value": 0
-                }
-              },
-              "toJSON": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "RSA_SHA_1",
-                  "type": "string",
-                  "value": "RSA_SHA_1"
-                }
-              }
-            },
-            "identity": {
-              "RSA_SHA_1": true,
-              "RSA_SHA_256": true
-            },
-            "name": "RSA_SHA_1",
-            "properties": [
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "compareTo",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "name",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "ordinal",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "RSA_SHA_1",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "RSA_SHA_256",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "toJSON",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "toString",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              }
-            ],
-            "prototypeIsObjectPrototype": true,
-            "sameAsContainer": false,
-            "stringify": "RSA_SHA_1"
-          },
-          {
-            "compareTo": {
-              "RSA_SHA_1": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "1",
-                  "type": "number",
-                  "value": 1
-                }
-              },
-              "RSA_SHA_256": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "0",
-                  "type": "number",
-                  "value": 0
-                }
-              }
-            },
-            "helpers": {
-              "name": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "RSA_SHA_256",
-                  "type": "string",
-                  "value": "RSA_SHA_256"
-                }
-              },
-              "ordinal": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "1",
-                  "type": "number",
-                  "value": 1
-                }
-              },
-              "toJSON": {
-                "error": null,
-                "ok": true,
-                "result": {
-                  "stringify": "RSA_SHA_256",
-                  "type": "string",
-                  "value": "RSA_SHA_256"
-                }
-              }
-            },
-            "identity": {
-              "RSA_SHA_1": true,
-              "RSA_SHA_256": true
-            },
-            "name": "RSA_SHA_256",
-            "properties": [
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "compareTo",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "name",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "ordinal",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "RSA_SHA_1",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "RSA_SHA_256",
-                "setter": false,
-                "type": "object",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "toJSON",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              },
-              {
-                "configurable": true,
-                "enumerable": true,
-                "getter": false,
-                "name": "toString",
-                "setter": false,
-                "type": "function",
-                "writable": true
-              }
-            ],
-            "prototypeIsObjectPrototype": true,
-            "sameAsContainer": true,
-            "stringify": "RSA_SHA_256"
-          }
-        ],
-        "name": "Utilities.RsaAlgorithm",
-        "properties": [
-          {
-            "configurable": true,
-            "enumerable": true,
-            "getter": false,
-            "name": "compareTo",
-            "setter": false,
-            "type": "function",
-            "writable": true
-          },
-          {
-            "configurable": true,
-            "enumerable": true,
-            "getter": false,
-            "name": "name",
-            "setter": false,
-            "type": "function",
-            "writable": true
-          },
-          {
-            "configurable": true,
-            "enumerable": true,
-            "getter": false,
-            "name": "ordinal",
-            "setter": false,
-            "type": "function",
-            "writable": true
-          },
-          {
-            "configurable": true,
-            "enumerable": true,
-            "getter": false,
-            "name": "RSA_SHA_1",
+            "name": "NONE",
             "setter": false,
             "type": "object",
             "writable": true
@@ -2954,7 +2622,25 @@
             "configurable": true,
             "enumerable": true,
             "getter": false,
-            "name": "RSA_SHA_256",
+            "name": "ordinal",
+            "setter": false,
+            "type": "function",
+            "writable": true
+          },
+          {
+            "configurable": true,
+            "enumerable": true,
+            "getter": false,
+            "name": "ORGANIZER",
+            "setter": false,
+            "type": "object",
+            "writable": true
+          },
+          {
+            "configurable": true,
+            "enumerable": true,
+            "getter": false,
+            "name": "OWNER",
             "setter": false,
             "type": "object",
             "writable": true
@@ -2976,10 +2662,19 @@
             "setter": false,
             "type": "function",
             "writable": true
+          },
+          {
+            "configurable": true,
+            "enumerable": true,
+            "getter": false,
+            "name": "VIEW",
+            "setter": false,
+            "type": "object",
+            "writable": true
           }
         ],
         "prototypeIsObjectPrototype": true,
-        "stringify": "RSA_SHA_256"
+        "stringify": "VIEW"
       }
     ],
     "properties": [
@@ -2987,43 +2682,7 @@
         "configurable": true,
         "enumerable": true,
         "getter": false,
-        "name": "base64Decode",
-        "setter": false,
-        "type": "function",
-        "writable": true
-      },
-      {
-        "configurable": true,
-        "enumerable": true,
-        "getter": false,
-        "name": "base64DecodeWebSafe",
-        "setter": false,
-        "type": "function",
-        "writable": true
-      },
-      {
-        "configurable": true,
-        "enumerable": true,
-        "getter": false,
-        "name": "base64Encode",
-        "setter": false,
-        "type": "function",
-        "writable": true
-      },
-      {
-        "configurable": true,
-        "enumerable": true,
-        "getter": false,
-        "name": "base64EncodeWebSafe",
-        "setter": false,
-        "type": "function",
-        "writable": true
-      },
-      {
-        "configurable": true,
-        "enumerable": true,
-        "getter": false,
-        "name": "Charset",
+        "name": "Access",
         "setter": false,
         "type": "object",
         "writable": false
@@ -3032,7 +2691,7 @@
         "configurable": true,
         "enumerable": true,
         "getter": false,
-        "name": "computeDigest",
+        "name": "addFile",
         "setter": false,
         "type": "function",
         "writable": true
@@ -3041,7 +2700,7 @@
         "configurable": true,
         "enumerable": true,
         "getter": false,
-        "name": "computeHmacSha256Signature",
+        "name": "addFolder",
         "setter": false,
         "type": "function",
         "writable": true
@@ -3050,7 +2709,7 @@
         "configurable": true,
         "enumerable": true,
         "getter": false,
-        "name": "computeHmacSignature",
+        "name": "continueFileIterator",
         "setter": false,
         "type": "function",
         "writable": true
@@ -3059,7 +2718,7 @@
         "configurable": true,
         "enumerable": true,
         "getter": false,
-        "name": "computeRsaSha1Signature",
+        "name": "continueFolderIterator",
         "setter": false,
         "type": "function",
         "writable": true
@@ -3068,7 +2727,7 @@
         "configurable": true,
         "enumerable": true,
         "getter": false,
-        "name": "computeRsaSha256Signature",
+        "name": "createFile",
         "setter": false,
         "type": "function",
         "writable": true
@@ -3077,7 +2736,7 @@
         "configurable": true,
         "enumerable": true,
         "getter": false,
-        "name": "computeRsaSignature",
+        "name": "createFolder",
         "setter": false,
         "type": "function",
         "writable": true
@@ -3086,7 +2745,160 @@
         "configurable": true,
         "enumerable": true,
         "getter": false,
-        "name": "DigestAlgorithm",
+        "name": "createShortcut",
+        "setter": false,
+        "type": "function",
+        "writable": true
+      },
+      {
+        "configurable": true,
+        "enumerable": true,
+        "getter": false,
+        "name": "createShortcutForTargetIdAndResourceKey",
+        "setter": false,
+        "type": "function",
+        "writable": true
+      },
+      {
+        "configurable": true,
+        "enumerable": true,
+        "getter": false,
+        "name": "enforceSingleParent",
+        "setter": false,
+        "type": "function",
+        "writable": true
+      },
+      {
+        "configurable": true,
+        "enumerable": true,
+        "getter": false,
+        "name": "getFileById",
+        "setter": false,
+        "type": "function",
+        "writable": true
+      },
+      {
+        "configurable": true,
+        "enumerable": true,
+        "getter": false,
+        "name": "getFileByIdAndResourceKey",
+        "setter": false,
+        "type": "function",
+        "writable": true
+      },
+      {
+        "configurable": true,
+        "enumerable": true,
+        "getter": false,
+        "name": "getFiles",
+        "setter": false,
+        "type": "function",
+        "writable": true
+      },
+      {
+        "configurable": true,
+        "enumerable": true,
+        "getter": false,
+        "name": "getFilesByName",
+        "setter": false,
+        "type": "function",
+        "writable": true
+      },
+      {
+        "configurable": true,
+        "enumerable": true,
+        "getter": false,
+        "name": "getFilesByType",
+        "setter": false,
+        "type": "function",
+        "writable": true
+      },
+      {
+        "configurable": true,
+        "enumerable": true,
+        "getter": false,
+        "name": "getFolderById",
+        "setter": false,
+        "type": "function",
+        "writable": true
+      },
+      {
+        "configurable": true,
+        "enumerable": true,
+        "getter": false,
+        "name": "getFolderByIdAndResourceKey",
+        "setter": false,
+        "type": "function",
+        "writable": true
+      },
+      {
+        "configurable": true,
+        "enumerable": true,
+        "getter": false,
+        "name": "getFolders",
+        "setter": false,
+        "type": "function",
+        "writable": true
+      },
+      {
+        "configurable": true,
+        "enumerable": true,
+        "getter": false,
+        "name": "getFoldersByName",
+        "setter": false,
+        "type": "function",
+        "writable": true
+      },
+      {
+        "configurable": true,
+        "enumerable": true,
+        "getter": false,
+        "name": "getRootFolder",
+        "setter": false,
+        "type": "function",
+        "writable": true
+      },
+      {
+        "configurable": true,
+        "enumerable": true,
+        "getter": false,
+        "name": "getStorageLimit",
+        "setter": false,
+        "type": "function",
+        "writable": true
+      },
+      {
+        "configurable": true,
+        "enumerable": true,
+        "getter": false,
+        "name": "getStorageUsed",
+        "setter": false,
+        "type": "function",
+        "writable": true
+      },
+      {
+        "configurable": true,
+        "enumerable": true,
+        "getter": false,
+        "name": "getTrashedFiles",
+        "setter": false,
+        "type": "function",
+        "writable": true
+      },
+      {
+        "configurable": true,
+        "enumerable": true,
+        "getter": false,
+        "name": "getTrashedFolders",
+        "setter": false,
+        "type": "function",
+        "writable": true
+      },
+      {
+        "configurable": true,
+        "enumerable": true,
+        "getter": false,
+        "name": "Permission",
         "setter": false,
         "type": "object",
         "writable": false
@@ -3095,7 +2907,7 @@
         "configurable": true,
         "enumerable": true,
         "getter": false,
-        "name": "formatDate",
+        "name": "removeFile",
         "setter": false,
         "type": "function",
         "writable": true
@@ -3104,16 +2916,7 @@
         "configurable": true,
         "enumerable": true,
         "getter": false,
-        "name": "formatString",
-        "setter": false,
-        "type": "function",
-        "writable": false
-      },
-      {
-        "configurable": true,
-        "enumerable": true,
-        "getter": false,
-        "name": "getUuid",
+        "name": "removeFolder",
         "setter": false,
         "type": "function",
         "writable": true
@@ -3122,7 +2925,7 @@
         "configurable": true,
         "enumerable": true,
         "getter": false,
-        "name": "gzip",
+        "name": "searchFiles",
         "setter": false,
         "type": "function",
         "writable": true
@@ -3131,79 +2934,7 @@
         "configurable": true,
         "enumerable": true,
         "getter": false,
-        "name": "jsonParse",
-        "setter": false,
-        "type": "function",
-        "writable": true
-      },
-      {
-        "configurable": true,
-        "enumerable": true,
-        "getter": false,
-        "name": "jsonStringify",
-        "setter": false,
-        "type": "function",
-        "writable": true
-      },
-      {
-        "configurable": true,
-        "enumerable": true,
-        "getter": false,
-        "name": "MacAlgorithm",
-        "setter": false,
-        "type": "object",
-        "writable": false
-      },
-      {
-        "configurable": true,
-        "enumerable": true,
-        "getter": false,
-        "name": "newBlob",
-        "setter": false,
-        "type": "function",
-        "writable": true
-      },
-      {
-        "configurable": true,
-        "enumerable": true,
-        "getter": false,
-        "name": "parseCsv",
-        "setter": false,
-        "type": "function",
-        "writable": true
-      },
-      {
-        "configurable": true,
-        "enumerable": true,
-        "getter": false,
-        "name": "parseDate",
-        "setter": false,
-        "type": "function",
-        "writable": true
-      },
-      {
-        "configurable": true,
-        "enumerable": true,
-        "getter": false,
-        "name": "RsaAlgorithm",
-        "setter": false,
-        "type": "object",
-        "writable": false
-      },
-      {
-        "configurable": true,
-        "enumerable": true,
-        "getter": false,
-        "name": "sleep",
-        "setter": false,
-        "type": "function",
-        "writable": true
-      },
-      {
-        "configurable": true,
-        "enumerable": true,
-        "getter": false,
-        "name": "sleepAndThrow",
+        "name": "searchFolders",
         "setter": false,
         "type": "function",
         "writable": true
@@ -3216,46 +2947,10 @@
         "setter": false,
         "type": "function",
         "writable": true
-      },
-      {
-        "configurable": true,
-        "enumerable": true,
-        "getter": false,
-        "name": "ungzip",
-        "setter": false,
-        "type": "function",
-        "writable": true
-      },
-      {
-        "configurable": true,
-        "enumerable": true,
-        "getter": false,
-        "name": "unzip",
-        "setter": false,
-        "type": "function",
-        "writable": true
-      },
-      {
-        "configurable": true,
-        "enumerable": true,
-        "getter": false,
-        "name": "validateSleepTime",
-        "setter": false,
-        "type": "function",
-        "writable": true
-      },
-      {
-        "configurable": true,
-        "enumerable": true,
-        "getter": false,
-        "name": "zip",
-        "setter": false,
-        "type": "function",
-        "writable": true
       }
     ],
     "prototypeIsObjectPrototype": true,
-    "stringify": "Utilities",
+    "stringify": "Drive",
     "type": "object"
   }
 }
