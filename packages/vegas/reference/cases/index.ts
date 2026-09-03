@@ -11,6 +11,8 @@ export { captureReferenceCacheServiceSurface } from "./cacheServiceSurface";
 export { captureReferenceCacheObjectSurface } from "./cacheObjectSurface";
 export { captureReferenceCacheObjectIdentity } from "./cacheObjectIdentity";
 export { captureReferenceLockServiceSurface } from "./lockServiceSurface";
+export { captureReferenceLockObjectSurface } from "./lockObjectSurface";
+export { captureReferenceLockObjectIdentity } from "./lockObjectIdentity";
 export { captureReferenceHtmlServiceSurface } from "./htmlServiceSurface";
 export { captureReferenceUrlFetchAppSurface } from "./urlFetchAppSurface";
 export { captureReferenceUtilitiesSurface } from "./utilitiesSurface";

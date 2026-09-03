@@ -3,17 +3,27 @@ import { createGasServiceObject } from "../../globals/serviceObject";
 import type { RequestLegacySync } from "../../legacy/transport";
 import { RuntimeScope } from "../../scope";
 import { Lock } from "./Lock";
-import { LockService } from "./LockService";
+import { createLockFacade } from "./lockObjectFacade";
+
+export interface CreateLockServiceOptions {
+  documentLockAvailable?: boolean;
+  createObject?: CreateGasObject;
+}
 
 export function createLockService(
   requestLegacySync: RequestLegacySync,
-  createObject?: CreateGasObject,
+  options: CreateLockServiceOptions = {},
 ) {
-  const implementation = new LockService(
-    new Lock(RuntimeScope.DOCUMENT, requestLegacySync),
-    new Lock(RuntimeScope.SCRIPT, requestLegacySync),
-    new Lock(RuntimeScope.USER, requestLegacySync),
-  );
+  const { documentLockAvailable = true, createObject } = options;
+
+  const documentLock = documentLockAvailable
+    ? new Lock(RuntimeScope.DOCUMENT, requestLegacySync)
+    : null;
+
+  const createScriptLock = () =>
+    createLockFacade(RuntimeScope.SCRIPT, requestLegacySync, createObject);
+
+  const createUserLock = () => createLockFacade(RuntimeScope.USER, requestLegacySync, createObject);
 
   return createGasServiceObject(
     {
@@ -25,27 +35,27 @@ export function createLockService(
         },
         {
           name: "getDocumentLock",
-          value: () => implementation.getDocumentLock(),
+          value: () => documentLock,
           writable: true,
         },
         {
           name: "getPrivateLock",
-          value: () => implementation.getUserLock(),
+          value: () => createUserLock(),
           writable: true,
         },
         {
           name: "getPublicLock",
-          value: () => implementation.getScriptLock(),
+          value: () => createScriptLock(),
           writable: true,
         },
         {
           name: "getScriptLock",
-          value: () => implementation.getScriptLock(),
+          value: () => createScriptLock(),
           writable: true,
         },
         {
           name: "getUserLock",
-          value: () => implementation.getUserLock(),
+          value: () => createUserLock(),
           writable: true,
         },
       ],

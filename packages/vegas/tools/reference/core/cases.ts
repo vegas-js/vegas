@@ -73,6 +73,18 @@ export const referenceCases: readonly ReferenceCaseDefinition[] = [
     runtimeTest: "required",
   },
   {
+    name: "lock-object-surface",
+    functionName: "captureReferenceLockObjectSurface",
+    fixtureFile: "lock-object-surface.json",
+    runtimeTest: "required",
+  },
+  {
+    name: "lock-object-identity",
+    functionName: "captureReferenceLockObjectIdentity",
+    fixtureFile: "lock-object-identity.json",
+    runtimeTest: "required",
+  },
+  {
     name: "html-service-surface",
     functionName: "captureReferenceHtmlServiceSurface",
     fixtureFile: "html-service-surface.json",

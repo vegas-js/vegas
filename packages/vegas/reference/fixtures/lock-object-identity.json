@@ -1,0 +1,11 @@
+{
+  "documentLockAvailable": false,
+  "documentLockRepeatedSameObject": null,
+  "privateLockRepeatedSameObject": false,
+  "privateLockSameObjectAsUserLock": false,
+  "publicLockRepeatedSameObject": false,
+  "publicLockSameObjectAsScriptLock": false,
+  "scriptLockRepeatedSameObject": false,
+  "scriptLockSameObjectAsUserLock": false,
+  "userLockRepeatedSameObject": false
+}

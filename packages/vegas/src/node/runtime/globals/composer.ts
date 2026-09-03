@@ -250,7 +250,10 @@ export function composeGasGlobals(
     }),
 
     /* Lock */
-    LockService: createLockService(requestLegacySync, createGasObject),
+    LockService: createLockService(requestLegacySync, {
+      documentLockAvailable: environment.properties.documentProperties === "available",
+      createObject: createGasObject,
+    }),
 
     /* Properties */
     PropertiesService: createPropertiesService(propertiesService, {
