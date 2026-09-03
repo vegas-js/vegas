@@ -1,6 +1,7 @@
 import { createGasEnum } from "../../globals/enum";
 import type { CreateGasObject } from "../../globals/object";
 import { createGasServiceObject } from "../../globals/serviceObject";
+import { createBlobFacadeFactory } from "../base/blobFacade";
 import { Utilities } from "./Utilities";
 
 function normalizeEnumOrdinal<T>(value: T): T {
@@ -60,6 +61,10 @@ export function createUtilities(createObject?: CreateGasObject) {
   );
 
   const implementation = new Utilities();
+  const blobFacadeFactory = createBlobFacadeFactory(createObject);
+
+  const wrapBlobs = (blobs: GoogleAppsScript.Base.Blob[]): GoogleAppsScript.Base.Blob[] =>
+    blobs.map((blob) => blobFacadeFactory.create(blob));
 
   return createGasServiceObject(
     {
@@ -201,7 +206,8 @@ export function createUtilities(createObject?: CreateGasObject) {
         },
         {
           name: "gzip",
-          value: forward(implementation.gzip),
+          value: (blob: GoogleAppsScript.Base.BlobSource, name?: string) =>
+            blobFacadeFactory.create(implementation.gzip(blobFacadeFactory.unwrap(blob), name)),
           writable: true,
         },
         {
@@ -216,7 +222,8 @@ export function createUtilities(createObject?: CreateGasObject) {
         },
         {
           name: "newBlob",
-          value: forward(implementation.newBlob),
+          value: (data: GoogleAppsScript.Byte[] | string, contentType?: string, name?: string) =>
+            blobFacadeFactory.create(implementation.newBlob(data, contentType, name)),
           writable: true,
         },
         {
@@ -241,12 +248,14 @@ export function createUtilities(createObject?: CreateGasObject) {
         },
         {
           name: "ungzip",
-          value: forward(implementation.ungzip),
+          value: (blob: GoogleAppsScript.Base.BlobSource) =>
+            blobFacadeFactory.create(implementation.ungzip(blobFacadeFactory.unwrap(blob))),
           writable: true,
         },
         {
           name: "unzip",
-          value: forward(implementation.unzip),
+          value: (blob: GoogleAppsScript.Base.BlobSource) =>
+            wrapBlobs(implementation.unzip(blobFacadeFactory.unwrap(blob))),
           writable: true,
         },
         {
@@ -256,7 +265,13 @@ export function createUtilities(createObject?: CreateGasObject) {
         },
         {
           name: "zip",
-          value: forward(implementation.zip),
+          value: (blobs: GoogleAppsScript.Base.BlobSource[], name?: string) =>
+            blobFacadeFactory.create(
+              implementation.zip(
+                blobs.map((blob) => blobFacadeFactory.unwrap(blob)),
+                name,
+              ),
+            ),
           writable: true,
         },
       ],

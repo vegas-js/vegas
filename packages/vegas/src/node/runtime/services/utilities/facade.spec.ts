@@ -1,5 +1,8 @@
+import vm from "node:vm";
+
 import { expect, test } from "vitest";
 
+import { createVmGasObjectFactory } from "../../globals/object";
 import { createUtilities } from "./facade";
 
 test("creates GAS-compatible Utilities facade", () => {
@@ -67,4 +70,23 @@ test("creates GAS-compatible Utilities facade", () => {
   expect(utilities.RsaAlgorithm.RSA_SHA_256.ordinal()).toBe(1);
 
   expect(utilities.computeDigest(utilities.DigestAlgorithm.SHA_256, "hello")).toHaveLength(32);
+});
+
+test("returns Blob facades from newBlob", () => {
+  const context = vm.createContext({});
+  const createObject = createVmGasObjectFactory(context);
+  const utilities = createUtilities(createObject) as any;
+
+  const blobA = utilities.newBlob("vegas-reference", "text/plain", "reference.txt");
+
+  const blobB = utilities.newBlob("vegas-reference", "text/plain", "reference.txt");
+
+  context.blob = blobA;
+
+  expect(vm.runInContext("Object.getPrototypeOf(blob) === Object.prototype", context)).toBe(true);
+
+  expect(String(blobA)).toBe("Blob");
+  expect(blobA).not.toBe(blobB);
+
+  expect(Object.prototype.hasOwnProperty.call(blobA, "getBlob")).toBe(false);
 });

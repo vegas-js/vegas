@@ -1,0 +1,12 @@
+{
+  "copyBlobRepeatedSameObject": false,
+  "copyBlobReturnsReceiver": false,
+  "getBlobAvailable": false,
+  "getBlobReturnsReceiver": null,
+  "newBlobRepeatedSameObject": false,
+  "setBytesReturnsReceiver": true,
+  "setContentTypeFromExtensionReturnsReceiver": true,
+  "setContentTypeReturnsReceiver": true,
+  "setDataFromStringReturnsReceiver": true,
+  "setNameReturnsReceiver": true
+}

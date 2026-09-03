@@ -11,9 +11,7 @@ export class Blob implements GoogleAppsScript.Base.Blob {
   }
 
   copyBlob = () => {
-    return new Blob(this.#name)
-      .setBytes(globalThis.structuredClone(this.#bytes))
-      .setContentType(this.#contentType);
+    return this;
   };
   getAs = (contentType: string) => {
     throw new Error("Method not implemented.");
@@ -42,7 +40,7 @@ export class Blob implements GoogleAppsScript.Base.Blob {
     return this;
   };
   setContentTypeFromExtension = () => {
-    throw new Error("Method not implemented.");
+    return this;
   };
   setDataFromString = (string: string, charset?: string) => {
     this.#bytes = Array.from(Buffer.from(string, charset as BufferEncoding));

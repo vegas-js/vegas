@@ -16,6 +16,8 @@ export { captureReferenceLockObjectIdentity } from "./lockObjectIdentity";
 export { captureReferenceHtmlServiceSurface } from "./htmlServiceSurface";
 export { captureReferenceUrlFetchAppSurface } from "./urlFetchAppSurface";
 export { captureReferenceUtilitiesSurface } from "./utilitiesSurface";
+export { captureReferenceBlobObjectSurface } from "./blobObjectSurface";
+export { captureReferenceBlobObjectIdentity } from "./blobObjectIdentity";
 export { captureReferenceSpreadsheetAppSurface } from "./spreadsheetAppSurface";
 export { captureReferenceDriveAppSurface } from "./driveAppSurface";
 export { captureReferenceLoggerSurface } from "./loggerSurface";

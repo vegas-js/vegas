@@ -103,6 +103,18 @@ export const referenceCases: readonly ReferenceCaseDefinition[] = [
     runtimeTest: "required",
   },
   {
+    name: "blob-object-surface",
+    functionName: "captureReferenceBlobObjectSurface",
+    fixtureFile: "blob-object-surface.json",
+    runtimeTest: "required",
+  },
+  {
+    name: "blob-object-identity",
+    functionName: "captureReferenceBlobObjectIdentity",
+    fixtureFile: "blob-object-identity.json",
+    runtimeTest: "required",
+  },
+  {
     name: "spreadsheet-app-surface",
     functionName: "captureReferenceSpreadsheetAppSurface",
     fixtureFile: "spreadsheet-app-surface.json",
