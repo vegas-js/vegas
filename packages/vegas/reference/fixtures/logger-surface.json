@@ -10,7 +10,7 @@
         "configurable": true,
         "enumerable": true,
         "getter": false,
-        "name": "addOAuthService",
+        "name": "clear",
         "setter": false,
         "type": "function",
         "writable": true
@@ -19,7 +19,7 @@
         "configurable": true,
         "enumerable": true,
         "getter": false,
-        "name": "fetch",
+        "name": "config",
         "setter": false,
         "type": "function",
         "writable": true
@@ -28,7 +28,7 @@
         "configurable": true,
         "enumerable": true,
         "getter": false,
-        "name": "fetchAll",
+        "name": "fine",
         "setter": false,
         "type": "function",
         "writable": true
@@ -37,7 +37,7 @@
         "configurable": true,
         "enumerable": true,
         "getter": false,
-        "name": "getRequest",
+        "name": "finer",
         "setter": false,
         "type": "function",
         "writable": true
@@ -46,7 +46,43 @@
         "configurable": true,
         "enumerable": true,
         "getter": false,
-        "name": "removeOAuthService",
+        "name": "finest",
+        "setter": false,
+        "type": "function",
+        "writable": true
+      },
+      {
+        "configurable": true,
+        "enumerable": true,
+        "getter": false,
+        "name": "getLog",
+        "setter": false,
+        "type": "function",
+        "writable": true
+      },
+      {
+        "configurable": true,
+        "enumerable": true,
+        "getter": false,
+        "name": "info",
+        "setter": false,
+        "type": "function",
+        "writable": true
+      },
+      {
+        "configurable": true,
+        "enumerable": true,
+        "getter": false,
+        "name": "log",
+        "setter": false,
+        "type": "function",
+        "writable": true
+      },
+      {
+        "configurable": true,
+        "enumerable": true,
+        "getter": false,
+        "name": "severe",
         "setter": false,
         "type": "function",
         "writable": true
@@ -59,10 +95,19 @@
         "setter": false,
         "type": "function",
         "writable": true
+      },
+      {
+        "configurable": true,
+        "enumerable": true,
+        "getter": false,
+        "name": "warning",
+        "setter": false,
+        "type": "function",
+        "writable": true
       }
     ],
     "prototypeIsObjectPrototype": true,
-    "stringify": "UrlFetchApp",
+    "stringify": "Logger",
     "type": "object"
   }
 }

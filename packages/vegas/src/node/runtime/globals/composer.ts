@@ -13,7 +13,7 @@ import type {
 } from "../objects/types";
 import type { RuntimeServicePort } from "../protocol";
 import { Console } from "../services/base/console";
-import { Logger } from "../services/base/Logger";
+import { createLogger } from "../services/base/loggerFacade";
 import { createMimeType } from "../services/base/mimeType";
 import { createSession } from "../services/base/sessionFacade";
 import { createCacheService } from "../services/cache/facade";
@@ -238,7 +238,7 @@ export function composeGasGlobals(
     ),
 
     /* Base */
-    Logger: new Logger(logSink),
+    Logger: createLogger(logSink, createGasObject),
     MimeType: createMimeType(createGasObject),
     Session: createSession(sessionService, createGasObject),
     console: new Console(logSink),
