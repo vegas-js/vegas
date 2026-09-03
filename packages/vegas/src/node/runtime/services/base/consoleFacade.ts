@@ -25,39 +25,39 @@ export function createConsole(logSink: RuntimeLogSink, createObject?: CreateGasO
     {
       entries: [
         {
-          kind: "property",
           name: "error",
           value: forwardMethod(implementation, "error"),
+          writable: false,
         },
         {
-          kind: "property",
           name: "info",
           value: forwardMethod(implementation, "info"),
+          writable: false,
         },
         {
-          kind: "property",
           name: "log",
           value: forwardMethod(implementation, "log"),
+          writable: false,
         },
         {
-          kind: "method",
           name: "time",
           value: forwardMethod(implementation, "time"),
+          writable: true,
         },
         {
-          kind: "method",
           name: "timeEnd",
           value: forwardMethod(implementation, "timeEnd"),
+          writable: true,
         },
         {
-          kind: "method",
           name: "toString",
           value: () => "console",
+          writable: true,
         },
         {
-          kind: "property",
           name: "warn",
           value: forwardMethod(implementation, "warn"),
+          writable: false,
         },
       ],
     },

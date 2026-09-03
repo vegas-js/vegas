@@ -17,37 +17,37 @@ export function createUrlFetchApp(
     {
       entries: [
         {
-          kind: "method",
           name: "toString",
           value: () => "UrlFetchApp",
+          writable: true,
         },
         {
-          kind: "method",
           name: "addOAuthService",
           value: unsupportedOAuthServiceMethod,
+          writable: true,
         },
         {
-          kind: "method",
           name: "fetch",
           value: (url: string, params?: GoogleAppsScript.URL_Fetch.URLFetchRequestOptions) =>
             implementation.fetch(url, params),
+          writable: true,
         },
         {
-          kind: "method",
           name: "fetchAll",
           value: (requests: Array<GoogleAppsScript.URL_Fetch.URLFetchRequest | string>) =>
             implementation.fetchAll(requests),
+          writable: true,
         },
         {
-          kind: "method",
           name: "getRequest",
           value: (url: string, params?: GoogleAppsScript.URL_Fetch.URLFetchRequestOptions) =>
             implementation.getRequest(url, params),
+          writable: true,
         },
         {
-          kind: "method",
           name: "removeOAuthService",
           value: unsupportedOAuthServiceMethod,
+          writable: true,
         },
       ],
     },

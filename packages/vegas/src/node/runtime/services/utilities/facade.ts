@@ -65,60 +65,59 @@ export function createUtilities(createObject?: CreateGasObject) {
     {
       entries: [
         {
-          kind: "method",
           name: "toString",
           value: () => "Utilities",
+          writable: true,
         },
         {
-          kind: "property",
           name: "Charset",
           value: charset,
+          writable: false,
         },
         {
-          kind: "property",
           name: "DigestAlgorithm",
           value: digestAlgorithm,
+          writable: false,
         },
         {
-          kind: "property",
           name: "MacAlgorithm",
           value: macAlgorithm,
+          writable: false,
         },
         {
-          kind: "property",
           name: "RsaAlgorithm",
           value: rsaAlgorithm,
+          writable: false,
         },
         {
-          kind: "method",
           name: "base64Decode",
           value: (encoded: string, charset?: GoogleAppsScript.Utilities.Charset) =>
             implementation.base64Decode(encoded, normalizeEnumOrdinal(charset)),
+          writable: true,
         },
         {
-          kind: "method",
           name: "base64DecodeWebSafe",
           value: (encoded: string, charset?: GoogleAppsScript.Utilities.Charset) =>
             implementation.base64DecodeWebSafe(encoded, normalizeEnumOrdinal(charset)),
+          writable: true,
         },
         {
-          kind: "method",
           name: "base64Encode",
           value: (
             data: string | GoogleAppsScript.Byte[],
             charset?: GoogleAppsScript.Utilities.Charset,
           ) => implementation.base64Encode(data, normalizeEnumOrdinal(charset)),
+          writable: true,
         },
         {
-          kind: "method",
           name: "base64EncodeWebSafe",
           value: (
             data: string | GoogleAppsScript.Byte[],
             charset?: GoogleAppsScript.Utilities.Charset,
           ) => implementation.base64EncodeWebSafe(data, normalizeEnumOrdinal(charset)),
+          writable: true,
         },
         {
-          kind: "method",
           name: "computeDigest",
           value: (
             algorithm: GoogleAppsScript.Utilities.DigestAlgorithm,
@@ -130,18 +129,18 @@ export function createUtilities(createObject?: CreateGasObject) {
               value,
               normalizeEnumOrdinal(charset),
             ),
+          writable: true,
         },
         {
-          kind: "method",
           name: "computeHmacSha256Signature",
           value: (
             value: GoogleAppsScript.Byte[] | string,
             key: GoogleAppsScript.Byte[] | string,
             charset?: GoogleAppsScript.Utilities.Charset,
           ) => implementation.computeHmacSha256Signature(value, key, normalizeEnumOrdinal(charset)),
+          writable: true,
         },
         {
-          kind: "method",
           name: "computeHmacSignature",
           value: (
             algorithm: GoogleAppsScript.Utilities.MacAlgorithm,
@@ -155,21 +154,21 @@ export function createUtilities(createObject?: CreateGasObject) {
               key,
               normalizeEnumOrdinal(charset),
             ),
+          writable: true,
         },
         {
-          kind: "method",
           name: "computeRsaSha1Signature",
           value: (value: string, key: string, charset?: GoogleAppsScript.Utilities.Charset) =>
             implementation.computeRsaSha1Signature(value, key, normalizeEnumOrdinal(charset)),
+          writable: true,
         },
         {
-          kind: "method",
           name: "computeRsaSha256Signature",
           value: (value: string, key: string, charset?: GoogleAppsScript.Utilities.Charset) =>
             implementation.computeRsaSha256Signature(value, key, normalizeEnumOrdinal(charset)),
+          writable: true,
         },
         {
-          kind: "method",
           name: "computeRsaSignature",
           value: (
             algorithm: GoogleAppsScript.Utilities.RsaAlgorithm,
@@ -183,81 +182,82 @@ export function createUtilities(createObject?: CreateGasObject) {
               key,
               normalizeEnumOrdinal(charset),
             ),
+          writable: true,
         },
         {
-          kind: "method",
           name: "formatDate",
           value: forward(implementation.formatDate),
+          writable: true,
         },
         {
-          kind: "property",
           name: "formatString",
           value: forward(implementation.formatString),
+          writable: false,
         },
         {
-          kind: "method",
           name: "getUuid",
           value: forward(implementation.getUuid),
+          writable: true,
         },
         {
-          kind: "method",
           name: "gzip",
           value: forward(implementation.gzip),
+          writable: true,
         },
         {
-          kind: "method",
           name: "jsonParse",
           value: forward(implementation.jsonParse),
+          writable: true,
         },
         {
-          kind: "method",
           name: "jsonStringify",
           value: forward(implementation.jsonStringify),
+          writable: true,
         },
         {
-          kind: "method",
           name: "newBlob",
           value: forward(implementation.newBlob),
+          writable: true,
         },
         {
-          kind: "method",
           name: "parseCsv",
           value: forward(implementation.parseCsv),
+          writable: true,
         },
         {
-          kind: "method",
           name: "parseDate",
           value: forward(implementation.parseDate),
+          writable: true,
         },
         {
-          kind: "method",
           name: "sleep",
           value: forward(implementation.sleep),
+          writable: true,
         },
         {
-          kind: "method",
           name: "sleepAndThrow",
           value: unsupportedInternalUtilitiesMethod,
+          writable: true,
         },
         {
-          kind: "method",
           name: "ungzip",
           value: forward(implementation.ungzip),
+          writable: true,
         },
         {
-          kind: "method",
           name: "unzip",
           value: forward(implementation.unzip),
+          writable: true,
         },
         {
-          kind: "method",
           name: "validateSleepTime",
           value: unsupportedInternalUtilitiesMethod,
+          writable: true,
         },
         {
-          kind: "method",
           name: "zip",
           value: forward(implementation.zip),
+          writable: true,
         },
       ],
     },

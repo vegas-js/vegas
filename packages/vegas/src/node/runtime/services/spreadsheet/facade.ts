@@ -66,36 +66,36 @@ export function createSpreadsheetApp(
   const implementation = new SpreadsheetApp(createSpreadsheet, service);
 
   const enumEntries = Object.entries(spreadsheetEnumDefinitions).map(([name, definition]) => ({
-    kind: "property" as const,
     name,
     value: createEnum(definition, createObject),
+    writable: false,
   }));
 
   const methodEntries = FORWARDED_METHOD_NAMES.map((name) => ({
-    kind: "method" as const,
     name,
     value: forwardMethod(implementation, name),
+    writable: true,
   }));
 
   return createGasServiceObject(
     {
       entries: [
         {
-          kind: "method",
           name: "toString",
           value: () => "SpreadsheetApp",
+          writable: true,
         },
         ...enumEntries,
         ...methodEntries,
         {
-          kind: "method",
           name: "enableLookerExecution",
           value: unsupportedSurfaceMethod,
+          writable: true,
         },
         {
-          kind: "method",
           name: "openByKey",
           value: unsupportedSurfaceMethod,
+          writable: true,
         },
       ],
     },

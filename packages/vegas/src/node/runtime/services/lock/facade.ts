@@ -19,34 +19,34 @@ export function createLockService(
     {
       entries: [
         {
-          kind: "method",
           name: "toString",
           value: () => "LockService",
+          writable: true,
         },
         {
-          kind: "method",
           name: "getDocumentLock",
           value: () => implementation.getDocumentLock(),
+          writable: true,
         },
         {
-          kind: "method",
           name: "getPrivateLock",
           value: () => implementation.getUserLock(),
+          writable: true,
         },
         {
-          kind: "method",
           name: "getPublicLock",
           value: () => implementation.getScriptLock(),
+          writable: true,
         },
         {
-          kind: "method",
           name: "getScriptLock",
           value: () => implementation.getScriptLock(),
+          writable: true,
         },
         {
-          kind: "method",
           name: "getUserLock",
           value: () => implementation.getUserLock(),
+          writable: true,
         },
       ],
     },

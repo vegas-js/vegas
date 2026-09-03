@@ -78,7 +78,7 @@ export function createDriveApp(
   );
 
   const methodEntries = FORWARDED_METHOD_NAMES.map((name) => ({
-    kind: "method" as const,
+    writable: true as const,
     name,
     value: forwardMethod(implementation, name),
   }));
@@ -87,25 +87,25 @@ export function createDriveApp(
     {
       entries: [
         {
-          kind: "method",
           name: "toString",
           value: () => "Drive",
+          writable: true,
         },
         {
-          kind: "property",
           name: "Access",
           value: access,
+          writable: false,
         },
         {
-          kind: "property",
           name: "Permission",
           value: permission,
+          writable: false,
         },
         ...methodEntries,
         {
-          kind: "method",
           name: "enforceSingleParent",
           value: unsupportedSurfaceMethod,
+          writable: true,
         },
       ],
     },

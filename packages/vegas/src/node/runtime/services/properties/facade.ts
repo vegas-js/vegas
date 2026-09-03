@@ -18,56 +18,56 @@ function createProperties(
     {
       entries: [
         {
-          kind: "method",
           name: "toString",
           value: () => name,
+          writable: true,
         },
         {
-          kind: "method",
           name: "deleteAllProperties",
           value: () => {
             implementation.deleteAllProperties();
             return value;
           },
+          writable: true,
         },
         {
-          kind: "method",
           name: "deleteProperty",
           value: (key: string) => {
             implementation.deleteProperty(key);
             return value;
           },
+          writable: true,
         },
         {
-          kind: "method",
           name: "getKeys",
           value: () => implementation.getKeys(),
+          writable: true,
         },
         {
-          kind: "method",
           name: "getProperties",
           value: () => implementation.getProperties(),
+          writable: true,
         },
         {
-          kind: "method",
           name: "getProperty",
           value: (key: string) => implementation.getProperty(key),
+          writable: true,
         },
         {
-          kind: "method",
           name: "setProperties",
           value: (properties: Record<string, string>, deleteAllOthers: boolean = false) => {
             implementation.setProperties(properties, deleteAllOthers);
             return value;
           },
+          writable: true,
         },
         {
-          kind: "method",
           name: "setProperty",
           value: (key: string, propertyValue: string) => {
             implementation.setProperty(key, propertyValue);
             return value;
           },
+          writable: true,
         },
       ],
     },
@@ -92,12 +92,12 @@ export function createPropertiesService(
     {
       entries: [
         {
-          kind: "method",
+          writable: true,
           name: "toString",
           value: () => "PropertiesService",
         },
         {
-          kind: "method",
+          writable: true,
           name: "getDocumentProperties",
           value: () => {
             if (!documentPropertiesAvailable) {
@@ -113,7 +113,7 @@ export function createPropertiesService(
           },
         },
         {
-          kind: "method",
+          writable: true,
           name: "getScriptProperties",
           value: () =>
             createProperties(
@@ -124,7 +124,7 @@ export function createPropertiesService(
             ),
         },
         {
-          kind: "method",
+          writable: true,
           name: "getUserProperties",
           value: () =>
             createProperties(RuntimeScope.USER, "UserProperties", propertiesService, createObject),

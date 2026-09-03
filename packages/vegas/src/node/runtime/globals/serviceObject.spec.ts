@@ -16,40 +16,40 @@ test("creates service object in the supplied VM realm", () => {
   );
 });
 
-test("defines methods with GAS property semantics", () => {
-  const method = () => undefined;
+test("defines writable entries with GAS property semantics", () => {
+  const entryValue = () => undefined;
   const service = createGasServiceObject({
     entries: [
       {
-        kind: "method",
         name: "getValue",
-        value: method,
+        value: entryValue,
+        writable: true,
       },
     ],
   });
 
   expect(Object.getOwnPropertyDescriptor(service, "getValue")).toEqual({
-    value: method,
+    value: entryValue,
     configurable: true,
     enumerable: true,
     writable: true,
   });
 });
 
-test("defines properties with GAS property semantics", () => {
-  const property = {};
+test("defines non-writable with GAS property semantics", () => {
+  const entryValue = {};
   const service = createGasServiceObject({
     entries: [
       {
-        kind: "property",
-        name: "AuthMode",
-        value: property,
+        name: "log",
+        value: entryValue,
+        writable: false,
       },
     ],
   });
 
-  expect(Object.getOwnPropertyDescriptor(service, "AuthMode")).toEqual({
-    value: property,
+  expect(Object.getOwnPropertyDescriptor(service, "log")).toEqual({
+    value: entryValue,
     configurable: true,
     enumerable: true,
     writable: false,
@@ -60,19 +60,19 @@ test("preserves definition property order", () => {
   const service = createGasServiceObject({
     entries: [
       {
-        kind: "method",
         name: "first",
         value() {},
+        writable: true,
       },
       {
-        kind: "property",
         name: "second",
         value: {},
+        writable: false,
       },
       {
-        kind: "method",
         name: "third",
         value() {},
+        writable: true,
       },
     ],
   });

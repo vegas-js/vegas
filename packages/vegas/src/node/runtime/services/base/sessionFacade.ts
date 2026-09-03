@@ -13,44 +13,44 @@ export function createSession(
     {
       entries: [
         {
-          kind: "method",
           name: "toString",
           value: () => "Session",
+          writable: true,
         },
         {
-          kind: "method",
           name: "getActiveUser",
           value: () => implementation.getActiveUser(),
+          writable: true,
         },
         {
-          kind: "method",
           name: "getActiveUserLocale",
           value: () => implementation.getActiveUserLocale(),
+          writable: true,
         },
         {
-          kind: "method",
           name: "getEffectiveUser",
           value: () => implementation.getEffectiveUser(),
+          writable: true,
         },
         {
-          kind: "method",
           name: "getScriptTimeZone",
           value: () => implementation.getScriptTimeZone(),
+          writable: true,
         },
         {
-          kind: "method",
           name: "getTemporaryActiveUserKey",
           value: () => implementation.getTemporaryActiveUserKey(),
+          writable: true,
         },
         {
-          kind: "method",
           name: "getTimeZone",
           value: () => implementation.getTimeZone(),
+          writable: true,
         },
         {
-          kind: "method",
           name: "getUser",
           value: () => implementation.getUser(),
+          writable: true,
         },
       ],
     },

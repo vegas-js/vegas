@@ -1,16 +1,10 @@
 import type { CreateGasObject } from "./object";
 
-type GasServiceObjectEntry =
-  | {
-      kind: "method";
-      name: string;
-      value: (...args: any[]) => unknown;
-    }
-  | {
-      kind: "property";
-      name: string;
-      value: unknown;
-    };
+type GasServiceObjectEntry = {
+  name: string;
+  value: unknown;
+  writable: boolean;
+};
 
 export interface GasServiceObjectDefinition {
   entries: readonly GasServiceObjectEntry[];
@@ -28,7 +22,7 @@ export function createGasServiceObject(
       value: entry.value,
       configurable: true,
       enumerable: true,
-      writable: entry.kind === "method",
+      writable: entry.writable,
     });
   }
 

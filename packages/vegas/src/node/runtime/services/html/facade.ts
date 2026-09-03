@@ -41,54 +41,54 @@ export function createHtmlService(
     {
       entries: [
         {
-          kind: "method",
           name: "toString",
           value: () => "HtmlService",
+          writable: true,
         },
         {
-          kind: "method",
           name: "createHtmlOutput",
           value: (htmlOrBlob?: unknown) => implementation.createHtmlOutput(htmlOrBlob as any),
+          writable: true,
         },
         {
-          kind: "method",
           name: "createHtmlOutputFromFile",
           value: (filename: string) => implementation.createHtmlOutputFromFile(filename),
+          writable: true,
         },
         {
-          kind: "method",
           name: "createTemplate",
           value: (htmlOrBlob: unknown) => implementation.createTemplate(htmlOrBlob as any),
+          writable: true,
         },
         {
-          kind: "method",
           name: "createTemplateFromFile",
           value: (filename: string) => implementation.createTemplateFromFile(filename),
+          writable: true,
         },
         {
-          kind: "method",
           name: "getUserAgent",
           value: () => implementation.getUserAgent(),
+          writable: true,
         },
         {
-          kind: "property",
           name: "initTemplate",
           value: () => implementation.initTemplateExp(),
+          writable: false,
         },
         {
-          kind: "property",
           name: "initTemplateExp",
           value: () => implementation.initTemplateExp(),
+          writable: false,
         },
         {
-          kind: "property",
           name: "SandboxMode",
           value: sandboxMode,
+          writable: false,
         },
         {
-          kind: "property",
           name: "XFrameOptionsMode",
           value: xFrameOptionsMode,
+          writable: false,
         },
       ],
     },

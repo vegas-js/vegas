@@ -16,63 +16,63 @@ export function createLogger(logSink: RuntimeLogSink, createObject?: CreateGasOb
     {
       entries: [
         {
-          kind: "method",
           name: "toString",
           value: () => "Logger",
+          writable: true,
         },
         {
-          kind: "method",
           name: "clear",
           value: () => implementation.clear(),
+          writable: true,
         },
         {
-          kind: "method",
           name: "config",
           value: unsupportedLoggingLevelMethod,
+          writable: true,
         },
         {
-          kind: "method",
           name: "fine",
           value: unsupportedLoggingLevelMethod,
+          writable: true,
         },
         {
-          kind: "method",
           name: "finer",
           value: unsupportedLoggingLevelMethod,
+          writable: true,
         },
         {
-          kind: "method",
           name: "finest",
           value: unsupportedLoggingLevelMethod,
+          writable: true,
         },
         {
-          kind: "method",
           name: "getLog",
           value: () => implementation.getLog(),
+          writable: true,
         },
         {
-          kind: "method",
           name: "info",
           value: unsupportedLoggingLevelMethod,
+          writable: true,
         },
         {
-          kind: "method",
           name: "log",
           value: (dataOrFormat: unknown, ...values: unknown[]) => {
             Reflect.apply((implementation as any).log, implementation, [dataOrFormat, ...values]);
 
             return facade;
           },
+          writable: true,
         },
         {
-          kind: "method",
           name: "severe",
           value: unsupportedLoggingLevelMethod,
+          writable: true,
         },
         {
-          kind: "method",
           name: "warning",
           value: unsupportedLoggingLevelMethod,
+          writable: true,
         },
       ],
     },

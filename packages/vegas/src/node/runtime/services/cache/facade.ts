@@ -19,34 +19,34 @@ export function createCacheService(
     {
       entries: [
         {
-          kind: "method",
           name: "toString",
           value: () => "CacheService",
+          writable: true,
         },
         {
-          kind: "method",
           name: "getDocumentCache",
           value: () => implementation.getDocumentCache(),
+          writable: true,
         },
         {
-          kind: "method",
           name: "getScriptCache",
           value: () => implementation.getScriptCache(),
+          writable: true,
         },
         {
-          kind: "method",
           name: "getUserCache",
           value: () => implementation.getUserCache(),
+          writable: true,
         },
         {
-          kind: "method",
           name: "getPrivateCache",
           value: () => implementation.getUserCache(),
+          writable: true,
         },
         {
-          kind: "method",
           name: "getPublicCache",
           value: () => implementation.getScriptCache(),
+          writable: true,
         },
       ],
     },
