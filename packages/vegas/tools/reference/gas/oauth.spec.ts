@@ -10,6 +10,7 @@ test("return an access_token in a successful response", async () => {
     new Response(
       JSON.stringify({
         access_token: "access-token",
+        expires_in: 3600,
       }),
       {
         status: 200,
@@ -96,4 +97,72 @@ test("throw an exception when there is no access_token despite an HTTP 200 respo
   await expect(accessTokenProvider.getAccessToken()).rejects.toThrow(
     "OAuth token response did not contain access_token",
   );
+});
+
+test("reuse a cached access token", async () => {
+  const fetchMock = vi.fn().mockResolvedValue(
+    new Response(
+      JSON.stringify({
+        access_token: "access-token",
+        expires_in: 3600,
+      }),
+      {
+        status: 200,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      },
+    ),
+  );
+  vi.stubGlobal("fetch", fetchMock);
+
+  const accessTokenProvider = createAccessTokenProvider({
+    clientId: "client-id",
+    clientSecret: "client-secret",
+    refreshToken: "refresh-token",
+  });
+
+  await expect(accessTokenProvider.getAccessToken()).resolves.toBe("access-token");
+  await expect(accessTokenProvider.getAccessToken()).resolves.toBe("access-token");
+
+  expect(fetchMock).toHaveBeenCalledTimes(1);
+});
+
+test("share an access token refresh between concurrent callers", async () => {
+  let resolveResponse!: (response: Response) => void;
+
+  const responsePromise = new Promise<Response>((resolve) => {
+    resolveResponse = resolve;
+  });
+
+  const fetchMock = vi.fn().mockReturnValue(responsePromise);
+  vi.stubGlobal("fetch", fetchMock);
+
+  const accessTokenProvider = createAccessTokenProvider({
+    clientId: "client-id",
+    clientSecret: "client-secret",
+    refreshToken: "refresh-token",
+  });
+
+  const first = accessTokenProvider.getAccessToken();
+  const second = accessTokenProvider.getAccessToken();
+
+  resolveResponse(
+    new Response(
+      JSON.stringify({
+        access_token: "access-token",
+        expires_in: 3600,
+      }),
+      {
+        status: 200,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      },
+    ),
+  );
+
+  await expect(Promise.all([first, second])).resolves.toEqual(["access-token", "access-token"]);
+
+  expect(fetchMock).toHaveBeenCalledTimes(1);
 });

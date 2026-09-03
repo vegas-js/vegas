@@ -2,7 +2,7 @@ import path from "node:path";
 import url from "node:url";
 
 import { referenceCases } from "../core/cases";
-import { acquireReferenceResult, createReferenceMetadata } from "../core/fixture";
+import { acquireReferenceResults, createReferenceMetadata } from "../core/fixture";
 import { writeReferenceResult, writeReferenceMetadata } from "../fixtures/store";
 import { createReferenceClient } from "../gas/client";
 import { loadOAuthConfig, loadReferenceConfig } from "../gas/config";
@@ -25,25 +25,13 @@ const caseRevision = computeCaseRevision(files);
 const metadata = createReferenceMetadata(caseRevision);
 
 await updateReferenceProject(config, accessTokenProvider, files);
-const acquiredFixtures: Array<{
-  path: string;
-  fixture: Awaited<ReturnType<typeof acquireReferenceResult>>;
-}> = [];
+const client = createReferenceClient(config, accessTokenProvider);
+const acquiredResults = await acquireReferenceResults(client, referenceCases);
 
-for (const referenceCase of referenceCases) {
-  const client = createReferenceClient(config, accessTokenProvider);
-  const fixture = await acquireReferenceResult(client, referenceCase.functionName);
-
+for (const { referenceCase, result } of acquiredResults) {
   const fixturePath = path.join(referenceDir, "fixtures", referenceCase.fixtureFile);
 
-  acquiredFixtures.push({
-    path: fixturePath,
-    fixture,
-  });
-}
-
-for (const { path: fixturePath, fixture } of acquiredFixtures) {
-  await writeReferenceResult(fixturePath, fixture);
+  await writeReferenceResult(fixturePath, result);
 
   console.log(fixturePath);
 }

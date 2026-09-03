@@ -3,7 +3,7 @@ import url from "node:url";
 
 import { referenceCases } from "../core/cases";
 import { compareReference } from "../core/compare";
-import { acquireReferenceResult, createReferenceMetadata } from "../core/fixture";
+import { acquireReferenceResults, createReferenceMetadata } from "../core/fixture";
 import { readReferenceResult, readReferenceMetadata } from "../fixtures/store";
 import { createReferenceClient } from "../gas/client";
 import { loadOAuthConfig, loadReferenceConfig } from "../gas/config";
@@ -50,10 +50,10 @@ async function main(): Promise<void> {
     );
   }
 
-  for (const referenceCase of referenceCases) {
-    const client = createReferenceClient(config, accessTokenProvider);
-    const actual = await acquireReferenceResult(client, referenceCase.functionName);
+  const client = createReferenceClient(config, accessTokenProvider);
+  const acquiredResults = await acquireReferenceResults(client, referenceCases);
 
+  for (const { referenceCase, result: actual } of acquiredResults) {
     const expected = await readReferenceResult(
       path.join(referenceDir, "fixtures", referenceCase.fixtureFile),
     );
