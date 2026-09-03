@@ -23,6 +23,98 @@ function describeProperties(value: object) {
     });
 }
 
+function describePropertyOwnership(value: object, name: string) {
+  if (Object.prototype.hasOwnProperty.call(value, name)) {
+    return {
+      owner: "own",
+      prototypeDepth: null,
+    };
+  }
+
+  let prototype = Object.getPrototypeOf(value);
+  let depth = 0;
+
+  while (prototype !== null) {
+    if (Object.prototype.hasOwnProperty.call(prototype, name)) {
+      return {
+        owner: "prototype",
+        prototypeDepth: depth,
+      };
+    }
+
+    prototype = Object.getPrototypeOf(prototype);
+    depth += 1;
+  }
+
+  return {
+    owner: "missing",
+    prototypeDepth: null,
+  };
+}
+
+function describePrototypeChain(value: object) {
+  const chain = [];
+  let prototype = Object.getPrototypeOf(value);
+  let depth = 0;
+
+  while (prototype !== null) {
+    const constructor = Object.prototype.hasOwnProperty.call(prototype, "constructor")
+      ? Object.getOwnPropertyDescriptor(prototype, "constructor")?.value
+      : undefined;
+
+    chain.push({
+      depth,
+      isObjectPrototype: prototype === Object.prototype,
+      properties: describeProperties(prototype),
+      ownConstructorType: typeof constructor,
+      ownConstructorName: typeof constructor === "function" ? constructor.name : null,
+    });
+
+    prototype = Object.getPrototypeOf(prototype);
+    depth += 1;
+  }
+
+  return chain;
+}
+
+function describeConstructor(value: object) {
+  const constructor = (value as { constructor?: unknown }).constructor;
+
+  return {
+    ownership: describePropertyOwnership(value, "constructor"),
+    type: typeof constructor,
+    name: typeof constructor === "function" ? constructor.name : null,
+    isObjectConstructor: constructor === Object,
+  };
+}
+
+function describePropertiesObject(value: object) {
+  return {
+    type: typeof value,
+    stringify: String(value as any),
+    objectTag: Object.prototype.toString.call(value),
+
+    prototypeIsObjectPrototype: Object.getPrototypeOf(value) === Object.prototype,
+    prototypeIsNull: Object.getPrototypeOf(value) === null,
+
+    properties: describeProperties(value),
+    prototypeChain: describePrototypeChain(value),
+
+    methodOwnership: {
+      deleteAllProperties: describePropertyOwnership(value, "deleteAllProperties"),
+      deleteProperty: describePropertyOwnership(value, "deleteProperty"),
+      getKeys: describePropertyOwnership(value, "getKeys"),
+      getProperties: describePropertyOwnership(value, "getProperties"),
+      getProperty: describePropertyOwnership(value, "getProperty"),
+      setProperties: describePropertyOwnership(value, "setProperties"),
+      setProperty: describePropertyOwnership(value, "setProperty"),
+      toString: describePropertyOwnership(value, "toString"),
+    },
+
+    constructorInfo: describeConstructor(value),
+  };
+}
+
 export function captureReferencePropertiesObjectSurface() {
   const globals = globalThis as unknown as Record<string, any>;
   const service = globals.PropertiesService;
@@ -31,16 +123,7 @@ export function captureReferencePropertiesObjectSurface() {
   const user = service.getUserProperties();
 
   return {
-    script: {
-      properties: describeProperties(script),
-      prototypeIsObjectPrototype: Object.getPrototypeOf(script) === Object.prototype,
-      stringify: String(script),
-    },
-
-    user: {
-      properties: describeProperties(user),
-      prototypeIsObjectPrototype: Object.getPrototypeOf(user) === Object.prototype,
-      stringify: String(user),
-    },
+    script: describePropertiesObject(script),
+    user: describePropertiesObject(user),
   };
 }
