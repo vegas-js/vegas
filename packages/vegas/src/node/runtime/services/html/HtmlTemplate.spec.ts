@@ -14,3 +14,26 @@ test("evaluate", () => {
   });
   expect((evaluator.mock.calls[0] as any)[0]).toContain("name");
 });
+
+test("parses statement blocks containing semicolons", () => {
+  const evaluator = vi.fn(() => ({}) as any);
+
+  const template = new HtmlTemplate(
+    [
+      "<? for (var i = 0; i < items.length; i++) { ?>",
+      "<span><?= items[i] ?></span>",
+      "<? } ?>",
+    ].join(""),
+    evaluator,
+  );
+
+  const generated = template.getCode();
+
+  expect(() => {
+    new Function("HtmlService", "items", `return ${generated};`);
+  }).not.toThrow();
+
+  expect(generated).toContain("for (var i = 0; i < items.length; i++) {");
+
+  expect(generated).toContain("output._$ = ( items[i] );");
+});

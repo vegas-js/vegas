@@ -66,3 +66,34 @@ test("createTemplateFromFile missing", () => {
     "No HTML file named index was found.",
   );
 });
+
+test("createHtmlOutput() creates an empty HtmlOutput", () => {
+  const createHtmlOutput = vi.fn((content, mode) => new HtmlOutput(content, mode));
+
+  const service = new HtmlService(createHtmlOutput, unexpected, {
+    getFileContent: () => "",
+  });
+
+  const output = service.createHtmlOutput();
+
+  expect(createHtmlOutput).toHaveBeenCalledWith("", service.XFrameOptionsMode.DEFAULT);
+
+  expect(output.getContent()).toBe("");
+});
+
+test("initTemplateExp() applies GAS escaping to escaped prints", () => {
+  const createHtmlOutput = (content: string, mode: GoogleAppsScript.HTML.XFrameOptionsMode) =>
+    new HtmlOutput(content, mode);
+
+  const service = new HtmlService(createHtmlOutput, unexpected, {
+    getFileContent: () => "",
+  });
+
+  const output = service.initTemplateExp();
+
+  output._$ = `<b class="x">& '"</b>`;
+
+  output.flush();
+
+  expect(output.$out.getContent()).toBe("&lt;b class=&#34;x&#34;&gt;&amp; &#39;&#34;&lt;/b&gt;");
+});

@@ -1,0 +1,42 @@
+{
+  "escapedPrint": {
+    "content": "<div>&lt;b class=&#34;x&#34;&gt;&amp; &#39;&#34;&lt;/b&gt;</div>",
+    "errorMessage": null,
+    "errorName": null,
+    "outputStringify": "HtmlOutput",
+    "templateStringify": "HtmlTemplate",
+    "threw": false
+  },
+  "forcePrint": {
+    "content": "<div><b class=\"x\">& '\"</b></div>",
+    "errorMessage": null,
+    "errorName": null,
+    "outputStringify": "HtmlOutput",
+    "templateStringify": "HtmlTemplate",
+    "threw": false
+  },
+  "mixedPrinting": {
+    "content": "A&lt;escaped&gt;B<raw>C",
+    "errorMessage": null,
+    "errorName": null,
+    "outputStringify": "HtmlOutput",
+    "templateStringify": "HtmlTemplate",
+    "threw": false
+  },
+  "repeatedBinding": {
+    "content": "<p>Vegas</p><p>Vegas</p>",
+    "errorMessage": null,
+    "errorName": null,
+    "outputStringify": "HtmlOutput",
+    "templateStringify": "HtmlTemplate",
+    "threw": false
+  },
+  "statementBlock": {
+    "content": "<span>&lt;one&gt;</span><span>&amp;two</span><span>&#34;three&#34;</span>",
+    "errorMessage": null,
+    "errorName": null,
+    "outputStringify": "HtmlOutput",
+    "templateStringify": "HtmlTemplate",
+    "threw": false
+  }
+}

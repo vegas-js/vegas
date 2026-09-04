@@ -1,6 +1,7 @@
 import { GASAPI } from "../../legacy/GASAPI";
 import type { CreateHtmlOutput, CreateHtmlTemplate } from "../../objects/types";
 import type { RuntimeServicePort } from "../../protocol";
+import { escapeHtml } from "./escapeHtml";
 
 // https://developers.google.com/apps-script/reference/html/html-service
 export class HtmlService extends GASAPI implements GoogleAppsScript.HTML.HtmlService {
@@ -25,11 +26,11 @@ export class HtmlService extends GASAPI implements GoogleAppsScript.HTML.HtmlSer
   initTemplateExp() {
     let content: string = "";
     return {
-      set _(value: string) {
-        content += value;
+      set _(value: unknown) {
+        content += String(value);
       },
-      set _$(value: string) {
-        content += value.replace(/</g, "&lt").replace(/>/g, "&gt");
+      set _$(value: unknown) {
+        content += escapeHtml(value);
       },
       flush() {
         this.$out.setContent(content);
@@ -45,11 +46,15 @@ export class HtmlService extends GASAPI implements GoogleAppsScript.HTML.HtmlSer
   createHtmlOutput(html: string): GoogleAppsScript.HTML.HtmlOutput;
   createHtmlOutput(blob: GoogleAppsScript.Base.BlobSource): GoogleAppsScript.HTML.HtmlOutput;
   createHtmlOutput(htmlOrBlob?: unknown): GoogleAppsScript.HTML.HtmlOutput {
+    if (htmlOrBlob === undefined) {
+      return this.#createHtmlOutput("", this.#defaultXFrameOptionsMode);
+    }
+
     if (typeof htmlOrBlob !== "string") {
       throw new Error("Method not implemented.");
     }
 
-    return this.#createHtmlOutput(htmlOrBlob ?? "", this.#defaultXFrameOptionsMode);
+    return this.#createHtmlOutput(htmlOrBlob, this.#defaultXFrameOptionsMode);
   }
   createHtmlOutputFromFile(filename: string): GoogleAppsScript.HTML.HtmlOutput {
     const content = this.#service.getFileContent(filename);

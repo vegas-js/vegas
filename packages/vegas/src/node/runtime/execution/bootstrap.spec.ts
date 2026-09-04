@@ -103,7 +103,7 @@ test("serializes HtmlOutput without exposing its internal X-Frame getter", async
   await expect(runtime.invoke("doGet", [])).resolves.toEqual({
     metaTags: [],
     title: "Vegas",
-    faviconUrl: "",
+    faviconUrl: null,
     content: "<p>content</p>",
     xFrameOptionsMode: "SAMEORIGIN",
   });

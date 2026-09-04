@@ -1,0 +1,168 @@
+{
+  "addAllowedMetaTagResult": {
+    "errorMessage": null,
+    "errorName": null,
+    "isNull": false,
+    "isUndefined": false,
+    "returnsReceiver": true,
+    "stringify": "HtmlOutput",
+    "threw": false,
+    "type": "object"
+  },
+  "addUnsupportedMetaTagResult": {
+    "errorMessage": "The meta tag you specified is not allowed in this context.",
+    "errorName": "Exception",
+    "isNull": null,
+    "isUndefined": null,
+    "returnsReceiver": null,
+    "stringify": null,
+    "threw": true,
+    "type": null
+  },
+  "afterAppend": "<p>initial</p><span>trusted</span>",
+  "afterAppendUntrusted": "<p>initial</p><span>trusted</span>&lt;b class=&#34;x&#34;&gt;&amp; &#39;&#34;&lt;/b&gt;",
+  "afterClear": {
+    "content": "",
+    "faviconUrl": "https://example.com/favicon.ico",
+    "height": 321,
+    "metaTags": [
+      {
+        "content": "width=device-width",
+        "name": "viewport",
+        "stringify": "HtmlOutputMetaTag"
+      }
+    ],
+    "title": "Vegas title",
+    "width": 654
+  },
+  "afterMetaTags": [
+    {
+      "content": "width=device-width",
+      "name": "viewport",
+      "stringify": "HtmlOutputMetaTag"
+    }
+  ],
+  "afterScalarSetters": {
+    "faviconUrl": "https://example.com/favicon.ico",
+    "height": 321,
+    "title": "Vegas title",
+    "width": 654
+  },
+  "appendResult": {
+    "errorMessage": null,
+    "errorName": null,
+    "isNull": false,
+    "isUndefined": false,
+    "returnsReceiver": true,
+    "stringify": "HtmlOutput",
+    "threw": false,
+    "type": "object"
+  },
+  "appendUntrustedResult": {
+    "errorMessage": null,
+    "errorName": null,
+    "isNull": false,
+    "isUndefined": false,
+    "returnsReceiver": true,
+    "stringify": "HtmlOutput",
+    "threw": false,
+    "type": "object"
+  },
+  "clearResult": {
+    "errorMessage": null,
+    "errorName": null,
+    "isNull": false,
+    "isUndefined": false,
+    "returnsReceiver": true,
+    "stringify": "HtmlOutput",
+    "threw": false,
+    "type": "object"
+  },
+  "initial": {
+    "content": "<p>initial</p>",
+    "faviconUrl": null,
+    "height": null,
+    "metaTags": [],
+    "stringify": "HtmlOutput",
+    "title": "",
+    "width": null
+  },
+  "noArgumentCreation": {
+    "errorMessage": null,
+    "errorName": null,
+    "isNull": false,
+    "isUndefined": false,
+    "threw": false,
+    "type": "object"
+  },
+  "setAllowAllXFrameResult": {
+    "errorMessage": null,
+    "errorName": null,
+    "isNull": false,
+    "isUndefined": false,
+    "returnsReceiver": true,
+    "stringify": "HtmlOutput",
+    "threw": false,
+    "type": "object"
+  },
+  "setDefaultXFrameResult": {
+    "errorMessage": null,
+    "errorName": null,
+    "isNull": false,
+    "isUndefined": false,
+    "returnsReceiver": true,
+    "stringify": "HtmlOutput",
+    "threw": false,
+    "type": "object"
+  },
+  "setFaviconResult": {
+    "errorMessage": null,
+    "errorName": null,
+    "isNull": false,
+    "isUndefined": false,
+    "returnsReceiver": true,
+    "stringify": "HtmlOutput",
+    "threw": false,
+    "type": "object"
+  },
+  "setHeightResult": {
+    "errorMessage": null,
+    "errorName": null,
+    "isNull": false,
+    "isUndefined": false,
+    "returnsReceiver": true,
+    "stringify": "HtmlOutput",
+    "threw": false,
+    "type": "object"
+  },
+  "setSandboxModeResult": {
+    "errorMessage": null,
+    "errorName": null,
+    "isNull": false,
+    "isUndefined": false,
+    "returnsReceiver": true,
+    "stringify": "HtmlOutput",
+    "threw": false,
+    "type": "object"
+  },
+  "setTitleResult": {
+    "errorMessage": null,
+    "errorName": null,
+    "isNull": false,
+    "isUndefined": false,
+    "returnsReceiver": true,
+    "stringify": "HtmlOutput",
+    "threw": false,
+    "type": "object"
+  },
+  "setWidthResult": {
+    "errorMessage": null,
+    "errorName": null,
+    "isNull": false,
+    "isUndefined": false,
+    "returnsReceiver": true,
+    "stringify": "HtmlOutput",
+    "threw": false,
+    "type": "object"
+  }
+}

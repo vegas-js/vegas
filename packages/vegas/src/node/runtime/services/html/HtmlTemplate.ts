@@ -16,49 +16,69 @@ export class HtmlTemplate extends GASAPI implements GoogleAppsScript.HTML.HtmlTe
   }
 
   #parse(code: string) {
-    let tmpCode = "";
-    let isString = false;
-    let isTemplate = false;
-    let isFirstStmt = false;
-    for (let i = 0; i < code.length; i++) {
-      if (!isTemplate && code.charAt(i) === "<" && code.charAt(i + 1) === "?") {
-        if (isString) {
-          tmpCode += "'; ";
-          isString = false;
-        }
-        if (code.charAt(i + 2) === "=") {
-          i += 2;
-          tmpCode += "output._$ = ";
-        } else if (code.charAt(i + 2) === "!" && code.charAt(i + 3) === "=") {
-          i += 3;
-          tmpCode += "output._ = ";
-        } else {
-          i += 1;
-        }
-        isFirstStmt = true;
-        isTemplate = true;
-      } else if (isTemplate && code.charAt(i) === "?" && code.charAt(i + 1) === ">") {
-        i += 1;
-        tmpCode += "; ";
-        isTemplate = false;
-      } else {
-        if (!isString && !isTemplate) {
-          tmpCode += "output._ = '";
-          isString = true;
-        }
-        if (isFirstStmt && code.charAt(i) === ";") {
-          isFirstStmt = false;
-        }
-        if (isString || isFirstStmt) {
-          tmpCode += code.charAt(i);
-        }
+    let generated = "";
+    let cursor = 0;
+
+    const appendLiteral = (value: string) => {
+      if (value === "") {
+        return;
       }
-    }
-    if (isString) {
-      tmpCode += "';";
+
+      generated += `output._ = ${JSON.stringify(value)}; `;
+    };
+
+    while (cursor < code.length) {
+      const openIndex = code.indexOf("<?", cursor);
+
+      if (openIndex === -1) {
+        appendLiteral(code.slice(cursor));
+        break;
+      }
+
+      appendLiteral(code.slice(cursor, openIndex));
+
+      let bodyStart: number;
+      let mode: "escaped" | "raw" | "statement";
+
+      if (code.startsWith("<?!=", openIndex)) {
+        mode = "raw";
+        bodyStart = openIndex + 4;
+      } else if (code.startsWith("<?=", openIndex)) {
+        mode = "escaped";
+        bodyStart = openIndex + 3;
+      } else {
+        mode = "statement";
+        bodyStart = openIndex + 2;
+      }
+
+      const closeIndex = code.indexOf("?>", bodyStart);
+
+      const bodyEnd = closeIndex === -1 ? code.length : closeIndex;
+
+      const body = code.slice(bodyStart, bodyEnd);
+
+      switch (mode) {
+        case "escaped":
+          generated += `output._$ = (${body}); `;
+          break;
+
+        case "raw":
+          generated += `output._ = (${body}); `;
+          break;
+
+        case "statement":
+          generated += `${body} `;
+          break;
+      }
+
+      if (closeIndex === -1) {
+        break;
+      }
+
+      cursor = closeIndex + 2;
     }
 
-    return tmpCode;
+    return generated;
   }
 
   [propName: string]: any;

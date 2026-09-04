@@ -21,6 +21,10 @@ export { captureReferenceHtmlOutputObjectIdentity } from "./htmlOutputObjectIden
 export { captureReferenceHtmlTemplateObjectSurface } from "./htmlTemplateObjectSurface";
 export { captureReferenceHtmlTemplateObjectBinding } from "./htmlTemplateObjectBinding";
 export { captureReferenceHtmlTemplateObjectIdentity } from "./htmlTemplateObjectIdentity";
+export {
+  captureReferenceHtmlOutputSemantics,
+  captureReferenceHtmlTemplateEvaluationSemantics,
+} from "./htmlSemantics";
 export { captureReferenceHttpResponseObjectSurface } from "./httpResponseObjectSurface";
 export { captureReferenceHttpResponseObjectIdentity } from "./httpResponseObjectIdentity";
 export { captureReferenceUrlFetchAppSurface } from "./urlFetchAppSurface";

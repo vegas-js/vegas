@@ -133,6 +133,18 @@ export const referenceCases: readonly ReferenceCaseDefinition[] = [
     runtimeTest: "required",
   },
   {
+    name: "html-output-semantics",
+    functionName: "captureReferenceHtmlOutputSemantics",
+    fixtureFile: "html-output-semantics.json",
+    runtimeTest: "required",
+  },
+  {
+    name: "html-template-evaluation-semantics",
+    functionName: "captureReferenceHtmlTemplateEvaluationSemantics",
+    fixtureFile: "html-template-evaluation-semantics.json",
+    runtimeTest: "required",
+  },
+  {
     name: "http-response-object-surface",
     functionName: "captureReferenceHttpResponseObjectSurface",
     fixtureFile: "http-response-object-surface.json",

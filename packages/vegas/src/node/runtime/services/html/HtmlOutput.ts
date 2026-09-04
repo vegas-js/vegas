@@ -1,13 +1,22 @@
+import { escapeHtml } from "./escapeHtml";
 import { HtmlOutputMetaTag } from "./HtmlOutputMetaTag";
+
+function createGasException(message: string): Error {
+  const error = new Error(message);
+  error.name = "Exception";
+  return error;
+}
 
 // https://developers.google.com/apps-script/reference/html/html-output
 export class HtmlOutput implements GoogleAppsScript.HTML.HtmlOutput {
   readonly #allowedMetaTags: readonly string[];
 
   #title: string;
-  #faviconUrl: string;
+  #faviconUrl: string | null;
   #content: string;
   #metaTags: GoogleAppsScript.HTML.HtmlOutputMetaTag[];
+  #height: GoogleAppsScript.Integer | null;
+  #width: GoogleAppsScript.Integer | null;
   #defaultXFrameOptionsMode: GoogleAppsScript.HTML.XFrameOptionsMode;
   #xFrameOptionsMode: GoogleAppsScript.HTML.XFrameOptionsMode;
 
@@ -20,8 +29,11 @@ export class HtmlOutput implements GoogleAppsScript.HTML.HtmlOutput {
     ];
 
     this.#title = "";
-    this.#faviconUrl = "";
+    this.#faviconUrl = null;
     this.#content = content;
+    this.#metaTags = [];
+    this.#height = null;
+    this.#width = null;
     this.#metaTags = [];
     this.#defaultXFrameOptionsMode = defaultXFrameOptionsMode;
     this.#xFrameOptionsMode = defaultXFrameOptionsMode;
@@ -32,9 +44,12 @@ export class HtmlOutput implements GoogleAppsScript.HTML.HtmlOutput {
   }
 
   addMetaTag = (name: string, content: string) => {
-    if (this.#allowedMetaTags.includes(name)) {
-      this.#metaTags.push(new HtmlOutputMetaTag(name, content));
+    if (!this.#allowedMetaTags.includes(name)) {
+      throw createGasException("The meta tag you specified is not allowed in this context.");
     }
+
+    this.#metaTags.push(new HtmlOutputMetaTag(name, content));
+
     return this;
   };
   append = (addedContent: string) => {
@@ -42,8 +57,7 @@ export class HtmlOutput implements GoogleAppsScript.HTML.HtmlOutput {
     return this;
   };
   appendUntrusted = (addedContent: string) => {
-    // TODO: Need to brush up on logic
-    return this.append(addedContent.replaceAll("<", "&lt;").replaceAll(">", "&gt;"));
+    return this.append(escapeHtml(addedContent));
   };
   asTemplate = () => {
     throw new Error("Method not implemented.");
@@ -62,11 +76,10 @@ export class HtmlOutput implements GoogleAppsScript.HTML.HtmlOutput {
     return this.#content;
   };
   getFaviconUrl = () => {
-    return this.#faviconUrl;
+    return this.#faviconUrl as unknown as string;
   };
   getHeight = () => {
-    // If published in a web app, it always returns null.
-    return null as unknown as GoogleAppsScript.Integer;
+    return this.#height as unknown as GoogleAppsScript.Integer;
   };
   getMetaTags = () => {
     return this.#metaTags;
@@ -75,8 +88,7 @@ export class HtmlOutput implements GoogleAppsScript.HTML.HtmlOutput {
     return this.#title;
   };
   getWidth = () => {
-    // If published in a web app, it always returns null.
-    return null as unknown as GoogleAppsScript.Integer;
+    return this.#width as unknown as GoogleAppsScript.Integer;
   };
   setContent = (content: string) => {
     this.#content = content;
@@ -86,9 +98,8 @@ export class HtmlOutput implements GoogleAppsScript.HTML.HtmlOutput {
     this.#faviconUrl = iconUrl;
     return this;
   };
-  // oxlint-disable-next-line no-unused-vars
   setHeight = (height: GoogleAppsScript.Integer) => {
-    // Calling this method has no effect when published in a web app.
+    this.#height = height;
     return this;
   };
   // oxlint-disable-next-line no-unused-vars
@@ -100,9 +111,8 @@ export class HtmlOutput implements GoogleAppsScript.HTML.HtmlOutput {
     this.#title = title;
     return this;
   };
-  // oxlint-disable-next-line no-unused-vars
   setWidth = (width: GoogleAppsScript.Integer) => {
-    // Calling this method has no effect when published in a web app.
+    this.#width = width;
     return this;
   };
   setXFrameOptionsMode = (mode: GoogleAppsScript.HTML.XFrameOptionsMode) => {
