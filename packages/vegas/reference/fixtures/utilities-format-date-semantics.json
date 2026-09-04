@@ -1,0 +1,29 @@
+{
+  "calendarFields": "60 Thu 4",
+  "extendedFields": "AD 2024 9 5 5 23 11 UTC",
+  "invalidTimeZone": {
+    "errorMessage": null,
+    "errorName": null,
+    "threw": false,
+    "value": "2024-02-29"
+  },
+  "invalidTimeZoneDetailed": {
+    "errorMessage": null,
+    "errorName": null,
+    "threw": false,
+    "value": "2024-02-29 23:05:06 +0000"
+  },
+  "invalidXPattern": {
+    "errorMessage": "Invalid argument: XXXX",
+    "errorName": "Exception",
+    "threw": true,
+    "value": null
+  },
+  "losAngelesBasic": "2024-02-29 15:05:06",
+  "losAngelesOffsets": "-0800 -08 -0800 -08:00",
+  "quotedLiteral": "year=2024 ; month=02",
+  "textual": "Thu February 29 2024 11:05:06 PM",
+  "tokyoBasic": "2024-03-01 08:05:06",
+  "tokyoOffsets": "+0900 +09 +0900 +09:00",
+  "utcBasic": "2024-02-29T23:05:06.789Z"
+}

@@ -39,6 +39,11 @@ export {
   captureReferenceUtilitiesByteSemantics,
   captureReferenceUtilitiesCompressionSemantics,
 } from "./utilitiesBlobSemantics";
+export {
+  captureReferenceUtilitiesParseCsvSemantics,
+  captureReferenceUtilitiesFormatDateSemantics,
+  captureReferenceUtilitiesRuntimeSemantics,
+} from "./utilitiesMiscSemantics";
 export { captureReferenceBlobObjectSurface } from "./blobObjectSurface";
 export { captureReferenceBlobObjectIdentity } from "./blobObjectIdentity";
 export { captureReferenceSpreadsheetAppSurface } from "./spreadsheetAppSurface";

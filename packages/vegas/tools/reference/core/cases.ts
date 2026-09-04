@@ -205,6 +205,24 @@ export const referenceCases: readonly ReferenceCaseDefinition[] = [
     runtimeTest: "required",
   },
   {
+    name: "utilities-parse-csv-semantics",
+    functionName: "captureReferenceUtilitiesParseCsvSemantics",
+    fixtureFile: "utilities-parse-csv-semantics.json",
+    runtimeTest: "required",
+  },
+  {
+    name: "utilities-format-date-semantics",
+    functionName: "captureReferenceUtilitiesFormatDateSemantics",
+    fixtureFile: "utilities-format-date-semantics.json",
+    runtimeTest: "required",
+  },
+  {
+    name: "utilities-runtime-semantics",
+    functionName: "captureReferenceUtilitiesRuntimeSemantics",
+    fixtureFile: "utilities-runtime-semantics.json",
+    runtimeTest: "required",
+  },
+  {
     name: "blob-object-surface",
     functionName: "captureReferenceBlobObjectSurface",
     fixtureFile: "blob-object-surface.json",

@@ -1,0 +1,48 @@
+{
+  "sleepNegative": {
+    "errorMessage": "Invalid argument",
+    "errorName": "Exception",
+    "isNull": null,
+    "isUndefined": null,
+    "threw": true,
+    "type": null
+  },
+  "sleepSmall": {
+    "call": {
+      "errorMessage": null,
+      "errorName": null,
+      "isNull": true,
+      "isUndefined": false,
+      "threw": false,
+      "type": "object"
+    },
+    "elapsedAtLeastRequested": true
+  },
+  "sleepZero": {
+    "errorMessage": null,
+    "errorName": null,
+    "isNull": true,
+    "isUndefined": false,
+    "threw": false,
+    "type": "object"
+  },
+  "uuid": {
+    "first": {
+      "hasRfc4122Variant": true,
+      "isLowerCase": true,
+      "length": 36,
+      "matchesCanonicalShape": true,
+      "type": "string",
+      "versionCharacter": "4"
+    },
+    "repeatedDifferent": true,
+    "second": {
+      "hasRfc4122Variant": true,
+      "isLowerCase": true,
+      "length": 36,
+      "matchesCanonicalShape": true,
+      "type": "string",
+      "versionCharacter": "4"
+    }
+  }
+}

@@ -1,0 +1,71 @@
+{
+  "crlf": [
+    [
+      "a",
+      "b"
+    ],
+    [
+      "c",
+      "d"
+    ]
+  ],
+  "customDelimiter": [
+    [
+      "a",
+      "b;c",
+      "d"
+    ]
+  ],
+  "empty": [],
+  "escapedQuote": [
+    [
+      "a",
+      "b\"c",
+      "d"
+    ]
+  ],
+  "invalidDelimiter": {
+    "errorMessage": "Cannot convert '::' to char.",
+    "errorName": "Exception",
+    "threw": true,
+    "value": null
+  },
+  "quotedDelimiter": [
+    [
+      "a",
+      "b,c",
+      "d"
+    ]
+  ],
+  "quotedNewline": [
+    [
+      "a",
+      "b\nc",
+      "d"
+    ]
+  ],
+  "simple": [
+    [
+      "a",
+      "b",
+      "c"
+    ],
+    [
+      "d",
+      "e",
+      "f"
+    ]
+  ],
+  "trailingEmptyFields": [
+    [
+      "a",
+      "b",
+      ""
+    ],
+    [
+      "c",
+      "",
+      ""
+    ]
+  ]
+}
