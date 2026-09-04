@@ -4,7 +4,7 @@ import url from "node:url";
 import { expect, test } from "vitest";
 
 import { referenceCases } from "../core/cases";
-import { acquireReferenceResult, createReferenceMetadata } from "../core/fixture";
+import { acquireReferenceCase, createReferenceMetadata } from "../core/fixture";
 import { readReferenceResult, readReferenceMetadata } from "../fixtures/store";
 import { computeCaseRevision, loadReferenceProjectFiles } from "../gas/project";
 import { createVegasReferenceExecutor } from "./executor";
@@ -32,12 +32,11 @@ for (const referenceCase of referenceCases) {
   test(`Vegas runtime matches GAS reference: ${referenceCase.name}`, async () => {
     const executor = createVegasReferenceExecutor(bundled.source);
 
-    const actual = await acquireReferenceResult(
-      executor,
-      referenceCase.functionName,
-      referenceCase.executionCount,
-      referenceCase.observationMode,
-      referenceCase.parameters,
+    const actual = await acquireReferenceCase(
+      {
+        executionApi: executor,
+      },
+      referenceCase,
     );
 
     const expected = await readReferenceResult(

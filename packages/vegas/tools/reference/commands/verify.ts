@@ -13,6 +13,7 @@ import {
   loadReferenceProjectFiles,
   updateReferenceProject,
 } from "../gas/project";
+import { createWebAppReferenceClient } from "../gas/webAppClient";
 
 async function main(): Promise<void> {
   const referenceDir = url.fileURLToPath(new URL("../../../reference/", import.meta.url));
@@ -51,7 +52,15 @@ async function main(): Promise<void> {
   }
 
   const client = createReferenceClient(config, accessTokenProvider);
-  const acquiredResults = await acquireReferenceResults(client, referenceCases);
+  const acquirers = {
+    executionApi: client,
+    ...(config.webAppUrl === undefined
+      ? {}
+      : {
+          webApp: createWebAppReferenceClient(config.webAppUrl),
+        }),
+  };
+  const acquiredResults = await acquireReferenceResults(acquirers, referenceCases);
 
   for (const { referenceCase, result: actual } of acquiredResults) {
     const expected = await readReferenceResult(

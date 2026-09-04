@@ -17,9 +17,28 @@ export interface ReferenceExecutor {
   execute(functionName: string, parameters?: readonly JsonValue[]): Promise<unknown>;
 }
 
+export interface ReferenceWebAppRequest {
+  method: "GET" | "POST";
+  pathInfo?: string;
+  queryString?: string;
+  headers?: Record<string, string>;
+  body?: string;
+  responseMode?: "json" | "text";
+}
+
+export interface ReferenceWebAppExecutor {
+  execute(request: ReferenceWebAppRequest): Promise<unknown>;
+}
+
+export interface ReferenceAcquirers {
+  executionApi: ReferenceExecutor;
+  webApp?: ReferenceWebAppExecutor;
+}
+
 export interface ReferenceConfig {
   scriptId: string;
   deploymentId: string;
+  webAppUrl?: string;
 }
 
 export interface AccessTokenProvider {

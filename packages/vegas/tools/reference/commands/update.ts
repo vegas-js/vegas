@@ -12,6 +12,7 @@ import {
   loadReferenceProjectFiles,
   updateReferenceProject,
 } from "../gas/project";
+import { createWebAppReferenceClient } from "../gas/webAppClient";
 
 function selectReferenceCases(requestedNames: readonly string[]) {
   if (requestedNames.length === 0) {
@@ -50,7 +51,17 @@ const metadata = createReferenceMetadata(caseRevision);
 
 await updateReferenceProject(config, accessTokenProvider, files);
 const client = createReferenceClient(config, accessTokenProvider);
-const acquiredResults = await acquireReferenceResults(client, selectedReferenceCases);
+
+const acquirers = {
+  executionApi: client,
+  ...(config.webAppUrl === undefined
+    ? {}
+    : {
+        webApp: createWebAppReferenceClient(config.webAppUrl),
+      }),
+};
+
+const acquiredResults = await acquireReferenceResults(acquirers, selectedReferenceCases);
 
 for (const { referenceCase, result } of acquiredResults) {
   const fixturePath = path.join(referenceDir, "fixtures", referenceCase.fixtureFile);

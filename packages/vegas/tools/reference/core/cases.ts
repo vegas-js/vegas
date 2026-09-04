@@ -1,4 +1,13 @@
-import type { JsonValue } from "./types";
+import type { JsonValue, ReferenceWebAppRequest } from "./types";
+
+export type ReferenceAcquisition =
+  | {
+      kind: "execution-api";
+    }
+  | {
+      kind: "web-app";
+      request: ReferenceWebAppRequest;
+    };
 
 export interface ReferenceCaseDefinition {
   name: string;
@@ -8,6 +17,7 @@ export interface ReferenceCaseDefinition {
   executionCount?: number;
   observationMode?: "result" | "outcome";
   parameters?: readonly JsonValue[];
+  acquisition?: ReferenceAcquisition;
 }
 
 export const referenceCases: readonly ReferenceCaseDefinition[] = [

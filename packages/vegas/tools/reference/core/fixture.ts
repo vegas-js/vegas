@@ -2,7 +2,15 @@ import { acquireReference } from "./acquire";
 import type { ReferenceCaseDefinition } from "./cases";
 import { ReferenceExecutionError } from "./executionError";
 import { normalizeReferenceResult } from "./normalize";
-import type { JsonValue, ReferenceExecutor, ReferenceResult, ReferenceMetadata } from "./types";
+import type {
+  JsonValue,
+  ReferenceAcquirers,
+  ReferenceExecutor,
+  ReferenceResult,
+  ReferenceMetadata,
+  ReferenceWebAppExecutor,
+  ReferenceWebAppRequest,
+} from "./types";
 
 const DEFAULT_REFERENCE_CONCURRENCY = 8;
 
@@ -116,20 +124,79 @@ export async function acquireReferenceResult(
   return results;
 }
 
+async function acquireWebAppReferenceResult(
+  executor: ReferenceWebAppExecutor,
+  request: ReferenceWebAppRequest,
+  executionCount: number = 1,
+): Promise<ReferenceResult> {
+  if (!Number.isInteger(executionCount) || executionCount < 1) {
+    throw new RangeError("executionCount must be a positive integer");
+  }
+
+  async function acquireSingle(): Promise<ReferenceResult> {
+    return normalizeReferenceResult(await executor.execute(request)) as ReferenceResult;
+  }
+
+  if (executionCount === 1) {
+    return acquireSingle();
+  }
+
+  const results: ReferenceResult[] = [];
+
+  for (let executionIndex = 0; executionIndex < executionCount; executionIndex++) {
+    results.push(await acquireSingle());
+  }
+
+  return results;
+}
+
+export async function acquireReferenceCase(
+  acquirers: ReferenceAcquirers,
+  referenceCase: ReferenceCaseDefinition,
+): Promise<ReferenceResult> {
+  const acquisition = referenceCase.acquisition;
+
+  if (acquisition === undefined || acquisition.kind === "execution-api") {
+    return acquireReferenceResult(
+      acquirers.executionApi,
+      referenceCase.functionName,
+      referenceCase.executionCount,
+      referenceCase.observationMode,
+      referenceCase.parameters,
+    );
+  }
+
+  if (referenceCase.observationMode === "outcome") {
+    throw new Error(
+      `Web app reference case does not support outcome observation: ${referenceCase.name}`,
+    );
+  }
+
+  if ((referenceCase.parameters?.length ?? 0) > 0) {
+    throw new Error(
+      `Web app reference case does not support Execution API parameters: ${referenceCase.name}`,
+    );
+  }
+
+  if (acquirers.webApp === undefined) {
+    throw new Error(`Web app reference executor is required for case: ${referenceCase.name}`);
+  }
+
+  return acquireWebAppReferenceResult(
+    acquirers.webApp,
+    acquisition.request,
+    referenceCase.executionCount,
+  );
+}
+
 export async function acquireReferenceResults(
-  executor: ReferenceExecutor,
+  acquirers: ReferenceAcquirers,
   referenceCases: readonly ReferenceCaseDefinition[],
   concurrency: number = DEFAULT_REFERENCE_CONCURRENCY,
 ): Promise<AcquiredReferenceResult[]> {
   return mapConcurrently(referenceCases, concurrency, async (referenceCase) => ({
     referenceCase,
-    result: await acquireReferenceResult(
-      executor,
-      referenceCase.functionName,
-      referenceCase.executionCount,
-      referenceCase.observationMode,
-      referenceCase.parameters,
-    ),
+    result: await acquireReferenceCase(acquirers, referenceCase),
   }));
 }
 

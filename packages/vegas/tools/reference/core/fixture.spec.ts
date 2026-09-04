@@ -2,6 +2,7 @@ import { expect, test, vi } from "vitest";
 
 import { ReferenceExecutionError } from "./executionError";
 import {
+  acquireReferenceCase,
   acquireReferenceResult,
   acquireReferenceResults,
   createReferenceMetadata,
@@ -106,7 +107,7 @@ test("acquires reference results concurrently while preserving case order", asyn
     },
   ];
 
-  const results = await acquireReferenceResults(executor, cases, 2);
+  const results = await acquireReferenceResults({ executionApi: executor }, cases, 2);
 
   expect(maxActive).toBe(2);
   expect(results.map(({ referenceCase }) => referenceCase.name)).toEqual([
@@ -182,4 +183,78 @@ test("passes reference parameters to the executor", async () => {
 
   expect(execute).toHaveBeenCalledOnce();
   expect(execute).toHaveBeenCalledWith("captureReferenceArguments", parameters);
+});
+
+test("acquires a reference case from its definition", async () => {
+  const execute = vi.fn(async () => "result");
+
+  const executor: ReferenceExecutor = {
+    execute,
+  };
+
+  const referenceCase = {
+    name: "case-definition",
+    functionName: "captureReferenceCaseDefinition",
+    fixtureFile: "case-definition.json",
+    runtimeTest: "required" as const,
+    parameters: [
+      "value",
+      {
+        nested: [1, 2],
+      },
+    ] satisfies JsonValue[],
+  };
+
+  await expect(acquireReferenceCase({ executionApi: executor }, referenceCase)).resolves.toBe(
+    "result",
+  );
+
+  expect(execute).toHaveBeenCalledOnce();
+  expect(execute).toHaveBeenCalledWith("captureReferenceCaseDefinition", referenceCase.parameters);
+});
+
+test("routes a web app reference case to the web app executor", async () => {
+  const executionApiExecute = vi.fn(async () => {
+    throw new Error("Execution API executor must not be called");
+  });
+
+  const webAppExecute = vi.fn(async () => ({
+    value: "web-app-result",
+  }));
+
+  const request = {
+    method: "GET" as const,
+    queryString: "a=1&a=2",
+  };
+
+  const referenceCase = {
+    name: "web-app-case",
+    functionName: "doGet",
+    fixtureFile: "web-app-case.json",
+    runtimeTest: "pending" as const,
+    acquisition: {
+      kind: "web-app" as const,
+      request,
+    },
+  };
+
+  await expect(
+    acquireReferenceCase(
+      {
+        executionApi: {
+          execute: executionApiExecute,
+        },
+        webApp: {
+          execute: webAppExecute,
+        },
+      },
+      referenceCase,
+    ),
+  ).resolves.toEqual({
+    value: "web-app-result",
+  });
+
+  expect(executionApiExecute).not.toHaveBeenCalled();
+  expect(webAppExecute).toHaveBeenCalledOnce();
+  expect(webAppExecute).toHaveBeenCalledWith(request);
 });
