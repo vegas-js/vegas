@@ -1,7 +1,7 @@
 import worker from "node:worker_threads";
 
 import type { RuntimeGlobalEnvironment } from "../runtime/environment";
-import { createScriptRuntime } from "../runtime/execution/bootstrap";
+import { createScriptRuntime } from "../runtime/execution";
 import type { RequestLegacySync } from "../runtime/legacy/transport";
 import type { RuntimeLogSink } from "../runtime/logging";
 import { createRuntimeServiceCaller } from "./runtimeTransport";

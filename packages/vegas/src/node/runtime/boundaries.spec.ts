@@ -15,7 +15,7 @@ const REFERENCE_EXECUTOR = join(PACKAGE_ROOT, "tools/reference/vegas/executor.ts
 const WORKER_RUNTIME_IMPORT_ALLOWLIST: Readonly<Record<string, readonly string[]>> = {
   "worker/index": [
     "runtime/environment",
-    "runtime/execution/bootstrap",
+    "runtime/execution",
     "runtime/legacy/transport",
     "runtime/logging",
   ],
