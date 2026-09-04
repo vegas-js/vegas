@@ -15,7 +15,7 @@ function unexpected(): never {
 }
 
 function createImplementation() {
-  return new Spreadsheet("spreadsheet-id", unexpected, unexpected);
+  return new Spreadsheet("spreadsheet-id", unexpected);
 }
 
 describe("createSpreadsheetObjectFacade", () => {
@@ -98,11 +98,7 @@ test("returns fresh Sheet facades from getSheetById", () => {
       },
     );
 
-  const spreadsheet = createSpreadsheetObjectFacade(
-    new Spreadsheet("spreadsheet-id", createSheet, () => {
-      throw new Error("Unexpected legacy request");
-    }),
-  );
+  const spreadsheet = createSpreadsheetObjectFacade(new Spreadsheet("spreadsheet-id", createSheet));
 
   const sheetA = spreadsheet.getSheetById(0);
 

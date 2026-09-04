@@ -54,15 +54,9 @@ test("creates GAS-compatible SpreadsheetApp facade", () => {
 test("returns fresh Spreadsheet facades from acquisition methods", () => {
   const createSpreadsheet = vi.fn(
     () =>
-      new Spreadsheet(
-        "spreadsheet-id",
-        () => {
-          throw new Error("Unexpected Sheet acquisition");
-        },
-        () => {
-          throw new Error("Unexpected legacy request");
-        },
-      ),
+      new Spreadsheet("spreadsheet-id", () => {
+        throw new Error("Unexpected Sheet acquisition");
+      }),
   );
 
   const spreadsheetApp = createSpreadsheetApp(createSpreadsheet, {

@@ -47,7 +47,7 @@ export function createRuntimeObjectFactories(
     new Sheet(spreadsheetId, sheetId, createRange, sheetService, requestLegacySync);
 
   const createSpreadsheet: CreateSpreadsheet = (spreadsheetId) =>
-    new Spreadsheet(spreadsheetId, createSheet, requestLegacySync);
+    new Spreadsheet(spreadsheetId, createSheet);
 
   const createHtmlOutput: CreateHtmlOutput = (content, defaultXFrameOptionsMode) =>
     new HtmlOutput(content, defaultXFrameOptionsMode);

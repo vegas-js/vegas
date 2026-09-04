@@ -37,7 +37,7 @@ const createSheet: CreateSheet = (spreadsheetId, sheetId) =>
   new Sheet(spreadsheetId, sheetId, createRange, sheetService, unexpected);
 
 const createSpreadsheet: CreateSpreadsheet = (spreadsheetId) =>
-  new Spreadsheet(spreadsheetId, createSheet, unexpected);
+  new Spreadsheet(spreadsheetId, createSheet);
 
 function createDependencies(): ScriptContextDependencies {
   return {

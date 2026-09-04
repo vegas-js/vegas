@@ -496,7 +496,7 @@ function createReferenceSpreadsheetDependencies() {
     const createSheet: CreateSheet = (targetSpreadsheetId, sheetId) =>
       new Sheet(targetSpreadsheetId, sheetId, createRange, sheetService, requestSheetLegacySync);
 
-    return new Spreadsheet(spreadsheetId, createSheet, unexpected);
+    return new Spreadsheet(spreadsheetId, createSheet);
   };
 
   const spreadsheetAppService: RuntimeServicePort<"SpreadsheetApp"> = {

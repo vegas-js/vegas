@@ -1,16 +1,13 @@
-import type { RequestLegacySync } from "../../legacy/transport";
 import type { CreateSheet } from "../../objects/types";
 
 // https://developers.google.com/apps-script/reference/spreadsheet/spreadsheet
 export class Spreadsheet implements GoogleAppsScript.Spreadsheet.Spreadsheet {
   #spreadsheetId: string;
   #createSheet: CreateSheet;
-  #requestSync: RequestLegacySync;
 
-  constructor(spreadsheetId: string, createSheet: CreateSheet, requestSync: RequestLegacySync) {
+  constructor(spreadsheetId: string, createSheet: CreateSheet) {
     this.#spreadsheetId = spreadsheetId;
     this.#createSheet = createSheet;
-    this.#requestSync = requestSync;
   }
 
   addDeveloperMetadata = (key: unknown, value?: unknown, visibility?: unknown) => {
