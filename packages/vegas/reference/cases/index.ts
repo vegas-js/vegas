@@ -24,6 +24,11 @@ export { captureReferenceHtmlTemplateObjectIdentity } from "./htmlTemplateObject
 export { captureReferenceHttpResponseObjectSurface } from "./httpResponseObjectSurface";
 export { captureReferenceHttpResponseObjectIdentity } from "./httpResponseObjectIdentity";
 export { captureReferenceUrlFetchAppSurface } from "./urlFetchAppSurface";
+export {
+  captureReferenceUrlFetchGetRequestSemantics,
+  captureReferenceUrlFetchTransportSemantics,
+  captureReferenceHttpResponseSemantics,
+} from "./urlFetchSemantics";
 export { captureReferenceUtilitiesSurface } from "./utilitiesSurface";
 export { captureReferenceBlobObjectSurface } from "./blobObjectSurface";
 export { captureReferenceBlobObjectIdentity } from "./blobObjectIdentity";

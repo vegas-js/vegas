@@ -1,0 +1,414 @@
+{
+  "defaults": {
+    "contentType": {
+      "hasOwn": true,
+      "isNull": true,
+      "isUndefined": false,
+      "type": "object",
+      "value": null
+    },
+    "escaping": {
+      "hasOwn": false,
+      "isNull": null,
+      "isUndefined": null,
+      "type": null,
+      "value": null
+    },
+    "followRedirects": {
+      "hasOwn": true,
+      "isNull": false,
+      "isUndefined": false,
+      "type": "boolean",
+      "value": true
+    },
+    "headers": {
+      "hasOwn": true,
+      "isNull": false,
+      "isUndefined": false,
+      "type": "object",
+      "value": {}
+    },
+    "method": {
+      "hasOwn": true,
+      "isNull": false,
+      "isUndefined": false,
+      "type": "string",
+      "value": "get"
+    },
+    "muteHttpExceptions": {
+      "hasOwn": false,
+      "isNull": null,
+      "isUndefined": null,
+      "type": null,
+      "value": null
+    },
+    "ownPropertyNames": [
+      "contentType",
+      "followRedirects",
+      "headers",
+      "method",
+      "payload",
+      "url",
+      "useIntranet",
+      "validateHttpsCertificates"
+    ],
+    "payload": {
+      "hasOwn": true,
+      "isNull": false,
+      "isUndefined": false,
+      "type": "string",
+      "value": ""
+    },
+    "url": {
+      "hasOwn": true,
+      "isNull": false,
+      "isUndefined": false,
+      "type": "string",
+      "value": "https://example.com/"
+    },
+    "useIntranet": {
+      "hasOwn": true,
+      "isNull": false,
+      "isUndefined": false,
+      "type": "boolean",
+      "value": false
+    },
+    "validateHttpsCertificates": {
+      "hasOwn": true,
+      "isNull": false,
+      "isUndefined": false,
+      "type": "boolean",
+      "value": true
+    }
+  },
+  "explicitFalse": {
+    "contentType": {
+      "hasOwn": true,
+      "isNull": true,
+      "isUndefined": false,
+      "type": "object",
+      "value": null
+    },
+    "escaping": {
+      "hasOwn": false,
+      "isNull": null,
+      "isUndefined": null,
+      "type": null,
+      "value": null
+    },
+    "followRedirects": {
+      "hasOwn": true,
+      "isNull": false,
+      "isUndefined": false,
+      "type": "boolean",
+      "value": false
+    },
+    "headers": {
+      "hasOwn": true,
+      "isNull": false,
+      "isUndefined": false,
+      "type": "object",
+      "value": {}
+    },
+    "method": {
+      "hasOwn": true,
+      "isNull": false,
+      "isUndefined": false,
+      "type": "string",
+      "value": "get"
+    },
+    "muteHttpExceptions": {
+      "hasOwn": false,
+      "isNull": null,
+      "isUndefined": null,
+      "type": null,
+      "value": null
+    },
+    "ownPropertyNames": [
+      "contentType",
+      "followRedirects",
+      "headers",
+      "method",
+      "payload",
+      "url",
+      "useIntranet",
+      "validateHttpsCertificates"
+    ],
+    "payload": {
+      "hasOwn": true,
+      "isNull": false,
+      "isUndefined": false,
+      "type": "string",
+      "value": ""
+    },
+    "url": {
+      "hasOwn": true,
+      "isNull": false,
+      "isUndefined": false,
+      "type": "string",
+      "value": "https://example.com/"
+    },
+    "useIntranet": {
+      "hasOwn": true,
+      "isNull": false,
+      "isUndefined": false,
+      "type": "boolean",
+      "value": false
+    },
+    "validateHttpsCertificates": {
+      "hasOwn": true,
+      "isNull": false,
+      "isUndefined": false,
+      "type": "boolean",
+      "value": false
+    }
+  },
+  "explicitTrue": {
+    "contentType": {
+      "hasOwn": true,
+      "isNull": true,
+      "isUndefined": false,
+      "type": "object",
+      "value": null
+    },
+    "escaping": {
+      "hasOwn": false,
+      "isNull": null,
+      "isUndefined": null,
+      "type": null,
+      "value": null
+    },
+    "followRedirects": {
+      "hasOwn": true,
+      "isNull": false,
+      "isUndefined": false,
+      "type": "boolean",
+      "value": true
+    },
+    "headers": {
+      "hasOwn": true,
+      "isNull": false,
+      "isUndefined": false,
+      "type": "object",
+      "value": {}
+    },
+    "method": {
+      "hasOwn": true,
+      "isNull": false,
+      "isUndefined": false,
+      "type": "string",
+      "value": "get"
+    },
+    "muteHttpExceptions": {
+      "hasOwn": false,
+      "isNull": null,
+      "isUndefined": null,
+      "type": null,
+      "value": null
+    },
+    "ownPropertyNames": [
+      "contentType",
+      "followRedirects",
+      "headers",
+      "method",
+      "payload",
+      "url",
+      "useIntranet",
+      "validateHttpsCertificates"
+    ],
+    "payload": {
+      "hasOwn": true,
+      "isNull": false,
+      "isUndefined": false,
+      "type": "string",
+      "value": ""
+    },
+    "url": {
+      "hasOwn": true,
+      "isNull": false,
+      "isUndefined": false,
+      "type": "string",
+      "value": "https://example.com/"
+    },
+    "useIntranet": {
+      "hasOwn": true,
+      "isNull": false,
+      "isUndefined": false,
+      "type": "boolean",
+      "value": true
+    },
+    "validateHttpsCertificates": {
+      "hasOwn": true,
+      "isNull": false,
+      "isUndefined": false,
+      "type": "boolean",
+      "value": true
+    }
+  },
+  "objectPayload": {
+    "contentType": {
+      "hasOwn": true,
+      "isNull": false,
+      "isUndefined": false,
+      "type": "string",
+      "value": "application/x-www-form-urlencoded"
+    },
+    "escaping": {
+      "hasOwn": false,
+      "isNull": null,
+      "isUndefined": null,
+      "type": null,
+      "value": null
+    },
+    "followRedirects": {
+      "hasOwn": true,
+      "isNull": false,
+      "isUndefined": false,
+      "type": "boolean",
+      "value": true
+    },
+    "headers": {
+      "hasOwn": true,
+      "isNull": false,
+      "isUndefined": false,
+      "type": "object",
+      "value": {}
+    },
+    "method": {
+      "hasOwn": true,
+      "isNull": false,
+      "isUndefined": false,
+      "type": "string",
+      "value": "post"
+    },
+    "muteHttpExceptions": {
+      "hasOwn": false,
+      "isNull": null,
+      "isUndefined": null,
+      "type": null,
+      "value": null
+    },
+    "ownPropertyNames": [
+      "contentType",
+      "followRedirects",
+      "headers",
+      "method",
+      "payload",
+      "url",
+      "useIntranet",
+      "validateHttpsCertificates"
+    ],
+    "payload": {
+      "hasOwn": true,
+      "isNull": false,
+      "isUndefined": false,
+      "type": "string",
+      "value": "alpha=one&beta=two"
+    },
+    "url": {
+      "hasOwn": true,
+      "isNull": false,
+      "isUndefined": false,
+      "type": "string",
+      "value": "https://example.com/"
+    },
+    "useIntranet": {
+      "hasOwn": true,
+      "isNull": false,
+      "isUndefined": false,
+      "type": "boolean",
+      "value": false
+    },
+    "validateHttpsCertificates": {
+      "hasOwn": true,
+      "isNull": false,
+      "isUndefined": false,
+      "type": "boolean",
+      "value": true
+    }
+  },
+  "stringPayload": {
+    "contentType": {
+      "hasOwn": true,
+      "isNull": false,
+      "isUndefined": false,
+      "type": "string",
+      "value": "text/plain"
+    },
+    "escaping": {
+      "hasOwn": false,
+      "isNull": null,
+      "isUndefined": null,
+      "type": null,
+      "value": null
+    },
+    "followRedirects": {
+      "hasOwn": true,
+      "isNull": false,
+      "isUndefined": false,
+      "type": "boolean",
+      "value": true
+    },
+    "headers": {
+      "hasOwn": true,
+      "isNull": false,
+      "isUndefined": false,
+      "type": "object",
+      "value": {
+        "X-Vegas-Header": "alpha"
+      }
+    },
+    "method": {
+      "hasOwn": true,
+      "isNull": false,
+      "isUndefined": false,
+      "type": "string",
+      "value": "post"
+    },
+    "muteHttpExceptions": {
+      "hasOwn": false,
+      "isNull": null,
+      "isUndefined": null,
+      "type": null,
+      "value": null
+    },
+    "ownPropertyNames": [
+      "contentType",
+      "followRedirects",
+      "headers",
+      "method",
+      "payload",
+      "url",
+      "useIntranet",
+      "validateHttpsCertificates"
+    ],
+    "payload": {
+      "hasOwn": true,
+      "isNull": false,
+      "isUndefined": false,
+      "type": "string",
+      "value": "hello"
+    },
+    "url": {
+      "hasOwn": true,
+      "isNull": false,
+      "isUndefined": false,
+      "type": "string",
+      "value": "https://example.com/"
+    },
+    "useIntranet": {
+      "hasOwn": true,
+      "isNull": false,
+      "isUndefined": false,
+      "type": "boolean",
+      "value": false
+    },
+    "validateHttpsCertificates": {
+      "hasOwn": true,
+      "isNull": false,
+      "isUndefined": false,
+      "type": "boolean",
+      "value": true
+    }
+  }
+}

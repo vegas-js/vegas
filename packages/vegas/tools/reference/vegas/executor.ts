@@ -14,7 +14,11 @@ import type {
   CreateSheet,
   CreateSpreadsheet,
 } from "../../../src/node/runtime/objects/types";
-import { RuntimeServicePort } from "../../../src/node/runtime/protocol";
+import type {
+  RuntimeFetchRequest,
+  RuntimeFetchResponse,
+  RuntimeServicePort,
+} from "../../../src/node/runtime/protocol";
 import { HtmlOutput } from "../../../src/node/runtime/services/html/HtmlOutput";
 import { createHtmlOutputFacadeFactory } from "../../../src/node/runtime/services/html/htmlOutputFacade";
 import { HtmlTemplate } from "../../../src/node/runtime/services/html/HtmlTemplate";
@@ -156,8 +160,8 @@ function createReferenceDependencies(): ScriptContextDependencies {
     spreadsheetAppService: spreadsheetDependencies.spreadsheetAppService,
 
     urlFetchService: {
-      fetch: () => createReferenceFetchResponse(),
-      fetchAll: (requests) => requests.map(() => createReferenceFetchResponse()),
+      fetch: (request) => createReferenceFetchResponse(request),
+      fetchAll: (requests) => requests.map((request) => createReferenceFetchResponse(request)),
     },
 
     htmlService: {
@@ -463,13 +467,126 @@ function createReferenceSpreadsheetDependencies() {
   };
 }
 
-function createReferenceFetchResponse() {
+function createReferenceContent(value: string): number[] {
+  return Array.from(Buffer.from(value, "utf8"));
+}
+
+function createReferenceForm(body: unknown): Record<string, string[]> {
+  if (typeof body !== "string") {
+    return {};
+  }
+
+  const form: Record<string, string[]> = {};
+
+  for (const [name, value] of new URLSearchParams(body)) {
+    const values = form[name] ?? [];
+
+    values.push(value);
+    form[name] = values;
+  }
+
+  return form;
+}
+
+function createReferenceEchoHeaders(request: RuntimeFetchRequest): Record<string, unknown> {
+  const headers: Record<string, unknown> = {};
+
+  for (const [name, value] of Object.entries(request.headers ?? {})) {
+    const lowerName = name.toLowerCase();
+
+    if (lowerName === "content-type" || lowerName === "x-vegas-header") {
+      headers[name] = [value];
+    }
+  }
+
+  return headers;
+}
+
+function getReferenceRequestContentType(request: RuntimeFetchRequest): string | null {
+  for (const [name, value] of Object.entries(request.headers ?? {})) {
+    if (name.toLowerCase() === "content-type") {
+      return value.split(";", 1)[0].trim().toLowerCase();
+    }
+  }
+
+  return null;
+}
+
+function createReferenceFetchResponse(request: RuntimeFetchRequest): RuntimeFetchResponse {
+  const url = new URL(request.url);
+  const pathname = url.pathname;
+
+  if (pathname === "/anything") {
+    const body = typeof request.body === "string" ? request.body : "";
+
+    const contentType = getReferenceRequestContentType(request);
+
+    const payload = {
+      method: (request.method ?? "get").toUpperCase(),
+
+      data: body,
+
+      form: contentType === "application/x-www-form-urlencoded" ? createReferenceForm(body) : {},
+
+      headers: createReferenceEchoHeaders(request),
+    };
+
+    return {
+      headers: {
+        "Content-Type": "application/json",
+      },
+      content: createReferenceContent(JSON.stringify(payload)),
+      responseCode: 200,
+    };
+  }
+
+  if (pathname === "/redirect/1") {
+    return {
+      headers: {},
+      content: [],
+      responseCode: request.redirect === "manual" ? 302 : 200,
+    };
+  }
+
+  if (pathname === "/status/404") {
+    return {
+      headers: {},
+      content: [],
+      responseCode: 404,
+    };
+  }
+
+  if (pathname === "/base64/Y2Fmw6k=") {
+    return {
+      headers: {
+        "Content-Type": "text/plain",
+      },
+      content: Array.from(Buffer.from("Y2Fmw6k=", "base64")),
+      responseCode: 200,
+    };
+  }
+
+  if (pathname === "/response-headers") {
+    return {
+      headers: {
+        "Content-Type": "text/plain; charset=UTF-8",
+        "x-vegas-header": "alpha",
+      },
+      content: [],
+      responseCode: 200,
+    };
+  }
+
+  /*
+   * Existing HTTPResponse identity cases use example.com.
+   * Keep their deterministic payload intact.
+   */
   return {
     headers: {
       "Content-Type": "text/plain",
       "X-Vegas-Reference": "true",
     },
-    content: Array.from(Buffer.from("vegas-reference-response", "utf8")),
+    content: createReferenceContent("vegas-reference-response"),
     responseCode: 200,
   };
 }

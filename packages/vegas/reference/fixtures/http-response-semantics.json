@@ -1,0 +1,43 @@
+{
+  "binaryResponse": {
+    "blob": {
+      "bytes": [
+        99,
+        97,
+        102,
+        -61,
+        -87
+      ],
+      "name": "Y2Fmw6k=.txt",
+      "stringify": "Blob"
+    },
+    "content": [
+      99,
+      97,
+      102,
+      -61,
+      -87
+    ],
+    "contentTextDefault": "café",
+    "contentTextLatin1": "cafÃ©",
+    "responseCode": 200
+  },
+  "headerResponse": {
+    "blob": {
+      "contentType": "text/plain",
+      "name": "response-headers.txt",
+      "stringify": "Blob"
+    },
+    "contentTypeHeader": {
+      "name": "Content-Type",
+      "type": "string",
+      "value": "text/plain; charset=UTF-8"
+    },
+    "responseCode": 200,
+    "vegasHeader": {
+      "name": "x-vegas-header",
+      "type": "string",
+      "value": "alpha"
+    }
+  }
+}

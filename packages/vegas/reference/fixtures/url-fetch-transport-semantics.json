@@ -1,0 +1,104 @@
+{
+  "defaultGet": {
+    "contentType": null,
+    "data": "",
+    "form": {},
+    "method": "GET",
+    "responseCode": 200,
+    "vegasHeader": null
+  },
+  "fetchAllHttpErrorDefault": {
+    "errorMessage": "Request failed for https://httpbingo.org returned code 404",
+    "errorName": "Exception",
+    "isArray": null,
+    "responseCodes": null,
+    "threw": true
+  },
+  "fetchAllHttpErrorMuted": {
+    "errorMessage": null,
+    "errorName": null,
+    "isArray": true,
+    "responseCodes": [
+      404
+    ],
+    "threw": false
+  },
+  "fetchAllOrdered": [
+    {
+      "contentType": null,
+      "data": "",
+      "form": {},
+      "method": "GET",
+      "responseCode": 200,
+      "vegasHeader": null
+    },
+    {
+      "contentType": "text/plain",
+      "data": "world",
+      "form": {},
+      "method": "POST",
+      "responseCode": 200,
+      "vegasHeader": [
+        "beta"
+      ]
+    }
+  ],
+  "fetchAllRedirectDisabled": {
+    "errorMessage": null,
+    "errorName": null,
+    "isArray": true,
+    "responseCodes": [
+      302
+    ],
+    "threw": false
+  },
+  "httpErrorDefault": {
+    "errorMessage": "Request failed for https://httpbingo.org returned code 404",
+    "errorName": "Exception",
+    "responseCode": null,
+    "threw": true
+  },
+  "httpErrorMuted": {
+    "errorMessage": null,
+    "errorName": null,
+    "responseCode": 404,
+    "threw": false
+  },
+  "objectPost": {
+    "contentType": "application/x-www-form-urlencoded",
+    "data": "alpha=one&beta=two",
+    "form": {
+      "alpha": [
+        "one"
+      ],
+      "beta": [
+        "two"
+      ]
+    },
+    "method": "POST",
+    "responseCode": 200,
+    "vegasHeader": null
+  },
+  "redirectDefault": {
+    "errorMessage": null,
+    "errorName": null,
+    "responseCode": 200,
+    "threw": false
+  },
+  "redirectDisabled": {
+    "errorMessage": null,
+    "errorName": null,
+    "responseCode": 302,
+    "threw": false
+  },
+  "stringPost": {
+    "contentType": "text/plain",
+    "data": "hello",
+    "form": {},
+    "method": "POST",
+    "responseCode": 200,
+    "vegasHeader": [
+      "alpha"
+    ]
+  }
+}

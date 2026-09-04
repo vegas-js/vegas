@@ -151,6 +151,24 @@ export const referenceCases: readonly ReferenceCaseDefinition[] = [
     runtimeTest: "required",
   },
   {
+    name: "url-fetch-get-request-semantics",
+    functionName: "captureReferenceUrlFetchGetRequestSemantics",
+    fixtureFile: "url-fetch-get-request-semantics.json",
+    runtimeTest: "required",
+  },
+  {
+    name: "url-fetch-transport-semantics",
+    functionName: "captureReferenceUrlFetchTransportSemantics",
+    fixtureFile: "url-fetch-transport-semantics.json",
+    runtimeTest: "required",
+  },
+  {
+    name: "http-response-semantics",
+    functionName: "captureReferenceHttpResponseSemantics",
+    fixtureFile: "http-response-semantics.json",
+    runtimeTest: "required",
+  },
+  {
     name: "utilities-surface",
     functionName: "captureReferenceUtilitiesSurface",
     fixtureFile: "utilities-surface.json",

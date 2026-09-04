@@ -29,10 +29,13 @@ test("creates GAS-compatible UrlFetchApp facade", () => {
 
   expect(urlFetchApp.getRequest("https://example.com")).toEqual({
     url: "https://example.com",
-    contentType: "application/x-www-form-urlencoded",
-    headers: {},
     method: "get",
-    payload: undefined,
+    headers: {},
+    contentType: null,
+    payload: "",
+    followRedirects: true,
+    useIntranet: false,
+    validateHttpsCertificates: true,
   });
 });
 
