@@ -132,6 +132,14 @@ describe("compute", () => {
     const digest = utilities.computeDigest(utilities.DigestAlgorithm.MD5, input);
     expect(digest).toStrictEqual(digestArray);
   });
+
+  test("computeDigest() applies GAS US-ASCII replacement semantics", () => {
+    const utilities = new Utilities();
+
+    expect(
+      utilities.computeDigest(utilities.DigestAlgorithm.MD5, "café", utilities.Charset.US_ASCII),
+    ).toStrictEqual([51, 48, 39, -79, 72, -4, 72, -77, 73, 79, -101, -119, 95, -100, -123, 122]);
+  });
 });
 
 describe("format", () => {
@@ -213,4 +221,52 @@ describe("deprecated", () => {
     const utilities = new Utilities();
     expect(() => utilities.jsonStringify({})).toThrow(deprecatedRegExp);
   });
+});
+
+test("base64Encode() uses GAS US-ASCII semantics by default for strings", () => {
+  const utilities = new Utilities();
+
+  expect(utilities.base64Encode("café")).toBe("Y2FmPw==");
+
+  expect(utilities.base64Encode("café", utilities.Charset.UTF_8)).toBe("Y2Fmw6k=");
+
+  expect(utilities.base64Encode("café", utilities.Charset.US_ASCII)).toBe("Y2FmPw==");
+});
+
+test("gzip() and ungzip() preserve characterized Blob semantics", () => {
+  const utilities = new Utilities();
+
+  const source = utilities.newBlob("café", "text/plain", "hello.txt");
+
+  const sourceAdapter = {
+    getBlob: () => source,
+  } as any;
+
+  const gzip = utilities.gzip(sourceAdapter);
+
+  expect(gzip).not.toBe(source);
+
+  expect(source.getName()).toBe("hello.txt");
+
+  expect(source.getContentType()).toBe("text/plain");
+
+  expect(source.getDataAsString()).toBe("café");
+
+  expect(gzip.getName()).toBe("archive.gz");
+
+  expect(gzip.getContentType()).toBe("application/x-gzip");
+
+  const gzipAdapter = {
+    getBlob: () => gzip,
+  } as any;
+
+  const ungzip = utilities.ungzip(gzipAdapter);
+
+  expect(ungzip).not.toBe(gzip);
+
+  expect(ungzip.getName()).toBe("archive");
+
+  expect(ungzip.getContentType()).toBeNull();
+
+  expect(ungzip.getDataAsString()).toBe("café");
 });

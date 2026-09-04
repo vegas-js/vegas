@@ -49,6 +49,27 @@ export class Utilities implements GoogleAppsScript.Utilities.Utilities {
     [this.RsaAlgorithm.RSA_SHA_256]: "sha256",
   } as const;
 
+  #encodeString(
+    value: string,
+    charset: GoogleAppsScript.Utilities.Charset | undefined,
+    defaultCharset: "utf8" | "us-ascii",
+  ): Buffer {
+    const useUsAscii =
+      charset === this.Charset.US_ASCII || (charset === undefined && defaultCharset === "us-ascii");
+
+    if (!useUsAscii) {
+      return Buffer.from(value, "utf8");
+    }
+
+    return Buffer.from(
+      Array.from(value, (character) => {
+        const codePoint = character.codePointAt(0) ?? 0;
+
+        return codePoint <= 0x7f ? codePoint : 0x3f;
+      }),
+    );
+  }
+
   // oxlint-disable-next-line no-unused-vars
   base64Decode = (encoded: string, charset?: GoogleAppsScript.Utilities.Charset) => {
     return Array.from(new Int8Array(Buffer.from(encoded, "base64")));
@@ -60,8 +81,9 @@ export class Utilities implements GoogleAppsScript.Utilities.Utilities {
     data: string | GoogleAppsScript.Byte[],
     charset?: GoogleAppsScript.Utilities.Charset,
   ) => {
-    const encoding = (charset && charset === 0 ? "ascii" : "utf8") as BufferEncoding;
-    const buffer = typeof data === "string" ? Buffer.from(data, encoding) : Buffer.from(data);
+    const buffer =
+      typeof data === "string" ? this.#encodeString(data, charset, "us-ascii") : Buffer.from(data);
+
     return buffer.toString("base64");
   };
   base64EncodeWebSafe = (
@@ -77,8 +99,9 @@ export class Utilities implements GoogleAppsScript.Utilities.Utilities {
   ) => {
     let algo = this.#DigestAlgorithmMap[algorithm];
 
-    const encoding = (charset && charset === 0 ? "ascii" : "utf8") as BufferEncoding;
-    const buffer = typeof value === "string" ? Buffer.from(value, encoding) : Buffer.from(value);
+    const buffer =
+      typeof value === "string" ? this.#encodeString(value, charset, "utf8") : Buffer.from(value);
+
     const hash = algo === "md2" ? new MD2Hash() : crypto.createHash(algo);
     hash.update(buffer);
     const result = Array.from(new Int8Array(hash.digest()));
@@ -375,23 +398,24 @@ export class Utilities implements GoogleAppsScript.Utilities.Utilities {
     return crypto.randomUUID();
   };
   gzip = (blob: GoogleAppsScript.Base.BlobSource, name?: string) => {
-    const copiedBlob = blob.getBlob().copyBlob();
-    const buffer = zlib.gzipSync(Buffer.from(copiedBlob.getBytes()));
-    if (name) {
-      copiedBlob.setName(name);
-    }
-    copiedBlob.setBytes(Array.from(new Int8Array(buffer)));
+    const source = blob.getBlob();
 
-    return copiedBlob;
+    const buffer = zlib.gzipSync(Buffer.from(source.getBytes()));
+
+    return new Blob(name ?? "archive.gz")
+      .setBytes(Array.from(buffer))
+      .setContentType("application/x-gzip");
   };
   newBlob = (data: GoogleAppsScript.Byte[] | string, contentType?: string, name?: string) => {
-    const blob = new Blob(name);
+    const blob = new Blob(name ?? null);
+
     if (typeof data === "string") {
       blob.setDataFromString(data);
     } else {
       blob.setBytes(data);
     }
-    blob.setContentType(contentType ?? null);
+
+    blob.setContentType(contentType ?? (typeof data === "string" ? "text/plain" : null));
 
     return blob;
   };
@@ -411,11 +435,18 @@ export class Utilities implements GoogleAppsScript.Utilities.Utilities {
     Atomics.wait(arrayBuffer, 0, 0, delayMs);
   };
   ungzip = (blob: GoogleAppsScript.Base.BlobSource) => {
-    const copiedBlob = blob.getBlob().copyBlob();
-    const buffer = zlib.gunzipSync(Buffer.from(copiedBlob.getBytes()));
-    copiedBlob.setBytes(Array.from(new Int8Array(buffer)));
+    const source = blob.getBlob();
 
-    return copiedBlob;
+    const buffer = zlib.gunzipSync(Buffer.from(source.getBytes()));
+
+    const sourceName = source.getName() as string | null;
+
+    const name =
+      sourceName !== null && sourceName.toLowerCase().endsWith(".gz")
+        ? sourceName.slice(0, -3)
+        : sourceName;
+
+    return new Blob(name).setBytes(Array.from(buffer)).setContentType(null);
   };
   unzip = (blob: GoogleAppsScript.Base.BlobSource) => {
     throw new Error("Method not implemented.");

@@ -34,6 +34,11 @@ export {
   captureReferenceHttpResponseSemantics,
 } from "./urlFetchSemantics";
 export { captureReferenceUtilitiesSurface } from "./utilitiesSurface";
+export {
+  captureReferenceBlobSemantics,
+  captureReferenceUtilitiesByteSemantics,
+  captureReferenceUtilitiesCompressionSemantics,
+} from "./utilitiesBlobSemantics";
 export { captureReferenceBlobObjectSurface } from "./blobObjectSurface";
 export { captureReferenceBlobObjectIdentity } from "./blobObjectIdentity";
 export { captureReferenceSpreadsheetAppSurface } from "./spreadsheetAppSurface";

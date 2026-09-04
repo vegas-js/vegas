@@ -1,0 +1,87 @@
+{
+  "defaultGzip": {
+    "gzip": {
+      "contentType": "application/x-gzip",
+      "hasBytes": true,
+      "name": "archive.gz",
+      "stringify": "Blob"
+    },
+    "returnsSource": false,
+    "sourceAfter": {
+      "bytes": [
+        99,
+        97,
+        102,
+        -61,
+        -87
+      ],
+      "contentType": "text/plain",
+      "dataAsString": "café",
+      "name": "hello.txt",
+      "stringify": "Blob"
+    },
+    "sourceBefore": {
+      "bytes": [
+        99,
+        97,
+        102,
+        -61,
+        -87
+      ],
+      "contentType": "text/plain",
+      "dataAsString": "café",
+      "name": "hello.txt",
+      "stringify": "Blob"
+    },
+    "ungzip": {
+      "bytes": [
+        99,
+        97,
+        102,
+        -61,
+        -87
+      ],
+      "contentType": null,
+      "dataAsString": "café",
+      "name": "archive",
+      "stringify": "Blob"
+    },
+    "ungzipReturnsGzip": false
+  },
+  "namedGzip": {
+    "gzip": {
+      "contentType": "application/x-gzip",
+      "hasBytes": true,
+      "name": "archive.gz",
+      "stringify": "Blob"
+    },
+    "returnsSource": false,
+    "sourceAfter": {
+      "bytes": [
+        110,
+        97,
+        109,
+        101,
+        100
+      ],
+      "contentType": "text/plain",
+      "dataAsString": "named",
+      "name": "named.txt",
+      "stringify": "Blob"
+    },
+    "ungzip": {
+      "bytes": [
+        110,
+        97,
+        109,
+        101,
+        100
+      ],
+      "contentType": null,
+      "dataAsString": "named",
+      "name": "archive",
+      "stringify": "Blob"
+    },
+    "ungzipReturnsGzip": false
+  }
+}

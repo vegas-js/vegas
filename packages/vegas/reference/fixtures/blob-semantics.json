@@ -1,0 +1,185 @@
+{
+  "byteBlob": {
+    "bytes": [
+      99,
+      97,
+      102,
+      -61,
+      -87
+    ],
+    "contentType": "application/octet-stream",
+    "dataAsString": "café",
+    "name": "bytes.bin",
+    "stringify": "Blob"
+  },
+  "charset": {
+    "latin1Read": {
+      "errorMessage": null,
+      "errorName": null,
+      "threw": false,
+      "value": "cafÃ©"
+    },
+    "latin1Write": {
+      "errorMessage": null,
+      "errorName": null,
+      "threw": false,
+      "value": {
+        "bytes": [
+          99,
+          97,
+          102,
+          -23
+        ],
+        "contentType": "text/plain",
+        "dataAsString": "caf�",
+        "name": null,
+        "stringify": "Blob"
+      }
+    },
+    "utf8Bytes": [
+      99,
+      97,
+      102,
+      -61,
+      -87
+    ]
+  },
+  "contentTypeFromExtension": {
+    "blob": {
+      "bytes": [
+        101,
+        120,
+        116,
+        101,
+        110,
+        115,
+        105,
+        111,
+        110
+      ],
+      "contentType": "text/plain",
+      "dataAsString": "extension",
+      "name": "note.txt",
+      "stringify": "Blob"
+    },
+    "returnsReceiver": true
+  },
+  "copyBlob": {
+    "beforeMutation": {
+      "bytes": [
+        111,
+        114,
+        105,
+        103,
+        105,
+        110,
+        97,
+        108
+      ],
+      "contentType": "text/plain",
+      "dataAsString": "original",
+      "name": "original.txt",
+      "stringify": "Blob"
+    },
+    "copyAfterMutation": {
+      "bytes": [
+        9,
+        8,
+        7
+      ],
+      "contentType": "application/octet-stream",
+      "dataAsString": "\t\b\u0007",
+      "name": "copy.bin",
+      "stringify": "Blob"
+    },
+    "returnsReceiver": false,
+    "sourceAfterCopyMutation": {
+      "bytes": [
+        111,
+        114,
+        105,
+        103,
+        105,
+        110,
+        97,
+        108
+      ],
+      "contentType": "text/plain",
+      "dataAsString": "original",
+      "name": "original.txt",
+      "stringify": "Blob"
+    }
+  },
+  "fullySpecifiedBlob": {
+    "bytes": [
+      99,
+      97,
+      102,
+      -61,
+      -87
+    ],
+    "contentType": "text/plain",
+    "dataAsString": "café",
+    "name": "cafe.txt",
+    "stringify": "Blob"
+  },
+  "getBytesAliasing": {
+    "blobBytesAfterReturnedArrayMutation": [
+      1,
+      2,
+      3
+    ],
+    "repeatedSameArray": false,
+    "secondReadAfterFirstMutation": [
+      1,
+      2,
+      3
+    ]
+  },
+  "inputByteArrayAliasing": {
+    "blobBytes": [
+      1,
+      2,
+      3
+    ],
+    "sourceAfterMutation": [
+      9,
+      2,
+      3
+    ]
+  },
+  "mutations": {
+    "finalBlob": {
+      "bytes": [
+        117,
+        112,
+        100,
+        97,
+        116,
+        101,
+        100
+      ],
+      "contentType": "text/plain",
+      "dataAsString": "updated",
+      "name": "renamed.txt",
+      "stringify": "Blob"
+    },
+    "setBytesReturnsReceiver": true,
+    "setContentTypeReturnsReceiver": true,
+    "setDataFromStringReturnsReceiver": true,
+    "setNameReturnsReceiver": true
+  },
+  "stringBlob": {
+    "bytes": [
+      99,
+      97,
+      102,
+      -61,
+      -87
+    ],
+    "contentType": "text/plain",
+    "dataAsString": "café",
+    "name": null,
+    "stringify": "Blob"
+  }
+}

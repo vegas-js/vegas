@@ -187,6 +187,24 @@ export const referenceCases: readonly ReferenceCaseDefinition[] = [
     runtimeTest: "required",
   },
   {
+    name: "blob-semantics",
+    functionName: "captureReferenceBlobSemantics",
+    fixtureFile: "blob-semantics.json",
+    runtimeTest: "required",
+  },
+  {
+    name: "utilities-byte-semantics",
+    functionName: "captureReferenceUtilitiesByteSemantics",
+    fixtureFile: "utilities-byte-semantics.json",
+    runtimeTest: "required",
+  },
+  {
+    name: "utilities-compression-semantics",
+    functionName: "captureReferenceUtilitiesCompressionSemantics",
+    fixtureFile: "utilities-compression-semantics.json",
+    runtimeTest: "required",
+  },
+  {
     name: "blob-object-surface",
     functionName: "captureReferenceBlobObjectSurface",
     fixtureFile: "blob-object-surface.json",
