@@ -148,6 +148,58 @@ describe("invokeScriptFunction", () => {
 
     expect(new vm.Script("mutated").runInContext(context)).toBe(false);
   });
+
+  test("materializes object and array arguments in the script realm before invocation", async () => {
+    const context = createEvaluatedContext(`
+      function inspectArgumentRealm(objectValue, arrayValue) {
+        return {
+          objectPrototype:
+            Object.getPrototypeOf(objectValue) === Object.prototype,
+          objectConstructor: objectValue.constructor === Object,
+          nestedObjectPrototype:
+            Object.getPrototypeOf(objectValue.nestedObject) ===
+            Object.prototype,
+          nestedArrayPrototype:
+            Object.getPrototypeOf(objectValue.nestedArray) ===
+            Array.prototype,
+          arrayPrototype:
+            Object.getPrototypeOf(arrayValue) === Array.prototype,
+          arrayConstructor: arrayValue.constructor === Array,
+          arrayNestedObjectPrototype:
+            Object.getPrototypeOf(arrayValue[1]) === Object.prototype,
+          arrayNestedArrayPrototype:
+            Object.getPrototypeOf(arrayValue[2]) === Array.prototype,
+        };
+      }
+    `);
+
+    const result = await invokeScriptFunction(context, "inspectArgumentRealm", [
+      {
+        nestedObject: {
+          value: 1,
+        },
+        nestedArray: [1, 2],
+      },
+      [
+        1,
+        {
+          value: 2,
+        },
+        [3, 4],
+      ],
+    ]);
+
+    expect(result.value).toEqual({
+      objectPrototype: true,
+      objectConstructor: true,
+      nestedObjectPrototype: true,
+      nestedArrayPrototype: true,
+      arrayPrototype: true,
+      arrayConstructor: true,
+      arrayNestedObjectPrototype: true,
+      arrayNestedArrayPrototype: true,
+    });
+  });
 });
 
 test("awaits native Promise results from the script realm", async () => {

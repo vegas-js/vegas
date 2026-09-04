@@ -1,4 +1,5 @@
 import { invokeScriptFunction } from "../../../src/node/runtime/execution/invocation";
+import { projectScriptResult } from "../../../src/node/runtime/execution/resultProjection";
 import {
   createScriptContext,
   type ScriptContextDependencies,
@@ -686,9 +687,9 @@ export function createVegasReferenceExecutor(source: string): ReferenceExecutor 
       evaluateScript(source, context);
 
       try {
-        const completion = await invokeScriptFunction(context, functionName, [...parameters]);
+        const invocation = await invokeScriptFunction(context, functionName, [...parameters]);
 
-        return completion.value;
+        return projectScriptResult(invocation.value);
       } catch (error) {
         throw projectVegasExecutionError(error, functionName);
       }

@@ -103,7 +103,7 @@ export const referenceCases: readonly ReferenceCaseDefinition[] = [
     name: "execution-argument-values",
     functionName: "captureReferenceExecutionArgumentValues",
     fixtureFile: "execution-argument-values.json",
-    runtimeTest: "pending",
+    runtimeTest: "required",
     observationMode: "outcome",
     parameters: ["value", 42, true, null],
   },
@@ -111,7 +111,7 @@ export const referenceCases: readonly ReferenceCaseDefinition[] = [
     name: "execution-argument-realm",
     functionName: "captureReferenceExecutionArgumentRealm",
     fixtureFile: "execution-argument-realm.json",
-    runtimeTest: "pending",
+    runtimeTest: "required",
     observationMode: "outcome",
     parameters: [
       {
@@ -152,7 +152,7 @@ export const referenceCases: readonly ReferenceCaseDefinition[] = [
     name: "execution-thenable",
     functionName: "captureReferenceExecutionThenable",
     fixtureFile: "execution-thenable.json",
-    runtimeTest: "pending",
+    runtimeTest: "required",
     observationMode: "outcome",
   },
   {

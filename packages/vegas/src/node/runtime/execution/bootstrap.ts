@@ -7,6 +7,7 @@ import { createRuntimeServicePorts } from "../servicePorts";
 import { createHtmlOutputFacadeFactory } from "../services/html/htmlOutputFacade";
 import { invokeScriptFunction } from "./invocation";
 import { projectLegacyWebAppResult } from "./legacyWebAppResultProjection";
+import { projectScriptResult } from "./resultProjection";
 import { createScriptContext } from "./scriptContext";
 import { evaluateScript, evaluateScriptWithBindings } from "./scriptRuntime";
 import type { EvaluateHtmlTemplate } from "./types";
@@ -76,9 +77,11 @@ export function createScriptRuntime(dependencies: ScriptRuntimeDependencies): Sc
 
       const { value: result } = await invokeScriptFunction(scriptContext, functionName, args);
 
-      return projectLegacyWebAppResult(functionName, result, {
+      const legacyProjectedResult = projectLegacyWebAppResult(functionName, result, {
         getHtmlOutputXFrameOptionsMode: (htmlOutputFacadeFactory as any).resolveXFrameOptionsMode,
       });
+
+      return projectScriptResult(legacyProjectedResult);
     },
   };
 }

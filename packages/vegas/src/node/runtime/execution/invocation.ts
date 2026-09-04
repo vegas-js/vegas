@@ -1,6 +1,7 @@
 import { types as utilTypes } from "node:util";
 import type vm from "node:vm";
 
+import { projectScriptArguments } from "./argumentProjection";
 import { resolveScriptFunction } from "./entryResolution";
 
 export interface InvocationCompletion {
@@ -14,7 +15,8 @@ export async function invokeScriptFunction(
 ): Promise<InvocationCompletion> {
   const targetFn = resolveScriptFunction(context, functionName);
 
-  return invokeFunction(targetFn, ...args);
+  const scriptArguments = projectScriptArguments(context, args);
+  return invokeFunction(targetFn, ...scriptArguments);
 }
 
 export async function invokeFunction(

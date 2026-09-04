@@ -138,3 +138,28 @@ test("serializes HtmlOutput without exposing its internal X-Frame getter", async
     xFrameOptionsMode: "SAMEORIGIN",
   });
 });
+
+test("projects thenable-shaped return values before crossing the async boundary", async () => {
+  const runtime = createScriptRuntime(
+    createDependencies(`
+        function returnThenable() {
+          return {
+            then() {
+              throw new Error(
+                "thenable must not be assimilated",
+              );
+            },
+          };
+        }
+      `),
+  );
+
+  const result = await runtime.invoke("returnThenable", []);
+
+  expect(result).toEqual({
+    // oxlint-disable-next-line no-thenable
+    then: expect.any(String),
+  });
+
+  expect((result as { then: string }).then).toContain("thenable must not be assimilated");
+});
