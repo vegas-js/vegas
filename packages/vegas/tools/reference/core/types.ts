@@ -14,7 +14,7 @@ export type JsonValue =
 export type ReferenceResult = JsonValue;
 
 export interface ReferenceExecutor {
-  execute(functionName: string): Promise<unknown>;
+  execute(functionName: string, parameters?: readonly JsonValue[]): Promise<unknown>;
 }
 
 export interface ReferenceConfig {

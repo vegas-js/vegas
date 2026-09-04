@@ -1,0 +1,12 @@
+{
+  "error": {
+    "errorMessage": "TypeError: async-throw",
+    "errorType": "USER_ERROR",
+    "scriptStackTraceFunctions": [
+      "captureReferenceExecutionAsyncThrow"
+    ],
+    "statusCode": 3,
+    "statusMessage": "TypeError: async-throw"
+  },
+  "outcome": "execution-error"
+}

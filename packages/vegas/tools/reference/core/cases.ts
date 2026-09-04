@@ -1,8 +1,13 @@
+import type { JsonValue } from "./types";
+
 export interface ReferenceCaseDefinition {
   name: string;
   functionName: string;
   fixtureFile: string;
   runtimeTest: "required" | "pending";
+  executionCount?: number;
+  observationMode?: "result" | "outcome";
+  parameters?: readonly JsonValue[];
 }
 
 export const referenceCases: readonly ReferenceCaseDefinition[] = [
@@ -11,6 +16,200 @@ export const referenceCases: readonly ReferenceCaseDefinition[] = [
     functionName: "captureReferenceSmoke",
     fixtureFile: "smoke.json",
     runtimeTest: "required",
+  },
+  {
+    name: "execution-top-level-lifecycle",
+    functionName: "captureReferenceExecutionTopLevelLifecycle",
+    fixtureFile: "execution-top-level-lifecycle.json",
+    runtimeTest: "pending",
+    executionCount: 2,
+  },
+  {
+    name: "execution-global-lifecycle",
+    functionName: "captureReferenceExecutionGlobalLifecycle",
+    fixtureFile: "execution-global-lifecycle.json",
+    runtimeTest: "pending",
+    executionCount: 2,
+  },
+  {
+    name: "execution-non-strict-this",
+    functionName: "captureReferenceExecutionNonStrictThis",
+    fixtureFile: "execution-non-strict-this.json",
+    runtimeTest: "required",
+  },
+  {
+    name: "execution-strict-this",
+    functionName: "captureReferenceExecutionStrictThis",
+    fixtureFile: "execution-strict-this.json",
+    runtimeTest: "required",
+  },
+  {
+    name: "execution-entry-function-declaration",
+    functionName: "captureReferenceEntryFunctionDeclaration",
+    fixtureFile: "execution-entry-function-declaration.json",
+    runtimeTest: "required",
+    observationMode: "outcome",
+  },
+  {
+    name: "execution-entry-var-function",
+    functionName: "captureReferenceEntryVarFunction",
+    fixtureFile: "execution-entry-var-function.json",
+    runtimeTest: "required",
+    observationMode: "outcome",
+  },
+  {
+    name: "execution-entry-var-arrow",
+    functionName: "captureReferenceEntryVarArrow",
+    fixtureFile: "execution-entry-var-arrow.json",
+    runtimeTest: "required",
+    observationMode: "outcome",
+  },
+  {
+    name: "execution-entry-let-function",
+    functionName: "captureReferenceEntryLetFunction",
+    fixtureFile: "execution-entry-let-function.json",
+    runtimeTest: "required",
+    observationMode: "outcome",
+  },
+  {
+    name: "execution-entry-const-arrow",
+    functionName: "captureReferenceEntryConstArrow",
+    fixtureFile: "execution-entry-const-arrow.json",
+    runtimeTest: "required",
+    observationMode: "outcome",
+  },
+  {
+    name: "execution-entry-non-callable",
+    functionName: "captureReferenceEntryNonCallable",
+    fixtureFile: "execution-entry-non-callable.json",
+    runtimeTest: "required",
+    observationMode: "outcome",
+  },
+  {
+    name: "execution-entry-missing",
+    functionName: "captureReferenceEntryMissing",
+    fixtureFile: "execution-entry-missing.json",
+    runtimeTest: "required",
+    observationMode: "outcome",
+  },
+  {
+    name: "execution-entry-inherited-property",
+    functionName: "toString",
+    fixtureFile: "execution-entry-inherited-property.json",
+    runtimeTest: "required",
+    observationMode: "outcome",
+  },
+  {
+    name: "execution-argument-values",
+    functionName: "captureReferenceExecutionArgumentValues",
+    fixtureFile: "execution-argument-values.json",
+    runtimeTest: "pending",
+    observationMode: "outcome",
+    parameters: ["value", 42, true, null],
+  },
+  {
+    name: "execution-argument-realm",
+    functionName: "captureReferenceExecutionArgumentRealm",
+    fixtureFile: "execution-argument-realm.json",
+    runtimeTest: "pending",
+    observationMode: "outcome",
+    parameters: [
+      {
+        nestedObject: {
+          value: 1,
+        },
+        nestedArray: [
+          1,
+          {
+            value: 2,
+          },
+        ],
+      },
+      [
+        1,
+        {
+          value: 2,
+        },
+        [3, 4],
+      ],
+    ],
+  },
+  {
+    name: "execution-promise-resolve",
+    functionName: "captureReferenceExecutionPromiseResolve",
+    fixtureFile: "execution-promise-resolve.json",
+    runtimeTest: "pending",
+    observationMode: "outcome",
+  },
+  {
+    name: "execution-async-return",
+    functionName: "captureReferenceExecutionAsyncReturn",
+    fixtureFile: "execution-async-return.json",
+    runtimeTest: "pending",
+    observationMode: "outcome",
+  },
+  {
+    name: "execution-thenable",
+    functionName: "captureReferenceExecutionThenable",
+    fixtureFile: "execution-thenable.json",
+    runtimeTest: "pending",
+    observationMode: "outcome",
+  },
+  {
+    name: "execution-promise-reject",
+    functionName: "captureReferenceExecutionPromiseReject",
+    fixtureFile: "execution-promise-reject.json",
+    runtimeTest: "pending",
+    observationMode: "outcome",
+  },
+  {
+    name: "execution-async-throw",
+    functionName: "captureReferenceExecutionAsyncThrow",
+    fixtureFile: "execution-async-throw.json",
+    runtimeTest: "pending",
+    observationMode: "outcome",
+  },
+  {
+    name: "execution-throw-error",
+    functionName: "captureReferenceExecutionThrowError",
+    fixtureFile: "execution-throw-error.json",
+    runtimeTest: "pending",
+    observationMode: "outcome",
+  },
+  {
+    name: "execution-throw-type-error",
+    functionName: "captureReferenceExecutionThrowTypeError",
+    fixtureFile: "execution-throw-type-error.json",
+    runtimeTest: "pending",
+    observationMode: "outcome",
+  },
+  {
+    name: "execution-throw-string",
+    functionName: "captureReferenceExecutionThrowString",
+    fixtureFile: "execution-throw-string.json",
+    runtimeTest: "pending",
+    observationMode: "outcome",
+  },
+  {
+    name: "execution-throw-number",
+    functionName: "captureReferenceExecutionThrowNumber",
+    fixtureFile: "execution-throw-number.json",
+    runtimeTest: "pending",
+    observationMode: "outcome",
+  },
+  {
+    name: "execution-throw-object",
+    functionName: "captureReferenceExecutionThrowObject",
+    fixtureFile: "execution-throw-object.json",
+    runtimeTest: "pending",
+    observationMode: "outcome",
+  },
+  {
+    name: "execution-throw-null",
+    functionName: "captureReferenceExecutionThrowNull",
+    fixtureFile: "execution-throw-null.json",
+    runtimeTest: "pending",
+    observationMode: "outcome",
   },
   {
     name: "global-surface",

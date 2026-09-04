@@ -1,0 +1,38 @@
+{
+  "outcome": "return",
+  "value": {
+    "arrayValue": {
+      "constructorIsArray": true,
+      "isArray": true,
+      "nestedArray": {
+        "constructorIsArray": true,
+        "isArray": true,
+        "prototypeIsArrayPrototype": true
+      },
+      "nestedObject": {
+        "constructorIsObject": true,
+        "prototypeIsObjectPrototype": true
+      },
+      "prototypeIsArrayPrototype": true
+    },
+    "objectValue": {
+      "constructorIsObject": true,
+      "isArray": false,
+      "nestedArray": {
+        "constructorIsArray": true,
+        "isArray": true,
+        "prototypeIsArrayPrototype": true
+      },
+      "nestedArrayObject": {
+        "constructorIsObject": true,
+        "prototypeIsObjectPrototype": true
+      },
+      "nestedObject": {
+        "constructorIsObject": true,
+        "prototypeIsObjectPrototype": true
+      },
+      "prototypeIsObjectPrototype": true,
+      "type": "object"
+    }
+  }
+}

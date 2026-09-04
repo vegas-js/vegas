@@ -1,0 +1,7 @@
+{
+  "thisIsGlobalThis": true,
+  "thisIsNull": false,
+  "thisIsUndefined": false,
+  "thisTag": "[object Object]",
+  "thisType": "object"
+}

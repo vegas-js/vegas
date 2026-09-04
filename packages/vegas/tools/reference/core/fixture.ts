@@ -1,6 +1,8 @@
 import { acquireReference } from "./acquire";
 import type { ReferenceCaseDefinition } from "./cases";
-import type { ReferenceExecutor, ReferenceResult, ReferenceMetadata } from "./types";
+import { ReferenceExecutionError } from "./executionError";
+import { normalizeReferenceResult } from "./normalize";
+import type { JsonValue, ReferenceExecutor, ReferenceResult, ReferenceMetadata } from "./types";
 
 const DEFAULT_REFERENCE_CONCURRENCY = 8;
 
@@ -59,11 +61,59 @@ async function mapConcurrently<T, R>(
   return results;
 }
 
+async function acquireSingleReferenceResult(
+  executor: ReferenceExecutor,
+  functionName: string,
+  observationMode: "result" | "outcome",
+  parameters: readonly JsonValue[],
+): Promise<ReferenceResult> {
+  if (observationMode === "result") {
+    return (await acquireReference(executor, functionName, parameters)) as ReferenceResult;
+  }
+
+  try {
+    const value = await acquireReference(executor, functionName, parameters);
+
+    return {
+      outcome: "return",
+      value,
+    } as ReferenceResult;
+  } catch (error) {
+    if (!(error instanceof ReferenceExecutionError)) {
+      throw error;
+    }
+
+    return normalizeReferenceResult({
+      outcome: "execution-error",
+      error: error.observation,
+    }) as ReferenceResult;
+  }
+}
+
 export async function acquireReferenceResult(
   executor: ReferenceExecutor,
   functionName: string,
+  executionCount: number = 1,
+  observationMode: "result" | "outcome" = "result",
+  parameters: readonly JsonValue[] = [],
 ): Promise<ReferenceResult> {
-  return acquireReference(executor, functionName) as Promise<ReferenceResult>;
+  if (!Number.isInteger(executionCount) || executionCount < 1) {
+    throw new RangeError("executionCount must be a positive integer");
+  }
+
+  if (executionCount === 1) {
+    return acquireSingleReferenceResult(executor, functionName, observationMode, parameters);
+  }
+
+  const results: ReferenceResult[] = [];
+
+  for (let executionIndex = 0; executionIndex < executionCount; executionIndex++) {
+    results.push(
+      await acquireSingleReferenceResult(executor, functionName, observationMode, parameters),
+    );
+  }
+
+  return results;
 }
 
 export async function acquireReferenceResults(
@@ -73,7 +123,13 @@ export async function acquireReferenceResults(
 ): Promise<AcquiredReferenceResult[]> {
   return mapConcurrently(referenceCases, concurrency, async (referenceCase) => ({
     referenceCase,
-    result: await acquireReferenceResult(executor, referenceCase.functionName),
+    result: await acquireReferenceResult(
+      executor,
+      referenceCase.functionName,
+      referenceCase.executionCount,
+      referenceCase.observationMode,
+      referenceCase.parameters,
+    ),
   }));
 }
 

@@ -1,0 +1,7 @@
+{
+  "thisIsGlobalThis": false,
+  "thisIsNull": false,
+  "thisIsUndefined": true,
+  "thisTag": null,
+  "thisType": "undefined"
+}

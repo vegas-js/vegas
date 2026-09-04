@@ -1,11 +1,12 @@
-import { expect, test } from "vitest";
+import { expect, test, vi } from "vitest";
 
+import { ReferenceExecutionError } from "./executionError";
 import {
   acquireReferenceResult,
   acquireReferenceResults,
   createReferenceMetadata,
 } from "./fixture";
-import type { ReferenceExecutor } from "./types";
+import type { JsonValue, ReferenceExecutor } from "./types";
 
 test("builds a reference fixture", async () => {
   const executor: ReferenceExecutor = {
@@ -16,6 +17,48 @@ test("builds a reference fixture", async () => {
 
   await expect(acquireReferenceResult(executor, "captureReferenceSmoke")).resolves.toEqual(
     "result",
+  );
+});
+
+test("acquires repeated reference executions sequentially", async () => {
+  let active = 0;
+  let maxActive = 0;
+  let sequence = 0;
+
+  const executor: ReferenceExecutor = {
+    async execute(functionName) {
+      expect(functionName).toBe("captureRepeatedExecution");
+
+      active += 1;
+      maxActive = Math.max(maxActive, active);
+      sequence += 1;
+
+      const result = sequence;
+
+      await new Promise((resolve) => setTimeout(resolve, 5));
+
+      active -= 1;
+
+      return result;
+    },
+  };
+
+  await expect(acquireReferenceResult(executor, "captureRepeatedExecution", 2)).resolves.toEqual([
+    1, 2,
+  ]);
+
+  expect(maxActive).toBe(1);
+});
+
+test("rejects invalid reference execution counts", async () => {
+  const executor: ReferenceExecutor = {
+    async execute() {
+      throw new Error("executor must not be called");
+    },
+  };
+
+  await expect(acquireReferenceResult(executor, "captureReference", 0)).rejects.toThrow(
+    "executionCount must be a positive integer",
   );
 });
 
@@ -72,4 +115,71 @@ test("acquires reference results concurrently while preserving case order", asyn
     "third",
   ]);
   expect(results.map(({ result }) => result)).toEqual(["first", "second", "third"]);
+});
+
+test("captures reference execution errors as outcomes", async () => {
+  const executor: ReferenceExecutor = {
+    async execute() {
+      throw new ReferenceExecutionError({
+        statusCode: 3,
+        statusMessage: "ScriptError",
+        errorMessage: "Function not found",
+        errorType: null,
+        scriptStackTraceFunctions: [],
+      });
+    },
+  };
+
+  await expect(
+    acquireReferenceResult(executor, "missingReferenceFunction", 1, "outcome"),
+  ).resolves.toEqual({
+    outcome: "execution-error",
+    error: {
+      errorMessage: "Function not found",
+      errorType: null,
+      scriptStackTraceFunctions: [],
+      statusCode: 3,
+      statusMessage: "ScriptError",
+    },
+  });
+});
+
+test("captures successful reference results as outcomes", async () => {
+  const executor: ReferenceExecutor = {
+    async execute() {
+      return {
+        value: "result",
+      };
+    },
+  };
+
+  await expect(
+    acquireReferenceResult(executor, "captureReferenceSuccess", 1, "outcome"),
+  ).resolves.toEqual({
+    outcome: "return",
+    value: {
+      value: "result",
+    },
+  });
+});
+
+test("passes reference parameters to the executor", async () => {
+  const execute = vi.fn(async () => "result");
+
+  const executor: ReferenceExecutor = {
+    execute,
+  };
+
+  const parameters: JsonValue[] = [
+    "value",
+    null,
+    {
+      nested: [1, 2],
+    },
+  ];
+
+  await acquireReferenceResult(executor, "captureReferenceArguments", 1, "result", parameters);
+
+  expect(execute).toHaveBeenCalledOnce();
+  expect(execute).toHaveBeenCalledWith("captureReferenceArguments", parameters);
 });

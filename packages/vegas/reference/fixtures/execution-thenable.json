@@ -1,0 +1,6 @@
+{
+  "outcome": "return",
+  "value": {
+    "then": "then(resolve) {\n      resolve(\"thenable-resolve\");\n    }"
+  }
+}

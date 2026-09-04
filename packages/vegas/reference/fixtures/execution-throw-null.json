@@ -1,0 +1,12 @@
+{
+  "error": {
+    "errorMessage": "Uncaught null",
+    "errorType": "USER_ERROR",
+    "scriptStackTraceFunctions": [
+      "captureReferenceExecutionThrowNull"
+    ],
+    "statusCode": 3,
+    "statusMessage": "Uncaught null"
+  },
+  "outcome": "execution-error"
+}

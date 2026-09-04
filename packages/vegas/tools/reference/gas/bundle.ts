@@ -1,3 +1,4 @@
+import fsPromises from "node:fs/promises";
 import path from "node:path";
 
 import { build, TsdownPlugin } from "tsdown";
@@ -41,5 +42,14 @@ export async function bundleReferenceCases(referenceDir: string): Promise<string
     throw new Error("Bundle is not chunk");
   }
 
-  return chunk.code;
+  const rawExecutionSource = await fsPromises.readFile(
+    path.join(referenceDir, "raw", "executionSemantics.js"),
+    "utf8",
+  );
+
+  return [
+    chunk.code,
+    "/* Raw GAS execution-semantics characterization source. */",
+    rawExecutionSource,
+  ].join("\n\n");
 }

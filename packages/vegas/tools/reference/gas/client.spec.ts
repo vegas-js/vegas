@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, test, vi } from "vitest";
 
-import type { AccessTokenProvider, ReferenceConfig } from "../core/types";
+import type { AccessTokenProvider, JsonValue, ReferenceConfig } from "../core/types";
 import { createReferenceClient } from "./client";
 
 const config: ReferenceConfig = {
@@ -83,7 +83,7 @@ describe("AppsScriptReferenceClient", () => {
     );
   });
 
-  test("rejects when Apps Script execution fails", async () => {
+  test("preserves Apps Script execution error details", async () => {
     vi.stubGlobal(
       "fetch",
       vi.fn().mockResolvedValue(
@@ -92,7 +92,19 @@ describe("AppsScriptReferenceClient", () => {
             done: true,
             error: {
               code: 3,
-              message: "Something went wrong",
+              message: "ScriptError",
+              details: [
+                {
+                  errorMessage: "boom",
+                  errorType: "TypeError",
+                  scriptStackTraceElements: [
+                    {
+                      function: "captureReferenceFailure",
+                      lineNumber: 42,
+                    },
+                  ],
+                },
+              ],
             },
           }),
           {
@@ -104,9 +116,20 @@ describe("AppsScriptReferenceClient", () => {
         ),
       ),
     );
+
     const client = createReferenceClient(config, tokenProvider);
 
-    await expect(client.execute("captureReferenceSmoke")).rejects.toThrow("Something went wrong");
+    await expect(client.execute("captureReferenceFailure")).rejects.toMatchObject({
+      name: "ReferenceExecutionError",
+      message: "boom",
+      observation: {
+        statusCode: 3,
+        statusMessage: "ScriptError",
+        errorMessage: "boom",
+        errorType: "TypeError",
+        scriptStackTraceFunctions: ["captureReferenceFailure"],
+      },
+    });
   });
 
   test("calls scripts.run with deployment id and dev mode", async () => {
@@ -131,19 +154,82 @@ describe("AppsScriptReferenceClient", () => {
     await client.execute("captureReferenceSmoke");
 
     expect(fetchMock).toHaveBeenCalledOnce();
-    expect(fetchMock).toHaveBeenCalledWith(
-      "https://script.googleapis.com/v1/scripts/deployment-id:run",
+    expect(fetchMock).toHaveBeenCalledOnce();
+
+    const [url, init] = fetchMock.mock.calls[0];
+
+    expect(url).toBe("https://script.googleapis.com/v1/scripts/deployment-id:run");
+
+    expect(init).toMatchObject({
+      method: "POST",
+      headers: {
+        Authorization: "Bearer access-token",
+        "Content-Type": "application/json",
+      },
+    });
+
+    expect(JSON.parse(init.body as string)).toEqual({
+      function: "captureReferenceSmoke",
+      devMode: true,
+    });
+  });
+});
+
+test("passes parameters to Apps Script execution", async () => {
+  const fetchMock = vi.fn().mockResolvedValue(
+    new Response(
+      JSON.stringify({
+        done: true,
+        response: {
+          result: null,
+        },
+      }),
       {
-        method: "POST",
+        status: 200,
         headers: {
-          Authorization: "Bearer access-token",
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          function: "captureReferenceSmoke",
-          devMode: true,
-        }),
       },
-    );
+    ),
+  );
+
+  vi.stubGlobal("fetch", fetchMock);
+
+  const client = createReferenceClient(config, tokenProvider);
+
+  const parameters: JsonValue[] = [
+    "value",
+    42,
+    true,
+    null,
+    {
+      nested: {
+        value: 1,
+      },
+    },
+    [1, 2, 3],
+  ];
+
+  await client.execute("captureReferenceArguments", parameters);
+
+  expect(fetchMock).toHaveBeenCalledOnce();
+  expect(fetchMock).toHaveBeenCalledOnce();
+
+  const [url, init] = fetchMock.mock.calls[0];
+
+  expect(url).toBe("https://script.googleapis.com/v1/scripts/deployment-id:run");
+
+  expect(init).toMatchObject({
+    method: "POST",
+    headers: {
+      Authorization: "Bearer access-token",
+      "Content-Type": "application/json",
+    },
+  });
+
+  expect(JSON.parse(init.body as string)).toEqual({
+    function: "captureReferenceArguments",
+    parameters,
+    devMode: true,
   });
 });

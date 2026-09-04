@@ -1,3 +1,4 @@
+export { captureReferenceExecutionTopLevelLifecycle } from "./executionTopLevelLifecycle";
 export { captureReferenceEnumLikeSurface } from "./enumLikeSurface";
 export { captureReferenceEnumMemberSurface } from "./enumMemberSurface";
 export {

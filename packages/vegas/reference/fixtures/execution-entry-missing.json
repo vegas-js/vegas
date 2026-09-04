@@ -1,0 +1,10 @@
+{
+  "error": {
+    "errorMessage": "Script function not found: captureReferenceEntryMissing",
+    "errorType": "FUNCTION_NOT_FOUND",
+    "scriptStackTraceFunctions": [],
+    "statusCode": 3,
+    "statusMessage": "Script function not found: captureReferenceEntryMissing"
+  },
+  "outcome": "execution-error"
+}

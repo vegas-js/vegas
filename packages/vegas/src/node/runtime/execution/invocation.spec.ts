@@ -1,6 +1,17 @@
-import { describe, expect, test, vi } from "vitest";
+import vm from "node:vm";
+
+import { describe, expect, test } from "vitest";
 
 import { invokeFunction, invokeScriptFunction } from "./invocation";
+import { evaluateScript } from "./scriptRuntime";
+
+function createEvaluatedContext(source: string): vm.Context {
+  const context = vm.createContext({});
+
+  evaluateScript(source, context);
+
+  return context;
+}
 
 describe("invokeFunction", () => {
   test("return the return value of a regular function as-is", async () => {
@@ -18,123 +29,111 @@ describe("invokeFunction", () => {
 
     expect(await invokeFunction(func)).toEqual("value");
   });
-
-  test("serializes doGet result", async () => {
-    function doGet() {
-      return {
-        getMetaTags: () => {
-          return [{ getName: () => "charset", getContent: () => "utf-8" }];
-        },
-        getTitle: () => "html document",
-        getFaviconUrl: () => null,
-        getContent: () => "content",
-        getXFrameOptionsMode: () => null,
-      };
-    }
-
-    expect(await invokeFunction(doGet)).toEqual({
-      metaTags: [{ name: "charset", content: "utf-8" }],
-      title: "html document",
-      faviconUrl: null,
-      content: "content",
-      xFrameOptionsMode: null,
-    });
-  });
-
-  test("using the value of getMimeType()", async () => {
-    function doPost() {
-      return {
-        getContent: () => "content",
-        getMimeType: () => "text/javascript",
-      };
-    }
-
-    expect(await invokeFunction(doPost)).toEqual({
-      mimeType: "text/javascript",
-      content: "content",
-    });
-  });
-
-  test("use the default value if getMimeType() is not defined", async () => {
-    function doPost() {
-      return {
-        getContent: () => "content",
-      };
-    }
-
-    expect(await invokeFunction(doPost)).toEqual({
-      mimeType: "text/html",
-      content: "content",
-    });
-  });
-});
-
-test("serializes doGet result through an HtmlOutput adapter", async () => {
-  const output = {
-    getMetaTags: () => [],
-    getTitle: () => "html document",
-    getFaviconUrl: () => "",
-    getContent: () => "content",
-  };
-
-  function doGet() {
-    return output;
-  }
-
-  const getHtmlOutputXFrameOptionsMode = vi.fn(() => "SAMEORIGIN");
-
-  await expect(
-    invokeScriptFunction({ doGet }, "doGet", [], {
-      getHtmlOutputXFrameOptionsMode,
-    }),
-  ).resolves.toEqual({
-    metaTags: [],
-    title: "html document",
-    faviconUrl: "",
-    content: "content",
-    xFrameOptionsMode: "SAMEORIGIN",
-  });
-
-  expect(getHtmlOutputXFrameOptionsMode).toHaveBeenCalledWith(output);
 });
 
 describe("invokeScriptFunction", () => {
-  test("call a function with a specified name", async () => {
-    const func = vi.fn();
-    await invokeScriptFunction({ func }, "func", []);
+  test("resolves and calls a function declaration by name", async () => {
+    const context = createEvaluatedContext(`
+      function func() {
+        return "value";
+      }
+    `);
 
-    expect(func).toHaveBeenCalledOnce();
+    await expect(invokeScriptFunction(context, "func", [])).resolves.toBe("value");
   });
 
-  test("forward args as-is", async () => {
-    const func = vi.fn();
-    await invokeScriptFunction({ func }, "func", ["arg1", "arg2"]);
+  test("resolves a callable global lexical binding", async () => {
+    const context = createEvaluatedContext(`
+      const lexicalEntry = () => "lexical";
+    `);
 
-    expect(func).toHaveBeenCalledWith("arg1", "arg2");
+    await expect(invokeScriptFunction(context, "lexicalEntry", [])).resolves.toBe("lexical");
   });
 
-  test("return an async result", async () => {
-    async function func() {
-      return "value";
-    }
-    const result = await invokeScriptFunction({ func }, "func", []);
+  test("resolves an inherited callable binding", async () => {
+    const context = createEvaluatedContext("");
 
-    expect(result).toBe("value");
+    await expect(invokeScriptFunction(context, "toString", [])).resolves.toBe("[object Undefined]");
   });
 
-  test("return an error when non-existent function name", async () => {
-    function func() {
-      return "value";
-    }
+  test("invokes a non-strict entry with the script global as this", async () => {
+    const context = createEvaluatedContext(`
+      function entry() {
+        return this === globalThis;
+      }
+    `);
 
-    await expect(invokeScriptFunction({ func }, "function", [])).rejects.toThrow(
-      "function is not a function",
+    await expect(invokeScriptFunction(context, "entry", [])).resolves.toBe(true);
+  });
+
+  test("invokes a strict entry with undefined this", async () => {
+    const context = createEvaluatedContext(`
+      function entry() {
+        "use strict";
+        return this === undefined;
+      }
+    `);
+
+    await expect(invokeScriptFunction(context, "entry", [])).resolves.toBe(true);
+  });
+
+  test("passes positional primitive arguments to the resolved function", async () => {
+    const context = createEvaluatedContext(`
+      function entry(first, second) {
+        return first + ":" + second;
+      }
+    `);
+
+    await expect(invokeScriptFunction(context, "entry", ["arg1", "arg2"])).resolves.toBe(
+      "arg1:arg2",
     );
   });
 
-  test("return an error when target is not a function", async () => {
-    await expect(invokeScriptFunction({ value: "not a function" }, "value", [])).rejects.toThrow(
-      "value is not a function",
-    );
+  test("returns an async result", async () => {
+    const context = createEvaluatedContext(`
+      async function entry() {
+        return "value";
+      }
+    `);
+
+    await expect(invokeScriptFunction(context, "entry", [])).resolves.toBe("value");
+  });
+
+  test("rejects a missing binding as a missing script function", async () => {
+    const context = createEvaluatedContext("");
+
+    await expect(invokeScriptFunction(context, "missingEntry", [])).rejects.toMatchObject({
+      name: "ScriptFunctionNotFoundError",
+      message: "Script function not found: missingEntry",
+      functionName: "missingEntry",
+    });
+  });
+
+  test("rejects a non-callable binding as a missing script function", async () => {
+    const context = createEvaluatedContext(`
+      const nonCallableEntry = "value";
+    `);
+
+    await expect(invokeScriptFunction(context, "nonCallableEntry", [])).rejects.toMatchObject({
+      name: "ScriptFunctionNotFoundError",
+      message: "Script function not found: nonCallableEntry",
+      functionName: "nonCallableEntry",
+    });
+  });
+
+  test("rejects invalid entry names without evaluating them", async () => {
+    const context = createEvaluatedContext(`
+      var mutated = false;
+
+      function entry() {
+        return "value";
+      }
+    `);
+
+    await expect(invokeScriptFunction(context, "entry; mutated = true", [])).rejects.toMatchObject({
+      name: "ScriptFunctionNotFoundError",
+    });
+
+    expect(new vm.Script("mutated").runInContext(context)).toBe(false);
   });
 });

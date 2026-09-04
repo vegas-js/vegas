@@ -125,14 +125,14 @@ test("return a value from doGet to the actual GAS global", async () => {
     context,
   );
 
-  const result = await invokeScriptFunction(context, "doGet", [], {
-    getHtmlOutputXFrameOptionsMode: (htmlOutputFacadeFactory as any).resolveXFrameOptionsMode,
-  });
+  const result = (await invokeScriptFunction(
+    context,
+    "doGet",
+    [],
+  )) as GoogleAppsScript.HTML.HtmlOutput;
 
-  expect(result).toMatchObject({
-    title: "Hello",
-    content: "<h1>Hello</h1>",
-  });
+  expect(result.getTitle()).toBe("Hello");
+  expect(result.getContent()).toBe("<h1>Hello</h1>");
 });
 
 test("return a value from doPost to the actual GAS global", async () => {
@@ -151,18 +151,15 @@ test("return a value from doPost to the actual GAS global", async () => {
     context,
   );
 
-  const result = await invokeScriptFunction(context, "doPost", [
+  const result = (await invokeScriptFunction(context, "doPost", [
     {
       postData: {
         contents: "Hello from POST",
       },
     },
-  ]);
+  ])) as GoogleAppsScript.HTML.HtmlOutput;
 
-  expect(result).toEqual({
-    mimeType: "text/html",
-    content: "Hello from POST",
-  });
+  expect(result.getContent()).toBe("Hello from POST");
 });
 
 test("user code reaches the injected sink", () => {

@@ -1,0 +1,21 @@
+{
+  "outcome": "return",
+  "value": {
+    "booleanValue": {
+      "type": "boolean",
+      "value": true
+    },
+    "nullValue": {
+      "isNull": true,
+      "type": "object"
+    },
+    "numberValue": {
+      "type": "number",
+      "value": 42
+    },
+    "stringValue": {
+      "type": "string",
+      "value": "value"
+    }
+  }
+}

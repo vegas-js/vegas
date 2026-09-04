@@ -1,0 +1,12 @@
+{
+  "error": {
+    "errorMessage": "sync-string",
+    "errorType": "USER_ERROR",
+    "scriptStackTraceFunctions": [
+      "captureReferenceExecutionThrowString"
+    ],
+    "statusCode": 3,
+    "statusMessage": "sync-string"
+  },
+  "outcome": "execution-error"
+}

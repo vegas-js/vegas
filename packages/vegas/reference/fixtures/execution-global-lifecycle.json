@@ -1,0 +1,36 @@
+[
+  {
+    "after": {
+      "constState": 2,
+      "letState": 2,
+      "varState": 2
+    },
+    "before": {
+      "constState": 1,
+      "letState": 1,
+      "varState": 1
+    },
+    "globalBindings": {
+      "constOwnProperty": false,
+      "letOwnProperty": false,
+      "varOwnProperty": true
+    }
+  },
+  {
+    "after": {
+      "constState": 2,
+      "letState": 2,
+      "varState": 2
+    },
+    "before": {
+      "constState": 1,
+      "letState": 1,
+      "varState": 1
+    },
+    "globalBindings": {
+      "constOwnProperty": false,
+      "letOwnProperty": false,
+      "varOwnProperty": true
+    }
+  }
+]

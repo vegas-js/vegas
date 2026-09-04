@@ -1,11 +1,26 @@
-import type { AccessTokenProvider, ReferenceExecutor, ReferenceConfig } from "../core/types";
+import { ReferenceExecutionError } from "../core/executionError";
+import type {
+  AccessTokenProvider,
+  JsonValue,
+  ReferenceExecutor,
+  ReferenceConfig,
+} from "../core/types";
+
+interface ScriptExecutionErrorDetail {
+  errorMessage?: string;
+  errorType?: string;
+  scriptStackTraceElements?: Array<{
+    function?: string;
+    lineNumber?: number;
+  }>;
+}
 
 interface ScriptRunOperation {
   done?: boolean;
   error?: {
     code?: number;
     message?: string;
-    details?: unknown[];
+    details?: ScriptExecutionErrorDetail[];
   };
   response?: {
     result?: unknown;
@@ -22,8 +37,22 @@ class AppsScriptReferenceClient implements ReferenceExecutor {
     this.#accessTokenProvider = accessTokenProvider;
   }
 
-  async execute(functionName: string): Promise<unknown> {
+  async execute(functionName: string, parameters: readonly JsonValue[] = []): Promise<unknown> {
     const accessToken = await this.#accessTokenProvider.getAccessToken();
+
+    const requestBody: {
+      function: string;
+      parameters?: readonly JsonValue[];
+      devMode: true;
+    } = {
+      function: functionName,
+      devMode: true,
+    };
+
+    if (parameters.length > 0) {
+      requestBody.parameters = parameters;
+    }
+
     const response = await fetch(
       `https://script.googleapis.com/v1/scripts/${encodeURIComponent(
         this.#config.deploymentId,
@@ -34,10 +63,7 @@ class AppsScriptReferenceClient implements ReferenceExecutor {
           Authorization: `Bearer ${accessToken}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          function: functionName,
-          devMode: true,
-        }),
+        body: JSON.stringify(requestBody),
       },
     );
     if (!response.ok) {
@@ -50,7 +76,17 @@ class AppsScriptReferenceClient implements ReferenceExecutor {
 
     const operation = (await response.json()) as ScriptRunOperation;
     if (operation.error) {
-      throw new Error(operation.error.message ?? "Apps Script execution failed");
+      const detail = operation.error.details?.[0];
+
+      throw new ReferenceExecutionError({
+        statusCode: operation.error.code ?? null,
+        statusMessage: operation.error.message ?? null,
+        errorMessage: detail?.errorMessage ?? null,
+        errorType: detail?.errorType ?? null,
+        scriptStackTraceFunctions: (detail?.scriptStackTraceElements ?? []).flatMap((element) =>
+          typeof element.function === "string" ? [element.function] : [],
+        ),
+      });
     }
     if (!operation.done) {
       throw new Error("Apps Script execution did not complete");

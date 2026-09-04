@@ -1,0 +1,12 @@
+{
+  "error": {
+    "errorMessage": "42",
+    "errorType": "USER_ERROR",
+    "scriptStackTraceFunctions": [
+      "captureReferenceExecutionThrowNumber"
+    ],
+    "statusCode": 3,
+    "statusMessage": "42"
+  },
+  "outcome": "execution-error"
+}

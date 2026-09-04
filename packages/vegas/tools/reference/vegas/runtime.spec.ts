@@ -32,7 +32,13 @@ for (const referenceCase of referenceCases) {
   test(`Vegas runtime matches GAS reference: ${referenceCase.name}`, async () => {
     const executor = createVegasReferenceExecutor(bundled.source);
 
-    const actual = await acquireReferenceResult(executor, referenceCase.functionName);
+    const actual = await acquireReferenceResult(
+      executor,
+      referenceCase.functionName,
+      referenceCase.executionCount,
+      referenceCase.observationMode,
+      referenceCase.parameters,
+    );
 
     const expected = await readReferenceResult(
       path.join(referenceDir, "fixtures", referenceCase.fixtureFile),

@@ -1,0 +1,12 @@
+{
+  "error": {
+    "errorMessage": "Error: promise-reject",
+    "errorType": "USER_ERROR",
+    "scriptStackTraceFunctions": [
+      "captureReferenceExecutionPromiseReject"
+    ],
+    "statusCode": 3,
+    "statusMessage": "Error: promise-reject"
+  },
+  "outcome": "execution-error"
+}

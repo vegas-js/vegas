@@ -1,0 +1,12 @@
+{
+  "error": {
+    "errorMessage": "[object Object]",
+    "errorType": "USER_ERROR",
+    "scriptStackTraceFunctions": [
+      "captureReferenceExecutionThrowObject"
+    ],
+    "statusCode": 3,
+    "statusMessage": "[object Object]"
+  },
+  "outcome": "execution-error"
+}
