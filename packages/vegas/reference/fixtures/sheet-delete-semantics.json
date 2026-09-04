@@ -1,0 +1,390 @@
+{
+  "deleteColumns": {
+    "after": {
+      "scalars": {
+        "lastColumn": 3,
+        "lastRow": 5,
+        "maxColumns": 3,
+        "maxRows": 5,
+        "sheetId": 0,
+        "sheetName": "Sheet1"
+      },
+      "values": [
+        [
+          "r1c1",
+          "r1c4",
+          "r1c5"
+        ],
+        [
+          "r2c1",
+          "r2c4",
+          "r2c5"
+        ],
+        [
+          "r3c1",
+          "r3c4",
+          "r3c5"
+        ],
+        [
+          "r4c1",
+          "r4c4",
+          "r4c5"
+        ],
+        [
+          "r5c1",
+          "r5c4",
+          "r5c5"
+        ]
+      ]
+    },
+    "before": {
+      "scalars": {
+        "lastColumn": 5,
+        "lastRow": 5,
+        "maxColumns": 5,
+        "maxRows": 5,
+        "sheetId": 0,
+        "sheetName": "Sheet1"
+      },
+      "values": [
+        [
+          "r1c1",
+          "r1c2",
+          "r1c3",
+          "r1c4",
+          "r1c5"
+        ],
+        [
+          "r2c1",
+          "r2c2",
+          "r2c3",
+          "r2c4",
+          "r2c5"
+        ],
+        [
+          "r3c1",
+          "r3c2",
+          "r3c3",
+          "r3c4",
+          "r3c5"
+        ],
+        [
+          "r4c1",
+          "r4c2",
+          "r4c3",
+          "r4c4",
+          "r4c5"
+        ],
+        [
+          "r5c1",
+          "r5c2",
+          "r5c3",
+          "r5c4",
+          "r5c5"
+        ]
+      ]
+    },
+    "mutation": {
+      "errorMessage": null,
+      "errorName": null,
+      "isNull": true,
+      "isUndefined": false,
+      "returnsReceiver": false,
+      "stringify": null,
+      "threw": false,
+      "type": "object"
+    }
+  },
+  "deleteFirstColumn": {
+    "after": {
+      "scalars": {
+        "lastColumn": 4,
+        "lastRow": 5,
+        "maxColumns": 4,
+        "maxRows": 5,
+        "sheetId": 0,
+        "sheetName": "Sheet1"
+      },
+      "values": [
+        [
+          "r1c2",
+          "r1c3",
+          "r1c4",
+          "r1c5"
+        ],
+        [
+          "r2c2",
+          "r2c3",
+          "r2c4",
+          "r2c5"
+        ],
+        [
+          "r3c2",
+          "r3c3",
+          "r3c4",
+          "r3c5"
+        ],
+        [
+          "r4c2",
+          "r4c3",
+          "r4c4",
+          "r4c5"
+        ],
+        [
+          "r5c2",
+          "r5c3",
+          "r5c4",
+          "r5c5"
+        ]
+      ]
+    },
+    "before": {
+      "scalars": {
+        "lastColumn": 5,
+        "lastRow": 5,
+        "maxColumns": 5,
+        "maxRows": 5,
+        "sheetId": 0,
+        "sheetName": "Sheet1"
+      },
+      "values": [
+        [
+          "r1c1",
+          "r1c2",
+          "r1c3",
+          "r1c4",
+          "r1c5"
+        ],
+        [
+          "r2c1",
+          "r2c2",
+          "r2c3",
+          "r2c4",
+          "r2c5"
+        ],
+        [
+          "r3c1",
+          "r3c2",
+          "r3c3",
+          "r3c4",
+          "r3c5"
+        ],
+        [
+          "r4c1",
+          "r4c2",
+          "r4c3",
+          "r4c4",
+          "r4c5"
+        ],
+        [
+          "r5c1",
+          "r5c2",
+          "r5c3",
+          "r5c4",
+          "r5c5"
+        ]
+      ]
+    },
+    "mutation": {
+      "errorMessage": null,
+      "errorName": null,
+      "isNull": false,
+      "isUndefined": false,
+      "returnsReceiver": false,
+      "stringify": "Sheet",
+      "threw": false,
+      "type": "object"
+    }
+  },
+  "deleteFirstRow": {
+    "after": {
+      "scalars": {
+        "lastColumn": 5,
+        "lastRow": 4,
+        "maxColumns": 5,
+        "maxRows": 4,
+        "sheetId": 0,
+        "sheetName": "Sheet1"
+      },
+      "values": [
+        [
+          "r2c1",
+          "r2c2",
+          "r2c3",
+          "r2c4",
+          "r2c5"
+        ],
+        [
+          "r3c1",
+          "r3c2",
+          "r3c3",
+          "r3c4",
+          "r3c5"
+        ],
+        [
+          "r4c1",
+          "r4c2",
+          "r4c3",
+          "r4c4",
+          "r4c5"
+        ],
+        [
+          "r5c1",
+          "r5c2",
+          "r5c3",
+          "r5c4",
+          "r5c5"
+        ]
+      ]
+    },
+    "before": {
+      "scalars": {
+        "lastColumn": 5,
+        "lastRow": 5,
+        "maxColumns": 5,
+        "maxRows": 5,
+        "sheetId": 0,
+        "sheetName": "Sheet1"
+      },
+      "values": [
+        [
+          "r1c1",
+          "r1c2",
+          "r1c3",
+          "r1c4",
+          "r1c5"
+        ],
+        [
+          "r2c1",
+          "r2c2",
+          "r2c3",
+          "r2c4",
+          "r2c5"
+        ],
+        [
+          "r3c1",
+          "r3c2",
+          "r3c3",
+          "r3c4",
+          "r3c5"
+        ],
+        [
+          "r4c1",
+          "r4c2",
+          "r4c3",
+          "r4c4",
+          "r4c5"
+        ],
+        [
+          "r5c1",
+          "r5c2",
+          "r5c3",
+          "r5c4",
+          "r5c5"
+        ]
+      ]
+    },
+    "mutation": {
+      "errorMessage": null,
+      "errorName": null,
+      "isNull": false,
+      "isUndefined": false,
+      "returnsReceiver": false,
+      "stringify": "Sheet",
+      "threw": false,
+      "type": "object"
+    }
+  },
+  "deleteRows": {
+    "after": {
+      "scalars": {
+        "lastColumn": 5,
+        "lastRow": 3,
+        "maxColumns": 5,
+        "maxRows": 3,
+        "sheetId": 0,
+        "sheetName": "Sheet1"
+      },
+      "values": [
+        [
+          "r1c1",
+          "r1c2",
+          "r1c3",
+          "r1c4",
+          "r1c5"
+        ],
+        [
+          "r4c1",
+          "r4c2",
+          "r4c3",
+          "r4c4",
+          "r4c5"
+        ],
+        [
+          "r5c1",
+          "r5c2",
+          "r5c3",
+          "r5c4",
+          "r5c5"
+        ]
+      ]
+    },
+    "before": {
+      "scalars": {
+        "lastColumn": 5,
+        "lastRow": 5,
+        "maxColumns": 5,
+        "maxRows": 5,
+        "sheetId": 0,
+        "sheetName": "Sheet1"
+      },
+      "values": [
+        [
+          "r1c1",
+          "r1c2",
+          "r1c3",
+          "r1c4",
+          "r1c5"
+        ],
+        [
+          "r2c1",
+          "r2c2",
+          "r2c3",
+          "r2c4",
+          "r2c5"
+        ],
+        [
+          "r3c1",
+          "r3c2",
+          "r3c3",
+          "r3c4",
+          "r3c5"
+        ],
+        [
+          "r4c1",
+          "r4c2",
+          "r4c3",
+          "r4c4",
+          "r4c5"
+        ],
+        [
+          "r5c1",
+          "r5c2",
+          "r5c3",
+          "r5c4",
+          "r5c5"
+        ]
+      ]
+    },
+    "mutation": {
+      "errorMessage": null,
+      "errorName": null,
+      "isNull": true,
+      "isUndefined": false,
+      "returnsReceiver": false,
+      "stringify": null,
+      "threw": false,
+      "type": "object"
+    }
+  }
+}

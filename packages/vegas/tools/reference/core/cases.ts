@@ -217,6 +217,24 @@ export const referenceCases: readonly ReferenceCaseDefinition[] = [
     runtimeTest: "required",
   },
   {
+    name: "sheet-query-semantics",
+    functionName: "captureReferenceSheetQuerySemantics",
+    fixtureFile: "sheet-query-semantics.json",
+    runtimeTest: "required",
+  },
+  {
+    name: "sheet-clear-contents-semantics",
+    functionName: "captureReferenceSheetClearContentsSemantics",
+    fixtureFile: "sheet-clear-contents-semantics.json",
+    runtimeTest: "required",
+  },
+  {
+    name: "sheet-delete-semantics",
+    functionName: "captureReferenceSheetDeleteSemantics",
+    fixtureFile: "sheet-delete-semantics.json",
+    runtimeTest: "required",
+  },
+  {
     name: "drive-app-surface",
     functionName: "captureReferenceDriveAppSurface",
     fixtureFile: "drive-app-surface.json",

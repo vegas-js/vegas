@@ -82,6 +82,32 @@ describe("createSheetObjectFacade", () => {
 
     expect((sheet as any).clearContents()).toBe(sheet);
   });
+
+  test("wraps fresh Sheet results without preserving facade identity", () => {
+    const implementation = new Sheet(
+      "spreadsheet-id",
+      0,
+      unexpected,
+      {
+        getLastRow: unexpected,
+        getLastColumn: unexpected,
+        getMaxRows: unexpected,
+        getMaxColumns: unexpected,
+        getSheetName: unexpected,
+      },
+      () => undefined,
+    );
+
+    const sheet = createSheetObjectFacade(implementation);
+
+    const result = sheet.clearContents();
+
+    expect(result).not.toBe(sheet);
+    expect(result).not.toBe(implementation);
+    expect(Object.getPrototypeOf(result)).toBe(Object.prototype);
+    expect(String(result as any)).toBe("Sheet");
+    expect(result.getSheetId()).toBe(0);
+  });
 });
 
 test("returns fresh Range facades from getRange", () => {

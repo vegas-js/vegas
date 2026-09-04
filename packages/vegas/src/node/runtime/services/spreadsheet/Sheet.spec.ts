@@ -105,6 +105,128 @@ test("range delegation in getSheetValues", () => {
   expect(result).toEqual([["value"]]);
 });
 
+test("resolves -1 row count in getSheetValues from the last row", () => {
+  const range = {
+    getValues: vi.fn(() => [
+      ["b2", "c2", "d2"],
+      ["b3", "c3", "d3"],
+      ["b4", "c4", "d4"],
+    ]),
+  };
+
+  const createRange = vi.fn(() => range as any);
+
+  const service: RuntimeServicePort<"Sheet"> = {
+    getLastRow: vi.fn(() => 4),
+    getLastColumn: vi.fn(),
+    getMaxRows: vi.fn(),
+    getMaxColumns: vi.fn(),
+    getSheetName: vi.fn(),
+  };
+
+  const sheet = new Sheet("spreadsheet-id", 123, createRange, service, vi.fn());
+
+  const result = sheet.getSheetValues(2, 2, -1, 3);
+
+  expect(service.getLastRow).toHaveBeenCalledWith({
+    spreadsheetId: "spreadsheet-id",
+    sheetId: 123,
+  });
+
+  expect(createRange).toHaveBeenCalledWith("spreadsheet-id", 123, 2, 2, 3, 3);
+
+  expect(result).toEqual([
+    ["b2", "c2", "d2"],
+    ["b3", "c3", "d3"],
+    ["b4", "c4", "d4"],
+  ]);
+});
+
+test("resolves -1 column count in getSheetValues from the last column", () => {
+  const range = {
+    getValues: vi.fn(() => [
+      ["b2", "c2", "d2"],
+      ["b3", "c3", "d3"],
+      ["b4", "c4", "d4"],
+    ]),
+  };
+
+  const createRange = vi.fn(() => range as any);
+
+  const service: RuntimeServicePort<"Sheet"> = {
+    getLastRow: vi.fn(),
+    getLastColumn: vi.fn(() => 4),
+    getMaxRows: vi.fn(),
+    getMaxColumns: vi.fn(),
+    getSheetName: vi.fn(),
+  };
+
+  const sheet = new Sheet("spreadsheet-id", 123, createRange, service, vi.fn());
+
+  const result = sheet.getSheetValues(2, 2, 3, -1);
+
+  expect(service.getLastColumn).toHaveBeenCalledWith({
+    spreadsheetId: "spreadsheet-id",
+    sheetId: 123,
+  });
+
+  expect(createRange).toHaveBeenCalledWith("spreadsheet-id", 123, 2, 2, 3, 3);
+
+  expect(result).toEqual([
+    ["b2", "c2", "d2"],
+    ["b3", "c3", "d3"],
+    ["b4", "c4", "d4"],
+  ]);
+});
+
+test("rejects zero start row in getSheetValues with a GAS Exception", () => {
+  const sheet = new Sheet(
+    "spreadsheet-id",
+    123,
+    vi.fn(),
+    {
+      getLastRow: vi.fn(),
+      getLastColumn: vi.fn(),
+      getMaxRows: vi.fn(),
+      getMaxColumns: vi.fn(),
+      getSheetName: vi.fn(),
+    },
+    vi.fn(),
+  );
+
+  try {
+    sheet.getSheetValues(0, 1, 1, 1);
+    throw new Error("Expected getSheetValues to throw");
+  } catch (error) {
+    expect((error as Error).name).toBe("Exception");
+    expect((error as Error).message).toBe("The starting row of the range is too small.");
+  }
+});
+
+test("rejects zero row count in getSheetValues with a GAS Exception", () => {
+  const sheet = new Sheet(
+    "spreadsheet-id",
+    123,
+    vi.fn(),
+    {
+      getLastRow: vi.fn(),
+      getLastColumn: vi.fn(),
+      getMaxRows: vi.fn(),
+      getMaxColumns: vi.fn(),
+      getSheetName: vi.fn(),
+    },
+    vi.fn(),
+  );
+
+  try {
+    sheet.getSheetValues(1, 1, 0, 1);
+    throw new Error("Expected getSheetValues to throw");
+  } catch (error) {
+    expect((error as Error).name).toBe("Exception");
+    expect((error as Error).message).toBe("The number of rows in the range must be at least 1.");
+  }
+});
+
 test("clearContents", () => {
   const requestSync = vi.fn();
   const service: RuntimeServicePort<"Sheet"> = {
@@ -124,7 +246,9 @@ test("clearContents", () => {
       sheetId: 123,
     },
   });
-  expect(result).toBe(sheet);
+  expect(result).not.toBe(sheet);
+  expect(result).toBeInstanceOf(Sheet);
+  expect(result.getSheetId()).toBe(123);
 });
 
 describe("row deletion", () => {
@@ -148,7 +272,9 @@ describe("row deletion", () => {
         rowPosition: 4,
       },
     });
-    expect(result).toBe(sheet);
+    expect(result).not.toBe(sheet);
+    expect(result).toBeInstanceOf(Sheet);
+    expect(result.getSheetId()).toBe(123);
   });
 
   test("deleteRows", () => {
@@ -172,7 +298,7 @@ describe("row deletion", () => {
         howMany: 3,
       },
     });
-    expect(result).toBe(sheet);
+    expect(result).toBeNull();
   });
 });
 
@@ -197,7 +323,9 @@ describe("column deletion", () => {
         columnPosition: 5,
       },
     });
-    expect(result).toBe(sheet);
+    expect(result).not.toBe(sheet);
+    expect(result).toBeInstanceOf(Sheet);
+    expect(result.getSheetId()).toBe(123);
   });
 
   test("deleteColumns", () => {
@@ -221,7 +349,7 @@ describe("column deletion", () => {
         howMany: 2,
       },
     });
-    expect(result).toBe(sheet);
+    expect(result).toBeNull();
   });
 });
 

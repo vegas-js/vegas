@@ -8,6 +8,7 @@ import {
   evaluateScriptWithBindings,
 } from "../../../src/node/runtime/execution/scriptRuntime";
 import type { EvaluateHtmlTemplate } from "../../../src/node/runtime/execution/types";
+import type { RequestLegacySync } from "../../../src/node/runtime/legacy/transport";
 import type {
   CreateRange,
   CreateSheet,
@@ -202,13 +203,41 @@ function createReferenceSpreadsheetDependencies() {
     return spreadsheets.get(spreadsheetId) ?? null;
   };
 
+  const getLastRow = (state: ReferenceSpreadsheetState) => {
+    for (let rowIndex = state.cells.length - 1; rowIndex >= 0; rowIndex--) {
+      if (state.cells[rowIndex].some((value) => value !== "")) {
+        return rowIndex + 1;
+      }
+    }
+
+    return 0;
+  };
+
+  const getLastColumn = (state: ReferenceSpreadsheetState) => {
+    const columnCount = state.cells[0]?.length ?? 0;
+
+    for (let columnIndex = columnCount - 1; columnIndex >= 0; columnIndex--) {
+      for (const row of state.cells) {
+        if (row[columnIndex] !== "") {
+          return columnIndex + 1;
+        }
+      }
+    }
+
+    return 0;
+  };
+
   const sheetService: RuntimeServicePort<"Sheet"> = {
     getLastRow: ({ spreadsheetId, sheetId }) => {
-      return getInitialSheet(spreadsheetId, sheetId) === null ? null : 0;
+      const state = getInitialSheet(spreadsheetId, sheetId);
+
+      return state === null ? null : getLastRow(state);
     },
 
     getLastColumn: ({ spreadsheetId, sheetId }) => {
-      return getInitialSheet(spreadsheetId, sheetId) === null ? null : 0;
+      const state = getInitialSheet(spreadsheetId, sheetId);
+
+      return state === null ? null : getLastColumn(state);
     },
 
     getMaxRows: ({ spreadsheetId, sheetId }) => {
@@ -232,6 +261,105 @@ function createReferenceSpreadsheetDependencies() {
     }
 
     return state;
+  };
+
+  const requestSheetLegacySync: RequestLegacySync = (request) => {
+    const payload = request.payload as
+      | {
+          spreadsheetId?: unknown;
+          sheetId?: unknown;
+          rowPosition?: unknown;
+          columnPosition?: unknown;
+          howMany?: unknown;
+        }
+      | null
+      | undefined;
+
+    if (
+      payload === null ||
+      payload === undefined ||
+      typeof payload.spreadsheetId !== "string" ||
+      typeof payload.sheetId !== "number"
+    ) {
+      throw new Error(`Invalid legacy Sheet payload for ${request.message}`);
+    }
+
+    const state = requireInitialSheet(payload.spreadsheetId, payload.sheetId);
+
+    const requirePosition = (value: unknown, name: "rowPosition" | "columnPosition") => {
+      if (typeof value !== "number") {
+        throw new Error(`Missing ${name} for ${request.message}`);
+      }
+
+      return value;
+    };
+
+    const requireHowMany = () => {
+      if (typeof payload.howMany !== "number") {
+        throw new Error(`Missing howMany for ${request.message}`);
+      }
+
+      return payload.howMany;
+    };
+
+    switch (request.message) {
+      case "Sheet#clearContents": {
+        for (const row of state.cells) {
+          row.fill("");
+        }
+
+        return undefined;
+      }
+
+      case "Sheet#deleteRow": {
+        const rowPosition = requirePosition(payload.rowPosition, "rowPosition");
+
+        state.cells.splice(rowPosition - 1, 1);
+        state.rows = state.cells.length;
+
+        return undefined;
+      }
+
+      case "Sheet#deleteRows": {
+        const rowPosition = requirePosition(payload.rowPosition, "rowPosition");
+
+        state.cells.splice(rowPosition - 1, requireHowMany());
+        state.rows = state.cells.length;
+
+        return undefined;
+      }
+
+      case "Sheet#deleteColumn": {
+        const columnPosition = requirePosition(payload.columnPosition, "columnPosition");
+
+        for (const row of state.cells) {
+          row.splice(columnPosition - 1, 1);
+        }
+
+        state.columns = state.cells[0]?.length ?? 0;
+
+        return undefined;
+      }
+
+      case "Sheet#deleteColumns": {
+        const columnPosition = requirePosition(payload.columnPosition, "columnPosition");
+
+        const howMany = requireHowMany();
+
+        for (const row of state.cells) {
+          row.splice(columnPosition - 1, howMany);
+        }
+
+        state.columns = state.cells[0]?.length ?? 0;
+
+        return undefined;
+      }
+
+      default:
+        throw new Error(
+          `Unexpected legacy Sheet request while executing reference case: ${request.message}`,
+        );
+    }
   };
 
   const rangeService: RuntimeServicePort<"Range"> = {
@@ -306,7 +434,7 @@ function createReferenceSpreadsheetDependencies() {
     ) => new Range(targetSpreadsheetId, sheetId, row, column, numRows, numColumns, rangeService);
 
     const createSheet: CreateSheet = (targetSpreadsheetId, sheetId) =>
-      new Sheet(targetSpreadsheetId, sheetId, createRange, sheetService, unexpected);
+      new Sheet(targetSpreadsheetId, sheetId, createRange, sheetService, requestSheetLegacySync);
 
     return new Spreadsheet(spreadsheetId, createSheet, unexpected);
   };

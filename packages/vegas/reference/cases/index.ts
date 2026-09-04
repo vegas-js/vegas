@@ -39,6 +39,11 @@ export {
   captureReferenceRangeSetValuesValidationSemantics,
   captureReferenceRangeGetCellSemantics,
 } from "./rangeSemantics";
+export {
+  captureReferenceSheetQuerySemantics,
+  captureReferenceSheetClearContentsSemantics,
+  captureReferenceSheetDeleteSemantics,
+} from "./sheetSemantics";
 export { captureReferenceDriveAppSurface } from "./driveAppSurface";
 export { captureReferenceLoggerSurface } from "./loggerSurface";
 export { captureReferenceConsoleSurface } from "./consoleSurface";

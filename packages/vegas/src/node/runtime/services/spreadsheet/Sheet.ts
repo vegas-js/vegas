@@ -58,6 +58,16 @@ export class Sheet implements GoogleAppsScript.Spreadsheet.Sheet {
     this.#requestSync = requestSync;
   }
 
+  #createSibling() {
+    return new Sheet(
+      this.#spreadsheetId,
+      this.#sheetId,
+      this.#createRange,
+      this.#service,
+      this.#requestSync,
+    );
+  }
+
   activate = () => {
     throw new Error("Method not implemented.");
   };
@@ -96,7 +106,7 @@ export class Sheet implements GoogleAppsScript.Spreadsheet.Sheet {
         sheetId: this.#sheetId,
       },
     });
-    return this;
+    return this.#createSibling();
   };
   clearFormats = () => {
     throw new Error("Method not implemented.");
@@ -124,7 +134,7 @@ export class Sheet implements GoogleAppsScript.Spreadsheet.Sheet {
       message: `${this.constructor.name}#deleteColumn`,
       payload: { spreadsheetId: this.#spreadsheetId, sheetId: this.#sheetId, columnPosition },
     });
-    return this;
+    return this.#createSibling();
   };
   deleteColumns = (columnPosition: GoogleAppsScript.Integer, howMany: GoogleAppsScript.Integer) => {
     this.#requestSync({
@@ -136,21 +146,21 @@ export class Sheet implements GoogleAppsScript.Spreadsheet.Sheet {
         howMany,
       },
     });
-    return this;
+    return null;
   };
   deleteRow = (rowPosition: GoogleAppsScript.Integer) => {
     this.#requestSync({
       message: `${this.constructor.name}#deleteRow`,
       payload: { spreadsheetId: this.#spreadsheetId, sheetId: this.#sheetId, rowPosition },
     });
-    return this;
+    return this.#createSibling();
   };
   deleteRows = (rowPosition: GoogleAppsScript.Integer, howMany: GoogleAppsScript.Integer) => {
     this.#requestSync({
       message: `${this.constructor.name}#deleteRows`,
       payload: { spreadsheetId: this.#spreadsheetId, sheetId: this.#sheetId, rowPosition, howMany },
     });
-    return this;
+    return null;
   };
   expandAllColumnGroups = () => {
     throw new Error("Method not implemented.");
@@ -394,14 +404,30 @@ export class Sheet implements GoogleAppsScript.Spreadsheet.Sheet {
     numRows: GoogleAppsScript.Integer,
     numColumns: GoogleAppsScript.Integer,
   ) => {
+    if (startRow < 1) {
+      throw createGasException("The starting row of the range is too small.");
+    }
+
+    if (startColumn < 1) {
+      throw createGasException("The starting column of the range is too small.");
+    }
+
+    const resolvedNumRows = numRows === -1 ? this.getLastRow() - startRow + 1 : numRows;
+
+    const resolvedNumColumns =
+      numColumns === -1 ? this.getLastColumn() - startColumn + 1 : numColumns;
+
+    validateRange(startRow, startColumn, resolvedNumRows, resolvedNumColumns);
+
     const range = this.#createRange(
       this.#spreadsheetId,
       this.#sheetId,
       startRow,
       startColumn,
-      numRows,
-      numColumns,
+      resolvedNumRows,
+      resolvedNumColumns,
     );
+
     return range.getValues();
   };
   getSlicers = () => {

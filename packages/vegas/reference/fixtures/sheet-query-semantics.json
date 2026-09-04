@@ -1,0 +1,149 @@
+{
+  "afterWrite": {
+    "lastColumn": 4,
+    "lastRow": 4,
+    "maxColumns": 7,
+    "maxRows": 6,
+    "sheetId": 0,
+    "sheetName": "Sheet1"
+  },
+  "initial": {
+    "lastColumn": 0,
+    "lastRow": 0,
+    "maxColumns": 7,
+    "maxRows": 6,
+    "sheetId": 0,
+    "sheetName": "Sheet1"
+  },
+  "negativeColumns": {
+    "errorMessage": null,
+    "errorName": null,
+    "isNull": false,
+    "isUndefined": false,
+    "threw": false,
+    "type": "object",
+    "value": [
+      [
+        "b2",
+        "c2",
+        "d2"
+      ],
+      [
+        "b3",
+        "c3",
+        "d3"
+      ],
+      [
+        "b4",
+        "c4",
+        "d4"
+      ]
+    ]
+  },
+  "negativeRows": {
+    "errorMessage": null,
+    "errorName": null,
+    "isNull": false,
+    "isUndefined": false,
+    "threw": false,
+    "type": "object",
+    "value": [
+      [
+        "b2",
+        "c2",
+        "d2"
+      ],
+      [
+        "b3",
+        "c3",
+        "d3"
+      ],
+      [
+        "b4",
+        "c4",
+        "d4"
+      ]
+    ]
+  },
+  "negativeRowsAndColumns": {
+    "errorMessage": null,
+    "errorName": null,
+    "isNull": false,
+    "isUndefined": false,
+    "threw": false,
+    "type": "object",
+    "value": [
+      [
+        "b2",
+        "c2",
+        "d2"
+      ],
+      [
+        "b3",
+        "c3",
+        "d3"
+      ],
+      [
+        "b4",
+        "c4",
+        "d4"
+      ]
+    ]
+  },
+  "normalRead": {
+    "errorMessage": null,
+    "errorName": null,
+    "isNull": false,
+    "isUndefined": false,
+    "threw": false,
+    "type": "object",
+    "value": [
+      [
+        "b2",
+        "c2",
+        "d2"
+      ],
+      [
+        "b3",
+        "c3",
+        "d3"
+      ]
+    ]
+  },
+  "zeroColumns": {
+    "errorMessage": "The number of columns in the range must be at least 1.",
+    "errorName": "Exception",
+    "isNull": null,
+    "isUndefined": null,
+    "threw": true,
+    "type": null,
+    "value": null
+  },
+  "zeroRows": {
+    "errorMessage": "The number of rows in the range must be at least 1.",
+    "errorName": "Exception",
+    "isNull": null,
+    "isUndefined": null,
+    "threw": true,
+    "type": null,
+    "value": null
+  },
+  "zeroStartColumn": {
+    "errorMessage": "The starting column of the range is too small.",
+    "errorName": "Exception",
+    "isNull": null,
+    "isUndefined": null,
+    "threw": true,
+    "type": null,
+    "value": null
+  },
+  "zeroStartRow": {
+    "errorMessage": "The starting row of the range is too small.",
+    "errorName": "Exception",
+    "isNull": null,
+    "isUndefined": null,
+    "threw": true,
+    "type": null,
+    "value": null
+  }
+}

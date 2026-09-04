@@ -19,7 +19,7 @@ export class SheetHandler {
     ctx.store.spreadsheet
       .get(payload.spreadsheetId)
       ?.sheets.get(payload.sheetId)
-      ?.cells.splice(payload.rowPosition, payload.howMany);
+      ?.cells.splice(payload.rowPosition - 1, payload.howMany);
   }
   deleteColumn(
     ctx: ServeContext,
@@ -28,7 +28,7 @@ export class SheetHandler {
     this.deleteColumns(ctx, {
       spreadsheetId: payload.spreadsheetId,
       sheetId: payload.sheetId,
-      columnPosition: payload.columnPosition,
+      columnPosition: payload.columnPosition - 1,
       howMany: 1,
     });
   }
@@ -39,7 +39,7 @@ export class SheetHandler {
     ctx.store.spreadsheet
       .get(payload.spreadsheetId)
       ?.sheets.get(payload.sheetId)
-      ?.cells.forEach((row) => row.splice(payload.columnPosition, payload.howMany));
+      ?.cells.forEach((row) => row.splice(payload.columnPosition - 1, payload.howMany));
   }
   clearContents(ctx: ServeContext, payload: { spreadsheetId: string; sheetId: number }) {
     const spreadSheet = ctx.store.spreadsheet.get(payload.spreadsheetId);

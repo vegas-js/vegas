@@ -176,6 +176,10 @@ export function createSheetObjectFacade(
         return value;
       }
 
+      if (result instanceof Sheet) {
+        return createSheetObjectFacade(result, createObject, createRangeFacade);
+      }
+
       if (name === "getRange" && result instanceof Range) {
         return createRangeFacade(result);
       }

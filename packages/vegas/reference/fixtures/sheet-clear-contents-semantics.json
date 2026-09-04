@@ -1,0 +1,92 @@
+{
+  "after": {
+    "scalars": {
+      "lastColumn": 0,
+      "lastRow": 0,
+      "maxColumns": 5,
+      "maxRows": 4,
+      "sheetId": 0,
+      "sheetName": "Sheet1"
+    },
+    "values": [
+      [
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      [
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      [
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      [
+        "",
+        "",
+        "",
+        "",
+        ""
+      ]
+    ]
+  },
+  "before": {
+    "scalars": {
+      "lastColumn": 4,
+      "lastRow": 3,
+      "maxColumns": 5,
+      "maxRows": 4,
+      "sheetId": 0,
+      "sheetName": "Sheet1"
+    },
+    "values": [
+      [
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      [
+        "",
+        "b2",
+        "c2",
+        "d2",
+        ""
+      ],
+      [
+        "",
+        "b3",
+        "c3",
+        "d3",
+        ""
+      ],
+      [
+        "",
+        "",
+        "",
+        "",
+        ""
+      ]
+    ]
+  },
+  "mutation": {
+    "errorMessage": null,
+    "errorName": null,
+    "isNull": false,
+    "isUndefined": false,
+    "returnsReceiver": false,
+    "stringify": "Sheet",
+    "threw": false,
+    "type": "object"
+  }
+}
