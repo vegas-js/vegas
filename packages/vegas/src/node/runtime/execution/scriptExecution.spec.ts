@@ -4,6 +4,7 @@ import { HtmlOutput } from "../services/html/HtmlOutput";
 import { createHtmlOutputFacadeFactory } from "../services/html/htmlOutputFacade";
 import { invokeScriptFunction } from "./invocation";
 import { createScriptContext, type ScriptContextDependencies } from "./scriptContext";
+import { executeScriptInvocation } from "./scriptExecution";
 import { evaluateScript } from "./scriptRuntime";
 
 const unexpected = () => {
@@ -176,4 +177,36 @@ test("user code reaches the injected sink", () => {
 
   expect(write).toHaveBeenCalledOnce();
   expect(value).toBe("from user script");
+});
+
+test("orchestrates a fresh script execution for each invocation", async () => {
+  const code = `
+    let topLevelEvaluationCount = 0;
+    topLevelEvaluationCount += 1;
+
+    function observeExecution() {
+      return topLevelEvaluationCount;
+    }
+  `;
+
+  const createExecutionContext = vi.fn(() => createContext());
+
+  const first = await executeScriptInvocation({
+    code,
+    functionName: "observeExecution",
+    args: [],
+    createContext: () => createExecutionContext(),
+  });
+
+  const second = await executeScriptInvocation({
+    code,
+    functionName: "observeExecution",
+    args: [],
+    createContext: () => createExecutionContext(),
+  });
+
+  expect(first.value).toBe(1);
+  expect(second.value).toBe(1);
+
+  expect(createExecutionContext).toHaveBeenCalledTimes(2);
 });

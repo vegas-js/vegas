@@ -5,12 +5,9 @@ import { createRuntimeObjectFactories } from "../objects/factories";
 import type { ServiceCaller } from "../protocol";
 import { createRuntimeServicePorts } from "../servicePorts";
 import { createHtmlOutputFacadeFactory } from "../services/html/htmlOutputFacade";
-import { invokeScriptFunction } from "./invocation";
-import { projectLegacyWebAppResult } from "./legacyWebAppResultProjection";
 import { projectScriptResult } from "./resultProjection";
 import { createScriptContext } from "./scriptContext";
-import { evaluateScript, evaluateScriptWithBindings } from "./scriptRuntime";
-import type { EvaluateHtmlTemplate } from "./types";
+import { executeScriptInvocation } from "./scriptExecution";
 
 export interface ScriptRuntimeDependencies {
   code: string;
@@ -20,8 +17,14 @@ export interface ScriptRuntimeDependencies {
   callService: ServiceCaller;
 }
 
+export interface ScriptRuntimeExecution {
+  readonly value: unknown;
+  getHtmlOutputXFrameOptionsMode(value: unknown): string | null | undefined;
+}
+
 export interface ScriptRuntime {
-  invoke(functionName: string, args: unknown[]): Promise<unknown>;
+  execute(functionName: string, args: readonly unknown[]): Promise<ScriptRuntimeExecution>;
+  invoke(functionName: string, args: readonly unknown[]): Promise<unknown>;
 }
 
 export function createScriptRuntime(dependencies: ScriptRuntimeDependencies): ScriptRuntime {
@@ -38,51 +41,57 @@ export function createScriptRuntime(dependencies: ScriptRuntimeDependencies): Sc
     propertiesService,
   } = createRuntimeServicePorts(callService);
 
+  const execute = async (
+    functionName: string,
+    args: readonly unknown[],
+  ): Promise<ScriptRuntimeExecution> => {
+    const htmlOutputFacadeFactory = createHtmlOutputFacadeFactory();
+
+    const invocation = await executeScriptInvocation({
+      code,
+      functionName,
+      args,
+
+      createContext(evaluateHtmlTemplate) {
+        const factories = createRuntimeObjectFactories({
+          requestLegacySync,
+          rangeService,
+          sheetService,
+          evaluateHtmlTemplate,
+        });
+
+        return createScriptContext({
+          environment,
+          htmlOutputFacadeFactory,
+          requestLegacySync,
+          logSink,
+          spreadsheetAppService,
+          urlFetchService,
+          htmlService,
+          sessionService,
+          cacheService,
+          propertiesService,
+          ...factories,
+        });
+      },
+    });
+
+    return {
+      value: invocation.value,
+
+      getHtmlOutputXFrameOptionsMode(value) {
+        return htmlOutputFacadeFactory.resolveXFrameOptionsMode(value);
+      },
+    };
+  };
+
   return {
+    execute,
+
     async invoke(functionName, args) {
-      const htmlOutputFacadeFactory = createHtmlOutputFacadeFactory();
+      const execution = await execute(functionName, args);
 
-      let scriptContext: ReturnType<typeof createScriptContext> | undefined;
-
-      const evaluateHtmlTemplate: EvaluateHtmlTemplate = (templateCode, bindings) => {
-        if (!scriptContext) {
-          throw new Error("Script context is not initialized");
-        }
-
-        return evaluateScriptWithBindings(templateCode, scriptContext, bindings);
-      };
-
-      const factories = createRuntimeObjectFactories({
-        requestLegacySync,
-        rangeService,
-        sheetService,
-        evaluateHtmlTemplate,
-      });
-
-      scriptContext = createScriptContext({
-        environment,
-        htmlOutputFacadeFactory,
-        requestLegacySync,
-        logSink,
-        spreadsheetAppService,
-        urlFetchService,
-        htmlService,
-        sessionService,
-        cacheService,
-        propertiesService,
-        ...factories,
-      });
-
-      evaluateScript(code, scriptContext);
-
-      const { value: result } = await invokeScriptFunction(scriptContext, functionName, args);
-
-      const legacyProjectedResult = projectLegacyWebAppResult(functionName, result, {
-        // oxlint-disable-next-line unbound-method
-        getHtmlOutputXFrameOptionsMode: htmlOutputFacadeFactory.resolveXFrameOptionsMode,
-      });
-
-      return projectScriptResult(legacyProjectedResult);
+      return projectScriptResult(execution.value);
     },
   };
 }

@@ -1,14 +1,9 @@
-import { invokeScriptFunction } from "../../../src/node/runtime/execution/invocation";
 import { projectScriptResult } from "../../../src/node/runtime/execution/resultProjection";
 import {
   createScriptContext,
   type ScriptContextDependencies,
 } from "../../../src/node/runtime/execution/scriptContext";
-import {
-  evaluateScript,
-  evaluateScriptWithBindings,
-} from "../../../src/node/runtime/execution/scriptRuntime";
-import type { EvaluateHtmlTemplate } from "../../../src/node/runtime/execution/types";
+import { executeScriptInvocation } from "../../../src/node/runtime/execution/scriptExecution";
 import type { RequestLegacySync } from "../../../src/node/runtime/legacy/transport";
 import type {
   CreateRange,
@@ -664,30 +659,25 @@ export function createVegasReferenceExecutor(source: string): ReferenceExecutor 
     async execute(functionName, parameters = []) {
       const htmlOutputFacadeFactory = createHtmlOutputFacadeFactory();
 
-      let templateContext: ReturnType<typeof createScriptContext> | undefined;
-
-      const evaluateHtmlTemplate: EvaluateHtmlTemplate = (templateCode, bindings) => {
-        if (!templateContext) {
-          throw new Error("Reference script context is not initialized");
-        }
-
-        return evaluateScriptWithBindings(templateCode, templateContext, bindings);
-      };
-
-      const context = createScriptContext({
-        ...referenceDependencies,
-        htmlOutputFacadeFactory,
-        createHtmlOutput: (content: string, mode: GoogleAppsScript.HTML.XFrameOptionsMode) =>
-          new HtmlOutput(content, mode),
-        createHtmlTemplate: (content: string) => new HtmlTemplate(content, evaluateHtmlTemplate),
-      });
-
-      templateContext = context;
-
-      evaluateScript(source, context);
-
       try {
-        const invocation = await invokeScriptFunction(context, functionName, [...parameters]);
+        const invocation = await executeScriptInvocation({
+          code: source,
+          functionName,
+          args: [...parameters],
+
+          createContext(evaluateHtmlTemplate) {
+            return createScriptContext({
+              ...referenceDependencies,
+              htmlOutputFacadeFactory,
+
+              createHtmlOutput: (content: string, mode: GoogleAppsScript.HTML.XFrameOptionsMode) =>
+                new HtmlOutput(content, mode),
+
+              createHtmlTemplate: (content: string) =>
+                new HtmlTemplate(content, evaluateHtmlTemplate),
+            });
+          },
+        });
 
         return projectScriptResult(invocation.value);
       } catch (error) {

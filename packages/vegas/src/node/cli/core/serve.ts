@@ -91,7 +91,7 @@ export async function serveApp(ctx: ServeContext, builder: ViteBuilder) {
     }
     try {
       const args = Array.isArray(data.args) ? data.args : [data.args];
-      const result = await launchGAS(ctx, data.func, ...args);
+      const result = await launchGAS(ctx, data.func, args);
       client.send("vegas:return", {
         requestId: data.requestId,
         status: "ok",
@@ -160,7 +160,9 @@ export async function serveApp(ctx: ServeContext, builder: ViteBuilder) {
             uuid = crypto.randomUUID();
           } while (idMap.has(uuid));
           idMap.set(uuid, { use: false, expiredAt: Date.now() + 1000 * 30 });
-          const result = await launchGAS(ctx, "doGet", doGetEvent);
+          const result = await launchGAS(ctx, "doGet", [doGetEvent], {
+            resultProjection: "legacy-web-app",
+          });
           const html = createHostHtml(url, result);
           const transFormedHtml = await hostServer.transformIndexHtml(url.href, html);
           response.statusCode = 200;
@@ -191,7 +193,9 @@ export async function serveApp(ctx: ServeContext, builder: ViteBuilder) {
             if (pathInfo) {
               doPostEvent["pathInfo"] = pathInfo;
             }
-            const result = await launchGAS(ctx, "doPost", doPostEvent);
+            const result = await launchGAS(ctx, "doPost", [doPostEvent], {
+              resultProjection: "legacy-web-app",
+            });
             response.statusCode = 200;
             response.setHeader("Content-Type", `${result.mimeType}; charset=utf-8`);
             response.end(result);

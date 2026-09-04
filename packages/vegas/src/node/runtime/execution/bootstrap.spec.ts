@@ -116,26 +116,12 @@ test("serializes HtmlOutput without exposing its internal X-Frame getter", async
               typeof output.getXFrameOptionsMode
           };
         }
-
-        function doGet() {
-          return HtmlService
-            .createHtmlOutput("<p>content</p>")
-            .setTitle("Vegas");
-        }
       `),
   );
 
   await expect(runtime.invoke("inspectHtmlOutput", [])).resolves.toEqual({
     hasOwnXFrameGetter: false,
     xFrameGetterType: "undefined",
-  });
-
-  await expect(runtime.invoke("doGet", [])).resolves.toEqual({
-    metaTags: [],
-    title: "Vegas",
-    faviconUrl: null,
-    content: "<p>content</p>",
-    xFrameOptionsMode: "SAMEORIGIN",
   });
 });
 
@@ -162,4 +148,54 @@ test("projects thenable-shaped return values before crossing the async boundary"
   });
 
   expect((result as { then: string }).then).toContain("thenable must not be assimilated");
+});
+
+test("does not assign web app semantics to doGet or doPost", async () => {
+  const runtime = createScriptRuntime(
+    createDependencies(`
+      function doGet() {
+        return {
+          entry: "doGet",
+          value: 1,
+        };
+      }
+
+      function doPost() {
+        return {
+          entry: "doPost",
+          value: 2,
+        };
+      }
+    `),
+  );
+
+  await expect(runtime.invoke("doGet", [])).resolves.toEqual({
+    entry: "doGet",
+    value: 1,
+  });
+
+  await expect(runtime.invoke("doPost", [])).resolves.toEqual({
+    entry: "doPost",
+    value: 2,
+  });
+});
+
+test("returns raw execution results for explicit consumers", async () => {
+  const runtime = createScriptRuntime(
+    createDependencies(`
+      function createOutput() {
+        return HtmlService.createHtmlOutput(
+          "<p>content</p>"
+        );
+      }
+    `),
+  );
+
+  const execution = await runtime.execute("createOutput", []);
+
+  const output = execution.value as GoogleAppsScript.HTML.HtmlOutput;
+
+  expect(output.getContent()).toBe("<p>content</p>");
+
+  expect(execution.getHtmlOutputXFrameOptionsMode(execution.value)).toBe("SAMEORIGIN");
 });

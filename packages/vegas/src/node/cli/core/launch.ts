@@ -79,7 +79,16 @@ const fetcher: Fetcher = {
   },
 };
 
-export function launchGAS(context: ServeContext, fn: string, ...args: any[]): Promise<any> {
+interface LaunchGASOptions {
+  resultProjection?: "legacy-web-app";
+}
+
+export function launchGAS(
+  context: ServeContext,
+  fn: string,
+  args: readonly unknown[],
+  options: LaunchGASOptions = {},
+): Promise<any> {
   const sourcePath = path.join(context.config.output.dir, "Code.js");
   const code = context.vfs.readFileSync(sourcePath, "utf8");
   const htmlResourceResolver: HtmlResourceResolver = {
@@ -148,6 +157,10 @@ export function launchGAS(context: ServeContext, fn: string, ...args: any[]): Pr
         reject(err);
       }
     });
-    port1.postMessage({ fn, args });
+    port1.postMessage({
+      fn,
+      args,
+      resultProjection: options.resultProjection,
+    });
   });
 }

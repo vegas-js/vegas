@@ -16,6 +16,7 @@ const WORKER_RUNTIME_IMPORT_ALLOWLIST: Readonly<Record<string, readonly string[]
   "worker/index": [
     "runtime/environment",
     "runtime/execution",
+    "runtime/execution/legacyWebAppResultProjection",
     "runtime/legacy/transport",
     "runtime/logging",
   ],
@@ -149,4 +150,16 @@ test("reference executor does not depend on worker", () => {
     );
 
   expect(violations).toEqual([]);
+});
+
+test("reference executor uses canonical script execution orchestration", () => {
+  const importedRuntimeModules = findRelativeImports([REFERENCE_EXECUTOR])
+    .filter(({ target }) => isWithin(target, RUNTIME_ROOT))
+    .map(({ target }) => toNodeRelativeModulePath(target));
+
+  expect(importedRuntimeModules).toContain("runtime/execution/scriptExecution");
+
+  expect(importedRuntimeModules).not.toContain("runtime/execution/invocation");
+
+  expect(importedRuntimeModules).not.toContain("runtime/execution/scriptRuntime");
 });
