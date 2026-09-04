@@ -19,7 +19,9 @@ describe("invokeFunction", () => {
       return "value";
     }
 
-    expect(await invokeFunction(func)).toEqual("value");
+    expect(await invokeFunction(func)).toEqual({
+      value: "value",
+    });
   });
 
   test("using await with async functions", async () => {
@@ -27,7 +29,9 @@ describe("invokeFunction", () => {
       return "value";
     }
 
-    expect(await invokeFunction(func)).toEqual("value");
+    expect(await invokeFunction(func)).toEqual({
+      value: "value",
+    });
   });
 });
 
@@ -39,7 +43,9 @@ describe("invokeScriptFunction", () => {
       }
     `);
 
-    await expect(invokeScriptFunction(context, "func", [])).resolves.toBe("value");
+    await expect(invokeScriptFunction(context, "func", [])).resolves.toEqual({
+      value: "value",
+    });
   });
 
   test("resolves a callable global lexical binding", async () => {
@@ -47,13 +53,17 @@ describe("invokeScriptFunction", () => {
       const lexicalEntry = () => "lexical";
     `);
 
-    await expect(invokeScriptFunction(context, "lexicalEntry", [])).resolves.toBe("lexical");
+    await expect(invokeScriptFunction(context, "lexicalEntry", [])).resolves.toEqual({
+      value: "lexical",
+    });
   });
 
   test("resolves an inherited callable binding", async () => {
     const context = createEvaluatedContext("");
 
-    await expect(invokeScriptFunction(context, "toString", [])).resolves.toBe("[object Undefined]");
+    await expect(invokeScriptFunction(context, "toString", [])).resolves.toEqual({
+      value: "[object Undefined]",
+    });
   });
 
   test("invokes a non-strict entry with the script global as this", async () => {
@@ -63,7 +73,7 @@ describe("invokeScriptFunction", () => {
       }
     `);
 
-    await expect(invokeScriptFunction(context, "entry", [])).resolves.toBe(true);
+    await expect(invokeScriptFunction(context, "entry", [])).resolves.toEqual({ value: true });
   });
 
   test("invokes a strict entry with undefined this", async () => {
@@ -74,7 +84,7 @@ describe("invokeScriptFunction", () => {
       }
     `);
 
-    await expect(invokeScriptFunction(context, "entry", [])).resolves.toBe(true);
+    await expect(invokeScriptFunction(context, "entry", [])).resolves.toEqual({ value: true });
   });
 
   test("passes positional primitive arguments to the resolved function", async () => {
@@ -84,9 +94,9 @@ describe("invokeScriptFunction", () => {
       }
     `);
 
-    await expect(invokeScriptFunction(context, "entry", ["arg1", "arg2"])).resolves.toBe(
-      "arg1:arg2",
-    );
+    await expect(invokeScriptFunction(context, "entry", ["arg1", "arg2"])).resolves.toEqual({
+      value: "arg1:arg2",
+    });
   });
 
   test("returns an async result", async () => {
@@ -96,7 +106,9 @@ describe("invokeScriptFunction", () => {
       }
     `);
 
-    await expect(invokeScriptFunction(context, "entry", [])).resolves.toBe("value");
+    await expect(invokeScriptFunction(context, "entry", [])).resolves.toEqual({
+      value: "value",
+    });
   });
 
   test("rejects a missing binding as a missing script function", async () => {
@@ -136,4 +148,74 @@ describe("invokeScriptFunction", () => {
 
     expect(new vm.Script("mutated").runInContext(context)).toBe(false);
   });
+});
+
+test("awaits native Promise results from the script realm", async () => {
+  const context = createEvaluatedContext(`
+    function entry() {
+      return Promise.resolve("promise-value");
+    }
+  `);
+
+  await expect(invokeScriptFunction(context, "entry", [])).resolves.toEqual({
+    value: "promise-value",
+  });
+});
+
+test("does not assimilate arbitrary thenable results", async () => {
+  const context = createEvaluatedContext(`
+    let thenCallCount = 0;
+
+    function entry() {
+      return {
+        marker: "thenable",
+
+        then() {
+          thenCallCount += 1;
+        }
+      };
+    }
+  `);
+
+  const completion = await invokeScriptFunction(context, "entry", []);
+
+  expect(new vm.Script("thenCallCount").runInContext(context)).toBe(0);
+
+  expect(completion.value).toMatchObject({
+    marker: "thenable",
+  });
+
+  expect(typeof Reflect.get(completion.value as object, "then")).toBe("function");
+});
+
+test("propagates synchronous thrown values without coercion", async () => {
+  const context = createEvaluatedContext(`
+    const thrownValue = {
+      marker: "sync-throw"
+    };
+
+    function entry() {
+      throw thrownValue;
+    }
+  `);
+
+  const thrownValue = new vm.Script("thrownValue").runInContext(context);
+
+  await expect(invokeScriptFunction(context, "entry", [])).rejects.toBe(thrownValue);
+});
+
+test("propagates native Promise rejections without coercion", async () => {
+  const context = createEvaluatedContext(`
+    const thrownValue = {
+      marker: "promise-rejection"
+    };
+
+    function entry() {
+      return Promise.reject(thrownValue);
+    }
+  `);
+
+  const thrownValue = new vm.Script("thrownValue").runInContext(context);
+
+  await expect(invokeScriptFunction(context, "entry", [])).rejects.toBe(thrownValue);
 });

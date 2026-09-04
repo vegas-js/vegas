@@ -96,9 +96,11 @@ test("user code accessible to typed service", async () => {
     context,
   );
 
-  const result = await invokeScriptFunction(context, "execute", ["Vegas"]);
+  const { value: result } = await invokeScriptFunction(context, "execute", ["Vegas"]);
 
-  expect(result).toEqual({
+  const output = result as unknown;
+
+  expect(output).toEqual({
     name: "Vegas",
     email: "active@example.com",
     locale: "ja",
@@ -125,14 +127,12 @@ test("return a value from doGet to the actual GAS global", async () => {
     context,
   );
 
-  const result = (await invokeScriptFunction(
-    context,
-    "doGet",
-    [],
-  )) as GoogleAppsScript.HTML.HtmlOutput;
+  const { value: result } = await invokeScriptFunction(context, "doGet", []);
 
-  expect(result.getTitle()).toBe("Hello");
-  expect(result.getContent()).toBe("<h1>Hello</h1>");
+  const output = result as GoogleAppsScript.HTML.HtmlOutput;
+
+  expect(output.getTitle()).toBe("Hello");
+  expect(output.getContent()).toBe("<h1>Hello</h1>");
 });
 
 test("return a value from doPost to the actual GAS global", async () => {
@@ -151,15 +151,17 @@ test("return a value from doPost to the actual GAS global", async () => {
     context,
   );
 
-  const result = (await invokeScriptFunction(context, "doPost", [
+  const { value: result } = await invokeScriptFunction(context, "doPost", [
     {
       postData: {
         contents: "Hello from POST",
       },
     },
-  ])) as GoogleAppsScript.HTML.HtmlOutput;
+  ]);
 
-  expect(result.getContent()).toBe("Hello from POST");
+  const output = result as GoogleAppsScript.HTML.HtmlOutput;
+
+  expect(output.getContent()).toBe("Hello from POST");
 });
 
 test("user code reaches the injected sink", () => {

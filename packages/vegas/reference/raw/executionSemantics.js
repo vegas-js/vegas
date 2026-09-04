@@ -174,6 +174,7 @@ async function captureReferenceExecutionAsyncReturn() {
 
 function captureReferenceExecutionThenable() {
   return {
+    // oxlint-disable-next-line no-thenable
     then(resolve) {
       resolve("thenable-resolve");
     },

@@ -74,7 +74,7 @@ export function createScriptRuntime(dependencies: ScriptRuntimeDependencies): Sc
 
       evaluateScript(code, scriptContext);
 
-      const result = await invokeScriptFunction(scriptContext, functionName, args);
+      const { value: result } = await invokeScriptFunction(scriptContext, functionName, args);
 
       return projectLegacyWebAppResult(functionName, result, {
         getHtmlOutputXFrameOptionsMode: (htmlOutputFacadeFactory as any).resolveXFrameOptionsMode,

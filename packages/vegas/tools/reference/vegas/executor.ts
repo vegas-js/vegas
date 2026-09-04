@@ -1,4 +1,3 @@
-import { ScriptFunctionNotFoundError } from "../../../src/node/runtime/execution/entryResolution";
 import { invokeScriptFunction } from "../../../src/node/runtime/execution/invocation";
 import {
   createScriptContext,
@@ -26,8 +25,8 @@ import { HtmlTemplate } from "../../../src/node/runtime/services/html/HtmlTempla
 import { Range } from "../../../src/node/runtime/services/spreadsheet/Range";
 import { Sheet } from "../../../src/node/runtime/services/spreadsheet/Sheet";
 import { Spreadsheet } from "../../../src/node/runtime/services/spreadsheet/Spreadsheet";
-import { ReferenceExecutionError } from "../core/executionError";
 import type { ReferenceExecutor } from "../core/types";
+import { projectVegasExecutionError } from "./executionErrorProjection";
 
 function unexpected(): never {
   throw new Error("Unexpected dependency call while executing reference case");
@@ -687,19 +686,11 @@ export function createVegasReferenceExecutor(source: string): ReferenceExecutor 
       evaluateScript(source, context);
 
       try {
-        return await invokeScriptFunction(context, functionName, [...parameters]);
-      } catch (error) {
-        if (error instanceof ScriptFunctionNotFoundError) {
-          throw new ReferenceExecutionError({
-            statusCode: 3,
-            statusMessage: error.message,
-            errorMessage: error.message,
-            errorType: "FUNCTION_NOT_FOUND",
-            scriptStackTraceFunctions: [],
-          });
-        }
+        const completion = await invokeScriptFunction(context, functionName, [...parameters]);
 
-        throw error;
+        return completion.value;
+      } catch (error) {
+        throw projectVegasExecutionError(error, functionName);
       }
     },
   };

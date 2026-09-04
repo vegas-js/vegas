@@ -1,6 +1,6 @@
 import vm from "node:vm";
 
-const SCRIPT_IDENTIFIER_PATTERN = /^[$_\p{ID_Start}][$\u200C\u200D_\p{ID_Continue}]*$/u;
+const SCRIPT_IDENTIFIER_PATTERN = /^[$_\p{ID_Start}](?:[$_\p{ID_Continue}]|\u200C|\u200D)*$/u;
 
 export class ScriptFunctionNotFoundError extends Error {
   readonly functionName: string;
