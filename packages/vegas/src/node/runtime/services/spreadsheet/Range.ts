@@ -1,5 +1,11 @@
 import type { RuntimeServicePort } from "../../protocol";
 
+function createGasException(message: string): Error {
+  const error = new Error(message);
+  error.name = "Exception";
+  return error;
+}
+
 // https://developers.google.com/apps-script/reference/spreadsheet/range
 export class Range implements GoogleAppsScript.Spreadsheet.Range {
   #spreadsheetId: string;
@@ -154,7 +160,7 @@ export class Range implements GoogleAppsScript.Spreadsheet.Range {
         this.#service,
       );
     } else {
-      throw new Error("out of range.");
+      throw createGasException("Cell reference out of range");
     }
   };
   getColumn = () => {
@@ -577,11 +583,6 @@ export class Range implements GoogleAppsScript.Spreadsheet.Range {
     return this;
   };
   setValues = (values: any[][]) => {
-    if (values.length !== this.#numRows && values[0].length !== this.#numColumns) {
-      throw new Error(
-        "The number of columns in the data does not match the number of columns in the range",
-      );
-    }
     this.#service.setValues({
       spreadsheetId: this.#spreadsheetId,
       sheetId: this.#sheetId,

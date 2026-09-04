@@ -199,6 +199,24 @@ export const referenceCases: readonly ReferenceCaseDefinition[] = [
     runtimeTest: "required",
   },
   {
+    name: "range-value-semantics",
+    functionName: "captureReferenceRangeValueSemantics",
+    fixtureFile: "range-value-semantics.json",
+    runtimeTest: "required",
+  },
+  {
+    name: "range-set-values-validation-semantics",
+    functionName: "captureReferenceRangeSetValuesValidationSemantics",
+    fixtureFile: "range-set-values-validation-semantics.json",
+    runtimeTest: "required",
+  },
+  {
+    name: "range-get-cell-semantics",
+    functionName: "captureReferenceRangeGetCellSemantics",
+    fixtureFile: "range-get-cell-semantics.json",
+    runtimeTest: "required",
+  },
+  {
     name: "drive-app-surface",
     functionName: "captureReferenceDriveAppSurface",
     fixtureFile: "drive-app-surface.json",

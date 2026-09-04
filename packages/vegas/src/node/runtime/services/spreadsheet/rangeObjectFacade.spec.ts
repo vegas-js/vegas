@@ -92,13 +92,25 @@ describe("createRangeObjectFacade", () => {
     );
   });
 
-  test("does not expose the internal receiver from delegated methods", () => {
+  test("returns distinct Range facades from setValue and setValues", () => {
     const implementation = createImplementation();
 
     (implementation as any).setValue = () => implementation;
+    (implementation as any).setValues = () => implementation;
 
     const range = createRangeObjectFacade(implementation);
 
-    expect((range as any).setValue("value")).toBe(range);
+    const setValueResult = (range as any).setValue("value");
+
+    const setValuesResult = (range as any).setValues([
+      ["a", "b"],
+      ["c", "d"],
+    ]);
+
+    expect(setValueResult).not.toBe(range);
+    expect(String(setValueResult)).toBe("Range");
+
+    expect(setValuesResult).not.toBe(range);
+    expect(String(setValuesResult)).toBe("Range");
   });
 });

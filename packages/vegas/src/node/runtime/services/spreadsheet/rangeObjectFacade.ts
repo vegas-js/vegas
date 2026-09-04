@@ -222,6 +222,10 @@ export function createRangeObjectFacade(
       const result = Reflect.apply(method, implementation, args);
 
       if (result === implementation) {
+        if (name === "setValue" || name === "setValues") {
+          return createRangeObjectFacade(implementation, createObject);
+        }
+
         return value;
       }
 

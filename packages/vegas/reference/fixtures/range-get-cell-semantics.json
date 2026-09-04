@@ -1,0 +1,50 @@
+{
+  "columnOverflow": {
+    "errorMessage": "Cell reference out of range",
+    "errorName": "Exception",
+    "stringify": null,
+    "threw": true,
+    "type": null,
+    "value": null
+  },
+  "firstCell": {
+    "errorMessage": null,
+    "errorName": null,
+    "stringify": "Range",
+    "threw": false,
+    "type": "object",
+    "value": "r1c1"
+  },
+  "lastCell": {
+    "errorMessage": null,
+    "errorName": null,
+    "stringify": "Range",
+    "threw": false,
+    "type": "object",
+    "value": "r2c2"
+  },
+  "rowOverflow": {
+    "errorMessage": "Cell reference out of range",
+    "errorName": "Exception",
+    "stringify": null,
+    "threw": true,
+    "type": null,
+    "value": null
+  },
+  "zeroColumn": {
+    "errorMessage": "Cell reference out of range",
+    "errorName": "Exception",
+    "stringify": null,
+    "threw": true,
+    "type": null,
+    "value": null
+  },
+  "zeroRow": {
+    "errorMessage": "Cell reference out of range",
+    "errorName": "Exception",
+    "stringify": null,
+    "threw": true,
+    "type": null,
+    "value": null
+  }
+}

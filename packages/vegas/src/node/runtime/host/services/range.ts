@@ -1,5 +1,11 @@
 import type { RuntimeServiceImplementation } from "../../protocol";
 
+function createGasException(message: string): Error {
+  const error = new Error(message);
+  error.name = "Exception";
+  return error;
+}
+
 export type SpreadsheetStore = Map<
   string,
   {
@@ -79,19 +85,41 @@ export class RangeHandler implements RuntimeServiceImplementation<"Range"> {
   setValues(payload: {
     spreadsheetId: string;
     sheetId: number;
-    range: { row: number; column: number; numRows: number; numColumns: number };
+    range: {
+      row: number;
+      column: number;
+      numRows: number;
+      numColumns: number;
+    };
     values: any[][];
   }) {
+    const { range, values } = payload;
+
+    if (values.length !== range.numRows) {
+      throw createGasException(
+        `The number of rows in the data does not match the number of rows in the range. ` +
+          `The data has ${values.length} but the range has ${range.numRows}.`,
+      );
+    }
+
     const sheet = this.#getSheet(payload.spreadsheetId, payload.sheetId);
     const cells = sheet.cells;
-    const rowStart = payload.range.numRows === 0 ? 0 : payload.range.row - 1;
-    const rowEnd = payload.range.numRows === 0 ? cells.length : rowStart + payload.range.numRows;
-    const columnStart = payload.range.numColumns === 0 ? 0 : payload.range.column - 1;
-    const columnEnd =
-      payload.range.numColumns === 0 ? cells[0].length : columnStart + payload.range.numColumns;
-    for (let i = rowStart; i < rowEnd; i++) {
-      for (let j = columnStart; j < columnEnd; j++) {
-        cells[i][j] = payload.values[i - rowStart][j - columnStart];
+
+    const rowStart = range.row - 1;
+    const columnStart = range.column - 1;
+
+    for (let rowOffset = 0; rowOffset < range.numRows; rowOffset++) {
+      const rowValues = values[rowOffset];
+
+      if (rowValues.length !== range.numColumns) {
+        throw createGasException(
+          `The number of columns in the data does not match the number of columns in the range. ` +
+            `The data has ${rowValues.length} but the range has ${range.numColumns}.`,
+        );
+      }
+
+      for (let columnOffset = 0; columnOffset < range.numColumns; columnOffset++) {
+        cells[rowStart + rowOffset][columnStart + columnOffset] = rowValues[columnOffset];
       }
     }
   }

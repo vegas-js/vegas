@@ -1,0 +1,109 @@
+{
+  "afterSetValue": {
+    "getValue": {
+      "errorMessage": null,
+      "errorName": null,
+      "isNull": false,
+      "isUndefined": false,
+      "threw": false,
+      "type": "string",
+      "value": "filled"
+    },
+    "getValues": {
+      "errorMessage": null,
+      "errorName": null,
+      "isNull": false,
+      "isUndefined": false,
+      "threw": false,
+      "type": "object",
+      "value": [
+        [
+          "filled",
+          "filled"
+        ],
+        [
+          "filled",
+          "filled"
+        ]
+      ]
+    }
+  },
+  "afterSetValues": {
+    "getValue": {
+      "errorMessage": null,
+      "errorName": null,
+      "isNull": false,
+      "isUndefined": false,
+      "threw": false,
+      "type": "string",
+      "value": "a"
+    },
+    "getValues": {
+      "errorMessage": null,
+      "errorName": null,
+      "isNull": false,
+      "isUndefined": false,
+      "threw": false,
+      "type": "object",
+      "value": [
+        [
+          "a",
+          2
+        ],
+        [
+          true,
+          4
+        ]
+      ]
+    }
+  },
+  "before": {
+    "blockValues": {
+      "errorMessage": null,
+      "errorName": null,
+      "isNull": false,
+      "isUndefined": false,
+      "threw": false,
+      "type": "object",
+      "value": [
+        [
+          "",
+          ""
+        ],
+        [
+          "",
+          ""
+        ]
+      ]
+    },
+    "singleValue": {
+      "errorMessage": null,
+      "errorName": null,
+      "isNull": false,
+      "isUndefined": false,
+      "threw": false,
+      "type": "string",
+      "value": ""
+    }
+  },
+  "setValue": {
+    "errorMessage": null,
+    "errorName": null,
+    "isNull": false,
+    "isUndefined": false,
+    "returnsReceiver": false,
+    "stringify": "Range",
+    "threw": false,
+    "type": "object"
+  },
+  "setValues": {
+    "errorMessage": null,
+    "errorName": null,
+    "isNull": false,
+    "isUndefined": false,
+    "returnsReceiver": false,
+    "stringify": "Range",
+    "threw": false,
+    "type": "object"
+  }
+}

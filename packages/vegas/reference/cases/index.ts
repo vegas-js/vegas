@@ -34,6 +34,11 @@ export {
   captureReferenceSpreadsheetGetSheetByIdSemantics,
   captureReferenceSheetGetRangeSemantics,
 } from "./spreadsheetSemantics";
+export {
+  captureReferenceRangeValueSemantics,
+  captureReferenceRangeSetValuesValidationSemantics,
+  captureReferenceRangeGetCellSemantics,
+} from "./rangeSemantics";
 export { captureReferenceDriveAppSurface } from "./driveAppSurface";
 export { captureReferenceLoggerSurface } from "./loggerSurface";
 export { captureReferenceConsoleSurface } from "./consoleSurface";

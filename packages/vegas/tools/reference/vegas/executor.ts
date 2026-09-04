@@ -177,16 +177,16 @@ function createReferenceDependencies(): ScriptContextDependencies {
   };
 }
 
-const referenceRangeService: RuntimeServicePort<"Range"> = {
-  getValue: unexpected,
-  getValues: unexpected,
-  setValue: unexpected,
-  setValues: unexpected,
-};
-
 interface ReferenceSpreadsheetState {
   rows: number;
   columns: number;
+  cells: any[][];
+}
+
+function createReferenceGasException(message: string): Error {
+  const error = new Error(message);
+  error.name = "Exception";
+  return error;
 }
 
 function createReferenceSpreadsheetDependencies() {
@@ -224,6 +224,77 @@ function createReferenceSpreadsheetDependencies() {
     },
   };
 
+  const requireInitialSheet = (spreadsheetId: string, sheetId: number) => {
+    const state = getInitialSheet(spreadsheetId, sheetId);
+
+    if (!state) {
+      throw new Error(`Sheet not found: ${sheetId}`);
+    }
+
+    return state;
+  };
+
+  const rangeService: RuntimeServicePort<"Range"> = {
+    getValue: ({ spreadsheetId, sheetId, range }) => {
+      const state = requireInitialSheet(spreadsheetId, sheetId);
+
+      return state.cells[range.row - 1][range.column - 1];
+    },
+
+    getValues: ({ spreadsheetId, sheetId, range }) => {
+      const state = requireInitialSheet(spreadsheetId, sheetId);
+
+      const rowStart = range.row - 1;
+      const columnStart = range.column - 1;
+
+      return state.cells
+        .slice(rowStart, rowStart + range.numRows)
+        .map((row) => row.slice(columnStart, columnStart + range.numColumns));
+    },
+
+    setValue: ({ spreadsheetId, sheetId, range, value }) => {
+      const state = requireInitialSheet(spreadsheetId, sheetId);
+
+      const rowStart = range.row - 1;
+      const columnStart = range.column - 1;
+
+      for (let rowOffset = 0; rowOffset < range.numRows; rowOffset++) {
+        for (let columnOffset = 0; columnOffset < range.numColumns; columnOffset++) {
+          state.cells[rowStart + rowOffset][columnStart + columnOffset] = value;
+        }
+      }
+    },
+
+    setValues: ({ spreadsheetId, sheetId, range, values }) => {
+      if (values.length !== range.numRows) {
+        throw createReferenceGasException(
+          `The number of rows in the data does not match the number of rows in the range. ` +
+            `The data has ${values.length} but the range has ${range.numRows}.`,
+        );
+      }
+
+      const state = requireInitialSheet(spreadsheetId, sheetId);
+
+      const rowStart = range.row - 1;
+      const columnStart = range.column - 1;
+
+      for (let rowOffset = 0; rowOffset < range.numRows; rowOffset++) {
+        const rowValues = values[rowOffset];
+
+        if (rowValues.length !== range.numColumns) {
+          throw createReferenceGasException(
+            `The number of columns in the data does not match the number of columns in the range. ` +
+              `The data has ${rowValues.length} but the range has ${range.numColumns}.`,
+          );
+        }
+
+        for (let columnOffset = 0; columnOffset < range.numColumns; columnOffset++) {
+          state.cells[rowStart + rowOffset][columnStart + columnOffset] = rowValues[columnOffset];
+        }
+      }
+    },
+  };
+
   const createSpreadsheet: CreateSpreadsheet = (spreadsheetId) => {
     const createRange: CreateRange = (
       targetSpreadsheetId,
@@ -232,16 +303,7 @@ function createReferenceSpreadsheetDependencies() {
       column,
       numRows,
       numColumns,
-    ) =>
-      new Range(
-        targetSpreadsheetId,
-        sheetId,
-        row,
-        column,
-        numRows,
-        numColumns,
-        referenceRangeService,
-      );
+    ) => new Range(targetSpreadsheetId, sheetId, row, column, numRows, numColumns, rangeService);
 
     const createSheet: CreateSheet = (targetSpreadsheetId, sheetId) =>
       new Sheet(targetSpreadsheetId, sheetId, createRange, sheetService, unexpected);
@@ -255,9 +317,12 @@ function createReferenceSpreadsheetDependencies() {
 
       const spreadsheetId = `reference-spreadsheet-${sequence}`;
 
+      const cells = Array.from({ length: rows }, () => Array.from({ length: columns }, () => ""));
+
       spreadsheets.set(spreadsheetId, {
         rows,
         columns,
+        cells,
       });
 
       return spreadsheetId;

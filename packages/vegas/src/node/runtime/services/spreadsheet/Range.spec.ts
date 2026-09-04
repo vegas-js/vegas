@@ -29,4 +29,29 @@ describe("getCell", () => {
     expect(() => range.getCell(101, 100)).toThrow();
     expect(() => range.getCell(100, 101)).toThrow();
   });
+
+  test("throws the characterized GAS Exception when getCell is out of range", () => {
+    const range = new Range("", 0, 1, 1, 2, 2, createRangeService());
+
+    const captureError = (row: number, column: number) => {
+      try {
+        range.getCell(row, column);
+        throw new Error("Expected getCell to throw");
+      } catch (error) {
+        return error as Error;
+      }
+    };
+
+    for (const [row, column] of [
+      [0, 1],
+      [1, 0],
+      [3, 1],
+      [1, 3],
+    ]) {
+      const error = captureError(row, column);
+
+      expect(error.name).toBe("Exception");
+      expect(error.message).toBe("Cell reference out of range");
+    }
+  });
 });

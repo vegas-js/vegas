@@ -1,0 +1,182 @@
+{
+  "columnLong": {
+    "result": {
+      "errorMessage": "The number of columns in the data does not match the number of columns in the range. The data has 3 but the range has 2.",
+      "errorName": "Exception",
+      "isNull": null,
+      "isUndefined": null,
+      "returnsReceiver": null,
+      "stringify": null,
+      "threw": true,
+      "type": null
+    },
+    "valuesAfterCall": {
+      "errorMessage": null,
+      "errorName": null,
+      "isNull": false,
+      "isUndefined": false,
+      "threw": false,
+      "type": "object",
+      "value": [
+        [
+          "a",
+          "b"
+        ],
+        [
+          "c",
+          "d"
+        ]
+      ]
+    }
+  },
+  "columnShort": {
+    "result": {
+      "errorMessage": "The number of columns in the data does not match the number of columns in the range. The data has 1 but the range has 2.",
+      "errorName": "Exception",
+      "isNull": null,
+      "isUndefined": null,
+      "returnsReceiver": null,
+      "stringify": null,
+      "threw": true,
+      "type": null
+    },
+    "valuesAfterCall": {
+      "errorMessage": null,
+      "errorName": null,
+      "isNull": false,
+      "isUndefined": false,
+      "threw": false,
+      "type": "object",
+      "value": [
+        [
+          "a",
+          "b"
+        ],
+        [
+          "c",
+          "d"
+        ]
+      ]
+    }
+  },
+  "empty": {
+    "result": {
+      "errorMessage": "The number of rows in the data does not match the number of rows in the range. The data has 0 but the range has 2.",
+      "errorName": "Exception",
+      "isNull": null,
+      "isUndefined": null,
+      "returnsReceiver": null,
+      "stringify": null,
+      "threw": true,
+      "type": null
+    },
+    "valuesAfterCall": {
+      "errorMessage": null,
+      "errorName": null,
+      "isNull": false,
+      "isUndefined": false,
+      "threw": false,
+      "type": "object",
+      "value": [
+        [
+          "x",
+          "y"
+        ],
+        [
+          "c",
+          "d"
+        ]
+      ]
+    }
+  },
+  "ragged": {
+    "result": {
+      "errorMessage": "The number of columns in the data does not match the number of columns in the range. The data has 1 but the range has 2.",
+      "errorName": "Exception",
+      "isNull": null,
+      "isUndefined": null,
+      "returnsReceiver": null,
+      "stringify": null,
+      "threw": true,
+      "type": null
+    },
+    "valuesAfterCall": {
+      "errorMessage": null,
+      "errorName": null,
+      "isNull": false,
+      "isUndefined": false,
+      "threw": false,
+      "type": "object",
+      "value": [
+        [
+          "x",
+          "y"
+        ],
+        [
+          "c",
+          "d"
+        ]
+      ]
+    }
+  },
+  "rowLong": {
+    "result": {
+      "errorMessage": "The number of rows in the data does not match the number of rows in the range. The data has 3 but the range has 2.",
+      "errorName": "Exception",
+      "isNull": null,
+      "isUndefined": null,
+      "returnsReceiver": null,
+      "stringify": null,
+      "threw": true,
+      "type": null
+    },
+    "valuesAfterCall": {
+      "errorMessage": null,
+      "errorName": null,
+      "isNull": false,
+      "isUndefined": false,
+      "threw": false,
+      "type": "object",
+      "value": [
+        [
+          "a",
+          "b"
+        ],
+        [
+          "c",
+          "d"
+        ]
+      ]
+    }
+  },
+  "rowShort": {
+    "result": {
+      "errorMessage": "The number of rows in the data does not match the number of rows in the range. The data has 1 but the range has 2.",
+      "errorName": "Exception",
+      "isNull": null,
+      "isUndefined": null,
+      "returnsReceiver": null,
+      "stringify": null,
+      "threw": true,
+      "type": null
+    },
+    "valuesAfterCall": {
+      "errorMessage": null,
+      "errorName": null,
+      "isNull": false,
+      "isUndefined": false,
+      "threw": false,
+      "type": "object",
+      "value": [
+        [
+          "a",
+          "b"
+        ],
+        [
+          "c",
+          "d"
+        ]
+      ]
+    }
+  }
+}

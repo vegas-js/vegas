@@ -114,3 +114,108 @@ test("throws when sheet does not exist", () => {
     }),
   ).toThrow("Sheet not found: 999");
 });
+
+test("rejects setValues row count mismatch before writing", () => {
+  const store = createStore();
+  const handler = new RangeHandler(store);
+
+  let error: Error | undefined;
+
+  try {
+    handler.setValues({
+      spreadsheetId: "spreadsheet-1",
+      sheetId: 1,
+      range: {
+        row: 2,
+        column: 2,
+        numRows: 2,
+        numColumns: 2,
+      },
+      values: [["X", "Y"]],
+    });
+  } catch (caught) {
+    error = caught as Error;
+  }
+
+  expect(error?.name).toBe("Exception");
+  expect(error?.message).toBe(
+    "The number of rows in the data does not match the number of rows in the range. " +
+      "The data has 1 but the range has 2.",
+  );
+
+  expect(store.get("spreadsheet-1")!.sheets.get(1)!.cells).toEqual([
+    ["A1", "B1", "C1"],
+    ["A2", "B2", "C2"],
+    ["A3", "B3", "C3"],
+  ]);
+});
+
+test("rejects setValues column count mismatch before writing the row", () => {
+  const store = createStore();
+  const handler = new RangeHandler(store);
+
+  let error: Error | undefined;
+
+  try {
+    handler.setValues({
+      spreadsheetId: "spreadsheet-1",
+      sheetId: 1,
+      range: {
+        row: 2,
+        column: 2,
+        numRows: 2,
+        numColumns: 2,
+      },
+      values: [["X"], ["Y"]],
+    });
+  } catch (caught) {
+    error = caught as Error;
+  }
+
+  expect(error?.name).toBe("Exception");
+  expect(error?.message).toBe(
+    "The number of columns in the data does not match the number of columns in the range. " +
+      "The data has 1 but the range has 2.",
+  );
+
+  expect(store.get("spreadsheet-1")!.sheets.get(1)!.cells).toEqual([
+    ["A1", "B1", "C1"],
+    ["A2", "B2", "C2"],
+    ["A3", "B3", "C3"],
+  ]);
+});
+
+test("preserves completed row writes before a later setValues column mismatch", () => {
+  const store = createStore();
+  const handler = new RangeHandler(store);
+
+  let error: Error | undefined;
+
+  try {
+    handler.setValues({
+      spreadsheetId: "spreadsheet-1",
+      sheetId: 1,
+      range: {
+        row: 2,
+        column: 2,
+        numRows: 2,
+        numColumns: 2,
+      },
+      values: [["X1", "Y1"], ["X2"]],
+    });
+  } catch (caught) {
+    error = caught as Error;
+  }
+
+  expect(error?.name).toBe("Exception");
+  expect(error?.message).toBe(
+    "The number of columns in the data does not match the number of columns in the range. " +
+      "The data has 1 but the range has 2.",
+  );
+
+  expect(store.get("spreadsheet-1")!.sheets.get(1)!.cells).toEqual([
+    ["A1", "B1", "C1"],
+    ["A2", "X1", "Y1"],
+    ["A3", "B3", "C3"],
+  ]);
+});
