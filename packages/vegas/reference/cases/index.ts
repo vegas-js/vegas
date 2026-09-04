@@ -54,6 +54,7 @@ export {
   captureReferenceSpreadsheetCreateSemantics,
   captureReferenceSpreadsheetGetSheetByIdSemantics,
   captureReferenceSheetGetRangeSemantics,
+  captureReferenceSheetNamedRangeSemantics,
   captureReferenceSpreadsheetOpenSemantics,
 } from "./spreadsheetSemantics";
 export {

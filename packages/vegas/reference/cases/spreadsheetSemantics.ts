@@ -388,6 +388,39 @@ function resolveReusableReferenceSpreadsheetId(globals: Record<string, any>): st
   }
 }
 
+export function captureReferenceSheetNamedRangeSemantics() {
+  const globals = globalThis as unknown as Record<string, any>;
+
+  const spreadsheetId = resolveReusableReferenceSpreadsheetId(globals);
+
+  const spreadsheet = globals.SpreadsheetApp.openById(spreadsheetId);
+
+  const sheet = spreadsheet.getSheetById(0);
+
+  if (sheet === null || sheet === undefined) {
+    throw new Error("Expected reusable spreadsheet to contain sheet id 0");
+  }
+
+  const sheetName = sheet.getSheetName();
+
+  return {
+    sameSheet: captureRange(() => sheet.getRange(`${sheetName}!B2:C3`), {
+      firstCell: [1, 1],
+      lastCell: [2, 2],
+      rowOverflow: [3, 1],
+      columnOverflow: [1, 3],
+    }),
+
+    singleCell: captureRange(() => sheet.getRange(`${sheetName}!A1`), {
+      firstCell: [1, 1],
+      rowOverflow: [2, 1],
+      columnOverflow: [1, 2],
+    }),
+
+    missingSheet: captureRange(() => sheet.getRange("__vegas_missing_sheet__!A1"), {}),
+  };
+}
+
 export function captureReferenceSpreadsheetOpenSemantics() {
   const globals = globalThis as unknown as Record<string, any>;
 

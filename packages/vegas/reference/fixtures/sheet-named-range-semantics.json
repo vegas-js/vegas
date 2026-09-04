@@ -1,0 +1,35 @@
+{
+  "missingSheet": {
+    "errorMessage": "Range not found",
+    "errorName": "Exception",
+    "probes": null,
+    "stringify": null,
+    "threw": true,
+    "type": null
+  },
+  "sameSheet": {
+    "errorMessage": null,
+    "errorName": null,
+    "probes": {
+      "columnOverflow": false,
+      "firstCell": true,
+      "lastCell": true,
+      "rowOverflow": false
+    },
+    "stringify": "Range",
+    "threw": false,
+    "type": "object"
+  },
+  "singleCell": {
+    "errorMessage": null,
+    "errorName": null,
+    "probes": {
+      "columnOverflow": false,
+      "firstCell": true,
+      "rowOverflow": false
+    },
+    "stringify": "Range",
+    "threw": false,
+    "type": "object"
+  }
+}

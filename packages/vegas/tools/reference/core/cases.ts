@@ -277,6 +277,12 @@ export const referenceCases: readonly ReferenceCaseDefinition[] = [
     runtimeTest: "required",
   },
   {
+    name: "sheet-named-range-semantics",
+    functionName: "captureReferenceSheetNamedRangeSemantics",
+    fixtureFile: "sheet-named-range-semantics.json",
+    runtimeTest: "required",
+  },
+  {
     name: "spreadsheet-open-semantics",
     functionName: "captureReferenceSpreadsheetOpenSemantics",
     fixtureFile: "spreadsheet-open-semantics.json",

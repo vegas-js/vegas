@@ -304,12 +304,36 @@ function createReferenceSpreadsheetDependencies() {
       | {
           spreadsheetId?: unknown;
           sheetId?: unknown;
+          sheetName?: unknown;
           rowPosition?: unknown;
           columnPosition?: unknown;
           howMany?: unknown;
         }
       | null
       | undefined;
+
+    /*
+     * Sheet#getRange("SheetName!A1") resolves the sheet by name.
+     *
+     * Unlike the mutation requests below, this request intentionally
+     * contains sheetName instead of sheetId.
+     */
+    if (request.message === "Sheet#getRange") {
+      if (
+        payload === null ||
+        payload === undefined ||
+        typeof payload.spreadsheetId !== "string" ||
+        typeof payload.sheetName !== "string"
+      ) {
+        throw new Error(`Invalid legacy Sheet payload for ${request.message}`);
+      }
+
+      if (!spreadsheets.has(payload.spreadsheetId) || payload.sheetName !== "Sheet1") {
+        throw createReferenceGasException("Range not found");
+      }
+
+      return 0;
+    }
 
     if (
       payload === null ||
