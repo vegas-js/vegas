@@ -53,6 +53,7 @@ function createDependencies(
 
     spreadsheetAppService: {
       create: unexpected,
+      openById: unexpected,
     },
 
     urlFetchService: {

@@ -123,6 +123,77 @@ function captureRange(
   }
 }
 
+function captureSpreadsheetAppCall(fn: () => unknown) {
+  try {
+    const value = fn();
+
+    return {
+      threw: false,
+      type: typeof value,
+      isNull: value === null,
+      isUndefined: value === undefined,
+      errorName: null,
+      errorMessage: null,
+    };
+  } catch (error) {
+    return {
+      threw: true,
+      type: null,
+      isNull: null,
+      isUndefined: null,
+      ...describeError(error),
+    };
+  }
+}
+
+function captureSpreadsheetOpen(fn: () => unknown, expectedId?: string) {
+  try {
+    const value = fn();
+
+    const hasGetId =
+      value !== null &&
+      value !== undefined &&
+      typeof (
+        value as {
+          getId?: unknown;
+        }
+      ).getId === "function";
+
+    const id = hasGetId
+      ? (
+          value as {
+            getId(): unknown;
+          }
+        ).getId()
+      : null;
+
+    return {
+      threw: false,
+      type: typeof value,
+      isNull: value === null,
+      isUndefined: value === undefined,
+      stringify: value === null || value === undefined ? null : String(value as any),
+      hasGetId,
+      idType: hasGetId ? typeof id : null,
+      idMatchesExpected: expectedId === undefined ? null : id === expectedId,
+      errorName: null,
+      errorMessage: null,
+    };
+  } catch (error) {
+    return {
+      threw: true,
+      type: null,
+      isNull: null,
+      isUndefined: null,
+      stringify: null,
+      hasGetId: null,
+      idType: null,
+      idMatchesExpected: null,
+      ...describeError(error),
+    };
+  }
+}
+
 export function captureReferenceSpreadsheetCreateSemantics() {
   const globals = globalThis as unknown as Record<string, any>;
   const spreadsheets: any[] = [];
@@ -267,4 +338,130 @@ export function captureReferenceSheetGetRangeSemantics() {
   } finally {
     cleanupSpreadsheet(globals, spreadsheet);
   }
+}
+
+function resolveReusableReferenceSpreadsheetId(globals: Record<string, any>): string {
+  const vegasFallbackId = "vegas-reference-existing-spreadsheet";
+
+  try {
+    const queries = [
+      "mimeType = 'application/vnd.google-apps.spreadsheet' and trashed = true and title contains 'vegas-reference-'",
+      "mimeType = 'application/vnd.google-apps.spreadsheet' and trashed = false and title contains 'vegas-reference-'",
+    ];
+
+    for (const query of queries) {
+      const files = globals.DriveApp.searchFiles(query);
+
+      if (files.hasNext()) {
+        const file = files.next();
+
+        return file.getId();
+      }
+    }
+
+    throw new Error("Expected an existing vegas reference spreadsheet");
+  } catch (error) {
+    const message =
+      error !== null && typeof error === "object" && "message" in error
+        ? String(
+            (
+              error as {
+                message?: unknown;
+              }
+            ).message,
+          )
+        : "";
+
+    /*
+     * Vegas intentionally does not expose
+     * reachable Drive File objects yet.
+     *
+     * Its SpreadsheetApp.openById/openByUrl
+     * paths can still be characterized using
+     * a deterministic synthetic spreadsheet ID.
+     */
+    if (message === "Method not implemented.") {
+      return vegasFallbackId;
+    }
+
+    throw error;
+  }
+}
+
+export function captureReferenceSpreadsheetOpenSemantics() {
+  const globals = globalThis as unknown as Record<string, any>;
+
+  const spreadsheetApp = globals.SpreadsheetApp;
+
+  const spreadsheetId = resolveReusableReferenceSpreadsheetId(globals);
+
+  const canonicalUrl = `https://docs.google.com/spreadsheets/d/${spreadsheetId}/edit`;
+
+  const canonicalUrlWithGid = `${canonicalUrl}#gid=0`;
+
+  const openByIdA = spreadsheetApp.openById(spreadsheetId);
+
+  const openByIdB = spreadsheetApp.openById(spreadsheetId);
+
+  const openByUrl = spreadsheetApp.openByUrl(canonicalUrl);
+
+  const openByUrlWithGid = spreadsheetApp.openByUrl(canonicalUrlWithGid);
+
+  let fileLikeGetIdCalls = 0;
+
+  const fileLike = {
+    getId() {
+      fileLikeGetIdCalls++;
+
+      return spreadsheetId;
+    },
+  };
+
+  return {
+    flush: captureSpreadsheetAppCall(() => spreadsheetApp.flush()),
+
+    valid: {
+      openById: captureSpreadsheetOpen(() => openByIdA, spreadsheetId),
+
+      openByUrl: captureSpreadsheetOpen(() => openByUrl, spreadsheetId),
+
+      openByUrlWithGid: captureSpreadsheetOpen(() => openByUrlWithGid, spreadsheetId),
+
+      identity: {
+        repeatedOpenByIdSameObject: openByIdA === openByIdB,
+
+        openByUrlSameAsOpenById: openByUrl === openByIdA,
+
+        openByUrlWithGidSameAsOpenByUrl: openByUrlWithGid === openByUrl,
+      },
+    },
+
+    fileLikeArgument: {
+      call: captureSpreadsheetOpen(() => spreadsheetApp.open(fileLike), spreadsheetId),
+
+      getIdCallCount: fileLikeGetIdCalls,
+    },
+
+    invalid: {
+      openByIdMissing: captureSpreadsheetOpen(() =>
+        spreadsheetApp.openById("vegas-reference-missing-spreadsheet-id"),
+      ),
+
+      openByIdEmpty: captureSpreadsheetOpen(() => spreadsheetApp.openById("")),
+
+      openByIdNoArgument: captureSpreadsheetOpen(() =>
+        Reflect.apply(spreadsheetApp.openById, spreadsheetApp, []),
+      ),
+
+      openNoArgument: captureSpreadsheetOpen(() =>
+        Reflect.apply(spreadsheetApp.open, spreadsheetApp, []),
+      ),
+
+      openByUrlMalformed: captureSpreadsheetOpen(() => spreadsheetApp.openByUrl("not-a-url")),
+
+      openByUrlNoArgument: captureSpreadsheetOpen(() =>
+        Reflect.apply(spreadsheetApp.openByUrl, spreadsheetApp, []),
+      ),
+    },
+  };
 }

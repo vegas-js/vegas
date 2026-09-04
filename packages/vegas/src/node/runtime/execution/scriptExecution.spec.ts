@@ -30,6 +30,7 @@ function createContext(overrides: Partial<ScriptContextDependencies> = {}) {
 
     spreadsheetAppService: {
       create: unexpected,
+      openById: unexpected,
     },
 
     urlFetchService: {

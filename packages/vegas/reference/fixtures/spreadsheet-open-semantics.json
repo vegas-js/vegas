@@ -1,0 +1,142 @@
+{
+  "fileLikeArgument": {
+    "call": {
+      "errorMessage": "The parameters ((class)) don't match the method signature for SpreadsheetApp.open.",
+      "errorName": "Exception",
+      "hasGetId": null,
+      "idMatchesExpected": null,
+      "idType": null,
+      "isNull": null,
+      "isUndefined": null,
+      "stringify": null,
+      "threw": true,
+      "type": null
+    },
+    "getIdCallCount": 0
+  },
+  "flush": {
+    "errorMessage": null,
+    "errorName": null,
+    "isNull": true,
+    "isUndefined": false,
+    "threw": false,
+    "type": "object"
+  },
+  "invalid": {
+    "openByIdEmpty": {
+      "errorMessage": "Invalid argument: id",
+      "errorName": "Exception",
+      "hasGetId": null,
+      "idMatchesExpected": null,
+      "idType": null,
+      "isNull": null,
+      "isUndefined": null,
+      "stringify": null,
+      "threw": true,
+      "type": null
+    },
+    "openByIdMissing": {
+      "errorMessage": "Illegal spreadsheet id or key: vegas-reference-missing-spreadsheet-id",
+      "errorName": "Exception",
+      "hasGetId": null,
+      "idMatchesExpected": null,
+      "idType": null,
+      "isNull": null,
+      "isUndefined": null,
+      "stringify": null,
+      "threw": true,
+      "type": null
+    },
+    "openByIdNoArgument": {
+      "errorMessage": "The parameters () don't match the method signature for SpreadsheetApp.openById.",
+      "errorName": "Exception",
+      "hasGetId": null,
+      "idMatchesExpected": null,
+      "idType": null,
+      "isNull": null,
+      "isUndefined": null,
+      "stringify": null,
+      "threw": true,
+      "type": null
+    },
+    "openByUrlMalformed": {
+      "errorMessage": "Invalid argument: url",
+      "errorName": "Exception",
+      "hasGetId": null,
+      "idMatchesExpected": null,
+      "idType": null,
+      "isNull": null,
+      "isUndefined": null,
+      "stringify": null,
+      "threw": true,
+      "type": null
+    },
+    "openByUrlNoArgument": {
+      "errorMessage": "The parameters () don't match the method signature for SpreadsheetApp.openByUrl.",
+      "errorName": "Exception",
+      "hasGetId": null,
+      "idMatchesExpected": null,
+      "idType": null,
+      "isNull": null,
+      "isUndefined": null,
+      "stringify": null,
+      "threw": true,
+      "type": null
+    },
+    "openNoArgument": {
+      "errorMessage": "The parameters () don't match the method signature for SpreadsheetApp.open.",
+      "errorName": "Exception",
+      "hasGetId": null,
+      "idMatchesExpected": null,
+      "idType": null,
+      "isNull": null,
+      "isUndefined": null,
+      "stringify": null,
+      "threw": true,
+      "type": null
+    }
+  },
+  "valid": {
+    "identity": {
+      "openByUrlSameAsOpenById": false,
+      "openByUrlWithGidSameAsOpenByUrl": false,
+      "repeatedOpenByIdSameObject": false
+    },
+    "openById": {
+      "errorMessage": null,
+      "errorName": null,
+      "hasGetId": true,
+      "idMatchesExpected": true,
+      "idType": "string",
+      "isNull": false,
+      "isUndefined": false,
+      "stringify": "Spreadsheet",
+      "threw": false,
+      "type": "object"
+    },
+    "openByUrl": {
+      "errorMessage": null,
+      "errorName": null,
+      "hasGetId": true,
+      "idMatchesExpected": true,
+      "idType": "string",
+      "isNull": false,
+      "isUndefined": false,
+      "stringify": "Spreadsheet",
+      "threw": false,
+      "type": "object"
+    },
+    "openByUrlWithGid": {
+      "errorMessage": null,
+      "errorName": null,
+      "hasGetId": true,
+      "idMatchesExpected": true,
+      "idType": "string",
+      "isNull": false,
+      "isUndefined": false,
+      "stringify": "Spreadsheet",
+      "threw": false,
+      "type": "object"
+    }
+  }
+}

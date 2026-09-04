@@ -8,7 +8,10 @@ test("creates GAS-compatible SpreadsheetApp facade", () => {
   const createSpreadsheet = vi.fn(() => spreadsheet as any);
   const create = vi.fn(() => "spreadsheet-id");
 
-  const spreadsheetApp = createSpreadsheetApp(createSpreadsheet, { create }) as any;
+  const spreadsheetApp = createSpreadsheetApp(createSpreadsheet, {
+    create,
+    openById: ({ id }) => id,
+  }) as any;
 
   expect(Object.getPrototypeOf(spreadsheetApp)).toBe(Object.prototype);
   expect(String(spreadsheetApp)).toBe("SpreadsheetApp");
@@ -64,6 +67,7 @@ test("returns fresh Spreadsheet facades from acquisition methods", () => {
 
   const spreadsheetApp = createSpreadsheetApp(createSpreadsheet, {
     create: () => "spreadsheet-id",
+    openById: ({ id }) => id,
   }) as any;
 
   const created = spreadsheetApp.create("reference", 10, 10);

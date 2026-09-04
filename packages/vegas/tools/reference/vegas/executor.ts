@@ -221,6 +221,14 @@ function createReferenceGasException(message: string): Error {
 function createReferenceSpreadsheetDependencies() {
   const spreadsheets = new Map<string, ReferenceSpreadsheetState>();
 
+  const reusableSpreadsheetId = "vegas-reference-existing-spreadsheet";
+
+  spreadsheets.set(reusableSpreadsheetId, {
+    rows: 1,
+    columns: 1,
+    cells: [[""]],
+  });
+
   let sequence = 0;
 
   const getInitialSheet = (spreadsheetId: string, sheetId: number) => {
@@ -482,6 +490,14 @@ function createReferenceSpreadsheetDependencies() {
       });
 
       return spreadsheetId;
+    },
+
+    openById: ({ id }) => {
+      if (!spreadsheets.has(id)) {
+        throw createReferenceGasException(`Illegal spreadsheet id or key: ${id}`);
+      }
+
+      return id;
     },
   };
 

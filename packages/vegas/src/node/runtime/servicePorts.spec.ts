@@ -40,6 +40,14 @@ test("routes runtime service ports through the service caller", () => {
   services.propertiesService.setProperty("user", "key", "value");
 
   expect(callService).toHaveBeenLastCalledWith("Properties", "setProperty", "user", "key", "value");
+
+  const spreadsheetPayload = {
+    id: "spreadsheet-id",
+  };
+
+  services.spreadsheetAppService.openById(spreadsheetPayload);
+
+  expect(callService).toHaveBeenLastCalledWith("SpreadsheetApp", "openById", spreadsheetPayload);
 });
 
 test("exposes all runtime service ports required by the GAS global composer", () => {

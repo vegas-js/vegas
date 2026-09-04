@@ -1,11 +1,26 @@
 import type { RuntimeServiceImplementation } from "../../protocol";
 import type { SpreadsheetStore } from "./range";
 
+function createGasException(message: string): Error {
+  const error = new Error(message);
+  error.name = "Exception";
+
+  return error;
+}
+
 export class SpreadsheetAppHandler implements RuntimeServiceImplementation<"SpreadsheetApp"> {
   readonly #store: SpreadsheetStore;
 
   constructor(store: SpreadsheetStore) {
     this.#store = store;
+  }
+
+  openById(payload: { id: string }) {
+    if (!this.#store.has(payload.id)) {
+      throw createGasException(`Illegal spreadsheet id or key: ${payload.id}`);
+    }
+
+    return payload.id;
   }
 
   create(payload: { name: string; rows: number; columns: number }) {

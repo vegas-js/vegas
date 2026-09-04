@@ -14,6 +14,7 @@ export type RuntimeServicePorts = {
 export function createRuntimeServicePorts(callService: ServiceCaller): RuntimeServicePorts {
   const spreadsheetAppService: RuntimeServicePort<"SpreadsheetApp"> = {
     create: (...args) => callService("SpreadsheetApp", "create", ...args),
+    openById: (...args) => callService("SpreadsheetApp", "openById", ...args),
   };
 
   const sheetService: RuntimeServicePort<"Sheet"> = {

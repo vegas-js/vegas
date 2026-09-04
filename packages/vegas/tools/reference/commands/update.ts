@@ -13,7 +13,31 @@ import {
   updateReferenceProject,
 } from "../gas/project";
 
+function selectReferenceCases(requestedNames: readonly string[]) {
+  if (requestedNames.length === 0) {
+    return referenceCases;
+  }
+
+  const casesByName = new Map(
+    referenceCases.map((referenceCase) => [referenceCase.name, referenceCase]),
+  );
+
+  return [...new Set(requestedNames)].map((name) => {
+    const referenceCase = casesByName.get(name);
+
+    if (referenceCase === undefined) {
+      throw new Error(`Unknown reference case: ${name}`);
+    }
+
+    return referenceCase;
+  });
+}
+
 const referenceDir = url.fileURLToPath(new URL("../../../reference/", import.meta.url));
+
+const selectedReferenceCases = selectReferenceCases(
+  process.argv.slice(2).filter((argument) => argument !== "--"),
+);
 
 const config = loadReferenceConfig();
 const oauthConfig = loadOAuthConfig();
@@ -26,7 +50,7 @@ const metadata = createReferenceMetadata(caseRevision);
 
 await updateReferenceProject(config, accessTokenProvider, files);
 const client = createReferenceClient(config, accessTokenProvider);
-const acquiredResults = await acquireReferenceResults(client, referenceCases);
+const acquiredResults = await acquireReferenceResults(client, selectedReferenceCases);
 
 for (const { referenceCase, result } of acquiredResults) {
   const fixturePath = path.join(referenceDir, "fixtures", referenceCase.fixtureFile);

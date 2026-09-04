@@ -3,6 +3,7 @@ import type { RuntimeScope } from "./scope";
 export interface RuntimeProtocol {
   SpreadsheetApp: {
     create: (payload: { name: string; rows: number; columns: number }) => string;
+    openById: (payload: { id: string }) => string;
   };
 
   Sheet: {

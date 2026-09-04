@@ -53,6 +53,7 @@ export {
   captureReferenceSpreadsheetCreateSemantics,
   captureReferenceSpreadsheetGetSheetByIdSemantics,
   captureReferenceSheetGetRangeSemantics,
+  captureReferenceSpreadsheetOpenSemantics,
 } from "./spreadsheetSemantics";
 export {
   captureReferenceRangeValueSemantics,

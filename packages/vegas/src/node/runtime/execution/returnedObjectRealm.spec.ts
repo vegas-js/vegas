@@ -65,6 +65,7 @@ function createDependencies(): ScriptContextDependencies {
 
     spreadsheetAppService: {
       create: () => "realm-spreadsheet-id",
+      openById: ({ id }) => id,
     },
 
     urlFetchService: {

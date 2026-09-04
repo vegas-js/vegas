@@ -7,6 +7,7 @@ function createRegistry(overrides: Partial<RuntimeServiceRegistry> = {}): Runtim
   return {
     SpreadsheetApp: {
       create: () => "spreadsheet-id",
+      openById: () => "",
     },
     Sheet: {
       getLastRow: () => 0,

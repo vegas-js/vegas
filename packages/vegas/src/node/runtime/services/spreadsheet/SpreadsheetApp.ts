@@ -1,5 +1,13 @@
+import { isGasServiceObject } from "../../globals/serviceObject";
 import type { CreateSpreadsheet } from "../../objects/types";
 import type { RuntimeServicePort } from "../../protocol";
+
+function createGasException(message: string): Error {
+  const error = new Error(message);
+  error.name = "Exception";
+
+  return error;
+}
 
 // https://developers.google.com/apps-script/reference/spreadsheet/spreadsheet-app
 export class SpreadsheetApp implements GoogleAppsScript.Spreadsheet.SpreadsheetApp {
@@ -184,6 +192,7 @@ export class SpreadsheetApp implements GoogleAppsScript.Spreadsheet.SpreadsheetA
   };
   flush = () => {
     // It's equivalent to constantly flushing, so do nothing.
+    return null as unknown as void;
   };
   getActive = () => {
     throw new Error("Method not implemented.");
@@ -234,15 +243,61 @@ export class SpreadsheetApp implements GoogleAppsScript.Spreadsheet.SpreadsheetA
     throw new Error("Method not implemented.");
   };
   open = (file: GoogleAppsScript.Drive.File) => {
-    const id = file.getId();
-    return this.openById(id);
+    if (file === undefined) {
+      throw createGasException(
+        "The parameters () don't match the method signature for SpreadsheetApp.open.",
+      );
+    }
+
+    if (
+      !isGasServiceObject(file) ||
+      typeof (
+        file as unknown as {
+          getId?: unknown;
+        }
+      ).getId !== "function"
+    ) {
+      throw createGasException(
+        "The parameters ((class)) don't match the method signature for SpreadsheetApp.open.",
+      );
+    }
+
+    return this.openById(file.getId());
   };
   openById = (id: string) => {
-    return this.#createSpreadsheet(id);
+    if (id === undefined) {
+      throw createGasException(
+        "The parameters () don't match the method signature for SpreadsheetApp.openById.",
+      );
+    }
+
+    if (id === "") {
+      throw createGasException("Invalid argument: id");
+    }
+
+    const spreadsheetId = this.#service.openById({
+      id,
+    });
+
+    return this.#createSpreadsheet(spreadsheetId);
   };
   openByUrl = (url: string) => {
-    const targetUrl = new URL(url);
+    if (url === undefined) {
+      throw createGasException(
+        "The parameters () don't match the method signature for SpreadsheetApp.openByUrl.",
+      );
+    }
+
+    let targetUrl: URL;
+
+    try {
+      targetUrl = new URL(url);
+    } catch {
+      throw createGasException("Invalid argument: url");
+    }
+
     const id = targetUrl.pathname.split("/")[3];
+
     return this.openById(id);
   };
   setActiveRange = (range: GoogleAppsScript.Spreadsheet.Range) => {
