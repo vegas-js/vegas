@@ -126,10 +126,13 @@ export class Utilities implements GoogleAppsScript.Utilities.Utilities {
   ) => {
     let algo = this.#MacAlgorithmMap[algorithm];
 
-    const encoding = (charset && charset === 0 ? "ascii" : "utf8") as BufferEncoding;
     const bufferValue =
-      typeof value === "string" ? Buffer.from(value, encoding) : Buffer.from(value);
-    const bufferKey = typeof key === "string" ? Buffer.from(key, encoding) : Buffer.from(key);
+      typeof value === "string"
+        ? this.#encodeString(value, charset, "us-ascii")
+        : Buffer.from(value);
+
+    const bufferKey =
+      typeof key === "string" ? this.#encodeString(key, charset, "us-ascii") : Buffer.from(key);
     const hmac = crypto.createHmac(algo, bufferKey);
     hmac.update(bufferValue);
     const result = Array.from(new Int8Array(hmac.digest()));
@@ -158,10 +161,10 @@ export class Utilities implements GoogleAppsScript.Utilities.Utilities {
   ) => {
     let algo = this.#RsaAlgorithmMap[algorithm];
 
-    const encoding = (charset && charset === 0 ? "ascii" : "utf8") as BufferEncoding;
-    const bufferValue =
-      typeof value === "string" ? Buffer.from(value, encoding) : Buffer.from(value);
-    const bufferKey = typeof key === "string" ? Buffer.from(key, encoding) : Buffer.from(key);
+    const bufferValue = this.#encodeString(value, charset, "us-ascii");
+
+    const bufferKey = this.#encodeString(key, charset, "us-ascii");
+
     const result = Array.from(new Int8Array(crypto.sign(algo, bufferValue, bufferKey)));
 
     return result;

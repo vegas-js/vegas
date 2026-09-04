@@ -45,6 +45,7 @@ export {
   captureReferenceUtilitiesFormatDateSemantics,
   captureReferenceUtilitiesRuntimeSemantics,
 } from "./utilitiesMiscSemantics";
+export { captureReferenceUtilitiesCryptoSemantics } from "./utilitiesCryptoSemantics";
 export { captureReferenceBlobObjectSurface } from "./blobObjectSurface";
 export { captureReferenceBlobObjectIdentity } from "./blobObjectIdentity";
 export { captureReferenceSpreadsheetAppSurface } from "./spreadsheetAppSurface";

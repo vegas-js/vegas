@@ -229,6 +229,12 @@ export const referenceCases: readonly ReferenceCaseDefinition[] = [
     runtimeTest: "required",
   },
   {
+    name: "utilities-crypto-semantics",
+    functionName: "captureReferenceUtilitiesCryptoSemantics",
+    fixtureFile: "utilities-crypto-semantics.json",
+    runtimeTest: "required",
+  },
+  {
     name: "blob-object-surface",
     functionName: "captureReferenceBlobObjectSurface",
     fixtureFile: "blob-object-surface.json",

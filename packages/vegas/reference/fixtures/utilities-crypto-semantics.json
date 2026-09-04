@@ -1,0 +1,121 @@
+{
+  "hmacSha256": {
+    "generic": {
+      "default": {
+        "base64": "uhmK2ZoGRDZ+iKK2aEs8Q3nyl5fMiB4+z4CRGmDOOf8=",
+        "errorMessage": null,
+        "errorName": null,
+        "isArray": true,
+        "length": 32,
+        "threw": false
+      },
+      "defaultEqualsUsAscii": true,
+      "defaultEqualsUtf8": false,
+      "usAscii": {
+        "base64": "uhmK2ZoGRDZ+iKK2aEs8Q3nyl5fMiB4+z4CRGmDOOf8=",
+        "errorMessage": null,
+        "errorName": null,
+        "isArray": true,
+        "length": 32,
+        "threw": false
+      },
+      "utf8": {
+        "base64": "bp3jhrUVgPPu4SotAab6eDSuma16lJTiR/KLtChLHxM=",
+        "errorMessage": null,
+        "errorName": null,
+        "isArray": true,
+        "length": 32,
+        "threw": false
+      }
+    },
+    "shortcut": {
+      "default": {
+        "base64": "uhmK2ZoGRDZ+iKK2aEs8Q3nyl5fMiB4+z4CRGmDOOf8=",
+        "errorMessage": null,
+        "errorName": null,
+        "isArray": true,
+        "length": 32,
+        "threw": false
+      },
+      "defaultMatchesGeneric": true,
+      "usAscii": {
+        "base64": "uhmK2ZoGRDZ+iKK2aEs8Q3nyl5fMiB4+z4CRGmDOOf8=",
+        "errorMessage": null,
+        "errorName": null,
+        "isArray": true,
+        "length": 32,
+        "threw": false
+      },
+      "usAsciiMatchesGeneric": true
+    }
+  },
+  "rsaSha1": {
+    "generic": {
+      "base64": "B9RxPr4DAzkXcNJDYkZX1sFgLAsBfI7RJb7Sm5c4em+zpKLm/SOXVrpbLreaqn9BRIUZySHpvXy1TucP7uMLHgUDLulyANq/se+5KihiTpIfDUMoLhc88IM4WJYtjNY+BmOIrYqYrtt/BPFHHL9rVrQJgiVUvvfvYlqA7z0pDlQ=",
+      "errorMessage": null,
+      "errorName": null,
+      "isArray": true,
+      "length": 128,
+      "threw": false
+    },
+    "shortcut": {
+      "base64": "B9RxPr4DAzkXcNJDYkZX1sFgLAsBfI7RJb7Sm5c4em+zpKLm/SOXVrpbLreaqn9BRIUZySHpvXy1TucP7uMLHgUDLulyANq/se+5KihiTpIfDUMoLhc88IM4WJYtjNY+BmOIrYqYrtt/BPFHHL9rVrQJgiVUvvfvYlqA7z0pDlQ=",
+      "errorMessage": null,
+      "errorName": null,
+      "isArray": true,
+      "length": 128,
+      "threw": false
+    },
+    "shortcutMatchesGeneric": true
+  },
+  "rsaSha256": {
+    "generic": {
+      "default": {
+        "base64": "Zr4B7B9kUROGls2NpK5i1shdBY7Qgq2Plcg/iByy+q6pFZDdDWqGs0Ebjdxjngy1gjlipuBNmaoNbwXTp5PH0tyjqjS0J4V3XnK2wsVIgEvEM7njeXvCJESfon79xOd0/wen19RK+NvsJHI3T9zUgh9pnpU5h3w/VsswNHk1OkE=",
+        "errorMessage": null,
+        "errorName": null,
+        "isArray": true,
+        "length": 128,
+        "threw": false
+      },
+      "defaultEqualsUsAscii": true,
+      "defaultEqualsUtf8": false,
+      "usAscii": {
+        "base64": "Zr4B7B9kUROGls2NpK5i1shdBY7Qgq2Plcg/iByy+q6pFZDdDWqGs0Ebjdxjngy1gjlipuBNmaoNbwXTp5PH0tyjqjS0J4V3XnK2wsVIgEvEM7njeXvCJESfon79xOd0/wen19RK+NvsJHI3T9zUgh9pnpU5h3w/VsswNHk1OkE=",
+        "errorMessage": null,
+        "errorName": null,
+        "isArray": true,
+        "length": 128,
+        "threw": false
+      },
+      "utf8": {
+        "base64": "K6Qvjc/L2L2KjaZc/m6HO1qSlHICLmd2goqxItKKC0rdXH/xn+NIH/Y8RFnrdK04b5KosFOxiJuDhMgugFUoBODx85b4Sd5V0EesweocJBHUQHD6bGReMIOWM1ckZ5D1Cm/3oaqwJOtyTHPSQjJknkk5jaPXBDk1cMWFcuohlXU=",
+        "errorMessage": null,
+        "errorName": null,
+        "isArray": true,
+        "length": 128,
+        "threw": false
+      }
+    },
+    "shortcut": {
+      "default": {
+        "base64": "Zr4B7B9kUROGls2NpK5i1shdBY7Qgq2Plcg/iByy+q6pFZDdDWqGs0Ebjdxjngy1gjlipuBNmaoNbwXTp5PH0tyjqjS0J4V3XnK2wsVIgEvEM7njeXvCJESfon79xOd0/wen19RK+NvsJHI3T9zUgh9pnpU5h3w/VsswNHk1OkE=",
+        "errorMessage": null,
+        "errorName": null,
+        "isArray": true,
+        "length": 128,
+        "threw": false
+      },
+      "defaultMatchesGeneric": true,
+      "usAscii": {
+        "base64": "Zr4B7B9kUROGls2NpK5i1shdBY7Qgq2Plcg/iByy+q6pFZDdDWqGs0Ebjdxjngy1gjlipuBNmaoNbwXTp5PH0tyjqjS0J4V3XnK2wsVIgEvEM7njeXvCJESfon79xOd0/wen19RK+NvsJHI3T9zUgh9pnpU5h3w/VsswNHk1OkE=",
+        "errorMessage": null,
+        "errorName": null,
+        "isArray": true,
+        "length": 128,
+        "threw": false
+      },
+      "usAsciiMatchesGeneric": true
+    }
+  }
+}
