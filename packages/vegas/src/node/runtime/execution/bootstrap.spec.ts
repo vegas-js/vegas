@@ -43,6 +43,36 @@ test("evaluates the script and invokes script functions", async () => {
   await expect(runtime.invoke("add", [2, 3])).resolves.toBe(5);
 });
 
+test("creates a fresh script context for each invocation", async () => {
+  const runtime = createScriptRuntime(
+    createDependencies(`
+      let topLevelEvaluationCount = 0;
+      topLevelEvaluationCount += 1;
+
+      let entryInvocationCount = 0;
+
+      function observeLifecycle() {
+        entryInvocationCount += 1;
+
+        return {
+          topLevelEvaluationCount,
+          entryInvocationCount,
+        };
+      }
+    `),
+  );
+
+  await expect(runtime.invoke("observeLifecycle", [])).resolves.toEqual({
+    topLevelEvaluationCount: 1,
+    entryInvocationCount: 1,
+  });
+
+  await expect(runtime.invoke("observeLifecycle", [])).resolves.toEqual({
+    topLevelEvaluationCount: 1,
+    entryInvocationCount: 1,
+  });
+});
+
 test("evaluates HTML templates in the script context and restores template bindings", async () => {
   const runtime = createScriptRuntime(
     createDependencies(`

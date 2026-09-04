@@ -26,8 +26,6 @@ export interface ScriptRuntime {
 export function createScriptRuntime(dependencies: ScriptRuntimeDependencies): ScriptRuntime {
   const { code, environment, requestLegacySync, logSink, callService } = dependencies;
 
-  const htmlOutputFacadeFactory = createHtmlOutputFacadeFactory();
-
   const {
     spreadsheetAppService,
     sheetService,
@@ -39,43 +37,43 @@ export function createScriptRuntime(dependencies: ScriptRuntimeDependencies): Sc
     propertiesService,
   } = createRuntimeServicePorts(callService);
 
-  let templateContext: ReturnType<typeof createScriptContext> | undefined;
-
-  const evaluateHtmlTemplate: EvaluateHtmlTemplate = (templateCode, bindings) => {
-    if (!templateContext) {
-      throw new Error("Script context is not initialized");
-    }
-
-    return evaluateScriptWithBindings(templateCode, templateContext, bindings);
-  };
-
-  const factories = createRuntimeObjectFactories({
-    requestLegacySync,
-    rangeService,
-    sheetService,
-    evaluateHtmlTemplate,
-  });
-
-  const scriptContext = createScriptContext({
-    environment,
-    htmlOutputFacadeFactory,
-    requestLegacySync,
-    logSink,
-    spreadsheetAppService,
-    urlFetchService,
-    htmlService,
-    sessionService,
-    cacheService,
-    propertiesService,
-    ...factories,
-  });
-
-  templateContext = scriptContext;
-
-  evaluateScript(code, scriptContext);
-
   return {
     async invoke(functionName, args) {
+      const htmlOutputFacadeFactory = createHtmlOutputFacadeFactory();
+
+      let scriptContext: ReturnType<typeof createScriptContext> | undefined;
+
+      const evaluateHtmlTemplate: EvaluateHtmlTemplate = (templateCode, bindings) => {
+        if (!scriptContext) {
+          throw new Error("Script context is not initialized");
+        }
+
+        return evaluateScriptWithBindings(templateCode, scriptContext, bindings);
+      };
+
+      const factories = createRuntimeObjectFactories({
+        requestLegacySync,
+        rangeService,
+        sheetService,
+        evaluateHtmlTemplate,
+      });
+
+      scriptContext = createScriptContext({
+        environment,
+        htmlOutputFacadeFactory,
+        requestLegacySync,
+        logSink,
+        spreadsheetAppService,
+        urlFetchService,
+        htmlService,
+        sessionService,
+        cacheService,
+        propertiesService,
+        ...factories,
+      });
+
+      evaluateScript(code, scriptContext);
+
       const result = await invokeScriptFunction(scriptContext, functionName, args);
 
       return projectLegacyWebAppResult(functionName, result, {

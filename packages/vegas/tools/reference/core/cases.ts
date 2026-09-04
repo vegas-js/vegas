@@ -21,14 +21,14 @@ export const referenceCases: readonly ReferenceCaseDefinition[] = [
     name: "execution-top-level-lifecycle",
     functionName: "captureReferenceExecutionTopLevelLifecycle",
     fixtureFile: "execution-top-level-lifecycle.json",
-    runtimeTest: "pending",
+    runtimeTest: "required",
     executionCount: 2,
   },
   {
     name: "execution-global-lifecycle",
     functionName: "captureReferenceExecutionGlobalLifecycle",
     fixtureFile: "execution-global-lifecycle.json",
-    runtimeTest: "pending",
+    runtimeTest: "required",
     executionCount: 2,
   },
   {

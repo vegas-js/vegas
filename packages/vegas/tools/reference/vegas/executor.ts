@@ -658,32 +658,34 @@ function createReferenceFetchResponse(request: RuntimeFetchRequest): RuntimeFetc
 }
 
 export function createVegasReferenceExecutor(source: string): ReferenceExecutor {
-  const htmlOutputFacadeFactory = createHtmlOutputFacadeFactory();
-
-  let templateContext: ReturnType<typeof createScriptContext> | undefined;
-
-  const evaluateHtmlTemplate: EvaluateHtmlTemplate = (templateCode, bindings) => {
-    if (!templateContext) {
-      throw new Error("Reference script context is not initialized");
-    }
-
-    return evaluateScriptWithBindings(templateCode, templateContext, bindings);
-  };
-
-  const context = createScriptContext({
-    ...createReferenceDependencies(),
-    htmlOutputFacadeFactory,
-    createHtmlOutput: (content: string, mode: GoogleAppsScript.HTML.XFrameOptionsMode) =>
-      new HtmlOutput(content, mode),
-    createHtmlTemplate: (content: string) => new HtmlTemplate(content, evaluateHtmlTemplate),
-  });
-
-  templateContext = context;
-
-  evaluateScript(source, context);
+  const referenceDependencies = createReferenceDependencies();
 
   return {
     async execute(functionName, parameters = []) {
+      const htmlOutputFacadeFactory = createHtmlOutputFacadeFactory();
+
+      let templateContext: ReturnType<typeof createScriptContext> | undefined;
+
+      const evaluateHtmlTemplate: EvaluateHtmlTemplate = (templateCode, bindings) => {
+        if (!templateContext) {
+          throw new Error("Reference script context is not initialized");
+        }
+
+        return evaluateScriptWithBindings(templateCode, templateContext, bindings);
+      };
+
+      const context = createScriptContext({
+        ...referenceDependencies,
+        htmlOutputFacadeFactory,
+        createHtmlOutput: (content: string, mode: GoogleAppsScript.HTML.XFrameOptionsMode) =>
+          new HtmlOutput(content, mode),
+        createHtmlTemplate: (content: string) => new HtmlTemplate(content, evaluateHtmlTemplate),
+      });
+
+      templateContext = context;
+
+      evaluateScript(source, context);
+
       try {
         return await invokeScriptFunction(context, functionName, [...parameters]);
       } catch (error) {
