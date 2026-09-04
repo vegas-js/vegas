@@ -1363,20 +1363,20 @@ describe("timer", () => {
     expect(args?.[1]).toMatch(/^label: \d+ms$/);
   });
 
-  test("call timeEnd first and throw an error", () => {
+  test("call timeEnd first returns null", () => {
     const gasConsole = new Console(consoleSink);
-    expect(() => gasConsole.timeEnd("")).toThrow(
-      /^The parameters \(.*\) don't match the method signature for console\.timeEnd\.$/,
-    );
+
+    expect(gasConsole.timeEnd("")).toBeNull();
   });
 
-  test("calling timeEnd twice in a row throws an error", () => {
+  test("calling timeEnd twice in a row returns null on the second call", () => {
     const gasConsole = new Console(consoleSink);
+
     gasConsole.time("");
-    gasConsole.timeEnd("");
-    expect(() => gasConsole.timeEnd("")).toThrow(
-      /^The parameters \(.*\) don't match the method signature for console\.timeEnd\.$/,
-    );
+
+    expect(gasConsole.timeEnd("")).toBeNull();
+
+    expect(gasConsole.timeEnd("")).toBeNull();
   });
 });
 

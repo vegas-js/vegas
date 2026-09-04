@@ -154,7 +154,7 @@ function createReferenceDependencies(): ScriptContextDependencies {
     createSpreadsheet: spreadsheetDependencies.createSpreadsheet,
 
     logSink: {
-      write: unexpected,
+      write: () => {},
     },
 
     spreadsheetAppService: spreadsheetDependencies.spreadsheetAppService,

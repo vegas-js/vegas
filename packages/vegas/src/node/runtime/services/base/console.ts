@@ -82,6 +82,13 @@ function jsonReplacer(this: any, key: string, value: any): any {
   return value;
 }
 
+function createGasException(message: string): Error {
+  const error = new Error(message);
+  error.name = "Exception";
+
+  return error;
+}
+
 // https://developers.google.com/apps-script/reference/base/console
 export class Console extends GASAPI {
   readonly #logSink: RuntimeLogSink;
@@ -174,22 +181,41 @@ export class Console extends GASAPI {
     const logPrefix = getLogPrefix(this.#logTitle, "Info");
     this.#output("debug", logPrefix, ...data);
   }
-  time(label: string): void {
-    this.#timer.set(label, performance.now());
-  }
-  timeEnd(label: string): void {
-    const endTime = performance.now();
-    const startTime = this.#timer.get(label);
-    if (startTime) {
-      this.#timer.delete(label);
-      const logPrefix = getLogPrefix(this.#logTitle, "Debug");
-      const outputLog = util.format("%s: %dms", label, (endTime - startTime).toFixed(0));
-      this.#output("log", logPrefix, outputLog.replace(/\n/g, `\n${"".padEnd(36)}`));
-    } else {
-      throw new Error(
-        `The parameters (${label}) don't match the method signature for console.timeEnd.`,
+  time(label?: string): null {
+    if (label === undefined) {
+      throw createGasException(
+        "The parameters () don't match the method signature for console.time.",
       );
     }
+
+    this.#timer.set(label, performance.now());
+
+    return null;
+  }
+  timeEnd(label?: string): null {
+    if (label === undefined) {
+      throw createGasException(
+        "The parameters () don't match the method signature for console.timeEnd.",
+      );
+    }
+
+    if (!this.#timer.has(label)) {
+      return null;
+    }
+
+    const endTime = performance.now();
+
+    const startTime = this.#timer.get(label)!;
+
+    this.#timer.delete(label);
+
+    const logPrefix = getLogPrefix(this.#logTitle, "Debug");
+
+    const outputLog = util.format("%s: %dms", label, (endTime - startTime).toFixed(0));
+
+    this.#output("log", logPrefix, outputLog.replace(/\n/g, `\n${"".padEnd(36)}`));
+
+    return null;
   }
   warn(): void;
   warn(formatOrObject: Object, ...values: Object[]): void;

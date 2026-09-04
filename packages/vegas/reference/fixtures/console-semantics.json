@@ -1,0 +1,117 @@
+{
+  "emptyCalls": {
+    "error": {
+      "errorMessage": null,
+      "errorName": null,
+      "isNull": false,
+      "isUndefined": true,
+      "threw": false,
+      "type": "undefined"
+    },
+    "info": {
+      "errorMessage": null,
+      "errorName": null,
+      "isNull": false,
+      "isUndefined": true,
+      "threw": false,
+      "type": "undefined"
+    },
+    "log": {
+      "errorMessage": null,
+      "errorName": null,
+      "isNull": false,
+      "isUndefined": true,
+      "threw": false,
+      "type": "undefined"
+    },
+    "warn": {
+      "errorMessage": null,
+      "errorName": null,
+      "isNull": false,
+      "isUndefined": true,
+      "threw": false,
+      "type": "undefined"
+    }
+  },
+  "loggerAfterConsoleCalls": {
+    "empty": true,
+    "lineCount": 0,
+    "lines": []
+  },
+  "timer": {
+    "missingTimeEnd": {
+      "errorMessage": null,
+      "errorName": null,
+      "isNull": true,
+      "isUndefined": false,
+      "threw": false,
+      "type": "object"
+    },
+    "noArgumentTime": {
+      "errorMessage": "The parameters () don't match the method signature for console.time.",
+      "errorName": "Exception",
+      "isNull": null,
+      "isUndefined": null,
+      "threw": true,
+      "type": null
+    },
+    "noArgumentTimeEnd": {
+      "errorMessage": "The parameters () don't match the method signature for console.timeEnd.",
+      "errorName": "Exception",
+      "isNull": null,
+      "isUndefined": null,
+      "threw": true,
+      "type": null
+    },
+    "timeEndResult": {
+      "errorMessage": null,
+      "errorName": null,
+      "isNull": true,
+      "isUndefined": false,
+      "threw": false,
+      "type": "object"
+    },
+    "timeResult": {
+      "errorMessage": null,
+      "errorName": null,
+      "isNull": true,
+      "isUndefined": false,
+      "threw": false,
+      "type": "object"
+    }
+  },
+  "valueCalls": {
+    "error": {
+      "errorMessage": null,
+      "errorName": null,
+      "isNull": false,
+      "isUndefined": true,
+      "threw": false,
+      "type": "undefined"
+    },
+    "info": {
+      "errorMessage": null,
+      "errorName": null,
+      "isNull": false,
+      "isUndefined": true,
+      "threw": false,
+      "type": "undefined"
+    },
+    "log": {
+      "errorMessage": null,
+      "errorName": null,
+      "isNull": false,
+      "isUndefined": true,
+      "threw": false,
+      "type": "undefined"
+    },
+    "warn": {
+      "errorMessage": null,
+      "errorName": null,
+      "isNull": false,
+      "isUndefined": true,
+      "threw": false,
+      "type": "undefined"
+    }
+  }
+}

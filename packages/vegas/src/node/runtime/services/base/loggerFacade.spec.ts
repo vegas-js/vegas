@@ -3,7 +3,7 @@ import { expect, test, vi } from "vitest";
 import { createLogger } from "./loggerFacade";
 
 type LoggerFacade = {
-  clear(): void;
+  clear(): null;
   getLog(): string;
   log(dataOrFormat: unknown, ...values: unknown[]): LoggerFacade;
 };
@@ -43,12 +43,28 @@ test("creates GAS-compatible Logger facade", () => {
     });
   }
 
-  expect(logger.log("value")).toBe(logger);
+  const returned = logger.log("value");
 
-  expect(write).toHaveBeenCalledOnce();
+  expect(returned).not.toBe(logger);
+
+  expect(String(returned as any)).toBe("Logger");
+
+  expect(Object.getPrototypeOf(returned)).toBe(Object.prototype);
+
+  expect(Object.getOwnPropertyNames(returned).sort()).toEqual(
+    Object.getOwnPropertyNames(logger).sort(),
+  );
+
+  expect(logger.log("second")).toBe(returned);
+
+  expect(returned.log("third")).toBe(returned);
+
+  expect(returned.getLog()).toBe(logger.getLog());
+
+  expect(write).toHaveBeenCalledTimes(3);
   expect(logger.getLog()).toContain("value");
 
-  logger.clear();
+  expect(logger.clear()).toBeNull();
 
   expect(logger.getLog()).toBe("");
 });

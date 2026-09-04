@@ -1,0 +1,461 @@
+{
+  "afterClear": {
+    "empty": true,
+    "lineCount": 0,
+    "lines": []
+  },
+  "clearEmpty": {
+    "errorMessage": null,
+    "errorName": null,
+    "isNull": true,
+    "isUndefined": false,
+    "threw": false,
+    "type": "object"
+  },
+  "clearPopulated": {
+    "errorMessage": null,
+    "errorName": null,
+    "isNull": true,
+    "isUndefined": false,
+    "threw": false,
+    "type": "object"
+  },
+  "formats": {
+    "decimalFormat": {
+      "errorMessage": null,
+      "errorName": null,
+      "isNull": false,
+      "isUndefined": false,
+      "log": {
+        "empty": false,
+        "lineCount": 2,
+        "lines": [
+          {
+            "prefixMatched": true,
+            "value": "value=42.0"
+          },
+          {
+            "prefixMatched": false,
+            "value": null
+          }
+        ]
+      },
+      "returnsLogger": false,
+      "threw": false,
+      "type": "object"
+    },
+    "escapedPercent": {
+      "errorMessage": null,
+      "errorName": null,
+      "isNull": false,
+      "isUndefined": false,
+      "log": {
+        "empty": false,
+        "lineCount": 2,
+        "lines": [
+          {
+            "prefixMatched": true,
+            "value": "value=%"
+          },
+          {
+            "prefixMatched": false,
+            "value": null
+          }
+        ]
+      },
+      "returnsLogger": false,
+      "threw": false,
+      "type": "object"
+    },
+    "extraValues": {
+      "errorMessage": null,
+      "errorName": null,
+      "isNull": false,
+      "isUndefined": false,
+      "log": {
+        "empty": false,
+        "lineCount": 2,
+        "lines": [
+          {
+            "prefixMatched": true,
+            "value": "plain"
+          },
+          {
+            "prefixMatched": false,
+            "value": null
+          }
+        ]
+      },
+      "returnsLogger": false,
+      "threw": false,
+      "type": "object"
+    },
+    "jsonFormat": {
+      "errorMessage": null,
+      "errorName": null,
+      "isNull": false,
+      "isUndefined": false,
+      "log": {
+        "empty": false,
+        "lineCount": 2,
+        "lines": [
+          {
+            "prefixMatched": true,
+            "value": "value={alpha=1.0}"
+          },
+          {
+            "prefixMatched": false,
+            "value": null
+          }
+        ]
+      },
+      "returnsLogger": false,
+      "threw": false,
+      "type": "object"
+    },
+    "stringFormat": {
+      "errorMessage": null,
+      "errorName": null,
+      "isNull": false,
+      "isUndefined": false,
+      "log": {
+        "empty": false,
+        "lineCount": 2,
+        "lines": [
+          {
+            "prefixMatched": true,
+            "value": "value={alpha=1.0}"
+          },
+          {
+            "prefixMatched": false,
+            "value": null
+          }
+        ]
+      },
+      "returnsLogger": false,
+      "threw": false,
+      "type": "object"
+    },
+    "unsupportedFormat": {
+      "errorMessage": null,
+      "errorName": null,
+      "isNull": false,
+      "isUndefined": false,
+      "log": {
+        "empty": false,
+        "lineCount": 2,
+        "lines": [
+          {
+            "prefixMatched": true,
+            "value": "value=%q"
+          },
+          {
+            "prefixMatched": false,
+            "value": null
+          }
+        ]
+      },
+      "returnsLogger": false,
+      "threw": false,
+      "type": "object"
+    }
+  },
+  "initial": {
+    "empty": true,
+    "lineCount": 0,
+    "lines": []
+  },
+  "logReturnIdentity": {
+    "chaining": {
+      "available": true,
+      "returnsFirst": true,
+      "returnsGlobal": false,
+      "returnsSecond": true,
+      "stringify": "Logger"
+    },
+    "first": {
+      "getLogFunctionSameAsGlobal": false,
+      "hasClear": true,
+      "hasGetLog": true,
+      "hasLog": true,
+      "logFunctionSameAsGlobal": false,
+      "ownPropertyNames": [
+        "clear",
+        "config",
+        "fine",
+        "finer",
+        "finest",
+        "getLog",
+        "info",
+        "log",
+        "severe",
+        "toString",
+        "warning"
+      ],
+      "prototypeIsObjectPrototype": true,
+      "sameAsGlobal": false,
+      "stringify": "Logger"
+    },
+    "repeatedSameObject": true,
+    "secondSameAsGlobal": false
+  },
+  "multipleEntries": {
+    "empty": false,
+    "lineCount": 4,
+    "lines": [
+      {
+        "prefixMatched": true,
+        "value": "return-first"
+      },
+      {
+        "prefixMatched": true,
+        "value": "return-second"
+      },
+      {
+        "prefixMatched": true,
+        "value": "return-chained"
+      },
+      {
+        "prefixMatched": false,
+        "value": null
+      }
+    ]
+  },
+  "repeatedGetLog": {
+    "firstIsString": true,
+    "same": true,
+    "secondIsString": true
+  },
+  "values": {
+    "arrayValue": {
+      "errorMessage": null,
+      "errorName": null,
+      "isNull": false,
+      "isUndefined": false,
+      "log": {
+        "empty": false,
+        "lineCount": 2,
+        "lines": [
+          {
+            "prefixMatched": true,
+            "value": "[1.0, two, true, null]"
+          },
+          {
+            "prefixMatched": false,
+            "value": null
+          }
+        ]
+      },
+      "returnsLogger": false,
+      "threw": false,
+      "type": "object"
+    },
+    "booleanValue": {
+      "errorMessage": null,
+      "errorName": null,
+      "isNull": false,
+      "isUndefined": false,
+      "log": {
+        "empty": false,
+        "lineCount": 2,
+        "lines": [
+          {
+            "prefixMatched": true,
+            "value": "true"
+          },
+          {
+            "prefixMatched": false,
+            "value": null
+          }
+        ]
+      },
+      "returnsLogger": false,
+      "threw": false,
+      "type": "object"
+    },
+    "fractionalValue": {
+      "errorMessage": null,
+      "errorName": null,
+      "isNull": false,
+      "isUndefined": false,
+      "log": {
+        "empty": false,
+        "lineCount": 2,
+        "lines": [
+          {
+            "prefixMatched": true,
+            "value": "1.5"
+          },
+          {
+            "prefixMatched": false,
+            "value": null
+          }
+        ]
+      },
+      "returnsLogger": false,
+      "threw": false,
+      "type": "object"
+    },
+    "integerValue": {
+      "errorMessage": null,
+      "errorName": null,
+      "isNull": false,
+      "isUndefined": false,
+      "log": {
+        "empty": false,
+        "lineCount": 2,
+        "lines": [
+          {
+            "prefixMatched": true,
+            "value": "42.0"
+          },
+          {
+            "prefixMatched": false,
+            "value": null
+          }
+        ]
+      },
+      "returnsLogger": false,
+      "threw": false,
+      "type": "object"
+    },
+    "messageObject": {
+      "errorMessage": null,
+      "errorName": null,
+      "isNull": false,
+      "isUndefined": false,
+      "log": {
+        "empty": false,
+        "lineCount": 2,
+        "lines": [
+          {
+            "prefixMatched": true,
+            "value": "message-only"
+          },
+          {
+            "prefixMatched": false,
+            "value": null
+          }
+        ]
+      },
+      "returnsLogger": false,
+      "threw": false,
+      "type": "object"
+    },
+    "nullValue": {
+      "errorMessage": null,
+      "errorName": null,
+      "isNull": false,
+      "isUndefined": false,
+      "log": {
+        "empty": false,
+        "lineCount": 2,
+        "lines": [
+          {
+            "prefixMatched": true,
+            "value": "null"
+          },
+          {
+            "prefixMatched": false,
+            "value": null
+          }
+        ]
+      },
+      "returnsLogger": false,
+      "threw": false,
+      "type": "object"
+    },
+    "objectValue": {
+      "errorMessage": null,
+      "errorName": null,
+      "isNull": false,
+      "isUndefined": false,
+      "log": {
+        "empty": false,
+        "lineCount": 2,
+        "lines": [
+          {
+            "prefixMatched": true,
+            "value": "{alpha=1.0, beta=two, nested={gamma=true}}"
+          },
+          {
+            "prefixMatched": false,
+            "value": null
+          }
+        ]
+      },
+      "returnsLogger": false,
+      "threw": false,
+      "type": "object"
+    },
+    "stringValue": {
+      "errorMessage": null,
+      "errorName": null,
+      "isNull": false,
+      "isUndefined": false,
+      "log": {
+        "empty": false,
+        "lineCount": 2,
+        "lines": [
+          {
+            "prefixMatched": true,
+            "value": "Vegas"
+          },
+          {
+            "prefixMatched": false,
+            "value": null
+          }
+        ]
+      },
+      "returnsLogger": false,
+      "threw": false,
+      "type": "object"
+    },
+    "undefinedValue": {
+      "errorMessage": null,
+      "errorName": null,
+      "isNull": false,
+      "isUndefined": false,
+      "log": {
+        "empty": false,
+        "lineCount": 2,
+        "lines": [
+          {
+            "prefixMatched": true,
+            "value": "null"
+          },
+          {
+            "prefixMatched": false,
+            "value": null
+          }
+        ]
+      },
+      "returnsLogger": false,
+      "threw": false,
+      "type": "object"
+    },
+    "userValue": {
+      "errorMessage": null,
+      "errorName": null,
+      "isNull": false,
+      "isUndefined": false,
+      "log": {
+        "empty": false,
+        "lineCount": 2,
+        "lines": [
+          {
+            "prefixMatched": true,
+            "value": "<active-user>"
+          },
+          {
+            "prefixMatched": false,
+            "value": null
+          }
+        ]
+      },
+      "returnsLogger": false,
+      "threw": false,
+      "type": "object"
+    }
+  }
+}

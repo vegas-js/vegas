@@ -1331,7 +1331,7 @@ describe("log", () => {
   test("get", () => {
     const gasLogger = new Logger(consoleSink);
     gasLogger.log("log");
-    expect(gasLogger.getLog()).toMatch(/INFO: log$/);
+    expect(gasLogger.getLog()).toMatch(/INFO: log\n$/);
   });
 
   test("clear", () => {

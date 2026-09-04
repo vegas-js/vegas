@@ -1,4 +1,5 @@
 // oxlint-disable no-wrapper-object-types
+import { isGasServiceObject } from "../../globals/serviceObject";
 import { GASAPI } from "../../legacy/GASAPI";
 import type { RuntimeLogSink } from "../../logging";
 import { getLogPrefix } from "./console";
@@ -69,11 +70,15 @@ export class Logger extends GASAPI implements GoogleAppsScript.Base.Logger {
         return (data as any).message;
       } else if (data instanceof GASAPI) {
         return data.constructor.name;
+      } else if (isGasServiceObject(data)) {
+        return String(data as any);
       } else {
         const outObjects = Object.entries(data)
           .map(([key, value]) => {
             if (value instanceof GASAPI) {
               return `${key}=${value.constructor.name}`;
+            } else if (isGasServiceObject(value)) {
+              return `${key}=${String(value as any)}`;
             } else {
               return `${key}=${this.#convertObjectOutput(value, true).replace(/^\s+/gm, "").replace(/\n/g, "")}`;
             }
@@ -89,7 +94,11 @@ export class Logger extends GASAPI implements GoogleAppsScript.Base.Logger {
     this.outputLogs.splice(0);
   }
   getLog(): string {
-    return this.outputLogs.map((log) => `${log.prefix}: ${log.value}`).join("\n");
+    if (this.outputLogs.length === 0) {
+      return "";
+    }
+
+    return `${this.outputLogs.map((log) => `${log.prefix}: ${log.value}`).join("\n")}\n`;
   }
   log(data: Object): Logger;
   log(data: any): Logger;

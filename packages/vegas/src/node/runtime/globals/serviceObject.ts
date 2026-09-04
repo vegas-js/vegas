@@ -12,6 +12,12 @@ export interface GasServiceObjectDefinition {
 
 const defaultCreateGasObject: CreateGasObject = () => ({});
 
+const gasServiceObjects = new WeakSet<object>();
+
+export function isGasServiceObject(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === "object" && gasServiceObjects.has(value);
+}
+
 export function createGasServiceObject(
   definition: GasServiceObjectDefinition,
   createObject: CreateGasObject = defaultCreateGasObject,
@@ -25,6 +31,8 @@ export function createGasServiceObject(
       writable: entry.writable,
     });
   }
+
+  gasServiceObjects.add(value);
 
   return value;
 }

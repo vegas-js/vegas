@@ -319,6 +319,18 @@ export const referenceCases: readonly ReferenceCaseDefinition[] = [
     runtimeTest: "required",
   },
   {
+    name: "logger-semantics",
+    functionName: "captureReferenceLoggerSemantics",
+    fixtureFile: "logger-semantics.json",
+    runtimeTest: "required",
+  },
+  {
+    name: "console-semantics",
+    functionName: "captureReferenceConsoleSemantics",
+    fixtureFile: "console-semantics.json",
+    runtimeTest: "required",
+  },
+  {
     name: "session-service-surface",
     functionName: "captureReferenceSessionServiceSurface",
     fixtureFile: "session-service-surface.json",
