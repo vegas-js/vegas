@@ -78,7 +78,8 @@ export function createScriptRuntime(dependencies: ScriptRuntimeDependencies): Sc
       const { value: result } = await invokeScriptFunction(scriptContext, functionName, args);
 
       const legacyProjectedResult = projectLegacyWebAppResult(functionName, result, {
-        getHtmlOutputXFrameOptionsMode: (htmlOutputFacadeFactory as any).resolveXFrameOptionsMode,
+        // oxlint-disable-next-line unbound-method
+        getHtmlOutputXFrameOptionsMode: htmlOutputFacadeFactory.resolveXFrameOptionsMode,
       });
 
       return projectScriptResult(legacyProjectedResult);
