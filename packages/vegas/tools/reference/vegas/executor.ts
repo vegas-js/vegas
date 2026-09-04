@@ -8,7 +8,11 @@ import {
   evaluateScriptWithBindings,
 } from "../../../src/node/runtime/execution/scriptRuntime";
 import type { EvaluateHtmlTemplate } from "../../../src/node/runtime/execution/types";
-import type { CreateRange, CreateSheet } from "../../../src/node/runtime/objects/types";
+import type {
+  CreateRange,
+  CreateSheet,
+  CreateSpreadsheet,
+} from "../../../src/node/runtime/objects/types";
 import { RuntimeServicePort } from "../../../src/node/runtime/protocol";
 import { HtmlOutput } from "../../../src/node/runtime/services/html/HtmlOutput";
 import { createHtmlOutputFacadeFactory } from "../../../src/node/runtime/services/html/htmlOutputFacade";
@@ -127,6 +131,8 @@ function createReferenceCacheService(): RuntimeServicePort<"Cache"> {
 }
 
 function createReferenceDependencies(): ScriptContextDependencies {
+  const spreadsheetDependencies = createReferenceSpreadsheetDependencies();
+
   return {
     environment: {
       properties: {
@@ -140,15 +146,13 @@ function createReferenceDependencies(): ScriptContextDependencies {
     createFolder: unexpected,
     createHtmlOutput: unexpected,
     createHtmlTemplate: unexpected,
-    createSpreadsheet: createReferenceSpreadsheet,
+    createSpreadsheet: spreadsheetDependencies.createSpreadsheet,
 
     logSink: {
       write: unexpected,
     },
 
-    spreadsheetAppService: {
-      create: () => "reference-spreadsheet-id",
-    },
+    spreadsheetAppService: spreadsheetDependencies.spreadsheetAppService,
 
     urlFetchService: {
       fetch: () => createReferenceFetchResponse(),
@@ -180,39 +184,90 @@ const referenceRangeService: RuntimeServicePort<"Range"> = {
   setValues: unexpected,
 };
 
-const referenceSheetService: RuntimeServicePort<"Sheet"> = {
-  getLastRow: () => 0,
-  getLastColumn: () => 0,
-  getMaxRows: () => 10,
-  getMaxColumns: () => 10,
-  getSheetName: () => "Sheet1",
-};
+interface ReferenceSpreadsheetState {
+  rows: number;
+  columns: number;
+}
 
-function createReferenceSpreadsheet(
-  spreadsheetId: string,
-): GoogleAppsScript.Spreadsheet.Spreadsheet {
-  const createRange: CreateRange = (
-    targetSpreadsheetId,
-    sheetId,
-    row,
-    column,
-    numRows,
-    numColumns,
-  ) =>
-    new Range(
+function createReferenceSpreadsheetDependencies() {
+  const spreadsheets = new Map<string, ReferenceSpreadsheetState>();
+
+  let sequence = 0;
+
+  const getInitialSheet = (spreadsheetId: string, sheetId: number) => {
+    if (sheetId !== 0) {
+      return null;
+    }
+
+    return spreadsheets.get(spreadsheetId) ?? null;
+  };
+
+  const sheetService: RuntimeServicePort<"Sheet"> = {
+    getLastRow: ({ spreadsheetId, sheetId }) => {
+      return getInitialSheet(spreadsheetId, sheetId) === null ? null : 0;
+    },
+
+    getLastColumn: ({ spreadsheetId, sheetId }) => {
+      return getInitialSheet(spreadsheetId, sheetId) === null ? null : 0;
+    },
+
+    getMaxRows: ({ spreadsheetId, sheetId }) => {
+      return getInitialSheet(spreadsheetId, sheetId)?.rows ?? null;
+    },
+
+    getMaxColumns: ({ spreadsheetId, sheetId }) => {
+      return getInitialSheet(spreadsheetId, sheetId)?.columns ?? null;
+    },
+
+    getSheetName: ({ spreadsheetId, sheetId }) => {
+      return getInitialSheet(spreadsheetId, sheetId) === null ? null : "Sheet1";
+    },
+  };
+
+  const createSpreadsheet: CreateSpreadsheet = (spreadsheetId) => {
+    const createRange: CreateRange = (
       targetSpreadsheetId,
       sheetId,
       row,
       column,
       numRows,
       numColumns,
-      referenceRangeService,
-    );
+    ) =>
+      new Range(
+        targetSpreadsheetId,
+        sheetId,
+        row,
+        column,
+        numRows,
+        numColumns,
+        referenceRangeService,
+      );
 
-  const createSheet: CreateSheet = (targetSpreadsheetId, sheetId) =>
-    new Sheet(targetSpreadsheetId, sheetId, createRange, referenceSheetService, unexpected);
+    const createSheet: CreateSheet = (targetSpreadsheetId, sheetId) =>
+      new Sheet(targetSpreadsheetId, sheetId, createRange, sheetService, unexpected);
 
-  return new Spreadsheet(spreadsheetId, createSheet, unexpected);
+    return new Spreadsheet(spreadsheetId, createSheet, unexpected);
+  };
+
+  const spreadsheetAppService: RuntimeServicePort<"SpreadsheetApp"> = {
+    create: ({ rows, columns }) => {
+      sequence += 1;
+
+      const spreadsheetId = `reference-spreadsheet-${sequence}`;
+
+      spreadsheets.set(spreadsheetId, {
+        rows,
+        columns,
+      });
+
+      return spreadsheetId;
+    },
+  };
+
+  return {
+    createSpreadsheet,
+    spreadsheetAppService,
+  };
 }
 
 function createReferenceFetchResponse() {

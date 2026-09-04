@@ -181,6 +181,24 @@ export const referenceCases: readonly ReferenceCaseDefinition[] = [
     runtimeTest: "required",
   },
   {
+    name: "spreadsheet-create-semantics",
+    functionName: "captureReferenceSpreadsheetCreateSemantics",
+    fixtureFile: "spreadsheet-create-semantics.json",
+    runtimeTest: "required",
+  },
+  {
+    name: "spreadsheet-get-sheet-by-id-semantics",
+    functionName: "captureReferenceSpreadsheetGetSheetByIdSemantics",
+    fixtureFile: "spreadsheet-get-sheet-by-id-semantics.json",
+    runtimeTest: "required",
+  },
+  {
+    name: "sheet-get-range-semantics",
+    functionName: "captureReferenceSheetGetRangeSemantics",
+    fixtureFile: "sheet-get-range-semantics.json",
+    runtimeTest: "required",
+  },
+  {
     name: "drive-app-surface",
     functionName: "captureReferenceDriveAppSurface",
     fixtureFile: "drive-app-surface.json",

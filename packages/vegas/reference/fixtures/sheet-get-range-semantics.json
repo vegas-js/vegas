@@ -1,0 +1,131 @@
+{
+  "a1Block": {
+    "errorMessage": null,
+    "errorName": null,
+    "probes": {
+      "cell11": true,
+      "columnOverflow": false,
+      "lastCell": true,
+      "rowOverflow": false
+    },
+    "stringify": "Range",
+    "threw": false,
+    "type": "object"
+  },
+  "a1SingleCell": {
+    "errorMessage": null,
+    "errorName": null,
+    "probes": {
+      "cell11": true,
+      "columnOverflow": false,
+      "rowOverflow": false
+    },
+    "stringify": "Range",
+    "threw": false,
+    "type": "object"
+  },
+  "a1WholeColumn": {
+    "errorMessage": null,
+    "errorName": null,
+    "probes": {
+      "columnOverflow": false,
+      "firstCell": true,
+      "lastRow": true,
+      "rowOverflow": false
+    },
+    "stringify": "Range",
+    "threw": false,
+    "type": "object"
+  },
+  "a1WholeRow": {
+    "errorMessage": null,
+    "errorName": null,
+    "probes": {
+      "columnOverflow": false,
+      "firstCell": true,
+      "lastColumn": true,
+      "rowOverflow": false
+    },
+    "stringify": "Range",
+    "threw": false,
+    "type": "object"
+  },
+  "invalidA1": {
+    "errorMessage": "Range not found",
+    "errorName": "Exception",
+    "probes": null,
+    "stringify": null,
+    "threw": true,
+    "type": null
+  },
+  "numericFourArguments": {
+    "errorMessage": null,
+    "errorName": null,
+    "probes": {
+      "cell11": true,
+      "columnOverflow": false,
+      "lastCell": true,
+      "rowOverflow": false
+    },
+    "stringify": "Range",
+    "threw": false,
+    "type": "object"
+  },
+  "numericThreeArguments": {
+    "errorMessage": null,
+    "errorName": null,
+    "probes": {
+      "cell11": true,
+      "columnOverflow": false,
+      "lastCell": true,
+      "rowOverflow": false
+    },
+    "stringify": "Range",
+    "threw": false,
+    "type": "object"
+  },
+  "numericTwoArguments": {
+    "errorMessage": null,
+    "errorName": null,
+    "probes": {
+      "cell11": true,
+      "columnOverflow": false,
+      "rowOverflow": false
+    },
+    "stringify": "Range",
+    "threw": false,
+    "type": "object"
+  },
+  "zeroColumn": {
+    "errorMessage": "The starting column of the range is too small.",
+    "errorName": "Exception",
+    "probes": null,
+    "stringify": null,
+    "threw": true,
+    "type": null
+  },
+  "zeroNumColumns": {
+    "errorMessage": "The number of columns in the range must be at least 1.",
+    "errorName": "Exception",
+    "probes": null,
+    "stringify": null,
+    "threw": true,
+    "type": null
+  },
+  "zeroNumRows": {
+    "errorMessage": "The number of rows in the range must be at least 1.",
+    "errorName": "Exception",
+    "probes": null,
+    "stringify": null,
+    "threw": true,
+    "type": null
+  },
+  "zeroRow": {
+    "errorMessage": "The starting row of the range is too small.",
+    "errorName": "Exception",
+    "probes": null,
+    "stringify": null,
+    "threw": true,
+    "type": null
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "defaultCreate": {
+    "initialSheetId": 0,
+    "initialSheetName": "Sheet1",
+    "maxColumns": 26,
+    "maxRows": 1000,
+    "spreadsheetIdNonEmpty": true,
+    "spreadsheetIdType": "string"
+  },
+  "distinctSpreadsheetIds": true,
+  "explicitCreate": {
+    "initialSheetId": 0,
+    "initialSheetName": "Sheet1",
+    "maxColumns": 9,
+    "maxRows": 7,
+    "spreadsheetIdNonEmpty": true,
+    "spreadsheetIdType": "string"
+  }
+}

@@ -111,7 +111,7 @@ test("SpreadsheetApp create", async () => {
 
   expect(spreadsheet?.name).toBe("Test");
   expect(spreadsheet?.sheets.get(0)).toEqual({
-    name: "sheet1",
+    name: "Sheet1",
     cells: [
       ["", "", ""],
       ["", "", ""],

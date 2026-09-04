@@ -29,6 +29,11 @@ export { captureReferenceBlobObjectSurface } from "./blobObjectSurface";
 export { captureReferenceBlobObjectIdentity } from "./blobObjectIdentity";
 export { captureReferenceSpreadsheetAppSurface } from "./spreadsheetAppSurface";
 export { captureReferenceSpreadsheetObjectGraph } from "./spreadsheetObjectGraph";
+export {
+  captureReferenceSpreadsheetCreateSemantics,
+  captureReferenceSpreadsheetGetSheetByIdSemantics,
+  captureReferenceSheetGetRangeSemantics,
+} from "./spreadsheetSemantics";
 export { captureReferenceDriveAppSurface } from "./driveAppSurface";
 export { captureReferenceLoggerSurface } from "./loggerSurface";
 export { captureReferenceConsoleSurface } from "./consoleSurface";

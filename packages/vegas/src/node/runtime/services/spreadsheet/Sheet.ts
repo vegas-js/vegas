@@ -2,6 +2,40 @@ import type { RequestLegacySync } from "../../legacy/transport";
 import type { CreateRange } from "../../objects/types";
 import type { RuntimeServicePort } from "../../protocol";
 
+function createGasException(message: string): Error {
+  const error = new Error(message);
+  error.name = "Exception";
+  return error;
+}
+
+function validateRange(row: number, column: number, numRows: number, numColumns: number): void {
+  if (row < 1) {
+    throw createGasException("The starting row of the range is too small.");
+  }
+
+  if (column < 1) {
+    throw createGasException("The starting column of the range is too small.");
+  }
+
+  if (numRows < 1) {
+    throw createGasException("The number of rows in the range must be at least 1.");
+  }
+
+  if (numColumns < 1) {
+    throw createGasException("The number of columns in the range must be at least 1.");
+  }
+}
+
+function toColumnNumber(column: string): number {
+  let result = 0;
+
+  for (const character of column.toUpperCase()) {
+    result = result * 26 + character.charCodeAt(0) - 64;
+  }
+
+  return result;
+}
+
 // https://developers.google.com/apps-script/reference/spreadsheet/sheet
 export class Sheet implements GoogleAppsScript.Spreadsheet.Sheet {
   readonly #spreadsheetId: string;
@@ -241,62 +275,91 @@ export class Sheet implements GoogleAppsScript.Spreadsheet.Sheet {
     numRows?: GoogleAppsScript.Integer,
     numColumns?: GoogleAppsScript.Integer,
   ) => {
-    let r = 1;
-    let c = column ?? 1;
-    let nr = numRows ?? 1;
-    let nc = numColumns ?? 1;
     let sheetId = this.#sheetId;
+
     if (typeof rowOrA1Notation === "number") {
-      r = rowOrA1Notation;
-    } else {
-      let a1Notation = rowOrA1Notation;
-      if (a1Notation.includes("!")) {
-        const [sheetName, tempA1Notation] = a1Notation.split("!");
-        sheetId = this.#requestSync({
-          message: `${this.constructor.name}#getRange`,
-          payload: { spreadsheetId: this.#spreadsheetId, sheetName },
-        });
-        a1Notation = tempA1Notation;
-      }
-      function toColumnNumber(columnStr: string) {
-        if (!columnStr) {
-          return 0;
-        }
-        let columnNumber = 0;
-        const upperCaseColumnStr = columnStr.toUpperCase();
-        for (let i = 0; i < upperCaseColumnStr.length; i++) {
-          const charCode = upperCaseColumnStr.charCodeAt(i) - 64;
-          columnNumber = columnNumber * 26 + charCode;
-        }
+      const row = rowOrA1Notation;
+      const resolvedColumn = column ?? 1;
+      const resolvedNumRows = numRows ?? 1;
+      const resolvedNumColumns = numColumns ?? 1;
 
-        return columnNumber;
-      }
-      const match = /^([a-zA-Z]*)(\d*):?([a-zA-Z]*)(\d*)$/.exec(a1Notation);
-      if (match) {
-        const [colStr1, rowStr1, colStr2, rowStr2] = match.slice(1);
-        c = colStr1 ? toColumnNumber(colStr1) : 1;
-        r = rowStr1 ? Number(rowStr1) : 1;
+      validateRange(row, resolvedColumn, resolvedNumRows, resolvedNumColumns);
 
-        if (!colStr2 && !rowStr2) {
-          nr = 1;
-          nc = 1;
-        } else {
-          const c2 = colStr2 ? toColumnNumber(colStr2) : c;
-          const r2 = rowStr2 ? Number(rowStr2) : r;
-          nc = c2 - c + 1;
-          nr = r2 - r + 1;
-        }
-
-        if (!colStr1 && !colStr2) {
-          c = 1;
-          nc = 0;
-        } else if (!rowStr1 && !rowStr2) {
-          r = 1;
-          nr = 0;
-        }
-      }
+      return this.#createRange(
+        this.#spreadsheetId,
+        sheetId,
+        row,
+        resolvedColumn,
+        resolvedNumRows,
+        resolvedNumColumns,
+      );
     }
-    return this.#createRange(this.#spreadsheetId, sheetId, r, c, nr, nc);
+
+    let a1Notation = rowOrA1Notation;
+
+    if (a1Notation.includes("!")) {
+      const [sheetName, targetA1Notation] = a1Notation.split("!");
+
+      sheetId = this.#requestSync({
+        message: `${this.constructor.name}#getRange`,
+        payload: {
+          spreadsheetId: this.#spreadsheetId,
+          sheetName,
+        },
+      });
+
+      a1Notation = targetA1Notation;
+    }
+
+    const match = /^([a-zA-Z]*)(\d*):?([a-zA-Z]*)(\d*)$/.exec(a1Notation);
+
+    if (!match) {
+      throw createGasException("Range not found");
+    }
+
+    const [column1, row1, column2, row2] = match.slice(1);
+
+    let row = row1 ? Number(row1) : 1;
+    let resolvedColumn = column1 ? toColumnNumber(column1) : 1;
+    let resolvedNumRows = 1;
+    let resolvedNumColumns = 1;
+
+    if (column2 || row2) {
+      const endColumn = column2 ? toColumnNumber(column2) : resolvedColumn;
+      const endRow = row2 ? Number(row2) : row;
+
+      resolvedNumColumns = endColumn - resolvedColumn + 1;
+      resolvedNumRows = endRow - row + 1;
+    }
+
+    if (!column1 && !column2) {
+      const maxColumns = this.#service.getMaxColumns({
+        spreadsheetId: this.#spreadsheetId,
+        sheetId,
+      });
+
+      resolvedColumn = 1;
+      resolvedNumColumns = maxColumns ?? 0;
+    } else if (!row1 && !row2) {
+      const maxRows = this.#service.getMaxRows({
+        spreadsheetId: this.#spreadsheetId,
+        sheetId,
+      });
+
+      row = 1;
+      resolvedNumRows = maxRows ?? 0;
+    }
+
+    validateRange(row, resolvedColumn, resolvedNumRows, resolvedNumColumns);
+
+    return this.#createRange(
+      this.#spreadsheetId,
+      sheetId,
+      row,
+      resolvedColumn,
+      resolvedNumRows,
+      resolvedNumColumns,
+    );
   };
   getRangeList = (a1Notations: string[]) => {
     throw new Error("Method not implemented.");

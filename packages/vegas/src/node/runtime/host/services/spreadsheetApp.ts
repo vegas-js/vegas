@@ -33,7 +33,7 @@ export class SpreadsheetAppHandler implements RuntimeServiceImplementation<"Spre
       Array.from({ length: payload.columns }).map(() => ""),
     );
     const sheets = new Map<number, { name: string; cells: any[][] }>();
-    sheets.set(0, { name: "sheet1", cells });
+    sheets.set(0, { name: "Sheet1", cells });
     this.#store.set(id, { name: payload.name, sheets });
 
     return id;

@@ -248,3 +248,171 @@ test.each([
     sheetId: 123,
   });
 });
+
+test("expands whole-column A1 notation to the sheet row count", () => {
+  const range = {};
+  const createRange = vi.fn(() => range as any);
+
+  const service: RuntimeServicePort<"Sheet"> = {
+    getLastRow: vi.fn(),
+    getLastColumn: vi.fn(),
+    getMaxRows: vi.fn(() => 6),
+    getMaxColumns: vi.fn(),
+    getSheetName: vi.fn(),
+  };
+
+  const sheet = new Sheet("spreadsheet-id", 123, createRange, service, vi.fn());
+
+  sheet.getRange("B:B");
+
+  expect(service.getMaxRows).toHaveBeenCalledWith({
+    spreadsheetId: "spreadsheet-id",
+    sheetId: 123,
+  });
+
+  expect(createRange).toHaveBeenCalledWith("spreadsheet-id", 123, 1, 2, 6, 1);
+});
+
+test("expands whole-row A1 notation to the sheet column count", () => {
+  const range = {};
+  const createRange = vi.fn(() => range as any);
+
+  const service: RuntimeServicePort<"Sheet"> = {
+    getLastRow: vi.fn(),
+    getLastColumn: vi.fn(),
+    getMaxRows: vi.fn(),
+    getMaxColumns: vi.fn(() => 7),
+    getSheetName: vi.fn(),
+  };
+
+  const sheet = new Sheet("spreadsheet-id", 123, createRange, service, vi.fn());
+
+  sheet.getRange("2:2");
+
+  expect(service.getMaxColumns).toHaveBeenCalledWith({
+    spreadsheetId: "spreadsheet-id",
+    sheetId: 123,
+  });
+
+  expect(createRange).toHaveBeenCalledWith("spreadsheet-id", 123, 2, 1, 1, 7);
+});
+
+test("rejects a starting row below 1 with a GAS Exception", () => {
+  const sheet = new Sheet(
+    "spreadsheet-id",
+    123,
+    vi.fn(),
+    {
+      getLastRow: vi.fn(),
+      getLastColumn: vi.fn(),
+      getMaxRows: vi.fn(),
+      getMaxColumns: vi.fn(),
+      getSheetName: vi.fn(),
+    },
+    vi.fn(),
+  );
+
+  try {
+    sheet.getRange(0, 1);
+    throw new Error("Expected getRange to throw");
+  } catch (error) {
+    expect((error as Error).name).toBe("Exception");
+    expect((error as Error).message).toBe("The starting row of the range is too small.");
+  }
+});
+
+test("rejects a starting column below 1 with a GAS Exception", () => {
+  const sheet = new Sheet(
+    "spreadsheet-id",
+    123,
+    vi.fn(),
+    {
+      getLastRow: vi.fn(),
+      getLastColumn: vi.fn(),
+      getMaxRows: vi.fn(),
+      getMaxColumns: vi.fn(),
+      getSheetName: vi.fn(),
+    },
+    vi.fn(),
+  );
+
+  try {
+    sheet.getRange(1, 0);
+    throw new Error("Expected getRange to throw");
+  } catch (error) {
+    expect((error as Error).name).toBe("Exception");
+    expect((error as Error).message).toBe("The starting column of the range is too small.");
+  }
+});
+
+test("rejects a row count below 1 with a GAS Exception", () => {
+  const sheet = new Sheet(
+    "spreadsheet-id",
+    123,
+    vi.fn(),
+    {
+      getLastRow: vi.fn(),
+      getLastColumn: vi.fn(),
+      getMaxRows: vi.fn(),
+      getMaxColumns: vi.fn(),
+      getSheetName: vi.fn(),
+    },
+    vi.fn(),
+  );
+
+  try {
+    sheet.getRange(1, 1, 0, 1);
+    throw new Error("Expected getRange to throw");
+  } catch (error) {
+    expect((error as Error).name).toBe("Exception");
+    expect((error as Error).message).toBe("The number of rows in the range must be at least 1.");
+  }
+});
+
+test("rejects a column count below 1 with a GAS Exception", () => {
+  const sheet = new Sheet(
+    "spreadsheet-id",
+    123,
+    vi.fn(),
+    {
+      getLastRow: vi.fn(),
+      getLastColumn: vi.fn(),
+      getMaxRows: vi.fn(),
+      getMaxColumns: vi.fn(),
+      getSheetName: vi.fn(),
+    },
+    vi.fn(),
+  );
+
+  try {
+    sheet.getRange(1, 1, 1, 0);
+    throw new Error("Expected getRange to throw");
+  } catch (error) {
+    expect((error as Error).name).toBe("Exception");
+    expect((error as Error).message).toBe("The number of columns in the range must be at least 1.");
+  }
+});
+
+test("rejects invalid A1 notation with a GAS Exception", () => {
+  const sheet = new Sheet(
+    "spreadsheet-id",
+    123,
+    vi.fn(),
+    {
+      getLastRow: vi.fn(),
+      getLastColumn: vi.fn(),
+      getMaxRows: vi.fn(),
+      getMaxColumns: vi.fn(),
+      getSheetName: vi.fn(),
+    },
+    vi.fn(),
+  );
+
+  try {
+    sheet.getRange("not-a-range");
+    throw new Error("Expected getRange to throw");
+  } catch (error) {
+    expect((error as Error).name).toBe("Exception");
+    expect((error as Error).message).toBe("Range not found");
+  }
+});

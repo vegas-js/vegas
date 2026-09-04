@@ -1,0 +1,22 @@
+{
+  "initialSheet": {
+    "errorMessage": null,
+    "errorName": null,
+    "isNull": false,
+    "isUndefined": false,
+    "sheetId": 0,
+    "stringify": "Sheet",
+    "threw": false,
+    "type": "object"
+  },
+  "missingSheet": {
+    "errorMessage": null,
+    "errorName": null,
+    "isNull": true,
+    "isUndefined": false,
+    "sheetId": null,
+    "stringify": null,
+    "threw": false,
+    "type": "object"
+  }
+}
