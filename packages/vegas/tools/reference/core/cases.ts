@@ -67,6 +67,12 @@ export const referenceCases: readonly ReferenceCaseDefinition[] = [
     runtimeTest: "required",
   },
   {
+    name: "cache-object-semantics",
+    functionName: "captureReferenceCacheObjectSemantics",
+    fixtureFile: "cache-object-semantics.json",
+    runtimeTest: "required",
+  },
+  {
     name: "lock-service-surface",
     functionName: "captureReferenceLockServiceSurface",
     fixtureFile: "lock-service-surface.json",

@@ -66,6 +66,66 @@ function createReferencePropertiesService(): RuntimeServicePort<"Properties"> {
   };
 }
 
+function createReferenceCacheService(): RuntimeServicePort<"Cache"> {
+  const stores = new Map<unknown, Map<string, string>>();
+
+  const getStore = (scope: unknown) => {
+    let store = stores.get(scope);
+
+    if (!store) {
+      store = new Map<string, string>();
+      stores.set(scope, store);
+    }
+
+    return store;
+  };
+
+  return {
+    get: (scope, key) => {
+      return getStore(scope).get(key) ?? null;
+    },
+
+    getAll: (scope, keys) => {
+      const store = getStore(scope);
+      const result: Record<string, string> = {};
+
+      for (const key of keys) {
+        const value = store.get(key);
+
+        if (value !== undefined) {
+          result[key] = value;
+        }
+      }
+
+      return result;
+    },
+
+    put: (scope, key, value) => {
+      getStore(scope).set(key, value);
+    },
+
+    putAll: (scope, values) => {
+      const store = getStore(scope);
+
+      for (const [key, value] of Object.entries(values)) {
+        store.set(key, value);
+      }
+    },
+
+    remove: (scope, key) => {
+      getStore(scope).delete(key);
+    },
+
+    removeAll: (scope, keys) => {
+      const store = getStore(scope);
+
+      for (const key of keys) {
+        store.delete(key);
+      }
+    },
+  };
+}
+
 function createReferenceDependencies(): ScriptContextDependencies {
   return {
     environment: {
@@ -107,14 +167,7 @@ function createReferenceDependencies(): ScriptContextDependencies {
       getTemporaryActiveUserKey: () => "reference-user-key",
     },
 
-    cacheService: {
-      get: unexpected,
-      getAll: unexpected,
-      put: unexpected,
-      putAll: unexpected,
-      remove: unexpected,
-      removeAll: unexpected,
-    },
+    cacheService: createReferenceCacheService(),
 
     propertiesService: createReferencePropertiesService(),
   };

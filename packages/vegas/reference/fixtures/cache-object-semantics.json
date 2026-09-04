@@ -1,0 +1,179 @@
+{
+  "afterOverwrite": {
+    "errorName": null,
+    "errorType": null,
+    "isNull": false,
+    "isUndefined": false,
+    "threw": false,
+    "type": "string",
+    "value": "value-2"
+  },
+  "afterPut": {
+    "errorName": null,
+    "errorType": null,
+    "isNull": false,
+    "isUndefined": false,
+    "threw": false,
+    "type": "string",
+    "value": "value-1"
+  },
+  "afterPutAll": {
+    "entries": {
+      "bulkA": {
+        "isUndefined": false,
+        "present": true,
+        "type": "string",
+        "value": "bulk-a"
+      },
+      "bulkB": {
+        "isUndefined": false,
+        "present": true,
+        "type": "string",
+        "value": "bulk-b"
+      },
+      "missing": {
+        "isUndefined": null,
+        "present": false,
+        "type": null,
+        "value": null
+      }
+    },
+    "entryCount": 2,
+    "errorName": null,
+    "errorType": null,
+    "isNull": false,
+    "onlyRequestedKeys": true,
+    "threw": false,
+    "type": "object"
+  },
+  "afterRemoveAll": {
+    "entries": {
+      "bulkA": {
+        "isUndefined": null,
+        "present": false,
+        "type": null,
+        "value": null
+      },
+      "bulkB": {
+        "isUndefined": null,
+        "present": false,
+        "type": null,
+        "value": null
+      },
+      "missing": {
+        "isUndefined": null,
+        "present": false,
+        "type": null,
+        "value": null
+      }
+    },
+    "entryCount": 0,
+    "errorName": null,
+    "errorType": null,
+    "isNull": false,
+    "onlyRequestedKeys": true,
+    "threw": false,
+    "type": "object"
+  },
+  "afterRemoveExisting": {
+    "errorName": null,
+    "errorType": null,
+    "isNull": true,
+    "isUndefined": false,
+    "threw": false,
+    "type": "object",
+    "value": null
+  },
+  "missingGet": {
+    "errorName": null,
+    "errorType": null,
+    "isNull": true,
+    "isUndefined": false,
+    "threw": false,
+    "type": "object",
+    "value": null
+  },
+  "mixedGetAll": {
+    "entries": {
+      "existing": {
+        "isUndefined": false,
+        "present": true,
+        "type": "string",
+        "value": "value-2"
+      },
+      "missing": {
+        "isUndefined": null,
+        "present": false,
+        "type": null,
+        "value": null
+      }
+    },
+    "entryCount": 1,
+    "errorName": null,
+    "errorType": null,
+    "isNull": false,
+    "onlyRequestedKeys": true,
+    "threw": false,
+    "type": "object"
+  },
+  "overwrite": {
+    "errorName": null,
+    "errorType": null,
+    "isNull": true,
+    "isUndefined": false,
+    "returnsReceiver": false,
+    "stringify": null,
+    "threw": false,
+    "type": "object"
+  },
+  "put": {
+    "errorName": null,
+    "errorType": null,
+    "isNull": true,
+    "isUndefined": false,
+    "returnsReceiver": false,
+    "stringify": null,
+    "threw": false,
+    "type": "object"
+  },
+  "putAll": {
+    "errorName": null,
+    "errorType": null,
+    "isNull": true,
+    "isUndefined": false,
+    "returnsReceiver": false,
+    "stringify": null,
+    "threw": false,
+    "type": "object"
+  },
+  "removeAll": {
+    "errorName": null,
+    "errorType": null,
+    "isNull": true,
+    "isUndefined": false,
+    "returnsReceiver": false,
+    "stringify": null,
+    "threw": false,
+    "type": "object"
+  },
+  "removeExisting": {
+    "errorName": null,
+    "errorType": null,
+    "isNull": true,
+    "isUndefined": false,
+    "returnsReceiver": false,
+    "stringify": null,
+    "threw": false,
+    "type": "object"
+  },
+  "removeMissing": {
+    "errorName": null,
+    "errorType": null,
+    "isNull": true,
+    "isUndefined": false,
+    "returnsReceiver": false,
+    "stringify": null,
+    "threw": false,
+    "type": "object"
+  }
+}

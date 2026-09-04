@@ -38,3 +38,32 @@ test("putAll defaults expiration to 600 seconds", () => {
 
   expect(putAll).toHaveBeenCalledWith(RuntimeScope.SCRIPT, { foo: "foo", bar: "bar" }, 600);
 });
+
+test("returns null from put", () => {
+  const cache = new Cache(RuntimeScope.SCRIPT, createCacheService());
+
+  expect(cache.put("key", "value")).toBeNull();
+});
+
+test("returns null from putAll", () => {
+  const cache = new Cache(RuntimeScope.SCRIPT, createCacheService());
+
+  expect(
+    cache.putAll({
+      foo: "foo",
+      bar: "bar",
+    }),
+  ).toBeNull();
+});
+
+test("returns null from remove", () => {
+  const cache = new Cache(RuntimeScope.SCRIPT, createCacheService());
+
+  expect(cache.remove("key")).toBeNull();
+});
+
+test("returns null from removeAll", () => {
+  const cache = new Cache(RuntimeScope.SCRIPT, createCacheService());
+
+  expect(cache.removeAll(["foo", "bar"])).toBeNull();
+});

@@ -10,6 +10,7 @@ export { captureReferenceSmoke } from "./smoke";
 export { captureReferenceCacheServiceSurface } from "./cacheServiceSurface";
 export { captureReferenceCacheObjectSurface } from "./cacheObjectSurface";
 export { captureReferenceCacheObjectIdentity } from "./cacheObjectIdentity";
+export { captureReferenceCacheObjectSemantics } from "./cacheObjectSemantics";
 export { captureReferenceLockServiceSurface } from "./lockServiceSurface";
 export { captureReferenceLockObjectSurface } from "./lockObjectSurface";
 export { captureReferenceLockObjectIdentity } from "./lockObjectIdentity";
