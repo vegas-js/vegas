@@ -1,6 +1,7 @@
 import { expect, test, vi } from "vitest";
 
 import { createSpreadsheetApp } from "./facade";
+import { Spreadsheet } from "./Spreadsheet";
 
 test("creates GAS-compatible SpreadsheetApp facade", () => {
   const spreadsheet = {};
@@ -42,5 +43,40 @@ test("creates GAS-compatible SpreadsheetApp facade", () => {
     columns: 5,
   });
   expect(createSpreadsheet).toHaveBeenCalledWith("spreadsheet-id");
-  expect(result).toBe(spreadsheet);
+  expect(result).not.toBe(spreadsheet);
+  expect(Object.getPrototypeOf(result)).toBe(Object.prototype);
+  expect(String(result)).toBe("Spreadsheet");
+});
+
+test("returns fresh Spreadsheet facades from acquisition methods", () => {
+  const createSpreadsheet = vi.fn(
+    () =>
+      new Spreadsheet(
+        "spreadsheet-id",
+        () => {
+          throw new Error("Unexpected Sheet acquisition");
+        },
+        () => {
+          throw new Error("Unexpected legacy request");
+        },
+      ),
+  );
+
+  const spreadsheetApp = createSpreadsheetApp(createSpreadsheet, {
+    create: () => "spreadsheet-id",
+  }) as any;
+
+  const created = spreadsheetApp.create("reference", 10, 10);
+
+  const openedA = spreadsheetApp.openById("spreadsheet-id");
+
+  const openedB = spreadsheetApp.openById("spreadsheet-id");
+
+  expect(created).not.toBe(openedA);
+
+  expect(openedA).not.toBe(openedB);
+
+  expect(String(created)).toBe("Spreadsheet");
+
+  expect(String(openedA)).toBe("Spreadsheet");
 });

@@ -8,10 +8,14 @@ import {
   evaluateScriptWithBindings,
 } from "../../../src/node/runtime/execution/scriptRuntime";
 import type { EvaluateHtmlTemplate } from "../../../src/node/runtime/execution/types";
+import type { CreateRange, CreateSheet } from "../../../src/node/runtime/objects/types";
 import { RuntimeServicePort } from "../../../src/node/runtime/protocol";
 import { HtmlOutput } from "../../../src/node/runtime/services/html/HtmlOutput";
 import { createHtmlOutputFacadeFactory } from "../../../src/node/runtime/services/html/htmlOutputFacade";
 import { HtmlTemplate } from "../../../src/node/runtime/services/html/HtmlTemplate";
+import { Range } from "../../../src/node/runtime/services/spreadsheet/Range";
+import { Sheet } from "../../../src/node/runtime/services/spreadsheet/Sheet";
+import { Spreadsheet } from "../../../src/node/runtime/services/spreadsheet/Spreadsheet";
 import type { ReferenceExecutor } from "../core/types";
 
 function unexpected(): never {
@@ -76,14 +80,14 @@ function createReferenceDependencies(): ScriptContextDependencies {
     createFolder: unexpected,
     createHtmlOutput: unexpected,
     createHtmlTemplate: unexpected,
-    createSpreadsheet: unexpected,
+    createSpreadsheet: createReferenceSpreadsheet,
 
     logSink: {
       write: unexpected,
     },
 
     spreadsheetAppService: {
-      create: unexpected,
+      create: () => "reference-spreadsheet-id",
     },
 
     urlFetchService: {
@@ -114,6 +118,48 @@ function createReferenceDependencies(): ScriptContextDependencies {
 
     propertiesService: createReferencePropertiesService(),
   };
+}
+
+const referenceRangeService: RuntimeServicePort<"Range"> = {
+  getValue: unexpected,
+  getValues: unexpected,
+  setValue: unexpected,
+  setValues: unexpected,
+};
+
+const referenceSheetService: RuntimeServicePort<"Sheet"> = {
+  getLastRow: () => 0,
+  getLastColumn: () => 0,
+  getMaxRows: () => 10,
+  getMaxColumns: () => 10,
+  getSheetName: () => "Sheet1",
+};
+
+function createReferenceSpreadsheet(
+  spreadsheetId: string,
+): GoogleAppsScript.Spreadsheet.Spreadsheet {
+  const createRange: CreateRange = (
+    targetSpreadsheetId,
+    sheetId,
+    row,
+    column,
+    numRows,
+    numColumns,
+  ) =>
+    new Range(
+      targetSpreadsheetId,
+      sheetId,
+      row,
+      column,
+      numRows,
+      numColumns,
+      referenceRangeService,
+    );
+
+  const createSheet: CreateSheet = (targetSpreadsheetId, sheetId) =>
+    new Sheet(targetSpreadsheetId, sheetId, createRange, referenceSheetService, unexpected);
+
+  return new Spreadsheet(spreadsheetId, createSheet, unexpected);
 }
 
 function createReferenceFetchResponse() {

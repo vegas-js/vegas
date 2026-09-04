@@ -169,6 +169,12 @@ export const referenceCases: readonly ReferenceCaseDefinition[] = [
     runtimeTest: "required",
   },
   {
+    name: "spreadsheet-object-graph",
+    functionName: "captureReferenceSpreadsheetObjectGraph",
+    fixtureFile: "spreadsheet-object-graph.json",
+    runtimeTest: "required",
+  },
+  {
     name: "drive-app-surface",
     functionName: "captureReferenceDriveAppSurface",
     fixtureFile: "drive-app-surface.json",

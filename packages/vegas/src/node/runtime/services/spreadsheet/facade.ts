@@ -4,7 +4,9 @@ import { createGasServiceObject } from "../../globals/serviceObject";
 import type { CreateSpreadsheet } from "../../objects/types";
 import type { RuntimeServicePort } from "../../protocol";
 import { spreadsheetEnumDefinitions } from "./enumDefinitions";
+import { Spreadsheet } from "./Spreadsheet";
 import { SpreadsheetApp } from "./SpreadsheetApp";
+import { createSpreadsheetObjectFacade } from "./spreadsheetObjectFacade";
 
 const FORWARDED_METHOD_NAMES = [
   "create",
@@ -63,7 +65,12 @@ export function createSpreadsheetApp(
   service: RuntimeServicePort<"SpreadsheetApp">,
   createObject?: CreateGasObject,
 ) {
-  const implementation = new SpreadsheetApp(createSpreadsheet, service);
+  const createSpreadsheetFacade: CreateSpreadsheet = (spreadsheetId) =>
+    createSpreadsheetObjectFacade(createSpreadsheet(spreadsheetId) as Spreadsheet, {
+      createObject,
+    });
+
+  const implementation = new SpreadsheetApp(createSpreadsheetFacade, service);
 
   const enumEntries = Object.entries(spreadsheetEnumDefinitions).map(([name, definition]) => ({
     name,
