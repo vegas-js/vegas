@@ -91,6 +91,12 @@ export const referenceCases: readonly ReferenceCaseDefinition[] = [
     runtimeTest: "required",
   },
   {
+    name: "lock-semantics",
+    functionName: "captureReferenceLockSemantics",
+    fixtureFile: "lock-semantics.json",
+    runtimeTest: "required",
+  },
+  {
     name: "html-service-surface",
     functionName: "captureReferenceHtmlServiceSurface",
     fixtureFile: "html-service-surface.json",

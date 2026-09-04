@@ -1,0 +1,208 @@
+{
+  "scriptLock": {
+    "afterReacquire": {
+      "errorMessage": null,
+      "errorName": null,
+      "isNull": false,
+      "isUndefined": false,
+      "threw": false,
+      "type": "boolean",
+      "value": true
+    },
+    "afterReleaseAfterTryLock": {
+      "errorMessage": null,
+      "errorName": null,
+      "isNull": false,
+      "isUndefined": false,
+      "threw": false,
+      "type": "boolean",
+      "value": false
+    },
+    "afterReleaseAfterWaitLock": {
+      "errorMessage": null,
+      "errorName": null,
+      "isNull": false,
+      "isUndefined": false,
+      "threw": false,
+      "type": "boolean",
+      "value": false
+    },
+    "afterReleaseBeforeAcquire": {
+      "errorMessage": null,
+      "errorName": null,
+      "isNull": false,
+      "isUndefined": false,
+      "threw": false,
+      "type": "boolean",
+      "value": false
+    },
+    "afterTryLock": {
+      "errorMessage": null,
+      "errorName": null,
+      "isNull": false,
+      "isUndefined": false,
+      "threw": false,
+      "type": "boolean",
+      "value": true
+    },
+    "afterWaitLock": {
+      "errorMessage": null,
+      "errorName": null,
+      "isNull": false,
+      "isUndefined": false,
+      "threw": false,
+      "type": "boolean",
+      "value": true
+    },
+    "initial": {
+      "errorMessage": null,
+      "errorName": null,
+      "isNull": false,
+      "isUndefined": false,
+      "threw": false,
+      "type": "boolean",
+      "value": false
+    },
+    "reacquireAfterRelease": {
+      "errorMessage": null,
+      "errorName": null,
+      "isNull": false,
+      "isUndefined": false,
+      "threw": false,
+      "type": "boolean",
+      "value": true
+    },
+    "releaseAfterTryLock": {
+      "errorMessage": null,
+      "errorName": null,
+      "isNull": true,
+      "isUndefined": false,
+      "threw": false,
+      "type": "object",
+      "value": null
+    },
+    "releaseAfterWaitLock": {
+      "errorMessage": null,
+      "errorName": null,
+      "isNull": true,
+      "isUndefined": false,
+      "threw": false,
+      "type": "object",
+      "value": null
+    },
+    "releaseBeforeAcquire": {
+      "errorMessage": null,
+      "errorName": null,
+      "isNull": true,
+      "isUndefined": false,
+      "threw": false,
+      "type": "object",
+      "value": null
+    },
+    "stringify": "Lock",
+    "tryLockZero": {
+      "errorMessage": null,
+      "errorName": null,
+      "isNull": false,
+      "isUndefined": false,
+      "threw": false,
+      "type": "boolean",
+      "value": true
+    },
+    "waitLockZero": {
+      "errorMessage": null,
+      "errorName": null,
+      "isNull": true,
+      "isUndefined": false,
+      "threw": false,
+      "type": "object",
+      "value": null
+    }
+  },
+  "userLock": {
+    "afterRelease": {
+      "errorMessage": null,
+      "errorName": null,
+      "isNull": false,
+      "isUndefined": false,
+      "threw": false,
+      "type": "boolean",
+      "value": false
+    },
+    "afterTryLock": {
+      "errorMessage": null,
+      "errorName": null,
+      "isNull": false,
+      "isUndefined": false,
+      "threw": false,
+      "type": "boolean",
+      "value": true
+    },
+    "initial": {
+      "errorMessage": null,
+      "errorName": null,
+      "isNull": false,
+      "isUndefined": false,
+      "threw": false,
+      "type": "boolean",
+      "value": false
+    },
+    "releaseAfterTryLock": {
+      "errorMessage": null,
+      "errorName": null,
+      "isNull": true,
+      "isUndefined": false,
+      "threw": false,
+      "type": "object",
+      "value": null
+    },
+    "stringify": "Lock",
+    "tryLockZero": {
+      "errorMessage": null,
+      "errorName": null,
+      "isNull": false,
+      "isUndefined": false,
+      "threw": false,
+      "type": "boolean",
+      "value": true
+    }
+  },
+  "validation": {
+    "tryLockNegative": {
+      "errorMessage": null,
+      "errorName": null,
+      "isNull": false,
+      "isUndefined": false,
+      "threw": false,
+      "type": "boolean",
+      "value": false
+    },
+    "tryLockNoArgument": {
+      "errorMessage": "The parameters () don't match the method signature for LockService.Lock.tryLock.",
+      "errorName": "Exception",
+      "isNull": null,
+      "isUndefined": null,
+      "threw": true,
+      "type": null,
+      "value": null
+    },
+    "waitLockNegative": {
+      "errorMessage": "Lock timeout: another process was holding the lock for too long.",
+      "errorName": "Exception",
+      "isNull": null,
+      "isUndefined": null,
+      "threw": true,
+      "type": null,
+      "value": null
+    },
+    "waitLockNoArgument": {
+      "errorMessage": "The parameters () don't match the method signature for LockService.Lock.waitLock.",
+      "errorName": "Exception",
+      "isNull": null,
+      "isUndefined": null,
+      "threw": true,
+      "type": null,
+      "value": null
+    }
+  }
+}

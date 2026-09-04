@@ -14,6 +14,7 @@ export { captureReferenceCacheObjectSemantics } from "./cacheObjectSemantics";
 export { captureReferenceLockServiceSurface } from "./lockServiceSurface";
 export { captureReferenceLockObjectSurface } from "./lockObjectSurface";
 export { captureReferenceLockObjectIdentity } from "./lockObjectIdentity";
+export { captureReferenceLockSemantics } from "./lockSemantics";
 export { captureReferenceHtmlServiceSurface } from "./htmlServiceSurface";
 export { captureReferenceHtmlOutputObjectSurface } from "./htmlOutputObjectSurface";
 export { captureReferenceHtmlOutputMetaTagObjectSurface } from "./htmlOutputMetaTagObjectSurface";

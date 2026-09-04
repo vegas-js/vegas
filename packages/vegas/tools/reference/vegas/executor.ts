@@ -135,6 +135,30 @@ function createReferenceCacheService(): RuntimeServicePort<"Cache"> {
   };
 }
 
+function createReferenceLegacySync(): RequestLegacySync {
+  return (request) => {
+    switch (request.message) {
+      case "Lock#tryLock":
+      case "Lock#waitLock":
+        /*
+         * Characterizes the uncontended
+         * single-execution Lock semantics.
+         *
+         * Host-side contention and ownership
+         * arbitration are intentionally outside
+         * this reference executor.
+         */
+        return true;
+
+      case "Lock#releaseLock":
+        return null;
+
+      default:
+        return unexpected();
+    }
+  };
+}
+
 function createReferenceDependencies(): ScriptContextDependencies {
   const spreadsheetDependencies = createReferenceSpreadsheetDependencies();
 
@@ -145,7 +169,7 @@ function createReferenceDependencies(): ScriptContextDependencies {
       },
     },
 
-    requestLegacySync: unexpected,
+    requestLegacySync: createReferenceLegacySync(),
 
     createFile: unexpected,
     createFolder: unexpected,
