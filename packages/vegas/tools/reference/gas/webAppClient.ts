@@ -1,4 +1,8 @@
-import type { ReferenceWebAppExecutor, ReferenceWebAppRequest } from "../core/types";
+import type {
+  AccessTokenProvider,
+  ReferenceWebAppExecutor,
+  ReferenceWebAppRequest,
+} from "../core/types";
 
 const MAX_ERROR_BODY_LENGTH = 2_000;
 
@@ -15,8 +19,8 @@ function normalizeWebAppUrl(value: string): string {
 
   url.pathname = url.pathname.replace(/\/+$/, "");
 
-  if (!url.pathname.endsWith("/exec") && !url.pathname.endsWith("/dev")) {
-    throw new Error("Reference web app URL must end with /exec or /dev");
+  if (!url.pathname.endsWith("/exec")) {
+    throw new Error("Reference web app URL must end with /exec");
   }
 
   return url.toString();
@@ -58,28 +62,87 @@ function formatErrorBody(body: string): string {
 
 class WebAppReferenceClient implements ReferenceWebAppExecutor {
   readonly #baseUrl: string;
+  readonly #accessTokenProvider: AccessTokenProvider | undefined;
 
-  constructor(webAppUrl: string) {
+  constructor(webAppUrl: string, accessTokenProvider?: AccessTokenProvider) {
     this.#baseUrl = normalizeWebAppUrl(webAppUrl);
+    this.#accessTokenProvider = accessTokenProvider;
   }
 
   async execute(request: ReferenceWebAppRequest): Promise<unknown> {
     const url = buildRequestUrl(this.#baseUrl, request);
 
+    let headers: HeadersInit | undefined = request.headers;
+
+    if (request.authentication === "oauth") {
+      if (this.#accessTokenProvider === undefined) {
+        throw new Error("OAuth-authenticated web app request requires an access token provider");
+      }
+
+      const authenticatedHeaders = new Headers(request.headers);
+
+      if (authenticatedHeaders.has("Authorization")) {
+        throw new Error(
+          "OAuth-authenticated web app request must not provide an Authorization header",
+        );
+      }
+
+      const accessToken = await this.#accessTokenProvider.getAccessToken();
+
+      authenticatedHeaders.set("Authorization", `Bearer ${accessToken}`);
+
+      headers = authenticatedHeaders;
+    }
+
     const response = await fetch(url, {
       method: request.method,
-      headers: request.headers,
+      headers,
       body: request.body,
     });
 
+    if (request.responseMode === "http") {
+      return {
+        status: response.status,
+        statusText: response.statusText,
+        ok: response.ok,
+        redirected: response.redirected,
+        contentType: response.headers.get("content-type"),
+      };
+    }
+
     const body = await response.text();
+
+    if (request.responseMode === "http-text") {
+      return {
+        status: response.status,
+        statusText: response.statusText,
+        ok: response.ok,
+        redirected: response.redirected,
+        contentType: response.headers.get("content-type"),
+        body,
+      };
+    }
+
+    if (request.responseMode === "http-details") {
+      return {
+        status: response.status,
+        statusText: response.statusText,
+        ok: response.ok,
+        redirected: response.redirected,
+
+        contentType: response.headers.get("content-type"),
+
+        contentDisposition: response.headers.get("content-disposition"),
+
+        body,
+      };
+    }
 
     if (!response.ok) {
       throw new Error(
         `Apps Script web app request failed: ${response.status} ${response.statusText}: ${formatErrorBody(body)}`,
       );
     }
-
     if (request.responseMode === "text") {
       return body;
     }
@@ -87,13 +150,26 @@ class WebAppReferenceClient implements ReferenceWebAppExecutor {
     try {
       return JSON.parse(body) as unknown;
     } catch (error) {
-      throw new Error("Apps Script web app response was not valid JSON", {
-        cause: error,
-      });
+      throw new Error(
+        [
+          "Apps Script web app response was not valid JSON",
+          `requestUrl=${url}`,
+          `responseUrl=${response.url || "<empty>"}`,
+          `status=${response.status} ${response.statusText}`,
+          `contentType=${response.headers.get("content-type") ?? "<missing>"}`,
+          `body=${formatErrorBody(body)}`,
+        ].join(": "),
+        {
+          cause: error,
+        },
+      );
     }
   }
 }
 
-export function createWebAppReferenceClient(webAppUrl: string): ReferenceWebAppExecutor {
-  return new WebAppReferenceClient(webAppUrl);
+export function createWebAppReferenceClient(
+  webAppUrl: string,
+  accessTokenProvider?: AccessTokenProvider,
+): ReferenceWebAppExecutor {
+  return new WebAppReferenceClient(webAppUrl, accessTokenProvider);
 }

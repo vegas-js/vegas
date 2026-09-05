@@ -7,7 +7,7 @@ import { referenceCases } from "../core/cases";
 import { acquireReferenceCase, createReferenceMetadata } from "../core/fixture";
 import { readReferenceResult, readReferenceMetadata } from "../fixtures/store";
 import { computeCaseRevision, loadReferenceProjectFiles } from "../gas/project";
-import { createVegasReferenceExecutor } from "./executor";
+import { createVegasReferenceExecutor, createVegasReferenceWebAppExecutor } from "./executor";
 
 const referenceDir = url.fileURLToPath(new URL("../../../reference/", import.meta.url));
 const files = await loadReferenceProjectFiles(referenceDir);
@@ -32,9 +32,12 @@ for (const referenceCase of referenceCases) {
   test(`Vegas runtime matches GAS reference: ${referenceCase.name}`, async () => {
     const executor = createVegasReferenceExecutor(bundled.source);
 
+    const webAppExecutor = createVegasReferenceWebAppExecutor(bundled.source);
+
     const actual = await acquireReferenceCase(
       {
         executionApi: executor,
+        webApp: webAppExecutor,
       },
       referenceCase,
     );

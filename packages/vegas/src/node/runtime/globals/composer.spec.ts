@@ -42,7 +42,6 @@ const EXPECTED_LEGACY_UNSUPPORTED_GLOBAL_NAMES = [
   "LinearOptimizationService",
   "XmlService",
   "Charts",
-  "ContentService",
   "MailApp",
   "Browser",
   "ScriptApp",
@@ -60,4 +59,5 @@ test("creates the legacy unsupported global seed", () => {
 
   expect(Object.hasOwn(seed, "DriveApp")).toBe(false);
   expect(Object.hasOwn(seed, "PropertiesService")).toBe(false);
+  expect(Object.hasOwn(seed, "ContentService")).toBe(false);
 });

@@ -271,3 +271,35 @@ test("propagates native Promise rejections without coercion", async () => {
 
   await expect(invokeScriptFunction(context, "entry", [])).rejects.toBe(thrownValue);
 });
+
+test("uses the default argument projection when no materializer is provided", async () => {
+  const context = vm.createContext({});
+
+  vm.runInContext(
+    `
+        function inspect(value) {
+          return {
+            prototypeIsObjectPrototype:
+              Object.getPrototypeOf(value) ===
+              Object.prototype,
+            constructorIsObject:
+              value.constructor === Object,
+            value: value.value,
+          };
+        }
+      `,
+    context,
+  );
+
+  const input = {
+    value: "host",
+  };
+
+  const result = await invokeScriptFunction(context, "inspect", [input]);
+
+  expect(result.value).toEqual({
+    prototypeIsObjectPrototype: true,
+    constructorIsObject: true,
+    value: "host",
+  });
+});

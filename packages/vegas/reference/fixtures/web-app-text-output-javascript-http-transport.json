@@ -1,0 +1,9 @@
+{
+  "body": "globalThis.vegasReference = {\n  ok: true\n};\n",
+  "contentDisposition": null,
+  "contentType": "text/javascript; charset=utf-8",
+  "ok": true,
+  "redirected": true,
+  "status": 200,
+  "statusText": "OK"
+}

@@ -89,7 +89,7 @@ function describeConstructor(value: object) {
   };
 }
 
-function describeBlob(value: object) {
+export function describeReferenceBlobSurface(value: object) {
   return {
     type: typeof value,
     stringify: String(value as any),
@@ -128,5 +128,5 @@ export function captureReferenceBlobObjectSurface() {
 
   const blob = globals.Utilities.newBlob("vegas-reference", "text/plain", "reference.txt");
 
-  return describeBlob(blob);
+  return describeReferenceBlobSurface(blob);
 }

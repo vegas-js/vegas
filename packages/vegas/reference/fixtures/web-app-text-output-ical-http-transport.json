@@ -1,0 +1,9 @@
+{
+  "body": "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//Vegas Reference//EN\r\nBEGIN:VEVENT\r\nUID:vegas-reference@example.invalid\r\nDTSTAMP:20260101T000000Z\r\nDTSTART:20260101T000000Z\r\nDTEND:20260101T010000Z\r\nSUMMARY:Vegas Reference\r\nEND:VEVENT\r\nEND:VCALENDAR\r\n",
+  "contentDisposition": null,
+  "contentType": "text/calendar; charset=utf-8",
+  "ok": true,
+  "redirected": true,
+  "status": 200,
+  "statusText": "OK"
+}

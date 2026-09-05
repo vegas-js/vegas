@@ -1,0 +1,529 @@
+{
+  "argumentCount": 1,
+  "event": {
+    "array": false,
+    "constructorIsArray": false,
+    "constructorIsObject": true,
+    "entries": [
+      {
+        "name": "contentLength",
+        "value": {
+          "type": "number",
+          "value": 15
+        }
+      },
+      {
+        "name": "contextPath",
+        "value": {
+          "type": "string",
+          "value": ""
+        }
+      },
+      {
+        "name": "parameter",
+        "value": {
+          "array": false,
+          "constructorIsArray": false,
+          "constructorIsObject": true,
+          "entries": [],
+          "instanceOfArray": false,
+          "instanceOfObject": true,
+          "keys": [],
+          "ownPropertyNames": [],
+          "ownPropertySymbols": [],
+          "properties": [],
+          "prototypeIsArrayPrototype": false,
+          "prototypeIsNull": false,
+          "prototypeIsObjectPrototype": true,
+          "tag": "[object Object]",
+          "type": "object"
+        }
+      },
+      {
+        "name": "parameters",
+        "value": {
+          "array": false,
+          "constructorIsArray": false,
+          "constructorIsObject": true,
+          "entries": [],
+          "instanceOfArray": false,
+          "instanceOfObject": true,
+          "keys": [],
+          "ownPropertyNames": [],
+          "ownPropertySymbols": [],
+          "properties": [],
+          "prototypeIsArrayPrototype": false,
+          "prototypeIsNull": false,
+          "prototypeIsObjectPrototype": true,
+          "tag": "[object Object]",
+          "type": "object"
+        }
+      },
+      {
+        "name": "postData",
+        "value": {
+          "array": false,
+          "constructorIsArray": false,
+          "constructorIsObject": true,
+          "entries": [
+            {
+              "name": "contents",
+              "value": {
+                "type": "string",
+                "value": "こんにちは"
+              }
+            },
+            {
+              "name": "copyBlob",
+              "value": {
+                "type": "function"
+              }
+            },
+            {
+              "name": "getAllBlobs",
+              "value": {
+                "type": "function"
+              }
+            },
+            {
+              "name": "getAs",
+              "value": {
+                "type": "function"
+              }
+            },
+            {
+              "name": "getBytes",
+              "value": {
+                "type": "function"
+              }
+            },
+            {
+              "name": "getContentType",
+              "value": {
+                "type": "function"
+              }
+            },
+            {
+              "name": "getDataAsString",
+              "value": {
+                "type": "function"
+              }
+            },
+            {
+              "name": "getName",
+              "value": {
+                "type": "function"
+              }
+            },
+            {
+              "name": "isGoogleType",
+              "value": {
+                "type": "function"
+              }
+            },
+            {
+              "name": "length",
+              "value": {
+                "type": "number",
+                "value": 15
+              }
+            },
+            {
+              "name": "name",
+              "value": {
+                "type": "string",
+                "value": "postData"
+              }
+            },
+            {
+              "name": "setBytes",
+              "value": {
+                "type": "function"
+              }
+            },
+            {
+              "name": "setContentType",
+              "value": {
+                "type": "function"
+              }
+            },
+            {
+              "name": "setContentTypeFromExtension",
+              "value": {
+                "type": "function"
+              }
+            },
+            {
+              "name": "setDataFromString",
+              "value": {
+                "type": "function"
+              }
+            },
+            {
+              "name": "setName",
+              "value": {
+                "type": "function"
+              }
+            },
+            {
+              "name": "toString",
+              "value": {
+                "type": "function"
+              }
+            },
+            {
+              "name": "type",
+              "value": {
+                "type": "string",
+                "value": "text/plain; charset=utf-8"
+              }
+            }
+          ],
+          "instanceOfArray": false,
+          "instanceOfObject": true,
+          "keys": [
+            "contents",
+            "copyBlob",
+            "getAllBlobs",
+            "getAs",
+            "getBytes",
+            "getContentType",
+            "getDataAsString",
+            "getName",
+            "isGoogleType",
+            "length",
+            "name",
+            "setBytes",
+            "setContentType",
+            "setContentTypeFromExtension",
+            "setDataFromString",
+            "setName",
+            "toString",
+            "type"
+          ],
+          "ownPropertyNames": [
+            "contents",
+            "copyBlob",
+            "getAllBlobs",
+            "getAs",
+            "getBytes",
+            "getContentType",
+            "getDataAsString",
+            "getName",
+            "isGoogleType",
+            "length",
+            "name",
+            "setBytes",
+            "setContentType",
+            "setContentTypeFromExtension",
+            "setDataFromString",
+            "setName",
+            "toString",
+            "type"
+          ],
+          "ownPropertySymbols": [],
+          "properties": [
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "contents",
+              "setter": false,
+              "type": "string",
+              "writable": false
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "copyBlob",
+              "setter": false,
+              "type": "function",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "getAllBlobs",
+              "setter": false,
+              "type": "function",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "getAs",
+              "setter": false,
+              "type": "function",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "getBytes",
+              "setter": false,
+              "type": "function",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "getContentType",
+              "setter": false,
+              "type": "function",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "getDataAsString",
+              "setter": false,
+              "type": "function",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "getName",
+              "setter": false,
+              "type": "function",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "isGoogleType",
+              "setter": false,
+              "type": "function",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "length",
+              "setter": false,
+              "type": "number",
+              "writable": false
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "name",
+              "setter": false,
+              "type": "string",
+              "writable": false
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "setBytes",
+              "setter": false,
+              "type": "function",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "setContentType",
+              "setter": false,
+              "type": "function",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "setContentTypeFromExtension",
+              "setter": false,
+              "type": "function",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "setDataFromString",
+              "setter": false,
+              "type": "function",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "setName",
+              "setter": false,
+              "type": "function",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "toString",
+              "setter": false,
+              "type": "function",
+              "writable": true
+            },
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "type",
+              "setter": false,
+              "type": "string",
+              "writable": false
+            }
+          ],
+          "prototypeIsArrayPrototype": false,
+          "prototypeIsNull": false,
+          "prototypeIsObjectPrototype": true,
+          "tag": "[object Object]",
+          "type": "object"
+        }
+      },
+      {
+        "name": "queryString",
+        "value": {
+          "type": "string",
+          "value": ""
+        }
+      }
+    ],
+    "instanceOfArray": false,
+    "instanceOfObject": true,
+    "keys": [
+      "contentLength",
+      "contextPath",
+      "parameter",
+      "parameters",
+      "postData",
+      "queryString"
+    ],
+    "ownPropertyNames": [
+      "contentLength",
+      "contextPath",
+      "parameter",
+      "parameters",
+      "postData",
+      "queryString"
+    ],
+    "ownPropertySymbols": [],
+    "properties": [
+      {
+        "configurable": true,
+        "enumerable": true,
+        "getter": false,
+        "name": "contentLength",
+        "setter": false,
+        "type": "number",
+        "writable": true
+      },
+      {
+        "configurable": true,
+        "enumerable": true,
+        "getter": false,
+        "name": "contextPath",
+        "setter": false,
+        "type": "string",
+        "writable": true
+      },
+      {
+        "configurable": true,
+        "enumerable": true,
+        "getter": false,
+        "name": "parameter",
+        "setter": false,
+        "type": "object",
+        "writable": true
+      },
+      {
+        "configurable": true,
+        "enumerable": true,
+        "getter": false,
+        "name": "parameters",
+        "setter": false,
+        "type": "object",
+        "writable": true
+      },
+      {
+        "configurable": true,
+        "enumerable": true,
+        "getter": false,
+        "name": "postData",
+        "setter": false,
+        "type": "object",
+        "writable": true
+      },
+      {
+        "configurable": true,
+        "enumerable": true,
+        "getter": false,
+        "name": "queryString",
+        "setter": false,
+        "type": "string",
+        "writable": true
+      }
+    ],
+    "prototypeIsArrayPrototype": false,
+    "prototypeIsNull": false,
+    "prototypeIsObjectPrototype": true,
+    "tag": "[object Object]",
+    "type": "object"
+  },
+  "knownProperties": [
+    {
+      "inherited": true,
+      "name": "queryString",
+      "own": true,
+      "type": "string"
+    },
+    {
+      "inherited": true,
+      "name": "parameter",
+      "own": true,
+      "type": "object"
+    },
+    {
+      "inherited": true,
+      "name": "parameters",
+      "own": true,
+      "type": "object"
+    },
+    {
+      "inherited": false,
+      "name": "pathInfo",
+      "own": false,
+      "type": "undefined"
+    },
+    {
+      "inherited": true,
+      "name": "contextPath",
+      "own": true,
+      "type": "string"
+    },
+    {
+      "inherited": true,
+      "name": "contentLength",
+      "own": true,
+      "type": "number"
+    },
+    {
+      "inherited": true,
+      "name": "postData",
+      "own": true,
+      "type": "object"
+    }
+  ]
+}

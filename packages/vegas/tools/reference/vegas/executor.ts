@@ -1,9 +1,12 @@
+import type vm from "node:vm";
+
 import { projectScriptResult } from "../../../src/node/runtime/execution/resultProjection";
 import {
   createScriptContext,
   type ScriptContextDependencies,
 } from "../../../src/node/runtime/execution/scriptContext";
 import { executeScriptInvocation } from "../../../src/node/runtime/execution/scriptExecution";
+import { createVmGasObjectFactory } from "../../../src/node/runtime/globals/object";
 import type { RequestLegacySync } from "../../../src/node/runtime/legacy/transport";
 import type {
   CreateRange,
@@ -21,8 +24,136 @@ import { HtmlTemplate } from "../../../src/node/runtime/services/html/HtmlTempla
 import { Range } from "../../../src/node/runtime/services/spreadsheet/Range";
 import { Sheet } from "../../../src/node/runtime/services/spreadsheet/Sheet";
 import { Spreadsheet } from "../../../src/node/runtime/services/spreadsheet/Spreadsheet";
-import type { ReferenceExecutor } from "../core/types";
+import {
+  createWebAppTriggerInvocation,
+  type WebAppTriggerRequest,
+} from "../../../src/node/runtime/triggers/webApp";
+import type {
+  ReferenceExecutor,
+  ReferenceWebAppExecutor,
+  ReferenceWebAppRequest,
+} from "../core/types";
 import { projectVegasExecutionError } from "./executionErrorProjection";
+
+interface ReferenceTextOutputRegistry {
+  resolve(value: unknown): string | undefined;
+}
+
+function installReferenceContentService(context: vm.Context): ReferenceTextOutputRegistry {
+  const createObject = createVmGasObjectFactory(context);
+
+  const contents = new WeakMap<object, string>();
+
+  const mimeType = createObject();
+
+  Object.defineProperty(mimeType, "JSON", {
+    value: "application/json",
+    writable: true,
+    enumerable: true,
+    configurable: true,
+  });
+
+  const contentService = createObject();
+
+  Object.defineProperty(contentService, "MimeType", {
+    value: mimeType,
+    writable: true,
+    enumerable: true,
+    configurable: true,
+  });
+
+  Object.defineProperty(contentService, "createTextOutput", {
+    value: (content: string = "") => {
+      const output = createObject();
+
+      contents.set(output, content);
+
+      Object.defineProperty(output, "setMimeType", {
+        value: () => output,
+        writable: true,
+        enumerable: true,
+        configurable: true,
+      });
+
+      return output;
+    },
+    writable: true,
+    enumerable: true,
+    configurable: true,
+  });
+
+  Object.defineProperty(context, "ContentService", {
+    value: contentService,
+    writable: true,
+    enumerable: true,
+    configurable: true,
+  });
+
+  return {
+    resolve(value) {
+      if (value === null || (typeof value !== "object" && typeof value !== "function")) {
+        return undefined;
+      }
+
+      return contents.get(value as object);
+    },
+  };
+}
+
+function getReferenceRequestHeader(
+  request: ReferenceWebAppRequest,
+  name: string,
+): string | undefined {
+  const headers = request.headers;
+
+  if (headers === undefined) {
+    return undefined;
+  }
+
+  const normalizedName = name.toLowerCase();
+
+  for (const [headerName, value] of Object.entries(headers)) {
+    if (headerName.toLowerCase() === normalizedName) {
+      return value;
+    }
+  }
+
+  return undefined;
+}
+
+function createReferenceWebAppTriggerRequest(
+  request: ReferenceWebAppRequest,
+): WebAppTriggerRequest {
+  const contentType = getReferenceRequestHeader(request, "content-type");
+
+  return {
+    method: request.method,
+
+    ...(request.queryString === undefined
+      ? {}
+      : {
+          queryString: request.queryString,
+        }),
+
+    ...(request.pathInfo === undefined
+      ? {}
+      : {
+          pathInfo: request.pathInfo,
+        }),
+
+    ...(request.body === undefined
+      ? {}
+      : {
+          body: request.body,
+        }),
+
+    ...(contentType === undefined
+      ? {}
+      : {
+          contentType,
+        }),
+  };
+}
 
 function unexpected(): never {
   throw new Error("Unexpected dependency call while executing reference case");
@@ -682,6 +813,78 @@ export function createVegasReferenceExecutor(source: string): ReferenceExecutor 
         return projectScriptResult(invocation.value);
       } catch (error) {
         throw projectVegasExecutionError(error, functionName);
+      }
+    },
+  };
+}
+
+export function createVegasReferenceWebAppExecutor(source: string): ReferenceWebAppExecutor {
+  const referenceDependencies = createReferenceDependencies();
+
+  return {
+    async execute(request) {
+      if (request.responseMode === "http") {
+        throw new Error(
+          "Vegas Web App reference executor does not emulate HTTP front-end outcomes",
+        );
+      }
+
+      const htmlOutputFacadeFactory = createHtmlOutputFacadeFactory();
+
+      const trigger = createWebAppTriggerInvocation(createReferenceWebAppTriggerRequest(request));
+
+      let textOutputRegistry: ReferenceTextOutputRegistry | undefined;
+
+      try {
+        const invocation = await executeScriptInvocation({
+          code: source,
+
+          functionName: trigger.functionName,
+
+          args: trigger.args,
+
+          materializeArguments: trigger.materializeArguments,
+
+          createContext(evaluateHtmlTemplate) {
+            const context = createScriptContext({
+              ...referenceDependencies,
+
+              htmlOutputFacadeFactory,
+
+              createHtmlOutput: (content: string, mode: GoogleAppsScript.HTML.XFrameOptionsMode) =>
+                new HtmlOutput(content, mode),
+
+              createHtmlTemplate: (content: string) =>
+                new HtmlTemplate(content, evaluateHtmlTemplate),
+            });
+
+            textOutputRegistry = installReferenceContentService(context);
+
+            return context;
+          },
+        });
+
+        const content = textOutputRegistry?.resolve(invocation.value);
+
+        if (content === undefined) {
+          throw new Error(
+            "Vegas Web App reference execution did not return the reference TextOutput adapter",
+          );
+        }
+
+        if (request.responseMode === "text") {
+          return content;
+        }
+
+        try {
+          return JSON.parse(content) as unknown;
+        } catch (error) {
+          throw new Error("Vegas Web App reference response was not valid JSON", {
+            cause: error,
+          });
+        }
+      } catch (error) {
+        throw projectVegasExecutionError(error, trigger.functionName);
       }
     },
   };

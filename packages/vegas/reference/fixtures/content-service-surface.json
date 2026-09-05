@@ -1,0 +1,911 @@
+{
+  "mimeType": {
+    "memberNames": [
+      "CSV",
+      "ICAL",
+      "JAVASCRIPT",
+      "JSON",
+      "TEXT",
+      "VCARD"
+    ],
+    "members": [
+      {
+        "compareTo": {
+          "CSV": 0,
+          "ICAL": -1,
+          "JAVASCRIPT": -2,
+          "JSON": -3,
+          "TEXT": -4,
+          "VCARD": -5
+        },
+        "helpers": {
+          "name": "CSV",
+          "ordinal": 0,
+          "toJSON": "CSV"
+        },
+        "identity": {
+          "CSV": true,
+          "ICAL": false,
+          "JAVASCRIPT": false,
+          "JSON": false,
+          "TEXT": false,
+          "VCARD": false
+        },
+        "name": "CSV",
+        "properties": [
+          {
+            "configurable": true,
+            "enumerable": true,
+            "getter": false,
+            "name": "compareTo",
+            "setter": false,
+            "type": "function",
+            "writable": true
+          },
+          {
+            "configurable": true,
+            "enumerable": true,
+            "getter": false,
+            "name": "CSV",
+            "setter": false,
+            "type": "object",
+            "writable": true
+          },
+          {
+            "configurable": true,
+            "enumerable": true,
+            "getter": false,
+            "name": "ICAL",
+            "setter": false,
+            "type": "object",
+            "writable": true
+          },
+          {
+            "configurable": true,
+            "enumerable": true,
+            "getter": false,
+            "name": "JAVASCRIPT",
+            "setter": false,
+            "type": "object",
+            "writable": true
+          },
+          {
+            "configurable": true,
+            "enumerable": true,
+            "getter": false,
+            "name": "JSON",
+            "setter": false,
+            "type": "object",
+            "writable": true
+          },
+          {
+            "configurable": true,
+            "enumerable": true,
+            "getter": false,
+            "name": "name",
+            "setter": false,
+            "type": "function",
+            "writable": true
+          },
+          {
+            "configurable": true,
+            "enumerable": true,
+            "getter": false,
+            "name": "ordinal",
+            "setter": false,
+            "type": "function",
+            "writable": true
+          },
+          {
+            "configurable": true,
+            "enumerable": true,
+            "getter": false,
+            "name": "TEXT",
+            "setter": false,
+            "type": "object",
+            "writable": true
+          },
+          {
+            "configurable": true,
+            "enumerable": true,
+            "getter": false,
+            "name": "toJSON",
+            "setter": false,
+            "type": "function",
+            "writable": true
+          },
+          {
+            "configurable": true,
+            "enumerable": true,
+            "getter": false,
+            "name": "toString",
+            "setter": false,
+            "type": "function",
+            "writable": true
+          },
+          {
+            "configurable": true,
+            "enumerable": true,
+            "getter": false,
+            "name": "VCARD",
+            "setter": false,
+            "type": "object",
+            "writable": true
+          }
+        ],
+        "prototypeIsObjectPrototype": true,
+        "stringify": "CSV"
+      },
+      {
+        "compareTo": {
+          "CSV": 1,
+          "ICAL": 0,
+          "JAVASCRIPT": -1,
+          "JSON": -2,
+          "TEXT": -3,
+          "VCARD": -4
+        },
+        "helpers": {
+          "name": "ICAL",
+          "ordinal": 1,
+          "toJSON": "ICAL"
+        },
+        "identity": {
+          "CSV": false,
+          "ICAL": true,
+          "JAVASCRIPT": false,
+          "JSON": false,
+          "TEXT": false,
+          "VCARD": false
+        },
+        "name": "ICAL",
+        "properties": [
+          {
+            "configurable": true,
+            "enumerable": true,
+            "getter": false,
+            "name": "compareTo",
+            "setter": false,
+            "type": "function",
+            "writable": true
+          },
+          {
+            "configurable": true,
+            "enumerable": true,
+            "getter": false,
+            "name": "CSV",
+            "setter": false,
+            "type": "object",
+            "writable": true
+          },
+          {
+            "configurable": true,
+            "enumerable": true,
+            "getter": false,
+            "name": "ICAL",
+            "setter": false,
+            "type": "object",
+            "writable": true
+          },
+          {
+            "configurable": true,
+            "enumerable": true,
+            "getter": false,
+            "name": "JAVASCRIPT",
+            "setter": false,
+            "type": "object",
+            "writable": true
+          },
+          {
+            "configurable": true,
+            "enumerable": true,
+            "getter": false,
+            "name": "JSON",
+            "setter": false,
+            "type": "object",
+            "writable": true
+          },
+          {
+            "configurable": true,
+            "enumerable": true,
+            "getter": false,
+            "name": "name",
+            "setter": false,
+            "type": "function",
+            "writable": true
+          },
+          {
+            "configurable": true,
+            "enumerable": true,
+            "getter": false,
+            "name": "ordinal",
+            "setter": false,
+            "type": "function",
+            "writable": true
+          },
+          {
+            "configurable": true,
+            "enumerable": true,
+            "getter": false,
+            "name": "TEXT",
+            "setter": false,
+            "type": "object",
+            "writable": true
+          },
+          {
+            "configurable": true,
+            "enumerable": true,
+            "getter": false,
+            "name": "toJSON",
+            "setter": false,
+            "type": "function",
+            "writable": true
+          },
+          {
+            "configurable": true,
+            "enumerable": true,
+            "getter": false,
+            "name": "toString",
+            "setter": false,
+            "type": "function",
+            "writable": true
+          },
+          {
+            "configurable": true,
+            "enumerable": true,
+            "getter": false,
+            "name": "VCARD",
+            "setter": false,
+            "type": "object",
+            "writable": true
+          }
+        ],
+        "prototypeIsObjectPrototype": true,
+        "stringify": "ICAL"
+      },
+      {
+        "compareTo": {
+          "CSV": 2,
+          "ICAL": 1,
+          "JAVASCRIPT": 0,
+          "JSON": -1,
+          "TEXT": -2,
+          "VCARD": -3
+        },
+        "helpers": {
+          "name": "JAVASCRIPT",
+          "ordinal": 2,
+          "toJSON": "JAVASCRIPT"
+        },
+        "identity": {
+          "CSV": false,
+          "ICAL": false,
+          "JAVASCRIPT": true,
+          "JSON": false,
+          "TEXT": false,
+          "VCARD": false
+        },
+        "name": "JAVASCRIPT",
+        "properties": [
+          {
+            "configurable": true,
+            "enumerable": true,
+            "getter": false,
+            "name": "compareTo",
+            "setter": false,
+            "type": "function",
+            "writable": true
+          },
+          {
+            "configurable": true,
+            "enumerable": true,
+            "getter": false,
+            "name": "CSV",
+            "setter": false,
+            "type": "object",
+            "writable": true
+          },
+          {
+            "configurable": true,
+            "enumerable": true,
+            "getter": false,
+            "name": "ICAL",
+            "setter": false,
+            "type": "object",
+            "writable": true
+          },
+          {
+            "configurable": true,
+            "enumerable": true,
+            "getter": false,
+            "name": "JAVASCRIPT",
+            "setter": false,
+            "type": "object",
+            "writable": true
+          },
+          {
+            "configurable": true,
+            "enumerable": true,
+            "getter": false,
+            "name": "JSON",
+            "setter": false,
+            "type": "object",
+            "writable": true
+          },
+          {
+            "configurable": true,
+            "enumerable": true,
+            "getter": false,
+            "name": "name",
+            "setter": false,
+            "type": "function",
+            "writable": true
+          },
+          {
+            "configurable": true,
+            "enumerable": true,
+            "getter": false,
+            "name": "ordinal",
+            "setter": false,
+            "type": "function",
+            "writable": true
+          },
+          {
+            "configurable": true,
+            "enumerable": true,
+            "getter": false,
+            "name": "TEXT",
+            "setter": false,
+            "type": "object",
+            "writable": true
+          },
+          {
+            "configurable": true,
+            "enumerable": true,
+            "getter": false,
+            "name": "toJSON",
+            "setter": false,
+            "type": "function",
+            "writable": true
+          },
+          {
+            "configurable": true,
+            "enumerable": true,
+            "getter": false,
+            "name": "toString",
+            "setter": false,
+            "type": "function",
+            "writable": true
+          },
+          {
+            "configurable": true,
+            "enumerable": true,
+            "getter": false,
+            "name": "VCARD",
+            "setter": false,
+            "type": "object",
+            "writable": true
+          }
+        ],
+        "prototypeIsObjectPrototype": true,
+        "stringify": "JAVASCRIPT"
+      },
+      {
+        "compareTo": {
+          "CSV": 3,
+          "ICAL": 2,
+          "JAVASCRIPT": 1,
+          "JSON": 0,
+          "TEXT": -1,
+          "VCARD": -2
+        },
+        "helpers": {
+          "name": "JSON",
+          "ordinal": 3,
+          "toJSON": "JSON"
+        },
+        "identity": {
+          "CSV": false,
+          "ICAL": false,
+          "JAVASCRIPT": false,
+          "JSON": true,
+          "TEXT": false,
+          "VCARD": false
+        },
+        "name": "JSON",
+        "properties": [
+          {
+            "configurable": true,
+            "enumerable": true,
+            "getter": false,
+            "name": "compareTo",
+            "setter": false,
+            "type": "function",
+            "writable": true
+          },
+          {
+            "configurable": true,
+            "enumerable": true,
+            "getter": false,
+            "name": "CSV",
+            "setter": false,
+            "type": "object",
+            "writable": true
+          },
+          {
+            "configurable": true,
+            "enumerable": true,
+            "getter": false,
+            "name": "ICAL",
+            "setter": false,
+            "type": "object",
+            "writable": true
+          },
+          {
+            "configurable": true,
+            "enumerable": true,
+            "getter": false,
+            "name": "JAVASCRIPT",
+            "setter": false,
+            "type": "object",
+            "writable": true
+          },
+          {
+            "configurable": true,
+            "enumerable": true,
+            "getter": false,
+            "name": "JSON",
+            "setter": false,
+            "type": "object",
+            "writable": true
+          },
+          {
+            "configurable": true,
+            "enumerable": true,
+            "getter": false,
+            "name": "name",
+            "setter": false,
+            "type": "function",
+            "writable": true
+          },
+          {
+            "configurable": true,
+            "enumerable": true,
+            "getter": false,
+            "name": "ordinal",
+            "setter": false,
+            "type": "function",
+            "writable": true
+          },
+          {
+            "configurable": true,
+            "enumerable": true,
+            "getter": false,
+            "name": "TEXT",
+            "setter": false,
+            "type": "object",
+            "writable": true
+          },
+          {
+            "configurable": true,
+            "enumerable": true,
+            "getter": false,
+            "name": "toJSON",
+            "setter": false,
+            "type": "function",
+            "writable": true
+          },
+          {
+            "configurable": true,
+            "enumerable": true,
+            "getter": false,
+            "name": "toString",
+            "setter": false,
+            "type": "function",
+            "writable": true
+          },
+          {
+            "configurable": true,
+            "enumerable": true,
+            "getter": false,
+            "name": "VCARD",
+            "setter": false,
+            "type": "object",
+            "writable": true
+          }
+        ],
+        "prototypeIsObjectPrototype": true,
+        "stringify": "JSON"
+      },
+      {
+        "compareTo": {
+          "CSV": 4,
+          "ICAL": 3,
+          "JAVASCRIPT": 2,
+          "JSON": 1,
+          "TEXT": 0,
+          "VCARD": -1
+        },
+        "helpers": {
+          "name": "TEXT",
+          "ordinal": 4,
+          "toJSON": "TEXT"
+        },
+        "identity": {
+          "CSV": false,
+          "ICAL": false,
+          "JAVASCRIPT": false,
+          "JSON": false,
+          "TEXT": true,
+          "VCARD": false
+        },
+        "name": "TEXT",
+        "properties": [
+          {
+            "configurable": true,
+            "enumerable": true,
+            "getter": false,
+            "name": "compareTo",
+            "setter": false,
+            "type": "function",
+            "writable": true
+          },
+          {
+            "configurable": true,
+            "enumerable": true,
+            "getter": false,
+            "name": "CSV",
+            "setter": false,
+            "type": "object",
+            "writable": true
+          },
+          {
+            "configurable": true,
+            "enumerable": true,
+            "getter": false,
+            "name": "ICAL",
+            "setter": false,
+            "type": "object",
+            "writable": true
+          },
+          {
+            "configurable": true,
+            "enumerable": true,
+            "getter": false,
+            "name": "JAVASCRIPT",
+            "setter": false,
+            "type": "object",
+            "writable": true
+          },
+          {
+            "configurable": true,
+            "enumerable": true,
+            "getter": false,
+            "name": "JSON",
+            "setter": false,
+            "type": "object",
+            "writable": true
+          },
+          {
+            "configurable": true,
+            "enumerable": true,
+            "getter": false,
+            "name": "name",
+            "setter": false,
+            "type": "function",
+            "writable": true
+          },
+          {
+            "configurable": true,
+            "enumerable": true,
+            "getter": false,
+            "name": "ordinal",
+            "setter": false,
+            "type": "function",
+            "writable": true
+          },
+          {
+            "configurable": true,
+            "enumerable": true,
+            "getter": false,
+            "name": "TEXT",
+            "setter": false,
+            "type": "object",
+            "writable": true
+          },
+          {
+            "configurable": true,
+            "enumerable": true,
+            "getter": false,
+            "name": "toJSON",
+            "setter": false,
+            "type": "function",
+            "writable": true
+          },
+          {
+            "configurable": true,
+            "enumerable": true,
+            "getter": false,
+            "name": "toString",
+            "setter": false,
+            "type": "function",
+            "writable": true
+          },
+          {
+            "configurable": true,
+            "enumerable": true,
+            "getter": false,
+            "name": "VCARD",
+            "setter": false,
+            "type": "object",
+            "writable": true
+          }
+        ],
+        "prototypeIsObjectPrototype": true,
+        "stringify": "TEXT"
+      },
+      {
+        "compareTo": {
+          "CSV": 5,
+          "ICAL": 4,
+          "JAVASCRIPT": 3,
+          "JSON": 2,
+          "TEXT": 1,
+          "VCARD": 0
+        },
+        "helpers": {
+          "name": "VCARD",
+          "ordinal": 5,
+          "toJSON": "VCARD"
+        },
+        "identity": {
+          "CSV": false,
+          "ICAL": false,
+          "JAVASCRIPT": false,
+          "JSON": false,
+          "TEXT": false,
+          "VCARD": true
+        },
+        "name": "VCARD",
+        "properties": [
+          {
+            "configurable": true,
+            "enumerable": true,
+            "getter": false,
+            "name": "compareTo",
+            "setter": false,
+            "type": "function",
+            "writable": true
+          },
+          {
+            "configurable": true,
+            "enumerable": true,
+            "getter": false,
+            "name": "CSV",
+            "setter": false,
+            "type": "object",
+            "writable": true
+          },
+          {
+            "configurable": true,
+            "enumerable": true,
+            "getter": false,
+            "name": "ICAL",
+            "setter": false,
+            "type": "object",
+            "writable": true
+          },
+          {
+            "configurable": true,
+            "enumerable": true,
+            "getter": false,
+            "name": "JAVASCRIPT",
+            "setter": false,
+            "type": "object",
+            "writable": true
+          },
+          {
+            "configurable": true,
+            "enumerable": true,
+            "getter": false,
+            "name": "JSON",
+            "setter": false,
+            "type": "object",
+            "writable": true
+          },
+          {
+            "configurable": true,
+            "enumerable": true,
+            "getter": false,
+            "name": "name",
+            "setter": false,
+            "type": "function",
+            "writable": true
+          },
+          {
+            "configurable": true,
+            "enumerable": true,
+            "getter": false,
+            "name": "ordinal",
+            "setter": false,
+            "type": "function",
+            "writable": true
+          },
+          {
+            "configurable": true,
+            "enumerable": true,
+            "getter": false,
+            "name": "TEXT",
+            "setter": false,
+            "type": "object",
+            "writable": true
+          },
+          {
+            "configurable": true,
+            "enumerable": true,
+            "getter": false,
+            "name": "toJSON",
+            "setter": false,
+            "type": "function",
+            "writable": true
+          },
+          {
+            "configurable": true,
+            "enumerable": true,
+            "getter": false,
+            "name": "toString",
+            "setter": false,
+            "type": "function",
+            "writable": true
+          },
+          {
+            "configurable": true,
+            "enumerable": true,
+            "getter": false,
+            "name": "VCARD",
+            "setter": false,
+            "type": "object",
+            "writable": true
+          }
+        ],
+        "prototypeIsObjectPrototype": true,
+        "stringify": "VCARD"
+      }
+    ],
+    "properties": [
+      {
+        "configurable": true,
+        "enumerable": true,
+        "getter": false,
+        "name": "compareTo",
+        "setter": false,
+        "type": "function",
+        "writable": true
+      },
+      {
+        "configurable": true,
+        "enumerable": true,
+        "getter": false,
+        "name": "CSV",
+        "setter": false,
+        "type": "object",
+        "writable": true
+      },
+      {
+        "configurable": true,
+        "enumerable": true,
+        "getter": false,
+        "name": "ICAL",
+        "setter": false,
+        "type": "object",
+        "writable": true
+      },
+      {
+        "configurable": true,
+        "enumerable": true,
+        "getter": false,
+        "name": "JAVASCRIPT",
+        "setter": false,
+        "type": "object",
+        "writable": true
+      },
+      {
+        "configurable": true,
+        "enumerable": true,
+        "getter": false,
+        "name": "JSON",
+        "setter": false,
+        "type": "object",
+        "writable": true
+      },
+      {
+        "configurable": true,
+        "enumerable": true,
+        "getter": false,
+        "name": "name",
+        "setter": false,
+        "type": "function",
+        "writable": true
+      },
+      {
+        "configurable": true,
+        "enumerable": true,
+        "getter": false,
+        "name": "ordinal",
+        "setter": false,
+        "type": "function",
+        "writable": true
+      },
+      {
+        "configurable": true,
+        "enumerable": true,
+        "getter": false,
+        "name": "TEXT",
+        "setter": false,
+        "type": "object",
+        "writable": true
+      },
+      {
+        "configurable": true,
+        "enumerable": true,
+        "getter": false,
+        "name": "toJSON",
+        "setter": false,
+        "type": "function",
+        "writable": true
+      },
+      {
+        "configurable": true,
+        "enumerable": true,
+        "getter": false,
+        "name": "toString",
+        "setter": false,
+        "type": "function",
+        "writable": true
+      },
+      {
+        "configurable": true,
+        "enumerable": true,
+        "getter": false,
+        "name": "VCARD",
+        "setter": false,
+        "type": "object",
+        "writable": true
+      }
+    ],
+    "prototypeIsObjectPrototype": true,
+    "stringify": "TEXT"
+  },
+  "properties": [
+    {
+      "configurable": true,
+      "enumerable": true,
+      "getter": false,
+      "name": "createTextOutput",
+      "setter": false,
+      "type": "function",
+      "writable": true
+    },
+    {
+      "configurable": true,
+      "enumerable": true,
+      "getter": false,
+      "name": "MimeType",
+      "setter": false,
+      "type": "object",
+      "writable": false
+    },
+    {
+      "configurable": true,
+      "enumerable": true,
+      "getter": false,
+      "name": "toString",
+      "setter": false,
+      "type": "function",
+      "writable": true
+    }
+  ],
+  "prototypeIsObjectPrototype": true,
+  "stringify": "ContentService",
+  "type": "object"
+}

@@ -1,0 +1,273 @@
+{
+  "argumentCount": 1,
+  "event": {
+    "array": false,
+    "constructorIsArray": false,
+    "constructorIsObject": true,
+    "entries": [
+      {
+        "name": "contentLength",
+        "value": {
+          "type": "number",
+          "value": -1
+        }
+      },
+      {
+        "name": "contextPath",
+        "value": {
+          "type": "string",
+          "value": ""
+        }
+      },
+      {
+        "name": "parameter",
+        "value": {
+          "array": false,
+          "constructorIsArray": false,
+          "constructorIsObject": true,
+          "entries": [
+            {
+              "name": "a",
+              "value": {
+                "type": "string",
+                "value": "hello world"
+              }
+            }
+          ],
+          "instanceOfArray": false,
+          "instanceOfObject": true,
+          "keys": [
+            "a"
+          ],
+          "ownPropertyNames": [
+            "a"
+          ],
+          "ownPropertySymbols": [],
+          "properties": [
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "a",
+              "setter": false,
+              "type": "string",
+              "writable": true
+            }
+          ],
+          "prototypeIsArrayPrototype": false,
+          "prototypeIsNull": false,
+          "prototypeIsObjectPrototype": true,
+          "tag": "[object Object]",
+          "type": "object"
+        }
+      },
+      {
+        "name": "parameters",
+        "value": {
+          "array": false,
+          "constructorIsArray": false,
+          "constructorIsObject": true,
+          "entries": [
+            {
+              "name": "a",
+              "value": {
+                "array": true,
+                "constructorIsArray": true,
+                "constructorIsObject": false,
+                "entries": [
+                  {
+                    "name": "0",
+                    "value": {
+                      "type": "string",
+                      "value": "hello world"
+                    }
+                  }
+                ],
+                "instanceOfArray": true,
+                "instanceOfObject": true,
+                "keys": [
+                  "0"
+                ],
+                "ownPropertyNames": [
+                  "0",
+                  "length"
+                ],
+                "ownPropertySymbols": [],
+                "properties": [
+                  {
+                    "configurable": true,
+                    "enumerable": true,
+                    "getter": false,
+                    "name": "0",
+                    "setter": false,
+                    "type": "string",
+                    "writable": true
+                  },
+                  {
+                    "configurable": false,
+                    "enumerable": false,
+                    "getter": false,
+                    "name": "length",
+                    "setter": false,
+                    "type": "number",
+                    "writable": true
+                  }
+                ],
+                "prototypeIsArrayPrototype": true,
+                "prototypeIsNull": false,
+                "prototypeIsObjectPrototype": false,
+                "tag": "[object Array]",
+                "type": "object"
+              }
+            }
+          ],
+          "instanceOfArray": false,
+          "instanceOfObject": true,
+          "keys": [
+            "a"
+          ],
+          "ownPropertyNames": [
+            "a"
+          ],
+          "ownPropertySymbols": [],
+          "properties": [
+            {
+              "configurable": true,
+              "enumerable": true,
+              "getter": false,
+              "name": "a",
+              "setter": false,
+              "type": "object",
+              "writable": true
+            }
+          ],
+          "prototypeIsArrayPrototype": false,
+          "prototypeIsNull": false,
+          "prototypeIsObjectPrototype": true,
+          "tag": "[object Object]",
+          "type": "object"
+        }
+      },
+      {
+        "name": "queryString",
+        "value": {
+          "type": "string",
+          "value": "a=hello+world"
+        }
+      }
+    ],
+    "instanceOfArray": false,
+    "instanceOfObject": true,
+    "keys": [
+      "contentLength",
+      "contextPath",
+      "parameter",
+      "parameters",
+      "queryString"
+    ],
+    "ownPropertyNames": [
+      "contentLength",
+      "contextPath",
+      "parameter",
+      "parameters",
+      "queryString"
+    ],
+    "ownPropertySymbols": [],
+    "properties": [
+      {
+        "configurable": true,
+        "enumerable": true,
+        "getter": false,
+        "name": "contentLength",
+        "setter": false,
+        "type": "number",
+        "writable": true
+      },
+      {
+        "configurable": true,
+        "enumerable": true,
+        "getter": false,
+        "name": "contextPath",
+        "setter": false,
+        "type": "string",
+        "writable": true
+      },
+      {
+        "configurable": true,
+        "enumerable": true,
+        "getter": false,
+        "name": "parameter",
+        "setter": false,
+        "type": "object",
+        "writable": true
+      },
+      {
+        "configurable": true,
+        "enumerable": true,
+        "getter": false,
+        "name": "parameters",
+        "setter": false,
+        "type": "object",
+        "writable": true
+      },
+      {
+        "configurable": true,
+        "enumerable": true,
+        "getter": false,
+        "name": "queryString",
+        "setter": false,
+        "type": "string",
+        "writable": true
+      }
+    ],
+    "prototypeIsArrayPrototype": false,
+    "prototypeIsNull": false,
+    "prototypeIsObjectPrototype": true,
+    "tag": "[object Object]",
+    "type": "object"
+  },
+  "knownProperties": [
+    {
+      "inherited": true,
+      "name": "queryString",
+      "own": true,
+      "type": "string"
+    },
+    {
+      "inherited": true,
+      "name": "parameter",
+      "own": true,
+      "type": "object"
+    },
+    {
+      "inherited": true,
+      "name": "parameters",
+      "own": true,
+      "type": "object"
+    },
+    {
+      "inherited": false,
+      "name": "pathInfo",
+      "own": false,
+      "type": "undefined"
+    },
+    {
+      "inherited": true,
+      "name": "contextPath",
+      "own": true,
+      "type": "string"
+    },
+    {
+      "inherited": true,
+      "name": "contentLength",
+      "own": true,
+      "type": "number"
+    },
+    {
+      "inherited": false,
+      "name": "postData",
+      "own": false,
+      "type": "undefined"
+    }
+  ]
+}

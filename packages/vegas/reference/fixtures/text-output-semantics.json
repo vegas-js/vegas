@@ -1,0 +1,38 @@
+{
+  "empty": {
+    "content": null,
+    "fileName": null,
+    "mimeType": {
+      "identities": {
+        "CSV": false,
+        "ICAL": false,
+        "JAVASCRIPT": false,
+        "JSON": false,
+        "TEXT": true,
+        "VCARD": false,
+        "compareTo": false,
+        "name": false,
+        "ordinal": false,
+        "toJSON": false,
+        "toString": false
+      },
+      "stringify": "TEXT"
+    },
+    "stringify": "TextOutput"
+  },
+  "mutation": {
+    "afterAppend": "initial-append",
+    "afterClear": null,
+    "afterSetContent": "replaced",
+    "appendReturnsSelf": true,
+    "clearReturnsSelf": true,
+    "downloadAsFileReturnsSelf": true,
+    "fileNameAfterDownload": "reference.txt",
+    "mimeType": {
+      "isJson": true,
+      "stringify": "JSON"
+    },
+    "setContentReturnsSelf": true,
+    "setMimeTypeReturnsSelf": true
+  }
+}

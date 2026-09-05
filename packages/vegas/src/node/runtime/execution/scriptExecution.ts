@@ -1,6 +1,10 @@
 import type vm from "node:vm";
 
-import { invokeScriptFunction, type InvocationCompletion } from "./invocation";
+import {
+  invokeScriptFunction,
+  type InvocationCompletion,
+  type MaterializeScriptArguments,
+} from "./invocation";
 import { evaluateScript, evaluateScriptWithBindings } from "./scriptRuntime";
 import type { EvaluateHtmlTemplate } from "./types";
 
@@ -13,12 +17,13 @@ export interface ExecuteScriptInvocationOptions {
   readonly functionName: string;
   readonly args: readonly unknown[];
   readonly createContext: CreateScriptExecutionContext;
+  readonly materializeArguments?: MaterializeScriptArguments;
 }
 
 export async function executeScriptInvocation(
   options: ExecuteScriptInvocationOptions,
 ): Promise<InvocationCompletion> {
-  const { code, functionName, args, createContext } = options;
+  const { code, functionName, args, createContext, materializeArguments } = options;
 
   let context: vm.Context | undefined;
 
@@ -34,5 +39,7 @@ export async function executeScriptInvocation(
 
   evaluateScript(code, context);
 
-  return invokeScriptFunction(context, functionName, args);
+  return invokeScriptFunction(context, functionName, args, {
+    materializeArguments,
+  });
 }

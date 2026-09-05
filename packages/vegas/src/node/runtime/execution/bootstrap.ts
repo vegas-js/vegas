@@ -4,7 +4,9 @@ import type { RuntimeLogSink } from "../logging";
 import { createRuntimeObjectFactories } from "../objects/factories";
 import type { ServiceCaller } from "../protocol";
 import { createRuntimeServicePorts } from "../servicePorts";
+import { createTextOutputFacadeFactory } from "../services/content/textOutputFacade";
 import { createHtmlOutputFacadeFactory } from "../services/html/htmlOutputFacade";
+import type { MaterializeScriptArguments } from "./invocation";
 import { projectScriptResult } from "./resultProjection";
 import { createScriptContext } from "./scriptContext";
 import { executeScriptInvocation } from "./scriptExecution";
@@ -19,11 +21,21 @@ export interface ScriptRuntimeDependencies {
 
 export interface ScriptRuntimeExecution {
   readonly value: unknown;
+  isHtmlOutput(value: unknown): boolean;
+  isTextOutput(value: unknown): boolean;
   getHtmlOutputXFrameOptionsMode(value: unknown): string | null | undefined;
 }
 
+export interface ScriptRuntimeExecuteOptions {
+  readonly materializeArguments?: MaterializeScriptArguments;
+}
+
 export interface ScriptRuntime {
-  execute(functionName: string, args: readonly unknown[]): Promise<ScriptRuntimeExecution>;
+  execute(
+    functionName: string,
+    args: readonly unknown[],
+    options?: ScriptRuntimeExecuteOptions,
+  ): Promise<ScriptRuntimeExecution>;
   invoke(functionName: string, args: readonly unknown[]): Promise<unknown>;
 }
 
@@ -44,7 +56,10 @@ export function createScriptRuntime(dependencies: ScriptRuntimeDependencies): Sc
   const execute = async (
     functionName: string,
     args: readonly unknown[],
+    options: ScriptRuntimeExecuteOptions = {},
   ): Promise<ScriptRuntimeExecution> => {
+    const textOutputFacadeFactory = createTextOutputFacadeFactory();
+
     const htmlOutputFacadeFactory = createHtmlOutputFacadeFactory();
 
     const invocation = await executeScriptInvocation({
@@ -62,6 +77,7 @@ export function createScriptRuntime(dependencies: ScriptRuntimeDependencies): Sc
 
         return createScriptContext({
           environment,
+          textOutputFacadeFactory,
           htmlOutputFacadeFactory,
           requestLegacySync,
           logSink,
@@ -74,10 +90,24 @@ export function createScriptRuntime(dependencies: ScriptRuntimeDependencies): Sc
           ...factories,
         });
       },
+
+      ...(options.materializeArguments === undefined
+        ? {}
+        : {
+            materializeArguments: options.materializeArguments,
+          }),
     });
 
     return {
       value: invocation.value,
+
+      isHtmlOutput(value) {
+        return htmlOutputFacadeFactory.resolve(value) !== undefined;
+      },
+
+      isTextOutput(value) {
+        return textOutputFacadeFactory.resolve(value) !== undefined;
+      },
 
       getHtmlOutputXFrameOptionsMode(value) {
         return htmlOutputFacadeFactory.resolveXFrameOptionsMode(value);

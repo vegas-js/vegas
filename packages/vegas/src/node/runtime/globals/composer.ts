@@ -18,6 +18,11 @@ import { createLogger } from "../services/base/loggerFacade";
 import { createMimeType } from "../services/base/mimeType";
 import { createSession } from "../services/base/sessionFacade";
 import { createCacheService } from "../services/cache/facade";
+import { createContentService } from "../services/content/facade";
+import {
+  createTextOutputFacadeFactory,
+  type TextOutputFacadeFactory,
+} from "../services/content/textOutputFacade";
 import { createDriveApp } from "../services/drive/facade";
 import { createHtmlService } from "../services/html/facade";
 import {
@@ -34,6 +39,7 @@ import { createVmGasArrayFactory, createVmGasObjectFactory } from "./object";
 
 export interface GasGlobalComposerDependencies {
   environment: RuntimeGlobalEnvironment;
+  textOutputFacadeFactory?: TextOutputFacadeFactory;
   htmlOutputFacadeFactory?: HtmlOutputFacadeFactory;
 
   requestLegacySync: RequestLegacySync;
@@ -161,7 +167,6 @@ const LEGACY_UNSUPPORTED_GLOBAL_NAMES = [
   "Charts",
 
   /* Content */
-  "ContentService",
 
   /* HTML */
 
@@ -205,6 +210,7 @@ export function composeGasGlobals(
 ): void {
   const {
     environment,
+    textOutputFacadeFactory,
     htmlOutputFacadeFactory,
     requestLegacySync,
     createFile,
@@ -229,6 +235,9 @@ export function composeGasGlobals(
   const resolvedHtmlOutputFacadeFactory =
     htmlOutputFacadeFactory ?? createHtmlOutputFacadeFactory();
 
+  const resolvedTextOutputFacadeFactory =
+    textOutputFacadeFactory ?? createTextOutputFacadeFactory();
+
   const gasGlobals = {
     /* Drive */
     DriveApp: createDriveApp(createFile, createFolder, requestLegacySync, createGasObject),
@@ -245,6 +254,12 @@ export function composeGasGlobals(
 
     /* Utilities */
     Utilities: createUtilities(createGasObject, blobFacadeFactory),
+
+    /* Content */
+    ContentService: createContentService({
+      createObject: createGasObject,
+      textOutputFacadeFactory: resolvedTextOutputFacadeFactory,
+    }),
 
     /* HTML */
     HtmlService: createHtmlService(createHtmlOutput, createHtmlTemplate, htmlService, {

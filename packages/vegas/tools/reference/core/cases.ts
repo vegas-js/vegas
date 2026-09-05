@@ -611,4 +611,447 @@ export const referenceCases: readonly ReferenceCaseDefinition[] = [
     fixtureFile: "properties-object-semantics.json",
     runtimeTest: "required",
   },
+  {
+    name: "web-app-do-get-empty-event",
+    functionName: "doGet",
+    fixtureFile: "web-app-do-get-empty-event.json",
+    runtimeTest: "required",
+    acquisition: {
+      kind: "web-app",
+      request: {
+        method: "GET",
+      },
+    },
+  },
+  {
+    name: "web-app-do-get-single-parameter",
+    functionName: "doGet",
+    fixtureFile: "web-app-do-get-single-parameter.json",
+    runtimeTest: "required",
+    acquisition: {
+      kind: "web-app",
+      request: {
+        method: "GET",
+        queryString: "a=1",
+      },
+    },
+  },
+  {
+    name: "web-app-do-get-repeated-parameter",
+    functionName: "doGet",
+    fixtureFile: "web-app-do-get-repeated-parameter.json",
+    runtimeTest: "required",
+    acquisition: {
+      kind: "web-app",
+      request: {
+        method: "GET",
+        queryString: "a=1&a=2",
+      },
+    },
+  },
+  {
+    name: "web-app-do-get-empty-first-parameter",
+    functionName: "doGet",
+    fixtureFile: "web-app-do-get-empty-first-parameter.json",
+    runtimeTest: "required",
+    acquisition: {
+      kind: "web-app",
+      request: {
+        method: "GET",
+        queryString: "a=&a=2",
+      },
+    },
+  },
+  {
+    name: "web-app-do-get-percent-encoded-parameter",
+    functionName: "doGet",
+    fixtureFile: "web-app-do-get-percent-encoded-parameter.json",
+    runtimeTest: "required",
+    acquisition: {
+      kind: "web-app",
+      request: {
+        method: "GET",
+        queryString: "encoded=%E3%81%82",
+      },
+    },
+  },
+  {
+    name: "web-app-do-get-plus-encoded-parameter",
+    functionName: "doGet",
+    fixtureFile: "web-app-do-get-plus-encoded-parameter.json",
+    runtimeTest: "required",
+    acquisition: {
+      kind: "web-app",
+      request: {
+        method: "GET",
+        queryString: "a=hello+world",
+      },
+    },
+  },
+  {
+    name: "web-app-do-get-value-containing-equals",
+    functionName: "doGet",
+    fixtureFile: "web-app-do-get-value-containing-equals.json",
+    runtimeTest: "required",
+    acquisition: {
+      kind: "web-app",
+      request: {
+        method: "GET",
+        queryString: "a=left=right",
+      },
+    },
+  },
+  {
+    name: "web-app-do-get-path-info",
+    functionName: "doGet",
+    fixtureFile: "web-app-do-get-path-info.json",
+    runtimeTest: "required",
+    acquisition: {
+      kind: "web-app",
+      request: {
+        method: "GET",
+        pathInfo: "path/to/resource",
+        queryString: "a=1",
+        authentication: "oauth",
+      },
+    },
+  },
+  {
+    name: "web-app-do-post-empty-body",
+    functionName: "doPost",
+    fixtureFile: "web-app-do-post-empty-body.json",
+    runtimeTest: "required",
+    acquisition: {
+      kind: "web-app",
+      request: {
+        method: "POST",
+      },
+    },
+  },
+  {
+    name: "web-app-do-post-text-body",
+    functionName: "doPost",
+    fixtureFile: "web-app-do-post-text-body.json",
+    runtimeTest: "required",
+    acquisition: {
+      kind: "web-app",
+      request: {
+        method: "POST",
+        headers: {
+          "Content-Type": "text/plain",
+        },
+        body: "hello",
+      },
+    },
+  },
+  {
+    name: "web-app-do-post-utf8-body",
+    functionName: "doPost",
+    fixtureFile: "web-app-do-post-utf8-body.json",
+    runtimeTest: "required",
+    acquisition: {
+      kind: "web-app",
+      request: {
+        method: "POST",
+        headers: {
+          "Content-Type": "text/plain; charset=utf-8",
+        },
+        body: "こんにちは",
+      },
+    },
+  },
+  {
+    name: "web-app-do-post-form-repeated",
+    functionName: "doPost",
+    fixtureFile: "web-app-do-post-form-repeated.json",
+    runtimeTest: "required",
+    acquisition: {
+      kind: "web-app",
+      request: {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: "a=1&a=2",
+      },
+    },
+  },
+  {
+    name: "web-app-do-post-query-form-collision",
+    functionName: "doPost",
+    fixtureFile: "web-app-do-post-query-form-collision.json",
+    runtimeTest: "required",
+    acquisition: {
+      kind: "web-app",
+      request: {
+        method: "POST",
+        queryString: "a=query",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: "a=body1&a=body2",
+      },
+    },
+  },
+  {
+    name: "web-app-do-post-query-form-disjoint",
+    functionName: "doPost",
+    fixtureFile: "web-app-do-post-query-form-disjoint.json",
+    runtimeTest: "required",
+    acquisition: {
+      kind: "web-app",
+      request: {
+        method: "POST",
+        queryString: "q=query",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: "a=body1&a=body2",
+      },
+    },
+  },
+  {
+    name: "web-app-do-post-reserved-parameter-c-http-outcome",
+    functionName: "doPost",
+    fixtureFile: "web-app-do-post-reserved-parameter-c-http-outcome.json",
+    runtimeTest: "pending",
+    acquisition: {
+      kind: "web-app",
+      request: {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: "c=reserved",
+        responseMode: "http",
+      },
+    },
+  },
+  {
+    name: "web-app-post-data-surface",
+    functionName: "doPost",
+    fixtureFile: "web-app-post-data-surface.json",
+    runtimeTest: "required",
+    acquisition: {
+      kind: "web-app",
+      request: {
+        method: "POST",
+        pathInfo: "__vegas_reference/post-data-surface",
+        headers: {
+          "Content-Type": "text/plain; charset=utf-8",
+        },
+        body: "こんにちは",
+        authentication: "oauth",
+      },
+    },
+  },
+  {
+    name: "web-app-do-get-html-output-http-response",
+    functionName: "doGet",
+    fixtureFile: "web-app-do-get-html-output-http-response.json",
+    runtimeTest: "pending",
+    acquisition: {
+      kind: "web-app",
+      request: {
+        method: "GET",
+        queryString: "__vegas_reference_result=html",
+        responseMode: "http",
+      },
+    },
+  },
+  {
+    name: "web-app-do-get-text-output-http-response",
+    functionName: "doGet",
+    fixtureFile: "web-app-do-get-text-output-http-response.json",
+    runtimeTest: "pending",
+    acquisition: {
+      kind: "web-app",
+      request: {
+        method: "GET",
+        queryString: "__vegas_reference_result=text",
+        responseMode: "http-text",
+      },
+    },
+  },
+  {
+    name: "web-app-do-post-html-output-http-response",
+    functionName: "doPost",
+    fixtureFile: "web-app-do-post-html-output-http-response.json",
+    runtimeTest: "pending",
+    acquisition: {
+      kind: "web-app",
+      request: {
+        method: "POST",
+        queryString: "__vegas_reference_result=html",
+        headers: {
+          "Content-Type": "text/plain",
+        },
+        body: "request-body",
+        responseMode: "http",
+      },
+    },
+  },
+  {
+    name: "web-app-do-post-text-output-http-response",
+    functionName: "doPost",
+    fixtureFile: "web-app-do-post-text-output-http-response.json",
+    runtimeTest: "pending",
+    acquisition: {
+      kind: "web-app",
+      request: {
+        method: "POST",
+        queryString: "__vegas_reference_result=text",
+        headers: {
+          "Content-Type": "text/plain",
+        },
+        body: "request-body",
+        responseMode: "http-text",
+      },
+    },
+  },
+  {
+    name: "web-app-do-get-invalid-result-http-outcome",
+    functionName: "doGet",
+    fixtureFile: "web-app-do-get-invalid-result-http-outcome.json",
+    runtimeTest: "pending",
+    acquisition: {
+      kind: "web-app",
+      request: {
+        method: "GET",
+        queryString: "__vegas_reference_result=invalid",
+        responseMode: "http",
+      },
+    },
+  },
+  {
+    name: "web-app-do-post-invalid-result-http-outcome",
+    functionName: "doPost",
+    fixtureFile: "web-app-do-post-invalid-result-http-outcome.json",
+    runtimeTest: "pending",
+    acquisition: {
+      kind: "web-app",
+      request: {
+        method: "POST",
+        queryString: "__vegas_reference_result=invalid",
+        responseMode: "http",
+      },
+    },
+  },
+  {
+    name: "content-service-surface",
+    functionName: "captureReferenceContentServiceSurface",
+    fixtureFile: "content-service-surface.json",
+    runtimeTest: "required",
+  },
+  {
+    name: "text-output-object-surface",
+    functionName: "captureReferenceTextOutputObjectSurface",
+    fixtureFile: "text-output-object-surface.json",
+    runtimeTest: "required",
+  },
+  {
+    name: "text-output-semantics",
+    functionName: "captureReferenceTextOutputSemantics",
+    fixtureFile: "text-output-semantics.json",
+    runtimeTest: "required",
+  },
+  {
+    name: "web-app-text-output-csv-http-transport",
+    functionName: "doGet",
+    fixtureFile: "web-app-text-output-csv-http-transport.json",
+    runtimeTest: "pending",
+    acquisition: {
+      kind: "web-app",
+      request: {
+        method: "GET",
+        queryString: "__vegas_reference_result=text&__vegas_reference_mime=CSV",
+        responseMode: "http-details",
+      },
+    },
+  },
+  {
+    name: "web-app-text-output-ical-http-transport",
+    functionName: "doGet",
+    fixtureFile: "web-app-text-output-ical-http-transport.json",
+    runtimeTest: "pending",
+    acquisition: {
+      kind: "web-app",
+      request: {
+        method: "GET",
+        queryString: "__vegas_reference_result=text&__vegas_reference_mime=ICAL",
+        responseMode: "http-details",
+      },
+    },
+  },
+  {
+    name: "web-app-text-output-javascript-http-transport",
+    functionName: "doGet",
+    fixtureFile: "web-app-text-output-javascript-http-transport.json",
+    runtimeTest: "pending",
+    acquisition: {
+      kind: "web-app",
+      request: {
+        method: "GET",
+        queryString: "__vegas_reference_result=text&__vegas_reference_mime=JAVASCRIPT",
+        responseMode: "http-details",
+      },
+    },
+  },
+  {
+    name: "web-app-text-output-json-http-transport",
+    functionName: "doGet",
+    fixtureFile: "web-app-text-output-json-http-transport.json",
+    runtimeTest: "pending",
+    acquisition: {
+      kind: "web-app",
+      request: {
+        method: "GET",
+        queryString: "__vegas_reference_result=text&__vegas_reference_mime=JSON",
+        responseMode: "http-details",
+      },
+    },
+  },
+  {
+    name: "web-app-text-output-text-http-transport",
+    functionName: "doGet",
+    fixtureFile: "web-app-text-output-text-http-transport.json",
+    runtimeTest: "pending",
+    acquisition: {
+      kind: "web-app",
+      request: {
+        method: "GET",
+        queryString: "__vegas_reference_result=text&__vegas_reference_mime=TEXT",
+        responseMode: "http-details",
+      },
+    },
+  },
+  {
+    name: "web-app-text-output-vcard-http-transport",
+    functionName: "doGet",
+    fixtureFile: "web-app-text-output-vcard-http-transport.json",
+    runtimeTest: "pending",
+    acquisition: {
+      kind: "web-app",
+      request: {
+        method: "GET",
+        queryString: "__vegas_reference_result=text&__vegas_reference_mime=VCARD",
+        responseMode: "http-details",
+      },
+    },
+  },
+  {
+    name: "web-app-text-output-download-http-transport",
+    functionName: "doGet",
+    fixtureFile: "web-app-text-output-download-http-transport.json",
+    runtimeTest: "pending",
+    acquisition: {
+      kind: "web-app",
+      request: {
+        method: "GET",
+        queryString:
+          "__vegas_reference_result=text&__vegas_reference_mime=TEXT&__vegas_reference_file=reference.txt",
+        responseMode: "http-details",
+      },
+    },
+  },
 ];

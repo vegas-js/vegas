@@ -23,7 +23,8 @@ export interface ReferenceWebAppRequest {
   queryString?: string;
   headers?: Record<string, string>;
   body?: string;
-  responseMode?: "json" | "text";
+  responseMode?: "json" | "text" | "http" | "http-text" | "http-details";
+  authentication?: "oauth";
 }
 
 export interface ReferenceWebAppExecutor {
@@ -38,7 +39,6 @@ export interface ReferenceAcquirers {
 export interface ReferenceConfig {
   scriptId: string;
   deploymentId: string;
-  webAppUrl?: string;
 }
 
 export interface AccessTokenProvider {

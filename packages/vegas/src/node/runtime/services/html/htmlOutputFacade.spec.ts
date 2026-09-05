@@ -156,6 +156,20 @@ describe("createHtmlOutputFacadeFactory", () => {
     expect(metaTagsA[0]).toBe(metaTagsB[0]);
   });
 
+  test("resolves only HtmlOutput facades created by the factory", () => {
+    const implementation = createImplementation();
+
+    const factory = createHtmlOutputFacadeFactory();
+
+    const output = factory.create(implementation);
+
+    expect(factory.resolve(output)).toBe(implementation);
+
+    expect(factory.resolve({})).toBeUndefined();
+
+    expect(factory.resolve(null)).toBeUndefined();
+  });
+
   test("keeps X-Frame metadata internal to the HtmlOutput facade", () => {
     const implementation = createImplementation();
 

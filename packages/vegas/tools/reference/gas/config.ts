@@ -10,13 +10,7 @@ export function loadReferenceConfig(): ReferenceConfig {
     throw new Error("GAS_REFERENCE_SCRIPT_ID is required");
   }
 
-  const webAppUrl = process.env.GAS_REFERENCE_WEB_APP_URL;
-
-  return {
-    deploymentId,
-    scriptId,
-    ...(webAppUrl === undefined ? {} : { webAppUrl }),
-  };
+  return { deploymentId, scriptId };
 }
 
 export function loadOAuthConfig(): OAuthConfig {

@@ -1,0 +1,9 @@
+{
+  "body": "BEGIN:VCARD\r\nVERSION:3.0\r\nFN:Vegas Reference\r\nEND:VCARD\r\n",
+  "contentDisposition": null,
+  "contentType": "text/vcard; charset=utf-8",
+  "ok": true,
+  "redirected": true,
+  "status": 200,
+  "statusText": "OK"
+}

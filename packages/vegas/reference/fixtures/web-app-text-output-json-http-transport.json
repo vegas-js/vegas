@@ -1,0 +1,9 @@
+{
+  "body": "{\"vegas\":\"reference\"}",
+  "contentDisposition": null,
+  "contentType": "application/json; charset=utf-8",
+  "ok": true,
+  "redirected": true,
+  "status": 200,
+  "statusText": "OK"
+}

@@ -15,7 +15,7 @@ export interface HtmlOutputFacadeFactory {
     implementation: HtmlOutputImplementation,
     options?: CreateHtmlOutputFacadeOptions,
   ): GoogleAppsScript.HTML.HtmlOutput;
-
+  resolve(value: unknown): HtmlOutputImplementation | undefined;
   resolveXFrameOptionsMode(value: unknown): string | null | undefined;
 }
 
@@ -233,7 +233,7 @@ export function createHtmlOutputFacadeFactory(): HtmlOutputFacadeFactory {
 
   const resolveXFrameOptionsMode = (value: unknown): string | null | undefined => {
     if (value !== null && (typeof value === "object" || typeof value === "function")) {
-      const implementation = htmlOutputImplementations.get(value as object);
+      const implementation = resolve(value);
 
       if (implementation) {
         return implementation.getXFrameOptionsMode();
@@ -253,8 +253,17 @@ export function createHtmlOutputFacadeFactory(): HtmlOutputFacadeFactory {
     throw new TypeError("Expected an HtmlOutput value with runtime X-Frame metadata.");
   };
 
+  const resolve = (value: unknown): HtmlOutputImplementation | undefined => {
+    if (value === null || (typeof value !== "object" && typeof value !== "function")) {
+      return undefined;
+    }
+
+    return htmlOutputImplementations.get(value as object);
+  };
+
   return {
     create,
+    resolve,
     resolveXFrameOptionsMode,
   };
 }

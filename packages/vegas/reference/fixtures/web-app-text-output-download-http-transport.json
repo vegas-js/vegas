@@ -1,0 +1,9 @@
+{
+  "body": "vegas-reference-text",
+  "contentDisposition": "attachment; filename=\"reference.txt\"; filename*=UTF-8''reference.txt",
+  "contentType": "text/plain; charset=utf-8",
+  "ok": true,
+  "redirected": true,
+  "status": 200,
+  "statusText": "OK"
+}

@@ -1,3 +1,5 @@
+import vm from "node:vm";
+
 import { expect, test, vi } from "vitest";
 
 import { HtmlOutput } from "../services/html/HtmlOutput";
@@ -179,34 +181,62 @@ test("user code reaches the injected sink", () => {
   expect(value).toBe("from user script");
 });
 
-test("orchestrates a fresh script execution for each invocation", async () => {
+test("materializes invocation arguments after creating the target context", async () => {
   const code = `
-    let topLevelEvaluationCount = 0;
-    topLevelEvaluationCount += 1;
+      function inspectArgument(value) {
+        return {
+          marker: value.marker,
+          prototypeIsObjectPrototype:
+            Object.getPrototypeOf(value) ===
+            Object.prototype,
+          constructorIsObject:
+            value.constructor === Object,
+        };
+      }
+    `;
 
-    function observeExecution() {
-      return topLevelEvaluationCount;
-    }
-  `;
+  let createdContext: vm.Context | undefined;
 
-  const createExecutionContext = vi.fn(() => createContext());
+  const materializeArguments = vi.fn((context: vm.Context, args: readonly unknown[]) => {
+    expect(context).toBe(createdContext);
 
-  const first = await executeScriptInvocation({
-    code,
-    functionName: "observeExecution",
-    args: [],
-    createContext: () => createExecutionContext(),
+    expect(args).toEqual([
+      {
+        marker: "host",
+      },
+    ]);
+
+    return [
+      vm.runInContext(
+        `({
+              marker: "materialized"
+            })`,
+        context,
+      ),
+    ];
   });
 
-  const second = await executeScriptInvocation({
+  const result = await executeScriptInvocation({
     code,
-    functionName: "observeExecution",
-    args: [],
-    createContext: () => createExecutionContext(),
+    functionName: "inspectArgument",
+    args: [
+      {
+        marker: "host",
+      },
+    ],
+    createContext: () => {
+      createdContext = createContext();
+
+      return createdContext;
+    },
+    materializeArguments,
   });
 
-  expect(first.value).toBe(1);
-  expect(second.value).toBe(1);
+  expect(materializeArguments).toHaveBeenCalledOnce();
 
-  expect(createExecutionContext).toHaveBeenCalledTimes(2);
+  expect(result.value).toEqual({
+    marker: "materialized",
+    prototypeIsObjectPrototype: true,
+    constructorIsObject: true,
+  });
 });

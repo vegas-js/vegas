@@ -7,6 +7,7 @@ import { acquireReferenceResults, createReferenceMetadata } from "../core/fixtur
 import { readReferenceResult, readReferenceMetadata } from "../fixtures/store";
 import { createReferenceClient } from "../gas/client";
 import { loadOAuthConfig, loadReferenceConfig } from "../gas/config";
+import { ensureReferenceDeployment } from "../gas/deploymentRelease";
 import { createAccessTokenProvider } from "../gas/oauth";
 import {
   computeCaseRevision,
@@ -52,14 +53,24 @@ async function main(): Promise<void> {
   }
 
   const client = createReferenceClient(config, accessTokenProvider);
+
+  const requiresWebApp = referenceCases.some(
+    (referenceCase) => referenceCase.acquisition?.kind === "web-app",
+  );
+
+  const webAppUrl = requiresWebApp
+    ? await ensureReferenceDeployment(config, accessTokenProvider, caseRevision)
+    : undefined;
+
   const acquirers = {
     executionApi: client,
-    ...(config.webAppUrl === undefined
+    ...(webAppUrl === undefined
       ? {}
       : {
-          webApp: createWebAppReferenceClient(config.webAppUrl),
+          webApp: createWebAppReferenceClient(webAppUrl, accessTokenProvider),
         }),
   };
+
   const acquiredResults = await acquireReferenceResults(acquirers, referenceCases);
 
   for (const { referenceCase, result: actual } of acquiredResults) {

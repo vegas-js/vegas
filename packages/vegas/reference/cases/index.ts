@@ -83,3 +83,9 @@ export { captureReferencePropertiesServiceSurface } from "./propertiesServiceSur
 export { captureReferencePropertiesServiceSemantics } from "./propertiesServiceSemantics";
 export { captureReferencePropertiesObjectSurface } from "./propertiesObjectSurface";
 export { captureReferencePropertiesObjectSemantics } from "./propertiesObjectSemantics";
+export { doGet, doPost, doPostDataSurface } from "./webAppEvent";
+export {
+  captureReferenceContentServiceSurface,
+  captureReferenceTextOutputObjectSurface,
+  captureReferenceTextOutputSemantics,
+} from "./contentService";
