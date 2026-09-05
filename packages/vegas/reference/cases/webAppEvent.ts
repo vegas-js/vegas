@@ -18,6 +18,10 @@ const WEB_APP_MIME_PARAMETER = "__vegas_reference_mime";
 
 const WEB_APP_FILE_NAME_PARAMETER = "__vegas_reference_file";
 
+const WEB_APP_READINESS_PARAMETER = "__vegas_reference_readiness";
+
+const REFERENCE_READINESS_FUNCTION = "__vegasReferenceSourceRevision";
+
 type ReferenceTextMimeType = "CSV" | "ICAL" | "JAVASCRIPT" | "JSON" | "TEXT" | "VCARD";
 
 function createReferenceTextContent(mimeType: ReferenceTextMimeType | undefined): string {
@@ -252,6 +256,12 @@ function createWebAppEventObservation(event: unknown, argumentCount: number) {
 }
 
 export function doGet(event: unknown) {
+  const readiness = createReferenceReadinessValue(event);
+
+  if (readiness.handled) {
+    return readiness.value;
+  }
+
   const resultContract = createWebAppResultContractValue(event);
 
   if (resultContract.handled) {
@@ -516,6 +526,39 @@ function configureReferenceTextOutput(output: unknown, event: unknown): unknown 
   }
 
   return output;
+}
+
+function createReferenceReadinessValue(event: unknown):
+  | {
+      handled: false;
+    }
+  | {
+      handled: true;
+      value: unknown;
+    } {
+  if (getWebAppParameter(event, WEB_APP_READINESS_PARAMETER) !== "1") {
+    return {
+      handled: false,
+    };
+  }
+
+  const provider = (globalThis as unknown as Record<string, unknown>)[REFERENCE_READINESS_FUNCTION];
+
+  if (typeof provider !== "function") {
+    throw new Error("Reference readiness revision provider is unavailable");
+  }
+
+  const revision = Reflect.apply(provider, globalThis, []);
+
+  if (typeof revision !== "string") {
+    throw new Error("Reference readiness revision provider must return a string");
+  }
+
+  return {
+    handled: true,
+
+    value: createReferenceTextOutput(revision),
+  };
 }
 
 export function doPost(event: unknown) {

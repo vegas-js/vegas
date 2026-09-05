@@ -11,6 +11,59 @@ export interface ReferenceProjectFile {
   source: string;
 }
 
+const REFERENCE_READINESS_FUNCTION = "__vegasReferenceSourceRevision";
+
+function assertCaseRevision(value: string): void {
+  if (!/^[0-9a-f]{64}$/u.test(value)) {
+    throw new Error("Reference case revision must be a lowercase SHA-256 hex digest");
+  }
+}
+
+export function injectReferenceReadinessRevision(
+  files: readonly ReferenceProjectFile[],
+  caseRevision: string,
+): ReferenceProjectFile[] {
+  assertCaseRevision(caseRevision);
+
+  let injected = false;
+
+  const result = files.map((file) => {
+    if (file.name !== "Code" || file.type !== "SERVER_JS") {
+      return {
+        ...file,
+      };
+    }
+
+    if (injected) {
+      throw new Error("Reference project contains multiple Code SERVER_JS files");
+    }
+
+    injected = true;
+
+    return {
+      ...file,
+
+      source: [
+        file.source,
+
+        "/* Reference deployment readiness marker. */",
+
+        `function ${REFERENCE_READINESS_FUNCTION}() {`,
+
+        `  return ${JSON.stringify(caseRevision)};`,
+
+        "}",
+      ].join("\n\n"),
+    };
+  });
+
+  if (!injected) {
+    throw new Error("Reference project did not contain the Code SERVER_JS file");
+  }
+
+  return result;
+}
+
 export async function loadReferenceProjectFiles(
   referenceDir: string,
 ): Promise<ReferenceProjectFile[]> {

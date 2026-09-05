@@ -6,10 +6,12 @@ import { acquireReferenceResults, createReferenceMetadata } from "../core/fixtur
 import { writeReferenceResult, writeReferenceMetadata } from "../fixtures/store";
 import { createReferenceClient } from "../gas/client";
 import { loadOAuthConfig, loadReferenceConfig } from "../gas/config";
+import { waitForReferenceDeploymentReadiness } from "../gas/deploymentReadiness";
 import { ensureReferenceDeployment } from "../gas/deploymentRelease";
 import { createAccessTokenProvider } from "../gas/oauth";
 import {
   computeCaseRevision,
+  injectReferenceReadinessRevision,
   loadReferenceProjectFiles,
   updateReferenceProject,
 } from "../gas/project";
@@ -48,9 +50,10 @@ const accessTokenProvider = createAccessTokenProvider(oauthConfig);
 const files = await loadReferenceProjectFiles(referenceDir);
 
 const caseRevision = computeCaseRevision(files);
+const deploymentFiles = injectReferenceReadinessRevision(files, caseRevision);
 const metadata = createReferenceMetadata(caseRevision);
 
-await updateReferenceProject(config, accessTokenProvider, files);
+await updateReferenceProject(config, accessTokenProvider, deploymentFiles);
 const client = createReferenceClient(config, accessTokenProvider);
 
 const requiresWebApp = selectedReferenceCases.some(
@@ -61,12 +64,20 @@ const webAppUrl = requiresWebApp
   ? await ensureReferenceDeployment(config, accessTokenProvider, caseRevision)
   : undefined;
 
+const webApp =
+  webAppUrl === undefined ? undefined : createWebAppReferenceClient(webAppUrl, accessTokenProvider);
+
+if (webApp !== undefined) {
+  await waitForReferenceDeploymentReadiness(webApp, caseRevision);
+}
+
 const acquirers = {
   executionApi: client,
-  ...(webAppUrl === undefined
+
+  ...(webApp === undefined
     ? {}
     : {
-        webApp: createWebAppReferenceClient(webAppUrl, accessTokenProvider),
+        webApp,
       }),
 };
 

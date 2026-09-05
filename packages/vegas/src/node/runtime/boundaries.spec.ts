@@ -16,10 +16,11 @@ const WORKER_RUNTIME_IMPORT_ALLOWLIST: Readonly<Record<string, readonly string[]
   "worker/index": [
     "runtime/environment",
     "runtime/execution",
-    "runtime/execution/legacyWebAppResultProjection",
     "runtime/legacy/transport",
     "runtime/logging",
+    "runtime/triggers",
   ],
+  "worker/protocol": ["runtime/triggers"],
   "worker/runtimeTransport": ["runtime/errorCodec", "runtime/protocol"],
 };
 

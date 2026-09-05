@@ -1,6 +1,7 @@
 import { HTML } from ".";
+import type { WebAppHtmlResult } from "../../runtime/triggers/webAppResult";
 
-export function createHostHtml(url: URL, result: any) {
+export function createHostHtml(url: URL, result: WebAppHtmlResult) {
   const html = new HTML();
 
   if (result.metaTags.length > 0) {

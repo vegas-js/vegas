@@ -7,6 +7,9 @@ import { serializeRuntimeError } from "../../runtime/errorCodec";
 import { createRuntimeServiceRegistry } from "../../runtime/host/registry";
 import type { Clock, Fetcher, HtmlResourceResolver } from "../../runtime/host/services";
 import type { RuntimeRequest, RuntimeServiceRegistry } from "../../runtime/protocol";
+import type { WebAppTriggerRequest } from "../../runtime/triggers/webApp";
+import type { WebAppResult } from "../../runtime/triggers/webAppResult";
+import type { WorkerExecutionRequest } from "../../worker/protocol";
 import { ServeContext } from "./context";
 import { SheetHandler } from "./handlers";
 
@@ -79,16 +82,10 @@ const fetcher: Fetcher = {
   },
 };
 
-interface LaunchGASOptions {
-  resultProjection?: "legacy-web-app";
-}
-
-export function launchGAS(
+function launchRuntimeWorker(
   context: ServeContext,
-  fn: string,
-  args: readonly unknown[],
-  options: LaunchGASOptions = {},
-): Promise<any> {
+  execution: WorkerExecutionRequest,
+): Promise<unknown> {
   const sourcePath = path.join(context.config.output.dir, "Code.js");
   const code = context.vfs.readFileSync(sourcePath, "utf8");
   const htmlResourceResolver: HtmlResourceResolver = {
@@ -157,10 +154,28 @@ export function launchGAS(
         reject(err);
       }
     });
-    port1.postMessage({
-      fn,
-      args,
-      resultProjection: options.resultProjection,
-    });
+    port1.postMessage(execution);
   });
+}
+
+export function launchGAS(
+  context: ServeContext,
+  fn: string,
+  args: readonly unknown[],
+): Promise<any> {
+  return launchRuntimeWorker(context, {
+    kind: "function",
+    functionName: fn,
+    args,
+  });
+}
+
+export function launchWebApp(
+  context: ServeContext,
+  request: WebAppTriggerRequest,
+): Promise<WebAppResult> {
+  return launchRuntimeWorker(context, {
+    kind: "web-app",
+    request,
+  }) as Promise<WebAppResult>;
 }

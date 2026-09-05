@@ -1054,4 +1054,85 @@ export const referenceCases: readonly ReferenceCaseDefinition[] = [
       },
     },
   },
+  {
+    name: "web-app-do-get-reserved-parameter-c-http-outcome",
+    functionName: "doGet",
+    fixtureFile: "web-app-do-get-reserved-parameter-c-http-outcome.json",
+    runtimeTest: "pending",
+    acquisition: {
+      kind: "web-app",
+      request: {
+        method: "GET",
+        queryString: "c=reserved",
+        responseMode: "http",
+      },
+    },
+  },
+  {
+    name: "web-app-do-get-reserved-parameter-sid-http-outcome",
+    functionName: "doGet",
+    fixtureFile: "web-app-do-get-reserved-parameter-sid-http-outcome.json",
+    runtimeTest: "pending",
+    acquisition: {
+      kind: "web-app",
+      request: {
+        method: "GET",
+        queryString: "sid=reserved",
+        responseMode: "http",
+      },
+    },
+  },
+  {
+    name: "web-app-do-post-query-reserved-parameter-c-http-outcome",
+    functionName: "doPost",
+    fixtureFile: "web-app-do-post-query-reserved-parameter-c-http-outcome.json",
+    runtimeTest: "pending",
+    acquisition: {
+      kind: "web-app",
+      request: {
+        method: "POST",
+        queryString: "c=reserved",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: "a=1",
+        responseMode: "http",
+      },
+    },
+  },
+  {
+    name: "web-app-do-post-query-reserved-parameter-sid-http-outcome",
+    functionName: "doPost",
+    fixtureFile: "web-app-do-post-query-reserved-parameter-sid-http-outcome.json",
+    runtimeTest: "pending",
+    acquisition: {
+      kind: "web-app",
+      request: {
+        method: "POST",
+        queryString: "sid=reserved",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: "a=1",
+        responseMode: "http",
+      },
+    },
+  },
+  {
+    name: "web-app-do-post-reserved-parameter-sid-http-outcome",
+    functionName: "doPost",
+    fixtureFile: "web-app-do-post-reserved-parameter-sid-http-outcome.json",
+    runtimeTest: "pending",
+    acquisition: {
+      kind: "web-app",
+      request: {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: "sid=reserved",
+        responseMode: "http",
+      },
+    },
+  },
 ];
