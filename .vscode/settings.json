@@ -7,7 +7,7 @@
   "editor.tabSize": 2,
   "explorer.fileNesting.enabled": true,
   "explorer.fileNesting.patterns": {
-    "*.ts": "${capture}.test.ts",
+    "*.ts": "${capture}.test.ts, ${capture}.spec.ts",
     "package.json": "pnpm-*, .oxfmt*, .oxlint*"
   },
   "oxc.configPath": "oxlint.config.ts",
