@@ -1,5 +1,5 @@
 import { HTML } from ".";
-import type { WebAppHtmlResult } from "../../runtime/triggers/webAppResult";
+import type { WebAppHtmlResult } from "../../runtime/triggers";
 
 export function createHostHtml(url: URL, result: WebAppHtmlResult) {
   const html = new HTML();

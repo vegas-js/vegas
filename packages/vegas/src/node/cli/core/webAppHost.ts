@@ -1,8 +1,11 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
 
-import type { WebAppTriggerRequest } from "../../runtime/triggers/webApp";
-import { getWebAppTriggerRequestRejection } from "../../runtime/triggers/webAppAdmission";
-import type { WebAppHtmlResult, WebAppResult } from "../../runtime/triggers/webAppResult";
+import {
+  getWebAppTriggerRequestRejection,
+  type WebAppHtmlResult,
+  type WebAppResult,
+  type WebAppTriggerRequest,
+} from "../../runtime/triggers";
 import {
   createUnsupportedWebAppResultHtml,
   projectRejectedWebAppRequestHttpResponse,

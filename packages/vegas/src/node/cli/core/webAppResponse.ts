@@ -1,4 +1,4 @@
-import type { WebAppTextMimeType, WebAppTextResult } from "../../runtime/triggers/webAppResult";
+import type { WebAppTextMimeType, WebAppTextResult } from "../../runtime/triggers";
 
 const CONTENT_TYPES = {
   CSV: "text/csv; charset=utf-8",

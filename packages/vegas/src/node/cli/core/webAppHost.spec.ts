@@ -2,8 +2,7 @@ import type { IncomingMessage, ServerResponse } from "node:http";
 
 import { describe, expect, test, vi } from "vitest";
 
-import type { WebAppTriggerRequest } from "../../runtime/triggers/webApp";
-import type { WebAppResult } from "../../runtime/triggers/webAppResult";
+import type { WebAppResult, WebAppTriggerRequest } from "../../runtime/triggers";
 import { handleWebAppHttpRequest } from "./webAppHost";
 
 interface RecordedResponse {

@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import type { WebAppTextMimeType } from "../../runtime/triggers/webAppResult";
+import type { WebAppTextMimeType } from "../../runtime/triggers";
 import {
   createUnsupportedWebAppResultHtml,
   projectRejectedWebAppRequestHttpResponse,

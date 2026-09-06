@@ -10,6 +10,7 @@ const PACKAGE_ROOT = resolve(NODE_SOURCE_ROOT, "../..");
 const RUNTIME_ROOT = join(NODE_SOURCE_ROOT, "runtime");
 const WORKER_ROOT = join(NODE_SOURCE_ROOT, "worker");
 const CLI_ROOT = join(NODE_SOURCE_ROOT, "cli");
+const RUNTIME_TRIGGERS_ROOT = join(RUNTIME_ROOT, "triggers");
 const REFERENCE_EXECUTOR = join(PACKAGE_ROOT, "tools/reference/vegas/executor.ts");
 
 const WORKER_RUNTIME_IMPORT_ALLOWLIST: Readonly<Record<string, readonly string[]>> = {
@@ -163,4 +164,20 @@ test("reference executor uses canonical script execution orchestration", () => {
   expect(importedRuntimeModules).not.toContain("runtime/execution/invocation");
 
   expect(importedRuntimeModules).not.toContain("runtime/execution/scriptRuntime");
+});
+
+test("cli accesses trigger runtime only through the trigger adapter boundary", () => {
+  const cliFiles = listProductionTypeScriptFiles(CLI_ROOT);
+
+  const violations = findRelativeImports(cliFiles)
+    .filter(({ target }) => isWithin(target, RUNTIME_TRIGGERS_ROOT))
+    .flatMap(({ importer, specifier, target }) => {
+      if (toNodeRelativeModulePath(target) === "runtime/triggers") {
+        return [];
+      }
+
+      return [`${toNodeRelativeModulePath(importer)} -> ${specifier}`];
+    });
+
+  expect(violations).toEqual([]);
 });
