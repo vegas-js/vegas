@@ -16,7 +16,7 @@ function referenceExportBridge(): TsdownPlugin {
 }
 
 export async function bundleReferenceCases(referenceDir: string): Promise<string> {
-  const bundles = await build({
+  const result = await build({
     entry: [path.join(referenceDir, "cases/index.ts")],
     format: "iife",
     write: false,
@@ -29,6 +29,7 @@ export async function bundleReferenceCases(referenceDir: string): Promise<string
     },
     plugins: [referenceExportBridge()],
   });
+  const bundles = result.bundles;
   if (bundles.length !== 1) {
     throw new Error("Bundle is multiple files");
   }
