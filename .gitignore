@@ -3,3 +3,4 @@ cache/
 dist/
 
 !/packages/vegas/src/**
+!/packages/vegas/reference/**

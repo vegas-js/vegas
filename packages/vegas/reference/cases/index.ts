@@ -6,86 +6,86 @@ export {
   captureReferenceBuiltinGlobalSurface,
 } from "./globalSurface";
 export { captureReferenceGlobalObjectSurface } from "./globalObjectSurface";
-export { captureReferenceMimeTypeSurface } from "./mimeTypeSurface";
+export {
+  captureReferenceContentServiceSurface,
+  captureReferenceMimeTypeSurface,
+  captureReferenceTextOutputObjectSurface,
+  captureReferenceTextOutputSemantics,
+} from "./content";
 export { captureReferenceSmoke } from "./smoke";
-export { captureReferenceCacheServiceSurface } from "./cacheServiceSurface";
-export { captureReferenceCacheObjectSurface } from "./cacheObjectSurface";
-export { captureReferenceCacheObjectIdentity } from "./cacheObjectIdentity";
-export { captureReferenceCacheObjectSemantics } from "./cacheObjectSemantics";
-export { captureReferenceLockServiceSurface } from "./lockServiceSurface";
-export { captureReferenceLockObjectSurface } from "./lockObjectSurface";
-export { captureReferenceLockObjectIdentity } from "./lockObjectIdentity";
-export { captureReferenceLockSemantics } from "./lockSemantics";
-export { captureReferenceHtmlServiceSurface } from "./htmlServiceSurface";
-export { captureReferenceHtmlOutputObjectSurface } from "./htmlOutputObjectSurface";
-export { captureReferenceHtmlOutputMetaTagObjectSurface } from "./htmlOutputMetaTagObjectSurface";
-export { captureReferenceHtmlOutputObjectIdentity } from "./htmlOutputObjectIdentity";
-export { captureReferenceHtmlTemplateObjectSurface } from "./htmlTemplateObjectSurface";
-export { captureReferenceHtmlTemplateObjectBinding } from "./htmlTemplateObjectBinding";
-export { captureReferenceHtmlTemplateObjectIdentity } from "./htmlTemplateObjectIdentity";
 export {
+  captureReferenceBlobObjectIdentity,
+  captureReferenceBlobObjectSurface,
+  captureReferenceConsoleSemantics,
+  captureReferenceConsoleSurface,
+  captureReferenceLoggerSemantics,
+  captureReferenceLoggerSurface,
+  captureReferenceSessionDeprecatedSemantics,
+  captureReferenceSessionServiceSurface,
+  captureReferenceUserObjectIdentity,
+  captureReferenceUserObjectSurface,
+} from "./base";
+export {
+  captureReferenceCacheObjectIdentity,
+  captureReferenceCacheObjectSemantics,
+  captureReferenceCacheObjectSurface,
+  captureReferenceCacheServiceSurface,
+} from "./cache";
+export {
+  captureReferenceLockObjectIdentity,
+  captureReferenceLockObjectSurface,
+  captureReferenceLockSemantics,
+  captureReferenceLockServiceSurface,
+} from "./lock";
+export {
+  captureReferenceHtmlOutputMetaTagObjectSurface,
+  captureReferenceHtmlOutputObjectIdentity,
+  captureReferenceHtmlOutputObjectSurface,
   captureReferenceHtmlOutputSemantics,
+  captureReferenceHtmlServiceSurface,
   captureReferenceHtmlTemplateEvaluationSemantics,
-} from "./htmlSemantics";
-export { captureReferenceHttpResponseObjectSurface } from "./httpResponseObjectSurface";
-export { captureReferenceHttpResponseObjectIdentity } from "./httpResponseObjectIdentity";
-export { captureReferenceUrlFetchAppSurface } from "./urlFetchAppSurface";
+  captureReferenceHtmlTemplateObjectBinding,
+  captureReferenceHtmlTemplateObjectIdentity,
+  captureReferenceHtmlTemplateObjectSurface,
+  captureReferenceHttpResponseObjectIdentity,
+  captureReferenceHttpResponseObjectSurface,
+} from "./html";
 export {
+  captureReferenceHttpResponseSemantics,
+  captureReferenceUrlFetchAppSurface,
   captureReferenceUrlFetchGetRequestSemantics,
   captureReferenceUrlFetchTransportSemantics,
-  captureReferenceHttpResponseSemantics,
-} from "./urlFetchSemantics";
-export { captureReferenceUtilitiesSurface } from "./utilitiesSurface";
+} from "./url-fetch";
 export {
   captureReferenceBlobSemantics,
   captureReferenceUtilitiesByteSemantics,
   captureReferenceUtilitiesCompressionSemantics,
-} from "./utilitiesBlobSemantics";
-export {
-  captureReferenceUtilitiesParseCsvSemantics,
+  captureReferenceUtilitiesCryptoSemantics,
   captureReferenceUtilitiesFormatDateSemantics,
+  captureReferenceUtilitiesParseCsvSemantics,
   captureReferenceUtilitiesRuntimeSemantics,
-} from "./utilitiesMiscSemantics";
-export { captureReferenceUtilitiesCryptoSemantics } from "./utilitiesCryptoSemantics";
-export { captureReferenceBlobObjectSurface } from "./blobObjectSurface";
-export { captureReferenceBlobObjectIdentity } from "./blobObjectIdentity";
-export { captureReferenceSpreadsheetAppSurface } from "./spreadsheetAppSurface";
-export { captureReferenceSpreadsheetObjectGraph } from "./spreadsheetObjectGraph";
+  captureReferenceUtilitiesSurface,
+} from "./utilities";
 export {
-  captureReferenceSpreadsheetCreateSemantics,
-  captureReferenceSpreadsheetGetSheetByIdSemantics,
-  captureReferenceSheetGetRangeSemantics,
-  captureReferenceSheetNamedRangeSemantics,
-  captureReferenceSpreadsheetOpenSemantics,
-} from "./spreadsheetSemantics";
-export {
-  captureReferenceRangeValueSemantics,
-  captureReferenceRangeSetValuesValidationSemantics,
   captureReferenceRangeGetCellSemantics,
-} from "./rangeSemantics";
-export {
-  captureReferenceSheetQuerySemantics,
+  captureReferenceRangeSetValuesValidationSemantics,
+  captureReferenceRangeValueSemantics,
   captureReferenceSheetClearContentsSemantics,
   captureReferenceSheetDeleteSemantics,
-} from "./sheetSemantics";
-export { captureReferenceDriveAppSurface } from "./driveAppSurface";
-export { captureReferenceLoggerSurface } from "./loggerSurface";
-export { captureReferenceConsoleSurface } from "./consoleSurface";
+  captureReferenceSheetGetRangeSemantics,
+  captureReferenceSheetNamedRangeSemantics,
+  captureReferenceSheetQuerySemantics,
+  captureReferenceSpreadsheetAppSurface,
+  captureReferenceSpreadsheetCreateSemantics,
+  captureReferenceSpreadsheetGetSheetByIdSemantics,
+  captureReferenceSpreadsheetObjectGraph,
+  captureReferenceSpreadsheetOpenSemantics,
+} from "./spreadsheet";
+export { captureReferenceDriveAppSurface } from "./drive";
 export {
-  captureReferenceLoggerSemantics,
-  captureReferenceConsoleSemantics,
-} from "./loggerConsoleSemantics";
-export { captureReferenceSessionServiceSurface } from "./sessionServiceSurface";
-export { captureReferenceSessionDeprecatedSemantics } from "./sessionDeprecatedSemantics";
-export { captureReferenceUserObjectSurface } from "./userObjectSurface";
-export { captureReferenceUserObjectIdentity } from "./userObjectIdentity";
-export { captureReferencePropertiesServiceSurface } from "./propertiesServiceSurface";
-export { captureReferencePropertiesServiceSemantics } from "./propertiesServiceSemantics";
-export { captureReferencePropertiesObjectSurface } from "./propertiesObjectSurface";
-export { captureReferencePropertiesObjectSemantics } from "./propertiesObjectSemantics";
+  captureReferencePropertiesObjectSemantics,
+  captureReferencePropertiesObjectSurface,
+  captureReferencePropertiesServiceSemantics,
+  captureReferencePropertiesServiceSurface,
+} from "./properties";
 export { doGet, doPost, doPostDataSurface } from "./webAppEvent";
-export {
-  captureReferenceContentServiceSurface,
-  captureReferenceTextOutputObjectSurface,
-  captureReferenceTextOutputSemantics,
-} from "./contentService";

@@ -1,4 +1,4 @@
-import { describeReferenceBlobSurface } from "./blobObjectSurface";
+import { describeReferenceBlobSurface } from "./base/blobObjectSurface";
 
 const POST_DATA_SURFACE_PATH_INFO = "__vegas_reference/post-data-surface";
 
