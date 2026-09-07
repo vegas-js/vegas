@@ -1,4 +1,3 @@
-// oxlint-disable no-wrapper-object-types
 import { isGasServiceObject } from "../../globals/serviceObject";
 import { GASAPI } from "../../legacy/GASAPI";
 import type { RuntimeLogSink } from "../../logging";
@@ -100,8 +99,11 @@ export class Logger extends GASAPI implements GoogleAppsScript.Base.Logger {
 
     return `${this.outputLogs.map((log) => `${log.prefix}: ${log.value}`).join("\n")}\n`;
   }
+  // Keep GAS-compatible wrapper-object overloads until Runtime contracts are decoupled.
+  // oxlint-disable-next-line no-wrapper-object-types
   log(data: Object): Logger;
   log(data: any): Logger;
+  // oxlint-disable-next-line no-wrapper-object-types
   log(format: string, ...values: Object[]): Logger;
   log(format: any, ...values: any[]): Logger;
   log(dataOrFormat: unknown, ...values: unknown[]): Logger {

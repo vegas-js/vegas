@@ -30,6 +30,8 @@ test("parses statement blocks containing semicolons", () => {
   const generated = template.getCode();
 
   expect(() => {
+    // Intentionally compile generated template code to verify its JavaScript syntax.
+    // oxlint-disable-next-line typescript/no-implied-eval
     new Function("HtmlService", "items", `return ${generated};`);
   }).not.toThrow();
 

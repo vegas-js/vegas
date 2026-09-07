@@ -1,4 +1,3 @@
-// oxlint-disable no-wrapper-object-types
 import util from "node:util";
 
 import { GASAPI } from "../../legacy/GASAPI";
@@ -161,6 +160,7 @@ export class Console extends GASAPI {
   }
 
   error(): void;
+  // oxlint-disable-next-line no-wrapper-object-types
   error(formatOrObject: Object, ...values: Object[]): void;
   error(formatOrObject: any, ...values: any[]): void;
   error(...data: unknown[]): void {
@@ -168,6 +168,7 @@ export class Console extends GASAPI {
     this.#output("error", logPrefix, ...data);
   }
   info(): void;
+  // oxlint-disable-next-line no-wrapper-object-types
   info(formatOrObject: Object, ...values: Object[]): void;
   info(formatOrObject: any, ...values: any[]): void;
   info(...data: unknown[]): void {
@@ -175,6 +176,7 @@ export class Console extends GASAPI {
     this.#output("info", logPrefix, ...data);
   }
   log(): void;
+  // oxlint-disable-next-line no-wrapper-object-types
   log(formatOrObject: Object, ...values: Object[]): void;
   log(formatOrObject: any, ...values: any[]): void;
   log(...data: unknown[]): void {
@@ -218,6 +220,7 @@ export class Console extends GASAPI {
     return null;
   }
   warn(): void;
+  // oxlint-disable-next-line no-wrapper-object-types
   warn(formatOrObject: Object, ...values: Object[]): void;
   warn(formatOrObject: any, ...values: any[]): void;
   warn(...data: unknown[]): void {
