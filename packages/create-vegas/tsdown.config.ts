@@ -2,8 +2,8 @@ import path from "node:path";
 
 import { defineConfig } from "tsdown";
 
-import rolldownLicensePlugin from "../vegas/rolldownLicensePlugin";
-import pkg from "./package.json";
+import rolldownLicensePlugin from "../vegas/rolldownLicensePlugin.ts";
+import pkg from "./package.json" with { type: "json" };
 
 export default defineConfig({
   entry: { "create-vegas": "./src" },

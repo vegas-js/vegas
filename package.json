@@ -18,7 +18,7 @@
     "reference:test": "vitest run packages/vegas/tools/reference/vegas/runtime.spec.ts",
     "test": "vitest run",
     "coverage": "vitest run --coverage",
-    "build": "tsdown --config-loader unrun --workspace",
+    "build": "tsdown --config-loader native --workspace",
     "docs:dev": "pnpm --filter ./docs dev",
     "docs:build": "pnpm --filter ./docs build",
     "docs:preview": "pnpm --filter ./docs preview"
@@ -31,7 +31,6 @@
     "oxlint-tsgolint": "^7.0.2001",
     "tsdown": "^0.23.0",
     "tsx": "^4.23.13",
-    "unrun": "^0.3.1",
     "vitest": "^5.0.0"
   },
   "engines": {

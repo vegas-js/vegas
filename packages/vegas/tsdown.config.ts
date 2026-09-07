@@ -2,8 +2,8 @@ import path from "node:path";
 
 import { defineConfig } from "tsdown";
 
-import pkg from "./package.json";
-import rolldownLicensePlugin from "./rolldownLicensePlugin";
+import pkg from "./package.json" with { type: "json" };
+import rolldownLicensePlugin from "./rolldownLicensePlugin.ts";
 
 export default defineConfig([
   {

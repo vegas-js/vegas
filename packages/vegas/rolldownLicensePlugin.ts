@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 
-import { Rolldown } from "tsdown";
+import type { Rolldown } from "tsdown";
 
 export default function rolldownLicensePlugin(
   root: string,
