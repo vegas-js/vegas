@@ -28,7 +28,7 @@ test("the temp directory path is generated.", () => {
 });
 
 test("the temp directory path is generated if `node_modules` is not exists.", () => {
-  fs.rmSync("node_modules", { recursive: true, force: true });
+  fs.rmSync(path.join(process.cwd(), "node_modules"), { recursive: true, force: true });
 
   const name = "test";
   using tempDir = new DisposableTempDir(name);
