@@ -1,0 +1,29 @@
+{
+  "name": "@vegasjs/vegas-monorepo",
+  "private": true,
+  "homepage": "https://vegasjs.dev",
+  "license": "MIT",
+  "author": "Yasushi",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vegas-js/vegas.git"
+  },
+  "type": "module",
+  "scripts": {
+    "build": "tsdown --workspace --target node22.12 --fail-on-warn",
+    "fmt": "oxfmt",
+    "lint": "oxlint",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "oxfmt": "^0.67.0",
+    "oxlint": "^1.82.0",
+    "oxlint-tsgolint": "^7.0.2001",
+    "tsdown": "^0.23.0",
+    "vitest": "^5.0.0"
+  },
+  "engines": {
+    "node": "^26.4.0"
+  },
+  "packageManager": "pnpm@12.3.4"
+}

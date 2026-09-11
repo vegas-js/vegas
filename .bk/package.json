@@ -1,19 +1,6 @@
 {
-  "name": "@vegasjs/vegas-monorepo",
-  "private": true,
-  "homepage": "https://vegasjs.dev",
-  "license": "MIT",
-  "author": "Yasushi",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/vegas-js/vegas.git"
-  },
-  "type": "module",
   "scripts": {
     "preinstall": "npx only-allow pnpm",
-    "lint": "oxlint",
-    "format": "oxfmt",
-    "test": "vitest run",
     "coverage": "vitest run --coverage",
     "build": "tsdown --config-loader native --workspace",
     "docs:dev": "pnpm --filter ./docs dev",
@@ -23,14 +10,6 @@
   "devDependencies": {
     "@vegasjs/vegas": "workspace:*",
     "@vitest/coverage-v8": "^5.0.0",
-    "oxfmt": "^0.66.0",
-    "oxlint": "^1.81.0",
-    "oxlint-tsgolint": "^7.0.2001",
-    "tsdown": "^0.23.0",
     "vitest": "^5.0.0"
-  },
-  "engines": {
-    "node": ">=22.18.0"
-  },
-  "packageManager": "pnpm@12.3.4"
+  }
 }

@@ -1,0 +1,38 @@
+{
+  "name": "create-vegas",
+  "version": "0.1.8",
+  "description": "Scaffolding tool for Vegas projects",
+  "keywords": [
+    "create",
+    "google-apps-script",
+    "scaffolding",
+    "vegas"
+  ],
+  "homepage": "https://vegasjs.dev",
+  "bugs": {
+    "url": "https://github.com/vegas-js/vegas/issues"
+  },
+  "license": "MIT",
+  "author": "Yasushi",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vegas-js/vegas.git",
+    "directory": "packages/create-vegas"
+  },
+  "bin": {
+    "create-vegas": "dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "publishConfig": {
+    "provenance": true
+  },
+  "devDependencies": {
+    "@types/node": "^22.12.0"
+  },
+  "engines": {
+    "node": ">=22.12.0"
+  }
+}

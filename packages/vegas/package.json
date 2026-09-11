@@ -1,0 +1,45 @@
+{
+  "name": "@vegasjs/vegas",
+  "version": "0.1.9",
+  "description": "The SPA build tool for GAS platform",
+  "keywords": [
+    "build-tool",
+    "dev-server",
+    "framework",
+    "frontend",
+    "google-apps-script",
+    "vegas"
+  ],
+  "homepage": "https://vegasjs.dev",
+  "bugs": {
+    "url": "https://github.com/vegas-js/vegas/issues"
+  },
+  "license": "MIT",
+  "author": "Yasushi",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vegas-js/vegas.git",
+    "directory": "packages/vegas"
+  },
+  "bin": {
+    "vegas": "dist/cli.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "devDependencies": {
+    "@types/node": "^22.12.0",
+    "vite": "^8.0.0"
+  },
+  "peerDependencies": {
+    "vite": "^8.0.0"
+  },
+  "engines": {
+    "node": ">=22.12.0"
+  }
+}
