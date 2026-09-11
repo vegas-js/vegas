@@ -28,6 +28,11 @@
     "dist"
   ],
   "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts"
+    }
+  },
   "publishConfig": {
     "access": "public",
     "provenance": true

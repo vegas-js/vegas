@@ -10,15 +10,18 @@
   },
   "type": "module",
   "scripts": {
-    "build": "tsdown --workspace --target node22.12 --fail-on-warn",
+    "build": "tsdown --workspace --target node22.12 --publint --fail-on-warn",
     "fmt": "oxfmt",
     "lint": "oxlint",
-    "test": "vitest run"
+    "test": "vitest run",
+    "check": "pnpm build && pnpm lint && pnpm test"
   },
   "devDependencies": {
+    "@arethetypeswrong/core": "^0.18.5",
     "oxfmt": "^0.67.0",
     "oxlint": "^1.82.0",
     "oxlint-tsgolint": "^7.0.2001",
+    "publint": "^0.3.24",
     "tsdown": "^0.23.0",
     "vitest": "^5.0.0"
   },
