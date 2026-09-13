@@ -2,8 +2,6 @@ packages:
   - packages/*
   - docs
 
-ignoredBuiltDependencies:
-  - esbuild
 minimumReleaseAgeExclude:
   - '@jsonjoy.com/fs-core@4.76.0'
   - '@jsonjoy.com/fs-fsa@4.76.0'
@@ -14,5 +12,6 @@ minimumReleaseAgeExclude:
   - '@jsonjoy.com/fs-print@4.76.0'
   - '@jsonjoy.com/fs-snapshot@4.76.0'
   - memfs@4.76.0
+
 patchedDependencies:
   "@platformatic/vfs": patches/@platformatic__vfs.patch
