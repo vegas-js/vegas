@@ -15,18 +15,20 @@
     "lint": "oxlint",
     "test": "vitest run",
     "coverage": "vitest run --coverage",
-    "build": "tsdown --config-loader native --workspace",
+    "build": "tsdown --config-loader native --workspace --publint",
     "check": "pnpm lint && pnpm test && pnpm build",
     "docs:dev": "pnpm --filter ./docs dev",
     "docs:build": "pnpm --filter ./docs build",
     "docs:preview": "pnpm --filter ./docs preview"
   },
   "devDependencies": {
+    "@arethetypeswrong/core": "^0.18.5",
     "@vegasjs/vegas": "workspace:*",
     "@vitest/coverage-v8": "^5.0.0",
     "oxfmt": "^0.67.0",
     "oxlint": "^1.82.0",
     "oxlint-tsgolint": "^7.0.2001",
+    "publint": "^0.3.24",
     "tsdown": "^0.23.0",
     "vitest": "^5.0.0"
   },

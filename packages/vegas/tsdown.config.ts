@@ -12,20 +12,16 @@ export default defineConfig([
     deps: {
       onlyBundle: ["@platformatic/vfs", "cac", "entities", "parse5"],
     },
-    outputOptions: {
-      entryFileNames: "[name].js",
-      chunkFileNames: "chunks/[name].js",
-    },
+    fixedExtension: false,
     dts: false,
     plugins: [rolldownLicensePlugin(import.meta.dirname)],
   },
   {
     entry: "./src/lib",
-    outputOptions: {
-      entryFileNames: (chunk) => `${chunk.name.replace(/^index(\.d)?$/, "lib$1")}.js`,
-    },
+    fixedExtension: false,
     dts: {
       compilerOptions: { isolatedDeclarations: true },
     },
+    attw: true,
   },
 ]);
