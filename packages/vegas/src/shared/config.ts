@@ -2,7 +2,7 @@ import { PluginOption } from "vite";
 
 export type BaseConfig = {
   /**
-   * Project root directory. Can be an absolute path, or a path relative from the location of the config file itself.
+   * Project root directory. Can be an absolute path, or a path relative to the current working directory.
    * @default process.cwd()
    */
   root?: string;
