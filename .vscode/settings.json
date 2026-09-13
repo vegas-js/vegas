@@ -1,5 +1,6 @@
 {
   "editor.codeActionsOnSave": {
+    "source.format.oxc": "always",
     "source.fixAll.oxc": "always"
   },
   "editor.defaultFormatter": "oxc.oxc-vscode",
@@ -8,9 +9,7 @@
   "explorer.fileNesting.enabled": true,
   "explorer.fileNesting.patterns": {
     "*.ts": "${capture}.test.ts",
-    "package.json": "pnpm-*, .oxfmt*, .oxlint*"
+    "package.json": "pnpm-*"
   },
-  "oxc.configPath": "oxlint.config.ts",
-  "oxc.fmt.configPath": "oxfmt.config.ts",
   "oxc.typeAware": true
 }

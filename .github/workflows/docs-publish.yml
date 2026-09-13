@@ -20,12 +20,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
+      - uses: pnpm/setup@v2
         with:
-          node-version: ">=22.14.0"
-          cache: pnpm
-      - run: pnpm install
+          runtime: "node@22.12"
+          cache: true
       - run: pnpm docs:build
       - uses: actions/upload-pages-artifact@v3
         with:

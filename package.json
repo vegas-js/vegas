@@ -11,11 +11,12 @@
   "type": "module",
   "scripts": {
     "preinstall": "npx only-allow pnpm",
-    "lint": "oxlint",
     "format": "oxfmt",
+    "lint": "oxlint",
     "test": "vitest run",
     "coverage": "vitest run --coverage",
     "build": "tsdown --config-loader native --workspace",
+    "check": "pnpm lint && pnpm test && pnpm build",
     "docs:dev": "pnpm --filter ./docs dev",
     "docs:build": "pnpm --filter ./docs build",
     "docs:preview": "pnpm --filter ./docs preview"

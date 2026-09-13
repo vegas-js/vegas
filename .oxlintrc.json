@@ -1,0 +1,10 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["eslint", "import", "jsdoc", "node", "oxc", "promise", "typescript", "unicorn"],
+  "ignorePatterns": ["packages/create-vegas/template-*", "packages/vegas/*.d.ts"],
+  "options": {
+    // "denyWarnings": true,
+    "typeAware": true,
+    "typeCheck": true
+  }
+}
