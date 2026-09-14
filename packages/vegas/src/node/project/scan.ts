@@ -2,7 +2,8 @@ import type { GlobOptionsWithoutFileTypes } from "node:fs";
 import fsPromises from "node:fs/promises";
 import path from "node:path";
 
-import type { ProjectSource, ResolvedProject } from "./type";
+import { createClientEntries } from "./entries";
+import type { ProjectSnapshot, ResolvedProject } from "./type";
 
 async function collectWithGlob(
   pattern: string | readonly string[],
@@ -20,7 +21,7 @@ function excludeDeclarationFile(fileName: string) {
   return fileName.endsWith(".d.ts");
 }
 
-export async function collectSources(project: ResolvedProject): Promise<ProjectSource> {
+export async function scanProject(project: ResolvedProject): Promise<ProjectSnapshot> {
   const [clientSources, serverSources, gasMockSources] = await Promise.all([
     collectWithGlob(
       [path.join(project.clientDir, "**", "*.ts"), path.join(project.clientDir, "**", "*.tsx")],
@@ -36,9 +37,15 @@ export async function collectSources(project: ResolvedProject): Promise<ProjectS
     }),
   ]);
 
+  const sortedClientSources = clientSources.sort();
+  const sortedServerSources = serverSources.sort();
+  const sortedGasMockSources = gasMockSources.sort();
+
   return {
-    clientSources: clientSources.sort(),
-    serverSources: serverSources.sort(),
-    gasMockSources: gasMockSources.sort(),
+    clientSources: sortedClientSources,
+    serverSources: sortedServerSources,
+    gasMockSources: sortedGasMockSources,
+    clientEntries:
+      project.appType === "spa" ? createClientEntries(project.clientDir, sortedClientSources) : [],
   };
 }

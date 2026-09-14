@@ -4,10 +4,10 @@ import path from "node:path";
 
 import { describe, expect, test } from "vitest";
 
-import { collectSources } from "./scan";
+import { scanProject } from "./scan";
 import type { ResolvedProject } from "./type";
 
-function createProject(tempDirPath: string): ResolvedProject {
+function createProject(tempDirPath: string, appType: "spa" | "script" = "spa"): ResolvedProject {
   return {
     root: tempDirPath,
     configFile: null,
@@ -15,7 +15,7 @@ function createProject(tempDirPath: string): ResolvedProject {
     serverDir: path.join(tempDirPath, "src", "server"),
     gasMockDir: path.join(tempDirPath, "mock"),
     outputDir: path.join(tempDirPath, "dist"),
-    appType: "spa",
+    appType,
     plugins: [],
     gas: {
       exceptionLogging: "STACKDRIVER",
@@ -29,8 +29,8 @@ function createProject(tempDirPath: string): ResolvedProject {
   };
 }
 
-describe("collectSources", () => {
-  test("collect project sources", async () => {
+describe("scanProject", () => {
+  test("create project snapshot", async () => {
     const tempDirPath = fs.mkdtempSync(path.join(os.tmpdir(), "vegas-"));
 
     try {
@@ -56,9 +56,9 @@ describe("collectSources", () => {
         fs.writeFileSync(path.join(project.gasMockDir, file), "");
       }
 
-      const sources = await collectSources(project);
+      const snapshot = await scanProject(project);
 
-      expect(sources).toStrictEqual({
+      expect(snapshot).toStrictEqual({
         clientSources: [
           path.join(project.clientDir, "admin", "main.tsx"),
           path.join(project.clientDir, "helper.ts"),
@@ -66,6 +66,18 @@ describe("collectSources", () => {
         ],
         serverSources: [path.join(project.serverDir, "Code.ts")],
         gasMockSources: [path.join(project.gasMockDir, "properties.ts")],
+        clientEntries: [
+          {
+            id: "admin",
+            sourcePath: path.join(project.clientDir, "admin", "main.tsx"),
+            htmlPath: "admin.html",
+          },
+          {
+            id: "index",
+            sourcePath: path.join(project.clientDir, "main.tsx"),
+            htmlPath: "index.html",
+          },
+        ],
       });
     } finally {
       fs.rmSync(tempDirPath, {
@@ -75,18 +87,46 @@ describe("collectSources", () => {
     }
   });
 
-  test("return empty sources when project directories do not exist", async () => {
+  test("return empty snapshot when project directories do not exist", async () => {
     const tempDirPath = fs.mkdtempSync(path.join(os.tmpdir(), "vegas-"));
 
     try {
       const project = createProject(tempDirPath);
-      const sources = await collectSources(project);
+      const snapshot = await scanProject(project);
 
-      expect(sources).toStrictEqual({
+      expect(snapshot).toStrictEqual({
         clientSources: [],
         serverSources: [],
         gasMockSources: [],
+        clientEntries: [],
       });
+    } finally {
+      fs.rmSync(tempDirPath, {
+        recursive: true,
+        force: true,
+      });
+    }
+  });
+
+  test("do not create client entries for script project", async () => {
+    const tempDirPath = fs.mkdtempSync(path.join(os.tmpdir(), "vegas-"));
+
+    try {
+      const project = createProject(tempDirPath, "script");
+
+      fs.mkdirSync(path.join(project.clientDir, "admin"), { recursive: true });
+
+      const files = {
+        client: ["main.tsx", "helper.ts", "types.d.ts", path.join("admin", "main.tsx")],
+      };
+
+      for (const file of files.client) {
+        fs.writeFileSync(path.join(project.clientDir, file), "");
+      }
+
+      const snapshot = await scanProject(project);
+
+      expect(snapshot.clientEntries).toStrictEqual([]);
     } finally {
       fs.rmSync(tempDirPath, {
         recursive: true,

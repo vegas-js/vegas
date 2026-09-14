@@ -3,11 +3,11 @@ import path from "node:path";
 
 import { type Plugin, parseSync, Visitor } from "vite";
 
-import type { ProjectSource, ResolvedProject } from "../../../project";
+import type { ProjectSnapshot, ResolvedProject } from "../../../project";
 
 export const VIRTUAL_DETECT_SERVER_ENTRY = "virtual:detectserverentry";
 
-export function detectServerEntry(project: ResolvedProject, projectSource: ProjectSource): Plugin {
+export function detectServerEntry(project: ResolvedProject, snapshot: ProjectSnapshot): Plugin {
   return {
     name: "vite-plugin-detectserverentry",
 
@@ -19,7 +19,7 @@ export function detectServerEntry(project: ResolvedProject, projectSource: Proje
       if (source.endsWith(VIRTUAL_DETECT_SERVER_ENTRY)) {
         const serverEntries: string[] = [];
         const importMap: Map<string, string[]> = new Map();
-        projectSource.clientSources.forEach((clientSource) => {
+        snapshot.clientSources.forEach((clientSource) => {
           const { program } = parseSync(clientSource, fs.readFileSync(clientSource, "utf8"));
           const visitor = new Visitor({
             ImportDeclaration(node) {
@@ -38,7 +38,7 @@ export function detectServerEntry(project: ResolvedProject, projectSource: Proje
         for (const [clientSourcePath, imports] of importMap) {
           for (const importPath of imports) {
             const resolvedId = await this.resolve(importPath, clientSourcePath, options);
-            if (resolvedId && projectSource.serverSources.includes(resolvedId.id)) {
+            if (resolvedId && snapshot.serverSources.includes(resolvedId.id)) {
               if (path.parse(resolvedId.id).base !== "Code.ts") {
                 throw new Error(
                   "The only file that can be imported from the server side is Code.ts",
@@ -57,7 +57,7 @@ export function detectServerEntry(project: ResolvedProject, projectSource: Proje
           return serverEntries[0];
         }
 
-        const fallback1 = projectSource.serverSources.find(
+        const fallback1 = snapshot.serverSources.find(
           (source) => path.parse(source).base === "Code.ts",
         );
 

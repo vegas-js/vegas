@@ -13,7 +13,7 @@ import {
 } from "vite";
 
 import { version as VEGAS_VERSION } from "../../../../package.json";
-import type { ClientEntry, ProjectSource, ResolvedProject } from "../../project";
+import type { ProjectSnapshot, ResolvedProject } from "../../project";
 import { detectServerEntry, VIRTUAL_DETECT_SERVER_ENTRY } from "../core/plugins/detectserverentry";
 import { exportBridge } from "../core/plugins/exportbridge";
 import { virtualHTML } from "../core/plugins/virtualhtml";
@@ -57,8 +57,7 @@ export async function buildApp(fs: FileSystem, builder: ViteBuilder, envFilter?:
 export function createBuilderConfig(
   project: ResolvedProject,
   mode: "development" | "production",
-  projectSource: ProjectSource,
-  clientEntries: ClientEntry[],
+  snapshot: ProjectSnapshot,
 ) {
   const environments: Record<string, EnvironmentOptions> = {
     server: {
@@ -82,7 +81,7 @@ export function createBuilderConfig(
       conditions: ["module", "browser", mode],
     },
   };
-  clientEntries.forEach((entry, index) => {
+  snapshot.clientEntries.forEach((entry, index) => {
     environments[`client${index}`] = {
       ...sharedClientOptions,
       build: {
@@ -103,7 +102,7 @@ export function createBuilderConfig(
     plugins: [
       ...project.plugins,
       virtualHTML(project.clientDir),
-      detectServerEntry(project, projectSource),
+      detectServerEntry(project, snapshot),
       exportBridge(),
     ],
     environments,

@@ -2,7 +2,7 @@ import fs from "node:fs";
 
 import { createBuilder } from "vite";
 
-import { collectSources, createClientEntries, loadProject } from "../project";
+import { loadProject, scanProject } from "../project";
 import { isWebApp } from "./core/analyze";
 import { buildApp, createBuilderConfig, printBanner } from "./core/build";
 import { generateGASManifest } from "./core/manifest";
@@ -12,14 +12,10 @@ export async function runBuild(root?: string) {
   printBanner();
 
   const project = await loadProject({ cwd: process.cwd(), root });
-  const projectSource = await collectSources(project);
-  const clientEntries =
-    project.appType === "spa"
-      ? createClientEntries(project.clientDir, projectSource.clientSources)
-      : [];
+  const snapshot = await scanProject(project);
 
   const startTime = performance.now();
-  const builderConfig = createBuilderConfig(project, "production", projectSource, clientEntries);
+  const builderConfig = createBuilderConfig(project, "production", snapshot);
   const builder = await createBuilder(builderConfig);
   fs.rmSync(project.outputDir, { recursive: true, force: true });
   await buildApp(fs, builder);
