@@ -1,11 +1,11 @@
 import crypto from "node:crypto";
 import path from "node:path";
 
-import { Connect, createLogger, createServer, ViteBuilder } from "vite";
+import { type Connect, type ViteBuilder, createLogger, createServer } from "vite";
 
 import { HTML } from "../core";
 import { buildApp } from "./build";
-import { ServeContext } from "./context";
+import type { ServeContext } from "./context";
 import { createHostHtml } from "./hostHtml";
 import { launchGAS } from "./launch";
 
@@ -15,10 +15,10 @@ export async function serveApp(ctx: ServeContext, builder: ViteBuilder) {
   const promises: { resolve: (value: unknown) => void; reject: (reason?: any) => void }[] = [];
 
   const hostServer = await createServer({
-    root: ctx.config.root,
+    root: ctx.project.root,
     configFile: false,
     customLogger: createLogger("info", { prefix: "[vegas]" }),
-    cacheDir: path.join(ctx.config.root, "node_modules", ".vegas-host"),
+    cacheDir: path.join(ctx.project.root, "node_modules", ".vegas-host"),
     plugins: [
       {
         name: "vite-plugin-configfile",
@@ -32,19 +32,19 @@ export async function serveApp(ctx: ServeContext, builder: ViteBuilder) {
     },
   });
 
-  hostServer.watcher.add([ctx.config.clientDir, ctx.config.serverDir]);
+  hostServer.watcher.add([ctx.project.clientDir, ctx.project.serverDir]);
 
   hostServer.watcher.on("change", async (filePath) => {
     isBuilding = true;
     try {
-      if (filePath.startsWith(ctx.config.clientDir)) {
+      if (filePath.startsWith(ctx.project.clientDir)) {
         await buildApp(ctx.vfs, builder, /^client\d+$/);
         isBuilding = false;
         promises.forEach((promise) => promise.resolve(undefined));
         hostServer.moduleGraph.invalidateAll();
         hostServer.ws.send({ type: "full-reload" });
         return [];
-      } else if (filePath.startsWith(ctx.config.serverDir)) {
+      } else if (filePath.startsWith(ctx.project.serverDir)) {
         await buildApp(ctx.vfs, builder, /^server$/);
         isBuilding = false;
         promises.forEach((promise) => promise.resolve(undefined));
@@ -208,7 +208,7 @@ export async function serveApp(ctx: ServeContext, builder: ViteBuilder) {
   await hostServer.listen();
 
   const userContentServer = await createServer({
-    root: ctx.config.root,
+    root: ctx.project.root,
     configFile: false,
     plugins: [
       {
@@ -231,7 +231,7 @@ export async function serveApp(ctx: ServeContext, builder: ViteBuilder) {
     ],
     server: { port: hostServer.config.server.port + 1 },
     customLogger: createLogger("info", { prefix: "[vegas]" }),
-    cacheDir: path.join(ctx.config.root, "node_modules", ".vegas-content"),
+    cacheDir: path.join(ctx.project.root, "node_modules", ".vegas-content"),
   });
 
   const userContentHandler: Connect.NextHandleFunction = async (request, response, next) => {

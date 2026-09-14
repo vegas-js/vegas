@@ -4,17 +4,17 @@ import util from "node:util";
 
 import vfs from "@platformatic/vfs";
 import {
-  EnvironmentOptions,
-  InlineConfig,
-  ResolvedConfig,
-  Rolldown,
+  type EnvironmentOptions,
+  type InlineConfig,
+  type ResolvedConfig,
+  type Rolldown,
+  type ViteBuilder,
   version as VITE_VERSION,
-  ViteBuilder,
 } from "vite";
 
 import { version as VEGAS_VERSION } from "../../../../package.json";
-import { ProjectSource } from "../core/analyze";
-import { ResolvedUserConfig } from "../core/config";
+import type { ResolvedProject } from "../../project";
+import type { ProjectSource } from "../core/analyze";
 import { detectServerEntry, VIRTUAL_DETECT_SERVER_ENTRY } from "../core/plugins/detectserverentry";
 import { exportBridge } from "../core/plugins/exportbridge";
 import { virtualHTML } from "../core/plugins/virtualhtml";
@@ -56,7 +56,7 @@ export async function buildApp(fs: FileSystem, builder: ViteBuilder, envFilter?:
 }
 
 export function createBuilderConfig(
-  config: ResolvedUserConfig,
+  project: ResolvedProject,
   mode: "development" | "production",
   projectSource: ProjectSource,
   clientEntries: string[],
@@ -94,7 +94,7 @@ export function createBuilderConfig(
     };
   });
   const builderConfig: InlineConfig = {
-    root: config.root,
+    root: project.root,
     define: {
       "import.meta.env.DEV": mode === "development",
       "import.meta.env.MODE": mode,
@@ -102,14 +102,14 @@ export function createBuilderConfig(
     },
     configFile: false,
     plugins: [
-      ...config.plugins,
-      virtualHTML(config.clientDir),
-      detectServerEntry(config, projectSource),
+      ...project.plugins,
+      virtualHTML(project.clientDir),
+      detectServerEntry(project, projectSource),
       exportBridge(),
     ],
     environments,
     build: {
-      outDir: config.output.dir,
+      outDir: project.outputDir,
       assetsInlineLimit: () => true,
       cssCodeSplit: false,
       write: false,

@@ -1,17 +1,14 @@
 import fs from "node:fs";
 import path from "node:path";
 
-import { parseSync, Plugin, Visitor } from "vite";
+import { type Plugin, parseSync, Visitor } from "vite";
 
-import { ProjectSource } from "../analyze";
-import { ResolvedUserConfig } from "../config";
+import type { ResolvedProject } from "../../../project";
+import type { ProjectSource } from "../analyze";
 
 export const VIRTUAL_DETECT_SERVER_ENTRY = "virtual:detectserverentry";
 
-export function detectServerEntry(
-  config: ResolvedUserConfig,
-  projectSource: ProjectSource,
-): Plugin {
+export function detectServerEntry(project: ResolvedProject, projectSource: ProjectSource): Plugin {
   return {
     name: "vite-plugin-detectserverentry",
 
@@ -69,8 +66,8 @@ export function detectServerEntry(
           return fallback1;
         }
 
-        if (config.appType === "script") {
-          const fallback2 = path.resolve(config.root, "src", "Code.ts");
+        if (project.appType === "script") {
+          const fallback2 = path.resolve(project.root, "src", "Code.ts");
           if (fs.existsSync(fallback2)) {
             return fallback2;
           } else {

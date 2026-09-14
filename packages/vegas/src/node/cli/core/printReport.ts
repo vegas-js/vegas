@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import util from "node:util";
 
-import { ResolvedUserConfig } from "../core/config";
+import type { ResolvedProject } from "../../project";
 
 type BuildArtifact = {
   path: string;
@@ -31,13 +31,13 @@ function formatSize(bytes: number): string {
 }
 
 export function printReport(
-  config: ResolvedUserConfig,
+  project: ResolvedProject,
   artifacts: BuildArtifact[],
   durationMs: number,
 ) {
   const basePath = util.styleText(
     "dim",
-    `${path.relative(config.root, config.output.dir)}${path.sep}`,
+    `${path.relative(project.root, project.outputDir)}${path.sep}`,
   );
 
   const rows = artifacts.map((artifact) => ({

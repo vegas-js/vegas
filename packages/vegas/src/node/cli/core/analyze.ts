@@ -3,7 +3,7 @@ import path from "node:path";
 
 import { parseSync } from "vite";
 
-import { ResolvedUserConfig } from "./config";
+import type { ResolvedProject } from "../../project";
 
 export type ProjectSource = {
   clientSources: string[];
@@ -23,23 +23,23 @@ async function collectWithGlob(
   return files;
 }
 
-export async function collectSources(userConfig: ResolvedUserConfig): Promise<ProjectSource> {
+export async function collectSources(project: ResolvedProject): Promise<ProjectSource> {
   function exclude(fileName: string) {
     return fileName.endsWith(".d.ts");
   }
 
-  const clientDirGlobPrefix = path.join(userConfig.clientDir, "**");
+  const clientDirGlobPrefix = path.join(project.clientDir, "**");
   const clientGlobPatterns = [
     path.join(clientDirGlobPrefix, "*.ts"),
     path.join(clientDirGlobPrefix, "*.tsx"),
   ];
   const clientGlobSearchPromise = collectWithGlob(clientGlobPatterns, { exclude });
 
-  const serverDirGlobPrefix = path.join(userConfig.serverDir, "**");
+  const serverDirGlobPrefix = path.join(project.serverDir, "**");
   const serverGlobPattern = path.join(serverDirGlobPrefix, "*.ts");
   const serverGlobSearchPromise = collectWithGlob(serverGlobPattern, { exclude });
 
-  const gasMockDirGlobPrefix = path.join(userConfig.gasMockDir, "**");
+  const gasMockDirGlobPrefix = path.join(project.gasMockDir, "**");
   const gasMockGlobPattern = path.join(gasMockDirGlobPrefix, "*.ts");
   const gasMockGlobSearchPromise = collectWithGlob(gasMockGlobPattern, { exclude });
 

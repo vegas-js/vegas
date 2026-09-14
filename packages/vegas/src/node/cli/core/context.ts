@@ -1,9 +1,9 @@
 import vfs from "@platformatic/vfs";
 
-import { ResolvedUserConfig } from "./config";
+import type { ResolvedProject } from "../../project";
 
 export interface ServeContext {
-  config: ResolvedUserConfig;
+  project: ResolvedProject;
   vfs: vfs.VirtualFileSystem;
   mock: Record<string, any>;
   store: {
@@ -25,11 +25,11 @@ export interface ServeContext {
 }
 
 export function createServeContext(
-  config: ResolvedUserConfig,
+  project: ResolvedProject,
   vfs: vfs.VirtualFileSystem,
 ): ServeContext {
   return {
-    config,
+    project,
     vfs,
     mock: {},
     store: {

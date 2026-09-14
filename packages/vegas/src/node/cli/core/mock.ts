@@ -1,10 +1,10 @@
 import { MockTarget } from "../../../shared/gas";
-import { ServeContext } from "./context";
+import type { ServeContext } from "./context";
 import { loadModule } from "./module";
 
 export async function loadMock(ctx: ServeContext, gasMockSources: string[]) {
   for (const source of gasMockSources) {
-    const mock = await loadModule({ root: ctx.config.root, filePath: source });
+    const mock = await loadModule({ root: ctx.project.root, filePath: source });
 
     switch (mock.target) {
       case MockTarget.Properties: {

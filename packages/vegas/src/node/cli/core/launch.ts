@@ -1,7 +1,7 @@
 import path from "node:path";
 import worker from "node:worker_threads";
 
-import { ServeContext } from "./context";
+import type { ServeContext } from "./context";
 import {
   HtmlServiceHandler,
   SessionHandler,
@@ -52,7 +52,7 @@ class GASHandler {
 const handler = new GASHandler();
 
 export function launchGAS(ctx: ServeContext, fn: string, ...args: any[]): Promise<any> {
-  const sourcePath = path.join(ctx.config.output.dir, "Code.js");
+  const sourcePath = path.join(ctx.project.outputDir, "Code.js");
   const code = ctx.vfs.readFileSync(sourcePath, "utf8");
   return new Promise((resolve, reject) => {
     const sharedBuffer = new SharedArrayBuffer(4);
