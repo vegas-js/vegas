@@ -2,9 +2,10 @@ import fs from "node:fs";
 
 import { createBuilder } from "vite";
 
+import { buildApp, createBuilderConfig } from "../build/vite";
 import { loadProject, scanProject } from "../project";
 import { isWebApp } from "./core/analyze";
-import { buildApp, createBuilderConfig, printBanner } from "./core/build";
+import { printBanner } from "./core/banner";
 import { generateGASManifest } from "./core/manifest";
 import { collectArtifacts, printReport } from "./core/printReport";
 

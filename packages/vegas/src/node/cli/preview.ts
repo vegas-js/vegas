@@ -1,8 +1,8 @@
 import vfs from "@platformatic/vfs";
 import { createBuilder } from "vite";
 
+import { buildApp, createBuilderConfig } from "../build/vite";
 import { loadProject, scanProject } from "../project";
-import { buildApp, createBuilderConfig } from "./core/build";
 import { createServeContext } from "./core/context";
 import { loadMock } from "./core/mock";
 import { serveApp } from "./core/serve";
