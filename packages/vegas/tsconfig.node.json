@@ -27,6 +27,7 @@
     "src/shared",
     "src/lib",
     "src/node/cli",
+    "src/node/project",
     "src/node/worker",
     "tsdown.config.ts",
     "rolldownLicensePlugin.ts"

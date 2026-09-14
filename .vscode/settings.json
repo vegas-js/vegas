@@ -8,7 +8,7 @@
   "editor.tabSize": 2,
   "explorer.fileNesting.enabled": true,
   "explorer.fileNesting.patterns": {
-    "*.ts": "${capture}.test.ts",
+    "*.ts": "${capture}.spec.ts, ${capture}.test.ts",
     "package.json": "pnpm-*"
   },
   "oxc.typeAware": true
