@@ -3,13 +3,6 @@ import path from "node:path";
 
 import { parseSync } from "vite";
 
-export function detectClientEntries(clientSources: readonly string[]) {
-  const clientEntries = clientSources.filter((source) =>
-    /^main\.tsx?$/.test(path.parse(source).base),
-  );
-  return clientEntries;
-}
-
 export function isWebApp(dir: string) {
   const sourcePath = path.join(dir, "Code.js");
   if (fs.existsSync(sourcePath)) {

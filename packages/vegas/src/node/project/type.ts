@@ -14,8 +14,14 @@ export interface ResolvedProject {
   readonly gas: GASManifest;
 }
 
-export type ProjectSource = {
+export interface ProjectSource {
   readonly clientSources: readonly string[];
   readonly serverSources: readonly string[];
   readonly gasMockSources: readonly string[];
-};
+}
+
+export interface ClientEntry {
+  readonly id: string;
+  readonly sourcePath: string;
+  readonly htmlPath: string;
+}

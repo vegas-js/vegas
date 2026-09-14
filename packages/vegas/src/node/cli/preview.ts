@@ -1,8 +1,7 @@
 import vfs from "@platformatic/vfs";
 import { createBuilder } from "vite";
 
-import { collectSources, loadProject } from "../project";
-import { detectClientEntries } from "./core/analyze";
+import { collectSources, createClientEntries, loadProject } from "../project";
 import { buildApp, createBuilderConfig } from "./core/build";
 import { createServeContext } from "./core/context";
 import { loadMock } from "./core/mock";
@@ -12,7 +11,9 @@ export async function runPreview(root?: string) {
   const project = await loadProject({ cwd: process.cwd(), root });
   const projectSource = await collectSources(project);
   const clientEntries =
-    project.appType === "spa" ? detectClientEntries(projectSource.clientSources) : [];
+    project.appType === "spa"
+      ? createClientEntries(project.clientDir, projectSource.clientSources)
+      : [];
 
   const builderConfig = createBuilderConfig(project, "production", projectSource, clientEntries);
   const builder = await createBuilder(builderConfig);

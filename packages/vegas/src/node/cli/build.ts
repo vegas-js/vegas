@@ -2,8 +2,8 @@ import fs from "node:fs";
 
 import { createBuilder } from "vite";
 
-import { collectSources, loadProject } from "../project";
-import { detectClientEntries, isWebApp } from "./core/analyze";
+import { collectSources, createClientEntries, loadProject } from "../project";
+import { isWebApp } from "./core/analyze";
 import { buildApp, createBuilderConfig, printBanner } from "./core/build";
 import { generateGASManifest } from "./core/manifest";
 import { collectArtifacts, printReport } from "./core/printReport";
@@ -14,7 +14,9 @@ export async function runBuild(root?: string) {
   const project = await loadProject({ cwd: process.cwd(), root });
   const projectSource = await collectSources(project);
   const clientEntries =
-    project.appType === "spa" ? detectClientEntries(projectSource.clientSources) : [];
+    project.appType === "spa"
+      ? createClientEntries(project.clientDir, projectSource.clientSources)
+      : [];
 
   const startTime = performance.now();
   const builderConfig = createBuilderConfig(project, "production", projectSource, clientEntries);

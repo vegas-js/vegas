@@ -13,7 +13,7 @@ import {
 } from "vite";
 
 import { version as VEGAS_VERSION } from "../../../../package.json";
-import type { ProjectSource, ResolvedProject } from "../../project";
+import type { ClientEntry, ProjectSource, ResolvedProject } from "../../project";
 import { detectServerEntry, VIRTUAL_DETECT_SERVER_ENTRY } from "../core/plugins/detectserverentry";
 import { exportBridge } from "../core/plugins/exportbridge";
 import { virtualHTML } from "../core/plugins/virtualhtml";
@@ -58,7 +58,7 @@ export function createBuilderConfig(
   project: ResolvedProject,
   mode: "development" | "production",
   projectSource: ProjectSource,
-  clientEntries: string[],
+  clientEntries: ClientEntry[],
 ) {
   const environments: Record<string, EnvironmentOptions> = {
     server: {
@@ -87,7 +87,7 @@ export function createBuilderConfig(
       ...sharedClientOptions,
       build: {
         rolldownOptions: {
-          input: entry,
+          input: entry.sourcePath,
         },
       },
     };
