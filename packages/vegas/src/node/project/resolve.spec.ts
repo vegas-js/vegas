@@ -252,11 +252,7 @@ describe("resolveProject", () => {
     });
 
     test("apply defaults to unspecified gas options", () => {
-      const project = resolve({
-        gas: {
-          timeZone: "Asia/Tokyo",
-        },
-      });
+      const project = resolve({ gas: { timeZone: "Asia/Tokyo" } });
 
       expect(project.gas).toStrictEqual({
         dependencies: undefined,

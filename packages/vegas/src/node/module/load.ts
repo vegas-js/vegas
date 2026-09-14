@@ -4,7 +4,7 @@ import path from "node:path";
 
 import { build, Rolldown } from "vite";
 
-import { DisposableTempDir } from "./fs";
+import { DisposableTempDir } from "./temp";
 
 async function transpileModule(ctx: { root: string; filePath: string; outputDir: string }) {
   if (!fs.existsSync(ctx.filePath)) {

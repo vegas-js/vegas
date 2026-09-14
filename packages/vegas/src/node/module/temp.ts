@@ -6,11 +6,11 @@ import path from "node:path";
 export class DisposableTempDir {
   readonly #tempDirPath: string;
 
-  constructor(name: string) {
+  constructor(name: string, cwd = process.cwd()) {
     const safeBasename = path.basename(name).replace(/\.\.?/, "");
-    const nodeModuleDirPath = path.join(process.cwd(), "node_modules");
+    const nodeModuleDirPath = path.join(cwd, "node_modules");
     const tempDirRoot = fs.existsSync(nodeModuleDirPath) ? nodeModuleDirPath : os.tmpdir();
-    const prefix = path.join(tempDirRoot, `${safeBasename ? safeBasename : "temp"}-`);
+    const prefix = path.join(tempDirRoot, `${safeBasename || "temp"}-`);
 
     this.#tempDirPath = fs.mkdtempSync(prefix);
   }

@@ -13,3 +13,9 @@ export interface ResolvedProject {
   readonly plugins: readonly PluginOption[];
   readonly gas: GASManifest;
 }
+
+export type ProjectSource = {
+  readonly clientSources: readonly string[];
+  readonly serverSources: readonly string[];
+  readonly gasMockSources: readonly string[];
+};

@@ -1,2 +1,3 @@
 export { loadProject } from "./load";
-export type { ResolvedProject } from "./type";
+export { collectSources } from "./scan";
+export type { ProjectSource, ResolvedProject } from "./type";

@@ -13,8 +13,7 @@ import {
 } from "vite";
 
 import { version as VEGAS_VERSION } from "../../../../package.json";
-import type { ResolvedProject } from "../../project";
-import type { ProjectSource } from "../core/analyze";
+import type { ProjectSource, ResolvedProject } from "../../project";
 import { detectServerEntry, VIRTUAL_DETECT_SERVER_ENTRY } from "../core/plugins/detectserverentry";
 import { exportBridge } from "../core/plugins/exportbridge";
 import { virtualHTML } from "../core/plugins/virtualhtml";

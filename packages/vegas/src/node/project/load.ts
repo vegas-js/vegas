@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 import type { UserConfig } from "../../shared/config";
-import { loadModule } from "../cli/core/module";
+import { loadModule } from "../module";
 import { resolveProject } from "./resolve";
 
 interface LoadedConfig {
@@ -15,8 +15,8 @@ interface ProjectLoaderOptions {
   root?: string;
 }
 
-async function loadConfigFromDirectory(root: string): Promise<LoadedConfig> {
-  const filePath = path.join(root, "vegas.config.ts");
+async function loadConfigFromDirectory(directory: string): Promise<LoadedConfig> {
+  const filePath = path.join(directory, "vegas.config.ts");
 
   if (!fs.existsSync(filePath)) {
     return {
@@ -26,7 +26,7 @@ async function loadConfigFromDirectory(root: string): Promise<LoadedConfig> {
   }
 
   const config = (await loadModule({
-    root,
+    root: directory,
     filePath,
   })) as UserConfig;
 

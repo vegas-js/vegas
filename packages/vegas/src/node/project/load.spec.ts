@@ -12,19 +12,19 @@ const projectRoot = path.join(cwd, "project");
 
 describe("loadProject", () => {
   test("load config from cwd by default", async () => {
-    const configLoader = vi.fn().mockResolvedValue({
+    const loadConfig = vi.fn().mockResolvedValue({
       config: {},
       configFile: null,
     });
 
-    const project = await loadProject({ cwd }, configLoader);
+    const project = await loadProject({ cwd }, loadConfig);
 
-    expect(configLoader).toHaveBeenCalledWith(cwd);
+    expect(loadConfig).toHaveBeenCalledWith(cwd);
     expect(project.root).toBe(cwd);
   });
 
   test("load config from cli root", async () => {
-    const configLoader = vi.fn().mockResolvedValue({
+    const loadConfig = vi.fn().mockResolvedValue({
       config: {},
       configFile: null,
     });
@@ -34,22 +34,21 @@ describe("loadProject", () => {
         cwd,
         root: "project",
       },
-      configLoader,
+      loadConfig,
     );
 
-    expect(configLoader).toHaveBeenCalledWith(projectRoot);
+    expect(loadConfig).toHaveBeenCalledWith(projectRoot);
     expect(project.root).toBe(projectRoot);
   });
 
   test("resolve loaded config", async () => {
     const configFile = path.join(cwd, "vegas.config.ts");
-
-    const configLoader = vi.fn().mockResolvedValue({
+    const loadConfig = vi.fn().mockResolvedValue({
       config: { appType: "script" },
       configFile,
     });
 
-    const project = await loadProject({ cwd }, configLoader);
+    const project = await loadProject({ cwd }, loadConfig);
 
     expect(project.appType).toBe("script");
     expect(project.configFile).toBe(configFile);
@@ -77,15 +76,7 @@ describe("loadProject", () => {
 
       try {
         const configFile = path.join(tempDirPath, "vegas.config.ts");
-
-        fs.writeFileSync(
-          configFile,
-          `
-export default {
-  appType: "script",
-};
-`,
-        );
+        fs.writeFileSync(configFile, `export default { appType: "script" };`);
 
         const project = await loadProject({ cwd: tempDirPath });
 

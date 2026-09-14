@@ -3,8 +3,7 @@ import path from "node:path";
 
 import { type Plugin, parseSync, Visitor } from "vite";
 
-import type { ResolvedProject } from "../../../project";
-import type { ProjectSource } from "../analyze";
+import type { ProjectSource, ResolvedProject } from "../../../project";
 
 export const VIRTUAL_DETECT_SERVER_ENTRY = "virtual:detectserverentry";
 
