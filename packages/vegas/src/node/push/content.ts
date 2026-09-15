@@ -28,16 +28,26 @@ function normalizeArtifactPath(artifactPath: string): string {
   return normalizedPath;
 }
 
-function createProjectFile(artifact: BuildArtifact): AppsScriptProjectFile {
-  if (typeof artifact.content !== "string") {
-    throw new Error(`Push artifact must be text: ${artifact.path}`);
+function readArtifactText(artifact: BuildArtifact): string {
+  if (typeof artifact.content === "string") {
+    return artifact.content;
   }
 
+  try {
+    return new TextDecoder("utf-8", { fatal: true }).decode(artifact.content);
+  } catch {
+    throw new Error(`Push artifact must be UTF-8 text: ${artifact.path}`);
+  }
+}
+
+function createProjectFile(artifact: BuildArtifact): AppsScriptProjectFile {
   const artifactPath = normalizeArtifactPath(artifact.path);
 
   if (artifactPath === "appsscript.json") {
+    const source = readArtifactText(artifact);
+
     try {
-      JSON.parse(artifact.content);
+      JSON.parse(source);
     } catch {
       throw new Error("Invalid Apps Script manifest: appsscript.json");
     }
@@ -45,7 +55,7 @@ function createProjectFile(artifact: BuildArtifact): AppsScriptProjectFile {
     return {
       name: "appsscript",
       type: "JSON",
-      source: artifact.content,
+      source,
     };
   }
 
@@ -56,7 +66,7 @@ function createProjectFile(artifact: BuildArtifact): AppsScriptProjectFile {
     return {
       name,
       type: "SERVER_JS",
-      source: artifact.content,
+      source: readArtifactText(artifact),
     };
   }
 
@@ -64,7 +74,7 @@ function createProjectFile(artifact: BuildArtifact): AppsScriptProjectFile {
     return {
       name,
       type: "HTML",
-      source: artifact.content,
+      source: readArtifactText(artifact),
     };
   }
 

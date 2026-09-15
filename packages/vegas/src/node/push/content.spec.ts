@@ -68,7 +68,37 @@ describe("createAppsScriptProjectContent", () => {
     });
   });
 
-  test("reject binary artifact", () => {
+  test("decode utf-8 artifact bytes", () => {
+    const source = "function hello() { return 'こんにちは'; }";
+
+    expect(
+      createAppsScriptProjectContent([
+        {
+          path: "appsscript.json",
+          content: new TextEncoder().encode("{}"),
+        },
+        {
+          path: "Code.js",
+          content: new TextEncoder().encode(source),
+        },
+      ]),
+    ).toStrictEqual({
+      files: [
+        {
+          name: "Code",
+          type: "SERVER_JS",
+          source,
+        },
+        {
+          name: "appsscript",
+          type: "JSON",
+          source: "{}",
+        },
+      ],
+    });
+  });
+
+  test("reject invalid utf-8 text artifact", () => {
     expect(() =>
       createAppsScriptProjectContent([
         {
@@ -80,7 +110,7 @@ describe("createAppsScriptProjectContent", () => {
           content: new Uint8Array([0xff]),
         },
       ]),
-    ).toThrow("Push artifact must be text: binary.js");
+    ).toThrow("Push artifact must be UTF-8 text: binary.js");
   });
 
   test("reject unsupported artifact", () => {
