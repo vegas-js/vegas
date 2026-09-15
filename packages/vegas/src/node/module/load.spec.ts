@@ -77,4 +77,36 @@ describe("loadModule", () => {
       });
     }
   });
+
+  test("load module from path containing url special characters", async () => {
+    const tempDirPath = fs.mkdtempSync(path.join(os.tmpdir(), "vegas-"));
+    const projectDir = path.join(tempDirPath, "project#1%test");
+
+    try {
+      fs.mkdirSync(projectDir, { recursive: true });
+
+      const configPath = path.join(projectDir, "config.ts");
+
+      fs.writeFileSync(
+        configPath,
+        `
+        export default {
+          value: "loaded",
+        };
+      `,
+      );
+
+      const loaded = await loadModule({
+        root: projectDir,
+        filePath: configPath,
+      });
+
+      expect(loaded).toStrictEqual({ value: "loaded" });
+    } finally {
+      fs.rmSync(tempDirPath, {
+        recursive: true,
+        force: true,
+      });
+    }
+  });
 });

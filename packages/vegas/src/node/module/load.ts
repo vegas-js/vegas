@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import module from "node:module";
 import path from "node:path";
+import url from "node:url";
 
 import { build, Rolldown } from "vite";
 
@@ -53,15 +54,18 @@ async function transpileModule(ctx: { root: string; filePath: string; outputDir:
 
 export async function loadModule(ctx: { root: string; filePath: string }): Promise<any> {
   using tempDir = new DisposableTempDir(".vegas", ctx.root);
-  const transpiledConfigPath = await transpileModule({
+
+  const transpiledModulePath = await transpileModule({
     root: ctx.root,
     filePath: ctx.filePath,
     outputDir: tempDir.getPath(),
   });
-  const transpiledRelativeConfigPath = path.relative(import.meta.dirname, transpiledConfigPath);
-  const rawModule: { default: unknown } = await import(transpiledRelativeConfigPath);
+  const moduleUrl = url.pathToFileURL(transpiledModulePath);
+  const rawModule: { default: unknown } = await import(moduleUrl.href);
+
   if (!rawModule.default) {
     throw new Error("config must export or return an object.");
   }
+
   return rawModule.default;
 }
