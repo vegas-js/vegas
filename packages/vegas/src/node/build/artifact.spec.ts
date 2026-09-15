@@ -26,6 +26,69 @@ describe("ArtifactStore", () => {
 
     expect(store.readText("Code.js")).toBe("second");
   });
+
+  test("replace artifacts in scope", () => {
+    const store = new ArtifactStore();
+    store.replaceScope("client", [
+      {
+        path: "index.html",
+        content: "index:first",
+      },
+      {
+        path: "admin.html",
+        content: "admin",
+      },
+    ]);
+    store.replaceScope("server", [
+      {
+        path: "Code.js",
+        content: "server",
+      },
+    ]);
+    store.replaceScope("client", [
+      {
+        path: "index.html",
+        content: "index:second",
+      },
+    ]);
+
+    expect(store.readText("index.html")).toBe("index:second");
+    expect(store.readText("Code.js")).toBe("server");
+    expect(() => store.readText("admin.html")).toThrow("Artifact not found: admin.html");
+  });
+
+  test("remove all artifacts from replaced scope", () => {
+    const store = new ArtifactStore();
+    store.replaceScope("client", [
+      {
+        path: "index.html",
+        content: "html",
+      },
+    ]);
+    store.replaceScope("client", []);
+
+    expect(() => store.readText("index.html")).toThrow("Artifact not found: index.html");
+  });
+
+  test("reject artifact path owned by another scope", () => {
+    const store = new ArtifactStore();
+    store.replaceScope("client", [
+      {
+        path: "shared.html",
+        content: "client",
+      },
+    ]);
+
+    expect(() =>
+      store.replaceScope("server", [
+        {
+          path: "shared.html",
+          content: "server",
+        },
+      ]),
+    ).toThrow('Artifact "shared.html" already belongs to scope "client".');
+    expect(store.readText("shared.html")).toBe("client");
+  });
 });
 
 describe("writeArtifacts", () => {

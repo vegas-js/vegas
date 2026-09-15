@@ -79,7 +79,7 @@ export class DevApplication {
         await builds.run(async () => {
           if (isClientChange) {
             const artifacts = await buildApp(this.#builder, /^client\d+$/);
-            this.#artifacts.write(artifacts);
+            this.#artifacts.replaceScope("client", artifacts);
 
             hostServer.moduleGraph.invalidateAll();
 
@@ -89,7 +89,7 @@ export class DevApplication {
           }
 
           const artifacts = await buildApp(this.#builder, /^server$/);
-          this.#artifacts.write(artifacts);
+          this.#artifacts.replaceScope("server", artifacts);
         });
       } catch (err: any) {
         console.error(err);

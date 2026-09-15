@@ -8,6 +8,8 @@ export interface BuildArtifact {
 
 export class ArtifactStore {
   readonly #artifacts = new Map<string, BuildArtifact["content"]>();
+  readonly #scopePaths = new Map<string, Set<string>>();
+  readonly #pathScopes = new Map<string, string>();
 
   constructor(artifacts: readonly BuildArtifact[] = []) {
     this.write(artifacts);
@@ -17,6 +19,36 @@ export class ArtifactStore {
     for (const artifact of artifacts) {
       this.#artifacts.set(artifact.path, artifact.content);
     }
+  }
+
+  replaceScope(scope: string, artifacts: readonly BuildArtifact[]): void {
+    const nextPaths = new Set(artifacts.map((artifact) => artifact.path));
+
+    for (const artifact of artifacts) {
+      const existingScope = this.#pathScopes.get(artifact.path);
+      if (existingScope !== undefined && existingScope !== scope) {
+        throw new Error(`Artifact "${artifact.path}" already belongs to scope "${existingScope}".`);
+      }
+    }
+
+    const previousPaths = this.#scopePaths.get(scope);
+    if (previousPaths) {
+      for (const artifactPath of previousPaths) {
+        if (nextPaths.has(artifactPath)) {
+          continue;
+        }
+
+        this.#artifacts.delete(artifactPath);
+        this.#pathScopes.delete(artifactPath);
+      }
+    }
+
+    for (const artifact of artifacts) {
+      this.#artifacts.set(artifact.path, artifact.content);
+      this.#pathScopes.set(artifact.path, scope);
+    }
+
+    this.#scopePaths.set(scope, nextPaths);
   }
 
   readText(path: string): string {

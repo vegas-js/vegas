@@ -15,7 +15,14 @@ export async function runServe(root?: string) {
   const builderConfig = createBuilderConfig(plan);
   const builder = await createBuilder(builderConfig);
 
-  const artifacts = new ArtifactStore(await buildApp(builder));
+  const [clientArtifacts, serverArtifacts] = await Promise.all([
+    buildApp(builder, /^client\d+$/),
+    buildApp(builder, /^server$/),
+  ]);
+
+  const artifacts = new ArtifactStore();
+  artifacts.replaceScope("client", clientArtifacts);
+  artifacts.replaceScope("server", serverArtifacts);
 
   const ctx = createServeContext(project, artifacts);
 
