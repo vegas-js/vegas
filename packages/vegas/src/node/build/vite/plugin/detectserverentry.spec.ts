@@ -16,7 +16,6 @@ function createPlan(
   return {
     root,
     outputDir: path.join(root, "dist"),
-    clientDir: path.join(root, "src", "client"),
     appType: "spa",
     mode: "production",
     plugins: [],

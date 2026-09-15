@@ -1,7 +1,7 @@
 import type { Plugin } from "vite";
 
 import { HtmlDocument } from "../../../html";
-import { BuildPlan } from "../../plan";
+import type { BuildPlan } from "../../plan";
 
 export function virtualHTML(entries: BuildPlan["clientEntries"]): Plugin {
   return {

@@ -49,7 +49,6 @@ describe("createBuildPlan", () => {
     expect(plan).toStrictEqual({
       root: project.root,
       outputDir: project.outputDir,
-      clientDir: project.clientDir,
       appType: "spa",
       mode: "production",
       plugins: project.plugins,

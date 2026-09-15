@@ -7,7 +7,6 @@ type BuildMode = "development" | "production";
 export interface BuildPlan {
   readonly root: string;
   readonly outputDir: string;
-  readonly clientDir: string;
 
   readonly appType: "spa" | "script";
   readonly mode: BuildMode;
@@ -27,7 +26,6 @@ export function createBuildPlan(
   return {
     root: project.root,
     outputDir: project.outputDir,
-    clientDir: project.clientDir,
 
     appType: project.appType,
     mode,
