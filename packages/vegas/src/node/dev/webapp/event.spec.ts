@@ -24,6 +24,41 @@ describe("createGasDoGetEvent", () => {
     });
   });
 
+  test("use null when query string is absent", () => {
+    const event = createGasDoGetEvent(new URL("http://localhost:5173/dev"));
+
+    expect(event).toStrictEqual({
+      queryString: null,
+      parameter: {},
+      parameters: {},
+      contextPath: "",
+      contentLength: -1,
+    });
+  });
+
+  test("decode request parameters", () => {
+    const event = createGasDoGetEvent(
+      new URL("http://localhost:5173/dev?name=Alice+Smith&value=a%3Db%26c"),
+    );
+
+    expect(event.queryString).toBe("name=Alice+Smith&value=a%3Db%26c");
+    expect(event.parameter).toStrictEqual({
+      name: "Alice Smith",
+      value: "a=b&c",
+    });
+    expect(event.parameters).toStrictEqual({
+      name: ["Alice Smith"],
+      value: ["a=b&c"],
+    });
+  });
+
+  test("use first value for repeated parameter", () => {
+    const event = createGasDoGetEvent(new URL("http://localhost:5173/dev?n=&n=2"));
+
+    expect(event.parameter).toStrictEqual({ n: "" });
+    expect(event.parameters).toStrictEqual({ n: ["", "2"] });
+  });
+
   test("omit path info when path does not follow endpoint", () => {
     const event = createGasDoGetEvent(new URL("http://localhost:5173/dev"));
 

@@ -1,6 +1,6 @@
 // https://developers.google.com/apps-script/guides/web
 interface GasWebAppEventBase {
-  readonly queryString: string;
+  readonly queryString: string | null;
   readonly parameter: Readonly<Record<string, string>>;
   readonly parameters: Readonly<Record<string, readonly string[]>>;
   readonly contextPath: "";
@@ -24,28 +24,21 @@ export interface GasDoPostEvent extends GasWebAppEventBase {
 }
 
 function createBaseEvent(url: URL): GasWebAppEventBase {
-  const queryString = url.search.length > 1 ? url.search.slice(1) : "";
+  const queryString = url.search.length > 1 ? url.search.slice(1) : null;
 
   const parameter: Record<string, string> = {};
   const parameters: Record<string, string[]> = {};
 
-  queryString.split("&").forEach((query) => {
-    const [key, value] = query.split("=");
-
-    if (!key) {
-      return;
-    }
-
-    if (!parameter[key]) {
-      parameter[key] = value ?? "";
+  for (const [key, value] of url.searchParams) {
+    if (!Object.hasOwn(parameter, key)) {
+      parameter[key] = value;
     }
 
     parameters[key] ??= [];
-    parameters[key].push(value ?? "");
-  });
+    parameters[key].push(value);
+  }
 
   const trimmedPath = url.pathname.replace(/^\/(exec|dev)/, "");
-
   const pathInfo = trimmedPath.length !== 0 ? trimmedPath.slice(1) : undefined;
 
   return {
