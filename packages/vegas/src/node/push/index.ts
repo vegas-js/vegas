@@ -13,3 +13,8 @@ export { createAppsScriptPushRequest } from "./request";
 export type { AppsScriptPushRequest } from "./request";
 
 export { resolveAppsScriptScriptId } from "./script-id";
+
+export type { AppsScriptPushTransport } from "./transport";
+
+export { createAppsScriptUpdateContentHttpRequest } from "./update-content";
+export type { AppsScriptUpdateContentHttpRequest } from "./update-content";
