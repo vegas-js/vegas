@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import { createClaspProjectConfig } from "./push";
+import { createClaspArgv, createClaspProjectConfig } from "./push";
 
 describe("createClaspProjectConfig", () => {
   test("create config from clasp config", () => {
@@ -74,5 +74,40 @@ describe("createClaspProjectConfig", () => {
       scriptId: "script",
       rootDir: "custom-output",
     });
+  });
+});
+
+describe("createClaspArgv", () => {
+  test("create push arguments with project config", () => {
+    expect(
+      createClaspArgv(
+        ["/usr/bin/node", "/project/vegas.js", "push", "app"],
+        "/app/dist/.vegas-clasp.json",
+      ),
+    ).toStrictEqual([
+      "/usr/bin/node",
+      "/project/vegas.js",
+      "push",
+      "--project",
+      "/app/dist/.vegas-clasp.json",
+    ]);
+  });
+
+  test("include explicit ignore file", () => {
+    expect(
+      createClaspArgv(
+        ["/usr/bin/node", "/project/vegas.js", "push"],
+        "/app/dist/.vegas-clasp.json",
+        "/app/.claspignore",
+      ),
+    ).toStrictEqual([
+      "/usr/bin/node",
+      "/project/vegas.js",
+      "push",
+      "--project",
+      "/app/dist/.vegas-clasp.json",
+      "--ignore",
+      "/app/.claspignore",
+    ]);
   });
 });

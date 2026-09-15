@@ -33,6 +33,20 @@ export function createClaspProjectConfig(
   };
 }
 
+export function createClaspArgv(
+  argv: readonly string[],
+  projectFilePath: string,
+  ignoreFilePath?: string,
+): string[] {
+  return [
+    ...argv.slice(0, 2),
+    "push",
+    "--project",
+    projectFilePath,
+    ...(ignoreFilePath ? ["--ignore", ignoreFilePath] : []),
+  ];
+}
+
 export async function runPush(root?: string) {
   const cwd = process.cwd();
   const project = await loadProject({
@@ -58,6 +72,11 @@ export async function runPush(root?: string) {
   }
 
   const claspPath = path.resolve(path.dirname(pkgJsonPath), pkgBin);
+  const claspIgnorePath = path.join(project.root, ".claspignore");
+  const ignoreFilePath =
+    process.env.clasp_config_ignore === undefined && fs.existsSync(claspIgnorePath)
+      ? claspIgnorePath
+      : undefined;
   const claspConfigPath = path.join(project.root, ".clasp.json");
   const claspConfig = fs.existsSync(claspConfigPath)
     ? JSON.parse(fs.readFileSync(claspConfigPath, "utf8"))
@@ -78,7 +97,7 @@ export async function runPush(root?: string) {
   try {
     fs.writeFileSync(projectFilePath, JSON.stringify(projectConfig), "utf8");
 
-    process.argv = [...prevArgv.slice(0, 3), "--project", projectFilePath];
+    process.argv = createClaspArgv(prevArgv, projectFilePath, ignoreFilePath);
 
     await import(pathToFileURL(claspPath).href);
   } finally {
