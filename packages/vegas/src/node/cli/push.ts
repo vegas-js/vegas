@@ -47,16 +47,14 @@ export async function runPush(root?: string) {
   const importer = path.join(project.root, "index.js");
 
   const pkgJsonPath = module.findPackageJSON("@google/clasp", importer);
-
   if (!pkgJsonPath) {
-    return;
+    throw new Error(`@google/clasp is not installed for project: ${project.root}`);
   }
 
   const pkgJson = JSON.parse(fs.readFileSync(pkgJsonPath, "utf8"));
-  const pkgBin = pkgJson.bin.clasp;
-
+  const pkgBin = pkgJson?.bin?.clasp;
   if (typeof pkgBin !== "string") {
-    return;
+    throw new Error(`Invalid @google/clasp package: clasp executable not found.`);
   }
 
   const claspPath = path.resolve(path.dirname(pkgJsonPath), pkgBin);
