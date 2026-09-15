@@ -1,24 +1,20 @@
-import { createBuilder } from "vite";
-
-import { ArtifactStore, buildApp, createBuilderConfig, createBuildPlan } from "../build";
+import { ArtifactStore } from "../build";
 import { DevApplication } from "../dev/application";
-import { loadProject, scanProject } from "../project";
+import { buildDevTopology } from "../dev/build-topology";
+import { loadProject } from "../project";
 import { createServeContext } from "./core/context";
 import { createLegacyGasExecutor } from "./core/launch";
 import { loadMock } from "./core/mock";
 
 export async function runPreview(root?: string) {
-  const project = await loadProject({ cwd: process.cwd(), root });
-  const snapshot = await scanProject(project);
-
-  const plan = createBuildPlan(project, snapshot, "production");
-  const builderConfig = createBuilderConfig(plan);
-  const builder = await createBuilder(builderConfig);
-
-  const [clientArtifacts, serverArtifacts] = await Promise.all([
-    buildApp(builder, /^client\d+$/),
-    buildApp(builder, /^server$/),
-  ]);
+  const project = await loadProject({
+    cwd: process.cwd(),
+    root,
+  });
+  const { snapshot, builder, clientArtifacts, serverArtifacts } = await buildDevTopology(
+    project,
+    "production",
+  );
 
   const artifacts = new ArtifactStore();
   artifacts.replaceScope("client", clientArtifacts);
@@ -34,7 +30,7 @@ export async function runPreview(root?: string) {
     artifacts,
     builder,
     executor,
-    mode: plan.mode,
+    mode: "production",
   });
 
   await application.start();
