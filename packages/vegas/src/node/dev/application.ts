@@ -2,12 +2,14 @@ import path from "node:path";
 
 import { type Connect, type ViteBuilder, createLogger, createServer } from "vite";
 
+import type { WebAppGasCallRequest } from "../../shared/webapp-protocol";
 import { type ArtifactStore, buildApp } from "../build";
 import { HtmlDocument } from "../html";
 import type { ResolvedProject } from "../project";
 import type { GasExecutor } from "../runtime";
 import { BuildCoordinator } from "./build-coordinator";
 import { createGasDoGetEvent, createGasDoPostEvent } from "./webapp/event";
+import { executeGasCall } from "./webapp/gas-call";
 import { createHostHtml } from "./webapp/host-html";
 import {
   createGasDoPostHttpResponse,
@@ -114,30 +116,12 @@ export class DevApplication {
       }
     });
 
-    hostServer.ws.on("vegas:gascall", async (data, client) => {
+    hostServer.ws.on("vegas:gascall", async (data: WebAppGasCallRequest, client) => {
       await builds.waitForIdle();
 
-      try {
-        const args = Array.isArray(data.args) ? data.args : [data.args];
-        const result = await this.#executor.execute({
-          functionName: data.func,
-          args,
-        });
-        client.send("vegas:return", {
-          requestId: data.requestId,
-          status: "ok",
-          result,
-        });
-      } catch (err: any) {
-        hostServer.ws.send({
-          type: "error",
-          err: {
-            requestId: data.requestId,
-            message: err.message,
-            stack: err.stack,
-          },
-        });
-      }
+      const response = await executeGasCall(this.#executor, data);
+
+      client.send("vegas:return", response);
     });
 
     const hostHandler: Connect.NextHandleFunction = async (request, response, next) => {

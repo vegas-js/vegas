@@ -1,3 +1,5 @@
+import type { WebAppGasCallRequest, WebAppGasCallResponse } from "../shared/webapp-protocol";
+
 const { port1, port2 } = new MessageChannel();
 
 interface VegasInitEvent {
@@ -9,37 +11,12 @@ interface VegasInitEvent {
   };
 }
 
-interface VegasResult {
+interface VegasReturnEvent {
   type: "vegas:return";
-  payload: {
-    requestId: number;
-  };
+  payload: WebAppGasCallResponse;
 }
 
-interface VegasResultOk {
-  payload: {
-    status: "ok";
-    result: any;
-  };
-}
-
-interface VegasResultError {
-  payload: {
-    status: "err";
-    message: string;
-  };
-}
-
-interface VegasErrorEvent {
-  type: "vegas:error";
-  payload: {
-    requestId: number;
-  };
-}
-
-type VegasReturnEvent = VegasResult & (VegasResultOk | VegasResultError);
-
-type VegasEvent = VegasInitEvent | VegasReturnEvent | VegasErrorEvent;
+type VegasEvent = VegasInitEvent | VegasReturnEvent;
 
 let retryPreInitTimer: number | null = null;
 
@@ -80,15 +57,12 @@ port1.onmessage = (event: MessageEvent<VegasEvent>) => {
       if (gasRun) {
         if (event.data.payload.status === "ok") {
           gasRun.SuccessHandler(event.data.payload.result);
-        } else if (event.data.payload.status === "err") {
+        } else {
           gasRun.FailureHandler(event.data.payload.message);
         }
+
         window.vegas.requestMap.delete(event.data.payload.requestId);
       }
-      break;
-    }
-    case "vegas:error": {
-      window.vegas.requestMap.delete(event.data.payload.requestId);
       break;
     }
   }
@@ -118,10 +92,18 @@ const proxyHandler: ProxyHandler<object> = {
         do {
           requestId = Math.floor(Math.random() * 99999);
         } while (window.vegas.requestMap.has(requestId));
+
         window.vegas.requestMap.set(requestId, receiver);
+
+        const request: WebAppGasCallRequest = {
+          requestId,
+          functionName: String(property),
+          args,
+        };
+
         port1.postMessage({
           type: "vegas:gascall",
-          payload: { requestId, func: property, args },
+          payload: request,
         });
       };
     }
