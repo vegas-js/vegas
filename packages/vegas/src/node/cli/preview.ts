@@ -15,7 +15,7 @@ export async function runPreview(root?: string) {
   const builderConfig = createBuilderConfig(plan);
   const builder = await createBuilder(builderConfig);
   using mvfs = vfs.create();
-  await buildApp(mvfs, builder);
+  await buildApp(builder);
   const ctx = createServeContext(project, mvfs);
   await loadMock(ctx, snapshot.gasMockSources);
 

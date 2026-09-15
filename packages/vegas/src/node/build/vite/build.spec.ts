@@ -14,7 +14,6 @@ describe("buildApp", () => {
     try {
       const inputFilePath = path.join(tempDirPath, "main.ts");
       const outputDir = path.join(tempDirPath, "dist");
-      const outputFilePath = path.join(outputDir, "main.js");
 
       fs.writeFileSync(inputFilePath, `console.log("hello");`);
 
@@ -38,9 +37,70 @@ describe("buildApp", () => {
         logLevel: "silent",
       });
 
-      await buildApp(fs, builder);
+      const artifacts = await buildApp(builder);
 
-      expect(fs.existsSync(outputFilePath)).toBe(true);
+      expect(artifacts.some((artifact) => artifact.path === "main.js")).toBe(true);
+    } finally {
+      fs.rmSync(tempDirPath, {
+        recursive: true,
+        force: true,
+      });
+    }
+  });
+
+  test("preserve binary asset", async () => {
+    const tempDirPath = fs.mkdtempSync(path.join(os.tmpdir(), "vegas-"));
+
+    try {
+      const inputFilePath = path.join(tempDirPath, "main.ts");
+      const outputDir = path.join(tempDirPath, "dist");
+
+      const binary = new Uint8Array([0x00, 0xff, 0x80, 0x41]);
+
+      fs.writeFileSync(inputFilePath, `console.log("hello");`);
+
+      const builder = await createBuilder({
+        root: tempDirPath,
+        configFile: false,
+        plugins: [
+          {
+            name: "emit-binary",
+
+            generateBundle() {
+              this.emitFile({
+                type: "asset",
+                fileName: "binary.dat",
+                source: binary,
+              });
+            },
+          },
+        ],
+        environments: {
+          client0: {
+            build: {
+              rolldownOptions: {
+                input: inputFilePath,
+              },
+            },
+          },
+        },
+        build: {
+          outDir: outputDir,
+          write: false,
+        },
+        logLevel: "silent",
+      });
+
+      const artifacts = await buildApp(builder);
+      const binaryArtifact = artifacts.find((artifact) => artifact.path === "binary.dat");
+
+      expect(binaryArtifact).toBeDefined();
+
+      if (!binaryArtifact || typeof binaryArtifact.content === "string") {
+        throw new Error("Expected binary artifact");
+      }
+
+      expect(Array.from(binaryArtifact.content)).toStrictEqual(Array.from(binary));
     } finally {
       fs.rmSync(tempDirPath, {
         recursive: true,

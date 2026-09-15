@@ -20,7 +20,7 @@ export async function runBuild(root?: string) {
   const builderConfig = createBuilderConfig(plan);
   const builder = await createBuilder(builderConfig);
   fs.rmSync(project.outputDir, { recursive: true, force: true });
-  await buildApp(fs, builder);
+  await buildApp(builder);
   if (!isWebApp(project.outputDir)) {
     project.gas.webapp = undefined;
   }

@@ -38,14 +38,14 @@ export async function serveApp(ctx: ServeContext, builder: ViteBuilder) {
     isBuilding = true;
     try {
       if (filePath.startsWith(ctx.project.clientDir)) {
-        await buildApp(ctx.vfs, builder, /^client\d+$/);
+        await buildApp(builder, /^client\d+$/);
         isBuilding = false;
         promises.forEach((promise) => promise.resolve(undefined));
         hostServer.moduleGraph.invalidateAll();
         hostServer.ws.send({ type: "full-reload" });
         return [];
       } else if (filePath.startsWith(ctx.project.serverDir)) {
-        await buildApp(ctx.vfs, builder, /^server$/);
+        await buildApp(builder, /^server$/);
         isBuilding = false;
         promises.forEach((promise) => promise.resolve(undefined));
         return [];
