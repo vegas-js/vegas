@@ -75,6 +75,8 @@ export default function rolldownLicensePlugin(
         let readPath = "";
         if (fs.existsSync(path.join(pkgRootPath, upperLicenseFileName))) {
           readPath = path.join(pkgRootPath, upperLicenseFileName);
+        } else if (fs.existsSync(path.join(pkgRootPath, `${upperLicenseFileName}.md`))) {
+          readPath = path.join(pkgRootPath, `${upperLicenseFileName}.md`);
         } else if (fs.existsSync(path.join(pkgRootPath, lowerLicenseFileName))) {
           readPath = path.join(pkgRootPath, lowerLicenseFileName);
         }

@@ -10,7 +10,7 @@ export default defineConfig([
       client: "./src/client",
     },
     deps: {
-      onlyBundle: ["cac", "entities", "parse5"],
+      onlyBundle: ["cac", "entities", "json5", "parse5"],
     },
     fixedExtension: false,
     dts: false,

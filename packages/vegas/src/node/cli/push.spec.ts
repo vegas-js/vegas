@@ -1,6 +1,23 @@
 import { describe, expect, test } from "vitest";
 
-import { createClaspArgv, createClaspProjectConfig } from "./push";
+import { createClaspArgv, createClaspProjectConfig, parseClaspProjectConfig } from "./push";
+
+describe("parseClaspProjectConfig", () => {
+  test("parse JSON5 project config", () => {
+    expect(
+      parseClaspProjectConfig(`
+        {
+          // Apps Script project
+          scriptId: 'script',
+          parentId: 'parent',
+        }
+      `),
+    ).toStrictEqual({
+      scriptId: "script",
+      parentId: "parent",
+    });
+  });
+});
 
 describe("createClaspProjectConfig", () => {
   test("create config from clasp config", () => {

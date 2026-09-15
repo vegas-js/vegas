@@ -4,6 +4,8 @@ import module from "node:module";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 
+import JSON5 from "json5";
+
 import { loadProject } from "../project";
 
 interface ClaspProjectConfig {
@@ -15,6 +17,10 @@ interface ClaspProjectConfig {
 interface ClaspConfigOverrides {
   readonly parentId?: string;
   readonly scriptId?: string;
+}
+
+export function parseClaspProjectConfig(content: string): Record<string, unknown> {
+  return JSON5.parse(content) as Record<string, unknown>;
 }
 
 function stringValue(value: unknown): string | undefined {
@@ -79,7 +85,7 @@ export async function runPush(root?: string) {
       : undefined;
   const claspConfigPath = path.join(project.root, ".clasp.json");
   const claspConfig = fs.existsSync(claspConfigPath)
-    ? JSON.parse(fs.readFileSync(claspConfigPath, "utf8"))
+    ? parseClaspProjectConfig(fs.readFileSync(claspConfigPath, "utf8"))
     : {};
   const projectConfig = createClaspProjectConfig(
     claspConfig,
