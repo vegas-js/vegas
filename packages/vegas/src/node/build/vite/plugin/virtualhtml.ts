@@ -1,8 +1,8 @@
 import path from "node:path";
 
-import { Plugin } from "vite";
+import type { Plugin } from "vite";
 
-import { HTML } from "..";
+import { HtmlDocument } from "../../../html";
 
 export function virtualHTML(clientDir: string): Plugin {
   return {
@@ -36,12 +36,15 @@ export function virtualHTML(clientDir: string): Plugin {
       });
 
       chunks.forEach((chunk) => {
-        const html = new HTML();
+        const html = new HtmlDocument();
         assets.forEach((asset) => {
-          html.appendToHead("style", asset);
+          html.appendToHead("style", { text: asset });
         });
-        html.appendToBody("div", [{ name: "id", value: "root" }]);
-        html.appendToBody("script", chunk.jsCode, [{ name: "type", value: "module" }]);
+        html.appendToBody("div", { attributes: { id: "root" } });
+        html.appendToBody("script", {
+          text: chunk.jsCode,
+          attributes: { type: "module" },
+        });
 
         this.emitFile({
           originalFileName: chunk.original,

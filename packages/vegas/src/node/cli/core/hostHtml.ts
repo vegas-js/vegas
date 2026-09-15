@@ -1,48 +1,48 @@
-import { HTML } from ".";
+import { HtmlDocument } from "../../html";
 
 export function createHostHtml(url: URL, result: any) {
-  const html = new HTML();
+  const html = new HtmlDocument();
 
   if (result.metaTags.length > 0) {
     (result.metaTags as { name: string; content: string }[]).forEach((metaTag) => {
-      html.appendToHead("meta", [
-        { name: "name", value: metaTag.name },
-        { name: "content", value: metaTag.content },
-      ]);
+      html.appendToHead("meta", {
+        attributes: {
+          name: metaTag.name,
+          content: metaTag.content,
+        },
+      });
     });
   }
 
   if (result.title) {
-    html.appendToHead("title", result.title);
+    html.appendToHead("title", { text: result.title });
   }
 
   if (result.faviconUrl) {
-    html.appendToHead("link", [
-      { name: "rel", value: "shortcut icon" },
-      { name: "type", value: "image/png" },
-      { name: "href", value: result.faviconUrl },
-    ]);
+    html.appendToHead("link", {
+      attributes: {
+        rel: "shortcut icon",
+        type: "image/png",
+        href: result.faviconUrl,
+      },
+    });
   }
 
-  html.appendToHead(
-    "style",
-    "html,body,iframe#sandboxFrame{margin:0;padding:0;height:100%;width:100%;}iframe#sandboxFrame{border:none;display:block;};",
-  );
+  html.appendToHead("style", {
+    text: "html,body,iframe#sandboxFrame{margin:0;padding:0;height:100%;width:100%;}iframe#sandboxFrame{border:none;display:block;};",
+  });
 
-  html.appendToBody("iframe", [
-    { name: "id", value: "sandboxFrame" },
-    {
-      name: "allow",
-      value:
+  html.appendToBody("iframe", {
+    attributes: {
+      id: "sandboxFrame",
+      allow:
         "accelerometer *; ambient-light-sensor *; autoplay *; camera *; clipboard-read *; clipboard-write *; encrypted-media *; fullscreen *; geolocation *; gyroscope *; local-network-access *; magnetometer *; microphone *; midi *; payment *; picture-in-picture *; screen-wake-lock *; speaker *; sync-xhr *; usb *; vibrate *; vr *; web-share *",
-    },
-    {
-      name: "sandbox",
-      value:
+      sandbox:
         "allow-downloads allow-forms allow-modals allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts allow-top-navigation-by-user-activation allow-storage-access-by-user-activation",
+      src: `${url.origin}/userCodeAppPanel`,
     },
-    { name: "src", value: `${url.origin}/userCodeAppPanel` },
-  ]);
+  });
+
   const initRecord: Record<string, any> = {};
   initRecord["userHtml"] = result.content;
   const json = JSON.stringify(initRecord);
@@ -76,9 +76,8 @@ export function createHostHtml(url: URL, result: any) {
       i++;
     }
   }
-  html.appendToBody(
-    "script",
-    `let port = null;
+  html.appendToBody("script", {
+    text: `let port = null;
 if (import.meta.hot) {
   import.meta.hot.on("vegas:init", (data) => {
     if (port) {
@@ -113,8 +112,8 @@ window.addEventListener("message", (event) => {
     import.meta.hot.send(event.data.type, { payload: { id: event.data.payload.id }});
   }
 });`,
-    [{ name: "type", value: "module" }],
-  );
+    attributes: { type: "module" },
+  });
 
   return html.toString();
 }

@@ -1,12 +1,9 @@
 import type { EnvironmentOptions, InlineConfig } from "vite";
 
-import {
-  VIRTUAL_DETECT_SERVER_ENTRY,
-  detectServerEntry,
-} from "../../cli/core/plugins/detectserverentry";
-import { exportBridge } from "../../cli/core/plugins/exportbridge";
-import { virtualHTML } from "../../cli/core/plugins/virtualhtml";
-import { BuildPlan } from "../plan";
+import type { BuildPlan } from "../plan";
+import { VIRTUAL_DETECT_SERVER_ENTRY, detectServerEntry } from "./plugin/detectserverentry";
+import { exportBridge } from "./plugin/exportbridge";
+import { virtualHTML } from "./plugin/virtualhtml";
 
 export function createBuilderConfig(plan: BuildPlan): InlineConfig {
   const environments: Record<string, EnvironmentOptions> = {

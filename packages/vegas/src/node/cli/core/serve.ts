@@ -4,7 +4,7 @@ import path from "node:path";
 import { type Connect, type ViteBuilder, createLogger, createServer } from "vite";
 
 import { buildApp } from "../../build";
-import { HTML } from "../core";
+import { HtmlDocument } from "../../html";
 import type { ServeContext } from "./context";
 import { createHostHtml } from "./hostHtml";
 import { launchGAS } from "./launch";
@@ -242,21 +242,22 @@ export async function serveApp(ctx: ServeContext, builder: ViteBuilder) {
       const scheme = userContentServer.config.server.https ? "https" : "http";
       const url = new URL(request.url, `${scheme}://${request.headers.host}`);
       if (url.pathname === "/blank") {
-        const html = new HTML();
-        html.appendToHead("meta", [
-          { name: "http-equiv", value: "X-UA-Compatible" },
-          { name: "content", value: "IE=edge" },
-        ]);
+        const html = new HtmlDocument();
+        html.appendToHead("meta", {
+          attributes: {
+            "http-equiv": "X-UA-Compatible",
+            content: "IE=edge",
+          },
+        });
         response.statusCode = 200;
         response.setHeader("Content-Type", "text/html; charset=utf-8");
         response.end(html.toString());
         return;
       } else if (url.pathname === "/userCodeAppPanel") {
-        const html = new HTML();
-        html.appendToHead(
-          "style",
-          "html, body, iframe {border: 0; display: block; height: 100%; margin: 0; padding: 0; width: 100%;}iframe#userHtmlFrame {overflow-y: scroll; -webkit-overflow-scrolling: touch;}",
-        );
+        const html = new HtmlDocument();
+        html.appendToHead("style", {
+          text: "html, body, iframe {border: 0; display: block; height: 100%; margin: 0; padding: 0; width: 100%;}iframe#userHtmlFrame {overflow-y: scroll; -webkit-overflow-scrolling: touch;}",
+        });
         let uuid = "";
         for (const [key, value] of idMap) {
           if (value.expiredAt <= Date.now()) {
@@ -268,24 +269,24 @@ export async function serveApp(ctx: ServeContext, builder: ViteBuilder) {
           }
         }
         const hostOrigin = `${url.protocol}//${url.hostname}:${hostServer.config.server.port}`;
-        html.appendToHead(
-          "script",
-          `window.vegas = { id: "${uuid}", hostOrigin: "${hostOrigin}", requestMap: new Map() }`,
-        );
-        html.appendToHead("script", [
-          { name: "type", value: "module" },
-          { name: "src", value: "/@vegas/client" },
-        ]);
-
-        html.appendToBody("iframe", [
-          { name: "id", value: "userHtmlFrame" },
-          {
-            name: "allow",
-            value:
-              "accelerometer *; ambient-light-sensor *; autoplay *; camera *; clipboard-read *; clipboard-write *; encrypted-media *; fullscreen *; geolocation *; gyroscope *; local-network-access *; magnetometer *; microphone *; midi *; payment *; picture-in-picture *; screen-wake-lock *; speaker *; sync-xhr *; usb *; vibrate *; vr *; web-share *",
+        html.appendToHead("script", {
+          text: `window.vegas = { id: "${uuid}", hostOrigin: "${hostOrigin}", requestMap: new Map() }`,
+        });
+        html.appendToHead("script", {
+          attributes: {
+            type: "module",
+            src: "/@vegas/client",
           },
-          { name: "src", value: "/blank" },
-        ]);
+        });
+
+        html.appendToBody("iframe", {
+          attributes: {
+            id: "userHtmlFrame",
+            allow:
+              "accelerometer *; ambient-light-sensor *; autoplay *; camera *; clipboard-read *; clipboard-write *; encrypted-media *; fullscreen *; geolocation *; gyroscope *; local-network-access *; magnetometer *; microphone *; midi *; payment *; picture-in-picture *; screen-wake-lock *; speaker *; sync-xhr *; usb *; vibrate *; vr *; web-share *",
+            src: "/blank",
+          },
+        });
 
         response.statusCode = 200;
         response.setHeader("Content-Type", "text/html; charset=utf-8");

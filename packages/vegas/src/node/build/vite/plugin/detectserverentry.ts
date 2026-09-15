@@ -3,7 +3,7 @@ import path from "node:path";
 
 import { type Plugin, parseSync, Visitor } from "vite";
 
-import { BuildPlan } from "../../../build";
+import type { BuildPlan } from "../../plan";
 
 export const VIRTUAL_DETECT_SERVER_ENTRY = "virtual:detectserverentry";
 
