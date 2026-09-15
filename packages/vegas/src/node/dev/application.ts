@@ -116,6 +116,37 @@ export class DevApplication {
       }
     });
 
+    const handleTopologyChange = async (filePath: string): Promise<void> => {
+      const scope = classifyProjectFile(this.#project, filePath);
+      if (!scope) {
+        return;
+      }
+
+      try {
+        await builds.run(async () => {
+          await this.#refreshBuildTopology();
+
+          hostServer.moduleGraph.invalidateAll();
+          hostServer.ws.send({ type: "full-reload" });
+        });
+      } catch (err: any) {
+        console.error(err);
+
+        hostServer.ws.send({
+          type: "error",
+          err: {
+            // oxlint-disable-next-line no-control-regex
+            message: err.message.replace(/\x1b\[[\d;]+m/g, ""),
+            // oxlint-disable-next-line no-control-regex
+            stack: err.stack.replace(/\x1b\[[\d;]+m/g, ""),
+          },
+        });
+      }
+    };
+
+    hostServer.watcher.on("add", handleTopologyChange);
+    hostServer.watcher.on("unlink", handleTopologyChange);
+
     hostServer.ws.on("vegas:init", async (data, client) => {
       await builds.waitForIdle();
 
