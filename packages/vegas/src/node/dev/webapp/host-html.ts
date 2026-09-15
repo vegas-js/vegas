@@ -1,4 +1,5 @@
 import { HtmlDocument } from "../../html";
+import { serializeInlineScriptValue } from "./inline-script";
 
 export function createHostHtml(url: URL, result: any) {
   const html = new HtmlDocument();
@@ -43,39 +44,7 @@ export function createHostHtml(url: URL, result: any) {
     },
   });
 
-  const initRecord: Record<string, any> = {};
-  initRecord["userHtml"] = result.content;
-  const json = JSON.stringify(initRecord);
-  const replaceRecord: Record<string, string> = {
-    '"': "\\x22",
-    "'": "\\x27",
-    "<": "\\x3c",
-    "=": "\\x3d",
-    ">": "\\x3e",
-    "[": "\\x5b",
-    "]": "\\x5d",
-    "{": "\\x7b",
-    "}": "\\x7d",
-    "/": "\\/",
-    "\\": "\\\\",
-  };
-  let resultJson = "";
-  for (let i = 0; i < json.length; i++) {
-    const ch = json.charAt(i);
-    if (ch === "/" && json.charAt(i + 1) === "*") {
-      i += 2;
-      while (i + 1 < json.length && (json.charAt(i) !== "*" || json.charAt(i + 1) !== "/")) {
-        i++;
-      }
-      i++;
-      continue;
-    }
-    resultJson += replaceRecord[ch] ?? ch;
-    if (ch === "<" && json.charAt(i + 1) === "/") {
-      resultJson += "\\\\\\/";
-      i++;
-    }
-  }
+  const serverData = serializeInlineScriptValue({ userHtml: result.content });
   html.appendToBody("script", {
     text: `let port = null;
 if (import.meta.hot) {
@@ -86,7 +55,7 @@ if (import.meta.hot) {
           import.meta.hot.send(event.data.type, event.data.payload);
         }
       };
-      port.postMessage({ type: "vegas:init", payload: { serverData: JSON.parse("${resultJson}")}});
+      port.postMessage({ type: "vegas:init", payload: { serverData: ${serverData} }});
     }
   });
   import.meta.hot.on("vegas:return", (data) => {
