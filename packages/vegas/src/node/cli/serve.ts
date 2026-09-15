@@ -3,6 +3,7 @@ import { createBuilder } from "vite";
 import { ArtifactStore, buildApp, createBuilderConfig, createBuildPlan } from "../build";
 import { loadProject, scanProject } from "../project";
 import { createServeContext } from "./core/context";
+import { createLegacyGasExecutor } from "./core/launch";
 import { loadMock } from "./core/mock";
 import { serveApp } from "./core/serve";
 
@@ -17,7 +18,10 @@ export async function runServe(root?: string) {
   const artifacts = new ArtifactStore(await buildApp(builder));
 
   const ctx = createServeContext(project, artifacts);
+
   await loadMock(ctx, snapshot.gasMockSources);
 
-  await serveApp(ctx, builder);
+  const executor = createLegacyGasExecutor(ctx);
+
+  await serveApp(ctx, builder, executor);
 }

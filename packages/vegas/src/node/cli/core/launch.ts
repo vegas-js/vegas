@@ -1,6 +1,7 @@
 import path from "node:path";
 import worker from "node:worker_threads";
 
+import type { GasExecutor } from "../../runtime";
 import type { ServeContext } from "./context";
 import {
   HtmlServiceHandler,
@@ -51,7 +52,7 @@ class GASHandler {
 
 const handler = new GASHandler();
 
-export function launchGAS(ctx: ServeContext, fn: string, ...args: any[]): Promise<any> {
+function launchGAS(ctx: ServeContext, fn: string, ...args: any[]): Promise<any> {
   const code = ctx.artifacts.readText("Code.js");
   return new Promise((resolve, reject) => {
     const sharedBuffer = new SharedArrayBuffer(4);
@@ -84,4 +85,12 @@ export function launchGAS(ctx: ServeContext, fn: string, ...args: any[]): Promis
     });
     port1.postMessage({ fn, args });
   });
+}
+
+export function createLegacyGasExecutor(ctx: ServeContext): GasExecutor {
+  return {
+    execute(request) {
+      return launchGAS(ctx, request.functionName, ...request.args);
+    },
+  };
 }

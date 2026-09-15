@@ -5,11 +5,11 @@ import { type Connect, type ViteBuilder, createLogger, createServer } from "vite
 
 import { buildApp } from "../../build";
 import { HtmlDocument } from "../../html";
+import type { GasExecutor } from "../../runtime";
 import type { ServeContext } from "./context";
 import { createHostHtml } from "./hostHtml";
-import { launchGAS } from "./launch";
 
-export async function serveApp(ctx: ServeContext, builder: ViteBuilder) {
+export async function serveApp(ctx: ServeContext, builder: ViteBuilder, executor: GasExecutor) {
   const idMap: Map<string, { use: boolean; expiredAt: number }> = new Map();
   let isBuilding = false;
   const promises: { resolve: (value: unknown) => void; reject: (reason?: any) => void }[] = [];
@@ -93,7 +93,10 @@ export async function serveApp(ctx: ServeContext, builder: ViteBuilder) {
     }
     try {
       const args = Array.isArray(data.args) ? data.args : [data.args];
-      const result = await launchGAS(ctx, data.func, ...args);
+      const result = await executor.execute({
+        functionName: data.func,
+        args,
+      });
       client.send("vegas:return", {
         requestId: data.requestId,
         status: "ok",
@@ -162,7 +165,10 @@ export async function serveApp(ctx: ServeContext, builder: ViteBuilder) {
             uuid = crypto.randomUUID();
           } while (idMap.has(uuid));
           idMap.set(uuid, { use: false, expiredAt: Date.now() + 1000 * 30 });
-          const result = await launchGAS(ctx, "doGet", doGetEvent);
+          const result = await executor.execute({
+            functionName: "doGet",
+            args: [doGetEvent],
+          });
           const html = createHostHtml(url, result);
           const transFormedHtml = await hostServer.transformIndexHtml(url.href, html);
           response.statusCode = 200;
@@ -193,7 +199,10 @@ export async function serveApp(ctx: ServeContext, builder: ViteBuilder) {
             if (pathInfo) {
               doPostEvent["pathInfo"] = pathInfo;
             }
-            const result = await launchGAS(ctx, "doPost", doPostEvent);
+            const result = await executor.execute({
+              functionName: "doPost",
+              args: [doPostEvent],
+            });
             response.statusCode = 200;
             response.setHeader("Content-Type", `${result.mimeType}; charset=utf-8`);
             response.end(result);
