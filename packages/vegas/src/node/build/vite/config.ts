@@ -3,7 +3,7 @@ import type { EnvironmentOptions, InlineConfig } from "vite";
 import type { BuildPlan } from "../plan";
 import { VIRTUAL_DETECT_SERVER_ENTRY, detectServerEntry } from "./plugin/detectserverentry";
 import { exportBridge } from "./plugin/exportbridge";
-import { virtualHTML } from "./plugin/virtualhtml";
+import { virtualHtml } from "./plugin/virtual-html";
 
 export function createBuilderConfig(plan: BuildPlan): InlineConfig {
   const environments: Record<string, EnvironmentOptions> = {
@@ -49,7 +49,7 @@ export function createBuilderConfig(plan: BuildPlan): InlineConfig {
     configFile: false,
     plugins: [
       ...plan.plugins,
-      virtualHTML(plan.clientEntries),
+      virtualHtml(plan.clientEntries),
       detectServerEntry(plan),
       exportBridge(),
     ],
