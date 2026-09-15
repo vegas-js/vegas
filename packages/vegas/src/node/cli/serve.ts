@@ -17,8 +17,16 @@ export async function runServe(root?: string) {
   );
 
   const artifacts = new ArtifactStore();
-  artifacts.replaceScope("client", clientArtifacts);
-  artifacts.replaceScope("server", serverArtifacts);
+  artifacts.replaceScopes([
+    {
+      scope: "client",
+      artifacts: clientArtifacts,
+    },
+    {
+      scope: "server",
+      artifacts: serverArtifacts,
+    },
+  ]);
 
   const ctx = createServeContext(project, artifacts);
 

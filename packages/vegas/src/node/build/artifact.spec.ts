@@ -89,6 +89,154 @@ describe("ArtifactStore", () => {
     ).toThrow('Artifact "shared.html" already belongs to scope "client".');
     expect(store.readText("shared.html")).toBe("client");
   });
+
+  test("replace multiple scopes", () => {
+    const store = new ArtifactStore();
+    store.replaceScopes([
+      {
+        scope: "client",
+        artifacts: [
+          {
+            path: "index.html",
+            content: "index:first",
+          },
+          {
+            path: "admin.html",
+            content: "admin",
+          },
+        ],
+      },
+      {
+        scope: "server",
+        artifacts: [
+          {
+            path: "Code.js",
+            content: "server:first",
+          },
+        ],
+      },
+    ]);
+    store.replaceScopes([
+      {
+        scope: "client",
+        artifacts: [
+          {
+            path: "index.html",
+            content: "index:second",
+          },
+        ],
+      },
+      {
+        scope: "server",
+        artifacts: [
+          {
+            path: "Code.js",
+            content: "server:second",
+          },
+        ],
+      },
+    ]);
+
+    expect(store.readText("index.html")).toBe("index:second");
+    expect(store.readText("Code.js")).toBe("server:second");
+
+    expect(() => store.readText("admin.html")).toThrow("Artifact not found: admin.html");
+  });
+
+  test("do not partially replace scopes when replacement fails", () => {
+    const store = new ArtifactStore();
+    store.replaceScopes([
+      {
+        scope: "client",
+        artifacts: [
+          {
+            path: "index.html",
+            content: "client:first",
+          },
+        ],
+      },
+      {
+        scope: "server",
+        artifacts: [
+          {
+            path: "Code.js",
+            content: "server:first",
+          },
+        ],
+      },
+    ]);
+
+    expect(() =>
+      store.replaceScopes([
+        {
+          scope: "client",
+          artifacts: [
+            {
+              path: "index.html",
+              content: "client:second",
+            },
+          ],
+        },
+        {
+          scope: "server",
+          artifacts: [
+            {
+              path: "index.html",
+              content: "server:second",
+            },
+          ],
+        },
+      ]),
+    ).toThrow('Artifact "index.html" already belongs to scope "client".');
+
+    expect(store.readText("index.html")).toBe("client:first");
+    expect(store.readText("Code.js")).toBe("server:first");
+  });
+
+  test("reject artifact ownership transfer between scopes", () => {
+    const store = new ArtifactStore();
+    store.replaceScopes([
+      {
+        scope: "client",
+        artifacts: [
+          {
+            path: "shared.html",
+            content: "client",
+          },
+        ],
+      },
+      {
+        scope: "server",
+        artifacts: [
+          {
+            path: "Code.js",
+            content: "server",
+          },
+        ],
+      },
+    ]);
+
+    expect(() =>
+      store.replaceScopes([
+        {
+          scope: "client",
+          artifacts: [],
+        },
+        {
+          scope: "server",
+          artifacts: [
+            {
+              path: "shared.html",
+              content: "server:new",
+            },
+          ],
+        },
+      ]),
+    ).toThrow('Artifact "shared.html" already belongs to scope "client".');
+
+    expect(store.readText("shared.html")).toBe("client");
+    expect(store.readText("Code.js")).toBe("server");
+  });
 });
 
 describe("writeArtifacts", () => {

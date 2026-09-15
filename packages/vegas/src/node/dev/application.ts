@@ -47,8 +47,16 @@ export class DevApplication {
   async #refreshBuildTopology(): Promise<void> {
     const next = await buildDevTopology(this.#project, this.#mode);
 
-    this.#artifacts.replaceScope("client", next.clientArtifacts);
-    this.#artifacts.replaceScope("server", next.serverArtifacts);
+    this.#artifacts.replaceScopes([
+      {
+        scope: "client",
+        artifacts: next.clientArtifacts,
+      },
+      {
+        scope: "server",
+        artifacts: next.serverArtifacts,
+      },
+    ]);
 
     this.#builder = next.builder;
   }
@@ -93,8 +101,16 @@ export class DevApplication {
               buildApp(this.#builder, /^server$/),
             ]);
 
-            this.#artifacts.replaceScope("client", clientArtifacts);
-            this.#artifacts.replaceScope("server", serverArtifacts);
+            this.#artifacts.replaceScopes([
+              {
+                scope: "client",
+                artifacts: clientArtifacts,
+              },
+              {
+                scope: "server",
+                artifacts: serverArtifacts,
+              },
+            ]);
 
             hostServer.moduleGraph.invalidateAll();
 
