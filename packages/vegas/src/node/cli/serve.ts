@@ -1,11 +1,11 @@
 import { createBuilder } from "vite";
 
 import { ArtifactStore, buildApp, createBuilderConfig, createBuildPlan } from "../build";
+import { DevApplication } from "../dev/application";
 import { loadProject, scanProject } from "../project";
 import { createServeContext } from "./core/context";
 import { createLegacyGasExecutor } from "./core/launch";
 import { loadMock } from "./core/mock";
-import { serveApp } from "./core/serve";
 
 export async function runServe(root?: string) {
   const project = await loadProject({ cwd: process.cwd(), root });
@@ -23,5 +23,13 @@ export async function runServe(root?: string) {
 
   const executor = createLegacyGasExecutor(ctx);
 
-  await serveApp(ctx, builder, executor);
+  const application = new DevApplication({
+    project,
+    artifacts,
+    builder,
+    executor,
+    mode: plan.mode,
+  });
+
+  await application.start();
 }
