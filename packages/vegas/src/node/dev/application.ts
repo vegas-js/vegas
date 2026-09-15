@@ -88,8 +88,13 @@ export class DevApplication {
       try {
         await builds.run(async () => {
           if (scope === "client") {
-            const artifacts = await buildApp(this.#builder, /^client\d+$/);
-            this.#artifacts.replaceScope("client", artifacts);
+            const [clientArtifacts, serverArtifacts] = await Promise.all([
+              buildApp(this.#builder, /^client\d+$/),
+              buildApp(this.#builder, /^server$/),
+            ]);
+
+            this.#artifacts.replaceScope("client", clientArtifacts);
+            this.#artifacts.replaceScope("server", serverArtifacts);
 
             hostServer.moduleGraph.invalidateAll();
 
