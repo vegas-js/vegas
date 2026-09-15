@@ -1,7 +1,7 @@
 import { HtmlDocument } from "../../html";
 import { serializeInlineScriptValue } from "./inline-script";
 
-export function createHostHtml(url: URL, result: any) {
+export function createHostHtml(url: URL, result: any, sessionId: string) {
   const html = new HtmlDocument();
 
   if (result.metaTags.length > 0) {
@@ -33,6 +33,9 @@ export function createHostHtml(url: URL, result: any) {
     text: "html,body,iframe#sandboxFrame{margin:0;padding:0;height:100%;width:100%;}iframe#sandboxFrame{border:none;display:block;};",
   });
 
+  const userContentUrl = new URL("/userCodeAppPanel", url.origin);
+  userContentUrl.searchParams.set("sessionId", sessionId);
+
   html.appendToBody("iframe", {
     attributes: {
       id: "sandboxFrame",
@@ -40,11 +43,12 @@ export function createHostHtml(url: URL, result: any) {
         "accelerometer *; ambient-light-sensor *; autoplay *; camera *; clipboard-read *; clipboard-write *; encrypted-media *; fullscreen *; geolocation *; gyroscope *; local-network-access *; magnetometer *; microphone *; midi *; payment *; picture-in-picture *; screen-wake-lock *; speaker *; sync-xhr *; usb *; vibrate *; vr *; web-share *",
       sandbox:
         "allow-downloads allow-forms allow-modals allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts allow-top-navigation-by-user-activation allow-storage-access-by-user-activation",
-      src: `${url.origin}/userCodeAppPanel`,
+      src: userContentUrl.href,
     },
   });
 
   const serverData = serializeInlineScriptValue({ userHtml: result.content });
+
   html.appendToBody("script", {
     text: `let port = null;
 if (import.meta.hot) {

@@ -41,23 +41,21 @@ export class WebAppSessionRegistry {
     return id;
   }
 
-  claim(): string | null {
+  claim(id: string): boolean {
     this.#deleteExpired();
 
-    for (const [id, session] of this.#sessions) {
-      if (session.state !== "issued") {
-        continue;
-      }
+    const session = this.#sessions.get(id);
 
-      this.#sessions.set(id, {
-        ...session,
-        state: "claimed",
-      });
-
-      return id;
+    if (!session || session.state !== "issued") {
+      return false;
     }
 
-    return null;
+    this.#sessions.set(id, {
+      ...session,
+      state: "claimed",
+    });
+
+    return true;
   }
 
   consume(id: string): boolean {

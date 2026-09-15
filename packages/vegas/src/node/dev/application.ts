@@ -160,13 +160,14 @@ export class DevApplication {
             if (request.method === "GET") {
               const doGetEvent = createGasDoGetEvent(url);
 
-              sessions.issue();
-
               const result = await this.#executor.execute({
                 functionName: "doGet",
                 args: [doGetEvent],
               });
-              const html = createHostHtml(url, result);
+
+              const sessionId = sessions.issue();
+
+              const html = createHostHtml(url, result, sessionId);
               const transFormedHtml = await hostServer.transformIndexHtml(url.href, html);
 
               response.statusCode = 200;
@@ -261,7 +262,9 @@ export class DevApplication {
             text: "html, body, iframe {border: 0; display: block; height: 100%; margin: 0; padding: 0; width: 100%;}iframe#userHtmlFrame {overflow-y: scroll; -webkit-overflow-scrolling: touch;}",
           });
 
-          const sessionId = sessions.claim() ?? "";
+          const requestedSessionId = url.searchParams.get("sessionId");
+          const sessionId =
+            requestedSessionId && sessions.claim(requestedSessionId) ? requestedSessionId : "";
 
           const hostOrigin = `${url.protocol}//${url.hostname}:${hostServer.config.server.port}`;
           html.appendToHead("script", {

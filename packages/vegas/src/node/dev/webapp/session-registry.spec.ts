@@ -16,7 +16,6 @@ describe("WebAppSessionRegistry", () => {
     const ids = ["session-1", "session-1", "session-2"];
 
     let index = 0;
-
     const registry = new WebAppSessionRegistry({
       createId: () => ids[index++]!,
       now: () => 1000,
@@ -34,7 +33,7 @@ describe("WebAppSessionRegistry", () => {
 
     registry.issue();
 
-    expect(registry.claim()).toBe("session-1");
+    expect(registry.claim("session-1")).toBe(true);
     expect(registry.consume("session-1")).toBe(true);
     expect(registry.consume("session-1")).toBe(false);
   });
@@ -48,12 +47,11 @@ describe("WebAppSessionRegistry", () => {
     registry.issue();
 
     expect(registry.consume("session-1")).toBe(false);
-    expect(registry.claim()).toBe("session-1");
+    expect(registry.claim("session-1")).toBe(true);
   });
 
   test("discard expired session", () => {
     let now = 1000;
-
     const registry = new WebAppSessionRegistry({
       createId: () => "session-1",
       now: () => now,
@@ -64,6 +62,26 @@ describe("WebAppSessionRegistry", () => {
 
     now = 31_000;
 
-    expect(registry.claim()).toBeNull();
+    expect(registry.claim("session-1")).toBe(false);
+  });
+
+  test("claim specific session", () => {
+    const ids = ["session-1", "session-2"];
+
+    let index = 0;
+    const registry = new WebAppSessionRegistry({
+      createId: () => ids[index++]!,
+      now: () => 1000,
+    });
+
+    const first = registry.issue();
+    const second = registry.issue();
+
+    expect(first).toBe("session-1");
+    expect(second).toBe("session-2");
+
+    expect(registry.claim(second)).toBe(true);
+    expect(registry.consume(second)).toBe(true);
+    expect(registry.claim(first)).toBe(true);
   });
 });
