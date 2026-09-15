@@ -40,6 +40,7 @@ export function createBuilderConfig(plan: BuildPlan): InlineConfig {
   });
   const builderConfig: InlineConfig = {
     root: plan.root,
+    mode: plan.mode,
     define: {
       "import.meta.env.DEV": plan.mode === "development",
       "import.meta.env.MODE": plan.mode,
