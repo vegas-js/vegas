@@ -20,7 +20,7 @@ cli.command("preview [root]").action(runPreview);
 cli.command("build [root]").action(runBuild);
 
 // push
-cli.command("push").action(runPush);
+cli.command("push [root]").action(runPush);
 
 cli.help();
 cli.parse();

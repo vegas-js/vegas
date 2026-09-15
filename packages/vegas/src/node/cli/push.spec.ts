@@ -11,11 +11,12 @@ describe("createClaspProjectConfig", () => {
           scriptId: "script",
         },
         {},
+        ".",
       ),
     ).toStrictEqual({
       parentId: "parent",
       scriptId: "script",
-      rootDir: "dist",
+      rootDir: ".",
     });
   });
 
@@ -30,11 +31,12 @@ describe("createClaspProjectConfig", () => {
           parentId: "env-parent",
           scriptId: "env-script",
         },
+        ".",
       ),
     ).toStrictEqual({
       parentId: "env-parent",
       scriptId: "env-script",
-      rootDir: "dist",
+      rootDir: ".",
     });
   });
 
@@ -49,11 +51,28 @@ describe("createClaspProjectConfig", () => {
           parentId: undefined,
           scriptId: undefined,
         },
+        ".",
       ),
     ).toStrictEqual({
       parentId: "parent",
       scriptId: "script",
-      rootDir: "dist",
+      rootDir: ".",
+    });
+  });
+
+  test("use provided root directory", () => {
+    expect(
+      createClaspProjectConfig(
+        {
+          scriptId: "script",
+        },
+        {},
+        "custom-output",
+      ),
+    ).toStrictEqual({
+      parentId: undefined,
+      scriptId: "script",
+      rootDir: "custom-output",
     });
   });
 });
