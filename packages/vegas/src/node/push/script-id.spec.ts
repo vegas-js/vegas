@@ -1,0 +1,51 @@
+import { describe, expect, test } from "vitest";
+
+import { resolveAppsScriptScriptId } from "./script-id";
+
+describe("resolveAppsScriptScriptId", () => {
+  test("prefer environment script id", () => {
+    expect(
+      resolveAppsScriptScriptId({
+        environmentScriptId: "environment-id",
+        compatibilityScriptId: "compatibility-id",
+      }),
+    ).toBe("environment-id");
+  });
+
+  test("use compatibility script id", () => {
+    expect(
+      resolveAppsScriptScriptId({
+        compatibilityScriptId: "compatibility-id",
+      }),
+    ).toBe("compatibility-id");
+  });
+
+  test("reject missing script id", () => {
+    expect(() => resolveAppsScriptScriptId({})).toThrow("Apps Script script ID is required.");
+  });
+
+  test("reject empty environment script id instead of falling back", () => {
+    expect(() =>
+      resolveAppsScriptScriptId({
+        environmentScriptId: "",
+        compatibilityScriptId: "compatibility-id",
+      }),
+    ).toThrow("Apps Script script ID is required.");
+  });
+
+  test("reject empty compatibility script id", () => {
+    expect(() =>
+      resolveAppsScriptScriptId({
+        compatibilityScriptId: "",
+      }),
+    ).toThrow("Apps Script script ID is required.");
+  });
+
+  test("preserve script id", () => {
+    expect(
+      resolveAppsScriptScriptId({
+        environmentScriptId: " script-id ",
+      }),
+    ).toBe(" script-id ");
+  });
+});
