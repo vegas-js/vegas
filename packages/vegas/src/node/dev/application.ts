@@ -8,6 +8,7 @@ import { HtmlDocument } from "../html";
 import type { ResolvedProject } from "../project";
 import type { GasExecutor } from "../runtime";
 import { BuildCoordinator } from "./build-coordinator";
+import { buildDevTopology } from "./build-topology";
 import { classifyProjectFile } from "./project-file";
 import { createGasDoGetEvent, createGasDoPostEvent } from "./webapp/event";
 import { executeGasCall } from "./webapp/gas-call";
@@ -31,16 +32,25 @@ interface DevApplicationOptions {
 export class DevApplication {
   readonly #project: ResolvedProject;
   readonly #artifacts: ArtifactStore;
-  readonly #builder: ViteBuilder;
   readonly #executor: GasExecutor;
   readonly #mode: "development" | "production";
+  #builder: ViteBuilder;
 
   constructor(options: DevApplicationOptions) {
     this.#project = options.project;
     this.#artifacts = options.artifacts;
-    this.#builder = options.builder;
     this.#executor = options.executor;
     this.#mode = options.mode;
+    this.#builder = options.builder;
+  }
+
+  async #refreshBuildTopology(): Promise<void> {
+    const next = await buildDevTopology(this.#project, this.#mode);
+
+    this.#artifacts.replaceScope("client", next.clientArtifacts);
+    this.#artifacts.replaceScope("server", next.serverArtifacts);
+
+    this.#builder = next.builder;
   }
 
   async start(): Promise<void> {
