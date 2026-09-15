@@ -1,10 +1,9 @@
-import vfs from "@platformatic/vfs";
-
+import type { ArtifactStore } from "../../build";
 import type { ResolvedProject } from "../../project";
 
 export interface ServeContext {
   project: ResolvedProject;
-  vfs: vfs.VirtualFileSystem;
+  artifacts: ArtifactStore;
   mock: Record<string, any>;
   store: {
     properties: {
@@ -26,11 +25,11 @@ export interface ServeContext {
 
 export function createServeContext(
   project: ResolvedProject,
-  vfs: vfs.VirtualFileSystem,
+  artifacts: ArtifactStore,
 ): ServeContext {
   return {
     project,
-    vfs,
+    artifacts,
     mock: {},
     store: {
       properties: {

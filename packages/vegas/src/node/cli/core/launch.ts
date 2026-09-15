@@ -52,8 +52,7 @@ class GASHandler {
 const handler = new GASHandler();
 
 export function launchGAS(ctx: ServeContext, fn: string, ...args: any[]): Promise<any> {
-  const sourcePath = path.join(ctx.project.outputDir, "Code.js");
-  const code = ctx.vfs.readFileSync(sourcePath, "utf8");
+  const code = ctx.artifacts.readText("Code.js");
   return new Promise((resolve, reject) => {
     const sharedBuffer = new SharedArrayBuffer(4);
     const sharedArray = new Int32Array(sharedBuffer);

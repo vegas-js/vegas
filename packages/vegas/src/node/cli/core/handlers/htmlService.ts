@@ -4,8 +4,8 @@ import type { ServeContext } from "../context";
 
 export class HtmlServiceHandler {
   createHtmlOutputFromFile(ctx: ServeContext, payload: any) {
-    const filePath = `${path.join(ctx.project.outputDir, path.parse(payload).name)}.html`;
-    const html = ctx.vfs.readFileSync(filePath, "utf8");
-    return html;
+    const filePath = `${path.parse(payload).name}.html`;
+
+    return ctx.artifacts.readText(filePath);
   }
 }

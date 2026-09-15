@@ -2,7 +2,7 @@ import fs from "node:fs";
 
 import { createBuilder } from "vite";
 
-import { buildApp, createBuilderConfig, createBuildPlan } from "../build";
+import { buildApp, createBuilderConfig, createBuildPlan, writeArtifacts } from "../build";
 import { loadProject, scanProject } from "../project";
 import { isWebApp } from "./core/analyze";
 import { printBanner } from "./core/banner";
@@ -19,16 +19,23 @@ export async function runBuild(root?: string) {
   const plan = createBuildPlan(project, snapshot, "production");
   const builderConfig = createBuilderConfig(plan);
   const builder = await createBuilder(builderConfig);
-  fs.rmSync(project.outputDir, { recursive: true, force: true });
-  await buildApp(builder);
+  fs.rmSync(project.outputDir, {
+    recursive: true,
+    force: true,
+  });
+
+  const buildArtifacts = await buildApp(builder);
+
+  await writeArtifacts(project.outputDir, buildArtifacts);
+
   if (!isWebApp(project.outputDir)) {
     project.gas.webapp = undefined;
   }
   generateGASManifest(project.outputDir, project.gas);
   const endTime = performance.now();
 
-  const artifacts = collectArtifacts(project.outputDir);
-  artifacts.sort((a, b) => a.path.localeCompare(b.path));
+  const reportArtifacts = collectArtifacts(project.outputDir);
+  reportArtifacts.sort((a, b) => a.path.localeCompare(b.path));
 
-  printReport(project, artifacts, endTime - startTime);
+  printReport(project, reportArtifacts, endTime - startTime);
 }
