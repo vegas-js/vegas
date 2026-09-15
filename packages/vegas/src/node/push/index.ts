@@ -1,3 +1,7 @@
+export type { AppsScriptAccessTokenProvider } from "./access-token";
+
+export { createAppsScriptApiPushTransport } from "./api-transport";
+
 export { createAppsScriptProjectContent } from "./content";
 export type { AppsScriptProjectContent, AppsScriptProjectFile } from "./content";
 
