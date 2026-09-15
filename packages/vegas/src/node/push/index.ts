@@ -12,7 +12,11 @@ export { readClaspScriptId } from "./clasp-compatibility";
 export { createAppsScriptCredentialFile, parseAppsScriptCredentialFile } from "./credential";
 export type { AppsScriptCredential, AppsScriptCredentialFile } from "./credential";
 
+export { resolveAppsScriptCredentialPath } from "./credential-path";
+
 export type { AppsScriptCredentialStore } from "./credential-store";
+
+export { createAppsScriptFileCredentialStore } from "./file-credential-store";
 
 export { loadAppsScriptPushRequest } from "./load-request";
 
