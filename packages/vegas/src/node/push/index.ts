@@ -1,4 +1,12 @@
-export type { AppsScriptAccessTokenProvider } from "./access-token";
+export {
+  APPS_SCRIPT_ACCESS_TOKEN_EXPIRY_SKEW_MS,
+  getUsableAppsScriptAccessToken,
+} from "./access-token";
+export type {
+  AppsScriptAccessTokenProvider,
+  AppsScriptAccessTokenRefresher,
+  AppsScriptRefreshedAccessToken,
+} from "./access-token";
 
 export { createAppsScriptApiPushTransport } from "./api-transport";
 
