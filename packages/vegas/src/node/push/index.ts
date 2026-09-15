@@ -2,10 +2,17 @@ export type { AppsScriptAccessTokenProvider } from "./access-token";
 
 export { createAppsScriptApiPushTransport } from "./api-transport";
 
+export { DEFAULT_APPS_SCRIPT_AUTH_PROFILE, requireAppsScriptAuthProfile } from "./auth-profile";
+
 export { createAppsScriptProjectContent } from "./content";
 export type { AppsScriptProjectContent, AppsScriptProjectFile } from "./content";
 
 export { readClaspScriptId } from "./clasp-compatibility";
+
+export { createAppsScriptCredentialFile, parseAppsScriptCredentialFile } from "./credential";
+export type { AppsScriptCredential, AppsScriptCredentialFile } from "./credential";
+
+export type { AppsScriptCredentialStore } from "./credential-store";
 
 export { loadAppsScriptPushRequest } from "./load-request";
 
