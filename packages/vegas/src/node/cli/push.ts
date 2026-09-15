@@ -2,6 +2,7 @@ import crypto from "node:crypto";
 import fs from "node:fs";
 import module from "node:module";
 import path from "node:path";
+import { pathToFileURL } from "node:url";
 
 import { loadProject } from "../project";
 
@@ -81,7 +82,7 @@ export async function runPush(root?: string) {
 
     process.argv = [...prevArgv.slice(0, 3), "--project", projectFilePath];
 
-    await import(claspPath);
+    await import(pathToFileURL(claspPath).href);
   } finally {
     process.argv = prevArgv;
 
