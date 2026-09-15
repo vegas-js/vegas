@@ -17,8 +17,9 @@ export function detectServerEntry(plan: BuildPlan): Plugin {
 
     async resolveId(source, _importer, options) {
       if (source.endsWith(VIRTUAL_DETECT_SERVER_ENTRY)) {
-        const serverEntries: string[] = [];
+        const serverEntries = new Set<string>();
         const importMap: Map<string, string[]> = new Map();
+
         plan.clientSources.forEach((clientSource) => {
           const { program } = parseSync(clientSource, fs.readFileSync(clientSource, "utf8"));
           const visitor = new Visitor({
@@ -44,17 +45,19 @@ export function detectServerEntry(plan: BuildPlan): Plugin {
                   "The only file that can be imported from the server side is Code.ts",
                 );
               }
-              serverEntries.push(resolvedId.id);
+              serverEntries.add(resolvedId.id);
             }
           }
         }
 
-        if (serverEntries.length > 1) {
+        if (serverEntries.size > 1) {
           throw new Error("Duplicate server entry.");
         }
 
-        if (serverEntries.length === 1) {
-          return serverEntries[0];
+        const serverEntry = serverEntries.values().next().value;
+
+        if (serverEntry) {
+          return serverEntry;
         }
 
         const fallback1 = plan.serverSources.find(

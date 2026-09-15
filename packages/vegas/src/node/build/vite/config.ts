@@ -49,7 +49,7 @@ export function createBuilderConfig(plan: BuildPlan): InlineConfig {
     configFile: false,
     plugins: [
       ...plan.plugins,
-      virtualHTML(plan.clientDir),
+      virtualHTML(plan.clientEntries),
       detectServerEntry(plan),
       exportBridge(),
     ],

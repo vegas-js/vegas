@@ -1,10 +1,9 @@
-import path from "node:path";
-
 import type { Plugin } from "vite";
 
 import { HtmlDocument } from "../../../html";
+import { BuildPlan } from "../../plan";
 
-export function virtualHTML(clientDir: string): Plugin {
+export function virtualHTML(entries: BuildPlan["clientEntries"]): Plugin {
   return {
     name: "vite-plugin-virtualhtml",
     enforce: "post",
@@ -13,19 +12,27 @@ export function virtualHTML(clientDir: string): Plugin {
       return /^client\d+$/.test(environment.name);
     },
 
-    generateBundle(_outputOptions, bundle, _isWrite) {
+    generateBundle(_outputOptions, bundle) {
+      const match = /^client(\d+)$/.exec(this.environment.name);
+
+      if (!match) {
+        return;
+      }
+
+      const entry = entries[Number(match[1])];
+
+      if (!entry) {
+        throw new Error(`Client entry not found for environment: ${this.environment.name}`);
+      }
+
       const assets: string[] = [];
-      const chunks: { id: string; original: string; jsCode: string }[] = [];
+      const chunks: { original: string; jsCode: string }[] = [];
+
       Object.keys(bundle).forEach((key) => {
         const output = bundle[key];
 
         if (output.type === "chunk") {
-          const relativeDirname = path.relative(clientDir, path.parse(output.facadeModuleId!).dir);
-          const htmlPath = relativeDirname
-            ? `${relativeDirname}.html`
-            : path.join(relativeDirname, "index.html");
-
-          chunks.push({ id: htmlPath, original: output.facadeModuleId ?? "", jsCode: output.code });
+          chunks.push({ original: output.facadeModuleId ?? "", jsCode: output.code });
         } else if (typeof output.source === "string") {
           assets.push(output.source);
         } else {
@@ -48,7 +55,7 @@ export function virtualHTML(clientDir: string): Plugin {
 
         this.emitFile({
           originalFileName: chunk.original,
-          fileName: chunk.id,
+          fileName: entry.htmlPath,
           type: "asset",
           source: html.toString(),
         });
