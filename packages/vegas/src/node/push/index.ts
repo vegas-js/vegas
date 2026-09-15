@@ -1,6 +1,8 @@
 export { createAppsScriptProjectContent } from "./content";
 export type { AppsScriptProjectContent, AppsScriptProjectFile } from "./content";
 
+export { readClaspScriptId } from "./clasp-compatibility";
+
 export { readBuildArtifacts } from "./read-output";
 
 export { createAppsScriptPushRequest } from "./request";

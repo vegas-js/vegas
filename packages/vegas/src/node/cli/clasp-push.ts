@@ -4,7 +4,7 @@ import module from "node:module";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 
-import JSON5 from "json5";
+import { parseClaspProjectConfig } from "../push/clasp-compatibility";
 
 interface ClaspProjectConfig {
   readonly parentId?: string;
@@ -20,10 +20,6 @@ interface ClaspConfigOverrides {
 interface ClaspPushOptions {
   readonly projectRoot: string;
   readonly outputDir: string;
-}
-
-export function parseClaspProjectConfig(content: string): Record<string, unknown> {
-  return JSON5.parse(content) as Record<string, unknown>;
 }
 
 function stringValue(value: unknown): string | undefined {
