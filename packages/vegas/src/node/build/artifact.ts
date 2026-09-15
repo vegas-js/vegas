@@ -34,12 +34,21 @@ export async function writeArtifacts(
   outputDir: string,
   artifacts: readonly BuildArtifact[],
 ): Promise<void> {
-  await Promise.all(
-    artifacts.map(async (artifact) => {
-      const filePath = path.join(outputDir, artifact.path);
+  const outputs = new Map<string, BuildArtifact["content"]>();
 
-      await fs.promises.mkdir(path.dirname(filePath), { recursive: true });
-      await fs.promises.writeFile(filePath, artifact.content);
+  for (const artifact of artifacts) {
+    outputs.set(artifact.path, artifact.content);
+  }
+
+  await Promise.all(
+    Array.from(outputs, async ([artifactPath, content]) => {
+      const filePath = path.join(outputDir, artifactPath);
+
+      await fs.promises.mkdir(path.dirname(filePath), {
+        recursive: true,
+      });
+
+      await fs.promises.writeFile(filePath, content);
     }),
   );
 }

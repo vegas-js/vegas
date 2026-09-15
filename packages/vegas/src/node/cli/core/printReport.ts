@@ -1,21 +1,8 @@
-import fs from "node:fs";
 import path from "node:path";
 import util from "node:util";
 
+import type { BuildArtifact } from "../../build";
 import type { ResolvedProject } from "../../project";
-
-type BuildArtifact = {
-  path: string;
-  size: number;
-};
-
-export function collectArtifacts(outDir: string): BuildArtifact[] {
-  return fs.globSync(path.join(outDir, "**", "*.*")).map((filePath) => {
-    const size = fs.statSync(filePath).size;
-    const relativePath = path.relative(outDir, filePath);
-    return { path: relativePath, size };
-  });
-}
 
 function formatSize(bytes: number): string {
   const units = ["B", "kB", "mB"];
@@ -30,9 +17,15 @@ function formatSize(bytes: number): string {
   return `${size.toFixed(2)} ${units[unit].padStart(2)}`;
 }
 
+function getArtifactSize(artifact: BuildArtifact): number {
+  return typeof artifact.content === "string"
+    ? Buffer.byteLength(artifact.content, "utf8")
+    : artifact.content.byteLength;
+}
+
 export function printReport(
   project: ResolvedProject,
-  artifacts: BuildArtifact[],
+  artifacts: readonly BuildArtifact[],
   durationMs: number,
 ) {
   const basePath = util.styleText(
@@ -40,10 +33,16 @@ export function printReport(
     `${path.relative(project.root, project.outputDir)}${path.sep}`,
   );
 
-  const rows = artifacts.map((artifact) => ({
-    path: artifact.path,
-    size: formatSize(artifact.size),
-  }));
+  const rows = artifacts
+    .map((artifact) => ({
+      path: artifact.path,
+      size: formatSize(getArtifactSize(artifact)),
+    }))
+    .sort((a, b) => {
+      if (a.path < b.path) return -1;
+      if (a.path > b.path) return 1;
+      return 0;
+    });
 
   const maxPathLength = Math.max(...rows.map((artifact) => artifact.path.length));
   const maxSizeLength = Math.max(...rows.map((artifact) => artifact.size.toString().length));

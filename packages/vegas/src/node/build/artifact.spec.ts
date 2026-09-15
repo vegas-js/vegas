@@ -52,4 +52,28 @@ describe("writeArtifacts", () => {
       });
     }
   });
+
+  test("use last artifact for duplicate path", async () => {
+    const tempDirPath = fs.mkdtempSync(path.join(os.tmpdir(), "vegas-"));
+
+    try {
+      await writeArtifacts(tempDirPath, [
+        {
+          path: "appsscript.json",
+          content: "first",
+        },
+        {
+          path: "appsscript.json",
+          content: "second",
+        },
+      ]);
+
+      expect(fs.readFileSync(path.join(tempDirPath, "appsscript.json"), "utf8")).toBe("second");
+    } finally {
+      fs.rmSync(tempDirPath, {
+        recursive: true,
+        force: true,
+      });
+    }
+  });
 });
