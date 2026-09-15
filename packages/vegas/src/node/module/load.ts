@@ -6,11 +6,17 @@ import { build, Rolldown } from "vite";
 
 import { DisposableTempDir } from "./temp";
 
+function isBareImport(id: string): boolean {
+  return !id.startsWith(".") && !path.isAbsolute(id);
+}
+
 async function transpileModule(ctx: { root: string; filePath: string; outputDir: string }) {
   if (!fs.existsSync(ctx.filePath)) {
     throw new Error(`${ctx.filePath} is not found.`);
   }
   const result = await build({
+    root: ctx.root,
+    configFile: false,
     build: {
       lib: {
         entry: ctx.filePath,
@@ -19,7 +25,15 @@ async function transpileModule(ctx: { root: string; filePath: string; outputDir:
       },
       rolldownOptions: {
         external: (id) => {
-          return module.isBuiltin(id) || module.findPackageJSON(id, ctx.filePath) !== undefined;
+          if (module.isBuiltin(id)) {
+            return true;
+          }
+
+          if (!isBareImport(id)) {
+            return false;
+          }
+
+          return module.findPackageJSON(id, ctx.filePath) !== undefined;
         },
         treeshake: false,
         tsconfig: false,
@@ -38,7 +52,7 @@ async function transpileModule(ctx: { root: string; filePath: string; outputDir:
 }
 
 export async function loadModule(ctx: { root: string; filePath: string }): Promise<any> {
-  using tempDir = new DisposableTempDir(".vegas");
+  using tempDir = new DisposableTempDir(".vegas", ctx.root);
   const transpiledConfigPath = await transpileModule({
     root: ctx.root,
     filePath: ctx.filePath,
