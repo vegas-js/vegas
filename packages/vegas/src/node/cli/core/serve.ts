@@ -4,6 +4,7 @@ import path from "node:path";
 import { type Connect, type ViteBuilder, createLogger, createServer } from "vite";
 
 import { buildApp } from "../../build";
+import { createGasDoGetEvent, createGasDoPostEvent } from "../../dev/webapp/event";
 import { HtmlDocument } from "../../html";
 import type { GasExecutor } from "../../runtime";
 import type { ServeContext } from "./context";
@@ -131,44 +132,26 @@ export async function serveApp(ctx: ServeContext, builder: ViteBuilder, executor
         return;
       } else if (/^\/(exec|dev)/.test(url.pathname)) {
         // response iframe
-        const queryString = url.search.length > 1 ? url.search.slice(1) : "";
-        const parameter: Record<string, string> = {};
-        const parameters: Record<string, string[]> = {};
-        queryString.split("&").forEach((query) => {
-          const [key, value] = query.split("=");
-          if (key) {
-            if (!parameter[key]) {
-              parameter[key] = value ?? "";
-            }
-            parameters[key] ??= [];
-            parameters[key].push(value ?? "");
-          }
-        });
-
-        const trimedPath = url.pathname.replace(/^\/(exec|dev)/, "");
-        const pathInfo =
-          trimedPath.length !== 0 ? trimedPath.slice(1) : (undefined as unknown as string);
 
         if (request.method === "GET") {
-          const doGetEvent: Record<string, any> = {
-            queryString,
-            parameter,
-            parameters,
-            contextPath: "",
-            contentLength: -1,
-          };
-          if (pathInfo) {
-            doGetEvent["pathInfo"] = pathInfo;
-          }
+          const doGetEvent = createGasDoGetEvent(url);
+
           let uuid = "";
+
           do {
             uuid = crypto.randomUUID();
           } while (idMap.has(uuid));
-          idMap.set(uuid, { use: false, expiredAt: Date.now() + 1000 * 30 });
+
+          idMap.set(uuid, {
+            use: false,
+            expiredAt: Date.now() + 1000 * 30,
+          });
+
           const result = await executor.execute({
             functionName: "doGet",
             args: [doGetEvent],
           });
+
           const html = createHostHtml(url, result);
           const transFormedHtml = await hostServer.transformIndexHtml(url.href, html);
           response.statusCode = 200;
@@ -182,27 +165,13 @@ export async function serveApp(ctx: ServeContext, builder: ViteBuilder, executor
           let data = "";
           request.on("data", (chunk) => (data += Buffer.from(chunk).toString("utf8")));
           request.on("end", async () => {
-            const contentLength = new Blob([data]).size;
-            const doPostEvent: Record<string, any> = {
-              queryString,
-              parameter,
-              parameters,
-              contextPath: "",
-              contentLength,
-              postData: {
-                length: contentLength,
-                type: request.headers["content-type"]?.replace(/;.*$/, ""),
-                contents: data,
-                name: "postData",
-              },
-            };
-            if (pathInfo) {
-              doPostEvent["pathInfo"] = pathInfo;
-            }
+            const doPostEvent = createGasDoPostEvent(url, data, request.headers["content-type"]);
+
             const result = await executor.execute({
               functionName: "doPost",
               args: [doPostEvent],
             });
+
             response.statusCode = 200;
             response.setHeader("Content-Type", `${result.mimeType}; charset=utf-8`);
             response.end(result);
