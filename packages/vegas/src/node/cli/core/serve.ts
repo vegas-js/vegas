@@ -3,6 +3,7 @@ import path from "node:path";
 import { type Connect, type ViteBuilder, createLogger, createServer } from "vite";
 
 import { buildApp } from "../../build";
+import { BuildCoordinator } from "../../dev/build-coordinator";
 import { createGasDoGetEvent, createGasDoPostEvent } from "../../dev/webapp/event";
 import { WebAppSessionRegistry } from "../../dev/webapp/session-registry";
 import { HtmlDocument } from "../../html";
@@ -12,8 +13,7 @@ import { createHostHtml } from "./hostHtml";
 
 export async function serveApp(ctx: ServeContext, builder: ViteBuilder, executor: GasExecutor) {
   const sessions = new WebAppSessionRegistry();
-  let isBuilding = false;
-  const promises: { resolve: (value: unknown) => void; reject: (reason?: any) => void }[] = [];
+  const builds = new BuildCoordinator();
 
   const hostServer = await createServer({
     root: ctx.project.root,
@@ -36,25 +36,32 @@ export async function serveApp(ctx: ServeContext, builder: ViteBuilder, executor
   hostServer.watcher.add([ctx.project.clientDir, ctx.project.serverDir]);
 
   hostServer.watcher.on("change", async (filePath) => {
-    isBuilding = true;
+    const isClientChange = filePath.startsWith(ctx.project.clientDir);
+    const isServerChange = filePath.startsWith(ctx.project.serverDir);
+
+    if (!isClientChange && !isServerChange) {
+      return;
+    }
+
     try {
-      if (filePath.startsWith(ctx.project.clientDir)) {
-        const artifacts = await buildApp(builder, /^client\d+$/);
-        ctx.artifacts.write(artifacts);
-        isBuilding = false;
-        promises.forEach((promise) => promise.resolve(undefined));
-        hostServer.moduleGraph.invalidateAll();
-        hostServer.ws.send({ type: "full-reload" });
-        return [];
-      } else if (filePath.startsWith(ctx.project.serverDir)) {
+      await builds.run(async () => {
+        if (isClientChange) {
+          const artifacts = await buildApp(builder, /^client\d+$/);
+          ctx.artifacts.write(artifacts);
+
+          hostServer.moduleGraph.invalidateAll();
+
+          hostServer.ws.send({ type: "full-reload" });
+
+          return;
+        }
+
         const artifacts = await buildApp(builder, /^server$/);
         ctx.artifacts.write(artifacts);
-        isBuilding = false;
-        promises.forEach((promise) => promise.resolve(undefined));
-        return [];
-      }
+      });
     } catch (err: any) {
       console.error(err);
+
       hostServer.ws.send({
         type: "error",
         err: {
@@ -64,16 +71,12 @@ export async function serveApp(ctx: ServeContext, builder: ViteBuilder, executor
           stack: err.stack.replace(/\x1b\[[\d;]+m/g, ""),
         },
       });
-      isBuilding = false;
-      promises.forEach((promise) => promise.reject(err));
-      return [];
     }
   });
 
   hostServer.ws.on("vegas:init", async (data, client) => {
-    if (isBuilding) {
-      await new Promise((resolve, reject) => promises.push({ resolve, reject }));
-    }
+    await builds.waitForIdle();
+
     if (sessions.consume(data.payload.id)) {
       client.send("vegas:init");
     } else {
@@ -82,9 +85,8 @@ export async function serveApp(ctx: ServeContext, builder: ViteBuilder, executor
   });
 
   hostServer.ws.on("vegas:gascall", async (data, client) => {
-    if (isBuilding) {
-      await new Promise((resolve, reject) => promises.push({ resolve, reject }));
-    }
+    await builds.waitForIdle();
+
     try {
       const args = Array.isArray(data.args) ? data.args : [data.args];
       const result = await executor.execute({
@@ -109,9 +111,8 @@ export async function serveApp(ctx: ServeContext, builder: ViteBuilder, executor
   });
 
   const hostHandler: Connect.NextHandleFunction = async (request, response, next) => {
-    if (isBuilding) {
-      await new Promise((resolve, reject) => promises.push({ resolve, reject }));
-    }
+    await builds.waitForIdle();
+
     if (request.url) {
       const scheme = userContentServer.config.server.https ? "https" : "http";
       const url = new URL(request.url, `${scheme}://${request.headers.host}`);
@@ -199,9 +200,8 @@ export async function serveApp(ctx: ServeContext, builder: ViteBuilder, executor
   });
 
   const userContentHandler: Connect.NextHandleFunction = async (request, response, next) => {
-    if (isBuilding) {
-      await new Promise((resolve, reject) => promises.push({ resolve, reject }));
-    }
+    await builds.waitForIdle();
+
     if (request.url) {
       const scheme = userContentServer.config.server.https ? "https" : "http";
       const url = new URL(request.url, `${scheme}://${request.headers.host}`);
