@@ -1,4 +1,6 @@
 // https://developers.google.com/apps-script/guides/web
+import { parseWebAppPath } from "./http";
+
 interface GasWebAppEventBase {
   readonly queryString: string | null;
   readonly parameter: Readonly<Record<string, string>>;
@@ -38,8 +40,7 @@ function createBaseEvent(url: URL): GasWebAppEventBase {
     parameters[key].push(value);
   }
 
-  const trimmedPath = url.pathname.replace(/^\/(exec|dev)/, "");
-  const pathInfo = trimmedPath.length !== 0 ? trimmedPath.slice(1) : undefined;
+  const pathInfo = parseWebAppPath(url.pathname)?.pathInfo;
 
   return {
     queryString,

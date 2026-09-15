@@ -9,6 +9,12 @@ import type { GasExecutor } from "../runtime";
 import { BuildCoordinator } from "./build-coordinator";
 import { createGasDoGetEvent, createGasDoPostEvent } from "./webapp/event";
 import { createHostHtml } from "./webapp/host-html";
+import {
+  createGasDoPostHttpResponse,
+  parseWebAppPath,
+  readRequestBody,
+  type GasDoPostResult,
+} from "./webapp/http";
 import { WebAppSessionRegistry } from "./webapp/session-registry";
 
 interface DevApplicationOptions {
@@ -135,60 +141,68 @@ export class DevApplication {
     });
 
     const hostHandler: Connect.NextHandleFunction = async (request, response, next) => {
-      await builds.waitForIdle();
+      try {
+        await builds.waitForIdle();
 
-      if (request.url) {
-        const scheme = hostServer.config.server.https ? "https" : "http";
-        const url = new URL(request.url, `${scheme}://${request.headers.host}`);
-        url.port = String(Number.parseInt(url.port) + 1);
-        if (url.pathname === "/") {
-          // redirect to iframe
-          const basePath = hostServer.config.mode === "production" ? "/exec" : "/dev";
-          response.statusCode = 307;
-          response.setHeader("Location", `${basePath}${url.search}`);
-          response.end();
-          return;
-        } else if (/^\/(exec|dev)/.test(url.pathname)) {
-          // response iframe
-          if (request.method === "GET") {
-            const doGetEvent = createGasDoGetEvent(url);
-
-            sessions.issue();
-
-            const result = await this.#executor.execute({
-              functionName: "doGet",
-              args: [doGetEvent],
-            });
-
-            const html = createHostHtml(url, result);
-            const transFormedHtml = await hostServer.transformIndexHtml(url.href, html);
-            response.statusCode = 200;
-            response.setHeader("Content-Type", "text/html; charset=utf-8");
-            if (result.xFrameOptionsMode) {
-              response.setHeader("X-Frame-Options", result.xFrameOptionsMode);
-            }
-            response.end(transFormedHtml);
+        if (request.url) {
+          const scheme = hostServer.config.server.https ? "https" : "http";
+          const url = new URL(request.url, `${scheme}://${request.headers.host}`);
+          url.port = String(Number.parseInt(url.port) + 1);
+          if (url.pathname === "/") {
+            // redirect to iframe
+            const basePath = hostServer.config.mode === "production" ? "/exec" : "/dev";
+            response.statusCode = 307;
+            response.setHeader("Location", `${basePath}${url.search}`);
+            response.end();
             return;
-          } else if (request.method === "POST") {
-            let data = "";
-            request.on("data", (chunk) => (data += Buffer.from(chunk).toString("utf8")));
-            request.on("end", async () => {
-              const doPostEvent = createGasDoPostEvent(url, data, request.headers["content-type"]);
+          } else if (parseWebAppPath(url.pathname)) {
+            // response iframe
+            if (request.method === "GET") {
+              const doGetEvent = createGasDoGetEvent(url);
+
+              sessions.issue();
 
               const result = await this.#executor.execute({
-                functionName: "doPost",
-                args: [doPostEvent],
+                functionName: "doGet",
+                args: [doGetEvent],
               });
+              const html = createHostHtml(url, result);
+              const transFormedHtml = await hostServer.transformIndexHtml(url.href, html);
 
               response.statusCode = 200;
-              response.setHeader("Content-Type", `${result.mimeType}; charset=utf-8`);
-              response.end(result);
-            });
-            return;
+              response.setHeader("Content-Type", "text/html; charset=utf-8");
+
+              if (result.xFrameOptionsMode) {
+                response.setHeader("X-Frame-Options", result.xFrameOptionsMode);
+              }
+
+              response.end(transFormedHtml);
+
+              return;
+            } else if (request.method === "POST") {
+              const body = await readRequestBody(request);
+              const doPostEvent = createGasDoPostEvent(url, body, request.headers["content-type"]);
+
+              const result = (await this.#executor.execute({
+                functionName: "doPost",
+                args: [doPostEvent],
+              })) as GasDoPostResult;
+              const httpResponse = createGasDoPostHttpResponse(result);
+
+              response.statusCode = 200;
+              response.setHeader("Content-Type", httpResponse.contentType);
+
+              response.end(httpResponse.body);
+
+              return;
+            }
           }
         }
+
+        next();
+      } catch (error) {
+        next(error);
       }
-      next();
     };
 
     hostServer.middlewares.stack.unshift({ route: "", handle: hostHandler });
