@@ -9,7 +9,7 @@ export const VIRTUAL_DETECT_SERVER_ENTRY = "virtual:detectserverentry";
 
 export function detectServerEntry(plan: BuildPlan): Plugin {
   return {
-    name: "vite-plugin-detectserverentry",
+    name: "vite-plugin-detect-server-entry",
 
     applyToEnvironment(environment) {
       return environment.name === "server";
@@ -60,12 +60,16 @@ export function detectServerEntry(plan: BuildPlan): Plugin {
           return serverEntry;
         }
 
-        const fallback1 = plan.serverSources.find(
+        const fallbackEntries = plan.serverSources.filter(
           (source) => path.parse(source).base === "Code.ts",
         );
+        if (fallbackEntries.length > 1) {
+          throw new Error("Duplicate server entry.");
+        }
 
-        if (fallback1) {
-          return fallback1;
+        const fallbackEntry = fallbackEntries[0];
+        if (fallbackEntry) {
+          return fallbackEntry;
         }
 
         if (plan.appType === "script") {

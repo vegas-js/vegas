@@ -6,7 +6,7 @@ import { createBuilder } from "vite";
 import { describe, expect, test } from "vitest";
 
 import type { BuildPlan } from "../../plan";
-import { VIRTUAL_DETECT_SERVER_ENTRY, detectServerEntry } from "./detectserverentry";
+import { VIRTUAL_DETECT_SERVER_ENTRY, detectServerEntry } from "./detect-server-entry";
 
 function createPlan(
   root: string,
@@ -102,6 +102,36 @@ describe("detectServerEntry", () => {
       fs.writeFileSync(serverB, `export function b() {}`);
 
       const plan = createPlan(tempDirPath, [mainSource, adminSource], [serverA, serverB]);
+
+      await expect(buildServer(plan)).rejects.toThrow("Duplicate server entry.");
+    } finally {
+      fs.rmSync(tempDirPath, {
+        recursive: true,
+        force: true,
+      });
+    }
+  });
+
+  test("reject multiple fallback server entries", async () => {
+    const tempDirPath = fs.mkdtempSync(path.join(os.tmpdir(), "vegas-"));
+
+    try {
+      const clientDir = path.join(tempDirPath, "src", "client");
+      const serverDir = path.join(tempDirPath, "src", "server");
+      const clientSource = path.join(clientDir, "main.ts");
+
+      const serverA = path.join(serverDir, "a", "Code.ts");
+      const serverB = path.join(serverDir, "b", "Code.ts");
+
+      fs.mkdirSync(path.dirname(clientSource), { recursive: true });
+      fs.mkdirSync(path.dirname(serverA), { recursive: true });
+      fs.mkdirSync(path.dirname(serverB), { recursive: true });
+
+      fs.writeFileSync(clientSource, `console.log("client");`);
+      fs.writeFileSync(serverA, `export function a() {}`);
+      fs.writeFileSync(serverB, `export function b() {}`);
+
+      const plan = createPlan(tempDirPath, [clientSource], [serverA, serverB]);
 
       await expect(buildServer(plan)).rejects.toThrow("Duplicate server entry.");
     } finally {
