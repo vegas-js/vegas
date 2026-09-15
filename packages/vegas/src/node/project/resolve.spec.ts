@@ -31,15 +31,12 @@ describe("resolveProject", () => {
     expect(project).toStrictEqual({
       root: cwd,
       configFile: null,
-
       clientDir: path.join(cwd, "src", "client"),
       serverDir: path.join(cwd, "src", "server"),
       gasMockDir: path.join(cwd, "mock"),
       outputDir: path.join(cwd, "dist"),
-
       appType: "spa",
       plugins: [],
-
       gas: {
         dependencies: undefined,
         exceptionLogging: "STACKDRIVER",
