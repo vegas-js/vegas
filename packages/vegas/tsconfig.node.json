@@ -2,16 +2,7 @@
   "compilerOptions": {
     "target": "es2023",
     "module": "esnext",
-    "types": [
-      "@platformatic/vfs",
-      "google-apps-script",
-      "memfs",
-      "node",
-      "parse5",
-      "vite",
-      "vitest",
-      "tsdown"
-    ],
+    "types": ["google-apps-script", "memfs", "node", "parse5", "vite", "vitest", "tsdown"],
     "skipLibCheck": true,
 
     "noEmit": true,

@@ -3,15 +3,12 @@ packages:
   - docs
 
 minimumReleaseAgeExclude:
-  - '@jsonjoy.com/fs-core@4.76.0'
-  - '@jsonjoy.com/fs-fsa@4.76.0'
-  - '@jsonjoy.com/fs-node-builtins@4.76.0'
-  - '@jsonjoy.com/fs-node-to-fsa@4.76.0'
-  - '@jsonjoy.com/fs-node-utils@4.76.0'
-  - '@jsonjoy.com/fs-node@4.76.0'
-  - '@jsonjoy.com/fs-print@4.76.0'
-  - '@jsonjoy.com/fs-snapshot@4.76.0'
+  - "@jsonjoy.com/fs-core@4.76.0"
+  - "@jsonjoy.com/fs-fsa@4.76.0"
+  - "@jsonjoy.com/fs-node-builtins@4.76.0"
+  - "@jsonjoy.com/fs-node-to-fsa@4.76.0"
+  - "@jsonjoy.com/fs-node-utils@4.76.0"
+  - "@jsonjoy.com/fs-node@4.76.0"
+  - "@jsonjoy.com/fs-print@4.76.0"
+  - "@jsonjoy.com/fs-snapshot@4.76.0"
   - memfs@4.76.0
-
-patchedDependencies:
-  "@platformatic/vfs": patches/@platformatic__vfs.patch

@@ -105,9 +105,6 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
-patchedDependencies:
-  '@platformatic/vfs': 97b920400530515dbb71fc7f84ede9e49ff66f6e306c4fa16093268993630800
-
 importers:
 
   .:
@@ -173,9 +170,6 @@ importers:
         specifier: ^8.3.0
         version: 8.3.0(@types/node@22.20.2)
     devDependencies:
-      '@platformatic/vfs':
-        specifier: ^0.4.0
-        version: 0.4.0(patch_hash=97b920400530515dbb71fc7f84ede9e49ff66f6e306c4fa16093268993630800)
       '@types/node':
         specifier: ^22.12.0
         version: 22.20.2
@@ -654,10 +648,6 @@ packages:
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [x64]
     os: [win32]
-
-  '@platformatic/vfs@0.4.0':
-    resolution: {integrity: sha512-JwRxSIG63e/VaDSkYXkSBajySt5MJzxYIKuknYda28fhhmJMqyUGf5rbKrGW+vO9L83nIjQH3+YI12fp7EKICQ==}
-    engines: {node: '>= 22'}
 
   '@publint/pack@0.1.7':
     resolution: {integrity: sha512-4EDEmvxWtgsCnnVeBvtFIFZtUhPPt1+bA9JrSwU4Sa//6oKtzCSlGGXYJr44OD9aGISymbieJ4mCKHUygUDU+g==}
@@ -2118,8 +2108,6 @@ snapshots:
 
   '@oxlint/binding-win32-x64-msvc@1.82.0':
     optional: true
-
-  '@platformatic/vfs@0.4.0(patch_hash=97b920400530515dbb71fc7f84ede9e49ff66f6e306c4fa16093268993630800)': {}
 
   '@publint/pack@0.1.7':
     dependencies:
