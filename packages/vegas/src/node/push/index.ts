@@ -3,6 +3,8 @@ export type { AppsScriptProjectContent, AppsScriptProjectFile } from "./content"
 
 export { readClaspScriptId } from "./clasp-compatibility";
 
+export { loadAppsScriptPushRequest } from "./load-request";
+
 export { loadAppsScriptScriptId } from "./load-script-id";
 
 export { readBuildArtifacts } from "./read-output";
