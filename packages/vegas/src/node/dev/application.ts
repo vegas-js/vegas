@@ -8,6 +8,7 @@ import { HtmlDocument } from "../html";
 import type { ResolvedProject } from "../project";
 import type { GasExecutor } from "../runtime";
 import { BuildCoordinator } from "./build-coordinator";
+import { classifyProjectFile } from "./project-file";
 import { createGasDoGetEvent, createGasDoPostEvent } from "./webapp/event";
 import { executeGasCall } from "./webapp/gas-call";
 import { createHostHtml } from "./webapp/host-html";
@@ -68,16 +69,15 @@ export class DevApplication {
     hostServer.watcher.add([this.#project.clientDir, this.#project.serverDir]);
 
     hostServer.watcher.on("change", async (filePath) => {
-      const isClientChange = filePath.startsWith(this.#project.clientDir);
-      const isServerChange = filePath.startsWith(this.#project.serverDir);
+      const scope = classifyProjectFile(this.#project, filePath);
 
-      if (!isClientChange && !isServerChange) {
+      if (!scope) {
         return;
       }
 
       try {
         await builds.run(async () => {
-          if (isClientChange) {
+          if (scope === "client") {
             const artifacts = await buildApp(this.#builder, /^client\d+$/);
             this.#artifacts.replaceScope("client", artifacts);
 
