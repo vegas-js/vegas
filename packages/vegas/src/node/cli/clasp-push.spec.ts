@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import { createClaspArgv, createClaspProjectConfig, parseClaspProjectConfig } from "./push";
+import { createClaspArgv, createClaspProjectConfig, parseClaspProjectConfig } from "./clasp-push";
 
 describe("parseClaspProjectConfig", () => {
   test("parse JSON5 project config", () => {
