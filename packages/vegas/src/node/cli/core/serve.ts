@@ -1,17 +1,17 @@
-import crypto from "node:crypto";
 import path from "node:path";
 
 import { type Connect, type ViteBuilder, createLogger, createServer } from "vite";
 
 import { buildApp } from "../../build";
 import { createGasDoGetEvent, createGasDoPostEvent } from "../../dev/webapp/event";
+import { WebAppSessionRegistry } from "../../dev/webapp/session-registry";
 import { HtmlDocument } from "../../html";
 import type { GasExecutor } from "../../runtime";
 import type { ServeContext } from "./context";
 import { createHostHtml } from "./hostHtml";
 
 export async function serveApp(ctx: ServeContext, builder: ViteBuilder, executor: GasExecutor) {
-  const idMap: Map<string, { use: boolean; expiredAt: number }> = new Map();
+  const sessions = new WebAppSessionRegistry();
   let isBuilding = false;
   const promises: { resolve: (value: unknown) => void; reject: (reason?: any) => void }[] = [];
 
@@ -74,14 +74,7 @@ export async function serveApp(ctx: ServeContext, builder: ViteBuilder, executor
     if (isBuilding) {
       await new Promise((resolve, reject) => promises.push({ resolve, reject }));
     }
-    idMap.forEach((value, key, map) => {
-      if (value.expiredAt <= Date.now()) {
-        map.delete(key);
-      }
-    });
-    const value = idMap.get(data.payload.id);
-    if (value && value.use) {
-      idMap.delete(data.payload.id);
+    if (sessions.consume(data.payload.id)) {
       client.send("vegas:init");
     } else {
       client.close();
@@ -136,16 +129,7 @@ export async function serveApp(ctx: ServeContext, builder: ViteBuilder, executor
         if (request.method === "GET") {
           const doGetEvent = createGasDoGetEvent(url);
 
-          let uuid = "";
-
-          do {
-            uuid = crypto.randomUUID();
-          } while (idMap.has(uuid));
-
-          idMap.set(uuid, {
-            use: false,
-            expiredAt: Date.now() + 1000 * 30,
-          });
+          sessions.issue();
 
           const result = await executor.execute({
             functionName: "doGet",
@@ -238,19 +222,12 @@ export async function serveApp(ctx: ServeContext, builder: ViteBuilder, executor
         html.appendToHead("style", {
           text: "html, body, iframe {border: 0; display: block; height: 100%; margin: 0; padding: 0; width: 100%;}iframe#userHtmlFrame {overflow-y: scroll; -webkit-overflow-scrolling: touch;}",
         });
-        let uuid = "";
-        for (const [key, value] of idMap) {
-          if (value.expiredAt <= Date.now()) {
-            idMap.delete(key);
-          } else if (!value.use) {
-            uuid = key;
-            value.use = true;
-            break;
-          }
-        }
+
+        const sessionId = sessions.claim() ?? "";
+
         const hostOrigin = `${url.protocol}//${url.hostname}:${hostServer.config.server.port}`;
         html.appendToHead("script", {
-          text: `window.vegas = { id: "${uuid}", hostOrigin: "${hostOrigin}", requestMap: new Map() }`,
+          text: `window.vegas = { id: "${sessionId}", hostOrigin: "${hostOrigin}", requestMap: new Map() }`,
         });
         html.appendToHead("script", {
           attributes: {
