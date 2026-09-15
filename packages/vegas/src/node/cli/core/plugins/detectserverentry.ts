@@ -3,11 +3,11 @@ import path from "node:path";
 
 import { type Plugin, parseSync, Visitor } from "vite";
 
-import type { ProjectSnapshot, ResolvedProject } from "../../../project";
+import { BuildPlan } from "../../../build";
 
 export const VIRTUAL_DETECT_SERVER_ENTRY = "virtual:detectserverentry";
 
-export function detectServerEntry(project: ResolvedProject, snapshot: ProjectSnapshot): Plugin {
+export function detectServerEntry(plan: BuildPlan): Plugin {
   return {
     name: "vite-plugin-detectserverentry",
 
@@ -19,7 +19,7 @@ export function detectServerEntry(project: ResolvedProject, snapshot: ProjectSna
       if (source.endsWith(VIRTUAL_DETECT_SERVER_ENTRY)) {
         const serverEntries: string[] = [];
         const importMap: Map<string, string[]> = new Map();
-        snapshot.clientSources.forEach((clientSource) => {
+        plan.clientSources.forEach((clientSource) => {
           const { program } = parseSync(clientSource, fs.readFileSync(clientSource, "utf8"));
           const visitor = new Visitor({
             ImportDeclaration(node) {
@@ -38,7 +38,7 @@ export function detectServerEntry(project: ResolvedProject, snapshot: ProjectSna
         for (const [clientSourcePath, imports] of importMap) {
           for (const importPath of imports) {
             const resolvedId = await this.resolve(importPath, clientSourcePath, options);
-            if (resolvedId && snapshot.serverSources.includes(resolvedId.id)) {
+            if (resolvedId && plan.serverSources.includes(resolvedId.id)) {
               if (path.parse(resolvedId.id).base !== "Code.ts") {
                 throw new Error(
                   "The only file that can be imported from the server side is Code.ts",
@@ -57,7 +57,7 @@ export function detectServerEntry(project: ResolvedProject, snapshot: ProjectSna
           return serverEntries[0];
         }
 
-        const fallback1 = snapshot.serverSources.find(
+        const fallback1 = plan.serverSources.find(
           (source) => path.parse(source).base === "Code.ts",
         );
 
@@ -65,8 +65,8 @@ export function detectServerEntry(project: ResolvedProject, snapshot: ProjectSna
           return fallback1;
         }
 
-        if (project.appType === "script") {
-          const fallback2 = path.resolve(project.root, "src", "Code.ts");
+        if (plan.appType === "script") {
+          const fallback2 = path.resolve(plan.root, "src", "Code.ts");
           if (fs.existsSync(fallback2)) {
             return fallback2;
           } else {

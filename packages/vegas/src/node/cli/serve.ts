@@ -1,7 +1,7 @@
 import vfs from "@platformatic/vfs";
 import { createBuilder } from "vite";
 
-import { buildApp, createBuilderConfig } from "../build/vite";
+import { buildApp, createBuilderConfig, createBuildPlan } from "../build";
 import { loadProject, scanProject } from "../project";
 import { createServeContext } from "./core/context";
 import { loadMock } from "./core/mock";
@@ -11,7 +11,8 @@ export async function runServe(root?: string) {
   const project = await loadProject({ cwd: process.cwd(), root });
   const snapshot = await scanProject(project);
 
-  const builderConfig = createBuilderConfig(project, "development", snapshot);
+  const plan = createBuildPlan(project, snapshot, "development");
+  const builderConfig = createBuilderConfig(plan);
   const builder = await createBuilder(builderConfig);
   using mvfs = vfs.create();
   await buildApp(mvfs, builder);

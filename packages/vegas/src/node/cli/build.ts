@@ -2,7 +2,7 @@ import fs from "node:fs";
 
 import { createBuilder } from "vite";
 
-import { buildApp, createBuilderConfig } from "../build/vite";
+import { buildApp, createBuilderConfig, createBuildPlan } from "../build";
 import { loadProject, scanProject } from "../project";
 import { isWebApp } from "./core/analyze";
 import { printBanner } from "./core/banner";
@@ -16,7 +16,8 @@ export async function runBuild(root?: string) {
   const snapshot = await scanProject(project);
 
   const startTime = performance.now();
-  const builderConfig = createBuilderConfig(project, "production", snapshot);
+  const plan = createBuildPlan(project, snapshot, "production");
+  const builderConfig = createBuilderConfig(plan);
   const builder = await createBuilder(builderConfig);
   fs.rmSync(project.outputDir, { recursive: true, force: true });
   await buildApp(fs, builder);

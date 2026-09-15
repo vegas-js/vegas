@@ -6,13 +6,9 @@ import {
 } from "../../cli/core/plugins/detectserverentry";
 import { exportBridge } from "../../cli/core/plugins/exportbridge";
 import { virtualHTML } from "../../cli/core/plugins/virtualhtml";
-import type { ProjectSnapshot, ResolvedProject } from "../../project";
+import { BuildPlan } from "../plan";
 
-export function createBuilderConfig(
-  project: ResolvedProject,
-  mode: "development" | "production",
-  snapshot: ProjectSnapshot,
-) {
+export function createBuilderConfig(plan: BuildPlan): InlineConfig {
   const environments: Record<string, EnvironmentOptions> = {
     server: {
       build: {
@@ -28,14 +24,14 @@ export function createBuilderConfig(
     consumer: "client",
     define: {
       "import.meta.env.BASE_URL": JSON.stringify("/userCodeAppPanel"),
-      "import.meta.env.ENDPOINT_URL": JSON.stringify(mode === "production" ? "/exec" : "/dev"),
+      "import.meta.env.ENDPOINT_URL": JSON.stringify(plan.mode === "production" ? "/exec" : "/dev"),
       "import.meta.env.SSR": false,
     },
     resolve: {
-      conditions: ["module", "browser", mode],
+      conditions: ["module", "browser", plan.mode],
     },
   };
-  snapshot.clientEntries.forEach((entry, index) => {
+  plan.clientEntries.forEach((entry, index) => {
     environments[`client${index}`] = {
       ...sharedClientOptions,
       build: {
@@ -46,22 +42,22 @@ export function createBuilderConfig(
     };
   });
   const builderConfig: InlineConfig = {
-    root: project.root,
+    root: plan.root,
     define: {
-      "import.meta.env.DEV": mode === "development",
-      "import.meta.env.MODE": mode,
-      "import.meta.env.PROD": mode === "production",
+      "import.meta.env.DEV": plan.mode === "development",
+      "import.meta.env.MODE": plan.mode,
+      "import.meta.env.PROD": plan.mode === "production",
     },
     configFile: false,
     plugins: [
-      ...project.plugins,
-      virtualHTML(project.clientDir),
-      detectServerEntry(project, snapshot),
+      ...plan.plugins,
+      virtualHTML(plan.clientDir),
+      detectServerEntry(plan),
       exportBridge(),
     ],
     environments,
     build: {
-      outDir: project.outputDir,
+      outDir: plan.outputDir,
       assetsInlineLimit: () => true,
       cssCodeSplit: false,
       write: false,

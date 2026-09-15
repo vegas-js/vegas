@@ -3,7 +3,7 @@ import path from "node:path";
 
 import { type Connect, type ViteBuilder, createLogger, createServer } from "vite";
 
-import { buildApp } from "../../build/vite";
+import { buildApp } from "../../build";
 import { HTML } from "../core";
 import type { ServeContext } from "./context";
 import { createHostHtml } from "./hostHtml";
