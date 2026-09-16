@@ -1,3 +1,5 @@
+import { stripVTControlCharacters } from "node:util";
+
 import { describe, expect, test, vi } from "vitest";
 
 import { HtmlService } from "../html/HtmlService";
@@ -9,7 +11,9 @@ describe("direct output", () => {
     const gasConsole = new Console();
     gasConsole.log();
     const args = consoleMock.mock.lastCall;
-    expect(args?.[0]).toMatch(/ console\(GAS\)   \d{2}:\d{2}:\d{2}  Info      /);
+    const prefix = stripVTControlCharacters(String(args?.[0]));
+
+    expect(prefix).toMatch(/ console\(GAS\)   \d{2}:\d{2}:\d{2}  Info      /);
   });
 
   test("empty line", () => {
