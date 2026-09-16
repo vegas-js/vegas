@@ -36,6 +36,18 @@ export type OutputConfig = {
   dir?: string;
 };
 
+export type AppsScriptConfig = {
+  /**
+   * Apps Script project ID used as the push target.
+   */
+  scriptId?: string;
+
+  /**
+   * Apps Script manifest configuration written to appsscript.json.
+   */
+  manifest?: GASManifest;
+};
+
 type GASEnabledAdvancedService = {
   serviceId?: string;
   userSymbol?: string;
@@ -68,4 +80,16 @@ export type GASManifest = {
   webapp?: GASWebapp;
 };
 
-export type UserConfig = BaseConfig & { output?: OutputConfig; gas?: GASManifest };
+export type UserConfig = BaseConfig & {
+  output?: OutputConfig;
+
+  /**
+   * Apps Script project and manifest configuration.
+   */
+  appsScript?: AppsScriptConfig;
+
+  /**
+   * @deprecated Use appsScript.manifest instead.
+   */
+  gas?: GASManifest;
+};
