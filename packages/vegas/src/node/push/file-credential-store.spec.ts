@@ -123,4 +123,13 @@ describe("createAppsScriptFileCredentialStore", () => {
     expect(directoryStat.mode & 0o777).toBe(0o700);
     expect(fileStat.mode & 0o777).toBe(0o600);
   });
+
+  test("return undefined for inherited profile name", async () => {
+    const filePath = await createTempCredentialPath();
+    const store = createAppsScriptFileCredentialStore(filePath);
+
+    await store.save("default", credential);
+
+    await expect(store.load("toString")).resolves.toBeUndefined();
+  });
 });

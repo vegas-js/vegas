@@ -95,8 +95,11 @@ export function createAppsScriptFileCredentialStore(filePath: string): AppsScrip
       requireAppsScriptAuthProfile(profile);
 
       const file = await readCredentialFile(filePath);
+      if (file === undefined || !Object.hasOwn(file.profiles, profile)) {
+        return undefined;
+      }
 
-      return file?.profiles[profile];
+      return file.profiles[profile];
     },
 
     async save(profile: string, credential: AppsScriptCredential): Promise<void> {
