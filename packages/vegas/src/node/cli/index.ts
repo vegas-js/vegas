@@ -4,6 +4,7 @@ import { cac } from "cac";
 import pkg from "../../../package.json";
 import { runAuthLogin } from "./auth-login";
 import { runBuild } from "./build";
+import { formatCliError } from "./error";
 import { runPreview } from "./preview";
 import { runPush } from "./push";
 import { runServe } from "./serve";
@@ -33,4 +34,18 @@ cli
   .action(runPush);
 
 cli.help();
-cli.parse();
+
+try {
+  cli.parse(process.argv, { run: false });
+
+  await cli.runMatchedCommand();
+} catch (error) {
+  const message = formatCliError(error);
+
+  if (message === undefined) {
+    throw error;
+  }
+
+  console.error(message);
+  process.exitCode = 1;
+}
