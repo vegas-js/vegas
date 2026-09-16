@@ -6,7 +6,7 @@ import {
   buildApp,
   createBuilderConfig,
   createBuildPlan,
-  createGASManifestArtifact,
+  createAppsScriptManifestArtifact,
   isWebApp,
   writeArtifacts,
 } from "../build";
@@ -38,7 +38,7 @@ export async function runBuild(root?: string) {
   });
 
   const buildArtifacts = await buildApp(builder);
-  const manifestArtifact = createGASManifestArtifact(
+  const manifestArtifact = createAppsScriptManifestArtifact(
     project.appsScript.manifest,
     isWebApp(buildArtifacts),
   );

@@ -1,7 +1,7 @@
 import type { AppsScriptManifest } from "../../shared/config";
 import type { BuildArtifact } from "./artifact";
 
-export function createGASManifestArtifact(
+export function createAppsScriptManifestArtifact(
   manifest: AppsScriptManifest,
   webApp: boolean,
 ): BuildArtifact {

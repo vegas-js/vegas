@@ -1,9 +1,9 @@
 import { describe, expect, test } from "vitest";
 
 import type { AppsScriptManifest } from "../../shared/config";
-import { createGASManifestArtifact } from "./manifest";
+import { createAppsScriptManifestArtifact } from "./manifest";
 
-describe("createGASManifestArtifact", () => {
+describe("createAppsScriptManifestArtifact", () => {
   test("create manifest artifact for web app", () => {
     const manifest: AppsScriptManifest = {
       dependencies: {},
@@ -17,7 +17,7 @@ describe("createGASManifestArtifact", () => {
       },
     };
 
-    const artifact = createGASManifestArtifact(manifest, true);
+    const artifact = createAppsScriptManifestArtifact(manifest, true);
 
     expect(artifact.path).toBe("appsscript.json");
     expect(typeof artifact.content).toBe("string");
@@ -39,7 +39,7 @@ describe("createGASManifestArtifact", () => {
       },
     };
 
-    const artifact = createGASManifestArtifact(manifest, false);
+    const artifact = createAppsScriptManifestArtifact(manifest, false);
 
     expect(JSON.parse(artifact.content as string)).toStrictEqual({
       runtimeVersion: "V8",
@@ -57,7 +57,7 @@ describe("createGASManifestArtifact", () => {
     };
 
     const original = structuredClone(manifest);
-    createGASManifestArtifact(manifest, false);
+    createAppsScriptManifestArtifact(manifest, false);
 
     expect(manifest).toStrictEqual(original);
   });
