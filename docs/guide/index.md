@@ -6,11 +6,13 @@ outline: deep
 
 ## Overview
 
-Vegas (Vite + GAS) is an integrated build tool aimed at providing a faster, more streamlined development environment for modern web projects on the GAS platform. Vegas consists of two main parts:
+Vegas (Vite + GAS) is an integrated development and build tool for modern projects on the Google Apps Script platform. It covers local development, production builds, authentication, and pushing build output to Apps Script.
 
-- A development server with a local GAS compatible runtime, powered by [Vite](https://vite.dev), a powerful tool with hot module replacement (HMR).
+- A development server with a local GAS-compatible runtime, powered by [Vite](https://vite.dev).
 
-- A build command that bundles frontend and server code, powered by [Vite](https://vite.dev), further enhanced with the introduction of Rust.
+- A production build pipeline that bundles frontend and server code for Apps Script.
+
+- Native Apps Script authentication and push commands for sending built output directly to an Apps Script project.
 
 Vegas provides a zero-config experience, achieving optimal build results without any configuration in most cases. See the Feature Guide for details.
 
@@ -56,10 +58,42 @@ In a project where Vegas is installed, you can use the vegas binary in your npm 
 ```json [package.json]
 {
   "scripts": {
-    "dev": "vegas", // start dev server, aliases: `vegas dev`, `vegas serve`
-    "build": "vegas build" // build for production
+    "dev": "vegas",
+    "build": "vegas build",
+    "login": "vegas auth login",
+    "push": "vegas push"
   }
 }
 ```
 
 :::
+
+## Pushing to Apps Script
+
+Set the Apps Script project ID in `vegas.config.ts`:
+
+```typescript
+import { defineConfig } from "@vegasjs/vegas/client";
+
+export default defineConfig({
+  appsScript: {
+    scriptId: "your-script-id",
+    manifest: {},
+  },
+});
+```
+
+Authenticate once with a Google Desktop OAuth client JSON file:
+
+```bash
+npm run login -- ./client-secret.json
+```
+
+Then build and push the project:
+
+```bash
+npm run build
+npm run push
+```
+
+`vegas push` uploads the authoritative contents of the production build output to the configured Apps Script project.

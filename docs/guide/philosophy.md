@@ -33,11 +33,13 @@ Managing multiple user interfaces within a single GAS project traditionally intr
 - **Payload Optimization:**
   Building distinct SPAs for different roles prevents bundle size bloat, ensuring users download only the code necessary for their specific environment.
 
-## Respect for the Ecosystem: Coexistence with clasp
+## Integrated Apps Script Workflow
 
-Vegas is designed to enhance, not replace, the tools developers already trust. Project management and deployment remain the responsibility of established solutions.
+Vegas is designed to cover the full development path from local development through production push while keeping each responsibility explicit.
 
-- **Separation of Concerns:**
-  Vegas focuses exclusively on perfecting the local development and build phases.
-- **Seamless Integration:**
-  Build outputs are optimized for a smooth transition to deployment tools like clasp, fitting into your existing workflow without disruption.
+- **Local Development and Build:**
+  Vegas provides the development server, local Apps Script-compatible runtime, and production build pipeline.
+- **Native Apps Script Push:**
+  Production build output can be pushed directly to an Apps Script project with `vegas push`.
+- **Migration Compatibility:**
+  Existing projects can continue using a script ID from `.clasp.json` while migrating to the Vegas-native `appsScript.scriptId` configuration.
