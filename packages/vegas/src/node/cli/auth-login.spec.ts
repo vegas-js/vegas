@@ -15,6 +15,8 @@ beforeEach(() => {
 
 describe("runAuth", () => {
   test("dispatch login", async () => {
+    using consoleMock = vi.spyOn(console, "log").mockImplementation(() => {});
+
     await runAuth("login", "client.json", {
       profile: "work",
     });
@@ -23,8 +25,11 @@ describe("runAuth", () => {
       clientFilePath: "client.json",
       profile: "work",
     });
-  });
 
+    expect(consoleMock).toHaveBeenCalledWith(
+      '✓ Signed in to Google for Apps Script using profile "work".',
+    );
+  });
   test("reject unknown auth command", async () => {
     await expect(runAuth("logout", undefined, {})).rejects.toThrow(
       'Unknown auth command "logout". Expected "login".',

@@ -4,6 +4,7 @@ import path from "node:path";
 
 import { afterEach, describe, expect, test, vi } from "vitest";
 
+import { AppsScriptAuthPrerequisiteError } from "./error";
 import { createAppsScriptFileCredentialStore } from "./file-credential-store";
 import { createGoogleOAuthCodeChallenge } from "./google-oauth-authorization";
 import { loginGoogleAppsScript } from "./google-oauth-login";
@@ -177,5 +178,36 @@ describe("loginGoogleAppsScript", () => {
     expect(tokenFetch).not.toHaveBeenCalled();
 
     await expect(credentialStore.load("default")).resolves.toBeUndefined();
+  });
+
+  test("reject missing OAuth client file", async () => {
+    const root = await createTempDir();
+
+    const clientFilePath = path.join(root, "missing-client.json");
+
+    const credentialStore = createAppsScriptFileCredentialStore(
+      path.join(root, "credentials.json"),
+    );
+
+    const openAuthorizationUrl = vi.fn();
+
+    let error: unknown;
+
+    try {
+      await loginGoogleAppsScript({
+        clientFilePath,
+        credentialStore,
+        openAuthorizationUrl,
+      });
+    } catch (caught) {
+      error = caught;
+    }
+
+    expect(error).toBeInstanceOf(AppsScriptAuthPrerequisiteError);
+    expect((error as Error).message).toBe(
+      `Google OAuth desktop client file not found: ${clientFilePath}`,
+    );
+
+    expect(openAuthorizationUrl).not.toHaveBeenCalled();
   });
 });

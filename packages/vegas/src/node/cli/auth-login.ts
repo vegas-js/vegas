@@ -1,4 +1,4 @@
-import { loginGoogleAppsScriptUser } from "../push";
+import { DEFAULT_APPS_SCRIPT_AUTH_PROFILE, loginGoogleAppsScriptUser } from "../push";
 import { validateAuthProfileOption } from "./auth-profile-option";
 import { CliUsageError } from "./error";
 
@@ -34,4 +34,8 @@ export async function runAuthLogin(
     clientFilePath,
     profile: options.profile,
   });
+
+  const profile = options.profile ?? DEFAULT_APPS_SCRIPT_AUTH_PROFILE;
+
+  console.log(`✓ Signed in to Google for Apps Script using profile "${profile}".`);
 }

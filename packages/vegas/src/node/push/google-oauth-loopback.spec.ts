@@ -1,5 +1,6 @@
 import { describe, expect, test } from "vitest";
 
+import { AppsScriptRemoteServiceError } from "./error";
 import { startGoogleOAuthLoopbackListener } from "./google-oauth-loopback";
 
 describe("startGoogleOAuthLoopbackListener", () => {
@@ -98,5 +99,30 @@ describe("startGoogleOAuthLoopbackListener", () => {
     await expect(startGoogleOAuthLoopbackListener("   ")).rejects.toThrow(
       "Google OAuth state is required.",
     );
+  });
+
+  test("reject OAuth authorization error", async () => {
+    const listener = await startGoogleOAuthLoopbackListener("state-value");
+
+    try {
+      const callback = listener.waitForCallback();
+
+      const response = await fetch(`${listener.redirectUri}?error=access_denied&state=state-value`);
+
+      expect(response.status).toBe(200);
+
+      let error: unknown;
+
+      try {
+        await callback;
+      } catch (caught) {
+        error = caught;
+      }
+
+      expect(error).toBeInstanceOf(AppsScriptRemoteServiceError);
+      expect((error as Error).message).toBe("Google OAuth authorization failed: access_denied");
+    } finally {
+      await listener.close();
+    }
   });
 });

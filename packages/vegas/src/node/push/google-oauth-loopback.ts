@@ -1,6 +1,8 @@
 import http from "node:http";
 import type { AddressInfo } from "node:net";
 
+import { AppsScriptRemoteServiceError } from "./error";
+
 export interface GoogleOAuthLoopbackCallback {
   readonly code: string;
 }
@@ -95,7 +97,9 @@ export async function startGoogleOAuthLoopbackListener(
       settled = true;
 
       respond(response, 200, "Authorization was not completed. Return to the terminal.");
-      rejectCallback?.(new Error(`Google OAuth authorization failed: ${error}`));
+      rejectCallback?.(
+        new AppsScriptRemoteServiceError(`Google OAuth authorization failed: ${error}`),
+      );
 
       return;
     }

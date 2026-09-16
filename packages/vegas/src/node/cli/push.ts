@@ -20,4 +20,6 @@ export async function runPush(root?: string, options: PushOptions = {}): Promise
     projectScriptId: project.appsScript.scriptId,
     profile: options.profile,
   });
+
+  console.log("✓ Pushed project to Apps Script.");
 }

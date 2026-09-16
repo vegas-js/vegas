@@ -1,5 +1,6 @@
 import { describe, expect, test } from "vitest";
 
+import { AppsScriptAuthPrerequisiteError } from "./error";
 import { parseGoogleOAuthDesktopClient } from "./google-oauth-client";
 
 describe("parseGoogleOAuthDesktopClient", () => {
@@ -23,22 +24,9 @@ describe("parseGoogleOAuthDesktopClient", () => {
     });
   });
 
-  test("reject web OAuth client", () => {
-    expect(() =>
-      parseGoogleOAuthDesktopClient(
-        JSON.stringify({
-          web: {
-            client_id: "client-id",
-            client_secret: "client-secret",
-          },
-        }),
-      ),
-    ).toThrow("Invalid Google OAuth desktop client file.");
-  });
-
   test("reject malformed JSON", () => {
     expect(() => parseGoogleOAuthDesktopClient("{")).toThrow(
-      "Invalid Google OAuth desktop client file.",
+      "Invalid Google OAuth desktop client file. Use a Desktop app OAuth client JSON.",
     );
   });
 
@@ -52,7 +40,7 @@ describe("parseGoogleOAuthDesktopClient", () => {
           },
         }),
       ),
-    ).toThrow("Invalid Google OAuth desktop client file.");
+    ).toThrow("Invalid Google OAuth desktop client file. Use a Desktop app OAuth client JSON.");
   });
 
   test("require client secret", () => {
@@ -64,6 +52,23 @@ describe("parseGoogleOAuthDesktopClient", () => {
           },
         }),
       ),
-    ).toThrow("Invalid Google OAuth desktop client file.");
+    ).toThrow("Invalid Google OAuth desktop client file. Use a Desktop app OAuth client JSON.");
+  });
+
+  test("reject web OAuth client", () => {
+    const parse = () =>
+      parseGoogleOAuthDesktopClient(
+        JSON.stringify({
+          web: {
+            client_id: "client-id",
+            client_secret: "client-secret",
+          },
+        }),
+      );
+
+    expect(parse).toThrow(AppsScriptAuthPrerequisiteError);
+    expect(parse).toThrow(
+      "Invalid Google OAuth desktop client file. Use a Desktop app OAuth client JSON.",
+    );
   });
 });

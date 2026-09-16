@@ -3,6 +3,7 @@ import fs from "node:fs";
 
 import { DEFAULT_APPS_SCRIPT_AUTH_PROFILE, requireAppsScriptAuthProfile } from "./auth-profile";
 import type { AppsScriptCredentialStore } from "./credential-store";
+import { AppsScriptAuthPrerequisiteError } from "./error";
 import {
   createGoogleOAuthAuthorizationUrl,
   createGoogleOAuthCodeChallenge,
@@ -22,6 +23,20 @@ interface LoginGoogleAppsScriptOptions {
   readonly now?: () => number;
 }
 
+async function readGoogleOAuthDesktopClientFile(filePath: string): Promise<string> {
+  try {
+    return await fs.promises.readFile(filePath, "utf8");
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") {
+      throw new AppsScriptAuthPrerequisiteError(
+        `Google OAuth desktop client file not found: ${filePath}`,
+      );
+    }
+
+    throw error;
+  }
+}
+
 function createGoogleOAuthState(): string {
   return crypto.randomBytes(32).toString("base64url");
 }
@@ -33,7 +48,7 @@ function createGoogleOAuthCodeVerifier(): string {
 export async function loginGoogleAppsScript(options: LoginGoogleAppsScriptOptions): Promise<void> {
   const profile = requireAppsScriptAuthProfile(options.profile ?? DEFAULT_APPS_SCRIPT_AUTH_PROFILE);
 
-  const clientContent = await fs.promises.readFile(options.clientFilePath, "utf8");
+  const clientContent = await readGoogleOAuthDesktopClientFile(options.clientFilePath);
 
   const client = parseGoogleOAuthDesktopClient(clientContent);
 

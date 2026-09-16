@@ -1,3 +1,5 @@
+import { AppsScriptAuthPrerequisiteError } from "./error";
+
 export interface GoogleOAuthDesktopClient {
   readonly clientId: string;
   readonly clientSecret: string;
@@ -13,7 +15,9 @@ function objectValue(value: unknown): Record<string, unknown> | undefined {
 
 function requireString(value: unknown): string {
   if (typeof value !== "string" || value.trim().length === 0) {
-    throw new Error("Invalid Google OAuth desktop client file.");
+    throw new AppsScriptAuthPrerequisiteError(
+      "Invalid Google OAuth desktop client file. Use a Desktop app OAuth client JSON.",
+    );
   }
 
   return value;
@@ -25,14 +29,18 @@ export function parseGoogleOAuthDesktopClient(content: string): GoogleOAuthDeskt
   try {
     parsed = JSON.parse(content);
   } catch {
-    throw new Error("Invalid Google OAuth desktop client file.");
+    throw new AppsScriptAuthPrerequisiteError(
+      "Invalid Google OAuth desktop client file. Use a Desktop app OAuth client JSON.",
+    );
   }
 
   const root = objectValue(parsed);
   const installed = objectValue(root?.installed);
 
   if (!installed) {
-    throw new Error("Invalid Google OAuth desktop client file.");
+    throw new AppsScriptAuthPrerequisiteError(
+      "Invalid Google OAuth desktop client file. Use a Desktop app OAuth client JSON.",
+    );
   }
 
   return {
