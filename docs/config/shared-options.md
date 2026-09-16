@@ -75,5 +75,3 @@ export default defineConfig({
   },
 });
 ```
-
-The legacy top-level `gas` option is deprecated. `appsScript.manifest` takes precedence over legacy `gas` values on a field-by-field basis.

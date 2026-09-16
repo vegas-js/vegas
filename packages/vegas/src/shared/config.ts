@@ -1,4 +1,4 @@
-import { PluginOption } from "vite";
+import type { PluginOption } from "vite";
 
 export type BaseConfig = {
   /**
@@ -87,9 +87,4 @@ export type UserConfig = BaseConfig & {
    * Apps Script project and manifest configuration.
    */
   appsScript?: AppsScriptConfig;
-
-  /**
-   * @deprecated Use appsScript.manifest instead.
-   */
-  gas?: AppsScriptManifest;
 };

@@ -1,4 +1,4 @@
-import { UserConfig } from "../shared/config";
+import type { UserConfig } from "../shared/config";
 
 export type { AppsScriptConfig, AppsScriptManifest, UserConfig } from "../shared/config";
 

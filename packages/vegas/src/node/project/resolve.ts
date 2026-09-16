@@ -9,7 +9,6 @@ export function resolveProject(
 ): ResolvedProject {
   const root = path.resolve(options.cwd, options.root ?? config.root ?? ".");
   const appsScriptManifest = config.appsScript?.manifest;
-  const legacyManifest = config.gas;
 
   return {
     root,
@@ -36,19 +35,14 @@ export function resolveProject(
     appsScript: {
       scriptId: config.appsScript?.scriptId,
       manifest: {
-        dependencies: appsScriptManifest?.dependencies ?? legacyManifest?.dependencies,
-        exceptionLogging:
-          appsScriptManifest?.exceptionLogging ?? legacyManifest?.exceptionLogging ?? "STACKDRIVER",
-        oauthScopes: appsScriptManifest?.oauthScopes ?? legacyManifest?.oauthScopes,
-        runtimeVersion:
-          appsScriptManifest?.runtimeVersion ?? legacyManifest?.runtimeVersion ?? "V8",
-        timeZone: appsScriptManifest?.timeZone ?? legacyManifest?.timeZone ?? "UTC",
+        dependencies: appsScriptManifest?.dependencies,
+        exceptionLogging: appsScriptManifest?.exceptionLogging ?? "STACKDRIVER",
+        oauthScopes: appsScriptManifest?.oauthScopes,
+        runtimeVersion: appsScriptManifest?.runtimeVersion ?? "V8",
+        timeZone: appsScriptManifest?.timeZone ?? "UTC",
         webapp: {
-          access: appsScriptManifest?.webapp?.access ?? legacyManifest?.webapp?.access ?? "MYSELF",
-          executeAs:
-            appsScriptManifest?.webapp?.executeAs ??
-            legacyManifest?.webapp?.executeAs ??
-            "USER_ACCESSING",
+          access: appsScriptManifest?.webapp?.access ?? "MYSELF",
+          executeAs: appsScriptManifest?.webapp?.executeAs ?? "USER_ACCESSING",
         },
       },
     },
