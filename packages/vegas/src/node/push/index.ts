@@ -26,6 +26,8 @@ export { resolveAppsScriptCredentialPath } from "./credential-path";
 
 export type { AppsScriptCredentialStore } from "./credential-store";
 
+export { pushAppsScriptProject } from "./direct-push";
+
 export { createAppsScriptFileCredentialStore } from "./file-credential-store";
 
 export { createGoogleAppsScriptAccessTokenRefresher } from "./google-access-token-refresher";
