@@ -38,6 +38,11 @@ export {
   createGoogleOAuthCodeChallenge,
 } from "./google-oauth-authorization";
 
+export {
+  createGoogleOAuthAuthorizationUrlOpener,
+  createGoogleOAuthBrowserCommand,
+} from "./google-oauth-browser";
+
 export { parseGoogleOAuthDesktopClient } from "./google-oauth-client";
 export type { GoogleOAuthDesktopClient } from "./google-oauth-client";
 
