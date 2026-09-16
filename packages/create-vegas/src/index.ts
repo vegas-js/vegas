@@ -1,40 +1,17 @@
 #!/usr/bin/env node
-import child_process from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import util from "node:util";
 
 import * as prompts from "@clack/prompts";
 import { cac } from "cac";
-import spawn from "cross-spawn";
 
+import { CreateVegasUsageError, formatCreateVegasError } from "./error";
 import { validatePackageName } from "./package-name";
+import { runCommand } from "./run-command";
 import { inspectScaffoldDirectory } from "./scaffold-directory";
 import { scaffoldProject, type ScaffoldDirectoryOperation } from "./scaffold-project";
 import { resolveScaffoldTarget } from "./scaffold-target";
-
-function runCmd(
-  cmd: string,
-  args?: readonly string[],
-  options?: child_process.SpawnSyncOptionsWithBufferEncoding,
-) {
-  return new Promise<void>((resolve, reject) => {
-    const sp = spawn(cmd, args, options);
-    sp.on("error", reject);
-    sp.on("close", (code) => {
-      if (code === 0) {
-        resolve();
-      } else {
-        const messages: string[] = [cmd];
-        if (args) {
-          messages.push(...args);
-        }
-        messages.push("failed.", "Exit Code:", JSON.stringify(code));
-        reject(new Error(messages.join(" ")));
-      }
-    });
-  });
-}
 
 const frameworkOptions: { value: string; label: string }[] = [
   { label: util.styleText("yellow", "Vanilla"), value: "template-vanilla" },
@@ -82,7 +59,7 @@ async function run(directory?: string) {
   const directoryState = inspectScaffoldDirectory(ctx.projectName);
 
   if (directoryState === "invalid") {
-    throw new Error(`Target path "${ctx.projectName}" is not a directory.`);
+    throw new CreateVegasUsageError(`Target path "${ctx.projectName}" is not a directory.`);
   }
 
   if (directoryState === "non-empty") {
@@ -227,7 +204,7 @@ async function run(directory?: string) {
 
   if (ctx.installDependencies) {
     prompts.log.step("Installing dependencies with npm...");
-    await runCmd("npm", ["install"], {
+    await runCommand("npm", ["install"], {
       cwd: packagePath,
       stdio: "inherit",
     });
@@ -235,7 +212,7 @@ async function run(directory?: string) {
     if (ctx.loginAppsScript) {
       prompts.log.step("Signing in to Google for Apps Script...");
 
-      await runCmd("npm", ["run", "login", "--", ctx.oauthClientFile], {
+      await runCommand("npm", ["run", "login", "--", ctx.oauthClientFile], {
         cwd: packagePath,
         stdio: "inherit",
       });
@@ -244,7 +221,7 @@ async function run(directory?: string) {
     if (ctx.startDevServer) {
       prompts.log.step("Starting dev server...");
 
-      await runCmd("npm", ["run", "dev"], {
+      await runCommand("npm", ["run", "dev"], {
         cwd: packagePath,
         stdio: "inherit",
       });
@@ -286,4 +263,20 @@ cli.help((defaultHelpSections: { title?: string; body: string }[]) => {
     })
     .filter((section) => section.title?.match(/^(?!(Commands|For more info))/));
 });
-cli.parse();
+
+try {
+  cli.parse(process.argv, {
+    run: false,
+  });
+
+  await cli.runMatchedCommand();
+} catch (error) {
+  const message = formatCreateVegasError(error);
+
+  if (message === undefined) {
+    throw error;
+  }
+
+  console.error(message);
+  process.exitCode = 1;
+}
