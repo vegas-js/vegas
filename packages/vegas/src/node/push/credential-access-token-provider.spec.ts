@@ -7,6 +7,7 @@ import type {
 import type { AppsScriptCredential } from "./credential";
 import { createAppsScriptCredentialAccessTokenProvider } from "./credential-access-token-provider";
 import type { AppsScriptCredentialStore } from "./credential-store";
+import { AppsScriptAuthPrerequisiteError } from "./error";
 
 const now = 1_000_000;
 
@@ -82,8 +83,9 @@ describe("createAppsScriptCredentialAccessTokenProvider", () => {
       now: () => now,
     });
 
+    await expect(provider.getAccessToken()).rejects.toThrow(AppsScriptAuthPrerequisiteError);
     await expect(provider.getAccessToken()).rejects.toThrow(
-      "Apps Script credentials not found for profile: default",
+      'Apps Script credentials not found for profile "default". Run "vegas auth login <oauth-client-json> --profile <profile>" with the same profile name to sign in.',
     );
 
     expect(refresher.refresh).not.toHaveBeenCalled();

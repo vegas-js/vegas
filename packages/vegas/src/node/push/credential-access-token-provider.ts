@@ -5,6 +5,7 @@ import {
 } from "./access-token";
 import { DEFAULT_APPS_SCRIPT_AUTH_PROFILE, requireAppsScriptAuthProfile } from "./auth-profile";
 import type { AppsScriptCredentialStore } from "./credential-store";
+import { AppsScriptAuthPrerequisiteError } from "./error";
 
 interface CreateAppsScriptCredentialAccessTokenProviderOptions {
   readonly credentialStore: AppsScriptCredentialStore;
@@ -23,7 +24,9 @@ export function createAppsScriptCredentialAccessTokenProvider(
     async getAccessToken(): Promise<string> {
       const credential = await options.credentialStore.load(profile);
       if (!credential) {
-        throw new Error(`Apps Script credentials not found for profile: ${profile}`);
+        throw new AppsScriptAuthPrerequisiteError(
+          `Apps Script credentials not found for profile "${profile}". Run "vegas auth login <oauth-client-json> --profile <profile>" with the same profile name to sign in.`,
+        );
       }
 
       const cachedAccessToken = getUsableAppsScriptAccessToken(credential, now());

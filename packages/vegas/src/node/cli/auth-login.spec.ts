@@ -40,4 +40,14 @@ describe("runAuth", () => {
 
     expect(loginGoogleAppsScriptUserMock).not.toHaveBeenCalled();
   });
+
+  test("reject empty auth profile", async () => {
+    await expect(
+      runAuth("login", "client.json", {
+        profile: "   ",
+      }),
+    ).rejects.toThrow("Apps Script auth profile must not be empty.");
+
+    expect(loginGoogleAppsScriptUserMock).not.toHaveBeenCalled();
+  });
 });

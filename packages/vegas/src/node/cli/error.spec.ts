@@ -2,7 +2,7 @@ import { cac } from "cac";
 import { describe, expect, test } from "vitest";
 
 import { ConfigValidationError } from "../project/validate-config";
-import { AppsScriptPushPrerequisiteError } from "../push/error";
+import { AppsScriptAuthPrerequisiteError, AppsScriptPushPrerequisiteError } from "../push/error";
 import { CliUsageError, formatCliError } from "./error";
 
 describe("formatCliError", () => {
@@ -54,5 +54,13 @@ describe("formatCliError", () => {
     expect(formatCliError(error)).toBe(
       'Build output directory not found: /project/dist. Run "vegas build" before pushing.',
     );
+  });
+
+  test("format Apps Script auth prerequisite error", () => {
+    const error = new AppsScriptAuthPrerequisiteError(
+      'Apps Script credentials not found for profile "default".',
+    );
+
+    expect(formatCliError(error)).toBe('Apps Script credentials not found for profile "default".');
   });
 });

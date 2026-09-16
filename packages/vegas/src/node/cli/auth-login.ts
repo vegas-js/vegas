@@ -1,4 +1,5 @@
 import { loginGoogleAppsScriptUser } from "../push";
+import { validateAuthProfileOption } from "./auth-profile-option";
 import { CliUsageError } from "./error";
 
 interface AuthLoginOptions {
@@ -13,6 +14,8 @@ export async function runAuth(
   if (action !== "login") {
     throw new CliUsageError(`Unknown auth command "${action}". Expected "login".`);
   }
+
+  validateAuthProfileOption(options.profile);
 
   if (clientFilePath === undefined) {
     throw new CliUsageError(

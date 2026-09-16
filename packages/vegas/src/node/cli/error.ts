@@ -1,5 +1,5 @@
 import { ConfigValidationError } from "../project/validate-config";
-import { AppsScriptPushPrerequisiteError } from "../push/error";
+import { AppsScriptAuthPrerequisiteError, AppsScriptPushPrerequisiteError } from "../push/error";
 
 export class CliUsageError extends Error {
   constructor(message: string) {
@@ -16,6 +16,7 @@ export function formatCliError(error: unknown): string | undefined {
   if (
     error instanceof ConfigValidationError ||
     error instanceof CliUsageError ||
+    error instanceof AppsScriptAuthPrerequisiteError ||
     error instanceof AppsScriptPushPrerequisiteError ||
     isCacError(error)
   ) {
