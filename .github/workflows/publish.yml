@@ -9,7 +9,7 @@ jobs:
     if: github.repository == 'vegas-js/vegas'
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      contents: read
       id-token: write
     steps:
       - uses: actions/checkout@v4
