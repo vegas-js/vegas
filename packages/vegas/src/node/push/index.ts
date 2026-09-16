@@ -47,6 +47,9 @@ export type {
   GoogleOAuthLoopbackListener,
 } from "./google-oauth-loopback";
 
+export { exchangeGoogleOAuthAuthorizationCode } from "./google-oauth-token-exchange";
+export type { GoogleOAuthAuthorizationCodeTokens } from "./google-oauth-token-exchange";
+
 export { loadAppsScriptPushRequest } from "./load-request";
 
 export { loadAppsScriptScriptId } from "./load-script-id";
