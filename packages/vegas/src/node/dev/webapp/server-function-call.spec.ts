@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import { executeServerFunctionCall } from "./gas-call";
+import { executeServerFunctionCall } from "./server-function-call";
 
 describe("executeServerFunctionCall", () => {
   test("return successful response", async () => {

@@ -11,7 +11,6 @@ import { BuildCoordinator } from "./build-coordinator";
 import { buildDevTopology } from "./build-topology";
 import { classifyProjectFile } from "./project-file";
 import { createAppsScriptDoGetEvent, createAppsScriptDoPostEvent } from "./webapp/event";
-import { executeServerFunctionCall } from "./webapp/gas-call";
 import { createHostHtml } from "./webapp/host-html";
 import {
   createAppsScriptDoPostHttpResponse,
@@ -19,6 +18,7 @@ import {
   readRequestBody,
   type AppsScriptDoPostResult,
 } from "./webapp/http";
+import { executeServerFunctionCall } from "./webapp/server-function-call";
 import { WebAppSessionRegistry } from "./webapp/session-registry";
 
 interface DevApplicationOptions {
@@ -178,13 +178,16 @@ export class DevApplication {
       }
     });
 
-    hostServer.ws.on("vegas:gascall", async (data: ServerFunctionCallRequest, client) => {
-      await builds.waitForIdle();
+    hostServer.ws.on(
+      "vegas:server-function-call",
+      async (data: ServerFunctionCallRequest, client) => {
+        await builds.waitForIdle();
 
-      const response = await executeServerFunctionCall(this.#executor, data);
+        const response = await executeServerFunctionCall(this.#executor, data);
 
-      client.send("vegas:return", response);
-    });
+        client.send("vegas:return", response);
+      },
+    );
 
     const hostHandler: Connect.NextHandleFunction = async (request, response, next) => {
       try {

@@ -105,7 +105,7 @@ const proxyHandler: ProxyHandler<object> = {
         };
 
         port1.postMessage({
-          type: "vegas:gascall",
+          type: "vegas:server-function-call",
           payload: request,
         });
       };

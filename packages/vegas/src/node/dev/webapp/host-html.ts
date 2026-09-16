@@ -55,7 +55,7 @@ if (import.meta.hot) {
   import.meta.hot.on("vegas:init", (data) => {
     if (port) {
       port.onmessage = (event) => {
-        if (event.data.type === "vegas:gascall") {
+        if (event.data.type === "vegas:server-function-call") {
           import.meta.hot.send(event.data.type, event.data.payload);
         }
       };
