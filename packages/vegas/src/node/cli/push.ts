@@ -14,6 +14,7 @@ export async function runPush(root?: string, options: PushOptions = {}): Promise
   await pushAppsScriptProject({
     projectRoot: project.root,
     outputDir: project.outputDir,
+    projectScriptId: project.appsScript.scriptId,
     profile: options.profile,
   });
 }

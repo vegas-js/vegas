@@ -49,12 +49,6 @@ describe("pushAppsScriptProject", () => {
     await fs.promises.mkdir(outputDir, { recursive: true });
 
     await fs.promises.writeFile(
-      path.join(projectRoot, ".clasp.json"),
-      JSON.stringify({ scriptId: "script/id" }),
-      "utf8",
-    );
-
-    await fs.promises.writeFile(
       path.join(outputDir, "appsscript.json"),
       JSON.stringify({ timeZone: "Asia/Tokyo" }),
       "utf8",
@@ -75,6 +69,7 @@ describe("pushAppsScriptProject", () => {
     await pushAppsScriptProject({
       projectRoot,
       outputDir,
+      projectScriptId: "script/id",
       platform: process.platform,
       homeDir,
       env,

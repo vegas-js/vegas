@@ -6,6 +6,7 @@ import { createAppsScriptPushRequest, type AppsScriptPushRequest } from "./reque
 interface LoadAppsScriptPushRequestOptions {
   readonly projectRoot: string;
   readonly outputDir: string;
+  readonly projectScriptId?: string;
 }
 
 export async function loadAppsScriptPushRequest(
@@ -13,7 +14,10 @@ export async function loadAppsScriptPushRequest(
 ): Promise<AppsScriptPushRequest> {
   const artifacts = await readBuildArtifacts(options.outputDir);
   const content = createAppsScriptProjectContent(artifacts);
-  const scriptId = await loadAppsScriptScriptId({ projectRoot: options.projectRoot });
+  const scriptId = await loadAppsScriptScriptId({
+    projectRoot: options.projectRoot,
+    projectScriptId: options.projectScriptId,
+  });
 
   return createAppsScriptPushRequest(scriptId, content);
 }

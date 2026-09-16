@@ -5,6 +5,7 @@ import { createAppsScriptUserAccessTokenProvider } from "./user-access-token-pro
 interface PushAppsScriptProjectOptions {
   readonly projectRoot: string;
   readonly outputDir: string;
+  readonly projectScriptId?: string;
   readonly profile?: string;
   readonly platform?: NodeJS.Platform;
   readonly homeDir?: string;
@@ -17,6 +18,7 @@ export async function pushAppsScriptProject(options: PushAppsScriptProjectOption
   const request = await loadAppsScriptPushRequest({
     projectRoot: options.projectRoot,
     outputDir: options.outputDir,
+    projectScriptId: options.projectScriptId,
   });
 
   const accessTokenProvider = createAppsScriptUserAccessTokenProvider({

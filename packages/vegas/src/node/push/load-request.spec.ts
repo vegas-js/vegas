@@ -14,7 +14,6 @@ describe("loadAppsScriptPushRequest", () => {
     try {
       fs.mkdirSync(path.join(outputDir, "pages"), { recursive: true });
 
-      fs.writeFileSync(path.join(root, ".clasp.json"), "{ scriptId: 'script-id' }");
       fs.writeFileSync(path.join(outputDir, "appsscript.json"), '{"timeZone":"UTC"}');
       fs.writeFileSync(path.join(outputDir, "Code.js"), "function hello() {}");
       fs.writeFileSync(path.join(outputDir, "pages", "dashboard.html"), "<h1>Dashboard</h1>");
@@ -23,6 +22,7 @@ describe("loadAppsScriptPushRequest", () => {
         loadAppsScriptPushRequest({
           projectRoot: root,
           outputDir,
+          projectScriptId: "script-id",
         }),
       ).resolves.toStrictEqual({
         scriptId: "script-id",
@@ -61,7 +61,6 @@ describe("loadAppsScriptPushRequest", () => {
     try {
       fs.mkdirSync(outputDir);
 
-      fs.writeFileSync(path.join(root, ".clasp.json"), "{ scriptId: 'script-id' }");
       fs.writeFileSync(path.join(outputDir, "appsscript.json"), "{}");
       fs.writeFileSync(path.join(outputDir, "Code.js"), "function hello() {}");
 
@@ -69,6 +68,7 @@ describe("loadAppsScriptPushRequest", () => {
         loadAppsScriptPushRequest({
           projectRoot: root,
           outputDir,
+          projectScriptId: "script-id",
         }),
       ).resolves.toMatchObject({ scriptId: "script-id" });
     } finally {
