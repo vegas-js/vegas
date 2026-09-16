@@ -16,7 +16,7 @@ describe("createBuildPlan", () => {
       configFile: null,
       clientDir: path.join(projectRoot, "src", "client"),
       serverDir: path.join(projectRoot, "src", "server"),
-      gasMockDir: path.join(projectRoot, "mock"),
+      runtimeDataDir: path.join(projectRoot, "runtime"),
       outputDir: path.join(projectRoot, "dist"),
       appType: "spa",
       plugins: [],
@@ -44,7 +44,7 @@ describe("createBuildPlan", () => {
       clientEntries: [clientEntry],
       clientSources: [clientEntry.sourcePath],
       serverSources: [],
-      gasMockSources: [],
+      runtimeDataSources: [],
     };
 
     const plan = createBuildPlan(project, snapshot, "production");

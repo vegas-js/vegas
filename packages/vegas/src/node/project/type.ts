@@ -7,7 +7,7 @@ export interface ResolvedProject {
   readonly configFile: string | null;
   readonly clientDir: string;
   readonly serverDir: string;
-  readonly gasMockDir: string;
+  readonly runtimeDataDir: string;
   readonly outputDir: string;
   readonly appType: "spa" | "script";
   readonly plugins: readonly PluginOption[];
@@ -27,6 +27,6 @@ export interface ClientEntry {
 export interface ProjectSnapshot {
   readonly clientSources: readonly string[];
   readonly serverSources: readonly string[];
-  readonly gasMockSources: readonly string[];
+  readonly runtimeDataSources: readonly string[];
   readonly clientEntries: readonly ClientEntry[];
 }

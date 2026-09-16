@@ -17,10 +17,10 @@ export type BaseConfig = {
    */
   serverDir?: string;
   /**
-   * GAS API mock source directory. Both absolute and relative paths are resolved starting from the project root directory.
-   * @default 'mock'
+   * Local runtime data source directory. Both absolute and relative paths are resolved starting from the project root directory.
+   * @default 'runtime'
    */
-  gasMockDir?: string;
+  runtimeDataDir?: string;
   /**
    * Array of vite plugins to use. (passthrough)
    */

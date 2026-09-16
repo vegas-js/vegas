@@ -24,10 +24,10 @@ export function resolveProject(
           ? path.resolve(root, "src")
           : path.resolve(root, "src", "server")
         : path.resolve(root, config.serverDir),
-    gasMockDir:
-      config.gasMockDir === undefined
-        ? path.resolve(root, "mock")
-        : path.resolve(root, config.gasMockDir),
+    runtimeDataDir:
+      config.runtimeDataDir === undefined
+        ? path.resolve(root, "runtime")
+        : path.resolve(root, config.runtimeDataDir),
     outputDir:
       config.output?.dir === undefined
         ? path.resolve(root, "dist")

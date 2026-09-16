@@ -224,7 +224,7 @@ export function validateUserConfig(value: unknown): UserConfig {
     "root",
     "clientDir",
     "serverDir",
-    "gasMockDir",
+    "runtimeDataDir",
     "plugins",
     "appType",
     "output",
@@ -234,7 +234,7 @@ export function validateUserConfig(value: unknown): UserConfig {
   assertOptionalString(value.root, "root");
   assertOptionalString(value.clientDir, "clientDir");
   assertOptionalString(value.serverDir, "serverDir");
-  assertOptionalString(value.gasMockDir, "gasMockDir");
+  assertOptionalString(value.runtimeDataDir, "runtimeDataDir");
 
   if (value.plugins !== undefined && !Array.isArray(value.plugins)) {
     throw new ConfigValidationError('"plugins" must be an array.');

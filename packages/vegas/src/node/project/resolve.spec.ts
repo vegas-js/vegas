@@ -33,7 +33,7 @@ describe("resolveProject", () => {
       configFile: null,
       clientDir: path.join(cwd, "src", "client"),
       serverDir: path.join(cwd, "src", "server"),
-      gasMockDir: path.join(cwd, "mock"),
+      runtimeDataDir: path.join(cwd, "runtime"),
       outputDir: path.join(cwd, "dist"),
       appType: "spa",
       plugins: [],
@@ -129,7 +129,7 @@ describe("resolveProject", () => {
 
       expect(project.clientDir).toBe(path.join(root, "src", "client"));
       expect(project.serverDir).toBe(path.join(root, "src", "server"));
-      expect(project.gasMockDir).toBe(path.join(root, "mock"));
+      expect(project.runtimeDataDir).toBe(path.join(root, "runtime"));
       expect(project.outputDir).toBe(path.join(root, "dist"));
     });
 
@@ -137,13 +137,13 @@ describe("resolveProject", () => {
       const project = resolve({
         clientDir: "client",
         serverDir: "server",
-        gasMockDir: "mocks",
+        runtimeDataDir: "mocks",
         output: { dir: "build" },
       });
 
       expect(project.clientDir).toBe(path.join(cwd, "client"));
       expect(project.serverDir).toBe(path.join(cwd, "server"));
-      expect(project.gasMockDir).toBe(path.join(cwd, "mocks"));
+      expect(project.runtimeDataDir).toBe(path.join(cwd, "mocks"));
       expect(project.outputDir).toBe(path.join(cwd, "build"));
     });
 
@@ -152,7 +152,7 @@ describe("resolveProject", () => {
         root: "sub",
         clientDir: "client",
         serverDir: "server",
-        gasMockDir: "mocks",
+        runtimeDataDir: "mocks",
         output: { dir: "build" },
       });
 
@@ -161,7 +161,7 @@ describe("resolveProject", () => {
       expect(project.root).toBe(root);
       expect(project.clientDir).toBe(path.join(root, "client"));
       expect(project.serverDir).toBe(path.join(root, "server"));
-      expect(project.gasMockDir).toBe(path.join(root, "mocks"));
+      expect(project.runtimeDataDir).toBe(path.join(root, "mocks"));
       expect(project.outputDir).toBe(path.join(root, "build"));
     });
 
@@ -181,19 +181,19 @@ describe("resolveProject", () => {
     test("preserve absolute directories", () => {
       const clientDir = path.join(fsRoot, "tmp", "client");
       const serverDir = path.join(fsRoot, "tmp", "server");
-      const gasMockDir = path.join(fsRoot, "tmp", "mock");
+      const runtimeDataDir = path.join(fsRoot, "tmp", "runtime");
       const outputDir = path.join(fsRoot, "tmp", "dist");
 
       const project = resolve({
         clientDir,
         serverDir,
-        gasMockDir,
+        runtimeDataDir,
         output: { dir: outputDir },
       });
 
       expect(project.clientDir).toBe(clientDir);
       expect(project.serverDir).toBe(serverDir);
-      expect(project.gasMockDir).toBe(gasMockDir);
+      expect(project.runtimeDataDir).toBe(runtimeDataDir);
       expect(project.outputDir).toBe(outputDir);
     });
 

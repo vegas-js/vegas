@@ -11,7 +11,7 @@ function createProject(root: string, appType: "spa" | "script" = "spa"): Resolve
     configFile: null,
     clientDir: path.join(root, "src", "client"),
     serverDir: path.join(root, "src", "server"),
-    gasMockDir: path.join(root, "mock"),
+    runtimeDataDir: path.join(root, "runtime"),
     outputDir: path.join(root, "dist"),
     appType,
     plugins: [],

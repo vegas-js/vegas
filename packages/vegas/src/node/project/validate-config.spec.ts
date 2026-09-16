@@ -14,7 +14,7 @@ describe("validateUserConfig", () => {
       root: ".",
       clientDir: "src/client",
       serverDir: "src/server",
-      gasMockDir: "mock",
+      runtimeDataDir: "runtime",
       plugins: [{ name: "plugin" }],
       appType: "spa",
       output: {
@@ -142,5 +142,13 @@ describe("validateUserConfig", () => {
         output: new Date(),
       }),
     ).toThrow('Invalid Vegas config: "output" must be an object.');
+  });
+
+  test("reject removed gas mock directory option", () => {
+    expect(() =>
+      validateUserConfig({
+        gasMockDir: "mock",
+      }),
+    ).toThrow('Invalid Vegas config: unknown option "gasMockDir".');
   });
 });

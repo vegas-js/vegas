@@ -21,7 +21,7 @@ const project: ResolvedProject = {
   configFile: null,
   clientDir: "/project/src/client",
   serverDir: "/project/src/server",
-  gasMockDir: "/project/mock",
+  runtimeDataDir: "/project/runtime",
   outputDir: "/project/dist",
   appType: "spa",
   plugins: [],

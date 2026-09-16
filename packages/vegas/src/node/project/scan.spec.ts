@@ -13,7 +13,7 @@ function createProject(tempDirPath: string, appType: "spa" | "script" = "spa"): 
     configFile: null,
     clientDir: path.join(tempDirPath, "src", "client"),
     serverDir: path.join(tempDirPath, "src", "server"),
-    gasMockDir: path.join(tempDirPath, "mock"),
+    runtimeDataDir: path.join(tempDirPath, "runtime"),
     outputDir: path.join(tempDirPath, "dist"),
     appType,
     plugins: [],
@@ -41,12 +41,12 @@ describe("scanProject", () => {
 
       fs.mkdirSync(path.join(project.clientDir, "admin"), { recursive: true });
       fs.mkdirSync(project.serverDir, { recursive: true });
-      fs.mkdirSync(project.gasMockDir, { recursive: true });
+      fs.mkdirSync(project.runtimeDataDir, { recursive: true });
 
       const files = {
         client: ["main.tsx", "helper.ts", "types.d.ts", path.join("admin", "main.tsx")],
         server: ["Code.ts", "types.d.ts"],
-        mock: ["properties.ts", "types.d.ts"],
+        runtimeData: ["properties.ts", "types.d.ts"],
       };
 
       for (const file of files.client) {
@@ -55,8 +55,8 @@ describe("scanProject", () => {
       for (const file of files.server) {
         fs.writeFileSync(path.join(project.serverDir, file), "");
       }
-      for (const file of files.mock) {
-        fs.writeFileSync(path.join(project.gasMockDir, file), "");
+      for (const file of files.runtimeData) {
+        fs.writeFileSync(path.join(project.runtimeDataDir, file), "");
       }
 
       const snapshot = await scanProject(project);
@@ -68,7 +68,7 @@ describe("scanProject", () => {
           path.join(project.clientDir, "main.tsx"),
         ],
         serverSources: [path.join(project.serverDir, "Code.ts")],
-        gasMockSources: [path.join(project.gasMockDir, "properties.ts")],
+        runtimeDataSources: [path.join(project.runtimeDataDir, "properties.ts")],
         clientEntries: [
           {
             id: "admin",
@@ -100,7 +100,7 @@ describe("scanProject", () => {
       expect(snapshot).toStrictEqual({
         clientSources: [],
         serverSources: [],
-        gasMockSources: [],
+        runtimeDataSources: [],
         clientEntries: [],
       });
     } finally {

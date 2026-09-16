@@ -4,7 +4,7 @@ import { buildDevTopology } from "../dev/build-topology";
 import { loadProject } from "../project";
 import { createServeContext } from "./core/context";
 import { createLegacyGasExecutor } from "./core/launch";
-import { loadMock } from "./core/mock";
+import { loadRuntimeData } from "./core/runtime-data";
 
 export async function runPreview(root?: string) {
   const project = await loadProject({
@@ -29,7 +29,7 @@ export async function runPreview(root?: string) {
   ]);
 
   const ctx = createServeContext(project, artifacts);
-  await loadMock(ctx, snapshot.gasMockSources);
+  await loadRuntimeData(ctx, snapshot.runtimeDataSources);
 
   const executor = createLegacyGasExecutor(ctx);
 
