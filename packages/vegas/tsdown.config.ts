@@ -17,7 +17,10 @@ export default defineConfig([
     plugins: [rolldownLicensePlugin(import.meta.dirname)],
   },
   {
-    entry: "./src/lib",
+    entry: {
+      lib: "./src/lib",
+      config: "./src/lib/config",
+    },
     fixedExtension: false,
     dts: {
       compilerOptions: { isolatedDeclarations: true },

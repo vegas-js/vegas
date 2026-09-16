@@ -33,12 +33,15 @@
   "type": "module",
   "exports": {
     ".": {
-      "types": "./server.d.ts",
-      "import": "./dist/lib.js"
+      "types": "./dist/config.d.ts",
+      "import": "./dist/config.js"
     },
     "./client": {
       "types": "./client.d.ts",
       "import": "./dist/lib.js"
+    },
+    "./server": {
+      "types": "./server.d.ts"
     }
   },
   "publishConfig": {

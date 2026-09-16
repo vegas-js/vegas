@@ -1,4 +1,4 @@
-import { defineConfig } from '@vegasjs/vegas/client'
+import { defineConfig } from '@vegasjs/vegas'
 
 export default defineConfig({
   appsScript: {

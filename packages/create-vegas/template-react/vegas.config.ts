@@ -1,4 +1,4 @@
-import { defineConfig } from '@vegasjs/vegas/client'
+import { defineConfig } from '@vegasjs/vegas'
 import react from '@vitejs/plugin-react'
 
 export default defineConfig({

@@ -20,9 +20,7 @@ const templateCases = [
 const tempDirs: string[] = [];
 
 function createTempDir(): string {
-  const directory = fs.mkdtempSync(
-    path.join(os.tmpdir(), "create-vegas-template-smoke-"),
-  );
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "create-vegas-template-smoke-"));
 
   tempDirs.push(directory);
 
@@ -39,82 +37,55 @@ afterEach(() => {
 });
 
 describe("create-vegas templates", () => {
-  test.each(templateCases)(
-    "scaffolds %s",
-    (templateName, clientEntry, clientMarker) => {
-      const root = createTempDir();
+  test.each(templateCases)("scaffolds %s", (templateName, clientEntry, clientMarker) => {
+    const root = createTempDir();
 
-      const templateDirectory = path.join(
-        CREATE_VEGAS_ROOT,
-        templateName,
-      );
+    const templateDirectory = path.join(CREATE_VEGAS_ROOT, templateName);
 
-      const targetDirectory = path.join(root, "project");
+    const targetDirectory = path.join(root, "project");
 
-      scaffoldProject({
-        templateDirectory,
-        targetDirectory,
-        packageName: "smoke-project",
-        operation: "create",
-      });
+    scaffoldProject({
+      templateDirectory,
+      targetDirectory,
+      packageName: "smoke-project",
+      operation: "create",
+    });
 
-      const packageJson = JSON.parse(
-        fs.readFileSync(
-          path.join(targetDirectory, "package.json"),
-          "utf8",
-        ),
-      ) as {
-        name?: string;
-      };
+    const packageJson = JSON.parse(
+      fs.readFileSync(path.join(targetDirectory, "package.json"), "utf8"),
+    ) as {
+      name?: string;
+    };
 
-      expect(packageJson.name).toBe("smoke-project");
+    expect(packageJson.name).toBe("smoke-project");
 
-      expect(
-        fs.existsSync(path.join(targetDirectory, ".gitignore")),
-      ).toBe(true);
+    expect(fs.existsSync(path.join(targetDirectory, ".gitignore"))).toBe(true);
 
-      expect(
-        fs.existsSync(path.join(targetDirectory, "_gitignore")),
-      ).toBe(false);
+    expect(fs.existsSync(path.join(targetDirectory, "_gitignore"))).toBe(false);
 
-      expect(
-        fs.existsSync(path.join(targetDirectory, ".clasp.json")),
-      ).toBe(false);
+    expect(fs.existsSync(path.join(targetDirectory, ".clasp.json"))).toBe(false);
 
-      const vegasConfig = fs.readFileSync(
-        path.join(targetDirectory, "vegas.config.ts"),
-        "utf8",
-      );
+    const vegasConfig = fs.readFileSync(path.join(targetDirectory, "vegas.config.ts"), "utf8");
 
-      expect(vegasConfig).toContain(
-        "from '@vegasjs/vegas/client'",
-      );
+    expect(vegasConfig).toContain("from '@vegasjs/vegas'");
 
-      expect(vegasConfig).toContain("appsScript:");
-      expect(vegasConfig).toContain("scriptId: ''");
-      expect(vegasConfig).toContain("manifest: {}");
+    expect(vegasConfig).toContain("appsScript:");
+    expect(vegasConfig).toContain("scriptId: ''");
+    expect(vegasConfig).toContain("manifest: {}");
 
-      const clientEntryPath = path.join(
-        targetDirectory,
-        clientEntry,
-      );
+    const serverTsconfig = fs.readFileSync(
+      path.join(targetDirectory, "tsconfig.server.json"),
+      "utf8",
+    );
 
-      expect(fs.existsSync(clientEntryPath)).toBe(true);
+    expect(serverTsconfig).toContain('"types": ["@vegasjs/vegas/server"]');
 
-      expect(
-        fs.readFileSync(clientEntryPath, "utf8"),
-      ).toContain(clientMarker);
+    const clientEntryPath = path.join(targetDirectory, clientEntry);
 
-      expect(
-        fs.existsSync(
-          path.join(
-            targetDirectory,
-            "src",
-            "server",
-            "Code.ts",
-          ),
-        ),
-      ).toBe(true);
-    },
-  );
+    expect(fs.existsSync(clientEntryPath)).toBe(true);
+
+    expect(fs.readFileSync(clientEntryPath, "utf8")).toContain(clientMarker);
+
+    expect(fs.existsSync(path.join(targetDirectory, "src", "server", "Code.ts"))).toBe(true);
+  });
 });
