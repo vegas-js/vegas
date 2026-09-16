@@ -54,9 +54,12 @@ async function run() {
     packageName: "",
     framework: "",
     useOxcStack: false,
-    npmStartUp: false,
+    installDependencies: false,
+    startDevServer: false,
     configureAppsScript: false,
+    loginAppsScript: false,
     scriptId: "",
+    oauthClientFile: "",
   };
 
   ctx.projectName = (await prompts.text({
@@ -129,12 +132,57 @@ async function run() {
     ctx.scriptId = ctx.scriptId.trim();
   }
 
-  ctx.npmStartUp = (await prompts.confirm({
-    message: "Install with npm and start now?",
+  ctx.installDependencies = (await prompts.confirm({
+    message: "Install dependencies with npm now?",
   })) as boolean;
 
-  if (prompts.isCancel(ctx.npmStartUp)) {
+  if (prompts.isCancel(ctx.installDependencies)) {
     cancelHandler();
+  }
+
+  if (ctx.configureAppsScript && ctx.installDependencies) {
+    ctx.loginAppsScript = (await prompts.confirm({
+      message: "Sign in to Google for Apps Script now?",
+    })) as boolean;
+
+    if (prompts.isCancel(ctx.loginAppsScript)) {
+      cancelHandler();
+    }
+  }
+
+  if (ctx.loginAppsScript) {
+    const clientFile = (await prompts.text({
+      message: "OAuth client JSON:",
+      validate: (value) => {
+        if (!value || value.trim().length === 0) {
+          return "OAuth client JSON path is required";
+        }
+
+        const filePath = path.resolve(process.cwd(), value.trim());
+
+        if (!fs.existsSync(filePath) || !fs.statSync(filePath).isFile()) {
+          return "OAuth client JSON file not found";
+        }
+
+        return undefined;
+      },
+    })) as string;
+
+    if (prompts.isCancel(clientFile)) {
+      cancelHandler();
+    }
+
+    ctx.oauthClientFile = path.resolve(process.cwd(), clientFile.trim());
+  }
+
+  if (ctx.installDependencies) {
+    ctx.startDevServer = (await prompts.confirm({
+      message: "Start the dev server after setup?",
+    })) as boolean;
+
+    if (prompts.isCancel(ctx.startDevServer)) {
+      cancelHandler();
+    }
   }
 
   const packagePath = path.resolve(process.cwd(), ctx.projectName.replace(/\.\.?/g, ""));
@@ -162,19 +210,50 @@ async function run() {
       path.join(packagePath, "oxlintrc.json"),
     );
   }
-  if (ctx.npmStartUp) {
+  if (ctx.installDependencies) {
     prompts.log.step("Installing dependencies with npm...");
-    await runCmd("npm", ["install"], { cwd: packagePath, stdio: "inherit" });
-    prompts.log.step("Starting dev server...");
-    await runCmd("npm", ["run", "dev"], { cwd: packagePath, stdio: "inherit" });
-  } else {
+    await runCmd("npm", ["install"], {
+      cwd: packagePath,
+      stdio: "inherit",
+    });
+
+    if (ctx.loginAppsScript) {
+      prompts.log.step("Signing in to Google for Apps Script...");
+
+      await runCmd("npm", ["run", "login", "--", ctx.oauthClientFile], {
+        cwd: packagePath,
+        stdio: "inherit",
+      });
+    }
+
+    if (ctx.startDevServer) {
+      prompts.log.step("Starting dev server...");
+
+      await runCmd("npm", ["run", "dev"], {
+        cwd: packagePath,
+        stdio: "inherit",
+      });
+    }
+  }
+
+  if (!ctx.installDependencies) {
     const outroText = [
       "Done. Now run:\n",
       `  cd ${path.relative(process.cwd(), packagePath)}`,
       "  npm install",
-      "  npm run dev",
     ];
+
+    if (ctx.configureAppsScript) {
+      outroText.push("  npm run login -- <oauth-client-json>");
+    }
+
+    outroText.push("  npm run dev");
+
     prompts.outro(outroText.join("\n"));
+  }
+
+  if (ctx.installDependencies && !ctx.startDevServer) {
+    prompts.outro("Done.");
   }
 }
 
