@@ -20,6 +20,8 @@ export { readClaspScriptId } from "./clasp-compatibility";
 export { createAppsScriptCredentialFile, parseAppsScriptCredentialFile } from "./credential";
 export type { AppsScriptCredential, AppsScriptCredentialFile } from "./credential";
 
+export { createAppsScriptCredentialAccessTokenProvider } from "./credential-access-token-provider";
+
 export { resolveAppsScriptCredentialPath } from "./credential-path";
 
 export type { AppsScriptCredentialStore } from "./credential-store";
