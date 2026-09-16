@@ -11,6 +11,11 @@ export interface ResolvedProject {
   readonly outputDir: string;
   readonly appType: "spa" | "script";
   readonly plugins: readonly PluginOption[];
+
+  readonly appsScript: {
+    readonly scriptId?: string;
+  };
+
   readonly gas: GASManifest;
 }
 

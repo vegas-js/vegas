@@ -37,6 +37,11 @@ describe("resolveProject", () => {
       outputDir: path.join(cwd, "dist"),
       appType: "spa",
       plugins: [],
+
+      appsScript: {
+        scriptId: undefined,
+      },
+
       gas: {
         dependencies: undefined,
         exceptionLogging: "STACKDRIVER",
@@ -217,6 +222,20 @@ describe("resolveProject", () => {
       const project = resolve({ plugins: [plugin] });
 
       expect(project.plugins).toEqual([plugin]);
+    });
+  });
+
+  describe("apps script", () => {
+    test("resolve script id", () => {
+      const project = resolve({
+        appsScript: {
+          scriptId: "script-id",
+        },
+      });
+
+      expect(project.appsScript).toStrictEqual({
+        scriptId: "script-id",
+      });
     });
   });
 

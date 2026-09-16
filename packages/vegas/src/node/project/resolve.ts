@@ -32,6 +32,11 @@ export function resolveProject(
         : path.resolve(root, config.output.dir),
     configFile: options.configFile,
     plugins: config.plugins ?? [],
+
+    appsScript: {
+      scriptId: config.appsScript?.scriptId,
+    },
+
     gas: {
       dependencies: appsScriptManifest?.dependencies ?? legacyManifest?.dependencies,
       exceptionLogging:

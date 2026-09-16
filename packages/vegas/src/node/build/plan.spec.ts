@@ -20,6 +20,9 @@ describe("createBuildPlan", () => {
       outputDir: path.join(projectRoot, "dist"),
       appType: "spa",
       plugins: [],
+
+      appsScript: {},
+
       gas: {
         exceptionLogging: "STACKDRIVER",
         runtimeVersion: "V8",

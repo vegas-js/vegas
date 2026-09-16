@@ -19,6 +19,9 @@ function createProject(root: string): ResolvedProject {
     outputDir: path.join(root, "dist"),
     appType: "spa",
     plugins: [],
+
+    appsScript: {},
+
     gas: {
       exceptionLogging: "STACKDRIVER",
       runtimeVersion: "V8",
