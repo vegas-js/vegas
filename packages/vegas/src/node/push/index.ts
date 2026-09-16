@@ -46,4 +46,6 @@ export type { AppsScriptPushTransport } from "./transport";
 export { createAppsScriptUpdateContentHttpRequest } from "./update-content";
 export type { AppsScriptUpdateContentHttpRequest } from "./update-content";
 
+export { createAppsScriptUserAccessTokenProvider } from "./user-access-token-provider";
+
 export { createAppsScriptUserCredentialStore } from "./user-credential-store";
