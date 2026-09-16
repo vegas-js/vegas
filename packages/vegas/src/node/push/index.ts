@@ -41,6 +41,12 @@ export {
 export { parseGoogleOAuthDesktopClient } from "./google-oauth-client";
 export type { GoogleOAuthDesktopClient } from "./google-oauth-client";
 
+export { startGoogleOAuthLoopbackListener } from "./google-oauth-loopback";
+export type {
+  GoogleOAuthLoopbackCallback,
+  GoogleOAuthLoopbackListener,
+} from "./google-oauth-loopback";
+
 export { loadAppsScriptPushRequest } from "./load-request";
 
 export { loadAppsScriptScriptId } from "./load-script-id";
