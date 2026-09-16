@@ -32,6 +32,12 @@ export { createAppsScriptFileCredentialStore } from "./file-credential-store";
 
 export { createGoogleAppsScriptAccessTokenRefresher } from "./google-access-token-refresher";
 
+export {
+  APPS_SCRIPT_PROJECTS_OAUTH_SCOPE,
+  createGoogleOAuthAuthorizationUrl,
+  createGoogleOAuthCodeChallenge,
+} from "./google-oauth-authorization";
+
 export { parseGoogleOAuthDesktopClient } from "./google-oauth-client";
 export type { GoogleOAuthDesktopClient } from "./google-oauth-client";
 
