@@ -109,4 +109,59 @@ describe("loadModule", () => {
       });
     }
   });
+
+  test("reject module without default export", async () => {
+    const tempDirPath = fs.mkdtempSync(path.join(os.tmpdir(), "vegas-"));
+
+    try {
+      const modulePath = path.join(tempDirPath, "module.ts");
+
+      fs.writeFileSync(
+        modulePath,
+        `
+        export const value = "loaded";
+      `,
+      );
+
+      await expect(
+        loadModule({
+          root: tempDirPath,
+          filePath: modulePath,
+        }),
+      ).rejects.toThrow("module must have a default export.");
+    } finally {
+      fs.rmSync(tempDirPath, {
+        recursive: true,
+        force: true,
+      });
+    }
+  });
+
+  test.each([
+    ["null", null],
+    ["false", false],
+    ["0", 0],
+    ['""', ""],
+    ["undefined", undefined],
+  ])("load falsy default export: %s", async (source, expected) => {
+    const tempDirPath = fs.mkdtempSync(path.join(os.tmpdir(), "vegas-"));
+
+    try {
+      const modulePath = path.join(tempDirPath, "module.ts");
+
+      fs.writeFileSync(modulePath, `export default ${source};`);
+
+      const loaded = await loadModule({
+        root: tempDirPath,
+        filePath: modulePath,
+      });
+
+      expect(loaded).toBe(expected);
+    } finally {
+      fs.rmSync(tempDirPath, {
+        recursive: true,
+        force: true,
+      });
+    }
+  });
 });

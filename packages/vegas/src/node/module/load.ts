@@ -61,10 +61,10 @@ export async function loadModule(ctx: { root: string; filePath: string }): Promi
     outputDir: tempDir.getPath(),
   });
   const moduleUrl = url.pathToFileURL(transpiledModulePath);
-  const rawModule: { default: unknown } = await import(moduleUrl.href);
+  const rawModule = (await import(moduleUrl.href)) as Record<string, unknown>;
 
-  if (!rawModule.default) {
-    throw new Error("config must export or return an object.");
+  if (!Object.hasOwn(rawModule, "default")) {
+    throw new Error("module must have a default export.");
   }
 
   return rawModule.default;
