@@ -48,6 +48,8 @@ describe("createGoogleOAuthCodeChallenge", () => {
         redirect_uri: "http://127.0.0.1:45678",
         response_type: "code",
         scope: "https://www.googleapis.com/auth/script.projects",
+        access_type: "offline",
+        prompt: "consent",
         state: "state-value",
         code_challenge: "code-challenge",
         code_challenge_method: "S256",

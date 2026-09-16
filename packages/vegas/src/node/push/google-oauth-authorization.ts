@@ -39,6 +39,8 @@ export function createGoogleOAuthAuthorizationUrl(
     redirect_uri: requireValue(options.redirectUri, "Google OAuth redirect URI is required."),
     response_type: "code",
     scope: APPS_SCRIPT_PROJECTS_OAUTH_SCOPE,
+    access_type: "offline",
+    prompt: "consent",
     state: requireValue(options.state, "Google OAuth state is required."),
     code_challenge: requireValue(options.codeChallenge, "Google OAuth code challenge is required."),
     code_challenge_method: "S256",
