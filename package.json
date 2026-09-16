@@ -17,6 +17,7 @@
     "coverage": "vitest run --coverage",
     "build": "tsdown --config-loader native --workspace --publint",
     "check": "pnpm lint && pnpm test && pnpm build",
+    "release:smoke": "node scripts/release-smoke.js",
     "docs:dev": "pnpm --filter ./docs dev",
     "docs:build": "pnpm --filter ./docs build",
     "docs:preview": "pnpm --filter ./docs preview"
