@@ -11,6 +11,7 @@ import spawn from "cross-spawn";
 import { writeAppsScriptScriptId } from "./apps-script-config";
 import { validatePackageName } from "./package-name";
 import { inspectScaffoldDirectory } from "./scaffold-directory";
+import { finalizeScaffoldFile, inspectScaffoldFileState } from "./scaffold-file";
 import { resolveScaffoldTarget } from "./scaffold-target";
 
 function runCmd(
@@ -201,12 +202,18 @@ async function run(directory?: string) {
   }
 
   const target = resolveScaffoldTarget(process.cwd(), ctx.projectName, ctx.packageName);
+
   const packagePath = target.directory;
   const packageJsonPath = path.join(packagePath, "package.json");
   const vegasConfigPath = path.join(packagePath, "vegas.config.ts");
 
-  const preservePackageJson = ctx.directoryOperation === "keep" && fs.existsSync(packageJsonPath);
+  const gitignoreSourcePath = path.join(packagePath, "_gitignore");
+  const gitignorePath = path.join(packagePath, ".gitignore");
 
+  const oxlintSourcePath = path.join(packagePath, "_oxlintrc.json");
+  const oxlintPath = path.join(packagePath, "oxlintrc.json");
+
+  const preservePackageJson = ctx.directoryOperation === "keep" && fs.existsSync(packageJsonPath);
   const preserveVegasConfig = ctx.directoryOperation === "keep" && fs.existsSync(vegasConfigPath);
 
   prompts.log.step(`Scaffolding project in ${packagePath}...`);
@@ -214,6 +221,10 @@ async function run(directory?: string) {
   if (ctx.directoryOperation === "remove") {
     fs.rmSync(packagePath, { recursive: true, force: true });
   }
+
+  const gitignoreState = inspectScaffoldFileState(gitignoreSourcePath, gitignorePath);
+  const oxlintState = inspectScaffoldFileState(oxlintSourcePath, oxlintPath);
+
   fs.cpSync(path.resolve(import.meta.dirname, "..", ctx.framework), packagePath, {
     recursive: true,
     force: ctx.directoryOperation !== "keep",
@@ -229,13 +240,9 @@ async function run(directory?: string) {
     });
   }
 
-  fs.renameSync(path.join(packagePath, "_gitignore"), path.join(packagePath, ".gitignore"));
-  if (fs.existsSync(path.join(packagePath, "_oxlintrc.json"))) {
-    fs.renameSync(
-      path.join(packagePath, "_oxlintrc.json"),
-      path.join(packagePath, "oxlintrc.json"),
-    );
-  }
+  finalizeScaffoldFile(gitignoreSourcePath, gitignorePath, gitignoreState);
+  finalizeScaffoldFile(oxlintSourcePath, oxlintPath, oxlintState);
+
   if (ctx.installDependencies) {
     prompts.log.step("Installing dependencies with npm...");
     await runCmd("npm", ["install"], {
