@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vegas",
-    "build": "tsc && vegas build",
+    "build": "tsc -b && vegas build",
     "preview": "vegas preview",
     "login": "vegas auth login",
     "push": "vegas push"

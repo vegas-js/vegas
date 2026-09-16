@@ -178,7 +178,7 @@ function smokeVanillaConsumer(tarballPath, tempRoot) {
   fs.rmSync(path.join(consumerRoot, "config-surface-smoke.ts"));
   fs.rmSync(path.join(consumerRoot, "tsconfig.release-smoke.json"));
 
-  run(pnpm, ["exec", "vegas", "build"], {
+  run(pnpm, ["run", "build"], {
     cwd: consumerRoot,
   });
 
