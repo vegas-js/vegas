@@ -7,11 +7,10 @@
     "dev": "vegas",
     "build": "tsc && vegas build",
     "preview": "vegas preview",
-    "login": "clasp login",
-    "push": "clasp push"
+    "login": "vegas auth login",
+    "push": "vegas push"
   },
   "devDependencies": {
-    "@google/clasp": "^3.3.0",
     "@vegasjs/vegas": "^0.1.9",
     "typescript": "~6.0.2"
   }

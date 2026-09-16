@@ -8,11 +8,10 @@
     "build": "vegas build",
     "preview": "vegas preview",
     "check": "svelte-check --tsconfig ./tsconfig.client.json && tsc -p tsconfig.server.json && tsc -p tsconfig.node.json",
-    "login": "clasp login",
-    "push": "clasp push"
+    "login": "vegas auth login",
+    "push": "vegas push"
   },
   "devDependencies": {
-    "@google/clasp": "^3.3.0",
     "@sveltejs/vite-plugin-svelte": "^7.1.2",
     "@tsconfig/svelte": "^5.0.8",
     "@types/node": "^24.13.2",
