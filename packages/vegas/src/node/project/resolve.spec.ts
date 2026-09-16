@@ -40,17 +40,16 @@ describe("resolveProject", () => {
 
       appsScript: {
         scriptId: undefined,
-      },
-
-      gas: {
-        dependencies: undefined,
-        exceptionLogging: "STACKDRIVER",
-        oauthScopes: undefined,
-        runtimeVersion: "V8",
-        timeZone: "UTC",
-        webapp: {
-          access: "MYSELF",
-          executeAs: "USER_ACCESSING",
+        manifest: {
+          dependencies: undefined,
+          exceptionLogging: "STACKDRIVER",
+          oauthScopes: undefined,
+          runtimeVersion: "V8",
+          timeZone: "UTC",
+          webapp: {
+            access: "MYSELF",
+            executeAs: "USER_ACCESSING",
+          },
         },
       },
     });
@@ -233,9 +232,7 @@ describe("resolveProject", () => {
         },
       });
 
-      expect(project.appsScript).toStrictEqual({
-        scriptId: "script-id",
-      });
+      expect(project.appsScript.scriptId).toBe("script-id");
     });
   });
 
@@ -256,7 +253,7 @@ describe("resolveProject", () => {
         },
       });
 
-      expect(project.gas).toStrictEqual({
+      expect(project.appsScript.manifest).toStrictEqual({
         dependencies: undefined,
         exceptionLogging: "NONE",
         oauthScopes: ["scope"],
@@ -283,7 +280,7 @@ describe("resolveProject", () => {
         },
       });
 
-      expect(project.gas).toStrictEqual({
+      expect(project.appsScript.manifest).toStrictEqual({
         dependencies: undefined,
         exceptionLogging: "NONE",
         oauthScopes: ["scope"],
@@ -320,7 +317,7 @@ describe("resolveProject", () => {
         },
       });
 
-      expect(project.gas).toStrictEqual({
+      expect(project.appsScript.manifest).toStrictEqual({
         dependencies: undefined,
         exceptionLogging: "NONE",
         oauthScopes: ["legacy-scope"],
@@ -342,7 +339,7 @@ describe("resolveProject", () => {
         },
       });
 
-      expect(project.gas).toStrictEqual({
+      expect(project.appsScript.manifest).toStrictEqual({
         dependencies: undefined,
         exceptionLogging: "STACKDRIVER",
         oauthScopes: undefined,

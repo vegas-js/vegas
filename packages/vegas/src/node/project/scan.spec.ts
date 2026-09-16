@@ -18,15 +18,15 @@ function createProject(tempDirPath: string, appType: "spa" | "script" = "spa"): 
     appType,
     plugins: [],
 
-    appsScript: {},
-
-    gas: {
-      exceptionLogging: "STACKDRIVER",
-      runtimeVersion: "V8",
-      timeZone: "UTC",
-      webapp: {
-        access: "MYSELF",
-        executeAs: "USER_ACCESSING",
+    appsScript: {
+      manifest: {
+        exceptionLogging: "STACKDRIVER",
+        runtimeVersion: "V8",
+        timeZone: "UTC",
+        webapp: {
+          access: "MYSELF",
+          executeAs: "USER_ACCESSING",
+        },
       },
     },
   };

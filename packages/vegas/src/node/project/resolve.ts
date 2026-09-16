@@ -35,21 +35,21 @@ export function resolveProject(
 
     appsScript: {
       scriptId: config.appsScript?.scriptId,
-    },
-
-    gas: {
-      dependencies: appsScriptManifest?.dependencies ?? legacyManifest?.dependencies,
-      exceptionLogging:
-        appsScriptManifest?.exceptionLogging ?? legacyManifest?.exceptionLogging ?? "STACKDRIVER",
-      oauthScopes: appsScriptManifest?.oauthScopes ?? legacyManifest?.oauthScopes,
-      runtimeVersion: appsScriptManifest?.runtimeVersion ?? legacyManifest?.runtimeVersion ?? "V8",
-      timeZone: appsScriptManifest?.timeZone ?? legacyManifest?.timeZone ?? "UTC",
-      webapp: {
-        access: appsScriptManifest?.webapp?.access ?? legacyManifest?.webapp?.access ?? "MYSELF",
-        executeAs:
-          appsScriptManifest?.webapp?.executeAs ??
-          legacyManifest?.webapp?.executeAs ??
-          "USER_ACCESSING",
+      manifest: {
+        dependencies: appsScriptManifest?.dependencies ?? legacyManifest?.dependencies,
+        exceptionLogging:
+          appsScriptManifest?.exceptionLogging ?? legacyManifest?.exceptionLogging ?? "STACKDRIVER",
+        oauthScopes: appsScriptManifest?.oauthScopes ?? legacyManifest?.oauthScopes,
+        runtimeVersion:
+          appsScriptManifest?.runtimeVersion ?? legacyManifest?.runtimeVersion ?? "V8",
+        timeZone: appsScriptManifest?.timeZone ?? legacyManifest?.timeZone ?? "UTC",
+        webapp: {
+          access: appsScriptManifest?.webapp?.access ?? legacyManifest?.webapp?.access ?? "MYSELF",
+          executeAs:
+            appsScriptManifest?.webapp?.executeAs ??
+            legacyManifest?.webapp?.executeAs ??
+            "USER_ACCESSING",
+        },
       },
     },
   };

@@ -14,9 +14,8 @@ export interface ResolvedProject {
 
   readonly appsScript: {
     readonly scriptId?: string;
+    readonly manifest: GASManifest;
   };
-
-  readonly gas: GASManifest;
 }
 
 export interface ClientEntry {

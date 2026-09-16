@@ -38,7 +38,10 @@ export async function runBuild(root?: string) {
   });
 
   const buildArtifacts = await buildApp(builder);
-  const manifestArtifact = createGASManifestArtifact(project.gas, isWebApp(buildArtifacts));
+  const manifestArtifact = createGASManifestArtifact(
+    project.appsScript.manifest,
+    isWebApp(buildArtifacts),
+  );
   const artifacts = [...buildArtifacts, manifestArtifact];
 
   await writeArtifacts(project.outputDir, artifacts);

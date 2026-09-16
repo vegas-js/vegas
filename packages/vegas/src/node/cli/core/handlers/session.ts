@@ -3,7 +3,7 @@ import { ServeContext } from "../context";
 export class SessionHandler {
   getActiveUser(ctx: ServeContext) {
     const email =
-      ctx.project.gas.webapp!.executeAs === "USER_ACCESSING"
+      ctx.project.appsScript.manifest.webapp!.executeAs === "USER_ACCESSING"
         ? (ctx.mock["Session"]?.activeUserEmail ?? "active@gmail.com")
         : (ctx.mock["Session"]?.effectiveUserEmail ?? "effective@gmail.com");
     return email;
@@ -14,13 +14,13 @@ export class SessionHandler {
   }
   getEffectiveUser(ctx: ServeContext) {
     const email =
-      ctx.project.gas.webapp!.executeAs === "USER_ACCESSING"
+      ctx.project.appsScript.manifest.webapp!.executeAs === "USER_ACCESSING"
         ? (ctx.mock["Session"]?.activeUserEmail ?? "active@gmail.com")
         : (ctx.mock["Session"]?.effectiveUserEmail ?? "effective@gmail.com");
     return email;
   }
   getScriptTimeZone(ctx: ServeContext) {
-    const timeZone = ctx.project.gas.timeZone ?? "UTC";
+    const timeZone = ctx.project.appsScript.manifest.timeZone ?? "UTC";
     return timeZone;
   }
   getTemporaryActiveUserKey(ctx: ServeContext) {
