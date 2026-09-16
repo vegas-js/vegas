@@ -22,4 +22,43 @@ jobs:
           registry-url: https://registry.npmjs.org
       - run: pnpm install
       - run: pnpm release:check
-      - run: pnpm -r publish
+      - name: Resolve release target
+        shell: bash
+        run: |
+          case "$GITHUB_REF_NAME" in
+            v*)
+              package_dir="packages/vegas"
+              expected_version="${GITHUB_REF_NAME#v}"
+              ;;
+            create-vegas@*)
+              package_dir="packages/create-vegas"
+              expected_version="${GITHUB_REF_NAME#create-vegas@}"
+              ;;
+            *)
+              echo "Unsupported release tag: $GITHUB_REF_NAME" >&2
+              exit 1
+              ;;
+          esac
+
+          actual_version="$(
+            node -e '
+              const fs = require("node:fs");
+              const path = process.argv[1];
+              const pkg = JSON.parse(fs.readFileSync(path, "utf8"));
+              process.stdout.write(pkg.version);
+            ' "$package_dir/package.json"
+          )"
+
+          if [ "$actual_version" != "$expected_version" ]; then
+            echo "Release tag version does not match package version." >&2
+            echo "Tag: $GITHUB_REF_NAME" >&2
+            echo "Package: $package_dir" >&2
+            echo "Expected: $expected_version" >&2
+            echo "Actual: $actual_version" >&2
+            exit 1
+          fi
+
+          echo "RELEASE_PACKAGE_DIR=$package_dir" >> "$GITHUB_ENV"
+
+      - name: Publish package
+        run: pnpm --dir "$RELEASE_PACKAGE_DIR" publish --no-git-checks
