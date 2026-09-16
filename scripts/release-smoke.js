@@ -6,7 +6,17 @@ import path from "node:path";
 
 const ROOT = path.resolve(import.meta.dirname, "..");
 const VEGAS_ROOT = path.join(ROOT, "packages", "vegas");
-const VANILLA_TEMPLATE_ROOT = path.join(ROOT, "packages", "create-vegas", "template-vanilla");
+const CREATE_VEGAS_ROOT = path.join(ROOT, "packages", "create-vegas");
+const VANILLA_TEMPLATE_ROOT = path.join(CREATE_VEGAS_ROOT, "template-vanilla");
+
+const CREATE_VEGAS_TEMPLATE_CASES = [
+  ["template-vanilla", "src/client/main.ts"],
+  ["template-react", "src/client/main.tsx"],
+  ["template-preact", "src/client/main.tsx"],
+  ["template-vue", "src/client/main.tsx"],
+  ["template-svelte", "src/client/main.ts"],
+  ["template-solid", "src/client/main.tsx"],
+];
 
 const pnpm = process.platform === "win32" ? "pnpm.cmd" : "pnpm";
 
@@ -189,6 +199,95 @@ function smokeVanillaConsumer(tarballPath, tempRoot) {
   console.log("Vanilla packed-package consumer smoke passed");
 }
 
+function smokeCreateVegasPackage() {
+  const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), "create-vegas-release-smoke-"));
+
+  try {
+    const tarballPath = path.join(tempRoot, "create-vegas.tgz");
+    const consumerRoot = path.join(tempRoot, "consumer");
+
+    fs.mkdirSync(consumerRoot);
+
+    run(pnpm, ["pack", "--out", tarballPath], {
+      cwd: CREATE_VEGAS_ROOT,
+    });
+
+    assert.equal(fs.existsSync(tarballPath), true, "Expected pnpm pack to create create-vegas.tgz");
+
+    fs.writeFileSync(
+      path.join(consumerRoot, "package.json"),
+      JSON.stringify(
+        {
+          name: "create-vegas-release-smoke",
+          private: true,
+          type: "module",
+        },
+        null,
+        2,
+      ),
+    );
+
+    run(pnpm, ["add", "--offline", "--ignore-scripts", "--no-lockfile", tarballPath], {
+      cwd: consumerRoot,
+    });
+
+    const installedRoot = path.join(consumerRoot, "node_modules", "create-vegas");
+
+    assertFile(installedRoot, "package.json");
+    assertFile(installedRoot, "dist/create-vegas.js");
+
+    const packageJson = JSON.parse(
+      fs.readFileSync(path.join(installedRoot, "package.json"), "utf8"),
+    );
+
+    assert.equal(packageJson.name, "create-vegas");
+
+    assert.deepEqual(packageJson.bin, {
+      "create-vegas": "dist/create-vegas.js",
+    });
+
+    for (const [templateName, clientEntry] of CREATE_VEGAS_TEMPLATE_CASES) {
+      for (const relativePath of [
+        "package.json",
+        "_gitignore",
+        "vegas.config.ts",
+        "tsconfig.client.json",
+        "tsconfig.server.json",
+        clientEntry,
+        "src/server/Code.ts",
+      ]) {
+        assertFile(installedRoot, path.join(templateName, relativePath));
+      }
+    }
+
+    const helpOutput = run(pnpm, ["exec", "create-vegas", "--help"], {
+      cwd: consumerRoot,
+      capture: true,
+    });
+
+    assert.equal(
+      helpOutput.includes("create-vegas"),
+      true,
+      "Expected create-vegas CLI help output",
+    );
+
+    for (const [templateName] of CREATE_VEGAS_TEMPLATE_CASES) {
+      assert.equal(
+        helpOutput.includes(templateName),
+        true,
+        `Expected create-vegas help to list ${templateName}`,
+      );
+    }
+
+    console.log(`create-vegas ${packageJson.version} release smoke passed`);
+  } finally {
+    fs.rmSync(tempRoot, {
+      recursive: true,
+      force: true,
+    });
+  }
+}
+
 function smokeVegasPackage() {
   const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), "vegas-release-smoke-"));
 
@@ -311,3 +410,4 @@ function smokeVegasPackage() {
 }
 
 smokeVegasPackage();
+smokeCreateVegasPackage();
