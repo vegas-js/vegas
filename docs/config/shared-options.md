@@ -7,7 +7,9 @@ Unless noted, the options in this section are applied to all dev and build.
 - **Type:** `string`
 - **Default:** `process.cwd()`
 
-Project root directory. Can be an absolute path, or a path relative to the current working directory.
+Project root directory. Can be an absolute path or a path relative to the current working directory.
+
+When both the CLI root argument and `root` are specified, the CLI root takes precedence. If neither is specified, Vegas uses the current working directory.
 
 ## clientDir
 
@@ -32,9 +34,31 @@ The directory that serves as the starting point for exploring mocks.
 
 ## plugins
 
-- **Type:** `(Plugin | Plugin[] | Promise<Plugin | Plugin[]>)[]`
+- **Type:** `PluginOption[]`
 
 An array of plugins to use. This will be passed directly to Vite. For details about the plugins, please refer to the [Vite Plugin API](https://vite.dev/guide/api-plugin).
+
+## appType
+
+- **Type:** `"spa" | "script"`
+- **Default:** `"spa"`
+
+Defines the application type.
+
+Use `"spa"` for applications with client entry points and `"script"` for Apps Script projects that do not require a client application.
+
+## output
+
+- **Type:** `object`
+
+Build output configuration.
+
+### output.dir
+
+- **Type:** `string`
+- **Default:** `dist`
+
+Directory where production build artifacts are written. Relative paths are resolved from the project root.
 
 ## appsScript
 
