@@ -58,7 +58,26 @@ jobs:
             exit 1
           fi
 
+          version_without_build="${actual_version%%+*}"
+
+          if [[ "$version_without_build" == *-* ]]; then
+            prerelease="${version_without_build#*-}"
+            npm_dist_tag="${prerelease%%.*}"
+
+            if [[ ! "$npm_dist_tag" =~ ^[a-z][0-9a-z-]*$ ]] \
+              || [[ "$npm_dist_tag" == "latest" ]] \
+              || [[ "$npm_dist_tag" == v* ]]; then
+              echo "Prerelease identifier cannot be used as an npm dist-tag." >&2
+              echo "Version: $actual_version" >&2
+              echo "Dist-tag: $npm_dist_tag" >&2
+              exit 1
+            fi
+          else
+            npm_dist_tag="latest"
+          fi
+
           echo "RELEASE_PACKAGE_DIR=$package_dir" >> "$GITHUB_ENV"
+          echo "NPM_DIST_TAG=$npm_dist_tag" >> "$GITHUB_ENV"
 
       - name: Publish package
-        run: pnpm --dir "$RELEASE_PACKAGE_DIR" publish --no-git-checks
+        run: pnpm --dir "$RELEASE_PACKAGE_DIR" publish --no-git-checks --tag "$NPM_DIST_TAG"
