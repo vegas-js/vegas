@@ -1,7 +1,8 @@
+import { cac } from "cac";
 import { describe, expect, test } from "vitest";
 
 import { ConfigValidationError } from "../project/validate-config";
-import { formatCliError } from "./error";
+import { CliUsageError, formatCliError } from "./error";
 
 describe("formatCliError", () => {
   test("format config validation error", () => {
@@ -16,5 +17,31 @@ describe("formatCliError", () => {
 
   test("do not format non-error value", () => {
     expect(formatCliError("failure")).toBeUndefined();
+  });
+
+  test("format CLI usage error", () => {
+    const error = new CliUsageError("Invalid command.");
+
+    expect(formatCliError(error)).toBe("Invalid command.");
+  });
+
+  test("format CAC input error", () => {
+    const cli = cac("vegas");
+
+    cli.command("build [root]").action(() => {});
+
+    cli.parse(["node", "vegas", "build", "project", "extra"], {
+      run: false,
+    });
+
+    let error: unknown;
+
+    try {
+      cli.runMatchedCommand();
+    } catch (caught) {
+      error = caught;
+    }
+
+    expect(formatCliError(error)).toBe("Unused args: `extra`");
   });
 });

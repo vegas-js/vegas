@@ -2,7 +2,7 @@
 import { cac } from "cac";
 
 import pkg from "../../../package.json";
-import { runAuthLogin } from "./auth-login";
+import { runAuth } from "./auth-login";
 import { runBuild } from "./build";
 import { formatCliError } from "./error";
 import { runPreview } from "./preview";
@@ -23,9 +23,9 @@ cli.command("build [root]").action(runBuild);
 
 // auth
 cli
-  .command("auth login <client-file>")
+  .command("auth <action> [client-file]")
   .option("--profile <profile>", "Use an Apps Script authentication profile")
-  .action(runAuthLogin);
+  .action(runAuth);
 
 // push
 cli
