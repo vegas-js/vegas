@@ -1,6 +1,6 @@
 import { defineConfig } from "tsdown";
 
-import rolldownLicensePlugin from "../vegas/rolldownLicensePlugin.ts";
+import rolldownLicensePlugin from "../vegas/rolldown-license-plugin.ts";
 
 export default defineConfig({
   entry: { "create-vegas": "./src" },

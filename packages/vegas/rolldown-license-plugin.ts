@@ -5,7 +5,7 @@ import { Rolldown } from "tsdown";
 
 export default function rolldownLicensePlugin(
   root: string,
-  AdditionalLicenseFiles?: string[],
+  additionalLicenseFiles?: string[],
 ): Rolldown.Plugin {
   return {
     name: "rolldown-license-plugin",
@@ -94,8 +94,8 @@ export default function rolldownLicensePlugin(
         "Vegas is released under the MIT license:\n",
         coreLicenseText,
       ];
-      if (AdditionalLicenseFiles) {
-        AdditionalLicenseFiles.forEach((licenseFile) => {
+      if (additionalLicenseFiles) {
+        additionalLicenseFiles.forEach((licenseFile) => {
           const filePath = path.join(root, licenseFile);
           if (fs.existsSync(filePath)) {
             const content = fs.readFileSync(filePath, "utf8");

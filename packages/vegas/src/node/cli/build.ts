@@ -12,7 +12,7 @@ import {
 } from "../build";
 import { loadProject, scanProject } from "../project";
 import { printBanner } from "./core/banner";
-import { printReport } from "./core/printReport";
+import { printReport } from "./core/print-report";
 
 export async function runBuild(root?: string) {
   printBanner();
