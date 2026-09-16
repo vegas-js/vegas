@@ -1,4 +1,7 @@
-import type { WebAppGasCallRequest, WebAppGasCallResponse } from "../shared/webapp-protocol";
+import type {
+  ServerFunctionCallRequest,
+  ServerFunctionCallResponse,
+} from "../shared/webapp-protocol";
 
 const { port1, port2 } = new MessageChannel();
 
@@ -13,7 +16,7 @@ interface VegasInitEvent {
 
 interface VegasReturnEvent {
   type: "vegas:return";
-  payload: WebAppGasCallResponse;
+  payload: ServerFunctionCallResponse;
 }
 
 type VegasEvent = VegasInitEvent | VegasReturnEvent;
@@ -95,7 +98,7 @@ const proxyHandler: ProxyHandler<object> = {
 
         window.vegas.requestMap.set(requestId, receiver);
 
-        const request: WebAppGasCallRequest = {
+        const request: ServerFunctionCallRequest = {
           requestId,
           functionName: String(property),
           args,

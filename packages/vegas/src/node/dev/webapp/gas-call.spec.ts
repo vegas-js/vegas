@@ -1,10 +1,10 @@
 import { describe, expect, test } from "vitest";
 
-import { executeGasCall } from "./gas-call";
+import { executeServerFunctionCall } from "./gas-call";
 
-describe("executeGasCall", () => {
+describe("executeServerFunctionCall", () => {
   test("return successful response", async () => {
-    const response = await executeGasCall(
+    const response = await executeServerFunctionCall(
       {
         execute: async (request) => {
           expect(request).toStrictEqual({
@@ -30,7 +30,7 @@ describe("executeGasCall", () => {
   });
 
   test("return failed response", async () => {
-    const response = await executeGasCall(
+    const response = await executeServerFunctionCall(
       {
         execute: async () => {
           throw new Error("failed");

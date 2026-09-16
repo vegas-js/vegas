@@ -1,10 +1,13 @@
-import type { WebAppGasCallRequest, WebAppGasCallResponse } from "../../../shared/webapp-protocol";
+import type {
+  ServerFunctionCallRequest,
+  ServerFunctionCallResponse,
+} from "../../../shared/webapp-protocol";
 import type { GasExecutor } from "../../runtime";
 
-export async function executeGasCall(
+export async function executeServerFunctionCall(
   executor: GasExecutor,
-  request: WebAppGasCallRequest,
-): Promise<WebAppGasCallResponse> {
+  request: ServerFunctionCallRequest,
+): Promise<ServerFunctionCallResponse> {
   try {
     const result = await executor.execute({
       functionName: request.functionName,

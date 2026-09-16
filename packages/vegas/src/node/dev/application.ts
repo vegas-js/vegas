@@ -2,7 +2,7 @@ import path from "node:path";
 
 import { type Connect, type ViteBuilder, createLogger, createServer } from "vite";
 
-import type { WebAppGasCallRequest } from "../../shared/webapp-protocol";
+import type { ServerFunctionCallRequest } from "../../shared/webapp-protocol";
 import { type ArtifactStore, buildApp } from "../build";
 import { HtmlDocument } from "../html";
 import type { ResolvedProject } from "../project";
@@ -11,7 +11,7 @@ import { BuildCoordinator } from "./build-coordinator";
 import { buildDevTopology } from "./build-topology";
 import { classifyProjectFile } from "./project-file";
 import { createAppsScriptDoGetEvent, createAppsScriptDoPostEvent } from "./webapp/event";
-import { executeGasCall } from "./webapp/gas-call";
+import { executeServerFunctionCall } from "./webapp/gas-call";
 import { createHostHtml } from "./webapp/host-html";
 import {
   createAppsScriptDoPostHttpResponse,
@@ -178,10 +178,10 @@ export class DevApplication {
       }
     });
 
-    hostServer.ws.on("vegas:gascall", async (data: WebAppGasCallRequest, client) => {
+    hostServer.ws.on("vegas:gascall", async (data: ServerFunctionCallRequest, client) => {
       await builds.waitForIdle();
 
-      const response = await executeGasCall(this.#executor, data);
+      const response = await executeServerFunctionCall(this.#executor, data);
 
       client.send("vegas:return", response);
     });

@@ -1,10 +1,10 @@
-export interface WebAppGasCallRequest {
+export interface ServerFunctionCallRequest {
   readonly requestId: number;
   readonly functionName: string;
   readonly args: readonly unknown[];
 }
 
-export type WebAppGasCallResponse =
+export type ServerFunctionCallResponse =
   | {
       readonly requestId: number;
       readonly status: "ok";
