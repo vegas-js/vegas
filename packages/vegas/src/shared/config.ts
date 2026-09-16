@@ -13,7 +13,7 @@ export type BaseConfig = {
   clientDir?: string;
   /**
    * GAS source directory. Both absolute and relative paths are resolved starting from the project root directory.
-   * @default 'src/server'
+   * @default 'src/server' for SPA projects, 'src' for script projects
    */
   serverDir?: string;
   /**

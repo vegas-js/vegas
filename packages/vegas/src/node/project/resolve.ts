@@ -8,18 +8,21 @@ export function resolveProject(
   options: { cwd: string; root?: string; configFile: string | null },
 ): ResolvedProject {
   const root = path.resolve(options.cwd, options.root ?? config.root ?? ".");
+  const appType = config.appType ?? "spa";
   const appsScriptManifest = config.appsScript?.manifest;
 
   return {
     root,
-    appType: config.appType ?? "spa",
+    appType,
     clientDir:
       config.clientDir === undefined
         ? path.resolve(root, "src", "client")
         : path.resolve(root, config.clientDir),
     serverDir:
       config.serverDir === undefined
-        ? path.resolve(root, "src", "server")
+        ? appType === "script"
+          ? path.resolve(root, "src")
+          : path.resolve(root, "src", "server")
         : path.resolve(root, config.serverDir),
     gasMockDir:
       config.gasMockDir === undefined

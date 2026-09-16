@@ -196,6 +196,23 @@ describe("resolveProject", () => {
       expect(project.gasMockDir).toBe(gasMockDir);
       expect(project.outputDir).toBe(outputDir);
     });
+
+    test("use src as default server directory for script project", () => {
+      const project = resolve({
+        appType: "script",
+      });
+
+      expect(project.serverDir).toBe(path.join(cwd, "src"));
+    });
+
+    test("preserve explicit server directory for script project", () => {
+      const project = resolve({
+        appType: "script",
+        serverDir: "server",
+      });
+
+      expect(project.serverDir).toBe(path.join(cwd, "server"));
+    });
   });
 
   describe("config file", () => {
