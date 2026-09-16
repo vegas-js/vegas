@@ -27,7 +27,10 @@ cli
   .action(runAuthLogin);
 
 // push
-cli.command("push [root]").action(runPush);
+cli
+  .command("push [root]")
+  .option("--profile <profile>", "Use an Apps Script authentication profile")
+  .action(runPush);
 
 cli.help();
 cli.parse();
