@@ -73,7 +73,7 @@ In a project where Vegas is installed, you can use the vegas binary in your npm 
 Set the Apps Script project ID in `vegas.config.ts`:
 
 ```typescript
-import { defineConfig } from "@vegasjs/vegas/client";
+import { defineConfig } from "@vegasjs/vegas";
 
 export default defineConfig({
   appsScript: {
