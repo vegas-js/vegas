@@ -15,7 +15,7 @@
     "lint": "oxlint",
     "test": "vitest run",
     "coverage": "vitest run --coverage",
-    "build": "tsdown --config-loader native --workspace --publint",
+    "build": "tsdown --config-loader native --workspace --publint --fail-on-warn",
     "check": "pnpm lint && pnpm test && pnpm build",
     "release:smoke": "node scripts/release-smoke.js",
     "release:check": "pnpm check && pnpm release:smoke",
