@@ -10,6 +10,7 @@ import spawn from "cross-spawn";
 
 import { writeAppsScriptScriptId } from "./apps-script-config";
 import { validatePackageName } from "./package-name";
+import { inspectScaffoldDirectory } from "./scaffold-directory";
 import { resolveScaffoldTarget } from "./scaffold-target";
 
 function runCmd(
@@ -52,7 +53,7 @@ function cancelHandler() {
 async function run(directory?: string) {
   const ctx = {
     projectName: "",
-    directoryOperation: "ignore",
+    directoryOperation: "create",
     packageName: "",
     framework: "",
     useOxcStack: false,
@@ -78,13 +79,19 @@ async function run(directory?: string) {
     }
   }
 
-  if (fs.existsSync(ctx.projectName)) {
+  const directoryState = inspectScaffoldDirectory(ctx.projectName);
+
+  if (directoryState === "invalid") {
+    throw new Error(`Target path "${ctx.projectName}" is not a directory.`);
+  }
+
+  if (directoryState === "non-empty") {
     ctx.directoryOperation = (await prompts.select({
       message: `Target directory "${ctx.projectName}" is not empty. Please choose how to proceed:`,
       options: [
         { label: "Cancel operation", value: "cancel" },
         { label: "Remove existing files and continue", value: "remove" },
-        { label: "Ignore files and continue", value: "ignore" },
+        { label: "Keep existing files and continue", value: "keep" },
       ],
     })) as string;
 
@@ -195,6 +202,13 @@ async function run(directory?: string) {
 
   const target = resolveScaffoldTarget(process.cwd(), ctx.projectName, ctx.packageName);
   const packagePath = target.directory;
+  const packageJsonPath = path.join(packagePath, "package.json");
+  const vegasConfigPath = path.join(packagePath, "vegas.config.ts");
+
+  const preservePackageJson = ctx.directoryOperation === "keep" && fs.existsSync(packageJsonPath);
+
+  const preserveVegasConfig = ctx.directoryOperation === "keep" && fs.existsSync(vegasConfigPath);
+
   prompts.log.step(`Scaffolding project in ${packagePath}...`);
 
   if (ctx.directoryOperation === "remove") {
@@ -202,16 +216,19 @@ async function run(directory?: string) {
   }
   fs.cpSync(path.resolve(import.meta.dirname, "..", ctx.framework), packagePath, {
     recursive: true,
-    force: true,
+    force: ctx.directoryOperation !== "keep",
   });
 
-  if (ctx.configureAppsScript) {
-    writeAppsScriptScriptId(path.join(packagePath, "vegas.config.ts"), ctx.scriptId);
+  if (ctx.configureAppsScript && !preserveVegasConfig) {
+    writeAppsScriptScriptId(vegasConfigPath, ctx.scriptId);
   }
 
-  await runCmd("npm", ["pkg", "set", `name=${target.packageName}`], {
-    cwd: packagePath,
-  });
+  if (!preservePackageJson) {
+    await runCmd("npm", ["pkg", "set", `name=${target.packageName}`], {
+      cwd: packagePath,
+    });
+  }
+
   fs.renameSync(path.join(packagePath, "_gitignore"), path.join(packagePath, ".gitignore"));
   if (fs.existsSync(path.join(packagePath, "_oxlintrc.json"))) {
     fs.renameSync(
