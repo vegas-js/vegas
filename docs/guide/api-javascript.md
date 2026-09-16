@@ -4,20 +4,22 @@ outline: deep
 
 # JavaScript API
 
-## `createGASClient<T>`
+## `createServerFunctionClient<T>`
 
 **Type Signature:**
 
 ```typescript
-function createGASClient<T extends object>(): GASClient<T>;
+function createServerFunctionClient<T extends object>(): ServerFunctionClient<T>;
 ```
 
 **Example Usage:**
 
 ```typescript
-import { createGASClient } from "@vegasjs/vegas";
+import { createServerFunctionClient } from "@vegasjs/vegas/client";
 import type * as serverFunctions from "../path/to/Code.ts";
 
-const client = createGASClient<typeof serverFunctions>();
-await client.myFunction();
+const server =
+  createServerFunctionClient<typeof serverFunctions>();
+
+await server.myFunction();
 ```

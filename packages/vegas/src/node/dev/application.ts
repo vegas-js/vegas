@@ -279,7 +279,7 @@ export class DevApplication {
 
           async load(id, _options) {
             if (id === "\0virtual:vegas") {
-              return await this.fs.readFile(path.join(import.meta.dirname, "client.js"), {
+              return await this.fs.readFile(path.join(import.meta.dirname, "webapp-bridge.js"), {
                 encoding: "utf8",
               });
             }

@@ -7,7 +7,7 @@ export default defineConfig([
     entry: {
       vegas: "./src/node/cli",
       worker: "./src/node/worker",
-      client: "./src/client",
+      "webapp-bridge": "./src/client",
     },
     deps: {
       onlyBundle: ["cac", "entities", "json5", "parse5"],
@@ -18,8 +18,8 @@ export default defineConfig([
   },
   {
     entry: {
-      lib: "./src/lib",
       config: "./src/lib/config",
+      client: "./src/lib/client",
     },
     fixedExtension: false,
     dts: {

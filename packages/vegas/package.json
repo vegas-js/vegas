@@ -38,7 +38,7 @@
     },
     "./client": {
       "types": "./client.d.ts",
-      "import": "./dist/lib.js"
+      "import": "./dist/client.js"
     },
     "./server": {
       "types": "./server.d.ts"
