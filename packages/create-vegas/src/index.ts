@@ -9,6 +9,7 @@ import { cac } from "cac";
 import spawn from "cross-spawn";
 
 import { writeAppsScriptScriptId } from "./apps-script-config";
+import { resolveScaffoldTarget } from "./scaffold-target";
 
 function runCmd(
   cmd: string,
@@ -47,7 +48,7 @@ function cancelHandler() {
   process.exit(0);
 }
 
-async function run() {
+async function run(directory?: string) {
   const ctx = {
     projectName: "",
     directoryOperation: "ignore",
@@ -62,14 +63,18 @@ async function run() {
     oauthClientFile: "",
   };
 
-  ctx.projectName = (await prompts.text({
-    message: "Project name:",
-    placeholder: "vegas-project",
-    defaultValue: "vegas-project",
-  })) as string;
+  if (directory) {
+    ctx.projectName = directory;
+  } else {
+    ctx.projectName = (await prompts.text({
+      message: "Project name:",
+      placeholder: "vegas-project",
+      defaultValue: "vegas-project",
+    })) as string;
 
-  if (prompts.isCancel(ctx.projectName)) {
-    cancelHandler();
+    if (prompts.isCancel(ctx.projectName)) {
+      cancelHandler();
+    }
   }
 
   if (fs.existsSync(ctx.projectName)) {
@@ -87,15 +92,17 @@ async function run() {
     }
   }
 
-  ctx.packageName = ctx.projectName.includes(" ")
+  const defaultPackageName = path.basename(ctx.projectName);
+
+  ctx.packageName = defaultPackageName.includes(" ")
     ? ((await prompts.text({
         message: "Package name:",
-        placeholder: ctx.projectName.replaceAll(" ", "-"),
-        defaultValue: ctx.projectName.replaceAll(" ", "-"),
+        placeholder: defaultPackageName.replaceAll(" ", "-"),
+        defaultValue: defaultPackageName.replaceAll(" ", "-"),
         validate: (value) =>
           !value || value.includes(" ") ? "Invalid package.json name" : undefined,
       })) as string)
-    : ctx.projectName;
+    : defaultPackageName;
 
   if (prompts.isCancel(ctx.packageName)) {
     cancelHandler();
@@ -185,7 +192,8 @@ async function run() {
     }
   }
 
-  const packagePath = path.resolve(process.cwd(), ctx.projectName.replace(/\.\.?/g, ""));
+  const target = resolveScaffoldTarget(process.cwd(), ctx.projectName, ctx.packageName);
+  const packagePath = target.directory;
   prompts.log.step(`Scaffolding project in ${packagePath}...`);
 
   if (ctx.directoryOperation === "remove") {
@@ -200,7 +208,7 @@ async function run() {
     writeAppsScriptScriptId(path.join(packagePath, "vegas.config.ts"), ctx.scriptId);
   }
 
-  await runCmd("npm", ["pkg", "set", `name=${path.basename(ctx.projectName)}`], {
+  await runCmd("npm", ["pkg", "set", `name=${target.packageName}`], {
     cwd: packagePath,
   });
   fs.renameSync(path.join(packagePath, "_gitignore"), path.join(packagePath, ".gitignore"));
@@ -259,7 +267,7 @@ async function run() {
 
 const cli = cac("create-vegas");
 
-cli.command("[...option] [directory]").action(run);
+cli.command("[directory]").action(run);
 
 cli.help((defaultHelpSections: { title?: string; body: string }[]) => {
   return defaultHelpSections
