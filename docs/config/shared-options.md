@@ -86,6 +86,86 @@ An explicitly configured empty script ID is treated as invalid and does not fall
 
 Apps Script manifest configuration written to `appsscript.json` during production builds.
 
+Vegas currently supports the manifest fields documented below. Unknown manifest options are rejected during configuration loading.
+
+#### appsScript.manifest.dependencies
+
+- **Type:** `object`
+
+Configures Apps Script advanced services and libraries.
+
+##### appsScript.manifest.dependencies.enabledAdvancedServices
+
+- **Type:** `object[]`
+
+Advanced services enabled for the Apps Script project.
+
+Each entry can contain:
+
+- `serviceId`: `string`
+- `userSymbol`: `string`
+- `version`: `string`
+
+##### appsScript.manifest.dependencies.libraries
+
+- **Type:** `object[]`
+
+Apps Script libraries used by the project.
+
+Each entry can contain:
+
+- `developmentMode`: `boolean`
+- `libraryId`: `string`
+- `userSymbol`: `string`
+- `version`: `string`
+
+#### appsScript.manifest.exceptionLogging
+
+- **Type:** `"NONE" | "STACKDRIVER"`
+- **Default:** `"STACKDRIVER"`
+
+Controls where Apps Script exceptions are logged.
+
+#### appsScript.manifest.oauthScopes
+
+- **Type:** `string[]`
+
+OAuth scopes explicitly requested by the Apps Script project.
+
+#### appsScript.manifest.runtimeVersion
+
+- **Type:** `"STABLE" | "V8" | "DEPRECATED_ES5"`
+- **Default:** `"V8"`
+
+Apps Script runtime used by the generated project manifest.
+
+#### appsScript.manifest.timeZone
+
+- **Type:** `string`
+- **Default:** `"UTC"`
+
+Time zone written to the Apps Script manifest.
+
+#### appsScript.manifest.webapp
+
+- **Type:** `object`
+
+Web app deployment configuration.
+
+##### appsScript.manifest.webapp.access
+
+- **Type:** `"MYSELF" | "DOMAIN" | "ANYONE" | "ANYONE_ANONYMOUS"`
+- **Default:** `"MYSELF"`
+
+Controls who can access the web app.
+
+##### appsScript.manifest.webapp.executeAs
+
+- **Type:** `"USER_ACCESSING" | "USER_DEPLOYING"`
+- **Default:** `"USER_ACCESSING"`
+
+Controls the identity under which the web app executes.
+
 For example:
 
 ```typescript
