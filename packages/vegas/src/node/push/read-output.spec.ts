@@ -5,6 +5,7 @@ import path from "node:path";
 
 import { describe, expect, test } from "vitest";
 
+import { AppsScriptPushPrerequisiteError } from "./error";
 import { readBuildArtifacts } from "./read-output";
 
 describe("readBuildArtifacts", () => {
@@ -82,8 +83,9 @@ describe("readBuildArtifacts", () => {
   test("reject missing output directory", async () => {
     const outputDir = path.join(os.tmpdir(), `vegas-missing-${crypto.randomUUID()}`);
 
+    await expect(readBuildArtifacts(outputDir)).rejects.toThrow(AppsScriptPushPrerequisiteError);
     await expect(readBuildArtifacts(outputDir)).rejects.toThrow(
-      `Build output directory not found: ${outputDir}`,
+      `Build output directory not found: ${outputDir}. Run "vegas build" before pushing.`,
     );
   });
 
@@ -95,7 +97,7 @@ describe("readBuildArtifacts", () => {
       fs.writeFileSync(outputPath, "not a directory");
 
       await expect(readBuildArtifacts(outputPath)).rejects.toThrow(
-        `Build output directory not found: ${outputPath}`,
+        `Build output directory not found: ${outputPath}. Run "vegas build" before pushing.`,
       );
     } finally {
       fs.rmSync(root, {

@@ -1,3 +1,5 @@
+import { AppsScriptPushPrerequisiteError } from "./error";
+
 interface AppsScriptScriptIdSources {
   readonly environmentScriptId?: string;
   readonly projectScriptId?: string;
@@ -6,7 +8,9 @@ interface AppsScriptScriptIdSources {
 
 function requireScriptId(scriptId: string | undefined): string {
   if (scriptId === undefined || scriptId.trim().length === 0) {
-    throw new Error("Apps Script script ID is required.");
+    throw new AppsScriptPushPrerequisiteError(
+      "Apps Script script ID is required. Set appsScript.scriptId in vegas.config.ts or VEGAS_SCRIPT_ID. .clasp.json is used only when neither is defined.",
+    );
   }
 
   return scriptId;

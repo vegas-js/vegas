@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 import type { BuildArtifact } from "../build";
+import { AppsScriptPushPrerequisiteError } from "./error";
 
 function comparePaths(a: string, b: string): number {
   if (a < b) {
@@ -20,11 +21,15 @@ async function assertOutputDirectory(outputDir: string): Promise<void> {
     const stat = await fs.promises.stat(outputDir);
 
     if (!stat.isDirectory()) {
-      throw new Error(`Build output directory not found: ${outputDir}`);
+      throw new AppsScriptPushPrerequisiteError(
+        `Build output directory not found: ${outputDir}. Run "vegas build" before pushing.`,
+      );
     }
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code === "ENOENT") {
-      throw new Error(`Build output directory not found: ${outputDir}`);
+      throw new AppsScriptPushPrerequisiteError(
+        `Build output directory not found: ${outputDir}. Run "vegas build" before pushing.`,
+      );
     }
 
     throw error;

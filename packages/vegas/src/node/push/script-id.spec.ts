@@ -1,5 +1,6 @@
 import { describe, expect, test } from "vitest";
 
+import { AppsScriptPushPrerequisiteError } from "./error";
 import { resolveAppsScriptScriptId } from "./script-id";
 
 describe("resolveAppsScriptScriptId", () => {
@@ -31,7 +32,10 @@ describe("resolveAppsScriptScriptId", () => {
   });
 
   test("reject missing script id", () => {
-    expect(() => resolveAppsScriptScriptId({})).toThrow("Apps Script script ID is required.");
+    expect(() => resolveAppsScriptScriptId({})).toThrow(AppsScriptPushPrerequisiteError);
+    expect(() => resolveAppsScriptScriptId({})).toThrow(
+      "Apps Script script ID is required. Set appsScript.scriptId in vegas.config.ts or VEGAS_SCRIPT_ID. .clasp.json is used only when neither is defined.",
+    );
   });
 
   test("reject empty environment script id instead of falling back", () => {

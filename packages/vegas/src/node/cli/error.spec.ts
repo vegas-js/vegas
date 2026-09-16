@@ -2,6 +2,7 @@ import { cac } from "cac";
 import { describe, expect, test } from "vitest";
 
 import { ConfigValidationError } from "../project/validate-config";
+import { AppsScriptPushPrerequisiteError } from "../push/error";
 import { CliUsageError, formatCliError } from "./error";
 
 describe("formatCliError", () => {
@@ -43,5 +44,15 @@ describe("formatCliError", () => {
     }
 
     expect(formatCliError(error)).toBe("Unused args: `extra`");
+  });
+
+  test("format Apps Script push prerequisite error", () => {
+    const error = new AppsScriptPushPrerequisiteError(
+      'Build output directory not found: /project/dist. Run "vegas build" before pushing.',
+    );
+
+    expect(formatCliError(error)).toBe(
+      'Build output directory not found: /project/dist. Run "vegas build" before pushing.',
+    );
   });
 });
