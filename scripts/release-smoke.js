@@ -227,7 +227,7 @@ function smokeCreateVegasPackage() {
       ),
     );
 
-    run(pnpm, ["add", "--offline", "--ignore-scripts", "--no-lockfile", tarballPath], {
+    run(pnpm, ["add", "--prefer-offline", "--ignore-scripts", "--no-lockfile", tarballPath], {
       cwd: consumerRoot,
     });
 
@@ -314,7 +314,7 @@ function smokeVegasPackage() {
       ),
     );
 
-    run(pnpm, ["add", "--offline", "--ignore-scripts", "--no-lockfile", tarballPath], {
+    run(pnpm, ["add", "--prefer-offline", "--ignore-scripts", "--no-lockfile", tarballPath], {
       cwd: consumerRoot,
     });
 
