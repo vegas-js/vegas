@@ -117,6 +117,26 @@ function smokeVanillaConsumer(tarballPath, tempRoot) {
     ),
   );
 
+  fs.writeFileSync(
+    path.join(consumerRoot, "tsconfig.node16-release-smoke.json"),
+    JSON.stringify(
+      {
+        compilerOptions: {
+          target: "ES2023",
+          module: "Node16",
+          moduleResolution: "Node16",
+          lib: ["ES2023", "DOM", "DOM.Iterable"],
+          strict: true,
+          noEmit: true,
+          skipLibCheck: false,
+        },
+        files: ["src/client/release-smoke.ts"],
+      },
+      null,
+      2,
+    ),
+  );
+
   const clientSmokePath = path.join(consumerRoot, "src", "client", "release-smoke.ts");
 
   fs.writeFileSync(
@@ -175,6 +195,10 @@ function smokeVanillaConsumer(tarballPath, tempRoot) {
     cwd: consumerRoot,
   });
 
+  run(pnpm, ["exec", "tsc", "-p", "tsconfig.node16-release-smoke.json"], {
+    cwd: consumerRoot,
+  });
+
   run(pnpm, ["exec", "tsc", "-p", "tsconfig.client.json"], {
     cwd: consumerRoot,
   });
@@ -187,6 +211,7 @@ function smokeVanillaConsumer(tarballPath, tempRoot) {
   fs.rmSync(serverSmokePath);
   fs.rmSync(path.join(consumerRoot, "config-surface-smoke.ts"));
   fs.rmSync(path.join(consumerRoot, "tsconfig.release-smoke.json"));
+  fs.rmSync(path.join(consumerRoot, "tsconfig.node16-release-smoke.json"));
 
   run(pnpm, ["run", "build"], {
     cwd: consumerRoot,
