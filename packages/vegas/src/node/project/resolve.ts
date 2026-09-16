@@ -8,6 +8,8 @@ export function resolveProject(
   options: { cwd: string; root?: string; configFile: string | null },
 ): ResolvedProject {
   const root = path.resolve(options.cwd, options.root ?? config.root ?? ".");
+  const appsScriptManifest = config.appsScript?.manifest;
+  const legacyManifest = config.gas;
 
   return {
     root,
@@ -31,14 +33,18 @@ export function resolveProject(
     configFile: options.configFile,
     plugins: config.plugins ?? [],
     gas: {
-      dependencies: config.gas?.dependencies,
-      exceptionLogging: config.gas?.exceptionLogging ?? "STACKDRIVER",
-      oauthScopes: config.gas?.oauthScopes,
-      runtimeVersion: config.gas?.runtimeVersion ?? "V8",
-      timeZone: config.gas?.timeZone ?? "UTC",
+      dependencies: appsScriptManifest?.dependencies ?? legacyManifest?.dependencies,
+      exceptionLogging:
+        appsScriptManifest?.exceptionLogging ?? legacyManifest?.exceptionLogging ?? "STACKDRIVER",
+      oauthScopes: appsScriptManifest?.oauthScopes ?? legacyManifest?.oauthScopes,
+      runtimeVersion: appsScriptManifest?.runtimeVersion ?? legacyManifest?.runtimeVersion ?? "V8",
+      timeZone: appsScriptManifest?.timeZone ?? legacyManifest?.timeZone ?? "UTC",
       webapp: {
-        access: config.gas?.webapp?.access ?? "MYSELF",
-        executeAs: config.gas?.webapp?.executeAs ?? "USER_ACCESSING",
+        access: appsScriptManifest?.webapp?.access ?? legacyManifest?.webapp?.access ?? "MYSELF",
+        executeAs:
+          appsScriptManifest?.webapp?.executeAs ??
+          legacyManifest?.webapp?.executeAs ??
+          "USER_ACCESSING",
       },
     },
   };

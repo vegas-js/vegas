@@ -220,8 +220,37 @@ describe("resolveProject", () => {
     });
   });
 
-  describe("gas", () => {
-    test("resolve gas options", () => {
+  describe("manifest", () => {
+    test("resolve apps script manifest", () => {
+      const project = resolve({
+        appsScript: {
+          manifest: {
+            exceptionLogging: "NONE",
+            runtimeVersion: "STABLE",
+            timeZone: "Asia/Tokyo",
+            oauthScopes: ["scope"],
+            webapp: {
+              access: "ANYONE",
+              executeAs: "USER_DEPLOYING",
+            },
+          },
+        },
+      });
+
+      expect(project.gas).toStrictEqual({
+        dependencies: undefined,
+        exceptionLogging: "NONE",
+        oauthScopes: ["scope"],
+        runtimeVersion: "STABLE",
+        timeZone: "Asia/Tokyo",
+        webapp: {
+          access: "ANYONE",
+          executeAs: "USER_DEPLOYING",
+        },
+      });
+    });
+
+    test("resolve legacy gas manifest", () => {
       const project = resolve({
         gas: {
           exceptionLogging: "NONE",
@@ -248,8 +277,51 @@ describe("resolveProject", () => {
       });
     });
 
-    test("apply defaults to unspecified gas options", () => {
-      const project = resolve({ gas: { timeZone: "Asia/Tokyo" } });
+    test("prefer apps script manifest over legacy gas manifest", () => {
+      const project = resolve({
+        gas: {
+          exceptionLogging: "STACKDRIVER",
+          runtimeVersion: "V8",
+          timeZone: "UTC",
+          oauthScopes: ["legacy-scope"],
+          webapp: {
+            access: "MYSELF",
+            executeAs: "USER_ACCESSING",
+          },
+        },
+
+        appsScript: {
+          manifest: {
+            exceptionLogging: "NONE",
+            timeZone: "Asia/Tokyo",
+            webapp: {
+              access: "ANYONE",
+            },
+          },
+        },
+      });
+
+      expect(project.gas).toStrictEqual({
+        dependencies: undefined,
+        exceptionLogging: "NONE",
+        oauthScopes: ["legacy-scope"],
+        runtimeVersion: "V8",
+        timeZone: "Asia/Tokyo",
+        webapp: {
+          access: "ANYONE",
+          executeAs: "USER_ACCESSING",
+        },
+      });
+    });
+
+    test("apply defaults to unspecified manifest options", () => {
+      const project = resolve({
+        appsScript: {
+          manifest: {
+            timeZone: "Asia/Tokyo",
+          },
+        },
+      });
 
       expect(project.gas).toStrictEqual({
         dependencies: undefined,
