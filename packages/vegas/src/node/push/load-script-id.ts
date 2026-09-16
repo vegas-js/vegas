@@ -1,7 +1,14 @@
 import { readClaspScriptId } from "./clasp-compatibility";
 import { resolveAppsScriptScriptId } from "./script-id";
 
-export async function loadAppsScriptScriptId(projectRoot: string): Promise<string> {
+interface LoadAppsScriptScriptIdOptions {
+  readonly projectRoot: string;
+  readonly projectScriptId?: string;
+}
+
+export async function loadAppsScriptScriptId(
+  options: LoadAppsScriptScriptIdOptions,
+): Promise<string> {
   const environmentScriptId = process.env.VEGAS_SCRIPT_ID;
 
   if (environmentScriptId !== undefined) {
@@ -10,7 +17,13 @@ export async function loadAppsScriptScriptId(projectRoot: string): Promise<strin
     });
   }
 
-  const compatibilityScriptId = await readClaspScriptId(projectRoot);
+  if (options.projectScriptId !== undefined) {
+    return resolveAppsScriptScriptId({
+      projectScriptId: options.projectScriptId,
+    });
+  }
+
+  const compatibilityScriptId = await readClaspScriptId(options.projectRoot);
 
   return resolveAppsScriptScriptId({
     compatibilityScriptId,

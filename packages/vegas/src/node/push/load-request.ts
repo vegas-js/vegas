@@ -13,7 +13,7 @@ export async function loadAppsScriptPushRequest(
 ): Promise<AppsScriptPushRequest> {
   const artifacts = await readBuildArtifacts(options.outputDir);
   const content = createAppsScriptProjectContent(artifacts);
-  const scriptId = await loadAppsScriptScriptId(options.projectRoot);
+  const scriptId = await loadAppsScriptScriptId({ projectRoot: options.projectRoot });
 
   return createAppsScriptPushRequest(scriptId, content);
 }

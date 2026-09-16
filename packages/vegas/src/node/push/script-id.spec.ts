@@ -7,9 +7,19 @@ describe("resolveAppsScriptScriptId", () => {
     expect(
       resolveAppsScriptScriptId({
         environmentScriptId: "environment-id",
+        projectScriptId: "project-id",
         compatibilityScriptId: "compatibility-id",
       }),
     ).toBe("environment-id");
+  });
+
+  test("prefer project script id over compatibility script id", () => {
+    expect(
+      resolveAppsScriptScriptId({
+        projectScriptId: "project-id",
+        compatibilityScriptId: "compatibility-id",
+      }),
+    ).toBe("project-id");
   });
 
   test("use compatibility script id", () => {
@@ -28,6 +38,15 @@ describe("resolveAppsScriptScriptId", () => {
     expect(() =>
       resolveAppsScriptScriptId({
         environmentScriptId: "",
+        compatibilityScriptId: "compatibility-id",
+      }),
+    ).toThrow("Apps Script script ID is required.");
+  });
+
+  test("reject empty project script id instead of falling back", () => {
+    expect(() =>
+      resolveAppsScriptScriptId({
+        projectScriptId: "",
         compatibilityScriptId: "compatibility-id",
       }),
     ).toThrow("Apps Script script ID is required.");

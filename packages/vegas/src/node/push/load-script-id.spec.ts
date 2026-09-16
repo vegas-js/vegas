@@ -25,7 +25,7 @@ describe("loadAppsScriptScriptId", () => {
     try {
       vi.stubEnv("VEGAS_SCRIPT_ID", "environment-id");
 
-      await expect(loadAppsScriptScriptId(root)).resolves.toBe("environment-id");
+      await expect(loadAppsScriptScriptId({ projectRoot: root })).resolves.toBe("environment-id");
     } finally {
       fs.rmSync(root, {
         recursive: true,
@@ -42,7 +42,49 @@ describe("loadAppsScriptScriptId", () => {
 
       fs.writeFileSync(path.join(root, ".clasp.json"), "{ invalid");
 
-      await expect(loadAppsScriptScriptId(root)).resolves.toBe("environment-id");
+      await expect(loadAppsScriptScriptId({ projectRoot: root })).resolves.toBe("environment-id");
+    } finally {
+      fs.rmSync(root, {
+        recursive: true,
+        force: true,
+      });
+    }
+  });
+
+  test("use project script id when environment script id is not defined", async () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), "vegas-"));
+
+    try {
+      delete process.env.VEGAS_SCRIPT_ID;
+
+      await expect(
+        loadAppsScriptScriptId({
+          projectRoot: root,
+          projectScriptId: "project-id",
+        }),
+      ).resolves.toBe("project-id");
+    } finally {
+      fs.rmSync(root, {
+        recursive: true,
+        force: true,
+      });
+    }
+  });
+
+  test("do not read clasp config when project script id is defined", async () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), "vegas-"));
+
+    try {
+      delete process.env.VEGAS_SCRIPT_ID;
+
+      fs.writeFileSync(path.join(root, ".clasp.json"), "{ invalid");
+
+      await expect(
+        loadAppsScriptScriptId({
+          projectRoot: root,
+          projectScriptId: "project-id",
+        }),
+      ).resolves.toBe("project-id");
     } finally {
       fs.rmSync(root, {
         recursive: true,
@@ -59,7 +101,7 @@ describe("loadAppsScriptScriptId", () => {
 
       fs.writeFileSync(path.join(root, ".clasp.json"), "{ scriptId: 'compatibility-id' }");
 
-      await expect(loadAppsScriptScriptId(root)).resolves.toBe("compatibility-id");
+      await expect(loadAppsScriptScriptId({ projectRoot: root })).resolves.toBe("compatibility-id");
     } finally {
       fs.rmSync(root, {
         recursive: true,
@@ -76,9 +118,31 @@ describe("loadAppsScriptScriptId", () => {
 
       fs.writeFileSync(path.join(root, ".clasp.json"), "{ scriptId: 'compatibility-id' }");
 
-      await expect(loadAppsScriptScriptId(root)).rejects.toThrow(
+      await expect(loadAppsScriptScriptId({ projectRoot: root })).rejects.toThrow(
         "Apps Script script ID is required.",
       );
+    } finally {
+      fs.rmSync(root, {
+        recursive: true,
+        force: true,
+      });
+    }
+  });
+
+  test("reject empty project script id instead of falling back", async () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), "vegas-"));
+
+    try {
+      delete process.env.VEGAS_SCRIPT_ID;
+
+      fs.writeFileSync(path.join(root, ".clasp.json"), "{ scriptId: 'compatibility-id' }");
+
+      await expect(
+        loadAppsScriptScriptId({
+          projectRoot: root,
+          projectScriptId: "",
+        }),
+      ).rejects.toThrow("Apps Script script ID is required.");
     } finally {
       fs.rmSync(root, {
         recursive: true,
@@ -93,7 +157,7 @@ describe("loadAppsScriptScriptId", () => {
     try {
       delete process.env.VEGAS_SCRIPT_ID;
 
-      await expect(loadAppsScriptScriptId(root)).rejects.toThrow(
+      await expect(loadAppsScriptScriptId({ projectRoot: root })).rejects.toThrow(
         "Apps Script script ID is required.",
       );
     } finally {
