@@ -28,6 +28,8 @@ export type { AppsScriptCredentialStore } from "./credential-store";
 
 export { createAppsScriptFileCredentialStore } from "./file-credential-store";
 
+export { createGoogleAppsScriptAccessTokenRefresher } from "./google-access-token-refresher";
+
 export { loadAppsScriptPushRequest } from "./load-request";
 
 export { loadAppsScriptScriptId } from "./load-script-id";
