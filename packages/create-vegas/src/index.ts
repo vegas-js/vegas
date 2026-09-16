@@ -9,6 +9,7 @@ import { cac } from "cac";
 import spawn from "cross-spawn";
 
 import { writeAppsScriptScriptId } from "./apps-script-config";
+import { validatePackageName } from "./package-name";
 import { resolveScaffoldTarget } from "./scaffold-target";
 
 function runCmd(
@@ -94,15 +95,15 @@ async function run(directory?: string) {
 
   const defaultPackageName = path.basename(ctx.projectName);
 
-  ctx.packageName = defaultPackageName.includes(" ")
-    ? ((await prompts.text({
-        message: "Package name:",
-        placeholder: defaultPackageName.replaceAll(" ", "-"),
-        defaultValue: defaultPackageName.replaceAll(" ", "-"),
-        validate: (value) =>
-          !value || value.includes(" ") ? "Invalid package.json name" : undefined,
-      })) as string)
-    : defaultPackageName;
+  ctx.packageName =
+    validatePackageName(defaultPackageName) === undefined
+      ? defaultPackageName
+      : ((await prompts.text({
+          message: "Package name:",
+          placeholder: defaultPackageName.toLowerCase().replaceAll(" ", "-"),
+          defaultValue: defaultPackageName.toLowerCase().replaceAll(" ", "-"),
+          validate: validatePackageName,
+        })) as string);
 
   if (prompts.isCancel(ctx.packageName)) {
     cancelHandler();

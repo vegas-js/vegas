@@ -18,6 +18,7 @@ export default defineConfig({
       "shebang-command",
       "shebang-regex",
       "sisteransi",
+      "validate-npm-package-name",
       "which",
     ],
   },
