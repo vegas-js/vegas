@@ -18,4 +18,4 @@ jobs:
         with:
           runtime: "node@22.18.0"
           cache: true
-      - run: pnpm check
+      - run: pnpm release:check
