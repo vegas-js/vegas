@@ -54,6 +54,19 @@ describe("loadProject", () => {
     expect(project.configFile).toBe(configFile);
   });
 
+  test("validate loaded config before resolving project", async () => {
+    const loadConfig = vi.fn().mockResolvedValue({
+      config: {
+        appType: "invalid",
+      },
+      configFile: path.join(cwd, "vegas.config.ts"),
+    });
+
+    await expect(loadProject({ cwd }, loadConfig)).rejects.toThrow(
+      'Invalid Vegas config: "appType" must be one of "spa", "script".',
+    );
+  });
+
   describe("with real config file", () => {
     test("use defaults when config file does not exist", async () => {
       const tempDirPath = fs.mkdtempSync(path.join(os.tmpdir(), "vegas-"));
@@ -82,6 +95,32 @@ describe("loadProject", () => {
 
         expect(project.configFile).toBe(configFile);
         expect(project.appType).toBe("script");
+      } finally {
+        fs.rmSync(tempDirPath, {
+          recursive: true,
+          force: true,
+        });
+      }
+    });
+
+    test("reject invalid vegas.config.ts", async () => {
+      const tempDirPath = fs.mkdtempSync(path.join(os.tmpdir(), "vegas-"));
+
+      try {
+        const configFile = path.join(tempDirPath, "vegas.config.ts");
+
+        fs.writeFileSync(
+          configFile,
+          `
+        export default {
+          gas: {},
+        };
+      `,
+        );
+
+        await expect(loadProject({ cwd: tempDirPath })).rejects.toThrow(
+          'Invalid Vegas config: unknown option "gas".',
+        );
       } finally {
         fs.rmSync(tempDirPath, {
           recursive: true,

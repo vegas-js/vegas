@@ -1,12 +1,12 @@
 import fs from "node:fs";
 import path from "node:path";
 
-import type { UserConfig } from "../../shared/config";
 import { loadModule } from "../module";
 import { resolveProject } from "./resolve";
+import { validateUserConfig } from "./validate-config";
 
 interface LoadedConfig {
-  readonly config: UserConfig;
+  readonly config: unknown;
   readonly configFile: string | null;
 }
 
@@ -25,10 +25,10 @@ async function loadConfigFromDirectory(directory: string): Promise<LoadedConfig>
     };
   }
 
-  const config = (await loadModule({
+  const config: unknown = await loadModule({
     root: directory,
     filePath,
-  })) as UserConfig;
+  });
 
   return {
     config,
@@ -43,8 +43,9 @@ export async function loadProject(
   const configDir = path.resolve(options.cwd, options.root ?? ".");
 
   const loaded = await loadConfig(configDir);
+  const config = validateUserConfig(loaded.config);
 
-  return resolveProject(loaded.config, {
+  return resolveProject(config, {
     cwd: options.cwd,
     root: options.root,
     configFile: loaded.configFile,
