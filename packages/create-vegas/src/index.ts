@@ -8,6 +8,8 @@ import * as prompts from "@clack/prompts";
 import { cac } from "cac";
 import spawn from "cross-spawn";
 
+import { writeAppsScriptScriptId } from "./apps-script-config";
+
 function runCmd(
   cmd: string,
   args?: readonly string[],
@@ -53,6 +55,8 @@ async function run() {
     framework: "",
     useOxcStack: false,
     npmStartUp: false,
+    configureAppsScript: false,
+    scriptId: "",
   };
 
   ctx.projectName = (await prompts.text({
@@ -103,6 +107,28 @@ async function run() {
     cancelHandler();
   }
 
+  ctx.configureAppsScript = (await prompts.confirm({
+    message: "Configure Apps Script now?",
+  })) as boolean;
+
+  if (prompts.isCancel(ctx.configureAppsScript)) {
+    cancelHandler();
+  }
+
+  if (ctx.configureAppsScript) {
+    ctx.scriptId = (await prompts.text({
+      message: "Apps Script script ID:",
+      validate: (value) =>
+        !value || value.trim().length === 0 ? "Apps Script script ID is required" : undefined,
+    })) as string;
+
+    if (prompts.isCancel(ctx.scriptId)) {
+      cancelHandler();
+    }
+
+    ctx.scriptId = ctx.scriptId.trim();
+  }
+
   ctx.npmStartUp = (await prompts.confirm({
     message: "Install with npm and start now?",
   })) as boolean;
@@ -121,6 +147,10 @@ async function run() {
     recursive: true,
     force: true,
   });
+
+  if (ctx.configureAppsScript) {
+    writeAppsScriptScriptId(path.join(packagePath, "vegas.config.ts"), ctx.scriptId);
+  }
 
   await runCmd("npm", ["pkg", "set", `name=${path.basename(ctx.projectName)}`], {
     cwd: packagePath,
