@@ -1,7 +1,7 @@
 // https://developers.google.com/apps-script/guides/web
 import { parseWebAppPath } from "./http";
 
-interface GasWebAppEventBase {
+interface AppsScriptWebAppEventBase {
   readonly queryString: string | null;
   readonly parameter: Readonly<Record<string, string>>;
   readonly parameters: Readonly<Record<string, readonly string[]>>;
@@ -9,23 +9,23 @@ interface GasWebAppEventBase {
   readonly pathInfo?: string;
 }
 
-export interface GasDoGetEvent extends GasWebAppEventBase {
+export interface AppsScriptDoGetEvent extends AppsScriptWebAppEventBase {
   readonly contentLength: -1;
 }
 
-export interface GasPostData {
+export interface AppsScriptPostData {
   readonly length: number;
   readonly type: string | undefined;
   readonly contents: string;
   readonly name: "postData";
 }
 
-export interface GasDoPostEvent extends GasWebAppEventBase {
+export interface AppsScriptDoPostEvent extends AppsScriptWebAppEventBase {
   readonly contentLength: number;
-  readonly postData: GasPostData;
+  readonly postData: AppsScriptPostData;
 }
 
-function createBaseEvent(url: URL): GasWebAppEventBase {
+function createBaseEvent(url: URL): AppsScriptWebAppEventBase {
   const queryString = url.search.length > 1 ? url.search.slice(1) : null;
 
   const parameter: Record<string, string> = {};
@@ -51,18 +51,18 @@ function createBaseEvent(url: URL): GasWebAppEventBase {
   };
 }
 
-export function createGasDoGetEvent(url: URL): GasDoGetEvent {
+export function createAppsScriptDoGetEvent(url: URL): AppsScriptDoGetEvent {
   return {
     ...createBaseEvent(url),
     contentLength: -1,
   };
 }
 
-export function createGasDoPostEvent(
+export function createAppsScriptDoPostEvent(
   url: URL,
   body: string,
   contentType: string | undefined,
-): GasDoPostEvent {
+): AppsScriptDoPostEvent {
   const contentLength = new Blob([body]).size;
 
   return {

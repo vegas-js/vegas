@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import { createGasDoPostHttpResponse, parseWebAppPath, readRequestBody } from "./http";
+import { createAppsScriptDoPostHttpResponse, parseWebAppPath, readRequestBody } from "./http";
 
 describe("parseWebAppPath", () => {
   test("parse webapp endpoint", () => {
@@ -34,10 +34,10 @@ describe("readRequestBody", () => {
   });
 });
 
-describe("createGasDoPostHttpResponse", () => {
+describe("createAppsScriptDoPostHttpResponse", () => {
   test("create response from gas result", () => {
     expect(
-      createGasDoPostHttpResponse({
+      createAppsScriptDoPostHttpResponse({
         mimeType: "application/json",
         content: '{"ok":true}',
       }),

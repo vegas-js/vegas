@@ -10,14 +10,14 @@ import type { GasExecutor } from "../runtime";
 import { BuildCoordinator } from "./build-coordinator";
 import { buildDevTopology } from "./build-topology";
 import { classifyProjectFile } from "./project-file";
-import { createGasDoGetEvent, createGasDoPostEvent } from "./webapp/event";
+import { createAppsScriptDoGetEvent, createAppsScriptDoPostEvent } from "./webapp/event";
 import { executeGasCall } from "./webapp/gas-call";
 import { createHostHtml } from "./webapp/host-html";
 import {
-  createGasDoPostHttpResponse,
+  createAppsScriptDoPostHttpResponse,
   parseWebAppPath,
   readRequestBody,
-  type GasDoPostResult,
+  type AppsScriptDoPostResult,
 } from "./webapp/http";
 import { WebAppSessionRegistry } from "./webapp/session-registry";
 
@@ -204,7 +204,7 @@ export class DevApplication {
           } else if (parseWebAppPath(url.pathname)) {
             // response iframe
             if (request.method === "GET") {
-              const doGetEvent = createGasDoGetEvent(url);
+              const doGetEvent = createAppsScriptDoGetEvent(url);
 
               const result = await this.#executor.execute({
                 functionName: "doGet",
@@ -228,13 +228,17 @@ export class DevApplication {
               return;
             } else if (request.method === "POST") {
               const body = await readRequestBody(request);
-              const doPostEvent = createGasDoPostEvent(url, body, request.headers["content-type"]);
+              const doPostEvent = createAppsScriptDoPostEvent(
+                url,
+                body,
+                request.headers["content-type"],
+              );
 
               const result = (await this.#executor.execute({
                 functionName: "doPost",
                 args: [doPostEvent],
-              })) as GasDoPostResult;
-              const httpResponse = createGasDoPostHttpResponse(result);
+              })) as AppsScriptDoPostResult;
+              const httpResponse = createAppsScriptDoPostHttpResponse(result);
 
               response.statusCode = 200;
               response.setHeader("Content-Type", httpResponse.contentType);
