@@ -1,6 +1,6 @@
 import type { PluginOption } from "vite";
 
-import type { GASManifest } from "../../shared/config";
+import type { AppsScriptManifest } from "../../shared/config";
 
 export interface ResolvedProject {
   readonly root: string;
@@ -14,7 +14,7 @@ export interface ResolvedProject {
 
   readonly appsScript: {
     readonly scriptId?: string;
-    readonly manifest: GASManifest;
+    readonly manifest: AppsScriptManifest;
   };
 }
 

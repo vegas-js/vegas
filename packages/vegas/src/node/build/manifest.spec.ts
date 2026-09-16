@@ -1,11 +1,11 @@
 import { describe, expect, test } from "vitest";
 
-import type { GASManifest } from "../../shared/config";
+import type { AppsScriptManifest } from "../../shared/config";
 import { createGASManifestArtifact } from "./manifest";
 
 describe("createGASManifestArtifact", () => {
   test("create manifest artifact for web app", () => {
-    const manifest: GASManifest = {
+    const manifest: AppsScriptManifest = {
       dependencies: {},
       exceptionLogging: "STACKDRIVER",
       runtimeVersion: "V8",
@@ -30,7 +30,7 @@ describe("createGASManifestArtifact", () => {
   });
 
   test("remove webapp config for non-web app", () => {
-    const manifest: GASManifest = {
+    const manifest: AppsScriptManifest = {
       runtimeVersion: "V8",
       timeZone: "UTC",
       webapp: {
@@ -48,7 +48,7 @@ describe("createGASManifestArtifact", () => {
   });
 
   test("does not mutate source manifest", () => {
-    const manifest: GASManifest = {
+    const manifest: AppsScriptManifest = {
       runtimeVersion: "V8",
       webapp: {
         access: "MYSELF",

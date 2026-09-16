@@ -45,39 +45,39 @@ export type AppsScriptConfig = {
   /**
    * Apps Script manifest configuration written to appsscript.json.
    */
-  manifest?: GASManifest;
+  manifest?: AppsScriptManifest;
 };
 
-type GASEnabledAdvancedService = {
+type AppsScriptEnabledAdvancedService = {
   serviceId?: string;
   userSymbol?: string;
   version?: string;
 };
 
-type GASLibrary = {
+type AppsScriptLibrary = {
   developmentMode?: boolean;
   libraryId?: string;
   userSymbol?: string;
   version?: string;
 };
 
-type GASDependencies = {
-  enabledAdvancedServices?: GASEnabledAdvancedService[];
-  libraries?: GASLibrary[];
+type AppsScriptDependencies = {
+  enabledAdvancedServices?: AppsScriptEnabledAdvancedService[];
+  libraries?: AppsScriptLibrary[];
 };
 
-type GASWebapp = {
+type AppsScriptWebApp = {
   access?: "MYSELF" | "DOMAIN" | "ANYONE" | "ANYONE_ANONYMOUS";
   executeAs?: "USER_ACCESSING" | "USER_DEPLOYING";
 };
 
-export type GASManifest = {
-  dependencies?: GASDependencies;
+export type AppsScriptManifest = {
+  dependencies?: AppsScriptDependencies;
   exceptionLogging?: "NONE" | "STACKDRIVER";
   oauthScopes?: string[];
   runtimeVersion?: "STABLE" | "V8" | "DEPRECATED_ES5";
   timeZone?: string;
-  webapp?: GASWebapp;
+  webapp?: AppsScriptWebApp;
 };
 
 export type UserConfig = BaseConfig & {
@@ -91,5 +91,5 @@ export type UserConfig = BaseConfig & {
   /**
    * @deprecated Use appsScript.manifest instead.
    */
-  gas?: GASManifest;
+  gas?: AppsScriptManifest;
 };
