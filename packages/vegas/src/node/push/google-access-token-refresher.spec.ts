@@ -1,6 +1,7 @@
 import { describe, expect, test, vi } from "vitest";
 
 import type { AppsScriptCredential } from "./credential";
+import { AppsScriptRemoteServiceError } from "./error";
 import { createGoogleAppsScriptAccessTokenRefresher } from "./google-access-token-refresher";
 
 const now = 1_000_000;
@@ -82,11 +83,10 @@ describe("createGoogleAppsScriptAccessTokenRefresher", () => {
       error = caught;
     }
 
-    expect(error).toBeInstanceOf(Error);
-    expect((error as Error).message).toContain(
-      "Google OAuth token refresh failed: 400 Bad Request",
+    expect(error).toBeInstanceOf(AppsScriptRemoteServiceError);
+    expect((error as Error).message).toBe(
+      "Google OAuth token refresh failed: 400 Bad Request (invalid_grant: Token has been revoked.)",
     );
-    expect((error as Error).message).toContain("invalid_grant");
 
     expect(fetch).toHaveBeenCalledOnce();
   });

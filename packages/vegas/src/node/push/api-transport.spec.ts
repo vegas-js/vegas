@@ -1,6 +1,7 @@
 import { describe, expect, test, vi } from "vitest";
 
 import { createAppsScriptApiPushTransport } from "./api-transport";
+import { AppsScriptRemoteServiceError } from "./error";
 import type { AppsScriptPushRequest } from "./request";
 
 const request: AppsScriptPushRequest = {
@@ -77,11 +78,26 @@ describe("createAppsScriptApiPushTransport", () => {
     };
 
     const fetch = vi.fn<typeof globalThis.fetch>();
+
     fetch.mockResolvedValue(
-      new Response('{"error":{"message":"Permission denied"}}', {
-        status: 403,
-        statusText: "Forbidden",
-      }),
+      new Response(
+        JSON.stringify({
+          error: {
+            code: 403,
+            status: "PERMISSION_DENIED",
+            message: "Permission denied",
+            details: [
+              {
+                sensitiveInternalDetail: "must not be displayed",
+              },
+            ],
+          },
+        }),
+        {
+          status: 403,
+          statusText: "Forbidden",
+        },
+      ),
     );
 
     const transport = createAppsScriptApiPushTransport({
@@ -89,12 +105,21 @@ describe("createAppsScriptApiPushTransport", () => {
       fetch,
     });
 
-    await expect(transport.push(request)).rejects.toThrow(
-      [
-        "Apps Script updateContent failed: 403 Forbidden",
-        '{"error":{"message":"Permission denied"}}',
-      ].join("\n"),
+    let error: unknown;
+
+    try {
+      await transport.push(request);
+    } catch (caught) {
+      error = caught;
+    }
+
+    expect(error).toBeInstanceOf(AppsScriptRemoteServiceError);
+    expect((error as Error).message).toBe(
+      "Apps Script updateContent failed: 403 Forbidden (PERMISSION_DENIED: Permission denied)",
     );
+    expect((error as Error).message).not.toContain("sensitiveInternalDetail");
+
+    expect(fetch).toHaveBeenCalledOnce();
   });
 
   test("reject failed API response without response body", async () => {

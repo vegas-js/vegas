@@ -1,3 +1,5 @@
+import { AppsScriptRemoteServiceError } from "./error";
+import { formatGoogleHttpError } from "./google-error-response";
 import { APPS_SCRIPT_PROJECTS_OAUTH_SCOPE } from "./google-oauth-authorization";
 import type { GoogleOAuthDesktopClient } from "./google-oauth-client";
 
@@ -33,14 +35,6 @@ function requireValue(value: string, message: string): string {
   }
 
   return value;
-}
-
-function formatResponseStatus(response: Response): string {
-  if (response.statusText.length === 0) {
-    return String(response.status);
-  }
-
-  return `${response.status} ${response.statusText}`;
 }
 
 function parseAuthorizationCodeTokens(
@@ -127,13 +121,12 @@ export async function exchangeGoogleOAuthAuthorizationCode(
   const responseBody = await response.text();
 
   if (!response.ok) {
-    const status = formatResponseStatus(response);
-
-    if (responseBody.length === 0) {
-      throw new Error(`Google OAuth authorization code exchange failed: ${status}`);
-    }
-
-    throw new Error(`Google OAuth authorization code exchange failed: ${status}\n${responseBody}`);
+    throw new AppsScriptRemoteServiceError(
+      `Google OAuth authorization code exchange failed: ${formatGoogleHttpError(
+        response,
+        responseBody,
+      )}`,
+    );
   }
 
   return parseAuthorizationCodeTokens(responseBody, now());

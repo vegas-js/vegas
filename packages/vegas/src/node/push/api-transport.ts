@@ -1,4 +1,6 @@
 import type { AppsScriptAccessTokenProvider } from "./access-token";
+import { AppsScriptRemoteServiceError } from "./error";
+import { formatGoogleHttpError } from "./google-error-response";
 import type { AppsScriptPushRequest } from "./request";
 import type { AppsScriptPushTransport } from "./transport";
 import { createAppsScriptUpdateContentHttpRequest } from "./update-content";
@@ -14,14 +16,6 @@ function requireAccessToken(accessToken: string): string {
   }
 
   return accessToken;
-}
-
-function formatResponseStatus(response: Response): string {
-  if (response.statusText.length === 0) {
-    return String(response.status);
-  }
-
-  return `${response.status} ${response.statusText}`;
 }
 
 export function createAppsScriptApiPushTransport(
@@ -48,13 +42,10 @@ export function createAppsScriptApiPushTransport(
       }
 
       const responseBody = await response.text();
-      const status = formatResponseStatus(response);
 
-      if (responseBody.length === 0) {
-        throw new Error(`Apps Script updateContent failed: ${status}`);
-      }
-
-      throw new Error(`Apps Script updateContent failed: ${status}\n${responseBody}`);
+      throw new AppsScriptRemoteServiceError(
+        `Apps Script updateContent failed: ${formatGoogleHttpError(response, responseBody)}`,
+      );
     },
   };
 }

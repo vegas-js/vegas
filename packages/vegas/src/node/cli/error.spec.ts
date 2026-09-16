@@ -2,7 +2,11 @@ import { cac } from "cac";
 import { describe, expect, test } from "vitest";
 
 import { ConfigValidationError } from "../project/validate-config";
-import { AppsScriptAuthPrerequisiteError, AppsScriptPushPrerequisiteError } from "../push/error";
+import {
+  AppsScriptAuthPrerequisiteError,
+  AppsScriptPushPrerequisiteError,
+  AppsScriptRemoteServiceError,
+} from "../push/error";
 import { CliUsageError, formatCliError } from "./error";
 
 describe("formatCliError", () => {
@@ -62,5 +66,13 @@ describe("formatCliError", () => {
     );
 
     expect(formatCliError(error)).toBe('Apps Script credentials not found for profile "default".');
+  });
+
+  test("format Apps Script remote service error", () => {
+    const error = new AppsScriptRemoteServiceError(
+      "Apps Script updateContent failed: 403 Forbidden",
+    );
+
+    expect(formatCliError(error)).toBe("Apps Script updateContent failed: 403 Forbidden");
   });
 });

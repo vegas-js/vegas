@@ -3,6 +3,8 @@ import type {
   AppsScriptRefreshedAccessToken,
 } from "./access-token";
 import type { AppsScriptCredential } from "./credential";
+import { AppsScriptRemoteServiceError } from "./error";
+import { formatGoogleHttpError } from "./google-error-response";
 
 const GOOGLE_OAUTH_TOKEN_URL = "https://oauth2.googleapis.com/token";
 
@@ -17,14 +19,6 @@ function objectValue(value: unknown): Record<string, unknown> | undefined {
   }
 
   return value as Record<string, unknown>;
-}
-
-function formatResponseStatus(response: Response): string {
-  if (response.statusText.length === 0) {
-    return String(response.status);
-  }
-
-  return `${response.status} ${response.statusText}`;
 }
 
 function parseRefreshedAccessToken(content: string, now: number): AppsScriptRefreshedAccessToken {
@@ -93,13 +87,9 @@ export function createGoogleAppsScriptAccessTokenRefresher(
       const responseBody = await response.text();
 
       if (!response.ok) {
-        const status = formatResponseStatus(response);
-
-        if (responseBody.length === 0) {
-          throw new Error(`Google OAuth token refresh failed: ${status}`);
-        }
-
-        throw new Error(`Google OAuth token refresh failed: ${status}\n${responseBody}`);
+        throw new AppsScriptRemoteServiceError(
+          `Google OAuth token refresh failed: ${formatGoogleHttpError(response, responseBody)}`,
+        );
       }
 
       return parseRefreshedAccessToken(responseBody, now());

@@ -1,5 +1,9 @@
 import { ConfigValidationError } from "../project/validate-config";
-import { AppsScriptAuthPrerequisiteError, AppsScriptPushPrerequisiteError } from "../push/error";
+import {
+  AppsScriptAuthPrerequisiteError,
+  AppsScriptPushPrerequisiteError,
+  AppsScriptRemoteServiceError,
+} from "../push/error";
 
 export class CliUsageError extends Error {
   constructor(message: string) {
@@ -18,6 +22,7 @@ export function formatCliError(error: unknown): string | undefined {
     error instanceof CliUsageError ||
     error instanceof AppsScriptAuthPrerequisiteError ||
     error instanceof AppsScriptPushPrerequisiteError ||
+    error instanceof AppsScriptRemoteServiceError ||
     isCacError(error)
   ) {
     return error.message;
