@@ -34,6 +34,24 @@ export class LocalDriveHostHandler implements DriveHostCallHandler {
       case "get-file-blob": {
         return this.#store.getFileBlob(this.#namespace, call.file);
       }
+      case "get-file-name": {
+        const { name } = await this.#store.getFileMetadata(this.#namespace, call.file);
+
+        if (name === null) {
+          throw new Error(`Local Drive file name is unavailable: ${call.file.id}`);
+        }
+
+        return name;
+      }
+      case "get-file-mime-type": {
+        const { mimeType } = await this.#store.getFileMetadata(this.#namespace, call.file);
+
+        if (mimeType === null) {
+          throw new Error(`Local Drive file MIME type is unavailable: ${call.file.id}`);
+        }
+
+        return mimeType;
+      }
       case "get-folder": {
         return this.#store.getFolder(this.#namespace, call.id, call.resourceKey);
       }

@@ -27,6 +27,16 @@ export type DriveHostCall =
     }
   | {
       readonly service: "drive";
+      readonly operation: "get-file-name";
+      readonly file: DriveFileReference;
+    }
+  | {
+      readonly service: "drive";
+      readonly operation: "get-file-mime-type";
+      readonly file: DriveFileReference;
+    }
+  | {
+      readonly service: "drive";
       readonly operation: "get-folder";
       readonly id: string;
       readonly resourceKey?: string;
@@ -139,7 +149,11 @@ export type DriveHostCallResult<C extends DriveHostCall> = C extends {
               }
             ? boolean
             : C extends {
-                  readonly operation: "get-folder-name" | "iterator-continuation-token";
+                  readonly operation:
+                    | "get-file-name"
+                    | "get-file-mime-type"
+                    | "get-folder-name"
+                    | "iterator-continuation-token";
                 }
               ? string
               : never;

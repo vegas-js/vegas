@@ -134,6 +134,22 @@ export class DriveFile {
     return this.#reference.id;
   }
 
+  getMimeType(): string {
+    return this.#bridge.call({
+      service: "drive",
+      operation: "get-file-mime-type",
+      file: this.#reference,
+    });
+  }
+
+  getName(): string {
+    return this.#bridge.call({
+      service: "drive",
+      operation: "get-file-name",
+      file: this.#reference,
+    });
+  }
+
   getParents(): DriveFolderIterator {
     return this.#hydrator.hydrate(
       this.#bridge.call({
