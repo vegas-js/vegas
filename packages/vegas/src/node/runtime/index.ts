@@ -24,7 +24,7 @@ export type {
   DriveObjectReference,
   DriveResourceReference,
 } from "./drive-reference";
-export type { DriveNamespace, DriveStore } from "./drive-store";
+export type { DriveFileMetadata, DriveNamespace, DriveStore } from "./drive-store";
 export type { ExecutionRequest, Executor } from "./executor";
 export { HostDispatcher } from "./host-dispatcher";
 export type { HostCallDispatcher, HostDispatcherOptions } from "./host-dispatcher";

@@ -5,6 +5,11 @@ export interface DriveNamespace {
   readonly userKey: string;
 }
 
+export interface DriveFileMetadata {
+  readonly name: string | null;
+  readonly mimeType: string | null;
+}
+
 /**
  * Persistent resource state for the local virtual Drive.
  *
@@ -25,6 +30,7 @@ export interface DriveStore {
   ): Promise<DriveFolderReference>;
   getFile(namespace: DriveNamespace, id: string, resourceKey?: string): Promise<DriveFileReference>;
   getFileBlob(namespace: DriveNamespace, file: DriveFileReference): Promise<BlobValue>;
+  getFileMetadata(namespace: DriveNamespace, file: DriveFileReference): Promise<DriveFileMetadata>;
   getFolder(
     namespace: DriveNamespace,
     id: string,

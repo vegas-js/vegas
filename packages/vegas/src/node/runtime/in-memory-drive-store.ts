@@ -1,10 +1,16 @@
 import type { BlobValue } from "./blob-value";
 import type { DriveFileReference, DriveFolderReference } from "./drive-reference";
-import type { DriveNamespace, DriveStore } from "./drive-store";
+import type { DriveFileMetadata, DriveNamespace, DriveStore } from "./drive-store";
+
+type DriveFileContent = {
+  readonly bytes: readonly number[];
+  readonly googleType: boolean;
+};
 
 type DriveFileState = {
   readonly reference: DriveFileReference;
-  readonly blob: BlobValue;
+  readonly content: DriveFileContent;
+  metadata: DriveFileMetadata;
   parentIds: string[];
 };
 
@@ -24,13 +30,8 @@ function createNamespaceKey(namespace: DriveNamespace): string {
   return JSON.stringify(["user", namespace.userKey]);
 }
 
-function cloneBlobValue(value: BlobValue): BlobValue {
-  return {
-    bytes: [...value.bytes],
-    contentType: value.contentType,
-    name: value.name,
-    googleType: value.googleType,
-  };
+function cloneFileMetadata(metadata: DriveFileMetadata): DriveFileMetadata {
+  return { ...metadata };
 }
 
 function cloneFile(reference: DriveFileReference): DriveFileReference {
@@ -70,7 +71,14 @@ export class InMemoryDriveStore implements DriveStore {
     };
     drive.files.set(reference.id, {
       reference,
-      blob: cloneBlobValue(blob),
+      content: {
+        bytes: [...blob.bytes],
+        googleType: blob.googleType,
+      },
+      metadata: {
+        name: blob.name,
+        mimeType: blob.contentType,
+      },
       parentIds: [parentState.reference.id],
     });
 
@@ -111,8 +119,22 @@ export class InMemoryDriveStore implements DriveStore {
   }
 
   async getFileBlob(namespace: DriveNamespace, file: DriveFileReference): Promise<BlobValue> {
-    return cloneBlobValue(
-      this.#getFileState(this.#getOrCreateDrive(namespace), file.id, file.resourceKey).blob,
+    const state = this.#getFileState(this.#getOrCreateDrive(namespace), file.id, file.resourceKey);
+
+    return {
+      bytes: [...state.content.bytes],
+      contentType: state.metadata.mimeType,
+      name: state.metadata.name,
+      googleType: state.content.googleType,
+    };
+  }
+
+  async getFileMetadata(
+    namespace: DriveNamespace,
+    file: DriveFileReference,
+  ): Promise<DriveFileMetadata> {
+    return cloneFileMetadata(
+      this.#getFileState(this.#getOrCreateDrive(namespace), file.id, file.resourceKey).metadata,
     );
   }
 

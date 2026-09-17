@@ -4,6 +4,7 @@ import {
   InMemoryDriveIteratorStore,
   LocalDriveHostHandler,
   type BlobValue,
+  type DriveFileMetadata,
   type DriveFileReference,
   type DriveFolderReference,
   type DriveNamespace,
@@ -53,6 +54,17 @@ class RecordingDriveStore implements DriveStore {
       contentType: "text/plain",
       name: "a.txt",
       googleType: false,
+    };
+  }
+
+  async getFileMetadata(
+    namespace: DriveNamespace,
+    file: DriveFileReference,
+  ): Promise<DriveFileMetadata> {
+    this.calls.push(`getFileMetadata:${namespace.userKey}:${file.id}`);
+    return {
+      name: "a.txt",
+      mimeType: "text/plain",
     };
   }
 
