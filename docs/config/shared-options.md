@@ -21,16 +21,18 @@ The directory that serves as the starting point for exploring front-end programs
 ## serverDir
 
 - **Type:** `string`
-- **Default:** `src/server`
+- **Default:** `src/server` for `"spa"`, `src` for `"script"`
 
-The directory that serves as the starting point for exploring server (GAS) programs.
+The directory that serves as the starting point for exploring server (Apps Script) programs.
 
-## gasMockDir
+For SPA projects, the default is `src/server`. For script projects, the default is `src`.
+
+## runtimeDataDir
 
 - **Type:** `string`
-- **Default:** `mock`
+- **Default:** `runtime`
 
-The directory that serves as the starting point for exploring mocks.
+The directory that contains source data used by the local runtime.
 
 ## plugins
 

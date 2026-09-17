@@ -60,14 +60,6 @@ src/
 
 ```plaintext
 src/
-  └─ server/
-    └─ Code.ts
-```
-
-or
-
-```plaintext
-src/
   └─ Code.ts
 ```
 
