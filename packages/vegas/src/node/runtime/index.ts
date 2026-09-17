@@ -41,8 +41,11 @@ export { createHostResponse, handleHostRequestMessage } from "./host-request-han
 export { InMemoryCacheStore } from "./in-memory-cache-store";
 export { InMemoryDriveIteratorStore } from "./in-memory-drive-iterator-store";
 export { InMemoryDriveStore } from "./in-memory-drive-store";
+export { InMemoryLockStore } from "./in-memory-lock-store";
 export { InMemoryPropertiesStore } from "./in-memory-properties-store";
 export type { InvocationEnvironment } from "./invocation";
+export { resolveLockNamespace } from "./lock-namespace";
+export type { LockNamespace, LockStore, LockStoreSession } from "./lock-store";
 export { createPropertiesService, Properties, PropertiesService } from "./properties-objects";
 export { PropertiesHostHandler } from "./properties-host-handler";
 export type { PropertiesHostCallHandler } from "./properties-host-handler";

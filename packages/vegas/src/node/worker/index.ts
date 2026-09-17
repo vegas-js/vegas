@@ -3,9 +3,9 @@ import worker from "node:worker_threads";
 
 import { createCacheService } from "../runtime/cache-objects";
 import { createDriveApp } from "../runtime/drive-object-hydrator";
+import type { InvocationEnvironment } from "../runtime/invocation";
 import { createPropertiesService } from "../runtime/properties-objects";
 import { createSession } from "../runtime/session-objects";
-import type { InvocationEnvironment } from "../runtime/invocation";
 import { createWorkerHostBridge } from "../runtime/worker-host-bridge";
 import { Console } from "./api/base/console";
 import { Logger } from "./api/base/Logger";
