@@ -17,6 +17,7 @@ import {
   createAppsScriptDoPostHttpResponse,
   parseWebAppPath,
   readRequestBody,
+  resolveAppsScriptXFrameOptionsHeader,
   type AppsScriptDoPostResult,
 } from "./webapp/http";
 import { executeServerFunctionCall } from "./webapp/server-function-call";
@@ -242,8 +243,11 @@ export class DevApplication {
               response.statusCode = 200;
               response.setHeader("Content-Type", "text/html; charset=utf-8");
 
-              if (result.xFrameOptionsMode) {
-                response.setHeader("X-Frame-Options", result.xFrameOptionsMode);
+              const xFrameOptionsHeader = resolveAppsScriptXFrameOptionsHeader(
+                result.xFrameOptionsMode,
+              );
+              if (xFrameOptionsHeader !== undefined) {
+                response.setHeader("X-Frame-Options", xFrameOptionsHeader);
               }
 
               response.end(transFormedHtml);

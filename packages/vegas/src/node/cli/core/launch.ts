@@ -16,6 +16,7 @@ import {
   type InvocationEnvironment,
   type InvocationScope,
   type LockStore,
+  type Program,
   type PropertiesStore,
 } from "../../runtime";
 import type { ServeContext } from "./context";
@@ -66,7 +67,7 @@ function launchGAS(
   dispatcher: HostDispatcher,
   environment: InvocationEnvironment,
   invocationScope: InvocationScope,
-  source: string,
+  program: Program,
   fn: string,
   ...args: any[]
 ): Promise<any> {
@@ -78,7 +79,7 @@ function launchGAS(
       env: { ...process.env, FORCE_COLOR: "1" },
       transferList: [port2],
       workerData: {
-        code: source,
+        program,
         environment,
         sharedArray,
         port: port2,
@@ -149,7 +150,7 @@ export function createLegacyAppsScriptExecutor(
         dispatcher,
         request.environment,
         request.scope,
-        request.program.source,
+        request.program,
         request.functionName,
         ...request.args,
       ).finally(() => lockSession.releaseAll());

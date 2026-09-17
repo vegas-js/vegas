@@ -11,7 +11,7 @@ describe("createHostHtml", () => {
         title: "",
         faviconUrl: "",
         content: '<div>/* keep */</div></script><script>alert("x")</script>',
-        xFrameOptionsMode: undefined,
+        xFrameOptionsMode: "DEFAULT",
       },
       "session-1",
     );

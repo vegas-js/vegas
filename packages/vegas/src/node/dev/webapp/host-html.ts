@@ -1,16 +1,8 @@
 import { HtmlDocument } from "../../html";
+import type { HtmlOutputSnapshot } from "../../runtime";
 import { serializeInlineScriptValue } from "./inline-script";
 
-export interface AppsScriptDoGetResult {
-  readonly metaTags: readonly {
-    readonly name: string;
-    readonly content: string;
-  }[];
-  readonly title: string;
-  readonly faviconUrl: string;
-  readonly content: string;
-  readonly xFrameOptionsMode?: string;
-}
+export type AppsScriptDoGetResult = HtmlOutputSnapshot;
 
 export function createHostHtml(url: URL, result: AppsScriptDoGetResult, sessionId: string) {
   const html = new HtmlDocument();

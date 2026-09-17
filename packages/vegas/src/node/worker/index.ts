@@ -3,15 +3,17 @@ import worker from "node:worker_threads";
 
 import { createCacheService } from "../runtime/cache-objects";
 import { createDriveApp } from "../runtime/drive-object-hydrator";
+import { serializeHtmlOutput } from "../runtime/html-output";
+import { createHtmlService } from "../runtime/html-service";
 import type { InvocationEnvironment } from "../runtime/invocation";
 import { createLockService } from "../runtime/lock-objects";
+import type { Program } from "../runtime/program";
 import { createPropertiesService } from "../runtime/properties-objects";
 import { createSession } from "../runtime/session-objects";
 import { createWorkerHostBridge } from "../runtime/worker-host-bridge";
 import { Console } from "./api/base/console";
 import { Logger } from "./api/base/Logger";
 import { HtmlOutput } from "./api/html/HtmlOutput";
-import { HtmlService } from "./api/html/HtmlService";
 import { HtmlTemplate } from "./api/html/HtmlTemplate";
 import { Range } from "./api/spreadsheet/Range";
 import { Sheet } from "./api/spreadsheet/Sheet";
@@ -21,7 +23,7 @@ import { UrlFetchApp } from "./api/url_fetch/UrlFetchApp";
 import { Utilities } from "./api/utilities/Utilities";
 
 type RuntimeWorkerData = {
-  readonly code: string;
+  readonly program: Program;
   readonly environment: InvocationEnvironment;
   readonly port: worker.MessagePort;
   readonly sharedArray: Int32Array;
@@ -82,7 +84,7 @@ function createHtmlTemplate(content: string): GoogleAppsScript.HTML.HtmlTemplate
 }
 export type CreateHtmlTemplate = typeof createHtmlTemplate;
 
-const script = new vm.Script(runtimeWorkerData.code);
+const script = new vm.Script(runtimeWorkerData.program.source);
 export const scriptContext = vm.createContext({
   /* Admin Console */
   AdminDirectory: undefined, // Advanced services. Low priority.
@@ -165,7 +167,7 @@ export const scriptContext = vm.createContext({
   /* Content */
   ContentService: undefined,
   /* HTML */
-  HtmlService: new HtmlService(createHtmlOutput, createHtmlTemplate, requestSync),
+  HtmlService: createHtmlService(runtimeWorkerData.program.htmlFiles),
   /* Mail */
   MailApp: undefined,
   /* Base */
@@ -187,26 +189,10 @@ export const scriptContext = vm.createContext({
 });
 script.runInContext(scriptContext);
 
-interface DoGetResult {
-  metaTags: { name: string; content: string }[];
-  title: string;
-  faviconUrl: string;
-  content: string;
-  xFrameOptionsMode: string;
-}
-
 async function invokeFn(fn: Function, ...args: any[]) {
   const result = await fn(...args);
   if (fn.name === "doGet") {
-    return {
-      metaTags: result.getMetaTags().map((metaTag: any) => {
-        return { name: metaTag.getName(), content: metaTag.getContent() };
-      }),
-      title: result.getTitle(),
-      faviconUrl: result.getFaviconUrl(),
-      content: result.getContent(),
-      xFrameOptionsMode: (result as any).getXFrameOptionsMode(),
-    } satisfies DoGetResult;
+    return serializeHtmlOutput(result);
   } else if (fn.name === "doPost") {
     return {
       mimeType: typeof result.getMimeType === "function" ? result.getMimeType() : "text/html",
