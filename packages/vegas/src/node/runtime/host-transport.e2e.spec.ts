@@ -9,8 +9,10 @@ import {
   InMemoryCacheStore,
   InMemoryDriveIteratorStore,
   InMemoryDriveStore,
+  InMemoryLockStore,
   InMemoryPropertiesStore,
   LocalDriveHostHandler,
+  LockHostHandler,
   PropertiesHostHandler,
   resolveDriveNamespace,
 } from "./index";
@@ -81,6 +83,27 @@ try {
     namespace: "script",
     key: "cached-name",
   });
+  const lockAcquireResponse = callHost({
+    service: "lock",
+    operation: "acquire",
+    namespace: "script",
+    timeoutInMillis: 0,
+  });
+  const lockHasResponse = callHost({
+    service: "lock",
+    operation: "has",
+    namespace: "script",
+  });
+  const lockReleaseResponse = callHost({
+    service: "lock",
+    operation: "release",
+    namespace: "script",
+  });
+  const lockHasAfterReleaseResponse = callHost({
+    service: "lock",
+    operation: "has",
+    namespace: "script",
+  });
 
   worker.parentPort.postMessage({
     ok: true,
@@ -90,6 +113,10 @@ try {
     missingFileResponse,
     cachePutResponse,
     cacheGetResponse,
+    lockAcquireResponse,
+    lockHasResponse,
+    lockReleaseResponse,
+    lockHasAfterReleaseResponse,
   });
 } catch (error) {
   worker.parentPort.postMessage({
@@ -110,6 +137,10 @@ type WorkerResult =
       readonly missingFileResponse: unknown;
       readonly cachePutResponse: unknown;
       readonly cacheGetResponse: unknown;
+      readonly lockAcquireResponse: unknown;
+      readonly lockHasResponse: unknown;
+      readonly lockReleaseResponse: unknown;
+      readonly lockHasAfterReleaseResponse: unknown;
     }
   | {
       readonly ok: false;
@@ -131,6 +162,7 @@ describe("typed host transport", () => {
     };
     const driveNamespace = resolveDriveNamespace(scope);
     const driveIteratorStore = new InMemoryDriveIteratorStore();
+    const lockSession = new InMemoryLockStore().createSession();
     const dispatcher = new HostDispatcher({
       cache: new CacheHostHandler(new InMemoryCacheStore(() => 1_000), scope, () => 1_000),
       drive: new LocalDriveHostHandler(
@@ -138,6 +170,7 @@ describe("typed host transport", () => {
         driveNamespace,
         driveIteratorStore.createSession(driveNamespace),
       ),
+      lock: new LockHostHandler(lockSession, scope),
       properties: new PropertiesHostHandler(new InMemoryPropertiesStore(), scope),
     });
     const sharedArray = new Int32Array(new SharedArrayBuffer(4));
@@ -198,6 +231,26 @@ describe("typed host transport", () => {
           id: 6,
           ok: true,
           value: "Vegas Cache",
+        },
+        lockAcquireResponse: {
+          id: 7,
+          ok: true,
+          value: true,
+        },
+        lockHasResponse: {
+          id: 8,
+          ok: true,
+          value: true,
+        },
+        lockReleaseResponse: {
+          id: 9,
+          ok: true,
+          value: undefined,
+        },
+        lockHasAfterReleaseResponse: {
+          id: 10,
+          ok: true,
+          value: false,
         },
       });
       expect(Atomics.load(sharedArray, 0)).toBe(0);

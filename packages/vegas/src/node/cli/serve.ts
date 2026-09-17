@@ -6,6 +6,7 @@ import {
   InMemoryCacheStore,
   InMemoryDriveIteratorStore,
   InMemoryDriveStore,
+  InMemoryLockStore,
   InMemoryPropertiesStore,
 } from "../runtime";
 import { createServeContext } from "./core/context";
@@ -41,6 +42,7 @@ export async function runServe(root?: string) {
 
   const scope = createLegacyInvocationScope(ctx);
   const cacheStore = new InMemoryCacheStore();
+  const lockStore = new InMemoryLockStore();
   const propertiesStore = new InMemoryPropertiesStore();
   const driveStore = new InMemoryDriveStore();
   const driveIteratorStore = new InMemoryDriveIteratorStore();
@@ -51,6 +53,7 @@ export async function runServe(root?: string) {
   const executor = createLegacyAppsScriptExecutor(
     ctx,
     cacheStore,
+    lockStore,
     propertiesStore,
     driveStore,
     driveIteratorStore,

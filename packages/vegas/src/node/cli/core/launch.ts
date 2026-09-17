@@ -6,6 +6,7 @@ import {
   handleHostRequestMessage,
   HostDispatcher,
   LocalDriveHostHandler,
+  LockHostHandler,
   PropertiesHostHandler,
   resolveDriveNamespace,
   type CacheStore,
@@ -14,6 +15,7 @@ import {
   type Executor,
   type InvocationEnvironment,
   type InvocationScope,
+  type LockStore,
   type PropertiesStore,
 } from "../../runtime";
 import type { ServeContext } from "./context";
@@ -119,6 +121,7 @@ function launchGAS(
 export function createLegacyAppsScriptExecutor(
   ctx: ServeContext,
   cacheStore: CacheStore,
+  lockStore: LockStore,
   propertiesStore: PropertiesStore,
   driveStore: DriveStore,
   driveIteratorStore: DriveIteratorStore,
@@ -128,6 +131,7 @@ export function createLegacyAppsScriptExecutor(
   return {
     execute(request) {
       const driveNamespace = resolveDriveNamespace(request.scope);
+      const lockSession = lockStore.createSession();
       const dispatcher = new HostDispatcher({
         cache: new CacheHostHandler(cacheStore, request.scope),
         drive: new LocalDriveHostHandler(
@@ -135,6 +139,7 @@ export function createLegacyAppsScriptExecutor(
           driveNamespace,
           driveIteratorStore.createSession(driveNamespace),
         ),
+        lock: new LockHostHandler(lockSession, request.scope),
         properties: new PropertiesHostHandler(propertiesStore, request.scope),
       });
 
@@ -147,7 +152,7 @@ export function createLegacyAppsScriptExecutor(
         request.program.source,
         request.functionName,
         ...request.args,
-      );
+      ).finally(() => lockSession.releaseAll());
     },
   };
 }
