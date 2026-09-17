@@ -3,8 +3,10 @@ import worker from "node:worker_threads";
 import { describe, expect, test } from "vitest";
 
 import {
+  CacheHostHandler,
   handleHostRequestMessage,
   HostDispatcher,
+  InMemoryCacheStore,
   InMemoryDriveIteratorStore,
   InMemoryDriveStore,
   InMemoryPropertiesStore,
@@ -65,6 +67,20 @@ try {
     operation: "get-file",
     id: "missing-file",
   });
+  const cachePutResponse = callHost({
+    service: "cache",
+    operation: "put",
+    namespace: "script",
+    key: "cached-name",
+    value: "Vegas Cache",
+    expirationInSeconds: 600,
+  });
+  const cacheGetResponse = callHost({
+    service: "cache",
+    operation: "get",
+    namespace: "script",
+    key: "cached-name",
+  });
 
   worker.parentPort.postMessage({
     ok: true,
@@ -72,6 +88,8 @@ try {
     getResponse,
     rootResponse,
     missingFileResponse,
+    cachePutResponse,
+    cacheGetResponse,
   });
 } catch (error) {
   worker.parentPort.postMessage({
@@ -90,6 +108,8 @@ type WorkerResult =
       readonly getResponse: unknown;
       readonly rootResponse: unknown;
       readonly missingFileResponse: unknown;
+      readonly cachePutResponse: unknown;
+      readonly cacheGetResponse: unknown;
     }
   | {
       readonly ok: false;
@@ -112,6 +132,7 @@ describe("typed host transport", () => {
     const driveNamespace = resolveDriveNamespace(scope);
     const driveIteratorStore = new InMemoryDriveIteratorStore();
     const dispatcher = new HostDispatcher({
+      cache: new CacheHostHandler(new InMemoryCacheStore(() => 1_000), scope, () => 1_000),
       drive: new LocalDriveHostHandler(
         new InMemoryDriveStore(),
         driveNamespace,
@@ -167,6 +188,16 @@ describe("typed host transport", () => {
             type: "Error",
             message: "Unknown local Drive file: missing-file",
           },
+        },
+        cachePutResponse: {
+          id: 5,
+          ok: true,
+          value: undefined,
+        },
+        cacheGetResponse: {
+          id: 6,
+          ok: true,
+          value: "Vegas Cache",
         },
       });
       expect(Atomics.load(sharedArray, 0)).toBe(0);

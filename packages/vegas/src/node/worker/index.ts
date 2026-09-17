@@ -1,14 +1,13 @@
 import vm from "node:vm";
 import worker from "node:worker_threads";
 
+import { createCacheService } from "../runtime/cache-objects";
 import { createDriveApp } from "../runtime/drive-object-hydrator";
 import { createPropertiesService } from "../runtime/properties-objects";
 import { createWorkerHostBridge } from "../runtime/worker-host-bridge";
 import { Console } from "./api/base/console";
 import { Logger } from "./api/base/Logger";
 import { Session } from "./api/base/Session";
-import { Cache } from "./api/cache/Cache";
-import { CacheService } from "./api/cache/CacheService";
 import { HtmlOutput } from "./api/html/HtmlOutput";
 import { HtmlService } from "./api/html/HtmlService";
 import { HtmlTemplate } from "./api/html/HtmlTemplate";
@@ -176,11 +175,7 @@ export const scriptContext = vm.createContext({
   Session: new Session(requestSync),
   console: new Console(),
   /* Cache */
-  CacheService: new CacheService(
-    new Cache(Scope.DOCUMENT, requestSync),
-    new Cache(Scope.SCRIPT, requestSync),
-    new Cache(Scope.USER, requestSync),
-  ),
+  CacheService: createCacheService(hostBridge),
   /* Lock */
   LockService: new LockService(
     new Lock(Scope.DOCUMENT, requestSync),

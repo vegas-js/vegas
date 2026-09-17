@@ -2,11 +2,13 @@ import path from "node:path";
 import worker from "node:worker_threads";
 
 import {
+  CacheHostHandler,
   handleHostRequestMessage,
   HostDispatcher,
   LocalDriveHostHandler,
   PropertiesHostHandler,
   resolveDriveNamespace,
+  type CacheStore,
   type DriveIteratorStore,
   type DriveStore,
   type Executor,
@@ -17,7 +19,6 @@ import type { ServeContext } from "./context";
 import {
   HtmlServiceHandler,
   SessionHandler,
-  CacheHandler,
   SpreadsheetAppHandler,
   SheetHandler,
   RangeHandler,
@@ -31,7 +32,6 @@ class GASHandler {
     this.#handlers = {
       HtmlService: new HtmlServiceHandler(),
       Session: new SessionHandler(),
-      Cache: new CacheHandler(),
       SpreadsheetApp: new SpreadsheetAppHandler(),
       Sheet: new SheetHandler(),
       Range: new RangeHandler(),
@@ -117,6 +117,7 @@ function launchGAS(
 
 export function createLegacyAppsScriptExecutor(
   ctx: ServeContext,
+  cacheStore: CacheStore,
   propertiesStore: PropertiesStore,
   driveStore: DriveStore,
   driveIteratorStore: DriveIteratorStore,
@@ -127,6 +128,7 @@ export function createLegacyAppsScriptExecutor(
     execute(request) {
       const driveNamespace = resolveDriveNamespace(request.scope);
       const dispatcher = new HostDispatcher({
+        cache: new CacheHostHandler(cacheStore, request.scope),
         drive: new LocalDriveHostHandler(
           driveStore,
           driveNamespace,

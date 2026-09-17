@@ -3,6 +3,7 @@ import { DevApplication } from "../dev/application";
 import { buildDevTopology } from "../dev/build-topology";
 import { loadProject } from "../project";
 import {
+  InMemoryCacheStore,
   InMemoryDriveIteratorStore,
   InMemoryDriveStore,
   InMemoryPropertiesStore,
@@ -38,6 +39,7 @@ export async function runPreview(root?: string) {
   const ctx = createServeContext(project, artifacts);
 
   const scope = createLegacyInvocationScope(ctx);
+  const cacheStore = new InMemoryCacheStore();
   const propertiesStore = new InMemoryPropertiesStore();
   const driveStore = new InMemoryDriveStore();
   const driveIteratorStore = new InMemoryDriveIteratorStore();
@@ -47,6 +49,7 @@ export async function runPreview(root?: string) {
   const environment = createLegacyInvocationEnvironment(ctx);
   const executor = createLegacyAppsScriptExecutor(
     ctx,
+    cacheStore,
     propertiesStore,
     driveStore,
     driveIteratorStore,
