@@ -1,3 +1,5 @@
+import type { HtmlXFrameOptionsMode } from "../../runtime";
+
 export type WebAppEndpoint = "dev" | "exec";
 
 export interface WebAppPath {
@@ -29,6 +31,17 @@ export function parseWebAppPath(pathname: string): WebAppPath | null {
     endpoint,
     ...(pathInfo ? { pathInfo } : {}),
   };
+}
+
+export function resolveAppsScriptXFrameOptionsHeader(
+  mode: HtmlXFrameOptionsMode,
+): string | undefined {
+  switch (mode) {
+    case "DEFAULT":
+      return "SAMEORIGIN";
+    case "ALLOWALL":
+      return undefined;
+  }
 }
 
 export async function readRequestBody(source: AsyncIterable<Uint8Array | string>): Promise<string> {

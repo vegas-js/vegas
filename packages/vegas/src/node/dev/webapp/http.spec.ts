@@ -1,6 +1,11 @@
 import { describe, expect, test } from "vitest";
 
-import { createAppsScriptDoPostHttpResponse, parseWebAppPath, readRequestBody } from "./http";
+import {
+  createAppsScriptDoPostHttpResponse,
+  parseWebAppPath,
+  readRequestBody,
+  resolveAppsScriptXFrameOptionsHeader,
+} from "./http";
 
 describe("parseWebAppPath", () => {
   test("parse webapp endpoint", () => {
@@ -17,6 +22,13 @@ describe("parseWebAppPath", () => {
     expect(parseWebAppPath("/device")).toBeNull();
     expect(parseWebAppPath("/developer")).toBeNull();
     expect(parseWebAppPath("/execution")).toBeNull();
+  });
+});
+
+describe("resolveAppsScriptXFrameOptionsHeader", () => {
+  test("resolve HTML X-Frame-Options mode to host header", () => {
+    expect(resolveAppsScriptXFrameOptionsHeader("DEFAULT")).toBe("SAMEORIGIN");
+    expect(resolveAppsScriptXFrameOptionsHeader("ALLOWALL")).toBeUndefined();
   });
 });
 
