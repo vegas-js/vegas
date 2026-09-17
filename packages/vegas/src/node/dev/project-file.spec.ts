@@ -5,12 +5,16 @@ import { describe, expect, test } from "vitest";
 import type { ResolvedProject } from "../project";
 import { classifyProjectFile } from "./project-file";
 
-function createProject(root: string, appType: "spa" | "script" = "spa"): ResolvedProject {
+function createProject(
+  root: string,
+  appType: "spa" | "script" = "spa",
+  serverDir = appType === "script" ? path.join(root, "src") : path.join(root, "src", "server"),
+): ResolvedProject {
   return {
     root,
     configFile: null,
     clientDir: path.join(root, "src", "client"),
-    serverDir: path.join(root, "src", "server"),
+    serverDir,
     runtimeDataDir: path.join(root, "runtime"),
     outputDir: path.join(root, "dist"),
     appType,
@@ -62,7 +66,7 @@ describe("classifyProjectFile", () => {
     expect(classifyProjectFile(project, path.join(project.root, "README.md"))).toBeNull();
   });
 
-  test("classify script fallback Code.ts as server file", () => {
+  test("classify file in default script server directory", () => {
     const project = createProject(path.resolve("project"), "script");
 
     expect(classifyProjectFile(project, path.join(project.root, "src", "Code.ts"))).toBe("server");
@@ -72,5 +76,14 @@ describe("classifyProjectFile", () => {
     const project = createProject(path.resolve("project"), "spa");
 
     expect(classifyProjectFile(project, path.join(project.root, "src", "Code.ts"))).toBeNull();
+  });
+
+  test("respect explicit server directory for script project", () => {
+    const root = path.resolve("project");
+    const serverDir = path.join(root, "server");
+    const project = createProject(root, "script", serverDir);
+
+    expect(classifyProjectFile(project, path.join(serverDir, "Code.ts"))).toBe("server");
+    expect(classifyProjectFile(project, path.join(root, "src", "Code.ts"))).toBeNull();
   });
 });

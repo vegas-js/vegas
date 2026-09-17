@@ -25,12 +25,5 @@ export function classifyProjectFile(
     return "server";
   }
 
-  if (
-    project.appType === "script" &&
-    path.resolve(filePath) === path.resolve(project.root, "src", "Code.ts")
-  ) {
-    return "server";
-  }
-
   return null;
 }

@@ -72,16 +72,7 @@ export function detectServerEntry(plan: BuildPlan): Plugin {
           return fallbackEntry;
         }
 
-        if (plan.appType === "script") {
-          const fallback2 = path.resolve(plan.root, "src", "Code.ts");
-          if (fs.existsSync(fallback2)) {
-            return fallback2;
-          } else {
-            throw new Error("No server entry found. Place Code.ts under srcDir.");
-          }
-        } else {
-          throw new Error("No server entry found. Place Code.ts under serverDir.");
-        }
+        throw new Error("No server entry found. Place Code.ts under serverDir.");
       }
     },
   };

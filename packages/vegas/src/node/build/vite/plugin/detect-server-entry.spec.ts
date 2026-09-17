@@ -12,11 +12,12 @@ function createPlan(
   root: string,
   clientSources: readonly string[],
   serverSources: readonly string[],
+  appType: "spa" | "script" = "spa",
 ): BuildPlan {
   return {
     root,
     outputDir: path.join(root, "dist"),
-    appType: "spa",
+    appType,
     mode: "production",
     plugins: [],
     clientEntries: [],
@@ -134,6 +135,28 @@ describe("detectServerEntry", () => {
       const plan = createPlan(tempDirPath, [clientSource], [serverA, serverB]);
 
       await expect(buildServer(plan)).rejects.toThrow("Duplicate server entry.");
+    } finally {
+      fs.rmSync(tempDirPath, {
+        recursive: true,
+        force: true,
+      });
+    }
+  });
+
+  test("does not fall back outside scanned server sources for script project", async () => {
+    const tempDirPath = fs.mkdtempSync(path.join(os.tmpdir(), "vegas-"));
+
+    try {
+      const staleDefaultEntry = path.join(tempDirPath, "src", "Code.ts");
+
+      fs.mkdirSync(path.dirname(staleDefaultEntry), { recursive: true });
+      fs.writeFileSync(staleDefaultEntry, `export function stale() {}`);
+
+      const plan = createPlan(tempDirPath, [], [], "script");
+
+      await expect(buildServer(plan)).rejects.toThrow(
+        "No server entry found. Place Code.ts under serverDir.",
+      );
     } finally {
       fs.rmSync(tempDirPath, {
         recursive: true,

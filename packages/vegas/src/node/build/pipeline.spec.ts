@@ -9,15 +9,19 @@ import { scanProject, type ResolvedProject } from "../project";
 import { createBuildPlan } from "./plan";
 import { buildApp, createBuilderConfig, isWebApp } from "./vite";
 
-function createProject(root: string): ResolvedProject {
+function createProject(
+  root: string,
+  appType: "spa" | "script" = "spa",
+  serverDir = appType === "script" ? path.join(root, "src") : path.join(root, "src", "server"),
+): ResolvedProject {
   return {
     root,
     configFile: null,
     clientDir: path.join(root, "src", "client"),
-    serverDir: path.join(root, "src", "server"),
+    serverDir,
     runtimeDataDir: path.join(root, "runtime"),
     outputDir: path.join(root, "dist"),
-    appType: "spa",
+    appType,
     plugins: [],
 
     appsScript: {
@@ -85,6 +89,40 @@ describe("build pipeline", () => {
       expect(clientArtifact.content).toContain('<div id="root"></div>');
       expect(clientArtifact.content).toContain("client-ready");
       expect(isWebApp(artifacts)).toBe(true);
+    } finally {
+      fs.rmSync(root, {
+        recursive: true,
+        force: true,
+      });
+    }
+  });
+
+  test("build script artifacts with explicit server directory", async () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), "vegas-"));
+
+    try {
+      const serverDir = path.join(root, "server");
+      const project = createProject(root, "script", serverDir);
+
+      fs.mkdirSync(project.serverDir, { recursive: true });
+
+      fs.writeFileSync(
+        path.join(project.serverDir, "Code.ts"),
+        `
+          function main() {
+            return "hello";
+          }
+        `,
+      );
+
+      const snapshot = await scanProject(project);
+      const plan = createBuildPlan(project, snapshot, "production");
+      const builder = await createBuilder(createBuilderConfig(plan));
+      const artifacts = await buildApp(builder);
+
+      expect(artifacts.some((artifact) => artifact.path === "Code.js")).toBe(true);
+      expect(artifacts.some((artifact) => artifact.path.endsWith(".html"))).toBe(false);
+      expect(isWebApp(artifacts)).toBe(false);
     } finally {
       fs.rmSync(root, {
         recursive: true,
