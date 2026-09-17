@@ -1,3 +1,4 @@
+import type { BlobValue } from "./blob-value";
 import type {
   DriveFileIteratorReference,
   DriveFileReference,
@@ -12,6 +13,17 @@ export type DriveHostCall =
       readonly operation: "get-file";
       readonly id: string;
       readonly resourceKey?: string;
+    }
+  | {
+      readonly service: "drive";
+      readonly operation: "create-file";
+      readonly parent: DriveFolderReference;
+      readonly blob: BlobValue;
+    }
+  | {
+      readonly service: "drive";
+      readonly operation: "get-file-blob";
+      readonly file: DriveFileReference;
     }
   | {
       readonly service: "drive";
@@ -94,7 +106,7 @@ export type DriveHostCall =
     };
 
 export type DriveHostCallResult<C extends DriveHostCall> = C extends {
-  readonly operation: "get-file" | "file-iterator-next";
+  readonly operation: "get-file" | "create-file" | "file-iterator-next";
 }
   ? DriveFileReference
   : C extends {
@@ -119,11 +131,15 @@ export type DriveHostCallResult<C extends DriveHostCall> = C extends {
           }
         ? DriveFolderIteratorReference
         : C extends {
-              readonly operation: "iterator-has-next";
+              readonly operation: "get-file-blob";
             }
-          ? boolean
+          ? BlobValue
           : C extends {
-                readonly operation: "get-folder-name" | "iterator-continuation-token";
+                readonly operation: "iterator-has-next";
               }
-            ? string
-            : never;
+            ? boolean
+            : C extends {
+                  readonly operation: "get-folder-name" | "iterator-continuation-token";
+                }
+              ? string
+              : never;

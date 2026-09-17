@@ -3,6 +3,7 @@ import { describe, expect, test } from "vitest";
 import {
   InMemoryDriveIteratorStore,
   LocalDriveHostHandler,
+  type BlobValue,
   type DriveFileReference,
   type DriveFolderReference,
   type DriveNamespace,
@@ -17,6 +18,15 @@ const USER = { userKey: "user-a" } as const satisfies DriveNamespace;
 
 class RecordingDriveStore implements DriveStore {
   readonly calls: string[] = [];
+
+  async createFile(
+    namespace: DriveNamespace,
+    parent: DriveFolderReference,
+    blob: BlobValue,
+  ): Promise<DriveFileReference> {
+    this.calls.push(`createFile:${namespace.userKey}:${parent.id}:${blob.bytes.length}`);
+    return FILE_A;
+  }
 
   async createFolder(
     namespace: DriveNamespace,
@@ -34,6 +44,16 @@ class RecordingDriveStore implements DriveStore {
   ): Promise<DriveFileReference> {
     this.calls.push(`getFile:${namespace.userKey}:${id}:${resourceKey ?? ""}`);
     return { service: "drive", kind: "file", id, ...(resourceKey ? { resourceKey } : {}) };
+  }
+
+  async getFileBlob(namespace: DriveNamespace, file: DriveFileReference): Promise<BlobValue> {
+    this.calls.push(`getFileBlob:${namespace.userKey}:${file.id}`);
+    return {
+      bytes: [65],
+      contentType: "text/plain",
+      name: "a.txt",
+      googleType: false,
+    };
   }
 
   async getFolder(
@@ -131,6 +151,36 @@ describe("LocalDriveHostHandler", () => {
     ]);
   });
 
+  test("route file creation and BlobValue reads through persistent DriveStore state", async () => {
+    const store = new RecordingDriveStore();
+    const iteratorStore = new InMemoryDriveIteratorStore();
+    const handler = new LocalDriveHostHandler(store, USER, iteratorStore.createSession(USER));
+    const blob = {
+      bytes: [65],
+      contentType: "text/plain",
+      name: "a.txt",
+      googleType: false,
+    } satisfies BlobValue;
+
+    await expect(
+      handler.handle({
+        service: "drive",
+        operation: "create-file",
+        parent: ROOT,
+        blob,
+      }),
+    ).resolves.toStrictEqual(FILE_A);
+    await expect(
+      handler.handle({
+        service: "drive",
+        operation: "get-file-blob",
+        file: FILE_A,
+      }),
+    ).resolves.toStrictEqual(blob);
+
+    expect(store.calls).toStrictEqual(["createFile:user-a:root:1", "getFileBlob:user-a:file-a"]);
+  });
+
   test("route collection operations through invocation-local iterator state", async () => {
     const store = new RecordingDriveStore();
     const iteratorStore = new InMemoryDriveIteratorStore();
@@ -138,7 +188,12 @@ describe("LocalDriveHostHandler", () => {
 
     const files = await handler.handle({ service: "drive", operation: "get-files" });
 
-    if (typeof files === "string" || typeof files === "boolean" || files.kind !== "file-iterator") {
+    if (
+      typeof files === "string" ||
+      typeof files === "boolean" ||
+      !("kind" in files) ||
+      files.kind !== "file-iterator"
+    ) {
       throw new Error("expected file iterator reference");
     }
 
@@ -158,6 +213,7 @@ describe("LocalDriveHostHandler", () => {
     if (
       typeof parents === "string" ||
       typeof parents === "boolean" ||
+      !("kind" in parents) ||
       parents.kind !== "folder-iterator"
     ) {
       throw new Error("expected folder iterator reference");
@@ -176,7 +232,12 @@ describe("LocalDriveHostHandler", () => {
     const firstHandler = new LocalDriveHostHandler(store, USER, iteratorStore.createSession(USER));
     const files = await firstHandler.handle({ service: "drive", operation: "get-files" });
 
-    if (typeof files === "string" || typeof files === "boolean" || files.kind !== "file-iterator") {
+    if (
+      typeof files === "string" ||
+      typeof files === "boolean" ||
+      !("kind" in files) ||
+      files.kind !== "file-iterator"
+    ) {
       throw new Error("expected file iterator reference");
     }
 
@@ -210,6 +271,7 @@ describe("LocalDriveHostHandler", () => {
     if (
       typeof resumed === "string" ||
       typeof resumed === "boolean" ||
+      !("kind" in resumed) ||
       resumed.kind !== "file-iterator"
     ) {
       throw new Error("expected resumed file iterator reference");

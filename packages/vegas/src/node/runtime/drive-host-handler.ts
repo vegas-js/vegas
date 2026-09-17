@@ -28,6 +28,12 @@ export class LocalDriveHostHandler implements DriveHostCallHandler {
       case "get-file": {
         return this.#store.getFile(this.#namespace, call.id, call.resourceKey);
       }
+      case "create-file": {
+        return this.#store.createFile(this.#namespace, call.parent, call.blob);
+      }
+      case "get-file-blob": {
+        return this.#store.getFileBlob(this.#namespace, call.file);
+      }
       case "get-folder": {
         return this.#store.getFolder(this.#namespace, call.id, call.resourceKey);
       }

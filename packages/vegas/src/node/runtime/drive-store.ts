@@ -1,3 +1,4 @@
+import type { BlobValue } from "./blob-value";
 import type { DriveFileReference, DriveFolderReference } from "./drive-reference";
 
 export interface DriveNamespace {
@@ -12,12 +13,18 @@ export interface DriveNamespace {
  * owned separately by DriveIteratorStore.
  */
 export interface DriveStore {
+  createFile(
+    namespace: DriveNamespace,
+    parent: DriveFolderReference,
+    blob: BlobValue,
+  ): Promise<DriveFileReference>;
   createFolder(
     namespace: DriveNamespace,
     parent: DriveFolderReference,
     name: string,
   ): Promise<DriveFolderReference>;
   getFile(namespace: DriveNamespace, id: string, resourceKey?: string): Promise<DriveFileReference>;
+  getFileBlob(namespace: DriveNamespace, file: DriveFileReference): Promise<BlobValue>;
   getFolder(
     namespace: DriveNamespace,
     id: string,

@@ -1,9 +1,10 @@
+import type { BlobValue } from "./blob-value";
 import type { DriveFileReference, DriveFolderReference } from "./drive-reference";
 import type { DriveNamespace, DriveStore } from "./drive-store";
 
 type DriveFileState = {
   readonly reference: DriveFileReference;
-  name: string;
+  readonly blob: BlobValue;
   parentIds: string[];
 };
 
@@ -21,6 +22,15 @@ type DriveState = {
 
 function createNamespaceKey(namespace: DriveNamespace): string {
   return JSON.stringify(["user", namespace.userKey]);
+}
+
+function cloneBlobValue(value: BlobValue): BlobValue {
+  return {
+    bytes: [...value.bytes],
+    contentType: value.contentType,
+    name: value.name,
+    googleType: value.googleType,
+  };
 }
 
 function cloneFile(reference: DriveFileReference): DriveFileReference {
@@ -41,7 +51,31 @@ function matchesResourceKey(
 export class InMemoryDriveStore implements DriveStore {
   readonly #drives = new Map<string, DriveState>();
   #nextRootId = 0;
+  #nextFileId = 0;
   #nextFolderId = 0;
+
+  async createFile(
+    namespace: DriveNamespace,
+    parent: DriveFolderReference,
+    blob: BlobValue,
+  ): Promise<DriveFileReference> {
+    const drive = this.#getOrCreateDrive(namespace);
+    const parentState = this.#getFolderState(drive, parent.id, parent.resourceKey);
+
+    this.#nextFileId += 1;
+    const reference: DriveFileReference = {
+      service: "drive",
+      kind: "file",
+      id: `drive-file:${this.#nextFileId}`,
+    };
+    drive.files.set(reference.id, {
+      reference,
+      blob: cloneBlobValue(blob),
+      parentIds: [parentState.reference.id],
+    });
+
+    return cloneFile(reference);
+  }
 
   async createFolder(
     namespace: DriveNamespace,
@@ -73,6 +107,12 @@ export class InMemoryDriveStore implements DriveStore {
   ): Promise<DriveFileReference> {
     return cloneFile(
       this.#getFileState(this.#getOrCreateDrive(namespace), id, resourceKey).reference,
+    );
+  }
+
+  async getFileBlob(namespace: DriveNamespace, file: DriveFileReference): Promise<BlobValue> {
+    return cloneBlobValue(
+      this.#getFileState(this.#getOrCreateDrive(namespace), file.id, file.resourceKey).blob,
     );
   }
 

@@ -1,3 +1,4 @@
+import { hydrateBlob, serializeBlob, type RuntimeBlob } from "./blob";
 import type { DriveObjectHydrator } from "./drive-hydrator";
 import type {
   DriveFileIteratorReference,
@@ -119,6 +120,16 @@ export class DriveFile {
     this.#hydrator = hydrator;
   }
 
+  getBlob(): RuntimeBlob {
+    return hydrateBlob(
+      this.#bridge.call({
+        service: "drive",
+        operation: "get-file-blob",
+        file: this.#reference,
+      }),
+    );
+  }
+
   getId(): string {
     return this.#reference.id;
   }
@@ -144,6 +155,17 @@ export class DriveFolder {
     this.#bridge = bridge;
     this.#reference = reference;
     this.#hydrator = hydrator;
+  }
+
+  createFile(blob: RuntimeBlob): DriveFile {
+    return this.#hydrator.hydrate(
+      this.#bridge.call({
+        service: "drive",
+        operation: "create-file",
+        parent: this.#reference,
+        blob: serializeBlob(blob),
+      }),
+    );
   }
 
   createFolder(name: string): DriveFolder {
