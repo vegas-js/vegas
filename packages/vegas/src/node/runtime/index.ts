@@ -1,5 +1,6 @@
 export type { DriveHostCall, DriveHostCallResult } from "./drive-host-call";
 export { LocalDriveHostHandler } from "./drive-host-handler";
+export { resolveDriveNamespace } from "./drive-namespace";
 export type { DriveHostCallHandler } from "./drive-host-handler";
 export type { DriveIteratorSession, DriveIteratorStore } from "./drive-iterator-store";
 export type { DriveLiveCapability } from "./drive-live-capability";
@@ -21,7 +22,7 @@ export type {
   DriveObjectReference,
   DriveResourceReference,
 } from "./drive-reference";
-export type { DriveStore } from "./drive-store";
+export type { DriveNamespace, DriveStore } from "./drive-store";
 export type { ExecutionRequest, Executor } from "./executor";
 export { HostDispatcher } from "./host-dispatcher";
 export type { HostCallDispatcher, HostDispatcherOptions } from "./host-dispatcher";
@@ -30,6 +31,7 @@ export type { HostCall, HostCallResult } from "./host-call";
 export type { HostError, HostRequestMessage, HostResponseMessage } from "./host-protocol";
 export { createHostResponse } from "./host-request-handler";
 export { InMemoryDriveIteratorStore } from "./in-memory-drive-iterator-store";
+export { InMemoryDriveStore } from "./in-memory-drive-store";
 export { InMemoryPropertiesStore } from "./in-memory-properties-store";
 export type { InvocationEnvironment } from "./invocation";
 export { createPropertiesService, Properties, PropertiesService } from "./properties-objects";

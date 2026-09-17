@@ -5,6 +5,7 @@ import type {
   DriveFolderReference,
   DriveIteratorReference,
 } from "./drive-reference";
+import type { DriveNamespace } from "./drive-store";
 
 // https://developers.google.com/apps-script/reference/drive/file-iterator
 // https://developers.google.com/apps-script/reference/drive/folder-iterator
@@ -26,5 +27,5 @@ export interface DriveIteratorSession {
  * iterator sessions. Opaque iterator handles never leave their session.
  */
 export interface DriveIteratorStore {
-  createSession(): DriveIteratorSession;
+  createSession(namespace: DriveNamespace): DriveIteratorSession;
 }

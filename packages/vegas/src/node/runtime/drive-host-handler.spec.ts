@@ -5,6 +5,7 @@ import {
   LocalDriveHostHandler,
   type DriveFileReference,
   type DriveFolderReference,
+  type DriveNamespace,
   type DriveStore,
 } from "./index";
 
@@ -12,47 +13,65 @@ const FILE_A = { service: "drive", kind: "file", id: "file-a" } as const;
 const FILE_B = { service: "drive", kind: "file", id: "file-b" } as const;
 const FOLDER_A = { service: "drive", kind: "folder", id: "folder-a" } as const;
 const ROOT = { service: "drive", kind: "folder", id: "root" } as const;
+const USER = { userKey: "user-a" } as const satisfies DriveNamespace;
 
 class RecordingDriveStore implements DriveStore {
   readonly calls: string[] = [];
 
-  async getFile(id: string, resourceKey?: string): Promise<DriveFileReference> {
-    this.calls.push(`getFile:${id}:${resourceKey ?? ""}`);
+  async getFile(
+    namespace: DriveNamespace,
+    id: string,
+    resourceKey?: string,
+  ): Promise<DriveFileReference> {
+    this.calls.push(`getFile:${namespace.userKey}:${id}:${resourceKey ?? ""}`);
     return { service: "drive", kind: "file", id, ...(resourceKey ? { resourceKey } : {}) };
   }
 
-  async getFolder(id: string, resourceKey?: string): Promise<DriveFolderReference> {
-    this.calls.push(`getFolder:${id}:${resourceKey ?? ""}`);
+  async getFolder(
+    namespace: DriveNamespace,
+    id: string,
+    resourceKey?: string,
+  ): Promise<DriveFolderReference> {
+    this.calls.push(`getFolder:${namespace.userKey}:${id}:${resourceKey ?? ""}`);
     return { service: "drive", kind: "folder", id, ...(resourceKey ? { resourceKey } : {}) };
   }
 
-  async getRootFolder(): Promise<DriveFolderReference> {
-    this.calls.push("getRootFolder");
+  async getRootFolder(namespace: DriveNamespace): Promise<DriveFolderReference> {
+    this.calls.push(`getRootFolder:${namespace.userKey}`);
     return ROOT;
   }
 
-  async listFiles(): Promise<readonly DriveFileReference[]> {
-    this.calls.push("listFiles");
+  async listFiles(namespace: DriveNamespace): Promise<readonly DriveFileReference[]> {
+    this.calls.push(`listFiles:${namespace.userKey}`);
     return [FILE_A, FILE_B];
   }
 
-  async listFolders(): Promise<readonly DriveFolderReference[]> {
-    this.calls.push("listFolders");
+  async listFolders(namespace: DriveNamespace): Promise<readonly DriveFolderReference[]> {
+    this.calls.push(`listFolders:${namespace.userKey}`);
     return [FOLDER_A];
   }
 
-  async listFileParents(file: DriveFileReference): Promise<readonly DriveFolderReference[]> {
-    this.calls.push(`listFileParents:${file.id}`);
+  async listFileParents(
+    namespace: DriveNamespace,
+    file: DriveFileReference,
+  ): Promise<readonly DriveFolderReference[]> {
+    this.calls.push(`listFileParents:${namespace.userKey}:${file.id}`);
     return [ROOT];
   }
 
-  async listFolderFiles(folder: DriveFolderReference): Promise<readonly DriveFileReference[]> {
-    this.calls.push(`listFolderFiles:${folder.id}`);
+  async listFolderFiles(
+    namespace: DriveNamespace,
+    folder: DriveFolderReference,
+  ): Promise<readonly DriveFileReference[]> {
+    this.calls.push(`listFolderFiles:${namespace.userKey}:${folder.id}`);
     return [FILE_B];
   }
 
-  async listFolderFolders(folder: DriveFolderReference): Promise<readonly DriveFolderReference[]> {
-    this.calls.push(`listFolderFolders:${folder.id}`);
+  async listFolderFolders(
+    namespace: DriveNamespace,
+    folder: DriveFolderReference,
+  ): Promise<readonly DriveFolderReference[]> {
+    this.calls.push(`listFolderFolders:${namespace.userKey}:${folder.id}`);
     return [FOLDER_A];
   }
 }
@@ -61,7 +80,7 @@ describe("LocalDriveHostHandler", () => {
   test("route resource lookups to persistent DriveStore state", async () => {
     const store = new RecordingDriveStore();
     const iteratorStore = new InMemoryDriveIteratorStore();
-    const handler = new LocalDriveHostHandler(store, iteratorStore.createSession());
+    const handler = new LocalDriveHostHandler(store, USER, iteratorStore.createSession(USER));
 
     await expect(
       handler.handle({
@@ -84,16 +103,16 @@ describe("LocalDriveHostHandler", () => {
     ).resolves.toStrictEqual(ROOT);
 
     expect(store.calls).toStrictEqual([
-      "getFile:file-a:resource-key",
-      "getFolder:folder-a:",
-      "getRootFolder",
+      "getFile:user-a:file-a:resource-key",
+      "getFolder:user-a:folder-a:",
+      "getRootFolder:user-a",
     ]);
   });
 
   test("route collection operations through invocation-local iterator state", async () => {
     const store = new RecordingDriveStore();
     const iteratorStore = new InMemoryDriveIteratorStore();
-    const handler = new LocalDriveHostHandler(store, iteratorStore.createSession());
+    const handler = new LocalDriveHostHandler(store, USER, iteratorStore.createSession(USER));
 
     const files = await handler.handle({ service: "drive", operation: "get-files" });
 
@@ -126,13 +145,13 @@ describe("LocalDriveHostHandler", () => {
       handler.handle({ service: "drive", operation: "folder-iterator-next", iterator: parents }),
     ).resolves.toStrictEqual(ROOT);
 
-    expect(store.calls).toStrictEqual(["listFiles", "listFileParents:file-a"]);
+    expect(store.calls).toStrictEqual(["listFiles:user-a", "listFileParents:user-a:file-a"]);
   });
 
   test("resume only through continuation state in a new invocation session", async () => {
     const store = new RecordingDriveStore();
     const iteratorStore = new InMemoryDriveIteratorStore();
-    const firstHandler = new LocalDriveHostHandler(store, iteratorStore.createSession());
+    const firstHandler = new LocalDriveHostHandler(store, USER, iteratorStore.createSession(USER));
     const files = await firstHandler.handle({ service: "drive", operation: "get-files" });
 
     if (typeof files === "string" || typeof files === "boolean" || files.kind !== "file-iterator") {
@@ -154,7 +173,7 @@ describe("LocalDriveHostHandler", () => {
       throw new Error("expected continuation token");
     }
 
-    const secondHandler = new LocalDriveHostHandler(store, iteratorStore.createSession());
+    const secondHandler = new LocalDriveHostHandler(store, USER, iteratorStore.createSession(USER));
 
     await expect(
       secondHandler.handle({ service: "drive", operation: "iterator-has-next", iterator: files }),

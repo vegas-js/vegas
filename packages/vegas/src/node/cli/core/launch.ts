@@ -4,7 +4,11 @@ import worker from "node:worker_threads";
 import {
   createHostResponse,
   HostDispatcher,
+  LocalDriveHostHandler,
   PropertiesHostHandler,
+  resolveDriveNamespace,
+  type DriveIteratorStore,
+  type DriveStore,
   type Executor,
   type HostRequestMessage,
   type InvocationScope,
@@ -146,12 +150,20 @@ function launchGAS(
 export function createLegacyAppsScriptExecutor(
   ctx: ServeContext,
   propertiesStore: PropertiesStore,
+  driveStore: DriveStore,
+  driveIteratorStore: DriveIteratorStore,
 ): Executor {
   const handler = new GASHandler();
 
   return {
     execute(request) {
+      const driveNamespace = resolveDriveNamespace(request.scope);
       const dispatcher = new HostDispatcher({
+        drive: new LocalDriveHostHandler(
+          driveStore,
+          driveNamespace,
+          driveIteratorStore.createSession(driveNamespace),
+        ),
         properties: new PropertiesHostHandler(propertiesStore, request.scope),
       });
 

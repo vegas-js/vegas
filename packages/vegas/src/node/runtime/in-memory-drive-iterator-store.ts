@@ -6,6 +6,7 @@ import type {
   DriveFolderReference,
   DriveIteratorReference,
 } from "./drive-reference";
+import type { DriveNamespace } from "./drive-store";
 
 type IteratorState<T> = {
   readonly values: readonly T[];
@@ -22,8 +23,13 @@ type ContinuationState =
       readonly state: IteratorState<DriveFolderReference>;
     };
 
-type SaveContinuation = (state: ContinuationState) => string;
-type LoadContinuation = (token: string) => ContinuationState;
+type StoredContinuation = {
+  readonly namespace: DriveNamespace;
+  readonly state: ContinuationState;
+};
+
+type SaveContinuation = (namespace: DriveNamespace, state: ContinuationState) => string;
+type LoadContinuation = (namespace: DriveNamespace, token: string) => ContinuationState;
 
 function cloneFileReference(reference: DriveFileReference): DriveFileReference {
   return { ...reference };
@@ -53,6 +59,7 @@ function cloneFolderState(
 
 class InMemoryDriveIteratorSession implements DriveIteratorSession {
   readonly #sessionId: number;
+  readonly #namespace: DriveNamespace;
   readonly #saveContinuation: SaveContinuation;
   readonly #loadContinuation: LoadContinuation;
   readonly #fileIterators = new Map<string, IteratorState<DriveFileReference>>();
@@ -61,10 +68,12 @@ class InMemoryDriveIteratorSession implements DriveIteratorSession {
 
   constructor(
     sessionId: number,
+    namespace: DriveNamespace,
     saveContinuation: SaveContinuation,
     loadContinuation: LoadContinuation,
   ) {
     this.#sessionId = sessionId;
+    this.#namespace = namespace;
     this.#saveContinuation = saveContinuation;
     this.#loadContinuation = loadContinuation;
   }
@@ -88,7 +97,7 @@ class InMemoryDriveIteratorSession implements DriveIteratorSession {
   }
 
   async continueFileIterator(continuationToken: string): Promise<DriveFileIteratorReference> {
-    const continuation = this.#loadContinuation(continuationToken);
+    const continuation = this.#loadContinuation(this.#namespace, continuationToken);
 
     if (continuation.kind !== "file") {
       throw new Error("Drive continuation token is not for a file iterator.");
@@ -98,7 +107,7 @@ class InMemoryDriveIteratorSession implements DriveIteratorSession {
   }
 
   async continueFolderIterator(continuationToken: string): Promise<DriveFolderIteratorReference> {
-    const continuation = this.#loadContinuation(continuationToken);
+    const continuation = this.#loadContinuation(this.#namespace, continuationToken);
 
     if (continuation.kind !== "folder") {
       throw new Error("Drive continuation token is not for a folder iterator.");
@@ -110,13 +119,13 @@ class InMemoryDriveIteratorSession implements DriveIteratorSession {
   async getContinuationToken(iterator: DriveIteratorReference): Promise<string> {
     switch (iterator.kind) {
       case "file-iterator": {
-        return this.#saveContinuation({
+        return this.#saveContinuation(this.#namespace, {
           kind: "file",
           state: cloneFileState(this.#getFileState(iterator)),
         });
       }
       case "folder-iterator": {
-        return this.#saveContinuation({
+        return this.#saveContinuation(this.#namespace, {
           kind: "folder",
           state: cloneFolderState(this.#getFolderState(iterator)),
         });
@@ -200,36 +209,44 @@ class InMemoryDriveIteratorSession implements DriveIteratorSession {
 }
 
 export class InMemoryDriveIteratorStore implements DriveIteratorStore {
-  readonly #continuations = new Map<string, ContinuationState>();
+  readonly #continuations = new Map<string, StoredContinuation>();
   #nextSessionId = 0;
   #nextTokenId = 0;
 
-  createSession(): DriveIteratorSession {
+  createSession(namespace: DriveNamespace): DriveIteratorSession {
     this.#nextSessionId += 1;
 
     return new InMemoryDriveIteratorSession(
       this.#nextSessionId,
-      (state) => this.#saveContinuation(state),
-      (token) => this.#loadContinuation(token),
+      namespace,
+      (sessionNamespace, state) => this.#saveContinuation(sessionNamespace, state),
+      (sessionNamespace, token) => this.#loadContinuation(sessionNamespace, token),
     );
   }
 
-  #saveContinuation(state: ContinuationState): string {
+  #saveContinuation(namespace: DriveNamespace, state: ContinuationState): string {
     this.#nextTokenId += 1;
     const token = `drive-continuation:${this.#nextTokenId}`;
 
-    this.#continuations.set(token, this.#cloneContinuation(state));
+    this.#continuations.set(token, {
+      namespace: { ...namespace },
+      state: this.#cloneContinuation(state),
+    });
     return token;
   }
 
-  #loadContinuation(token: string): ContinuationState {
-    const state = this.#continuations.get(token);
+  #loadContinuation(namespace: DriveNamespace, token: string): ContinuationState {
+    const continuation = this.#continuations.get(token);
 
-    if (!state) {
+    if (!continuation) {
       throw new Error(`Unknown Drive continuation token: ${token}`);
     }
 
-    return this.#cloneContinuation(state);
+    if (continuation.namespace.userKey !== namespace.userKey) {
+      throw new Error("Drive continuation token is not available in this Drive namespace.");
+    }
+
+    return this.#cloneContinuation(continuation.state);
   }
 
   #cloneContinuation(state: ContinuationState): ContinuationState {
