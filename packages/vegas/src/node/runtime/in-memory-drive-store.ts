@@ -162,6 +162,18 @@ export class InMemoryDriveStore implements DriveStore {
     };
   }
 
+  async moveFile(
+    namespace: DriveNamespace,
+    file: DriveFileReference,
+    destination: DriveFolderReference,
+  ): Promise<void> {
+    const drive = this.#getOrCreateDrive(namespace);
+    const state = this.#getFileState(drive, file.id, file.resourceKey);
+    const destinationState = this.#getFolderState(drive, destination.id, destination.resourceKey);
+
+    state.parentIds = [destinationState.reference.id];
+  }
+
   async getFolder(
     namespace: DriveNamespace,
     id: string,

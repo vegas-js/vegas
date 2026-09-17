@@ -84,6 +84,21 @@ describe("local Drive file resources", () => {
     });
   });
 
+  test("move a file from its old parent to one new parent", async () => {
+    const store = new InMemoryDriveStore();
+    const root = await store.getRootFolder(USER_A);
+    const source = await store.createFolder(USER_A, root, "source");
+    const destination = await store.createFolder(USER_A, root, "destination");
+    const file = await store.createFile(USER_A, source, createBlobValue());
+
+    await store.moveFile(USER_A, file, destination);
+
+    await expect(store.listFolderFiles(USER_A, source)).resolves.toStrictEqual([]);
+    await expect(store.listFolderFiles(USER_A, destination)).resolves.toStrictEqual([file]);
+    await expect(store.listFileParents(USER_A, file)).resolves.toStrictEqual([destination]);
+    await expect(store.getFileBlob(USER_A, file)).resolves.toStrictEqual(createBlobValue());
+  });
+
   test("return BlobValue copies instead of exposing persistent byte state", async () => {
     const store = new InMemoryDriveStore();
     const root = await store.getRootFolder(USER_A);
@@ -115,6 +130,13 @@ describe("local Drive file resources", () => {
     await expect(store.setFileName(USER_B, file, "invalid.txt")).rejects.toThrow(
       `Unknown local Drive file: ${file.id}`,
     );
+
+    const userBRoot = await store.getRootFolder(USER_B);
+
+    await expect(store.moveFile(USER_A, file, userBRoot)).rejects.toThrow(
+      `Unknown local Drive folder: ${userBRoot.id}`,
+    );
+    await expect(store.listFileParents(USER_A, file)).resolves.toStrictEqual([root]);
     await expect(store.createFile(USER_B, root, createBlobValue())).rejects.toThrow(
       `Unknown local Drive folder: ${root.id}`,
     );

@@ -84,6 +84,14 @@ class RecordingDriveStore implements DriveStore {
     this.calls.push(`setFileName:${namespace.userKey}:${file.id}:${name}`);
   }
 
+  async moveFile(
+    namespace: DriveNamespace,
+    file: DriveFileReference,
+    destination: DriveFolderReference,
+  ): Promise<void> {
+    this.calls.push(`moveFile:${namespace.userKey}:${file.id}:${destination.id}`);
+  }
+
   async getFolder(
     namespace: DriveNamespace,
     id: string,

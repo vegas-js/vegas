@@ -37,6 +37,11 @@ export interface DriveStore {
     bytes: readonly number[],
   ): Promise<void>;
   setFileName(namespace: DriveNamespace, file: DriveFileReference, name: string): Promise<void>;
+  moveFile(
+    namespace: DriveNamespace,
+    file: DriveFileReference,
+    destination: DriveFolderReference,
+  ): Promise<void>;
   getFolder(
     namespace: DriveNamespace,
     id: string,

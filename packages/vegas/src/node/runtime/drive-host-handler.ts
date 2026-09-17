@@ -68,6 +68,10 @@ export class LocalDriveHostHandler implements DriveHostCallHandler {
         await this.#store.setFileName(this.#namespace, call.file, call.name);
         return;
       }
+      case "move-file": {
+        await this.#store.moveFile(this.#namespace, call.file, call.destination);
+        return;
+      }
       case "get-folder": {
         return this.#store.getFolder(this.#namespace, call.id, call.resourceKey);
       }

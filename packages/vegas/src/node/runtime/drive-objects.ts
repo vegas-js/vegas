@@ -8,6 +8,26 @@ import type {
 } from "./drive-reference";
 import type { HostBridge } from "./host-bridge";
 
+type DriveFolderIdentity = {
+  readonly bridge: HostBridge;
+  readonly reference: DriveFolderReference;
+};
+
+const driveFolderIdentities = new WeakMap<DriveFolder, DriveFolderIdentity>();
+
+function resolveDriveFolderReference(
+  bridge: HostBridge,
+  folder: DriveFolder,
+): DriveFolderReference {
+  const identity = driveFolderIdentities.get(folder);
+
+  if (!identity || identity.bridge !== bridge) {
+    throw new Error("Drive folder does not belong to this Runtime Drive.");
+  }
+
+  return { ...identity.reference };
+}
+
 // https://developers.google.com/apps-script/reference/drive/drive-app
 export class DriveApp {
   readonly #bridge: HostBridge;
@@ -160,6 +180,16 @@ export class DriveFile {
     );
   }
 
+  moveTo(destination: DriveFolder): DriveFile {
+    this.#bridge.call({
+      service: "drive",
+      operation: "move-file",
+      file: this.#reference,
+      destination: resolveDriveFolderReference(this.#bridge, destination),
+    });
+    return this;
+  }
+
   setContent(content: string): DriveFile {
     this.#bridge.call({
       service: "drive",
@@ -191,6 +221,10 @@ export class DriveFolder {
     this.#bridge = bridge;
     this.#reference = reference;
     this.#hydrator = hydrator;
+    driveFolderIdentities.set(this, {
+      bridge,
+      reference: { ...reference },
+    });
   }
 
   createFile(blob: RuntimeBlob): DriveFile {

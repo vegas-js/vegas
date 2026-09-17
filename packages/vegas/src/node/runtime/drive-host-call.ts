@@ -49,6 +49,12 @@ export type DriveHostCall =
     }
   | {
       readonly service: "drive";
+      readonly operation: "move-file";
+      readonly file: DriveFileReference;
+      readonly destination: DriveFolderReference;
+    }
+  | {
+      readonly service: "drive";
       readonly operation: "get-folder";
       readonly id: string;
       readonly resourceKey?: string;
@@ -161,7 +167,7 @@ export type DriveHostCallResult<C extends DriveHostCall> = C extends {
               }
             ? boolean
             : C extends {
-                  readonly operation: "set-file-content" | "set-file-name";
+                  readonly operation: "set-file-content" | "set-file-name" | "move-file";
                 }
               ? void
               : C extends {
