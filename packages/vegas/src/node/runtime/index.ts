@@ -1,4 +1,8 @@
 export type { DriveHostCall, DriveHostCallResult } from "./drive-host-call";
+export { LocalDriveHostHandler } from "./drive-host-handler";
+export type { DriveHostCallHandler } from "./drive-host-handler";
+export type { DriveIteratorSession, DriveIteratorStore } from "./drive-iterator-store";
+export type { DriveLiveCapability } from "./drive-live-capability";
 export { createDriveApp, createDriveObjectHydrator } from "./drive-object-hydrator";
 export type { DriveObjectHydrator, HydratedDriveObject } from "./drive-hydrator";
 export {
@@ -17,10 +21,12 @@ export type {
   DriveObjectReference,
   DriveResourceReference,
 } from "./drive-reference";
+export type { DriveStore } from "./drive-store";
 export type { ExecutionRequest, Executor } from "./executor";
 export type { HostBridge } from "./host-bridge";
 export type { HostCall, HostCallResult } from "./host-call";
 export type { HostError, HostRequestMessage, HostResponseMessage } from "./host-protocol";
+export { InMemoryDriveIteratorStore } from "./in-memory-drive-iterator-store";
 export { InMemoryPropertiesStore } from "./in-memory-properties-store";
 export type { InvocationEnvironment } from "./invocation";
 export type {
