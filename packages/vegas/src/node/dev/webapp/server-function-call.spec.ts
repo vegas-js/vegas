@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import type { InvocationEnvironment, Program } from "../../runtime";
+import type { InvocationEnvironment, InvocationScope, Program } from "../../runtime";
 import { executeServerFunctionCall } from "./server-function-call";
 
 const program: Program = {
@@ -15,6 +15,11 @@ const environment: InvocationEnvironment = {
   temporaryActiveUserKey: "temporary-user-key",
 };
 
+const scope: InvocationScope = {
+  scriptKey: "/project",
+  userKey: "local-user",
+};
+
 describe("executeServerFunctionCall", () => {
   test("return successful response", async () => {
     const response = await executeServerFunctionCall(
@@ -25,6 +30,7 @@ describe("executeServerFunctionCall", () => {
             functionName: "hello",
             args: ["world"],
             environment,
+            scope,
           });
 
           return "result";
@@ -37,6 +43,7 @@ describe("executeServerFunctionCall", () => {
       },
       program,
       environment,
+      scope,
     );
 
     expect(response).toStrictEqual({
@@ -60,6 +67,7 @@ describe("executeServerFunctionCall", () => {
       },
       program,
       environment,
+      scope,
     );
 
     expect(response).toStrictEqual({

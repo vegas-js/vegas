@@ -2,13 +2,14 @@ import type {
   ServerFunctionCallRequest,
   ServerFunctionCallResponse,
 } from "../../../shared/webapp-protocol";
-import type { Executor, InvocationEnvironment, Program } from "../../runtime";
+import type { Executor, InvocationEnvironment, InvocationScope, Program } from "../../runtime";
 
 export async function executeServerFunctionCall(
   executor: Executor,
   request: ServerFunctionCallRequest,
   program: Program,
   environment: InvocationEnvironment,
+  scope: InvocationScope,
 ): Promise<ServerFunctionCallResponse> {
   try {
     const result = await executor.execute({
@@ -16,6 +17,7 @@ export async function executeServerFunctionCall(
       functionName: request.functionName,
       args: request.args,
       environment,
+      scope,
     });
 
     return {

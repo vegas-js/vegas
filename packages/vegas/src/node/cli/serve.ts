@@ -6,6 +6,7 @@ import { createServeContext } from "./core/context";
 import { createLegacyAppsScriptExecutor } from "./core/launch";
 import { loadRuntimeData } from "./core/runtime-data";
 import { createLegacyInvocationEnvironment } from "./core/runtime-environment";
+import { createLegacyInvocationScope } from "./core/runtime-scope";
 
 export async function runServe(root?: string) {
   const project = await loadProject({
@@ -35,6 +36,7 @@ export async function runServe(root?: string) {
   await loadRuntimeData(ctx, snapshot.runtimeDataSources);
 
   const environment = createLegacyInvocationEnvironment(ctx);
+  const scope = createLegacyInvocationScope(ctx);
   const executor = createLegacyAppsScriptExecutor(ctx);
 
   const application = new DevApplication({
@@ -43,6 +45,7 @@ export async function runServe(root?: string) {
     builder,
     executor,
     environment,
+    scope,
     mode: "development",
   });
 

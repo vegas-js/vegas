@@ -6,7 +6,7 @@ import type { ServerFunctionCallRequest } from "../../shared/webapp-protocol";
 import { type ArtifactStore, buildApp } from "../build";
 import { HtmlDocument } from "../html";
 import type { ResolvedProject } from "../project";
-import type { Executor, InvocationEnvironment } from "../runtime";
+import type { Executor, InvocationEnvironment, InvocationScope } from "../runtime";
 import { BuildCoordinator } from "./build-coordinator";
 import { buildDevTopology } from "./build-topology";
 import { classifyProjectFile } from "./project-file";
@@ -28,6 +28,7 @@ interface DevApplicationOptions {
   readonly builder: ViteBuilder;
   readonly executor: Executor;
   readonly environment: InvocationEnvironment;
+  readonly scope: InvocationScope;
   readonly mode: "development" | "production";
 }
 
@@ -36,6 +37,7 @@ export class DevApplication {
   readonly #artifacts: ArtifactStore;
   readonly #executor: Executor;
   readonly #environment: InvocationEnvironment;
+  readonly #scope: InvocationScope;
   readonly #mode: "development" | "production";
   #builder: ViteBuilder;
 
@@ -44,6 +46,7 @@ export class DevApplication {
     this.#artifacts = options.artifacts;
     this.#executor = options.executor;
     this.#environment = options.environment;
+    this.#scope = options.scope;
     this.#mode = options.mode;
     this.#builder = options.builder;
   }
@@ -194,6 +197,7 @@ export class DevApplication {
           data,
           program,
           this.#environment,
+          this.#scope,
         );
 
         client.send("vegas:return", response);
@@ -227,6 +231,7 @@ export class DevApplication {
                 functionName: "doGet",
                 args: [doGetEvent],
                 environment: this.#environment,
+                scope: this.#scope,
               })) as AppsScriptDoGetResult;
 
               const sessionId = sessions.issue();
@@ -259,7 +264,9 @@ export class DevApplication {
                 functionName: "doPost",
                 args: [doPostEvent],
                 environment: this.#environment,
+                scope: this.#scope,
               })) as AppsScriptDoPostResult;
+
               const httpResponse = createAppsScriptDoPostHttpResponse(result);
 
               response.statusCode = 200;
