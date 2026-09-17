@@ -1,4 +1,10 @@
 import type {
+  DriveFile,
+  DriveFileIterator,
+  DriveFolder,
+  DriveFolderIterator,
+} from "./drive-objects";
+import type {
   DriveFileIteratorReference,
   DriveFileReference,
   DriveFolderIteratorReference,
@@ -6,16 +12,15 @@ import type {
   DriveObjectReference,
 } from "./drive-reference";
 
-export type HydratedDriveObject<R extends DriveObjectReference> =
-  R extends DriveFileReference
-    ? GoogleAppsScript.Drive.File
-    : R extends DriveFolderReference
-      ? GoogleAppsScript.Drive.Folder
-      : R extends DriveFileIteratorReference
-        ? GoogleAppsScript.Drive.FileIterator
-        : R extends DriveFolderIteratorReference
-          ? GoogleAppsScript.Drive.FolderIterator
-          : never;
+export type HydratedDriveObject<R extends DriveObjectReference> = R extends DriveFileReference
+  ? DriveFile
+  : R extends DriveFolderReference
+    ? DriveFolder
+    : R extends DriveFileIteratorReference
+      ? DriveFileIterator
+      : R extends DriveFolderIteratorReference
+        ? DriveFolderIterator
+        : never;
 
 /**
  * Reconstructs Apps Script public objects from plain host references.
@@ -24,5 +29,8 @@ export type HydratedDriveObject<R extends DriveObjectReference> =
  * at the host bridge boundary.
  */
 export interface DriveObjectHydrator {
-  hydrate<R extends DriveObjectReference>(reference: R): HydratedDriveObject<R>;
+  hydrate(reference: DriveFileReference): DriveFile;
+  hydrate(reference: DriveFolderReference): DriveFolder;
+  hydrate(reference: DriveFileIteratorReference): DriveFileIterator;
+  hydrate(reference: DriveFolderIteratorReference): DriveFolderIterator;
 }

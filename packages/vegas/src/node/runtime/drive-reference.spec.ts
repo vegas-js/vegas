@@ -1,8 +1,12 @@
 import { describe, expect, expectTypeOf, test } from "vitest";
 
 import type {
+  DriveFile,
+  DriveFileIterator,
   DriveFileIteratorReference,
   DriveFileReference,
+  DriveFolder,
+  DriveFolderIterator,
   DriveFolderIteratorReference,
   DriveFolderReference,
   DriveObjectHydrator,
@@ -63,19 +67,15 @@ describe("Drive object references", () => {
     expect("continuationToken" in folderIterator).toBe(false);
   });
 
-  test("map each reference kind to its Apps Script public object contract", () => {
-    expectTypeOf<HydratedDriveObject<DriveFileReference>>().toEqualTypeOf<
-      GoogleAppsScript.Drive.File
-    >();
-    expectTypeOf<HydratedDriveObject<DriveFolderReference>>().toEqualTypeOf<
-      GoogleAppsScript.Drive.Folder
-    >();
-    expectTypeOf<HydratedDriveObject<DriveFileIteratorReference>>().toEqualTypeOf<
-      GoogleAppsScript.Drive.FileIterator
-    >();
-    expectTypeOf<HydratedDriveObject<DriveFolderIteratorReference>>().toEqualTypeOf<
-      GoogleAppsScript.Drive.FolderIterator
-    >();
+  test("map each reference kind to its Runtime public object Class", () => {
+    expectTypeOf<HydratedDriveObject<DriveFileReference>>().toEqualTypeOf<DriveFile>();
+    expectTypeOf<HydratedDriveObject<DriveFolderReference>>().toEqualTypeOf<DriveFolder>();
+    expectTypeOf<
+      HydratedDriveObject<DriveFileIteratorReference>
+    >().toEqualTypeOf<DriveFileIterator>();
+    expectTypeOf<
+      HydratedDriveObject<DriveFolderIteratorReference>
+    >().toEqualTypeOf<DriveFolderIterator>();
 
     expectTypeOf<DriveObjectHydrator["hydrate"]>().toBeFunction();
   });
