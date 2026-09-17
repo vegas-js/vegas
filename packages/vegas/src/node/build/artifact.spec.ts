@@ -27,6 +27,33 @@ describe("ArtifactStore", () => {
     expect(store.readText("Code.js")).toBe("second");
   });
 
+  test("list a snapshot of paths in scope", () => {
+    const store = new ArtifactStore();
+    store.replaceScope("client", [
+      {
+        path: "index.html",
+        content: "index",
+      },
+      {
+        path: "admin.html",
+        content: "admin",
+      },
+    ]);
+
+    const paths = store.listPaths("client");
+
+    store.replaceScope("client", [
+      {
+        path: "next.html",
+        content: "next",
+      },
+    ]);
+
+    expect(paths).toStrictEqual(["index.html", "admin.html"]);
+    expect(store.listPaths("client")).toStrictEqual(["next.html"]);
+    expect(store.listPaths("missing")).toStrictEqual([]);
+  });
+
   test("replace artifacts in scope", () => {
     const store = new ArtifactStore();
     store.replaceScope("client", [

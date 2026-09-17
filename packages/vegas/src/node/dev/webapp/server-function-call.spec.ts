@@ -5,6 +5,7 @@ import { executeServerFunctionCall } from "./server-function-call";
 
 const program: Program = {
   source: "function hello() {}",
+  htmlFiles: {},
 };
 
 const environment: InvocationEnvironment = {

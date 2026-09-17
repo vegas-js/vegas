@@ -131,6 +131,10 @@ export class ArtifactStore {
     }
   }
 
+  listPaths(scope: string): readonly string[] {
+    return Array.from(this.#scopePaths.get(scope) ?? []);
+  }
+
   readText(path: string): string {
     const content = this.#artifacts.get(path);
 
