@@ -1,6 +1,7 @@
 import { describe, expect, expectTypeOf, test } from "vitest";
 
 import {
+  createBlob,
   createDriveApp,
   DriveApp,
   DriveFile,
@@ -57,6 +58,20 @@ function createBridge() {
           service: "drive",
           kind: "folder",
           id: "root",
+        };
+      }
+      case "create-file": {
+        return {
+          service: "drive",
+          kind: "file",
+          id: "created-file",
+        };
+      }
+      case "create-folder": {
+        return {
+          service: "drive",
+          kind: "folder",
+          id: "created-folder",
         };
       }
       case "get-files":
@@ -203,6 +218,55 @@ describe("Drive Runtime objects", () => {
         service: "drive",
         operation: "continue-folder-iterator",
         continuationToken: "folder-token",
+      },
+    ]);
+  });
+
+  test("create root resources through the existing root Folder path", () => {
+    const bridge = createBridge();
+    const drive = createDriveApp(bridge);
+    const blob = createBlob("hello", "text/plain", "hello.txt");
+
+    const file = drive.createFile(blob);
+    const folder = drive.createFolder("child");
+
+    expect(file).toBeInstanceOf(DriveFile);
+    expect(file.getId()).toBe("created-file");
+    expect(folder).toBeInstanceOf(DriveFolder);
+    expect(folder.getId()).toBe("created-folder");
+    expect(bridge.calls).toStrictEqual([
+      {
+        service: "drive",
+        operation: "get-root-folder",
+      },
+      {
+        service: "drive",
+        operation: "create-file",
+        parent: {
+          service: "drive",
+          kind: "folder",
+          id: "root",
+        },
+        blob: {
+          bytes: [104, 101, 108, 108, 111],
+          contentType: "text/plain",
+          name: "hello.txt",
+          googleType: false,
+        },
+      },
+      {
+        service: "drive",
+        operation: "get-root-folder",
+      },
+      {
+        service: "drive",
+        operation: "create-folder",
+        parent: {
+          service: "drive",
+          kind: "folder",
+          id: "root",
+        },
+        name: "child",
       },
     ]);
   });

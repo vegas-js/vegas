@@ -38,6 +38,14 @@ export class DriveApp {
     this.#hydrator = hydrator;
   }
 
+  createFile(blob: RuntimeBlob): DriveFile {
+    return this.getRootFolder().createFile(blob);
+  }
+
+  createFolder(name: string): DriveFolder {
+    return this.getRootFolder().createFolder(name);
+  }
+
   continueFileIterator(continuationToken: string): DriveFileIterator {
     return this.#hydrator.hydrate(
       this.#bridge.call({
