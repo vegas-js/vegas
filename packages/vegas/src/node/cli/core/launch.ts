@@ -1,7 +1,7 @@
 import path from "node:path";
 import worker from "node:worker_threads";
 
-import type { GasExecutor } from "../../runtime";
+import type { Executor } from "../../runtime";
 import type { ServeContext } from "./context";
 import {
   HtmlServiceHandler,
@@ -87,7 +87,7 @@ function launchGAS(ctx: ServeContext, fn: string, ...args: any[]): Promise<any> 
   });
 }
 
-export function createLegacyGasExecutor(ctx: ServeContext): GasExecutor {
+export function createLegacyAppsScriptExecutor(ctx: ServeContext): Executor {
   return {
     execute(request) {
       return launchGAS(ctx, request.functionName, ...request.args);

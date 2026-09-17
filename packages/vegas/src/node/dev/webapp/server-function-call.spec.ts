@@ -1,6 +1,15 @@
 import { describe, expect, test } from "vitest";
 
+import type { InvocationEnvironment } from "../../runtime";
 import { executeServerFunctionCall } from "./server-function-call";
+
+const environment: InvocationEnvironment = {
+  activeUserEmail: "active@example.com",
+  activeUserLocale: "ja",
+  effectiveUserEmail: "effective@example.com",
+  scriptTimeZone: "Asia/Tokyo",
+  temporaryActiveUserKey: "temporary-user-key",
+};
 
 describe("executeServerFunctionCall", () => {
   test("return successful response", async () => {
@@ -10,6 +19,7 @@ describe("executeServerFunctionCall", () => {
           expect(request).toStrictEqual({
             functionName: "hello",
             args: ["world"],
+            environment,
           });
 
           return "result";
@@ -20,6 +30,7 @@ describe("executeServerFunctionCall", () => {
         functionName: "hello",
         args: ["world"],
       },
+      environment,
     );
 
     expect(response).toStrictEqual({
@@ -41,6 +52,7 @@ describe("executeServerFunctionCall", () => {
         functionName: "hello",
         args: [],
       },
+      environment,
     );
 
     expect(response).toStrictEqual({

@@ -6,12 +6,12 @@ import type { ServerFunctionCallRequest } from "../../shared/webapp-protocol";
 import { type ArtifactStore, buildApp } from "../build";
 import { HtmlDocument } from "../html";
 import type { ResolvedProject } from "../project";
-import type { GasExecutor } from "../runtime";
+import type { Executor, InvocationEnvironment } from "../runtime";
 import { BuildCoordinator } from "./build-coordinator";
 import { buildDevTopology } from "./build-topology";
 import { classifyProjectFile } from "./project-file";
 import { createAppsScriptDoGetEvent, createAppsScriptDoPostEvent } from "./webapp/event";
-import { createHostHtml } from "./webapp/host-html";
+import { createHostHtml, type AppsScriptDoGetResult } from "./webapp/host-html";
 import {
   createAppsScriptDoPostHttpResponse,
   parseWebAppPath,
@@ -25,14 +25,16 @@ interface DevApplicationOptions {
   readonly project: ResolvedProject;
   readonly artifacts: ArtifactStore;
   readonly builder: ViteBuilder;
-  readonly executor: GasExecutor;
+  readonly executor: Executor;
+  readonly environment: InvocationEnvironment;
   readonly mode: "development" | "production";
 }
 
 export class DevApplication {
   readonly #project: ResolvedProject;
   readonly #artifacts: ArtifactStore;
-  readonly #executor: GasExecutor;
+  readonly #executor: Executor;
+  readonly #environment: InvocationEnvironment;
   readonly #mode: "development" | "production";
   #builder: ViteBuilder;
 
@@ -40,6 +42,7 @@ export class DevApplication {
     this.#project = options.project;
     this.#artifacts = options.artifacts;
     this.#executor = options.executor;
+    this.#environment = options.environment;
     this.#mode = options.mode;
     this.#builder = options.builder;
   }
@@ -183,7 +186,7 @@ export class DevApplication {
       async (data: ServerFunctionCallRequest, client) => {
         await builds.waitForIdle();
 
-        const response = await executeServerFunctionCall(this.#executor, data);
+        const response = await executeServerFunctionCall(this.#executor, data, this.#environment);
 
         client.send("vegas:return", response);
       },
@@ -209,10 +212,11 @@ export class DevApplication {
             if (request.method === "GET") {
               const doGetEvent = createAppsScriptDoGetEvent(url);
 
-              const result = await this.#executor.execute({
+              const result = (await this.#executor.execute({
                 functionName: "doGet",
                 args: [doGetEvent],
-              });
+                environment: this.#environment,
+              })) as AppsScriptDoGetResult;
 
               const sessionId = sessions.issue();
 
@@ -240,6 +244,7 @@ export class DevApplication {
               const result = (await this.#executor.execute({
                 functionName: "doPost",
                 args: [doPostEvent],
+                environment: this.#environment,
               })) as AppsScriptDoPostResult;
               const httpResponse = createAppsScriptDoPostHttpResponse(result);
 

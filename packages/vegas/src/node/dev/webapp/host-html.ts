@@ -1,11 +1,22 @@
 import { HtmlDocument } from "../../html";
 import { serializeInlineScriptValue } from "./inline-script";
 
-export function createHostHtml(url: URL, result: any, sessionId: string) {
+export interface AppsScriptDoGetResult {
+  readonly metaTags: readonly {
+    readonly name: string;
+    readonly content: string;
+  }[];
+  readonly title: string;
+  readonly faviconUrl: string;
+  readonly content: string;
+  readonly xFrameOptionsMode?: string;
+}
+
+export function createHostHtml(url: URL, result: AppsScriptDoGetResult, sessionId: string) {
   const html = new HtmlDocument();
 
   if (result.metaTags.length > 0) {
-    (result.metaTags as { name: string; content: string }[]).forEach((metaTag) => {
+    result.metaTags.forEach((metaTag) => {
       html.appendToHead("meta", {
         attributes: {
           name: metaTag.name,

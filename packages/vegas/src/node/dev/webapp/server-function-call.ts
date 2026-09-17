@@ -2,16 +2,18 @@ import type {
   ServerFunctionCallRequest,
   ServerFunctionCallResponse,
 } from "../../../shared/webapp-protocol";
-import type { GasExecutor } from "../../runtime";
+import type { Executor, InvocationEnvironment } from "../../runtime";
 
 export async function executeServerFunctionCall(
-  executor: GasExecutor,
+  executor: Executor,
   request: ServerFunctionCallRequest,
+  environment: InvocationEnvironment,
 ): Promise<ServerFunctionCallResponse> {
   try {
     const result = await executor.execute({
       functionName: request.functionName,
       args: request.args,
+      environment,
     });
 
     return {

@@ -3,8 +3,9 @@ import { DevApplication } from "../dev/application";
 import { buildDevTopology } from "../dev/build-topology";
 import { loadProject } from "../project";
 import { createServeContext } from "./core/context";
-import { createLegacyGasExecutor } from "./core/launch";
+import { createLegacyAppsScriptExecutor } from "./core/launch";
 import { loadRuntimeData } from "./core/runtime-data";
+import { createLegacyInvocationEnvironment } from "./core/runtime-environment";
 
 export async function runPreview(root?: string) {
   const project = await loadProject({
@@ -31,13 +32,15 @@ export async function runPreview(root?: string) {
   const ctx = createServeContext(project, artifacts);
   await loadRuntimeData(ctx, snapshot.runtimeDataSources);
 
-  const executor = createLegacyGasExecutor(ctx);
+  const environment = createLegacyInvocationEnvironment(ctx);
+  const executor = createLegacyAppsScriptExecutor(ctx);
 
   const application = new DevApplication({
     project,
     artifacts,
     builder,
     executor,
+    environment,
     mode: "production",
   });
 
