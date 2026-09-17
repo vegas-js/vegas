@@ -1,4 +1,7 @@
-import { CreateFile, CreateFolder, RequestSync } from "../..";
+import type { RequestSync } from "../..";
+
+type CreateFile = () => GoogleAppsScript.Drive.File;
+type CreateFolder = () => GoogleAppsScript.Drive.Folder;
 
 // https://developers.google.com/apps-script/reference/drive/drive-app
 export class DriveApp implements GoogleAppsScript.Drive.DriveApp {

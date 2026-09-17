@@ -23,12 +23,17 @@ export type {
 } from "./drive-reference";
 export type { DriveStore } from "./drive-store";
 export type { ExecutionRequest, Executor } from "./executor";
+export { HostDispatcher } from "./host-dispatcher";
+export type { HostCallDispatcher, HostDispatcherOptions } from "./host-dispatcher";
 export type { HostBridge } from "./host-bridge";
 export type { HostCall, HostCallResult } from "./host-call";
 export type { HostError, HostRequestMessage, HostResponseMessage } from "./host-protocol";
+export { createHostResponse } from "./host-request-handler";
 export { InMemoryDriveIteratorStore } from "./in-memory-drive-iterator-store";
 export { InMemoryPropertiesStore } from "./in-memory-properties-store";
 export type { InvocationEnvironment } from "./invocation";
+export { PropertiesHostHandler } from "./properties-host-handler";
+export type { PropertiesHostCallHandler } from "./properties-host-handler";
 export type {
   PropertiesHostCall,
   PropertiesHostCallResult,

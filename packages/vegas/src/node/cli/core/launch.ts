@@ -1,7 +1,15 @@
 import path from "node:path";
 import worker from "node:worker_threads";
 
-import type { Executor, InvocationScope, PropertiesStore } from "../../runtime";
+import {
+  createHostResponse,
+  HostDispatcher,
+  PropertiesHostHandler,
+  type Executor,
+  type HostRequestMessage,
+  type InvocationScope,
+  type PropertiesStore,
+} from "../../runtime";
 import type { ServeContext } from "./context";
 import {
   HtmlServiceHandler,
@@ -50,9 +58,35 @@ class GASHandler {
   }
 }
 
+function isHostRequestMessage(value: unknown): value is HostRequestMessage {
+  if (typeof value !== "object" || value === null) {
+    return false;
+  }
+
+  const request = value as {
+    id?: unknown;
+    call?: unknown;
+  };
+
+  if (typeof request.id !== "number" || typeof request.call !== "object" || request.call === null) {
+    return false;
+  }
+
+  const call = request.call as {
+    service?: unknown;
+    operation?: unknown;
+  };
+
+  return (
+    (call.service === "drive" || call.service === "properties") &&
+    typeof call.operation === "string"
+  );
+}
+
 function launchGAS(
   ctx: ServeContext,
   handler: GASHandler,
+  dispatcher: HostDispatcher,
   invocationScope: InvocationScope,
   source: string,
   fn: string,
@@ -78,6 +112,16 @@ function launchGAS(
     });
 
     port1.on("message", async (data) => {
+      if (isHostRequestMessage(data)) {
+        try {
+          port1.postMessage(await createHostResponse(dispatcher, data));
+        } finally {
+          Atomics.store(sharedArray, 0, 0);
+          Atomics.notify(sharedArray, 0);
+        }
+        return;
+      }
+
       if (data.message === "resolve") {
         port1.close();
         resolve(data.payload);
@@ -109,9 +153,14 @@ export function createLegacyAppsScriptExecutor(
 
   return {
     execute(request) {
+      const dispatcher = new HostDispatcher({
+        properties: new PropertiesHostHandler(propertiesStore, request.scope),
+      });
+
       return launchGAS(
         ctx,
         handler,
+        dispatcher,
         request.scope,
         request.program.source,
         request.functionName,

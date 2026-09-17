@@ -1,14 +1,14 @@
 import vm from "node:vm";
 import worker from "node:worker_threads";
 
+import { createDriveApp } from "../runtime/drive-object-hydrator";
+import { createWorkerHostBridge } from "../runtime/worker-host-bridge";
+
 import { Console } from "./api/base/console";
 import { Logger } from "./api/base/Logger";
 import { Session } from "./api/base/Session";
 import { Cache } from "./api/cache/Cache";
 import { CacheService } from "./api/cache/CacheService";
-import { DriveApp } from "./api/drive/DriveApp";
-import { File } from "./api/drive/File";
-import { Folder } from "./api/drive/Folder";
 import { HtmlOutput } from "./api/html/HtmlOutput";
 import { HtmlService } from "./api/html/HtmlService";
 import { HtmlTemplate } from "./api/html/HtmlTemplate";
@@ -36,9 +36,13 @@ const Scope = {
 
 export type Scope = (typeof Scope)[keyof typeof Scope];
 
+const sharedArray: Int32Array = worker.workerData.sharedArray;
+const port: worker.MessagePort = worker.workerData.port;
+const hostBridge = createWorkerHostBridge(port, sharedArray);
+
 function requestSync(request: { message: string; payload?: any }, timeout?: number) {
-  port.postMessage(request);
   Atomics.store(sharedArray, 0, 1);
+  port.postMessage(request);
   Atomics.wait(sharedArray, 0, 1, timeout);
   const received = worker.receiveMessageOnPort(port);
 
@@ -81,16 +85,6 @@ function createHtmlTemplate(content: string): GoogleAppsScript.HTML.HtmlTemplate
 }
 export type CreateHtmlTemplate = typeof createHtmlTemplate;
 
-function createFolder(): GoogleAppsScript.Drive.Folder {
-  return new Folder();
-}
-export type CreateFolder = typeof createFolder;
-
-function createFile(): GoogleAppsScript.Drive.File {
-  return new File();
-}
-export type CreateFile = typeof createFile;
-
 const script = new vm.Script(worker.workerData.code);
 export const scriptContext = vm.createContext({
   /* Admin Console */
@@ -107,7 +101,7 @@ export const scriptContext = vm.createContext({
   /* Docs */
   DocumentApp: undefined,
   /* Drive */
-  DriveApp: new DriveApp(createFile, createFolder, requestSync),
+  DriveApp: createDriveApp(hostBridge),
   /* Forms */
   FormApp: undefined,
   /* Gmail */
@@ -207,9 +201,6 @@ export const scriptContext = vm.createContext({
   ScriptApp: undefined,
 });
 script.runInContext(scriptContext);
-
-const sharedArray: Int32Array = worker.workerData.sharedArray;
-const port: worker.MessagePort = worker.workerData.port;
 
 interface DoGetResult {
   metaTags: { name: string; content: string }[];
