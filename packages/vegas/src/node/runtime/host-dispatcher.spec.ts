@@ -1,18 +1,24 @@
 import { describe, expect, test } from "vitest";
 
 import {
+  CacheHostHandler,
   HostDispatcher,
+  InMemoryCacheStore,
   InMemoryPropertiesStore,
   PropertiesHostHandler,
   type DriveHostCallHandler,
 } from "./index";
 
+function createPropertiesHandler() {
+  return new PropertiesHostHandler(new InMemoryPropertiesStore(), {
+    scriptKey: "script",
+    userKey: "user",
+  });
+}
+
 describe("HostDispatcher", () => {
   test("dispatch properties calls to the invocation-bound handler", async () => {
-    const properties = new PropertiesHostHandler(new InMemoryPropertiesStore(), {
-      scriptKey: "script",
-      userKey: "user",
-    });
+    const properties = createPropertiesHandler();
     const dispatcher = new HostDispatcher({ properties });
 
     await dispatcher.dispatch({
@@ -33,11 +39,53 @@ describe("HostDispatcher", () => {
     ).resolves.toBe("Vegas");
   });
 
-  test("dispatch drive calls only when the invocation provides a Drive handler", async () => {
-    const properties = new PropertiesHostHandler(new InMemoryPropertiesStore(), {
-      scriptKey: "script",
-      userKey: "user",
+  test("dispatch cache calls only when the invocation provides a Cache handler", async () => {
+    const cache = new CacheHostHandler(
+      new InMemoryCacheStore(() => 1_000),
+      {
+        scriptKey: "script",
+        userKey: "user",
+      },
+      () => 1_000,
+    );
+    const properties = createPropertiesHandler();
+    const dispatcher = new HostDispatcher({ cache, properties });
+
+    await dispatcher.dispatch({
+      service: "cache",
+      operation: "put",
+      namespace: "script",
+      key: "name",
+      value: "Vegas",
+      expirationInSeconds: 600,
     });
+
+    await expect(
+      dispatcher.dispatch({
+        service: "cache",
+        operation: "get",
+        namespace: "script",
+        key: "name",
+      }),
+    ).resolves.toBe("Vegas");
+  });
+
+  test("reject cache calls when the invocation has no Cache handler", async () => {
+    const properties = createPropertiesHandler();
+    const dispatcher = new HostDispatcher({ properties });
+
+    await expect(
+      dispatcher.dispatch({
+        service: "cache",
+        operation: "get",
+        namespace: "script",
+        key: "name",
+      }),
+    ).rejects.toThrow("Cache host handler is not configured for this invocation.");
+  });
+
+  test("dispatch drive calls only when the invocation provides a Drive handler", async () => {
+    const properties = createPropertiesHandler();
     const drive: DriveHostCallHandler = {
       async handle(call) {
         if (call.operation !== "get-root-folder") {
@@ -66,10 +114,7 @@ describe("HostDispatcher", () => {
   });
 
   test("reject drive calls when the invocation has no Drive handler", async () => {
-    const properties = new PropertiesHostHandler(new InMemoryPropertiesStore(), {
-      scriptKey: "script",
-      userKey: "user",
-    });
+    const properties = createPropertiesHandler();
     const dispatcher = new HostDispatcher({ properties });
 
     await expect(

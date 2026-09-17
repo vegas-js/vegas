@@ -1,3 +1,4 @@
+import type { CacheHostCallHandler } from "./cache-host-handler";
 import type { DriveHostCallHandler } from "./drive-host-handler";
 import type { HostCall, HostCallResult } from "./host-call";
 import type { PropertiesHostCallHandler } from "./properties-host-handler";
@@ -7,21 +8,31 @@ export interface HostCallDispatcher {
 }
 
 export interface HostDispatcherOptions {
+  readonly cache?: CacheHostCallHandler;
   readonly drive?: DriveHostCallHandler;
   readonly properties: PropertiesHostCallHandler;
 }
 
 export class HostDispatcher implements HostCallDispatcher {
+  readonly #cache: CacheHostCallHandler | undefined;
   readonly #drive: DriveHostCallHandler | undefined;
   readonly #properties: PropertiesHostCallHandler;
 
   constructor(options: HostDispatcherOptions) {
+    this.#cache = options.cache;
     this.#drive = options.drive;
     this.#properties = options.properties;
   }
 
   async dispatch<C extends HostCall>(call: C): Promise<HostCallResult<C>> {
     switch (call.service) {
+      case "cache": {
+        if (!this.#cache) {
+          throw new Error("Cache host handler is not configured for this invocation.");
+        }
+
+        return (await this.#cache.handle(call)) as HostCallResult<C>;
+      }
       case "drive": {
         if (!this.#drive) {
           throw new Error("Drive host handler is not configured for this invocation.");

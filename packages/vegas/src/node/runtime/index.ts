@@ -1,6 +1,11 @@
 export { createBlob, hydrateBlob, RuntimeBlob, serializeBlob } from "./blob";
-export type { CacheNamespace, CacheStore } from "./cache-store";
 export type { BlobValue } from "./blob-value";
+export type { CacheHostCall, CacheHostCallResult, CacheHostScope } from "./cache-host-call";
+export { CacheHostHandler } from "./cache-host-handler";
+export type { CacheHostCallHandler } from "./cache-host-handler";
+export { resolveCacheNamespace } from "./cache-namespace";
+export { Cache, CacheService, createCacheService } from "./cache-objects";
+export type { CacheNamespace, CacheStore } from "./cache-store";
 export type { DriveHostCall, DriveHostCallResult } from "./drive-host-call";
 export { LocalDriveHostHandler } from "./drive-host-handler";
 export { resolveDriveNamespace } from "./drive-namespace";

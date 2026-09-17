@@ -79,7 +79,7 @@ function isHostRequestMessage(value: unknown): value is HostRequestMessage {
   };
 
   return (
-    (call.service === "drive" || call.service === "properties") &&
+    (call.service === "cache" || call.service === "drive" || call.service === "properties") &&
     typeof call.operation === "string"
   );
 }
