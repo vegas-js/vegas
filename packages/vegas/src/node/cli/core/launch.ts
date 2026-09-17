@@ -21,7 +21,6 @@ import {
 } from "../../runtime";
 import type { ServeContext } from "./context";
 import {
-  HtmlServiceHandler,
   SpreadsheetAppHandler,
   SheetHandler,
   RangeHandler,
@@ -33,7 +32,6 @@ class GASHandler {
 
   constructor() {
     this.#handlers = {
-      HtmlService: new HtmlServiceHandler(),
       SpreadsheetApp: new SpreadsheetAppHandler(),
       Sheet: new SheetHandler(),
       Range: new RangeHandler(),

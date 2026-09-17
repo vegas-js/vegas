@@ -13,8 +13,6 @@ import { createSession } from "../runtime/session-objects";
 import { createWorkerHostBridge } from "../runtime/worker-host-bridge";
 import { Console } from "./api/base/console";
 import { Logger } from "./api/base/Logger";
-import { HtmlOutput } from "./api/html/HtmlOutput";
-import { HtmlTemplate } from "./api/html/HtmlTemplate";
 import { Range } from "./api/spreadsheet/Range";
 import { Sheet } from "./api/spreadsheet/Sheet";
 import { Spreadsheet } from "./api/spreadsheet/Spreadsheet";
@@ -71,21 +69,8 @@ function createSpreadsheet(spreadsheetId: string): GoogleAppsScript.Spreadsheet.
 }
 export type CreateSpreadsheet = typeof createSpreadsheet;
 
-function createHtmlOutput(
-  content: string,
-  defaultXFrameOptionsMode: GoogleAppsScript.HTML.XFrameOptionsMode,
-): GoogleAppsScript.HTML.HtmlOutput {
-  return new HtmlOutput(content, defaultXFrameOptionsMode);
-}
-export type CreateHtmlOutput = typeof createHtmlOutput;
-
-function createHtmlTemplate(content: string): GoogleAppsScript.HTML.HtmlTemplate {
-  return new HtmlTemplate(content);
-}
-export type CreateHtmlTemplate = typeof createHtmlTemplate;
-
 const script = new vm.Script(runtimeWorkerData.program.source);
-export const scriptContext = vm.createContext({
+const scriptContext = vm.createContext({
   /* Admin Console */
   AdminDirectory: undefined, // Advanced services. Low priority.
   AdminLicenseManager: undefined, // Advanced services. Low priority.

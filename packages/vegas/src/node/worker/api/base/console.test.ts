@@ -2,8 +2,14 @@ import { stripVTControlCharacters } from "node:util";
 
 import { describe, expect, test, vi } from "vitest";
 
-import { HtmlService } from "../html/HtmlService";
+import { GASAPI } from "../GASAPI";
 import { Console } from "./console";
+
+class TestGASAPI extends GASAPI {
+  readonly Mode = { DEFAULT: 0, CUSTOM: 1 };
+
+  execute() {}
+}
 
 describe("direct output", () => {
   test("with prefix", () => {
@@ -296,20 +302,13 @@ describe("direct output", () => {
       test("GAS API", () => {
         using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
         const gasConsole = new Console();
-        gasConsole.log(new HtmlService((() => {}) as any, (() => {}) as any, (() => {}) as any));
+        gasConsole.log(new TestGASAPI());
         const args = consoleMock.mock.lastCall;
         expect(args?.[1]).toMatch(/^{ toString: \[Function\],/g);
-        expect(args?.[1]).toMatch(/createHtmlOutputFromFile: \[Function\],/);
-        expect(args?.[1]).toMatch(/createHtmlOutput: \[Function\],/);
-        expect(args?.[1]).toMatch(/createTemplateFromFile: \[Function\],/);
-        expect(args?.[1]).toMatch(/createTemplate: \[Function\],/);
-        expect(args?.[1]).toMatch(/SandboxMode:/);
-        expect(args?.[1]).toMatch(/   EMULATED:/);
-        expect(args?.[1]).toMatch(/   IFRAME:/);
-        expect(args?.[1]).toMatch(/   NATIVE:/);
-        expect(args?.[1]).toMatch(/XFrameOptionsMode:/);
-        expect(args?.[1]).toMatch(/   ALLOWALL:/);
-        expect(args?.[1]).toMatch(/   DEFAULT:/);
+        expect(args?.[1]).toMatch(/execute: \[Function\],/);
+        expect(args?.[1]).toMatch(/Mode:/);
+        expect(args?.[1]).toMatch(/DEFAULT: 0/);
+        expect(args?.[1]).toMatch(/CUSTOM: 1/);
         expect(args?.[1]).toMatch(/ } }$/g);
       });
 
@@ -335,22 +334,15 @@ describe("direct output", () => {
         using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
         const gasConsole = new Console();
         gasConsole.log({
-          nestedGASAPI: new HtmlService((() => {}) as any, (() => {}) as any, (() => {}) as any),
+          nestedGASAPI: new TestGASAPI(),
         });
         const args = consoleMock.mock.lastCall;
         expect(args?.[1]).toMatch(/^{ nestedGASAPI:/g);
         expect(args?.[1]).toMatch(/  { toString: \[Function\],/);
-        expect(args?.[1]).toMatch(/    createHtmlOutputFromFile: \[Function\],/);
-        expect(args?.[1]).toMatch(/    createHtmlOutput: \[Function\],/);
-        expect(args?.[1]).toMatch(/    createTemplateFromFile: \[Function\],/);
-        expect(args?.[1]).toMatch(/    createTemplate: \[Function\],/);
-        expect(args?.[1]).toMatch(/    SandboxMode:/);
-        expect(args?.[1]).toMatch(/       EMULATED:/);
-        expect(args?.[1]).toMatch(/       IFRAME:/);
-        expect(args?.[1]).toMatch(/       NATIVE:/);
-        expect(args?.[1]).toMatch(/    XFrameOptionsMode:/);
-        expect(args?.[1]).toMatch(/       ALLOWALL:/);
-        expect(args?.[1]).toMatch(/       DEFAULT:/);
+        expect(args?.[1]).toMatch(/    execute: \[Function\],/);
+        expect(args?.[1]).toMatch(/    Mode:/);
+        expect(args?.[1]).toMatch(/    DEFAULT: 0/);
+        expect(args?.[1]).toMatch(/      CUSTOM: 1/);
         expect(args?.[1]).toMatch(/ } } }$/g);
       });
     });
@@ -635,10 +627,10 @@ describe("output with string format", () => {
         const gasConsole = new Console();
         gasConsole.log(
           "%s",
-          new HtmlService((() => {}) as any, (() => {}) as any, (() => {}) as any),
+          new TestGASAPI(),
         );
         const args = consoleMock.mock.lastCall;
-        expect(args?.[1]).toBe("HtmlService");
+        expect(args?.[1]).toBe("TestGASAPI");
       });
 
       test("instance (nested)", () => {
@@ -663,7 +655,7 @@ describe("output with string format", () => {
         using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
         const gasConsole = new Console();
         gasConsole.log("%s", {
-          nestedGASAPI: new HtmlService((() => {}) as any, (() => {}) as any, (() => {}) as any),
+          nestedGASAPI: new TestGASAPI(),
         });
         const args = consoleMock.mock.lastCall;
         expect(args?.[1]).toBe("[object Object]");
@@ -938,7 +930,7 @@ describe("output with number format", () => {
         const gasConsole = new Console();
         gasConsole.log(
           "%d",
-          new HtmlService((() => {}) as any, (() => {}) as any, (() => {}) as any),
+          new TestGASAPI(),
         );
         const args = consoleMock.mock.lastCall;
         expect(args?.[1]).toBe("NaN");
@@ -966,7 +958,7 @@ describe("output with number format", () => {
         using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
         const gasConsole = new Console();
         gasConsole.log("%d", {
-          nestedGASAPI: new HtmlService((() => {}) as any, (() => {}) as any, (() => {}) as any),
+          nestedGASAPI: new TestGASAPI(),
         });
         const args = consoleMock.mock.lastCall;
         expect(args?.[1]).toBe("NaN");
@@ -1249,10 +1241,10 @@ describe("output with json format", () => {
         const gasConsole = new Console();
         gasConsole.log(
           "%j",
-          new HtmlService((() => {}) as any, (() => {}) as any, (() => {}) as any),
+          new TestGASAPI(),
         );
         const args = consoleMock.mock.lastCall;
-        expect(args?.[1]).toBe('{"SandboxMode":"EMULATED","XFrameOptionsMode":"DEFAULT"}');
+        expect(args?.[1]).toBe('{"Mode":"DEFAULT"}');
       });
     });
 
@@ -1278,11 +1270,11 @@ describe("output with json format", () => {
       using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
       const gasConsole = new Console();
       gasConsole.log("%j", {
-        nestedGASAPI: new HtmlService((() => {}) as any, (() => {}) as any, (() => {}) as any),
+        nestedGASAPI: new TestGASAPI(),
       });
       const args = consoleMock.mock.lastCall;
       expect(args?.[1]).toBe(
-        '{"nestedGASAPI":{"SandboxMode":"EMULATED","XFrameOptionsMode":"DEFAULT"}}',
+        '{"nestedGASAPI":{"Mode":"DEFAULT"}}',
       );
     });
   });

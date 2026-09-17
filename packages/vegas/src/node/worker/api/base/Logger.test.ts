@@ -2,8 +2,10 @@ import { stripVTControlCharacters } from "node:util";
 
 import { describe, expect, test, vi } from "vitest";
 
-import { HtmlService } from "../html/HtmlService";
+import { GASAPI } from "../GASAPI";
 import { Logger } from "./Logger";
+
+class TestGASAPI extends GASAPI {}
 
 describe("direct output", () => {
   test("with prefix", () => {
@@ -305,9 +307,9 @@ describe("direct output", () => {
       test("GAS API", () => {
         using consoleMock = vi.spyOn(console, "log").mockImplementation(() => {});
         const gasLogger = new Logger();
-        gasLogger.log(new HtmlService((() => {}) as any, (() => {}) as any, (() => {}) as any));
+        gasLogger.log(new TestGASAPI());
         const args = consoleMock.mock.lastCall;
-        expect(args?.[1]).toBe("HtmlService");
+        expect(args?.[1]).toBe("TestGASAPI");
       });
 
       test("instance (nested)", () => {
@@ -334,10 +336,10 @@ describe("direct output", () => {
         using consoleMock = vi.spyOn(console, "log").mockImplementation(() => {});
         const gasLogger = new Logger();
         gasLogger.log({
-          nestedGASAPI: new HtmlService((() => {}) as any, (() => {}) as any, (() => {}) as any),
+          nestedGASAPI: new TestGASAPI(),
         });
         const args = consoleMock.mock.lastCall;
-        expect(args?.[1]).toBe("{nestedGASAPI=HtmlService}");
+        expect(args?.[1]).toBe("{nestedGASAPI=TestGASAPI}");
       });
     });
   });
@@ -638,10 +640,10 @@ describe("output with string format", () => {
         const gasLogger = new Logger();
         gasLogger.log(
           "%s",
-          new HtmlService((() => {}) as any, (() => {}) as any, (() => {}) as any),
+          new TestGASAPI(),
         );
         const args = consoleMock.mock.lastCall;
-        expect(args?.[1]).toBe("HtmlService");
+        expect(args?.[1]).toBe("TestGASAPI");
       });
 
       test("instance (nested)", () => {
@@ -668,10 +670,10 @@ describe("output with string format", () => {
         using consoleMock = vi.spyOn(console, "log").mockImplementation(() => {});
         const gasLogger = new Logger();
         gasLogger.log("%s", {
-          nestedGASAPI: new HtmlService((() => {}) as any, (() => {}) as any, (() => {}) as any),
+          nestedGASAPI: new TestGASAPI(),
         });
         const args = consoleMock.mock.lastCall;
-        expect(args?.[1]).toBe("{nestedGASAPI=HtmlService}");
+        expect(args?.[1]).toBe("{nestedGASAPI=TestGASAPI}");
       });
     });
   });
@@ -943,7 +945,7 @@ describe("output with number format", () => {
         const gasLogger = new Logger();
         gasLogger.log(
           "%d",
-          new HtmlService((() => {}) as any, (() => {}) as any, (() => {}) as any),
+          new TestGASAPI(),
         );
         const args = consoleMock.mock.lastCall;
         expect(args?.[1]).toBe("NaN");
@@ -971,7 +973,7 @@ describe("output with number format", () => {
         using consoleMock = vi.spyOn(console, "log").mockImplementation(() => {});
         const gasLogger = new Logger();
         gasLogger.log("%d", {
-          nestedGASAPI: new HtmlService((() => {}) as any, (() => {}) as any, (() => {}) as any),
+          nestedGASAPI: new TestGASAPI(),
         });
         const args = consoleMock.mock.lastCall;
         expect(args?.[1]).toBe("NaN");
@@ -1275,10 +1277,10 @@ describe("output with json format", () => {
         const gasLogger = new Logger();
         gasLogger.log(
           "%j",
-          new HtmlService((() => {}) as any, (() => {}) as any, (() => {}) as any),
+          new TestGASAPI(),
         );
         const args = consoleMock.mock.lastCall;
-        expect(args?.[1]).toBe("HtmlService");
+        expect(args?.[1]).toBe("TestGASAPI");
       });
     });
 
@@ -1306,10 +1308,10 @@ describe("output with json format", () => {
       using consoleMock = vi.spyOn(console, "log").mockImplementation(() => {});
       const gasLogger = new Logger();
       gasLogger.log("%j", {
-        nestedGASAPI: new HtmlService((() => {}) as any, (() => {}) as any, (() => {}) as any),
+        nestedGASAPI: new TestGASAPI(),
       });
       const args = consoleMock.mock.lastCall;
-      expect(args?.[1]).toBe("{nestedGASAPI=HtmlService}");
+      expect(args?.[1]).toBe("{nestedGASAPI=TestGASAPI}");
     });
   });
 });
