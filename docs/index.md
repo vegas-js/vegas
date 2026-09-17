@@ -4,7 +4,7 @@ layout: home
 
 hero:
   name: Vegas
-  text: The SPA build tool for GAS platform
+  text: Vite-powered development and build tool for Google Apps Script
   tagline: "It feels like Vite, and it really is Vite (quick!)."
   image:
     src: /logo.webp
