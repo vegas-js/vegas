@@ -52,6 +52,10 @@ export class LocalDriveHostHandler implements DriveHostCallHandler {
 
         return mimeType;
       }
+      case "set-file-name": {
+        await this.#store.setFileName(this.#namespace, call.file, call.name);
+        return;
+      }
       case "get-folder": {
         return this.#store.getFolder(this.#namespace, call.id, call.resourceKey);
       }

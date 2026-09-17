@@ -159,6 +159,16 @@ export class DriveFile {
       }),
     );
   }
+
+  setName(name: string): DriveFile {
+    this.#bridge.call({
+      service: "drive",
+      operation: "set-file-name",
+      file: this.#reference,
+      name,
+    });
+    return this;
+  }
 }
 
 // https://developers.google.com/apps-script/reference/drive/folder

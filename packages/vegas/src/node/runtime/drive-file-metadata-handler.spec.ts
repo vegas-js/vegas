@@ -43,6 +43,33 @@ describe("LocalDriveHostHandler file metadata", () => {
     ).resolves.toBe("text/plain");
   });
 
+  test("persist file name mutations across invocation-local handlers", async () => {
+    const store = new InMemoryDriveStore();
+    const root = await store.getRootFolder(USER);
+    const file = await store.createFile(USER, root, createBlobValue("a.txt", "text/plain"));
+    const iterators = new InMemoryDriveIteratorStore();
+    const firstHandler = new LocalDriveHostHandler(store, USER, iterators.createSession(USER));
+
+    await expect(
+      firstHandler.handle({
+        service: "drive",
+        operation: "set-file-name",
+        file,
+        name: "renamed.txt",
+      }),
+    ).resolves.toBeUndefined();
+
+    const secondHandler = new LocalDriveHostHandler(store, USER, iterators.createSession(USER));
+
+    await expect(
+      secondHandler.handle({
+        service: "drive",
+        operation: "get-file-name",
+        file,
+      }),
+    ).resolves.toBe("renamed.txt");
+  });
+
   test("reject unknown local metadata instead of inventing Google values", async () => {
     const store = new InMemoryDriveStore();
     const root = await store.getRootFolder(USER);

@@ -53,6 +53,19 @@ describe("local Drive file resources", () => {
     await expect(store.getFileBlob(USER_A, file)).resolves.toStrictEqual(blob);
   });
 
+  test("persist file name mutations without changing other metadata", async () => {
+    const store = new InMemoryDriveStore();
+    const root = await store.getRootFolder(USER_A);
+    const file = await store.createFile(USER_A, root, createBlobValue());
+
+    await store.setFileName(USER_A, file, "renamed.txt");
+
+    await expect(store.getFileMetadata(USER_A, file)).resolves.toStrictEqual({
+      name: "renamed.txt",
+      mimeType: "text/plain",
+    });
+  });
+
   test("return BlobValue copies instead of exposing persistent byte state", async () => {
     const store = new InMemoryDriveStore();
     const root = await store.getRootFolder(USER_A);
@@ -76,6 +89,9 @@ describe("local Drive file resources", () => {
       `Unknown local Drive file: ${file.id}`,
     );
     await expect(store.getFileMetadata(USER_B, file)).rejects.toThrow(
+      `Unknown local Drive file: ${file.id}`,
+    );
+    await expect(store.setFileName(USER_B, file, "invalid.txt")).rejects.toThrow(
       `Unknown local Drive file: ${file.id}`,
     );
     await expect(store.createFile(USER_B, root, createBlobValue())).rejects.toThrow(

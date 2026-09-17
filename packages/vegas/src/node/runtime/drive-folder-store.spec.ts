@@ -47,12 +47,7 @@ describe("local Drive folder resources", () => {
     const handler = new LocalDriveHostHandler(store, USER_A, iteratorStore.createSession(USER_A));
     const root = await handler.handle({ service: "drive", operation: "get-root-folder" });
 
-    if (
-      typeof root === "string" ||
-      typeof root === "boolean" ||
-      !("kind" in root) ||
-      root.kind !== "folder"
-    ) {
+    if (typeof root !== "object" || root === null || !("kind" in root) || root.kind !== "folder") {
       throw new Error("expected root folder reference");
     }
 
@@ -64,8 +59,8 @@ describe("local Drive folder resources", () => {
     });
 
     if (
-      typeof child === "string" ||
-      typeof child === "boolean" ||
+      typeof child !== "object" ||
+      child === null ||
       !("kind" in child) ||
       child.kind !== "folder"
     ) {
@@ -87,8 +82,8 @@ describe("local Drive folder resources", () => {
     });
 
     if (
-      typeof parents === "string" ||
-      typeof parents === "boolean" ||
+      typeof parents !== "object" ||
+      parents === null ||
       !("kind" in parents) ||
       parents.kind !== "folder-iterator"
     ) {

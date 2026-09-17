@@ -68,6 +68,14 @@ class RecordingDriveStore implements DriveStore {
     };
   }
 
+  async setFileName(
+    namespace: DriveNamespace,
+    file: DriveFileReference,
+    name: string,
+  ): Promise<void> {
+    this.calls.push(`setFileName:${namespace.userKey}:${file.id}:${name}`);
+  }
+
   async getFolder(
     namespace: DriveNamespace,
     id: string,
@@ -201,8 +209,8 @@ describe("LocalDriveHostHandler", () => {
     const files = await handler.handle({ service: "drive", operation: "get-files" });
 
     if (
-      typeof files === "string" ||
-      typeof files === "boolean" ||
+      typeof files !== "object" ||
+      files === null ||
       !("kind" in files) ||
       files.kind !== "file-iterator"
     ) {
@@ -223,8 +231,8 @@ describe("LocalDriveHostHandler", () => {
     });
 
     if (
-      typeof parents === "string" ||
-      typeof parents === "boolean" ||
+      typeof parents !== "object" ||
+      parents === null ||
       !("kind" in parents) ||
       parents.kind !== "folder-iterator"
     ) {
@@ -245,8 +253,8 @@ describe("LocalDriveHostHandler", () => {
     const files = await firstHandler.handle({ service: "drive", operation: "get-files" });
 
     if (
-      typeof files === "string" ||
-      typeof files === "boolean" ||
+      typeof files !== "object" ||
+      files === null ||
       !("kind" in files) ||
       files.kind !== "file-iterator"
     ) {
@@ -281,8 +289,8 @@ describe("LocalDriveHostHandler", () => {
     });
 
     if (
-      typeof resumed === "string" ||
-      typeof resumed === "boolean" ||
+      typeof resumed !== "object" ||
+      resumed === null ||
       !("kind" in resumed) ||
       resumed.kind !== "file-iterator"
     ) {

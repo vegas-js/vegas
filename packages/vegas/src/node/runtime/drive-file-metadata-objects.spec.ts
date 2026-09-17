@@ -10,6 +10,7 @@ import {
 
 class RecordingHostBridge implements HostBridge {
   readonly calls: HostCall[] = [];
+  #name = "hello.txt";
 
   call<C extends HostCall>(call: C): HostCallResult<C> {
     this.calls.push(call);
@@ -26,9 +27,12 @@ class RecordingHostBridge implements HostBridge {
           id: call.id,
         } as HostCallResult<C>;
       case "get-file-name":
-        return "hello.txt" as unknown as HostCallResult<C>;
+        return this.#name as unknown as HostCallResult<C>;
       case "get-file-mime-type":
         return "text/plain" as unknown as HostCallResult<C>;
+      case "set-file-name":
+        this.#name = call.name;
+        return undefined as unknown as HostCallResult<C>;
       default:
         throw new Error(`unexpected Drive operation: ${call.operation}`);
     }
@@ -46,6 +50,16 @@ describe("DriveFile metadata Runtime surface", () => {
         id: "file-1",
       },
     } satisfies DriveHostCall;
+    const setNameCall = {
+      service: "drive",
+      operation: "set-file-name",
+      file: {
+        service: "drive",
+        kind: "file",
+        id: "file-1",
+      },
+      name: "renamed.txt",
+    } satisfies DriveHostCall;
     const getMimeTypeCall = {
       service: "drive",
       operation: "get-file-mime-type",
@@ -57,6 +71,7 @@ describe("DriveFile metadata Runtime surface", () => {
     } satisfies DriveHostCall;
 
     expectTypeOf<HostCallResult<typeof getNameCall>>().toEqualTypeOf<string>();
+    expectTypeOf<HostCallResult<typeof setNameCall>>().toEqualTypeOf<void>();
     expectTypeOf<HostCallResult<typeof getMimeTypeCall>>().toEqualTypeOf<string>();
   });
 
@@ -65,6 +80,8 @@ describe("DriveFile metadata Runtime surface", () => {
     const file = createDriveApp(bridge).getFileById("file-1");
 
     expect(file.getName()).toBe("hello.txt");
+    expect(file.setName("renamed.txt")).toBe(file);
+    expect(file.getName()).toBe("renamed.txt");
     expect(file.getMimeType()).toBe("text/plain");
 
     expect(bridge.calls).toStrictEqual([
@@ -72,6 +89,25 @@ describe("DriveFile metadata Runtime surface", () => {
         service: "drive",
         operation: "get-file",
         id: "file-1",
+      },
+      {
+        service: "drive",
+        operation: "get-file-name",
+        file: {
+          service: "drive",
+          kind: "file",
+          id: "file-1",
+        },
+      },
+      {
+        service: "drive",
+        operation: "set-file-name",
+        file: {
+          service: "drive",
+          kind: "file",
+          id: "file-1",
+        },
+        name: "renamed.txt",
       },
       {
         service: "drive",
