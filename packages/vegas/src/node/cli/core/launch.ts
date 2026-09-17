@@ -1,7 +1,7 @@
 import path from "node:path";
 import worker from "node:worker_threads";
 
-import type { Executor } from "../../runtime";
+import type { Executor, InvocationScope, PropertiesStore } from "../../runtime";
 import type { ServeContext } from "./context";
 import {
   HtmlServiceHandler,
@@ -17,12 +17,12 @@ import {
 class GASHandler {
   #handlers: Record<string, Record<string, any>>;
 
-  constructor() {
+  constructor(propertiesStore: PropertiesStore) {
     this.#handlers = {
       HtmlService: new HtmlServiceHandler(),
       Session: new SessionHandler(),
       Cache: new CacheHandler(),
-      Properties: new PropertiesHandler(),
+      Properties: new PropertiesHandler(propertiesStore),
       SpreadsheetApp: new SpreadsheetAppHandler(),
       Sheet: new SheetHandler(),
       Range: new RangeHandler(),
@@ -50,9 +50,14 @@ class GASHandler {
   }
 }
 
-const handler = new GASHandler();
-
-function launchGAS(ctx: ServeContext, source: string, fn: string, ...args: any[]): Promise<any> {
+function launchGAS(
+  ctx: ServeContext,
+  handler: GASHandler,
+  invocationScope: InvocationScope,
+  source: string,
+  fn: string,
+  ...args: any[]
+): Promise<any> {
   return new Promise((resolve, reject) => {
     const sharedBuffer = new SharedArrayBuffer(4);
     const sharedArray = new Int32Array(sharedBuffer);
@@ -78,7 +83,13 @@ function launchGAS(ctx: ServeContext, source: string, fn: string, ...args: any[]
         resolve(data.payload);
       } else {
         try {
-          await (handler as any)[data.message](port1, sharedArray, ctx, data.payload);
+          await (handler as any)[data.message](
+            port1,
+            sharedArray,
+            ctx,
+            data.payload,
+            invocationScope,
+          );
         } catch (err: any) {
           port1.close();
           console.error(err);
@@ -90,10 +101,22 @@ function launchGAS(ctx: ServeContext, source: string, fn: string, ...args: any[]
   });
 }
 
-export function createLegacyAppsScriptExecutor(ctx: ServeContext): Executor {
+export function createLegacyAppsScriptExecutor(
+  ctx: ServeContext,
+  propertiesStore: PropertiesStore,
+): Executor {
+  const handler = new GASHandler(propertiesStore);
+
   return {
     execute(request) {
-      return launchGAS(ctx, request.program.source, request.functionName, ...request.args);
+      return launchGAS(
+        ctx,
+        handler,
+        request.scope,
+        request.program.source,
+        request.functionName,
+        ...request.args,
+      );
     },
   };
 }

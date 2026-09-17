@@ -2,6 +2,7 @@ import { ArtifactStore } from "../build";
 import { DevApplication } from "../dev/application";
 import { buildDevTopology } from "../dev/build-topology";
 import { loadProject } from "../project";
+import { InMemoryPropertiesStore } from "../runtime";
 import { createServeContext } from "./core/context";
 import { createLegacyAppsScriptExecutor } from "./core/launch";
 import { loadRuntimeData } from "./core/runtime-data";
@@ -31,11 +32,14 @@ export async function runPreview(root?: string) {
   ]);
 
   const ctx = createServeContext(project, artifacts);
-  await loadRuntimeData(ctx, snapshot.runtimeDataSources);
+
+  const scope = createLegacyInvocationScope(ctx);
+  const propertiesStore = new InMemoryPropertiesStore();
+
+  await loadRuntimeData(ctx, snapshot.runtimeDataSources, propertiesStore, scope);
 
   const environment = createLegacyInvocationEnvironment(ctx);
-  const scope = createLegacyInvocationScope(ctx);
-  const executor = createLegacyAppsScriptExecutor(ctx);
+  const executor = createLegacyAppsScriptExecutor(ctx, propertiesStore);
 
   const application = new DevApplication({
     project,

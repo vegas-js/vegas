@@ -1,81 +1,91 @@
-import { Scope } from "../../../worker";
-import { ServeContext } from "../context";
+import type { InvocationScope, PropertiesNamespace, PropertiesStore } from "../../../runtime";
+import { resolvePropertiesNamespace } from "../../../runtime";
+import type { ServeContext } from "../context";
 
+// https://developers.google.com/apps-script/reference/properties/properties
 export class PropertiesHandler {
-  #getScopedProperties(scope: Scope, ctx: ServeContext) {
-    switch (scope) {
-      case "document": {
-        return ctx.store.properties.document;
-      }
-      case "script": {
-        return ctx.store.properties.script;
-      }
-      case "user": {
-        return ctx.store.properties.user;
-      }
-      default: {
-        return null;
-      }
+  readonly #store: PropertiesStore;
+
+  constructor(store: PropertiesStore) {
+    this.#store = store;
+  }
+
+  #resolve(
+    scope: InvocationScope,
+    kind: PropertiesNamespace["kind"],
+  ): PropertiesNamespace | undefined {
+    return resolvePropertiesNamespace(scope, kind);
+  }
+
+  async deleteAllProperties(_ctx: ServeContext, payload: any, scope: InvocationScope) {
+    const namespace = this.#resolve(scope, payload.scope);
+
+    if (namespace) {
+      await this.#store.clear(namespace);
     }
   }
 
-  deleteAllProperties(ctx: ServeContext, payload: any) {
-    const property = this.#getScopedProperties(payload.scope, ctx);
+  async deleteProperty(_ctx: ServeContext, payload: any, scope: InvocationScope) {
+    const namespace = this.#resolve(scope, payload.scope);
 
-    if (property) {
-      Object.keys(property).forEach((key) => {
-        delete property[key];
-      });
+    if (namespace) {
+      await this.#store.remove(namespace, payload.key);
     }
   }
-  deleteProperty(ctx: ServeContext, payload: any) {
-    const property = this.#getScopedProperties(payload.scope, ctx);
 
-    if (property) {
-      delete property[payload.key];
+  async getKeys(_ctx: ServeContext, payload: any, scope: InvocationScope) {
+    const namespace = this.#resolve(scope, payload.scope);
+
+    if (!namespace) {
+      return [];
+    }
+
+    return Object.keys(await this.#store.getAll(namespace));
+  }
+
+  async getProperties(_ctx: ServeContext, payload: any, scope: InvocationScope) {
+    const namespace = this.#resolve(scope, payload.scope);
+
+    if (!namespace) {
+      return {};
+    }
+
+    return this.#store.getAll(namespace);
+  }
+
+  async getProperty(_ctx: ServeContext, payload: any, scope: InvocationScope) {
+    const namespace = this.#resolve(scope, payload.scope);
+
+    if (!namespace) {
+      return null;
+    }
+
+    return (await this.#store.get(namespace, payload.key)) ?? null;
+  }
+
+  async setProperties(_ctx: ServeContext, payload: any, scope: InvocationScope) {
+    const namespace = this.#resolve(scope, payload.scope);
+
+    if (!namespace) {
+      return;
+    }
+
+    const properties = Object.fromEntries(
+      Object.entries(payload.properties).map(([key, value]) => [key, String(value)]),
+    );
+
+    if (payload.deleteAllOthers) {
+      await this.#store.replaceAll(namespace, properties);
+    } else {
+      await this.#store.setAll(namespace, properties);
     }
   }
-  getKeys(ctx: ServeContext, payload: any) {
-    const property = this.#getScopedProperties(payload.scope, ctx);
 
-    return Object.keys(property ?? {});
-  }
-  getProperties(ctx: ServeContext, payload: any) {
-    const property = this.#getScopedProperties(payload.scope, ctx);
+  async setProperty(_ctx: ServeContext, payload: any, scope: InvocationScope) {
+    const namespace = this.#resolve(scope, payload.scope);
 
-    const obj: Record<string, string> = {};
-    if (property) {
-      Object.keys(property).forEach((key) => {
-        obj[key] = property[key];
-      });
-    }
-    return obj;
-  }
-  getProperty(ctx: ServeContext, payload: any) {
-    const property = this.#getScopedProperties(payload.scope, ctx);
-
-    return property ? property[payload.key] : null;
-  }
-  setProperties(ctx: ServeContext, payload: any) {
-    const property = this.#getScopedProperties(payload.scope, ctx);
-
-    if (property) {
-      if (payload.deleteAllOthers) {
-        Object.keys(property).forEach((key) => {
-          delete property[key];
-        });
-      }
-
-      Object.keys(payload.properties).forEach((key) => {
-        property[key] = payload.properties[key];
-      });
-    }
-  }
-  setProperty(ctx: ServeContext, payload: any) {
-    const property = this.#getScopedProperties(payload.scope, ctx);
-
-    if (property) {
-      property[payload.property.key] = payload.property.value;
+    if (namespace) {
+      await this.#store.set(namespace, payload.property.key, String(payload.property.value));
     }
   }
 }

@@ -6,11 +6,6 @@ export interface ServeContext {
   artifacts: ArtifactStore;
   mock: Record<string, any>;
   store: {
-    properties: {
-      document: Record<string, string>;
-      script: Record<string, string>;
-      user: Record<string, string>;
-    };
     cache: {
       document: Record<string, { value: string; expired: number }>;
       script: Record<string, { value: string; expired: number }>;
@@ -32,11 +27,6 @@ export function createServeContext(
     artifacts,
     mock: {},
     store: {
-      properties: {
-        document: {},
-        script: {},
-        user: {},
-      },
       cache: {
         document: {},
         script: {},
