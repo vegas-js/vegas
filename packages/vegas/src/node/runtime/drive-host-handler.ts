@@ -75,7 +75,13 @@ export class LocalDriveHostHandler implements DriveHostCallHandler {
         return this.#store.createFolder(this.#namespace, call.parent, call.name);
       }
       case "get-folder-name": {
-        return this.#store.getFolderName(this.#namespace, call.folder);
+        const name = await this.#store.getFolderName(this.#namespace, call.folder);
+
+        if (name === null) {
+          throw new Error(`Local Drive folder name is unavailable: ${call.folder.id}`);
+        }
+
+        return name;
       }
       case "get-root-folder": {
         return this.#store.getRootFolder(this.#namespace);

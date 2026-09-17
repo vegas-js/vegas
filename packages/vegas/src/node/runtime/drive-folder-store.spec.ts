@@ -17,6 +17,7 @@ describe("local Drive folder resources", () => {
     const parent = await store.createFolder(USER_A, root, "parent");
     const child = await store.createFolder(USER_A, parent, "child");
 
+    await expect(store.getFolderName(USER_A, root)).resolves.toBeNull();
     await expect(store.getFolderName(USER_A, parent)).resolves.toBe("parent");
     await expect(store.getFolderName(USER_A, child)).resolves.toBe("child");
     await expect(store.listFolders(USER_A)).resolves.toStrictEqual([parent, child]);
@@ -39,6 +40,21 @@ describe("local Drive folder resources", () => {
       `Unknown local Drive folder: ${root.id}`,
     );
     await expect(store.listFolders(USER_B)).resolves.toStrictEqual([]);
+  });
+
+  test("reject an unknown local root name instead of inventing a label", async () => {
+    const store = new InMemoryDriveStore();
+    const iteratorStore = new InMemoryDriveIteratorStore();
+    const handler = new LocalDriveHostHandler(store, USER_A, iteratorStore.createSession(USER_A));
+    const root = await store.getRootFolder(USER_A);
+
+    await expect(
+      handler.handle({
+        service: "drive",
+        operation: "get-folder-name",
+        folder: root,
+      }),
+    ).rejects.toThrow(`Local Drive folder name is unavailable: ${root.id}`);
   });
 
   test("route folder mutation and parent traversal through LocalDriveHostHandler", async () => {

@@ -16,7 +16,7 @@ type DriveFileState = {
 
 type DriveFolderState = {
   readonly reference: DriveFolderReference;
-  name: string;
+  name: string | null;
   parentIds: string[];
 };
 
@@ -172,7 +172,10 @@ export class InMemoryDriveStore implements DriveStore {
     );
   }
 
-  async getFolderName(namespace: DriveNamespace, folder: DriveFolderReference): Promise<string> {
+  async getFolderName(
+    namespace: DriveNamespace,
+    folder: DriveFolderReference,
+  ): Promise<string | null> {
     return this.#getFolderState(this.#getOrCreateDrive(namespace), folder.id, folder.resourceKey)
       .name;
   }
@@ -277,7 +280,7 @@ export class InMemoryDriveStore implements DriveStore {
           kind: "folder",
           id: `drive-root:${this.#nextRootId}`,
         },
-        name: "My Drive",
+        name: null,
         parentIds: [],
       },
       files: new Map(),

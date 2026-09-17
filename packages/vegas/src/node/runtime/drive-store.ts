@@ -42,7 +42,7 @@ export interface DriveStore {
     id: string,
     resourceKey?: string,
   ): Promise<DriveFolderReference>;
-  getFolderName(namespace: DriveNamespace, folder: DriveFolderReference): Promise<string>;
+  getFolderName(namespace: DriveNamespace, folder: DriveFolderReference): Promise<string | null>;
   getRootFolder(namespace: DriveNamespace): Promise<DriveFolderReference>;
   listFiles(namespace: DriveNamespace): Promise<readonly DriveFileReference[]>;
   listFolders(namespace: DriveNamespace): Promise<readonly DriveFolderReference[]>;
