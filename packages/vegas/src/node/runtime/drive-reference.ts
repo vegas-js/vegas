@@ -40,8 +40,6 @@ export interface DriveFolderIteratorReference {
 
 export type DriveResourceReference = DriveFileReference | DriveFolderReference;
 
-export type DriveIteratorReference =
-  | DriveFileIteratorReference
-  | DriveFolderIteratorReference;
+export type DriveIteratorReference = DriveFileIteratorReference | DriveFolderIteratorReference;
 
 export type DriveObjectReference = DriveResourceReference | DriveIteratorReference;
