@@ -22,8 +22,12 @@ function cloneValue(value: BlobValue): BlobValue {
   };
 }
 
+export interface RuntimeBlobSource {
+  getBlob(): RuntimeBlob;
+}
+
 // https://developers.google.com/apps-script/reference/base/blob
-export class RuntimeBlob {
+export class RuntimeBlob implements RuntimeBlobSource {
   #bytes: number[];
   #contentType: string | null;
   #name: string | null;

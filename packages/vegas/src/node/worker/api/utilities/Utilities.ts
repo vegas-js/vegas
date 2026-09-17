@@ -1,7 +1,7 @@
 import crypto from "node:crypto";
 import zlib from "node:zlib";
 
-import { createBlob } from "../../../runtime/blob";
+import { createBlob, type RuntimeBlobSource } from "../../../runtime/blob";
 import { MD2Hash } from "./md2hash";
 
 // https://developers.google.com/apps-script/reference/utilities/utilities
@@ -374,15 +374,10 @@ export class Utilities {
   getUuid = () => {
     return crypto.randomUUID();
   };
-  gzip = (blob: GoogleAppsScript.Base.BlobSource, name?: string) => {
-    const copiedBlob = blob.getBlob().copyBlob();
-    const buffer = zlib.gzipSync(Buffer.from(copiedBlob.getBytes()));
-    if (name) {
-      copiedBlob.setName(name);
-    }
-    copiedBlob.setBytes(Array.from(new Int8Array(buffer)));
+  gzip = (blob: RuntimeBlobSource, name?: string) => {
+    const buffer = zlib.gzipSync(Buffer.from(blob.getBlob().getBytes()));
 
-    return copiedBlob;
+    return createBlob(Array.from(new Int8Array(buffer)), null, name ?? null);
   };
   newBlob = (
     data: GoogleAppsScript.Byte[] | string,
@@ -406,12 +401,10 @@ export class Utilities {
     const delayMs = Math.min(milliseconds, 300000);
     Atomics.wait(arrayBuffer, 0, 0, delayMs);
   };
-  ungzip = (blob: GoogleAppsScript.Base.BlobSource) => {
-    const copiedBlob = blob.getBlob().copyBlob();
-    const buffer = zlib.gunzipSync(Buffer.from(copiedBlob.getBytes()));
-    copiedBlob.setBytes(Array.from(new Int8Array(buffer)));
+  ungzip = (blob: RuntimeBlobSource) => {
+    const buffer = zlib.gunzipSync(Buffer.from(blob.getBlob().getBytes()));
 
-    return copiedBlob;
+    return createBlob(Array.from(new Int8Array(buffer)));
   };
   unzip = (blob: GoogleAppsScript.Base.BlobSource) => {
     throw new Error("Method not implemented.");

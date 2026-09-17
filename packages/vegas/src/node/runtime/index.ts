@@ -1,4 +1,5 @@
 export { createBlob, hydrateBlob, RuntimeBlob, serializeBlob } from "./blob";
+export type { RuntimeBlobSource } from "./blob";
 export type { BlobValue } from "./blob-value";
 export type { CacheHostCall, CacheHostCallResult, CacheHostScope } from "./cache-host-call";
 export { CacheHostHandler } from "./cache-host-handler";

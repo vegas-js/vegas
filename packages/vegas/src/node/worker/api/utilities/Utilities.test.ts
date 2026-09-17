@@ -30,6 +30,28 @@ describe("newBlob", () => {
   });
 });
 
+describe("gzip", () => {
+  test("compress and uncompress RuntimeBlobSource data", () => {
+    const utilities = new Utilities();
+    const source = utilities.newBlob("Some text to compress using gzip compression");
+    const compressed = utilities.gzip({ getBlob: () => source });
+    const uncompressed = utilities.ungzip(compressed);
+
+    expect(compressed).toBeInstanceOf(RuntimeBlob);
+    expect(uncompressed).toBeInstanceOf(RuntimeBlob);
+    expect(uncompressed.getDataAsString()).toBe(source.getDataAsString());
+    expect(source.getDataAsString()).toBe("Some text to compress using gzip compression");
+  });
+
+  test("name compressed blob when name is provided", () => {
+    const utilities = new Utilities();
+    const source = utilities.newBlob("content");
+    const compressed = utilities.gzip({ getBlob: () => source }, "content.gz");
+
+    expect(compressed.getName()).toBe("content.gz");
+  });
+});
+
 describe("base64", () => {
   // https://developers.google.com/apps-script/reference/utilities/utilities#base64decodeencoded
   test("decode", () => {
