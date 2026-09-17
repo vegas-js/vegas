@@ -41,6 +41,10 @@ export class RuntimeBlob {
     return new RuntimeBlob(serializeBlob(this));
   }
 
+  getBlob(): RuntimeBlob {
+    return this;
+  }
+
   getBytes(): number[] {
     return [...this.#bytes];
   }

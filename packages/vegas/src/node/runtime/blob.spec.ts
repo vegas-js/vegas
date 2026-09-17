@@ -14,6 +14,19 @@ describe("RuntimeBlob", () => {
     expect(blob.isGoogleType()).toBe(false);
   });
 
+  test("return blob data through BlobSource contract", () => {
+    const blob = createBlob("content", "text/plain", "content.txt");
+    const returned = blob.getBlob();
+
+    expect(returned).toBeInstanceOf(RuntimeBlob);
+    expect(serializeBlob(returned)).toStrictEqual({
+      bytes: [99, 111, 110, 116, 101, 110, 116],
+      contentType: "text/plain",
+      name: "content.txt",
+      googleType: false,
+    });
+  });
+
   test("mutate raw blob data and metadata with chaining", () => {
     const blob = createBlob([65], "text/plain", "a.txt");
 
