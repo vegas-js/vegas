@@ -87,7 +87,139 @@ jobs:
           fi
 
           echo "RELEASE_PACKAGE_DIR=$package_dir" >> "$GITHUB_ENV"
+          echo "RELEASE_CHANGELOG=$package_dir/CHANGELOG.md" >> "$GITHUB_ENV"
           echo "NPM_DIST_TAG=$npm_dist_tag" >> "$GITHUB_ENV"
+
+      - name: Verify release notes
+        shell: bash
+        run: |
+          node - "$RELEASE_CHANGELOG" <<'NODE'
+          const fs = require("node:fs");
+
+          const path = process.argv[2];
+          const lines = fs.readFileSync(path, "utf8").split(/\r?\n/);
+          const start = lines.indexOf("# Unreleased");
+
+          if (start === -1) {
+            throw new Error(`Missing "# Unreleased" section in ${path}.`);
+          }
+
+          const nextHeading = lines.findIndex(
+            (line, index) => index > start && line.startsWith("# "),
+          );
+          const end = nextHeading === -1 ? lines.length : nextHeading;
+          const notes = lines.slice(start + 1, end).join("\n").trim();
+
+          if (!notes) {
+            throw new Error(`Empty "# Unreleased" section in ${path}.`);
+          }
+          NODE
 
       - name: Publish package
         run: pnpm --dir "$RELEASE_PACKAGE_DIR" publish --no-git-checks --tag "$NPM_DIST_TAG"
+
+  release:
+    needs: publish
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Resolve release metadata
+        shell: bash
+        run: |
+          case "$GITHUB_REF_NAME" in
+            v*)
+              package_dir="packages/vegas"
+              version="${GITHUB_REF_NAME#v}"
+              release_title="@vegasjs/vegas $GITHUB_REF_NAME"
+              ;;
+            create-vegas@*)
+              package_dir="packages/create-vegas"
+              version="${GITHUB_REF_NAME#create-vegas@}"
+              release_title="create-vegas $version"
+              ;;
+            *)
+              echo "Unsupported release tag: $GITHUB_REF_NAME" >&2
+              exit 1
+              ;;
+          esac
+
+          version_without_build="${version%%+*}"
+
+          if [[ "$version_without_build" == *-* ]]; then
+            prerelease="true"
+          else
+            prerelease="false"
+          fi
+
+          echo "RELEASE_CHANGELOG=$package_dir/CHANGELOG.md" >> "$GITHUB_ENV"
+          echo "RELEASE_TITLE=$release_title" >> "$GITHUB_ENV"
+          echo "RELEASE_PRERELEASE=$prerelease" >> "$GITHUB_ENV"
+
+      - name: Prepare release notes
+        shell: bash
+        run: |
+          node - "$RELEASE_CHANGELOG" <<'NODE' > release-notes.md
+          const fs = require("node:fs");
+
+          const path = process.argv[2];
+          const lines = fs.readFileSync(path, "utf8").split(/\r?\n/);
+          const start = lines.indexOf("# Unreleased");
+
+          if (start === -1) {
+            throw new Error(`Missing "# Unreleased" section in ${path}.`);
+          }
+
+          const nextHeading = lines.findIndex(
+            (line, index) => index > start && line.startsWith("# "),
+          );
+          const end = nextHeading === -1 ? lines.length : nextHeading;
+          const notes = lines.slice(start + 1, end).join("\n").trim();
+
+          if (!notes) {
+            throw new Error(`Empty "# Unreleased" section in ${path}.`);
+          }
+
+          process.stdout.write(`${notes}\n`);
+          NODE
+
+      - name: Create or update GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
+            args=(
+              "$GITHUB_REF_NAME"
+              --verify-tag
+              --latest=false
+              --title "$RELEASE_TITLE"
+              --notes-file release-notes.md
+            )
+
+            if [ "$RELEASE_PRERELEASE" = "true" ]; then
+              args+=(--prerelease)
+            else
+              args+=(--prerelease=false)
+            fi
+
+            gh release edit "${args[@]}"
+            exit 0
+          fi
+
+          args=(
+            "$GITHUB_REF_NAME"
+            --verify-tag
+            --latest=false
+            --title "$RELEASE_TITLE"
+            --notes-file release-notes.md
+          )
+
+          if [ "$RELEASE_PRERELEASE" = "true" ]; then
+            args+=(--prerelease)
+          fi
+
+          gh release create "${args[@]}"
