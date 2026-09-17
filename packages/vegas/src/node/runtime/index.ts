@@ -1,4 +1,5 @@
 export { createBlob, hydrateBlob, RuntimeBlob, serializeBlob } from "./blob";
+export type { CacheNamespace, CacheStore } from "./cache-store";
 export type { BlobValue } from "./blob-value";
 export type { DriveHostCall, DriveHostCallResult } from "./drive-host-call";
 export { LocalDriveHostHandler } from "./drive-host-handler";
@@ -32,6 +33,7 @@ export type { HostBridge } from "./host-bridge";
 export type { HostCall, HostCallResult } from "./host-call";
 export type { HostError, HostRequestMessage, HostResponseMessage } from "./host-protocol";
 export { createHostResponse, handleHostRequestMessage } from "./host-request-handler";
+export { InMemoryCacheStore } from "./in-memory-cache-store";
 export { InMemoryDriveIteratorStore } from "./in-memory-drive-iterator-store";
 export { InMemoryDriveStore } from "./in-memory-drive-store";
 export { InMemoryPropertiesStore } from "./in-memory-properties-store";
