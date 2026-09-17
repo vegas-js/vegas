@@ -31,7 +31,7 @@ export type { HostCallDispatcher, HostDispatcherOptions } from "./host-dispatche
 export type { HostBridge } from "./host-bridge";
 export type { HostCall, HostCallResult } from "./host-call";
 export type { HostError, HostRequestMessage, HostResponseMessage } from "./host-protocol";
-export { createHostResponse } from "./host-request-handler";
+export { createHostResponse, handleHostRequestMessage } from "./host-request-handler";
 export { InMemoryDriveIteratorStore } from "./in-memory-drive-iterator-store";
 export { InMemoryDriveStore } from "./in-memory-drive-store";
 export { InMemoryPropertiesStore } from "./in-memory-properties-store";

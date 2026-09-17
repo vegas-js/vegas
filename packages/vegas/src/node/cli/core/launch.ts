@@ -2,7 +2,7 @@ import path from "node:path";
 import worker from "node:worker_threads";
 
 import {
-  createHostResponse,
+  handleHostRequestMessage,
   HostDispatcher,
   LocalDriveHostHandler,
   PropertiesHostHandler,
@@ -10,7 +10,6 @@ import {
   type DriveIteratorStore,
   type DriveStore,
   type Executor,
-  type HostRequestMessage,
   type InvocationScope,
   type PropertiesStore,
 } from "../../runtime";
@@ -60,31 +59,6 @@ class GASHandler {
   }
 }
 
-function isHostRequestMessage(value: unknown): value is HostRequestMessage {
-  if (typeof value !== "object" || value === null) {
-    return false;
-  }
-
-  const request = value as {
-    id?: unknown;
-    call?: unknown;
-  };
-
-  if (typeof request.id !== "number" || typeof request.call !== "object" || request.call === null) {
-    return false;
-  }
-
-  const call = request.call as {
-    service?: unknown;
-    operation?: unknown;
-  };
-
-  return (
-    (call.service === "drive" || call.service === "properties") &&
-    typeof call.operation === "string"
-  );
-}
-
 function launchGAS(
   ctx: ServeContext,
   handler: GASHandler,
@@ -114,13 +88,7 @@ function launchGAS(
     });
 
     port1.on("message", async (data) => {
-      if (isHostRequestMessage(data)) {
-        try {
-          port1.postMessage(await createHostResponse(dispatcher, data));
-        } finally {
-          Atomics.store(sharedArray, 0, 0);
-          Atomics.notify(sharedArray, 0);
-        }
+      if (await handleHostRequestMessage(port1, sharedArray, dispatcher, data)) {
         return;
       }
 

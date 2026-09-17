@@ -1,3 +1,5 @@
+import worker from "node:worker_threads";
+
 import type { HostCallDispatcher } from "./host-dispatcher";
 import type { HostError, HostRequestMessage, HostResponseMessage } from "./host-protocol";
 
@@ -35,4 +37,49 @@ function serializeHostError(error: unknown): HostError {
     type: "Error",
     message: String(error),
   };
+}
+
+export async function handleHostRequestMessage(
+  port: worker.MessagePort,
+  sharedArray: Int32Array,
+  dispatcher: HostCallDispatcher,
+  value: unknown,
+): Promise<boolean> {
+  if (!isHostRequestMessage(value)) {
+    return false;
+  }
+
+  try {
+    port.postMessage(await createHostResponse(dispatcher, value));
+  } finally {
+    Atomics.store(sharedArray, 0, 0);
+    Atomics.notify(sharedArray, 0);
+  }
+
+  return true;
+}
+
+function isHostRequestMessage(value: unknown): value is HostRequestMessage {
+  if (typeof value !== "object" || value === null) {
+    return false;
+  }
+
+  const request = value as {
+    id?: unknown;
+    call?: unknown;
+  };
+
+  if (typeof request.id !== "number" || typeof request.call !== "object" || request.call === null) {
+    return false;
+  }
+
+  const call = request.call as {
+    service?: unknown;
+    operation?: unknown;
+  };
+
+  return (
+    (call.service === "drive" || call.service === "properties") &&
+    typeof call.operation === "string"
+  );
 }
