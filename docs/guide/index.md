@@ -8,15 +8,15 @@ outline: deep
 
 Vegas (Vite + GAS) is an integrated development and build tool for modern projects on the Google Apps Script platform. It covers local development, production builds, authentication, and pushing build output to Apps Script.
 
-- A development server with a local GAS-compatible runtime, powered by [Vite](https://vite.dev).
+- A development server with a local Apps Script-oriented runtime for supported APIs, powered by [Vite](https://vite.dev).
 
 - A production build pipeline that bundles frontend and server code for Apps Script.
 
 - Native Apps Script authentication and push commands for sending built output directly to an Apps Script project.
 
-Vegas provides a zero-config experience, achieving optimal build results without any configuration in most cases. See the Feature Guide for details.
+Vegas provides defaults for common project layouts, so many projects can start without custom configuration. See [Configuring Vegas](../config/) for available options.
 
-It features a Vite plugin pass-through function, enabling framework support and integration with other tools with the Vite experience.
+Vite plugins can be supplied through Vegas configuration, allowing framework integrations and other Vite plugins to participate in the client build.
 
 The reasoning behind the project is explained in detail in the [Why Vegas](./why) section.
 
@@ -38,16 +38,13 @@ Then follow the prompts.
 
 ## `index.html` and Project Root
 
-You may have noticed that index.html is not located in the root of the Vegas project. This is intentional. Vegas automatically detects entry points like `main.ts` or `main.tsx`.
+You may have noticed that `index.html` is not located in the root of a Vegas SPA project. This is intentional. Unlike Vite's default HTML-entry model, Vegas uses client modules such as `main.ts` or `main.tsx` as SPA entry points and generates the host HTML during the build.
 
-There are two main reasons why we didn't follow Vite's configuration.
+There are two Apps Script-specific reasons for this design.
 
-First, when building an SPA on the GAS platform, there's almost no point in editing raw HTML.
-Web apps (not just SPAs) running on the GAS platform run in an iframe sandbox, so header settings and the like are meaningless. Also, using an SPA framework is much more efficient than manually writing HTML files with SPA in mind.
+First, Apps Script web apps are served through HTML Service and its iframe sandbox. Vegas therefore owns the generated host document needed to load the built client instead of requiring a hand-maintained root `index.html`.
 
-The second reason is the realization of a single project/multiple frontends.
-
-Existing SPA tool configurations typically have one frontend per GAS project. However, this doesn't address the need to manage separate frontends (e.g., admin and user dashboards) within a single codebase. Vegas is designed to easily address this need.
+Second, a single Apps Script project can contain multiple frontends. Vegas detects separate client entries, such as admin and user frontends, and emits an independent HTML artifact for each entry.
 
 ## Command Line Interface
 

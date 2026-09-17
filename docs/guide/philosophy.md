@@ -38,7 +38,7 @@ Managing multiple user interfaces within a single GAS project traditionally intr
 Vegas is designed to cover the full development path from local development through production push while keeping each responsibility explicit.
 
 - **Local Development and Build:**
-  Vegas provides the development server, local Apps Script-compatible runtime, and production build pipeline.
+  Vegas provides the development server, local Apps Script-oriented runtime for supported APIs, and production build pipeline.
 - **Native Apps Script Push:**
   Production build output can be pushed directly to an Apps Script project with `vegas push`.
 - **Migration Compatibility:**

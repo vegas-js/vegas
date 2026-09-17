@@ -10,14 +10,15 @@ Standard build tools are designed for the open web, not the unique constraints o
 
 Vegas was built to bridge this gap by providing a specialized pipeline that respects GAS architecture while delivering a 2026-standard development experience.
 
-## Comparison: Why Vegas is the Right Choice
+## Capability Comparison
 
-| Feature           | Legacy (clasp only)      | Standard Vite Plugins   | Vegas                            |
-| :---------------- | :----------------------- | :---------------------- | -------------------------------- |
-| Feedback Loop     | 🐌 Slow (Push & Refresh) | 💨 Fast (Web HMR only)  | ⚡️ Instant (Full-Bundle Refresh) |
-| Execution State   | Online Only              | Potentially Unstable    | Fresh Local Runtime Context      |
-| Frontend Strategy | Monolithic SPA           | Complex Config Required | Native Multi-Entry Support       |
-| Bundle Size       | Bloated                  | Variable                | Optimized per Entry              |
+| Capability                           | clasp alone | Vite alone        | Vegas                   |
+| :----------------------------------- | :---------- | :---------------- | :---------------------- |
+| Local frontend dev server            | No          | Yes               | Yes                     |
+| Local Apps Script-oriented runtime   | No          | No                | Yes, for supported APIs |
+| Apps Script project push             | Yes         | No                | Yes                     |
+| Apps Script-oriented build           | No          | General web build | Yes                     |
+| Automatic SPA client entry discovery | No          | No by default     | Yes                     |
 
 ## Core Advantages
 
@@ -29,8 +30,8 @@ While standard HMR (Hot Module Replacement) is great for the web, it can introdu
   Upon saving, Vegas performs a lightning-fast re-bundle of your entire server-side logic and restarts the local runtime context.
 - **No Orphaned State:**
   By avoiding partial module updates, Vegas lets each refresh run against a newly started local runtime context instead of preserving stale server-side module state.
-- **Powered by Rust:**
-  Leveraging the speed of Vite (Rust-based), this full refresh happens in milliseconds, providing the speed of Full-Bundle Refresh with the reliability of a fresh start.
+- **Powered by Vite:**
+  Vegas uses Vite for fast rebuilds, keeping Full-Bundle Refresh responsive while restarting the local runtime context for each refresh.
 
 2. Native Multi-Frontend Support
 
