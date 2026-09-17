@@ -2,6 +2,8 @@ import type { DriveHostCall, DriveHostCallResult } from "./drive-host-call";
 import type { DriveIteratorSession } from "./drive-iterator-store";
 import type { DriveNamespace, DriveStore } from "./drive-store";
 
+const MAX_LOCAL_DRIVE_FILE_CONTENT_BYTES = 10_000_000;
+
 export interface DriveHostCallHandler {
   handle(call: DriveHostCall): Promise<DriveHostCallResult<DriveHostCall>>;
 }
@@ -51,6 +53,16 @@ export class LocalDriveHostHandler implements DriveHostCallHandler {
         }
 
         return mimeType;
+      }
+      case "set-file-content": {
+        const encoded = new TextEncoder().encode(call.content);
+
+        if (encoded.byteLength > MAX_LOCAL_DRIVE_FILE_CONTENT_BYTES) {
+          throw new Error("Local Drive file content exceeds the 10 MB limit.");
+        }
+
+        await this.#store.setFileContent(this.#namespace, call.file, Array.from(encoded));
+        return;
       }
       case "set-file-name": {
         await this.#store.setFileName(this.#namespace, call.file, call.name);

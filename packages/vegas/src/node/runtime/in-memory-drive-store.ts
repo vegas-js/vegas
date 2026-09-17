@@ -9,7 +9,7 @@ type DriveFileContent = {
 
 type DriveFileState = {
   readonly reference: DriveFileReference;
-  readonly content: DriveFileContent;
+  content: DriveFileContent;
   metadata: DriveFileMetadata;
   parentIds: string[];
 };
@@ -136,6 +136,18 @@ export class InMemoryDriveStore implements DriveStore {
     return cloneFileMetadata(
       this.#getFileState(this.#getOrCreateDrive(namespace), file.id, file.resourceKey).metadata,
     );
+  }
+
+  async setFileContent(
+    namespace: DriveNamespace,
+    file: DriveFileReference,
+    bytes: readonly number[],
+  ): Promise<void> {
+    const state = this.#getFileState(this.#getOrCreateDrive(namespace), file.id, file.resourceKey);
+    state.content = {
+      ...state.content,
+      bytes: [...bytes],
+    };
   }
 
   async setFileName(

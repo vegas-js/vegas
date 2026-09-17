@@ -43,6 +43,8 @@ class RecordingHostBridge implements HostBridge {
           name: "hello.txt",
           googleType: false,
         } as unknown as HostCallResult<C>;
+      case "set-file-content":
+        return undefined as unknown as HostCallResult<C>;
       default:
         throw new Error(`unexpected Drive operation: ${call.operation}`);
     }
@@ -66,6 +68,16 @@ describe("DriveFile Runtime object", () => {
         googleType: false,
       },
     } satisfies DriveHostCall;
+    const setContentCall = {
+      service: "drive",
+      operation: "set-file-content",
+      file: {
+        service: "drive",
+        kind: "file",
+        id: "file-1",
+      },
+      content: "updated",
+    } satisfies DriveHostCall;
     const getBlobCall = {
       service: "drive",
       operation: "get-file-blob",
@@ -77,6 +89,7 @@ describe("DriveFile Runtime object", () => {
     } satisfies DriveHostCall;
 
     expectTypeOf<HostCallResult<typeof createCall>>().toEqualTypeOf<DriveFileReference>();
+    expectTypeOf<HostCallResult<typeof setContentCall>>().toEqualTypeOf<void>();
     expectTypeOf<HostCallResult<typeof getBlobCall>>().toEqualTypeOf<BlobValue>();
   });
 
@@ -96,6 +109,7 @@ describe("DriveFile Runtime object", () => {
     expect(blob.getDataAsString()).toBe("hello");
     expect(blob.getContentType()).toBe("text/plain");
     expect(blob.getName()).toBe("hello.txt");
+    expect(file.setContent("updated")).toBe(file);
 
     expect(bridge.calls).toStrictEqual([
       {
@@ -125,6 +139,16 @@ describe("DriveFile Runtime object", () => {
           kind: "file",
           id: "file-1",
         },
+      },
+      {
+        service: "drive",
+        operation: "set-file-content",
+        file: {
+          service: "drive",
+          kind: "file",
+          id: "file-1",
+        },
+        content: "updated",
       },
     ]);
   });

@@ -68,6 +68,14 @@ class RecordingDriveStore implements DriveStore {
     };
   }
 
+  async setFileContent(
+    namespace: DriveNamespace,
+    file: DriveFileReference,
+    bytes: readonly number[],
+  ): Promise<void> {
+    this.calls.push(`setFileContent:${namespace.userKey}:${file.id}:${bytes.length}`);
+  }
+
   async setFileName(
     namespace: DriveNamespace,
     file: DriveFileReference,

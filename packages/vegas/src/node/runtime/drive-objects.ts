@@ -160,6 +160,16 @@ export class DriveFile {
     );
   }
 
+  setContent(content: string): DriveFile {
+    this.#bridge.call({
+      service: "drive",
+      operation: "set-file-content",
+      file: this.#reference,
+      content,
+    });
+    return this;
+  }
+
   setName(name: string): DriveFile {
     this.#bridge.call({
       service: "drive",
