@@ -32,6 +32,7 @@ export { createHostResponse } from "./host-request-handler";
 export { InMemoryDriveIteratorStore } from "./in-memory-drive-iterator-store";
 export { InMemoryPropertiesStore } from "./in-memory-properties-store";
 export type { InvocationEnvironment } from "./invocation";
+export { createPropertiesService, Properties, PropertiesService } from "./properties-objects";
 export { PropertiesHostHandler } from "./properties-host-handler";
 export type { PropertiesHostCallHandler } from "./properties-host-handler";
 export type {

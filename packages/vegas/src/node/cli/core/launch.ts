@@ -15,7 +15,6 @@ import {
   HtmlServiceHandler,
   SessionHandler,
   CacheHandler,
-  PropertiesHandler,
   SpreadsheetAppHandler,
   SheetHandler,
   RangeHandler,
@@ -25,12 +24,11 @@ import {
 class GASHandler {
   #handlers: Record<string, Record<string, any>>;
 
-  constructor(propertiesStore: PropertiesStore) {
+  constructor() {
     this.#handlers = {
       HtmlService: new HtmlServiceHandler(),
       Session: new SessionHandler(),
       Cache: new CacheHandler(),
-      Properties: new PropertiesHandler(propertiesStore),
       SpreadsheetApp: new SpreadsheetAppHandler(),
       Sheet: new SheetHandler(),
       Range: new RangeHandler(),
@@ -149,7 +147,7 @@ export function createLegacyAppsScriptExecutor(
   ctx: ServeContext,
   propertiesStore: PropertiesStore,
 ): Executor {
-  const handler = new GASHandler(propertiesStore);
+  const handler = new GASHandler();
 
   return {
     execute(request) {

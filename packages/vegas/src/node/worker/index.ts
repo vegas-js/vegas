@@ -2,8 +2,8 @@ import vm from "node:vm";
 import worker from "node:worker_threads";
 
 import { createDriveApp } from "../runtime/drive-object-hydrator";
+import { createPropertiesService } from "../runtime/properties-objects";
 import { createWorkerHostBridge } from "../runtime/worker-host-bridge";
-
 import { Console } from "./api/base/console";
 import { Logger } from "./api/base/Logger";
 import { Session } from "./api/base/Session";
@@ -14,8 +14,6 @@ import { HtmlService } from "./api/html/HtmlService";
 import { HtmlTemplate } from "./api/html/HtmlTemplate";
 import { Lock } from "./api/lock/Lock";
 import { LockService } from "./api/lock/LockService";
-import { Properties } from "./api/properties/Properties";
-import { PropertiesService } from "./api/properties/PropertiesService";
 import { Range } from "./api/spreadsheet/Range";
 import { Sheet } from "./api/spreadsheet/Sheet";
 import { Spreadsheet } from "./api/spreadsheet/Spreadsheet";
@@ -190,11 +188,7 @@ export const scriptContext = vm.createContext({
     new Lock(Scope.USER, requestSync),
   ),
   /* Properties */
-  PropertiesService: new PropertiesService(
-    new Properties(Scope.DOCUMENT, requestSync),
-    new Properties(Scope.SCRIPT, requestSync),
-    new Properties(Scope.USER, requestSync),
-  ),
+  PropertiesService: createPropertiesService(hostBridge),
   // ScriptProperties is Deprecated.
   // UserProperties is Deprecated.
   /* Script */

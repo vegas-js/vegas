@@ -3,6 +3,11 @@ export type PropertiesHostScope = "document" | "script" | "user";
 export type PropertiesHostCall =
   | {
       readonly service: "properties";
+      readonly operation: "isAvailable";
+      readonly namespace: PropertiesHostScope;
+    }
+  | {
+      readonly service: "properties";
       readonly operation: "get";
       readonly namespace: PropertiesHostScope;
       readonly key: string;
@@ -49,15 +54,19 @@ export type PropertiesHostCall =
     };
 
 export type PropertiesHostCallResult<C extends PropertiesHostCall> = C extends {
-  readonly operation: "get";
+  readonly operation: "isAvailable";
 }
-  ? string | null
+  ? boolean
   : C extends {
-        readonly operation: "getAll";
+        readonly operation: "get";
       }
-    ? Record<string, string>
+    ? string | null
     : C extends {
-          readonly operation: "getKeys";
+          readonly operation: "getAll";
         }
-      ? string[]
-      : void;
+      ? Record<string, string>
+      : C extends {
+            readonly operation: "getKeys";
+          }
+        ? string[]
+        : void;

@@ -1,11 +1,11 @@
-import type { InvocationScope } from "./scope";
 import type {
   PropertiesHostCall,
   PropertiesHostCallResult,
   PropertiesHostScope,
 } from "./properties-host-call";
-import type { PropertiesNamespace, PropertiesStore } from "./properties-store";
 import { resolvePropertiesNamespace } from "./properties-namespace";
+import type { PropertiesNamespace, PropertiesStore } from "./properties-store";
+import type { InvocationScope } from "./scope";
 
 export interface PropertiesHostCallHandler {
   handle(call: PropertiesHostCall): Promise<PropertiesHostCallResult<PropertiesHostCall>>;
@@ -25,6 +25,9 @@ export class PropertiesHostHandler implements PropertiesHostCallHandler {
     const namespace = this.#resolve(call.namespace);
 
     switch (call.operation) {
+      case "isAvailable": {
+        return namespace !== undefined;
+      }
       case "get": {
         if (!namespace) {
           return null;

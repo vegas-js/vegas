@@ -119,6 +119,20 @@ describe("PropertiesHostHandler", () => {
     await expect(
       handler.handle({
         service: "properties",
+        operation: "isAvailable",
+        namespace: "document",
+      }),
+    ).resolves.toBe(false);
+    await expect(
+      handler.handle({
+        service: "properties",
+        operation: "isAvailable",
+        namespace: "script",
+      }),
+    ).resolves.toBe(true);
+    await expect(
+      handler.handle({
+        service: "properties",
         operation: "get",
         namespace: "document",
         key: "missing",
