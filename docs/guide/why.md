@@ -15,7 +15,7 @@ Vegas was built to bridge this gap by providing a specialized pipeline that resp
 | Feature           | Legacy (clasp only)      | Standard Vite Plugins   | Vegas                            |
 | :---------------- | :----------------------- | :---------------------- | -------------------------------- |
 | Feedback Loop     | 🐌 Slow (Push & Refresh) | 💨 Fast (Web HMR only)  | ⚡️ Instant (Full-Bundle Refresh) |
-| Execution State   | Online Only              | Potentially Unstable    | Always Clean & Reliable          |
+| Execution State   | Online Only              | Potentially Unstable    | Fresh Local Runtime Context      |
 | Frontend Strategy | Monolithic SPA           | Complex Config Required | Native Multi-Entry Support       |
 | Bundle Size       | Bloated                  | Variable                | Optimized per Entry              |
 
@@ -28,7 +28,7 @@ While standard HMR (Hot Module Replacement) is great for the web, it can introdu
 - **Clean-State Execution:**
   Upon saving, Vegas performs a lightning-fast re-bundle of your entire server-side logic and restarts the local runtime context.
 - **No Orphaned State:**
-  By avoiding partial module updates, you are guaranteed to test code that is a 1:1 representation of what will actually run on Google’s servers.
+  By avoiding partial module updates, Vegas lets each refresh run against a newly started local runtime context instead of preserving stale server-side module state.
 - **Powered by Rust:**
   Leveraging the speed of Vite (Rust-based), this full refresh happens in milliseconds, providing the speed of Full-Bundle Refresh with the reliability of a fresh start.
 
@@ -43,11 +43,11 @@ Building a professional GAS application usually means managing multiple roles (e
 - **Optimized Payload:**
   By separating frontends at the build level, Vegas ensures that users only download the code they need, preventing the bundle-size bloat common in single-SPA GAS projects.
 
-3. High-Fidelity Local Runtime
+3. Local Apps Script Runtime
 
-Vegas doesn't just build your code; it emulates the GAS environment.
+Vegas doesn't just build your code; it also provides a local runtime for development and preview workflows.
 
-- **Synchronous Simulation:**
-  Vegas respects the synchronous nature of GAS APIs.
-- **In-Memory Services:**
-  Vegas provides a high-precision local implementation for APIs used in GAS, enabling comprehensive testing without hitting Google's rate limits or touching production data.
+- **Apps Script-Oriented Execution:**
+  The runtime provides local behavior for selected Apps Script APIs so server-side code can participate in the development feedback loop.
+- **Partial API Coverage:**
+  Support varies by service and method. The local runtime is useful for development feedback, but it is not a complete or exact reproduction of the Google Apps Script execution environment.

@@ -13,14 +13,14 @@ GAS development is often hindered by the latency between writing code and seeing
 - **Rapid Iteration:**
   By fostering a fast feedback loop, developers can maintain focus on logic rather than infrastructure overhead.
 
-## High-Fidelity Emulation: Testable GAS
+## Local Runtime: Faster Development Feedback
 
-Relying on production-only testing is both risky and time-consuming. Vegas serves as a precise emulator that mirrors the execution environment of GAS locally.
+Relying exclusively on remote execution makes iteration slower. Vegas provides a local runtime that lets supported Apps Script behavior participate in the development and preview feedback loop.
 
-- **Predictable Execution:**
-  Complex interactions with services like Spreadsheet and Drive APIs can be verified without touching live data.
-- **Reliable Deployments:**
-  This approach ensures that code which functions correctly in the local emulator remains stable when deployed to Google's servers.
+- **Selected API Support:**
+  The runtime partially implements selected Apps Script services and methods, allowing supported server-side behavior to be exercised locally.
+- **Explicit Limitations:**
+  API coverage varies by service and method. Local execution does not guarantee identical behavior after deployment and should not be treated as a complete replacement for testing against Google Apps Script when exact platform behavior matters.
 
 ## Architectural Scalability: Multi-Frontend Strategy
 
