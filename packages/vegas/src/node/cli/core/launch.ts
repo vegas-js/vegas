@@ -12,13 +12,13 @@ import {
   type DriveIteratorStore,
   type DriveStore,
   type Executor,
+  type InvocationEnvironment,
   type InvocationScope,
   type PropertiesStore,
 } from "../../runtime";
 import type { ServeContext } from "./context";
 import {
   HtmlServiceHandler,
-  SessionHandler,
   SpreadsheetAppHandler,
   SheetHandler,
   RangeHandler,
@@ -31,7 +31,6 @@ class GASHandler {
   constructor() {
     this.#handlers = {
       HtmlService: new HtmlServiceHandler(),
-      Session: new SessionHandler(),
       SpreadsheetApp: new SpreadsheetAppHandler(),
       Sheet: new SheetHandler(),
       Range: new RangeHandler(),
@@ -63,6 +62,7 @@ function launchGAS(
   ctx: ServeContext,
   handler: GASHandler,
   dispatcher: HostDispatcher,
+  environment: InvocationEnvironment,
   invocationScope: InvocationScope,
   source: string,
   fn: string,
@@ -77,6 +77,7 @@ function launchGAS(
       transferList: [port2],
       workerData: {
         code: source,
+        environment,
         sharedArray,
         port: port2,
       },
@@ -141,6 +142,7 @@ export function createLegacyAppsScriptExecutor(
         ctx,
         handler,
         dispatcher,
+        request.environment,
         request.scope,
         request.program.source,
         request.functionName,

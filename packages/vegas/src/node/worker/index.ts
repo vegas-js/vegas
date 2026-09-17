@@ -4,10 +4,11 @@ import worker from "node:worker_threads";
 import { createCacheService } from "../runtime/cache-objects";
 import { createDriveApp } from "../runtime/drive-object-hydrator";
 import { createPropertiesService } from "../runtime/properties-objects";
+import { createSession } from "../runtime/session-objects";
+import type { InvocationEnvironment } from "../runtime/invocation";
 import { createWorkerHostBridge } from "../runtime/worker-host-bridge";
 import { Console } from "./api/base/console";
 import { Logger } from "./api/base/Logger";
-import { Session } from "./api/base/Session";
 import { HtmlOutput } from "./api/html/HtmlOutput";
 import { HtmlService } from "./api/html/HtmlService";
 import { HtmlTemplate } from "./api/html/HtmlTemplate";
@@ -19,6 +20,13 @@ import { Spreadsheet } from "./api/spreadsheet/Spreadsheet";
 import { SpreadsheetApp } from "./api/spreadsheet/SpreadsheetApp";
 import { UrlFetchApp } from "./api/url_fetch/UrlFetchApp";
 import { Utilities } from "./api/utilities/Utilities";
+
+type RuntimeWorkerData = {
+  readonly code: string;
+  readonly environment: InvocationEnvironment;
+  readonly port: worker.MessagePort;
+  readonly sharedArray: Int32Array;
+};
 
 type GASWorkerData = {
   fn: string;
@@ -33,8 +41,9 @@ const Scope = {
 
 export type Scope = (typeof Scope)[keyof typeof Scope];
 
-const sharedArray: Int32Array = worker.workerData.sharedArray;
-const port: worker.MessagePort = worker.workerData.port;
+const runtimeWorkerData = worker.workerData as RuntimeWorkerData;
+const sharedArray = runtimeWorkerData.sharedArray;
+const port = runtimeWorkerData.port;
 const hostBridge = createWorkerHostBridge(port, sharedArray);
 
 function requestSync(request: { message: string; payload?: any }, timeout?: number) {
@@ -82,7 +91,7 @@ function createHtmlTemplate(content: string): GoogleAppsScript.HTML.HtmlTemplate
 }
 export type CreateHtmlTemplate = typeof createHtmlTemplate;
 
-const script = new vm.Script(worker.workerData.code);
+const script = new vm.Script(runtimeWorkerData.code);
 export const scriptContext = vm.createContext({
   /* Admin Console */
   AdminDirectory: undefined, // Advanced services. Low priority.
@@ -172,7 +181,7 @@ export const scriptContext = vm.createContext({
   Browser: undefined,
   Logger: new Logger(),
   MimeType: undefined,
-  Session: new Session(requestSync),
+  Session: createSession(runtimeWorkerData.environment),
   console: new Console(),
   /* Cache */
   CacheService: createCacheService(hostBridge),
