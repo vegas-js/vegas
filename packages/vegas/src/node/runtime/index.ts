@@ -33,6 +33,8 @@ export type {
 export type { DriveFileMetadata, DriveNamespace, DriveStore } from "./drive-store";
 export type { ExecutionRequest, Executor } from "./executor";
 export { HostDispatcher } from "./host-dispatcher";
+export { HtmlOutput, HtmlOutputMetaTag, serializeHtmlOutput } from "./html-output";
+export type { HtmlOutputSnapshot, HtmlSandboxMode, HtmlXFrameOptionsMode } from "./html-output";
 export type { HostCallDispatcher, HostDispatcherOptions } from "./host-dispatcher";
 export type { HostBridge } from "./host-bridge";
 export type { HostCall, HostCallResult } from "./host-call";
