@@ -146,6 +146,17 @@ export class DriveFolder {
     this.#hydrator = hydrator;
   }
 
+  createFolder(name: string): DriveFolder {
+    return this.#hydrator.hydrate(
+      this.#bridge.call({
+        service: "drive",
+        operation: "create-folder",
+        parent: this.#reference,
+        name,
+      }),
+    );
+  }
+
   getFiles(): DriveFileIterator {
     return this.#hydrator.hydrate(
       this.#bridge.call({
@@ -168,6 +179,24 @@ export class DriveFolder {
 
   getId(): string {
     return this.#reference.id;
+  }
+
+  getName(): string {
+    return this.#bridge.call({
+      service: "drive",
+      operation: "get-folder-name",
+      folder: this.#reference,
+    });
+  }
+
+  getParents(): DriveFolderIterator {
+    return this.#hydrator.hydrate(
+      this.#bridge.call({
+        service: "drive",
+        operation: "get-folder-parents",
+        folder: this.#reference,
+      }),
+    );
   }
 }
 

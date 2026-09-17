@@ -18,6 +18,15 @@ const USER = { userKey: "user-a" } as const satisfies DriveNamespace;
 class RecordingDriveStore implements DriveStore {
   readonly calls: string[] = [];
 
+  async createFolder(
+    namespace: DriveNamespace,
+    parent: DriveFolderReference,
+    name: string,
+  ): Promise<DriveFolderReference> {
+    this.calls.push(`createFolder:${namespace.userKey}:${parent.id}:${name}`);
+    return { service: "drive", kind: "folder", id: `created:${name}` };
+  }
+
   async getFile(
     namespace: DriveNamespace,
     id: string,
@@ -34,6 +43,11 @@ class RecordingDriveStore implements DriveStore {
   ): Promise<DriveFolderReference> {
     this.calls.push(`getFolder:${namespace.userKey}:${id}:${resourceKey ?? ""}`);
     return { service: "drive", kind: "folder", id, ...(resourceKey ? { resourceKey } : {}) };
+  }
+
+  async getFolderName(namespace: DriveNamespace, folder: DriveFolderReference): Promise<string> {
+    this.calls.push(`getFolderName:${namespace.userKey}:${folder.id}`);
+    return `name:${folder.id}`;
   }
 
   async getRootFolder(namespace: DriveNamespace): Promise<DriveFolderReference> {
@@ -73,6 +87,14 @@ class RecordingDriveStore implements DriveStore {
   ): Promise<readonly DriveFolderReference[]> {
     this.calls.push(`listFolderFolders:${namespace.userKey}:${folder.id}`);
     return [FOLDER_A];
+  }
+
+  async listFolderParents(
+    namespace: DriveNamespace,
+    folder: DriveFolderReference,
+  ): Promise<readonly DriveFolderReference[]> {
+    this.calls.push(`listFolderParents:${namespace.userKey}:${folder.id}`);
+    return [ROOT];
   }
 }
 

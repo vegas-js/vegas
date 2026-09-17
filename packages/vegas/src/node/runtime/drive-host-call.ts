@@ -21,6 +21,17 @@ export type DriveHostCall =
     }
   | {
       readonly service: "drive";
+      readonly operation: "create-folder";
+      readonly parent: DriveFolderReference;
+      readonly name: string;
+    }
+  | {
+      readonly service: "drive";
+      readonly operation: "get-folder-name";
+      readonly folder: DriveFolderReference;
+    }
+  | {
+      readonly service: "drive";
       readonly operation: "get-root-folder";
     }
   | {
@@ -58,6 +69,11 @@ export type DriveHostCall =
     }
   | {
       readonly service: "drive";
+      readonly operation: "get-folder-parents";
+      readonly folder: DriveFolderReference;
+    }
+  | {
+      readonly service: "drive";
       readonly operation: "iterator-has-next";
       readonly iterator: DriveIteratorReference;
     }
@@ -82,7 +98,11 @@ export type DriveHostCallResult<C extends DriveHostCall> = C extends {
 }
   ? DriveFileReference
   : C extends {
-        readonly operation: "get-folder" | "get-root-folder" | "folder-iterator-next";
+        readonly operation:
+          | "get-folder"
+          | "get-root-folder"
+          | "create-folder"
+          | "folder-iterator-next";
       }
     ? DriveFolderReference
     : C extends {
@@ -94,7 +114,8 @@ export type DriveHostCallResult<C extends DriveHostCall> = C extends {
               | "get-folders"
               | "continue-folder-iterator"
               | "get-file-parents"
-              | "get-folder-folders";
+              | "get-folder-folders"
+              | "get-folder-parents";
           }
         ? DriveFolderIteratorReference
         : C extends {
@@ -102,7 +123,7 @@ export type DriveHostCallResult<C extends DriveHostCall> = C extends {
             }
           ? boolean
           : C extends {
-                readonly operation: "iterator-continuation-token";
+                readonly operation: "get-folder-name" | "iterator-continuation-token";
               }
             ? string
             : never;

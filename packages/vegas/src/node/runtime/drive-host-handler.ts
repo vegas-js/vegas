@@ -31,6 +31,12 @@ export class LocalDriveHostHandler implements DriveHostCallHandler {
       case "get-folder": {
         return this.#store.getFolder(this.#namespace, call.id, call.resourceKey);
       }
+      case "create-folder": {
+        return this.#store.createFolder(this.#namespace, call.parent, call.name);
+      }
+      case "get-folder-name": {
+        return this.#store.getFolderName(this.#namespace, call.folder);
+      }
       case "get-root-folder": {
         return this.#store.getRootFolder(this.#namespace);
       }
@@ -59,6 +65,11 @@ export class LocalDriveHostHandler implements DriveHostCallHandler {
       case "get-folder-folders": {
         return this.#iterators.createFolderIterator(
           await this.#store.listFolderFolders(this.#namespace, call.folder),
+        );
+      }
+      case "get-folder-parents": {
+        return this.#iterators.createFolderIterator(
+          await this.#store.listFolderParents(this.#namespace, call.folder),
         );
       }
       case "iterator-has-next": {

@@ -12,12 +12,18 @@ export interface DriveNamespace {
  * owned separately by DriveIteratorStore.
  */
 export interface DriveStore {
+  createFolder(
+    namespace: DriveNamespace,
+    parent: DriveFolderReference,
+    name: string,
+  ): Promise<DriveFolderReference>;
   getFile(namespace: DriveNamespace, id: string, resourceKey?: string): Promise<DriveFileReference>;
   getFolder(
     namespace: DriveNamespace,
     id: string,
     resourceKey?: string,
   ): Promise<DriveFolderReference>;
+  getFolderName(namespace: DriveNamespace, folder: DriveFolderReference): Promise<string>;
   getRootFolder(namespace: DriveNamespace): Promise<DriveFolderReference>;
   listFiles(namespace: DriveNamespace): Promise<readonly DriveFileReference[]>;
   listFolders(namespace: DriveNamespace): Promise<readonly DriveFolderReference[]>;
@@ -30,6 +36,10 @@ export interface DriveStore {
     folder: DriveFolderReference,
   ): Promise<readonly DriveFileReference[]>;
   listFolderFolders(
+    namespace: DriveNamespace,
+    folder: DriveFolderReference,
+  ): Promise<readonly DriveFolderReference[]>;
+  listFolderParents(
     namespace: DriveNamespace,
     folder: DriveFolderReference,
   ): Promise<readonly DriveFolderReference[]>;
