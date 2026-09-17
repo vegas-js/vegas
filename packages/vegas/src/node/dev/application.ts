@@ -10,6 +10,7 @@ import type { Executor, InvocationEnvironment } from "../runtime";
 import { BuildCoordinator } from "./build-coordinator";
 import { buildDevTopology } from "./build-topology";
 import { classifyProjectFile } from "./project-file";
+import { createRuntimeProgram } from "./runtime-program";
 import { createAppsScriptDoGetEvent, createAppsScriptDoPostEvent } from "./webapp/event";
 import { createHostHtml, type AppsScriptDoGetResult } from "./webapp/host-html";
 import {
@@ -186,7 +187,14 @@ export class DevApplication {
       async (data: ServerFunctionCallRequest, client) => {
         await builds.waitForIdle();
 
-        const response = await executeServerFunctionCall(this.#executor, data, this.#environment);
+        const program = createRuntimeProgram(this.#artifacts);
+
+        const response = await executeServerFunctionCall(
+          this.#executor,
+          data,
+          program,
+          this.#environment,
+        );
 
         client.send("vegas:return", response);
       },
@@ -212,7 +220,10 @@ export class DevApplication {
             if (request.method === "GET") {
               const doGetEvent = createAppsScriptDoGetEvent(url);
 
+              const program = createRuntimeProgram(this.#artifacts);
+
               const result = (await this.#executor.execute({
+                program,
                 functionName: "doGet",
                 args: [doGetEvent],
                 environment: this.#environment,
@@ -241,7 +252,10 @@ export class DevApplication {
                 request.headers["content-type"],
               );
 
+              const program = createRuntimeProgram(this.#artifacts);
+
               const result = (await this.#executor.execute({
+                program,
                 functionName: "doPost",
                 args: [doPostEvent],
                 environment: this.#environment,

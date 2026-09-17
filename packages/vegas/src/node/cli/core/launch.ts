@@ -52,8 +52,7 @@ class GASHandler {
 
 const handler = new GASHandler();
 
-function launchGAS(ctx: ServeContext, fn: string, ...args: any[]): Promise<any> {
-  const code = ctx.artifacts.readText("Code.js");
+function launchGAS(ctx: ServeContext, source: string, fn: string, ...args: any[]): Promise<any> {
   return new Promise((resolve, reject) => {
     const sharedBuffer = new SharedArrayBuffer(4);
     const sharedArray = new Int32Array(sharedBuffer);
@@ -61,7 +60,11 @@ function launchGAS(ctx: ServeContext, fn: string, ...args: any[]): Promise<any> 
     const gasWorker = new worker.Worker(path.join(import.meta.dirname, "worker.js"), {
       env: { ...process.env, FORCE_COLOR: "1" },
       transferList: [port2],
-      workerData: { code, sharedArray, port: port2 },
+      workerData: {
+        code: source,
+        sharedArray,
+        port: port2,
+      },
     });
 
     gasWorker.on("error", (err: any) => {
@@ -90,7 +93,7 @@ function launchGAS(ctx: ServeContext, fn: string, ...args: any[]): Promise<any> 
 export function createLegacyAppsScriptExecutor(ctx: ServeContext): Executor {
   return {
     execute(request) {
-      return launchGAS(ctx, request.functionName, ...request.args);
+      return launchGAS(ctx, request.program.source, request.functionName, ...request.args);
     },
   };
 }
