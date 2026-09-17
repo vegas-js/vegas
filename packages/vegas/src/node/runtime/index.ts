@@ -1,3 +1,13 @@
+export type {
+  DriveFileIteratorReference,
+  DriveFileReference,
+  DriveFolderIteratorReference,
+  DriveFolderReference,
+  DriveIteratorReference,
+  DriveObjectReference,
+  DriveResourceReference,
+} from "./drive-reference";
+export type { DriveObjectHydrator, HydratedDriveObject } from "./drive-hydrator";
 export type { ExecutionRequest, Executor } from "./executor";
 export type { HostBridge } from "./host-bridge";
 export type { HostCall, HostCallResult } from "./host-call";
