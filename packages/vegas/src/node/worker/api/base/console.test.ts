@@ -625,10 +625,7 @@ describe("output with string format", () => {
       test("GAS API", () => {
         using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
         const gasConsole = new Console();
-        gasConsole.log(
-          "%s",
-          new TestGASAPI(),
-        );
+        gasConsole.log("%s", new TestGASAPI());
         const args = consoleMock.mock.lastCall;
         expect(args?.[1]).toBe("TestGASAPI");
       });
@@ -928,10 +925,7 @@ describe("output with number format", () => {
       test("GAS API", () => {
         using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
         const gasConsole = new Console();
-        gasConsole.log(
-          "%d",
-          new TestGASAPI(),
-        );
+        gasConsole.log("%d", new TestGASAPI());
         const args = consoleMock.mock.lastCall;
         expect(args?.[1]).toBe("NaN");
       });
@@ -1239,10 +1233,7 @@ describe("output with json format", () => {
       test("GAS API", () => {
         using consoleMock = vi.spyOn(console, "debug").mockImplementation(() => {});
         const gasConsole = new Console();
-        gasConsole.log(
-          "%j",
-          new TestGASAPI(),
-        );
+        gasConsole.log("%j", new TestGASAPI());
         const args = consoleMock.mock.lastCall;
         expect(args?.[1]).toBe('{"Mode":"DEFAULT"}');
       });
@@ -1273,9 +1264,7 @@ describe("output with json format", () => {
         nestedGASAPI: new TestGASAPI(),
       });
       const args = consoleMock.mock.lastCall;
-      expect(args?.[1]).toBe(
-        '{"nestedGASAPI":{"Mode":"DEFAULT"}}',
-      );
+      expect(args?.[1]).toBe('{"nestedGASAPI":{"Mode":"DEFAULT"}}');
     });
   });
 });

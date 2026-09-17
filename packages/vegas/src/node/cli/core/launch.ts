@@ -20,12 +20,7 @@ import {
   type PropertiesStore,
 } from "../../runtime";
 import type { ServeContext } from "./context";
-import {
-  SpreadsheetAppHandler,
-  SheetHandler,
-  RangeHandler,
-  UrlFetchAppHandler,
-} from "./handlers";
+import { SpreadsheetAppHandler, SheetHandler, RangeHandler, UrlFetchAppHandler } from "./handlers";
 
 class GASHandler {
   #handlers: Record<string, Record<string, any>>;

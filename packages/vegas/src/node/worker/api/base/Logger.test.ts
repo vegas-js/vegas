@@ -638,10 +638,7 @@ describe("output with string format", () => {
       test("GAS API", () => {
         using consoleMock = vi.spyOn(console, "log").mockImplementation(() => {});
         const gasLogger = new Logger();
-        gasLogger.log(
-          "%s",
-          new TestGASAPI(),
-        );
+        gasLogger.log("%s", new TestGASAPI());
         const args = consoleMock.mock.lastCall;
         expect(args?.[1]).toBe("TestGASAPI");
       });
@@ -943,10 +940,7 @@ describe("output with number format", () => {
       test("GAS API", () => {
         using consoleMock = vi.spyOn(console, "log").mockImplementation(() => {});
         const gasLogger = new Logger();
-        gasLogger.log(
-          "%d",
-          new TestGASAPI(),
-        );
+        gasLogger.log("%d", new TestGASAPI());
         const args = consoleMock.mock.lastCall;
         expect(args?.[1]).toBe("NaN");
       });
@@ -1275,10 +1269,7 @@ describe("output with json format", () => {
       test("GAS API", () => {
         using consoleMock = vi.spyOn(console, "log").mockImplementation(() => {});
         const gasLogger = new Logger();
-        gasLogger.log(
-          "%j",
-          new TestGASAPI(),
-        );
+        gasLogger.log("%j", new TestGASAPI());
         const args = consoleMock.mock.lastCall;
         expect(args?.[1]).toBe("TestGASAPI");
       });
