@@ -13,16 +13,33 @@ const X_FRAME_OPTIONS_MODE = {
 
 // https://developers.google.com/apps-script/reference/html/html-service
 export class HtmlService {
+  readonly #htmlFiles: Readonly<Record<string, string>>;
+
   readonly SandboxMode = SANDBOX_MODE;
   readonly XFrameOptionsMode = X_FRAME_OPTIONS_MODE;
+
+  constructor(htmlFiles: Readonly<Record<string, string>> = {}) {
+    this.#htmlFiles = htmlFiles;
+  }
 
   createHtmlOutput(): HtmlOutput;
   createHtmlOutput(html: string): HtmlOutput;
   createHtmlOutput(html = ""): HtmlOutput {
     return new HtmlOutput(html);
   }
+
+  createHtmlOutputFromFile(filename: string): HtmlOutput {
+    const path = filename.endsWith(".html") ? filename : `${filename}.html`;
+    const html = this.#htmlFiles[path];
+
+    if (html === undefined) {
+      throw new Error(`HTML file not found: ${filename}`);
+    }
+
+    return new HtmlOutput(html);
+  }
 }
 
-export function createHtmlService(): HtmlService {
-  return new HtmlService();
+export function createHtmlService(htmlFiles: Readonly<Record<string, string>> = {}): HtmlService {
+  return new HtmlService(htmlFiles);
 }
