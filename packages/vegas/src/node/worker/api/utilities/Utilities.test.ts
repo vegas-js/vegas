@@ -1,9 +1,34 @@
 import { describe, expect, test } from "vitest";
 
+import { RuntimeBlob } from "../../../runtime/blob";
 import { Utilities } from "./Utilities";
 
 const uuidRegExp = /^[A-Za-z0-9]{8}-[A-Za-z0-9]{4}-[A-Za-z0-9]{4}-[A-Za-z0-9]{4}-[A-Za-z0-9]{12}$/;
 const deprecatedRegExp = / is deprecated\. Do not use\.$/;
+
+describe("newBlob", () => {
+  test("create RuntimeBlob from byte array", () => {
+    const utilities = new Utilities();
+    const blob = utilities.newBlob([71, 79, 79, 71, 76, 69], null, null);
+
+    expect(blob).toBeInstanceOf(RuntimeBlob);
+    expect(blob.getBytes()).toStrictEqual([71, 79, 79, 71, 76, 69]);
+    expect(blob.getDataAsString()).toBe("GOOGLE");
+    expect(blob.getContentType()).toBeNull();
+    expect(blob.getName()).toBeNull();
+  });
+
+  test("create UTF-8 RuntimeBlob with metadata", () => {
+    const utilities = new Utilities();
+    const blob = utilities.newBlob("Google グ", "text/plain", "google.txt");
+
+    expect(blob).toBeInstanceOf(RuntimeBlob);
+    expect(blob.getBytes()).toStrictEqual([71, 111, 111, 103, 108, 101, 32, -29, -126, -80]);
+    expect(blob.getDataAsString()).toBe("Google グ");
+    expect(blob.getContentType()).toBe("text/plain");
+    expect(blob.getName()).toBe("google.txt");
+  });
+});
 
 describe("base64", () => {
   // https://developers.google.com/apps-script/reference/utilities/utilities#base64decodeencoded

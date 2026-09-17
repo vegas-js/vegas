@@ -1,11 +1,11 @@
 import crypto from "node:crypto";
 import zlib from "node:zlib";
 
-import { Blob } from "../base/Blob";
+import { createBlob } from "../../../runtime/blob";
 import { MD2Hash } from "./md2hash";
 
 // https://developers.google.com/apps-script/reference/utilities/utilities
-export class Utilities implements GoogleAppsScript.Utilities.Utilities {
+export class Utilities {
   Charset = {
     US_ASCII: 0,
     UTF_8: 1,
@@ -384,16 +384,12 @@ export class Utilities implements GoogleAppsScript.Utilities.Utilities {
 
     return copiedBlob;
   };
-  newBlob = (data: GoogleAppsScript.Byte[] | string, contentType?: string, name?: string) => {
-    const blob = new Blob(name);
-    if (typeof data === "string") {
-      blob.setDataFromString(data);
-    } else {
-      blob.setBytes(data);
-    }
-    blob.setContentType(contentType ?? null);
-
-    return blob;
+  newBlob = (
+    data: GoogleAppsScript.Byte[] | string,
+    contentType: string | null = null,
+    name: string | null = null,
+  ) => {
+    return createBlob(data, contentType, name);
   };
   parseCsv = (csv: string, delimiter: GoogleAppsScript.Char = ",") => {
     if (delimiter.length !== 1) {
