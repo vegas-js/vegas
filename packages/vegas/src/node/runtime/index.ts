@@ -1,3 +1,5 @@
+export { createBlob, hydrateBlob, RuntimeBlob, serializeBlob } from "./blob";
+export type { BlobValue } from "./blob-value";
 export type { DriveHostCall, DriveHostCallResult } from "./drive-host-call";
 export { LocalDriveHostHandler } from "./drive-host-handler";
 export { resolveDriveNamespace } from "./drive-namespace";
