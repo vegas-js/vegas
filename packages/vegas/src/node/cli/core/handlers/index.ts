@@ -1,4 +1,3 @@
-export { CacheHandler } from "./cache";
 export { HtmlServiceHandler } from "./htmlService";
 export { RangeHandler } from "./range";
 export { SessionHandler } from "./session";
