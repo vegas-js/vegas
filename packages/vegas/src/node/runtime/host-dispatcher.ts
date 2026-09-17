@@ -1,6 +1,7 @@
 import type { CacheHostCallHandler } from "./cache-host-handler";
 import type { DriveHostCallHandler } from "./drive-host-handler";
 import type { HostCall, HostCallResult } from "./host-call";
+import type { LockHostCallHandler } from "./lock-host-handler";
 import type { PropertiesHostCallHandler } from "./properties-host-handler";
 
 export interface HostCallDispatcher {
@@ -10,17 +11,20 @@ export interface HostCallDispatcher {
 export interface HostDispatcherOptions {
   readonly cache?: CacheHostCallHandler;
   readonly drive?: DriveHostCallHandler;
+  readonly lock?: LockHostCallHandler;
   readonly properties: PropertiesHostCallHandler;
 }
 
 export class HostDispatcher implements HostCallDispatcher {
   readonly #cache: CacheHostCallHandler | undefined;
   readonly #drive: DriveHostCallHandler | undefined;
+  readonly #lock: LockHostCallHandler | undefined;
   readonly #properties: PropertiesHostCallHandler;
 
   constructor(options: HostDispatcherOptions) {
     this.#cache = options.cache;
     this.#drive = options.drive;
+    this.#lock = options.lock;
     this.#properties = options.properties;
   }
 
@@ -39,6 +43,13 @@ export class HostDispatcher implements HostCallDispatcher {
         }
 
         return (await this.#drive.handle(call)) as HostCallResult<C>;
+      }
+      case "lock": {
+        if (!this.#lock) {
+          throw new Error("Lock host handler is not configured for this invocation.");
+        }
+
+        return (await this.#lock.handle(call)) as HostCallResult<C>;
       }
       case "properties": {
         return (await this.#properties.handle(call)) as HostCallResult<C>;

@@ -4,7 +4,9 @@ import {
   CacheHostHandler,
   HostDispatcher,
   InMemoryCacheStore,
+  InMemoryLockStore,
   InMemoryPropertiesStore,
+  LockHostHandler,
   PropertiesHostHandler,
   type DriveHostCallHandler,
 } from "./index";
@@ -82,6 +84,44 @@ describe("HostDispatcher", () => {
         key: "name",
       }),
     ).rejects.toThrow("Cache host handler is not configured for this invocation.");
+  });
+
+  test("dispatch Lock calls only when the invocation provides a Lock handler", async () => {
+    const lock = new LockHostHandler(new InMemoryLockStore().createSession(), {
+      scriptKey: "script",
+      userKey: "user",
+    });
+    const properties = createPropertiesHandler();
+    const dispatcher = new HostDispatcher({ lock, properties });
+
+    await expect(
+      dispatcher.dispatch({
+        service: "lock",
+        operation: "acquire",
+        namespace: "script",
+        timeoutInMillis: 0,
+      }),
+    ).resolves.toBe(true);
+    await expect(
+      dispatcher.dispatch({
+        service: "lock",
+        operation: "has",
+        namespace: "script",
+      }),
+    ).resolves.toBe(true);
+  });
+
+  test("reject Lock calls when the invocation has no Lock handler", async () => {
+    const properties = createPropertiesHandler();
+    const dispatcher = new HostDispatcher({ properties });
+
+    await expect(
+      dispatcher.dispatch({
+        service: "lock",
+        operation: "has",
+        namespace: "script",
+      }),
+    ).rejects.toThrow("Lock host handler is not configured for this invocation.");
   });
 
   test("dispatch drive calls only when the invocation provides a Drive handler", async () => {
