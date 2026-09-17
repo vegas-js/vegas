@@ -1,3 +1,13 @@
+# Unreleased
+
+- Added safer scaffold target handling for missing, empty, non-empty, and invalid destination directories.
+- Added package name validation before scaffolding.
+- Extracted project scaffolding into an explicit execution flow with safer special-file finalization.
+- Added smoke coverage across all six project templates.
+- Improved top-level CLI failure handling and diagnostics.
+- Added package and release smoke validation.
+- Updated generated project layouts to match the current Vegas SPA conventions.
+
 # 0.1.8 (2026-06-30)
 
 chore: upgrade dependencies

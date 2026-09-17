@@ -1,3 +1,16 @@
+# Unreleased
+
+- Refactored the build and development architecture around explicit project, build plan, artifact, execution, session, and application boundaries.
+- Improved development and preview correctness for HTTP handling, host HTML serialization, session binding, protocol failures, build failures, inline HTML, and build topology.
+- Added native Google Apps Script authentication and push workflows using the Apps Script API.
+- Added Apps Script project and manifest configuration, including script ID resolution and strict configuration validation.
+- Added explicit public package surfaces for configuration, client server-function calls, and Apps Script server types.
+- Improved CLI diagnostics and failure messages for configuration, authentication, push prerequisites, and Google service errors.
+- Hardened package validation, release smoke testing, CI, and tag-driven npm publishing.
+- Updated project layout defaults for SPA and script-only applications.
+- Renamed local runtime source data configuration from `gasMockDir` to `runtimeDataDir`, with `runtime/` as the default directory.
+- Updated documentation and project metadata to reflect current SPA, script-only, and partial local runtime capabilities.
+
 # 0.1.9 (2026-06-30)
 
 chore: upgrade dependencies
