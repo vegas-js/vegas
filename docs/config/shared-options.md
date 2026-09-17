@@ -62,6 +62,32 @@ Build output configuration.
 
 Directory where production build artifacts are written. Relative paths are resolved from the project root.
 
+By default, the output directory must be a child of the project root. The project root itself and its ancestors cannot be used as the output directory.
+
+Vegas treats production output as authoritative. After a build succeeds, the existing output directory is removed before the new build artifacts are written.
+
+### output.allowOutsideRoot
+
+- **Type:** `boolean`
+- **Default:** `false`
+
+Allows `output.dir` to resolve outside the project root.
+
+Vegas removes the existing output directory before writing a successful production build, so output outside the project root requires explicit opt-in.
+
+This option does not allow the project root itself or any ancestor of the project root to be used as the output directory.
+
+For example:
+
+```typescript
+export default defineConfig({
+  output: {
+    dir: "../dist",
+    allowOutsideRoot: true,
+  },
+});
+```
+
 ## appsScript
 
 - **Type:** `object`

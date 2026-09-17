@@ -2,6 +2,39 @@ import path from "node:path";
 
 import type { UserConfig } from "../../shared/config";
 import type { ResolvedProject } from "./type";
+import { ConfigValidationError } from "./validate-config";
+
+function isStrictDescendant(parent: string, child: string): boolean {
+  const relative = path.relative(parent, child);
+
+  return (
+    relative !== "" &&
+    relative !== ".." &&
+    !relative.startsWith(`..${path.sep}`) &&
+    !path.isAbsolute(relative)
+  );
+}
+
+function resolveOutputDir(root: string, output: UserConfig["output"]): string {
+  const outputDir =
+    output?.dir === undefined ? path.resolve(root, "dist") : path.resolve(root, output.dir);
+
+  if (outputDir === root) {
+    throw new ConfigValidationError('"output.dir" must not resolve to the project root.');
+  }
+
+  if (isStrictDescendant(outputDir, root)) {
+    throw new ConfigValidationError('"output.dir" must not contain the project root.');
+  }
+
+  if (!isStrictDescendant(root, outputDir) && output?.allowOutsideRoot !== true) {
+    throw new ConfigValidationError(
+      '"output.dir" resolves outside the project root. Set "output.allowOutsideRoot" to true to allow it.',
+    );
+  }
+
+  return outputDir;
+}
 
 export function resolveProject(
   config: UserConfig,
@@ -28,10 +61,7 @@ export function resolveProject(
       config.runtimeDataDir === undefined
         ? path.resolve(root, "runtime")
         : path.resolve(root, config.runtimeDataDir),
-    outputDir:
-      config.output?.dir === undefined
-        ? path.resolve(root, "dist")
-        : path.resolve(root, config.output.dir),
+    outputDir: resolveOutputDir(root, config.output),
     configFile: options.configFile,
     plugins: config.plugins ?? [],
 

@@ -84,8 +84,9 @@ function validateOutput(value: unknown): void {
   }
 
   assertRecord(value, "output");
-  assertNoUnknownKeys(value, ["dir"], "output");
+  assertNoUnknownKeys(value, ["dir", "allowOutsideRoot"], "output");
   assertOptionalString(value.dir, "output.dir");
+  assertOptionalBoolean(value.allowOutsideRoot, "output.allowOutsideRoot");
 }
 
 function validateEnabledAdvancedServices(value: unknown): void {

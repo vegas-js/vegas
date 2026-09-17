@@ -4,7 +4,7 @@ import path from "node:path";
 
 import { describe, expect, test } from "vitest";
 
-import { ArtifactStore, writeArtifacts } from "./artifact";
+import { ArtifactStore, replaceOutputArtifacts, writeArtifacts } from "./artifact";
 
 describe("ArtifactStore", () => {
   test("store and update artifacts", () => {
@@ -280,6 +280,43 @@ describe("writeArtifacts", () => {
       ]);
 
       expect(fs.readFileSync(path.join(tempDirPath, "appsscript.json"), "utf8")).toBe("second");
+    } finally {
+      fs.rmSync(tempDirPath, {
+        recursive: true,
+        force: true,
+      });
+    }
+  });
+});
+
+describe("replaceOutputArtifacts", () => {
+  test("replace existing output with authoritative artifacts", async () => {
+    const tempDirPath = fs.mkdtempSync(path.join(os.tmpdir(), "vegas-"));
+    const outputDir = path.join(tempDirPath, "dist");
+
+    try {
+      fs.mkdirSync(path.join(outputDir, "stale"), {
+        recursive: true,
+      });
+      fs.writeFileSync(path.join(outputDir, "stale.txt"), "stale");
+      fs.writeFileSync(path.join(outputDir, "stale", "nested.txt"), "stale");
+
+      await replaceOutputArtifacts(outputDir, [
+        {
+          path: "Code.js",
+          content: "server",
+        },
+        {
+          path: "appsscript.json",
+          content: "{}",
+        },
+      ]);
+
+      expect(fs.existsSync(path.join(outputDir, "stale.txt"))).toBe(false);
+      expect(fs.existsSync(path.join(outputDir, "stale"))).toBe(false);
+
+      expect(fs.readFileSync(path.join(outputDir, "Code.js"), "utf8")).toBe("server");
+      expect(fs.readFileSync(path.join(outputDir, "appsscript.json"), "utf8")).toBe("{}");
     } finally {
       fs.rmSync(tempDirPath, {
         recursive: true,

@@ -164,3 +164,15 @@ export async function writeArtifacts(
     }),
   );
 }
+
+export async function replaceOutputArtifacts(
+  outputDir: string,
+  artifacts: readonly BuildArtifact[],
+): Promise<void> {
+  await fs.promises.rm(outputDir, {
+    recursive: true,
+    force: true,
+  });
+
+  await writeArtifacts(outputDir, artifacts);
+}

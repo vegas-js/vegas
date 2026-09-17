@@ -10,6 +10,7 @@
 - Updated project layout defaults for SPA and script-only applications.
 - Renamed local runtime source data configuration from `gasMockDir` to `runtimeDataDir`, with `runtime/` as the default directory.
 - Updated documentation and project metadata to reflect current SPA, script-only, and partial local runtime capabilities.
+- Hardened production output cleanup with explicit opt-in for output directories outside the project root and preservation of existing output when builds fail.
 
 # 0.1.9 (2026-06-30)
 

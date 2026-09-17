@@ -1,5 +1,3 @@
-import fs from "node:fs";
-
 import { createBuilder } from "vite";
 
 import {
@@ -8,7 +6,7 @@ import {
   createBuildPlan,
   createAppsScriptManifestArtifact,
   isWebApp,
-  writeArtifacts,
+  replaceOutputArtifacts,
 } from "../build";
 import { loadProject, scanProject } from "../project";
 import { printBanner } from "./core/banner";
@@ -32,11 +30,6 @@ export async function runBuild(root?: string) {
 
   const builder = await createBuilder(builderConfig);
 
-  fs.rmSync(project.outputDir, {
-    recursive: true,
-    force: true,
-  });
-
   const buildArtifacts = await buildApp(builder);
   const manifestArtifact = createAppsScriptManifestArtifact(
     project.appsScript.manifest,
@@ -44,7 +37,7 @@ export async function runBuild(root?: string) {
   );
   const artifacts = [...buildArtifacts, manifestArtifact];
 
-  await writeArtifacts(project.outputDir, artifacts);
+  await replaceOutputArtifacts(project.outputDir, artifacts);
 
   const endTime = performance.now();
 

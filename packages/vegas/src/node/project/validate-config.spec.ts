@@ -19,6 +19,7 @@ describe("validateUserConfig", () => {
       appType: "spa",
       output: {
         dir: "dist",
+        allowOutsideRoot: true,
       },
       appsScript: {
         scriptId: "script-id",
@@ -150,5 +151,15 @@ describe("validateUserConfig", () => {
         gasMockDir: "mock",
       }),
     ).toThrow('Invalid Vegas config: unknown option "gasMockDir".');
+  });
+
+  test("reject invalid output allow outside root", () => {
+    expect(() =>
+      validateUserConfig({
+        output: {
+          allowOutsideRoot: "yes",
+        },
+      }),
+    ).toThrow('Invalid Vegas config: "output.allowOutsideRoot" must be a boolean.');
   });
 });

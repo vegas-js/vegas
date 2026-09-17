@@ -33,7 +33,18 @@ export type BaseConfig = {
 };
 
 export type OutputConfig = {
+  /**
+   * Production build output directory.
+   * @default 'dist'
+   */
   dir?: string;
+
+  /**
+   * Allow the production output directory to be outside the project root.
+   * The project root itself and its ancestors are never allowed.
+   * @default false
+   */
+  allowOutsideRoot?: boolean;
 };
 
 export type AppsScriptConfig = {

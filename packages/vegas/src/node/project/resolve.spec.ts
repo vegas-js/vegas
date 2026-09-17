@@ -188,7 +188,10 @@ describe("resolveProject", () => {
         clientDir,
         serverDir,
         runtimeDataDir,
-        output: { dir: outputDir },
+        output: {
+          dir: outputDir,
+          allowOutsideRoot: true,
+        },
       });
 
       expect(project.clientDir).toBe(clientDir);
@@ -303,6 +306,52 @@ describe("resolveProject", () => {
           executeAs: "USER_ACCESSING",
         },
       });
+    });
+  });
+
+  describe("output directory safety", () => {
+    test("reject project root as output directory", () => {
+      expect(() =>
+        resolve({
+          output: {
+            dir: ".",
+          },
+        }),
+      ).toThrow('Invalid Vegas config: "output.dir" must not resolve to the project root.');
+    });
+
+    test("reject project ancestor as output directory even when outside root is allowed", () => {
+      expect(() =>
+        resolve({
+          output: {
+            dir: "..",
+            allowOutsideRoot: true,
+          },
+        }),
+      ).toThrow('Invalid Vegas config: "output.dir" must not contain the project root.');
+    });
+
+    test("reject output directory outside project root by default", () => {
+      expect(() =>
+        resolve({
+          output: {
+            dir: "../dist",
+          },
+        }),
+      ).toThrow(
+        'Invalid Vegas config: "output.dir" resolves outside the project root. Set "output.allowOutsideRoot" to true to allow it.',
+      );
+    });
+
+    test("allow output directory outside project root with explicit opt in", () => {
+      const project = resolve({
+        output: {
+          dir: "../dist",
+          allowOutsideRoot: true,
+        },
+      });
+
+      expect(project.outputDir).toBe(path.resolve(cwd, "..", "dist"));
     });
   });
 });
