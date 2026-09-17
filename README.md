@@ -78,25 +78,13 @@ export default defineConfig({
 });
 ```
 
-## Supported GAS APIs (Local Runtime)
+## Local Runtime
 
-- ✅: support
-- 🧪: require tests
-- 🛠️: under development
-- ❌: no implementation (undefined)
+Vegas includes a local runtime for development and preview workflows.
 
-| API               | Status |
-| ----------------- | :----: |
-| Logger / console  |   ✅   |
-| HtmlService       |   🛠️   |
-| PropertiesService |   🧪   |
-| CacheService      |   🧪   |
-| LockService       |   🛠️   |
-| SpreadsheetApp    |   🛠️   |
-| UrlFetchApp       |   🛠️   |
-| Utilities         |   🛠️   |
-| Session           |   🧪   |
-| Others            |   ❌   |
+The current runtime provides partial implementations of selected Apps Script APIs, including `HtmlService`, `PropertiesService`, `CacheService`, `SpreadsheetApp`, `UrlFetchApp`, `Utilities`, and `Session`.
+
+API coverage varies by service and method. The local runtime should not be treated as a complete or exact reproduction of the Google Apps Script execution environment.
 
 [Read the Docs to Learn More](https://vegasjs.dev).
 
