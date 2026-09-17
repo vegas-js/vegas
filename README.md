@@ -6,7 +6,7 @@
 
 > **It feels like Vite, and it really is Vite (quick!).**
 
-Vegas is a tool for building SPAs on the GAS platform, powered by `Vite`, which significantly improves the frontend development experience.
+Vegas is a Vite-powered development and build tool for Google Apps Script projects, supporting both SPA and script-only applications.
 
 ## ⚠ Breaking changes ⚠
 
@@ -14,10 +14,11 @@ This project is in the experimental stage and will undergo frequent breaking cha
 
 ## Features
 
-- Automatically detects client entry points
-- Build flow optimized for the GAS platform
-- Includes a client library to call GAS functions
-- Compatible with Vite plugins
+- Vite-powered development and production builds
+- SPA and script-only Apps Script project support
+- Automatic client entry point detection for SPA projects
+- Client library for calling Apps Script server functions
+- Authentication and push workflows using the Google Apps Script API
 
 ## Quick Start
 
