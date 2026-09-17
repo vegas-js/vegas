@@ -32,14 +32,6 @@ type GASWorkerData = {
   args: any[];
 };
 
-const Scope = {
-  DOCUMENT: "document",
-  SCRIPT: "script",
-  USER: "user",
-} as const;
-
-export type Scope = (typeof Scope)[keyof typeof Scope];
-
 const runtimeWorkerData = worker.workerData as RuntimeWorkerData;
 const sharedArray = runtimeWorkerData.sharedArray;
 const port = runtimeWorkerData.port;
