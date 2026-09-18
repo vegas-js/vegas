@@ -3,11 +3,11 @@ import path from "node:path";
 import { type Connect, type ViteBuilder, createServer } from "vite";
 
 import type { ServerFunctionCallRequest } from "../../shared/webapp-protocol";
-import { type ArtifactStore, buildApp } from "../build";
+import type { ArtifactStore } from "../build";
 import type { ResolvedProject } from "../project";
 import type { Executor, InvocationEnvironment, InvocationScope } from "../runtime";
 import { BuildCoordinator } from "./build-coordinator";
-import { buildDevTopology } from "./build-topology";
+import { DevBuildManager } from "./build-manager";
 import { classifyProjectFile } from "./project-file";
 import { createRuntimeProgram } from "./runtime-program";
 import { createAppsScriptDoGetEvent, createAppsScriptDoPostEvent } from "./webapp/event";
@@ -42,7 +42,7 @@ export class DevApplication {
   readonly #environment: InvocationEnvironment;
   readonly #scope: InvocationScope;
   readonly #mode: "development" | "production";
-  #builder: ViteBuilder;
+  readonly #buildManager: DevBuildManager;
 
   constructor(options: DevApplicationOptions) {
     this.#project = options.project;
@@ -51,24 +51,12 @@ export class DevApplication {
     this.#environment = options.environment;
     this.#scope = options.scope;
     this.#mode = options.mode;
-    this.#builder = options.builder;
-  }
-
-  async #refreshBuildTopology(): Promise<void> {
-    const next = await buildDevTopology(this.#project, this.#mode);
-
-    this.#artifacts.replaceScopes([
-      {
-        scope: "client",
-        artifacts: next.clientArtifacts,
-      },
-      {
-        scope: "server",
-        artifacts: next.serverArtifacts,
-      },
-    ]);
-
-    this.#builder = next.builder;
+    this.#buildManager = new DevBuildManager({
+      project: options.project,
+      artifacts: options.artifacts,
+      builder: options.builder,
+      mode: options.mode,
+    });
   }
 
   async start(): Promise<void> {
@@ -93,32 +81,12 @@ export class DevApplication {
 
       try {
         await builds.run(async () => {
+          await this.#buildManager.rebuild(scope);
+
           if (scope === "client") {
-            const [clientArtifacts, serverArtifacts] = await Promise.all([
-              buildApp(this.#builder, /^client\d+$/),
-              buildApp(this.#builder, /^server$/),
-            ]);
-
-            this.#artifacts.replaceScopes([
-              {
-                scope: "client",
-                artifacts: clientArtifacts,
-              },
-              {
-                scope: "server",
-                artifacts: serverArtifacts,
-              },
-            ]);
-
             hostServer.moduleGraph.invalidateAll();
-
             hostServer.ws.send({ type: "full-reload" });
-
-            return;
           }
-
-          const artifacts = await buildApp(this.#builder, /^server$/);
-          this.#artifacts.replaceScope("server", artifacts);
         });
       } catch (err: any) {
         console.error(err);
@@ -143,7 +111,7 @@ export class DevApplication {
 
       try {
         await builds.run(async () => {
-          await this.#refreshBuildTopology();
+          await this.#buildManager.refreshTopology();
 
           hostServer.moduleGraph.invalidateAll();
           hostServer.ws.send({ type: "full-reload" });
