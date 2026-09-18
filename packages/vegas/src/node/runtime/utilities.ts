@@ -1,5 +1,6 @@
 import crypto from "node:crypto";
 
+import { parseCsv as parseCsvString } from "./csv";
 import { computeMd2 } from "./md2";
 
 const CHARSET = {
@@ -334,6 +335,12 @@ export class Utilities {
 
   getUuid(): string {
     return crypto.randomUUID();
+  }
+
+  parseCsv(csv: string): string[][];
+  parseCsv(csv: string, delimiter: GoogleAppsScript.Char): string[][];
+  parseCsv(csv: string, delimiter: GoogleAppsScript.Char = ","): string[][] {
+    return parseCsvString(csv, delimiter);
   }
 
   sleep(milliseconds: GoogleAppsScript.Integer): void {
