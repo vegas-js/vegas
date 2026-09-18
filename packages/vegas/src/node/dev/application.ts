@@ -4,7 +4,6 @@ import { type Connect, type ViteBuilder, createLogger, createServer } from "vite
 
 import type { ServerFunctionCallRequest } from "../../shared/webapp-protocol";
 import { type ArtifactStore, buildApp } from "../build";
-import { HtmlDocument } from "../html";
 import type { ResolvedProject } from "../project";
 import type { Executor, InvocationEnvironment, InvocationScope } from "../runtime";
 import { BuildCoordinator } from "./build-coordinator";
@@ -22,6 +21,7 @@ import {
 } from "./webapp/http";
 import { executeServerFunctionCall } from "./webapp/server-function-call";
 import { WebAppSessionRegistry } from "./webapp/session-registry";
+import { createBlankUserContentHtml, createUserContentPanelHtml } from "./webapp/user-content-html";
 
 interface DevApplicationOptions {
   readonly project: ResolvedProject;
@@ -328,50 +328,20 @@ export class DevApplication {
         const scheme = userContentServer.config.server.https ? "https" : "http";
         const url = new URL(request.url, `${scheme}://${request.headers.host}`);
         if (url.pathname === "/blank") {
-          const html = new HtmlDocument();
-          html.appendToHead("meta", {
-            attributes: {
-              "http-equiv": "X-UA-Compatible",
-              content: "IE=edge",
-            },
-          });
           response.statusCode = 200;
           response.setHeader("Content-Type", "text/html; charset=utf-8");
-          response.end(html.toString());
+          response.end(createBlankUserContentHtml());
           return;
         } else if (url.pathname === "/userCodeAppPanel") {
-          const html = new HtmlDocument();
-          html.appendToHead("style", {
-            text: "html, body, iframe {border: 0; display: block; height: 100%; margin: 0; padding: 0; width: 100%;}iframe#userHtmlFrame {overflow-y: scroll; -webkit-overflow-scrolling: touch;}",
-          });
-
           const requestedSessionId = url.searchParams.get("sessionId");
           const sessionId =
             requestedSessionId && sessions.claim(requestedSessionId) ? requestedSessionId : "";
 
           const hostOrigin = `${url.protocol}//${url.hostname}:${hostServer.config.server.port}`;
-          html.appendToHead("script", {
-            text: `window.vegas = { id: "${sessionId}", hostOrigin: "${hostOrigin}", requestMap: new Map() }`,
-          });
-          html.appendToHead("script", {
-            attributes: {
-              type: "module",
-              src: "/@vegas/client",
-            },
-          });
-
-          html.appendToBody("iframe", {
-            attributes: {
-              id: "userHtmlFrame",
-              allow:
-                "accelerometer *; ambient-light-sensor *; autoplay *; camera *; clipboard-read *; clipboard-write *; encrypted-media *; fullscreen *; geolocation *; gyroscope *; local-network-access *; magnetometer *; microphone *; midi *; payment *; picture-in-picture *; screen-wake-lock *; speaker *; sync-xhr *; usb *; vibrate *; vr *; web-share *",
-              src: "/blank",
-            },
-          });
 
           response.statusCode = 200;
           response.setHeader("Content-Type", "text/html; charset=utf-8");
-          response.end(html.toString());
+          response.end(createUserContentPanelHtml(hostOrigin, sessionId));
           return;
         }
       }
