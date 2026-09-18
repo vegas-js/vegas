@@ -69,6 +69,9 @@ export type { Program } from "./program";
 export { resolvePropertiesNamespace } from "./properties-namespace";
 export type { InvocationScope } from "./scope";
 export { createSession, Session, User } from "./session-objects";
+export type { UrlFetchCapability } from "./url-fetch-capability";
+export { UrlFetchHostHandler } from "./url-fetch-host-handler";
+export type { UrlFetchHostCallHandler } from "./url-fetch-host-handler";
 export type { UrlFetchHostCall, UrlFetchHostCallResult } from "./url-fetch-host-call";
 export type {
   UrlFetchFormFieldValue,
