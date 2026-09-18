@@ -15,9 +15,6 @@ import { createSpreadsheetApp } from "../runtime/spreadsheet-object-hydrator";
 import { createUrlFetchApp } from "../runtime/url-fetch-app";
 import { createUtilities } from "../runtime/utilities";
 import { createWorkerHostBridge } from "../runtime/worker-host-bridge";
-import { Range } from "./api/spreadsheet/Range";
-import { Sheet } from "./api/spreadsheet/Sheet";
-import { Spreadsheet } from "./api/spreadsheet/Spreadsheet";
 
 type RuntimeWorkerData = {
   readonly program: Program;
@@ -45,28 +42,6 @@ function requestSync(request: { message: string; payload?: any }, timeout?: numb
   return received?.message ?? null;
 }
 export type RequestSync = typeof requestSync;
-
-function createRange(
-  spreadsheetId: string,
-  sheetId: number,
-  row: number,
-  column: number,
-  numRows: number,
-  numColumns: number,
-): GoogleAppsScript.Spreadsheet.Range {
-  return new Range(spreadsheetId, sheetId, row, column, numRows, numColumns, requestSync);
-}
-export type CreateRange = typeof createRange;
-
-function createSheet(spreadsheetId: string, sheetId: number): GoogleAppsScript.Spreadsheet.Sheet {
-  return new Sheet(spreadsheetId, sheetId, createRange, requestSync);
-}
-export type CreateSheet = typeof createSheet;
-
-function createSpreadsheet(spreadsheetId: string): GoogleAppsScript.Spreadsheet.Spreadsheet {
-  return new Spreadsheet(spreadsheetId, createSheet, requestSync);
-}
-export type CreateSpreadsheet = typeof createSpreadsheet;
 
 const script = new vm.Script(runtimeWorkerData.program.source);
 const scriptContext = vm.createContext({

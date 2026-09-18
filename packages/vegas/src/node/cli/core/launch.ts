@@ -24,17 +24,11 @@ import {
   type SpreadsheetStore,
 } from "../../runtime";
 import type { ServeContext } from "./context";
-import { SpreadsheetAppHandler, SheetHandler, RangeHandler } from "./handlers";
-
 class GASHandler {
   #handlers: Record<string, Record<string, any>>;
 
   constructor() {
-    this.#handlers = {
-      SpreadsheetApp: new SpreadsheetAppHandler(),
-      Sheet: new SheetHandler(),
-      Range: new RangeHandler(),
-    };
+    this.#handlers = {};
 
     const proxyHandler: ProxyHandler<this> = {
       get(target, property) {
