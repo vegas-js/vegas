@@ -2,6 +2,7 @@ import crypto from "node:crypto";
 
 import { parseCsv as parseCsvString } from "./csv";
 import { computeMd2 } from "./md2";
+import { formatSimpleDate, parseSimpleDate } from "./simple-date-format";
 
 const CHARSET = {
   US_ASCII: 0,
@@ -333,6 +334,10 @@ export class Utilities {
     return signRsa(algorithm, encodeString(value, charset), key);
   }
 
+  formatDate(date: GoogleAppsScript.Base.Date, timeZone: string, format: string): string {
+    return formatSimpleDate(new Date(date.getTime()), timeZone, format);
+  }
+
   getUuid(): string {
     return crypto.randomUUID();
   }
@@ -341,6 +346,10 @@ export class Utilities {
   parseCsv(csv: string, delimiter: GoogleAppsScript.Char): string[][];
   parseCsv(csv: string, delimiter: GoogleAppsScript.Char = ","): string[][] {
     return parseCsvString(csv, delimiter);
+  }
+
+  parseDate(date: string, timeZone: string, format: string): Date {
+    return parseSimpleDate(date, timeZone, format);
   }
 
   sleep(milliseconds: GoogleAppsScript.Integer): void {
