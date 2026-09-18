@@ -69,6 +69,19 @@ export type { PropertiesNamespace, PropertiesStore } from "./properties-store";
 export type { Program } from "./program";
 export { resolvePropertiesNamespace } from "./properties-namespace";
 export type { InvocationScope } from "./scope";
+export type {
+  RangeReference,
+  SheetReference,
+  SpreadsheetObjectReference,
+  SpreadsheetReference,
+} from "./spreadsheet-reference";
+export type {
+  SheetMetadata,
+  SpreadsheetCellValue,
+  SpreadsheetGrid,
+  SpreadsheetMetadata,
+  SpreadsheetStore,
+} from "./spreadsheet-store";
 export { createSession, Session, User } from "./session-objects";
 export { createUrlFetchApp, UrlFetchApp } from "./url-fetch-app";
 export { HTTPResponse, hydrateHttpResponse } from "./url-fetch-http-response";
