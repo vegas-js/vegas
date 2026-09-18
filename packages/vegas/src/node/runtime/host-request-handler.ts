@@ -82,7 +82,8 @@ function isHostRequestMessage(value: unknown): value is HostRequestMessage {
     (call.service === "cache" ||
       call.service === "drive" ||
       call.service === "lock" ||
-      call.service === "properties") &&
+      call.service === "properties" ||
+      call.service === "url-fetch") &&
     typeof call.operation === "string"
   );
 }

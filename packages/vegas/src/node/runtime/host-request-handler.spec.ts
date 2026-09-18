@@ -1,10 +1,14 @@
+import worker from "node:worker_threads";
+
 import { describe, expect, test } from "vitest";
 
 import {
   createHostResponse,
+  handleHostRequestMessage,
   HostDispatcher,
   InMemoryPropertiesStore,
   PropertiesHostHandler,
+  UrlFetchHostHandler,
 } from "./index";
 
 function createDispatcher() {
@@ -65,5 +69,70 @@ describe("createHostResponse", () => {
         message: "Drive host handler is not configured for this invocation.",
       },
     });
+  });
+});
+
+describe("handleHostRequestMessage", () => {
+  test("accept UrlFetch calls through the typed host transport", async () => {
+    const dispatcher = new HostDispatcher({
+      properties: new PropertiesHostHandler(new InMemoryPropertiesStore(), {
+        scriptKey: "script",
+        userKey: "user",
+      }),
+      urlFetch: new UrlFetchHostHandler({
+        async fetch(request) {
+          return {
+            statusCode: request.url.endsWith("/created") ? 201 : 200,
+            headers: {
+              "content-type": "text/plain",
+            },
+            content: [79, 75],
+          };
+        },
+        async fetchAll(requests) {
+          return requests.map((request) => ({
+            statusCode: request.url.endsWith("/created") ? 201 : 200,
+            headers: {},
+            content: [],
+          }));
+        },
+      }),
+    });
+    const sharedArray = new Int32Array(new SharedArrayBuffer(4));
+    const { port1, port2 } = new worker.MessageChannel();
+    const response = new Promise<unknown>((resolve) => {
+      port2.once("message", resolve);
+    });
+
+    try {
+      await expect(
+        handleHostRequestMessage(port1, sharedArray, dispatcher, {
+          id: 19,
+          call: {
+            service: "url-fetch",
+            operation: "fetch",
+            request: {
+              url: "https://example.com/created",
+            },
+          },
+        }),
+      ).resolves.toBe(true);
+
+      await expect(response).resolves.toStrictEqual({
+        id: 19,
+        ok: true,
+        value: {
+          statusCode: 201,
+          headers: {
+            "content-type": "text/plain",
+          },
+          content: [79, 75],
+        },
+      });
+      expect(Atomics.load(sharedArray, 0)).toBe(0);
+    } finally {
+      port1.close();
+      port2.close();
+    }
   });
 });

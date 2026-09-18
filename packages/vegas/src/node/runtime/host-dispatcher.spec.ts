@@ -9,6 +9,7 @@ import {
   LockHostHandler,
   PropertiesHostHandler,
   type DriveHostCallHandler,
+  type UrlFetchHostCallHandler,
 } from "./index";
 
 function createPropertiesHandler() {
@@ -163,5 +164,56 @@ describe("HostDispatcher", () => {
         operation: "get-root-folder",
       }),
     ).rejects.toThrow("Drive host handler is not configured for this invocation.");
+  });
+
+  test("dispatch UrlFetch calls only when the invocation provides a UrlFetch handler", async () => {
+    const properties = createPropertiesHandler();
+    const urlFetch: UrlFetchHostCallHandler = {
+      async handle(call) {
+        if (call.operation !== "fetch") {
+          throw new Error(`unexpected UrlFetch operation: ${call.operation}`);
+        }
+
+        return {
+          statusCode: 200,
+          headers: {
+            "content-type": "text/plain",
+          },
+          content: [79, 75],
+        };
+      },
+    };
+    const dispatcher = new HostDispatcher({ properties, urlFetch });
+
+    await expect(
+      dispatcher.dispatch({
+        service: "url-fetch",
+        operation: "fetch",
+        request: {
+          url: "https://example.com",
+        },
+      }),
+    ).resolves.toStrictEqual({
+      statusCode: 200,
+      headers: {
+        "content-type": "text/plain",
+      },
+      content: [79, 75],
+    });
+  });
+
+  test("reject UrlFetch calls when the invocation has no UrlFetch handler", async () => {
+    const properties = createPropertiesHandler();
+    const dispatcher = new HostDispatcher({ properties });
+
+    await expect(
+      dispatcher.dispatch({
+        service: "url-fetch",
+        operation: "fetch",
+        request: {
+          url: "https://example.com",
+        },
+      }),
+    ).rejects.toThrow("UrlFetch host handler is not configured for this invocation.");
   });
 });

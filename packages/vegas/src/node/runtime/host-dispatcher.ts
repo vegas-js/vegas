@@ -3,6 +3,7 @@ import type { DriveHostCallHandler } from "./drive-host-handler";
 import type { HostCall, HostCallResult } from "./host-call";
 import type { LockHostCallHandler } from "./lock-host-handler";
 import type { PropertiesHostCallHandler } from "./properties-host-handler";
+import type { UrlFetchHostCallHandler } from "./url-fetch-host-handler";
 
 export interface HostCallDispatcher {
   dispatch<C extends HostCall>(call: C): Promise<HostCallResult<C>>;
@@ -13,6 +14,7 @@ export interface HostDispatcherOptions {
   readonly drive?: DriveHostCallHandler;
   readonly lock?: LockHostCallHandler;
   readonly properties: PropertiesHostCallHandler;
+  readonly urlFetch?: UrlFetchHostCallHandler;
 }
 
 export class HostDispatcher implements HostCallDispatcher {
@@ -20,12 +22,14 @@ export class HostDispatcher implements HostCallDispatcher {
   readonly #drive: DriveHostCallHandler | undefined;
   readonly #lock: LockHostCallHandler | undefined;
   readonly #properties: PropertiesHostCallHandler;
+  readonly #urlFetch: UrlFetchHostCallHandler | undefined;
 
   constructor(options: HostDispatcherOptions) {
     this.#cache = options.cache;
     this.#drive = options.drive;
     this.#lock = options.lock;
     this.#properties = options.properties;
+    this.#urlFetch = options.urlFetch;
   }
 
   async dispatch<C extends HostCall>(call: C): Promise<HostCallResult<C>> {
@@ -53,6 +57,13 @@ export class HostDispatcher implements HostCallDispatcher {
       }
       case "properties": {
         return (await this.#properties.handle(call)) as HostCallResult<C>;
+      }
+      case "url-fetch": {
+        if (!this.#urlFetch) {
+          throw new Error("UrlFetch host handler is not configured for this invocation.");
+        }
+
+        return (await this.#urlFetch.handle(call)) as HostCallResult<C>;
       }
     }
   }
