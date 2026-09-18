@@ -7,8 +7,10 @@ import {
   HostDispatcher,
   LocalDriveHostHandler,
   LockHostHandler,
+  NodeUrlFetchCapability,
   PropertiesHostHandler,
   resolveDriveNamespace,
+  UrlFetchHostHandler,
   type CacheStore,
   type DriveIteratorStore,
   type DriveStore,
@@ -20,7 +22,7 @@ import {
   type PropertiesStore,
 } from "../../runtime";
 import type { ServeContext } from "./context";
-import { SpreadsheetAppHandler, SheetHandler, RangeHandler, UrlFetchAppHandler } from "./handlers";
+import { SpreadsheetAppHandler, SheetHandler, RangeHandler } from "./handlers";
 
 class GASHandler {
   #handlers: Record<string, Record<string, any>>;
@@ -30,7 +32,6 @@ class GASHandler {
       SpreadsheetApp: new SpreadsheetAppHandler(),
       Sheet: new SheetHandler(),
       Range: new RangeHandler(),
-      UrlFetchApp: new UrlFetchAppHandler(),
     };
 
     const proxyHandler: ProxyHandler<this> = {
@@ -121,6 +122,7 @@ export function createLegacyAppsScriptExecutor(
   driveIteratorStore: DriveIteratorStore,
 ): Executor {
   const handler = new GASHandler();
+  const urlFetch = new UrlFetchHostHandler(new NodeUrlFetchCapability());
 
   return {
     execute(request) {
@@ -135,6 +137,7 @@ export function createLegacyAppsScriptExecutor(
         ),
         lock: new LockHostHandler(lockSession, request.scope),
         properties: new PropertiesHostHandler(propertiesStore, request.scope),
+        urlFetch,
       });
 
       return launchGAS(

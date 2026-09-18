@@ -11,13 +11,13 @@ import { createConsole, createLogger } from "../runtime/logging";
 import type { Program } from "../runtime/program";
 import { createPropertiesService } from "../runtime/properties-objects";
 import { createSession } from "../runtime/session-objects";
+import { createUrlFetchApp } from "../runtime/url-fetch-app";
 import { createUtilities } from "../runtime/utilities";
 import { createWorkerHostBridge } from "../runtime/worker-host-bridge";
 import { Range } from "./api/spreadsheet/Range";
 import { Sheet } from "./api/spreadsheet/Sheet";
 import { Spreadsheet } from "./api/spreadsheet/Spreadsheet";
 import { SpreadsheetApp } from "./api/spreadsheet/SpreadsheetApp";
-import { UrlFetchApp } from "./api/url_fetch/UrlFetchApp";
 
 type RuntimeWorkerData = {
   readonly program: Program;
@@ -139,7 +139,7 @@ const scriptContext = vm.createContext({
   /* JDBC */
   Jdbc: undefined,
   /* URL Fetch */
-  UrlFetchApp: new UrlFetchApp(requestSync),
+  UrlFetchApp: createUrlFetchApp(hostBridge),
   /* Optimization */
   LinearOptimizationService: undefined,
   /* Utilities */
