@@ -71,6 +71,22 @@ describe("HTTPResponse", () => {
     expect(response.getBlob().getBytes()).toStrictEqual([65, 66, 67]);
   });
 
+  test("decode content with the explicitly requested charset", () => {
+    const response = hydrateHttpResponse({
+      statusCode: 200,
+      headers: {},
+      content: [86, 0, 101, 0, 103, 0, 97, 0, 115, 0],
+    });
+
+    expect(response.getContentText("UTF-16LE")).toBe("Vegas");
+  });
+
+  test("reject unsupported explicit charsets", () => {
+    const response = hydrateHttpResponse(createResponseValue());
+
+    expect(() => response.getContentText("not-a-real-charset")).toThrow();
+  });
+
   test("snapshot the transport value at hydration time", () => {
     const value = createResponseValue();
     const response = hydrateHttpResponse(value);

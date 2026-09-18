@@ -21,6 +21,10 @@ function cloneResponseValue(value: UrlFetchResponseValue): UrlFetchResponseValue
   };
 }
 
+function decodeContent(content: readonly number[], charset: string): string {
+  return new TextDecoder(charset).decode(Uint8Array.from(content, (value) => value & 0xff));
+}
+
 // https://developers.google.com/apps-script/reference/url-fetch/http-response
 export class HTTPResponse {
   readonly #value: UrlFetchResponseValue;
@@ -39,6 +43,10 @@ export class HTTPResponse {
 
   getContent(): number[] {
     return [...this.#value.content];
+  }
+
+  getContentText(charset: string): string {
+    return decodeContent(this.#value.content, charset);
   }
 
   getResponseCode(): number {
