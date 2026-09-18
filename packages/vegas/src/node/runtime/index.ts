@@ -67,3 +67,4 @@ export type { Program } from "./program";
 export { resolvePropertiesNamespace } from "./properties-namespace";
 export type { InvocationScope } from "./scope";
 export { createSession, Session, User } from "./session-objects";
+export { createUtilities, Utilities } from "./utilities";
