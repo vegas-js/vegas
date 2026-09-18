@@ -173,6 +173,19 @@ export class Range {
     this.#hydrator = hydrator;
   }
 
+  clearContent(): Range {
+    this.#bridge.call({
+      service: "spreadsheet",
+      operation: "set-range-values",
+      range: this.#reference,
+      values: Array.from({ length: this.#reference.numRows }, () =>
+        Array.from({ length: this.#reference.numColumns }, () => ""),
+      ),
+    });
+
+    return this;
+  }
+
   getColumn(): number {
     return this.#reference.column;
   }

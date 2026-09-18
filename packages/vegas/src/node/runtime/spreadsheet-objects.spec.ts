@@ -167,6 +167,39 @@ describe("Spreadsheet Runtime objects", () => {
     expect(range.getValues()[0]?.[1]).toStrictEqual(new Date("2026-09-18T00:00:00.000Z"));
   });
 
+  test("clear Range content through the HostBridge and preserve chaining", () => {
+    const bridge = createBridge();
+    const spreadsheet = createSpreadsheetApp(bridge).openById("spreadsheet-a");
+    const sheet = spreadsheet.getSheetByName("Summary");
+
+    if (sheet === null) {
+      throw new Error("expected Summary sheet");
+    }
+
+    const range = sheet.getRange(2, 3, 2, 2);
+    const result = range.clearContent();
+
+    expect(result).toBe(range);
+    expect(bridge.calls.at(-1)).toStrictEqual({
+      service: "spreadsheet",
+      operation: "set-range-values",
+      range: {
+        service: "spreadsheet",
+        kind: "range",
+        spreadsheetId: "spreadsheet-a",
+        sheetId: 7,
+        row: 2,
+        column: 3,
+        numRows: 2,
+        numColumns: 2,
+      },
+      values: [
+        ["", ""],
+        ["", ""],
+      ],
+    });
+  });
+
   test("write a single Range value through the HostBridge and preserve chaining", () => {
     const bridge = createBridge();
     const spreadsheet = createSpreadsheetApp(bridge).openById("spreadsheet-a");
