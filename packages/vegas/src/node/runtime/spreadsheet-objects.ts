@@ -215,6 +215,14 @@ export class Range {
     return this.#reference.column;
   }
 
+  getLastColumn(): number {
+    return this.#reference.column + this.#reference.numColumns - 1;
+  }
+
+  getLastRow(): number {
+    return this.#reference.row + this.#reference.numRows - 1;
+  }
+
   getNumColumns(): number {
     return this.#reference.numColumns;
   }

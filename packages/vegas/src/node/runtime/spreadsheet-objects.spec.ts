@@ -193,6 +193,8 @@ describe("Spreadsheet Runtime objects", () => {
       });
 
       expect(range.getA1Notation()).toBe(expected);
+      expect(range.getLastColumn()).toBe(column + numColumns - 1);
+      expect(range.getLastRow()).toBe(row + numRows - 1);
     }
 
     expect(bridge.calls).toHaveLength(0);
