@@ -2,7 +2,6 @@ import path from "node:path";
 
 import { type Connect, type ViteBuilder, createServer } from "vite";
 
-import type { ServerFunctionCallRequest } from "../../shared/webapp-protocol";
 import type { ArtifactStore } from "../build";
 import type { ResolvedProject } from "../project";
 import type { Executor, InvocationEnvironment, InvocationScope } from "../runtime";
@@ -13,6 +12,7 @@ import { createRuntimeProgram } from "./runtime-program";
 import { createAppsScriptDoGetEvent, createAppsScriptDoPostEvent } from "./webapp/event";
 import { createHostHtml, type AppsScriptDoGetResult } from "./webapp/host-html";
 import { createHostServerConfig } from "./webapp/host-server";
+import { registerHostWebSocketHandlers } from "./webapp/host-websocket";
 import {
   createAppsScriptDoPostHttpResponse,
   parseWebAppPath,
@@ -20,7 +20,6 @@ import {
   resolveAppsScriptXFrameOptionsHeader,
   type AppsScriptDoPostResult,
 } from "./webapp/http";
-import { executeServerFunctionCall } from "./webapp/server-function-call";
 import { WebAppSessionRegistry } from "./webapp/session-registry";
 import { createBlankUserContentHtml, createUserContentPanelHtml } from "./webapp/user-content-html";
 import { createUserContentServerConfig } from "./webapp/user-content-server";
@@ -77,34 +76,15 @@ export class DevApplication {
       buildManager: this.#buildManager,
     });
 
-    hostServer.ws.on("vegas:init", async (data, client) => {
-      await builds.waitForIdle();
-
-      if (sessions.consume(data.payload.id)) {
-        client.send("vegas:init");
-      } else {
-        client.close();
-      }
+    registerHostWebSocketHandlers({
+      server: hostServer,
+      builds,
+      sessions,
+      artifacts: this.#artifacts,
+      executor: this.#executor,
+      environment: this.#environment,
+      scope: this.#scope,
     });
-
-    hostServer.ws.on(
-      "vegas:server-function-call",
-      async (data: ServerFunctionCallRequest, client) => {
-        await builds.waitForIdle();
-
-        const program = createRuntimeProgram(this.#artifacts);
-
-        const response = await executeServerFunctionCall(
-          this.#executor,
-          data,
-          program,
-          this.#environment,
-          this.#scope,
-        );
-
-        client.send("vegas:return", response);
-      },
-    );
 
     const hostHandler: Connect.NextHandleFunction = async (request, response, next) => {
       try {
