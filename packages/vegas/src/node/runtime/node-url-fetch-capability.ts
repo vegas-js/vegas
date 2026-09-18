@@ -1,5 +1,6 @@
 import type { UrlFetchCapability } from "./url-fetch-capability";
 import type {
+  UrlFetchFormFieldValue,
   UrlFetchPayloadValue,
   UrlFetchRequestValue,
   UrlFetchResponseHeaderValue,
@@ -39,6 +40,34 @@ function validateRequest(request: UrlFetchRequestValue): void {
   }
 }
 
+function containsBlob(fields: Readonly<Record<string, UrlFetchFormFieldValue>>): boolean {
+  return Object.values(fields).some((value) => typeof value !== "string");
+}
+
+function createFormData(fields: Readonly<Record<string, UrlFetchFormFieldValue>>): FormData {
+  const form = new FormData();
+
+  for (const [name, value] of Object.entries(fields)) {
+    if (typeof value === "string") {
+      form.append(name, value);
+      continue;
+    }
+
+    const blob = new Blob(
+      [Uint8Array.from(value.bytes, (byte) => byte & 0xff)],
+      value.contentType === null ? undefined : { type: value.contentType },
+    );
+
+    if (value.name === null) {
+      form.append(name, blob);
+    } else {
+      form.append(name, blob, value.name);
+    }
+  }
+
+  return form;
+}
+
 function createBody(payload: UrlFetchPayloadValue | undefined): BodyInit | undefined {
   if (payload === undefined) {
     return undefined;
@@ -52,16 +81,14 @@ function createBody(payload: UrlFetchPayloadValue | undefined): BodyInit | undef
     case "blob":
       return Uint8Array.from(payload.value.bytes, (value) => value & 0xff);
     case "form": {
-      const params = new URLSearchParams();
-
-      for (const [name, value] of Object.entries(payload.fields)) {
-        if (typeof value !== "string") {
-          throw new Error("Node UrlFetch multipart form payloads are not implemented yet.");
-        }
-
-        params.append(name, value);
+      if (containsBlob(payload.fields)) {
+        return createFormData(payload.fields);
       }
 
+      const params = new URLSearchParams();
+      for (const [name, value] of Object.entries(payload.fields)) {
+        params.append(name, value as string);
+      }
       return params;
     }
   }
@@ -83,7 +110,11 @@ function createRequestInit(request: UrlFetchRequestValue): RequestInit {
     headers.set("content-type", request.payload.value.contentType);
   }
 
-  if (request.payload?.kind === "form" && !headers.has("content-type")) {
+  if (
+    request.payload?.kind === "form" &&
+    !containsBlob(request.payload.fields) &&
+    !headers.has("content-type")
+  ) {
     headers.set("content-type", "application/x-www-form-urlencoded");
   }
 

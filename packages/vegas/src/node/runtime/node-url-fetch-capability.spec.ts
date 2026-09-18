@@ -103,6 +103,58 @@ describe("NodeUrlFetchCapability", () => {
     );
   });
 
+  test("encode Blob form fields as multipart FormData", async () => {
+    const calls: RequestInit[] = [];
+    const capability = new NodeUrlFetchCapability(async (_url, init) => {
+      calls.push(init);
+      return new Response("ok");
+    });
+
+    await capability.fetch({
+      url: "https://example.com/form",
+      method: "post",
+      payload: {
+        kind: "form",
+        fields: {
+          name: "Vegas",
+          attachment: {
+            bytes: [86, 101, 103, 97, 115],
+            contentType: "text/plain",
+            name: "vegas.txt",
+            googleType: false,
+          },
+        },
+      },
+    });
+
+    expect(calls).toHaveLength(1);
+
+    const body = calls[0]?.body;
+    expect(body).toBeInstanceOf(FormData);
+
+    if (!(body instanceof FormData)) {
+      throw new Error("expected multipart FormData body");
+    }
+
+    expect(body.get("name")).toBe("Vegas");
+
+    const attachment = body.get("attachment");
+    expect(attachment).toBeInstanceOf(Blob);
+
+    if (!(attachment instanceof Blob)) {
+      throw new Error("expected Blob form field");
+    }
+
+    expect(attachment.type).toBe("text/plain");
+    expect(Array.from(new Uint8Array(await attachment.arrayBuffer()))).toStrictEqual([
+      86, 101, 103, 97, 115,
+    ]);
+    expect(attachment).toMatchObject({
+      name: "vegas.txt",
+    });
+    expect(new Headers(calls[0]?.headers).has("content-type")).toBe(false);
+  });
+
   test("reject payload when the default request method is GET", async () => {
     let calls = 0;
     const capability = new NodeUrlFetchCapability(async () => {
@@ -182,23 +234,6 @@ describe("NodeUrlFetchCapability", () => {
         useIntranet: true,
       }),
     ).rejects.toThrow("useIntranet=true");
-    await expect(
-      capability.fetch({
-        url: "https://example.com",
-        method: "post",
-        payload: {
-          kind: "form",
-          fields: {
-            attachment: {
-              bytes: [86, 101, 103, 97, 115],
-              contentType: "text/plain",
-              name: "vegas.txt",
-              googleType: false,
-            },
-          },
-        },
-      }),
-    ).rejects.toThrow("multipart form payloads");
 
     expect(calls).toBe(0);
   });
