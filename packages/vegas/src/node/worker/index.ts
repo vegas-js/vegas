@@ -7,13 +7,12 @@ import { serializeHtmlOutput } from "../runtime/html-output";
 import { createHtmlService } from "../runtime/html-service";
 import type { InvocationEnvironment } from "../runtime/invocation";
 import { createLockService } from "../runtime/lock-objects";
+import { createConsole, createLogger } from "../runtime/logging";
 import type { Program } from "../runtime/program";
 import { createPropertiesService } from "../runtime/properties-objects";
 import { createSession } from "../runtime/session-objects";
 import { createUtilities } from "../runtime/utilities";
 import { createWorkerHostBridge } from "../runtime/worker-host-bridge";
-import { Console } from "./api/base/console";
-import { Logger } from "./api/base/Logger";
 import { Range } from "./api/spreadsheet/Range";
 import { Sheet } from "./api/spreadsheet/Sheet";
 import { Spreadsheet } from "./api/spreadsheet/Spreadsheet";
@@ -157,10 +156,10 @@ const scriptContext = vm.createContext({
   MailApp: undefined,
   /* Base */
   Browser: undefined,
-  Logger: new Logger(),
+  Logger: createLogger(console),
   MimeType: undefined,
   Session: createSession(runtimeWorkerData.environment),
-  console: new Console(),
+  console: createConsole(console),
   /* Cache */
   CacheService: createCacheService(hostBridge),
   /* Lock */
