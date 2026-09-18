@@ -71,6 +71,9 @@ export type { PropertiesNamespace, PropertiesStore } from "./properties-store";
 export type { Program } from "./program";
 export { resolvePropertiesNamespace } from "./properties-namespace";
 export type { InvocationScope } from "./scope";
+export { SpreadsheetHostHandler } from "./spreadsheet-host-handler";
+export type { SpreadsheetHostCallHandler } from "./spreadsheet-host-handler";
+export type { SpreadsheetHostCall, SpreadsheetHostCallResult } from "./spreadsheet-host-call";
 export type {
   RangeReference,
   SheetReference,

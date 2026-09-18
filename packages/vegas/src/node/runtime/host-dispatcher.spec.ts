@@ -6,8 +6,10 @@ import {
   InMemoryCacheStore,
   InMemoryLockStore,
   InMemoryPropertiesStore,
+  InMemorySpreadsheetStore,
   LockHostHandler,
   PropertiesHostHandler,
+  SpreadsheetHostHandler,
   type DriveHostCallHandler,
   type UrlFetchHostCallHandler,
 } from "./index";
@@ -164,6 +166,45 @@ describe("HostDispatcher", () => {
         operation: "get-root-folder",
       }),
     ).rejects.toThrow("Drive host handler is not configured for this invocation.");
+  });
+
+  test("dispatch Spreadsheet calls only when the invocation provides a Spreadsheet handler", async () => {
+    const properties = createPropertiesHandler();
+    const spreadsheet = new SpreadsheetHostHandler(
+      new InMemorySpreadsheetStore([
+        {
+          id: "spreadsheet-a",
+          name: "Budget",
+          sheets: [],
+        },
+      ]),
+    );
+    const dispatcher = new HostDispatcher({ properties, spreadsheet });
+
+    await expect(
+      dispatcher.dispatch({
+        service: "spreadsheet",
+        operation: "get-spreadsheet",
+        id: "spreadsheet-a",
+      }),
+    ).resolves.toStrictEqual({
+      service: "spreadsheet",
+      kind: "spreadsheet",
+      id: "spreadsheet-a",
+    });
+  });
+
+  test("reject Spreadsheet calls when the invocation has no Spreadsheet handler", async () => {
+    const properties = createPropertiesHandler();
+    const dispatcher = new HostDispatcher({ properties });
+
+    await expect(
+      dispatcher.dispatch({
+        service: "spreadsheet",
+        operation: "get-spreadsheet",
+        id: "spreadsheet-a",
+      }),
+    ).rejects.toThrow("Spreadsheet host handler is not configured for this invocation.");
   });
 
   test("dispatch UrlFetch calls only when the invocation provides a UrlFetch handler", async () => {

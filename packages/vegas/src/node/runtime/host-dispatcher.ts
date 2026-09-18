@@ -3,6 +3,7 @@ import type { DriveHostCallHandler } from "./drive-host-handler";
 import type { HostCall, HostCallResult } from "./host-call";
 import type { LockHostCallHandler } from "./lock-host-handler";
 import type { PropertiesHostCallHandler } from "./properties-host-handler";
+import type { SpreadsheetHostCallHandler } from "./spreadsheet-host-handler";
 import type { UrlFetchHostCallHandler } from "./url-fetch-host-handler";
 
 export interface HostCallDispatcher {
@@ -14,6 +15,7 @@ export interface HostDispatcherOptions {
   readonly drive?: DriveHostCallHandler;
   readonly lock?: LockHostCallHandler;
   readonly properties: PropertiesHostCallHandler;
+  readonly spreadsheet?: SpreadsheetHostCallHandler;
   readonly urlFetch?: UrlFetchHostCallHandler;
 }
 
@@ -22,6 +24,7 @@ export class HostDispatcher implements HostCallDispatcher {
   readonly #drive: DriveHostCallHandler | undefined;
   readonly #lock: LockHostCallHandler | undefined;
   readonly #properties: PropertiesHostCallHandler;
+  readonly #spreadsheet: SpreadsheetHostCallHandler | undefined;
   readonly #urlFetch: UrlFetchHostCallHandler | undefined;
 
   constructor(options: HostDispatcherOptions) {
@@ -29,6 +32,7 @@ export class HostDispatcher implements HostCallDispatcher {
     this.#drive = options.drive;
     this.#lock = options.lock;
     this.#properties = options.properties;
+    this.#spreadsheet = options.spreadsheet;
     this.#urlFetch = options.urlFetch;
   }
 
@@ -57,6 +61,13 @@ export class HostDispatcher implements HostCallDispatcher {
       }
       case "properties": {
         return (await this.#properties.handle(call)) as HostCallResult<C>;
+      }
+      case "spreadsheet": {
+        if (!this.#spreadsheet) {
+          throw new Error("Spreadsheet host handler is not configured for this invocation.");
+        }
+
+        return (await this.#spreadsheet.handle(call)) as HostCallResult<C>;
       }
       case "url-fetch": {
         if (!this.#urlFetch) {

@@ -1,0 +1,122 @@
+import { describe, expect, test } from "vitest";
+
+import { InMemorySpreadsheetStore, SpreadsheetHostHandler } from "./index";
+
+function createHandler() {
+  return new SpreadsheetHostHandler(
+    new InMemorySpreadsheetStore([
+      {
+        id: "spreadsheet-a",
+        name: "Budget",
+        sheets: [
+          {
+            id: 7,
+            name: "Summary",
+            maxRows: 10,
+            maxColumns: 8,
+            values: [
+              ["Name", "Amount"],
+              ["Vegas", 42],
+            ],
+          },
+        ],
+      },
+    ]),
+  );
+}
+
+describe("SpreadsheetHostHandler", () => {
+  test("delegate resource lookup and metadata to the store", async () => {
+    const handler = createHandler();
+    const spreadsheet = await handler.handle({
+      service: "spreadsheet",
+      operation: "get-spreadsheet",
+      id: "spreadsheet-a",
+    });
+
+    expect(spreadsheet).toStrictEqual({
+      service: "spreadsheet",
+      kind: "spreadsheet",
+      id: "spreadsheet-a",
+    });
+
+    if (spreadsheet === null || typeof spreadsheet !== "object" || !("kind" in spreadsheet)) {
+      throw new Error("expected Spreadsheet reference");
+    }
+
+    if (spreadsheet.kind !== "spreadsheet") {
+      throw new Error("expected Spreadsheet reference");
+    }
+
+    await expect(
+      handler.handle({
+        service: "spreadsheet",
+        operation: "get-spreadsheet-metadata",
+        spreadsheet,
+      }),
+    ).resolves.toStrictEqual({
+      name: "Budget",
+    });
+    await expect(
+      handler.handle({
+        service: "spreadsheet",
+        operation: "get-sheet-by-name",
+        spreadsheet,
+        name: "Summary",
+      }),
+    ).resolves.toStrictEqual({
+      service: "spreadsheet",
+      kind: "sheet",
+      spreadsheetId: "spreadsheet-a",
+      sheetId: 7,
+    });
+  });
+
+  test("delegate Range reads and writes to the store", async () => {
+    const handler = createHandler();
+    const range = {
+      service: "spreadsheet",
+      kind: "range",
+      spreadsheetId: "spreadsheet-a",
+      sheetId: 7,
+      row: 1,
+      column: 1,
+      numRows: 2,
+      numColumns: 2,
+    } as const;
+
+    await expect(
+      handler.handle({
+        service: "spreadsheet",
+        operation: "get-range-values",
+        range,
+      }),
+    ).resolves.toStrictEqual([
+      ["Name", "Amount"],
+      ["Vegas", 42],
+    ]);
+
+    await expect(
+      handler.handle({
+        service: "spreadsheet",
+        operation: "set-range-values",
+        range,
+        values: [
+          ["Updated", 100],
+          ["Second", 200],
+        ],
+      }),
+    ).resolves.toBeUndefined();
+
+    await expect(
+      handler.handle({
+        service: "spreadsheet",
+        operation: "get-range-values",
+        range,
+      }),
+    ).resolves.toStrictEqual([
+      ["Updated", 100],
+      ["Second", 200],
+    ]);
+  });
+});
