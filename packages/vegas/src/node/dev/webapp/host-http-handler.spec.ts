@@ -1,0 +1,176 @@
+import { Readable } from "node:stream";
+
+import type { ViteDevServer } from "vite";
+import { describe, expect, test, vi } from "vitest";
+
+import { ArtifactStore } from "../../build";
+import type { InvocationEnvironment, InvocationScope } from "../../runtime";
+import { createHostHttpHandler } from "./host-http-handler";
+
+const environment: InvocationEnvironment = {
+  activeUserEmail: "",
+  activeUserLocale: "en",
+  effectiveUserEmail: "",
+  scriptTimeZone: "UTC",
+  temporaryActiveUserKey: "",
+};
+
+const scope: InvocationScope = {
+  scriptKey: "/project",
+  userKey: "local-user",
+};
+
+function createArtifacts() {
+  const artifacts = new ArtifactStore();
+  artifacts.replaceScope("server", [
+    {
+      path: "Code.js",
+      content: "function doGet() {} function doPost() {}",
+    },
+  ]);
+  return artifacts;
+}
+
+function createServer(mode: "development" | "production" = "development") {
+  return {
+    config: {
+      mode,
+      server: {
+        https: false,
+      },
+    },
+    transformIndexHtml: vi.fn(async (_url: string, html: string) => html),
+  } as unknown as ViteDevServer;
+}
+
+function createResponse() {
+  const headers = new Map<string, string>();
+  let body: unknown;
+
+  return {
+    response: {
+      statusCode: 0,
+      setHeader: vi.fn((name: string, value: string) => {
+        headers.set(name, value);
+      }),
+      end: vi.fn((value?: unknown) => {
+        body = value;
+      }),
+    },
+    headers,
+    getBody: () => body,
+  };
+}
+
+describe("createHostHttpHandler", () => {
+  test("redirect root requests to the current web app endpoint", async () => {
+    const { response, headers } = createResponse();
+    const next = vi.fn();
+    const waitForIdle = vi.fn(async () => undefined);
+
+    const handler = createHostHttpHandler({
+      server: createServer(),
+      builds: { waitForIdle },
+      sessions: { issue: () => "session-1" },
+      artifacts: createArtifacts(),
+      executor: { execute: async () => undefined },
+      environment,
+      scope,
+    });
+
+    await handler(
+      {
+        url: "/?name=alice",
+        method: "GET",
+        headers: { host: "localhost:5173" },
+      } as any,
+      response as any,
+      next,
+    );
+
+    expect(waitForIdle).toHaveBeenCalledOnce();
+    expect(response.statusCode).toBe(307);
+    expect(headers.get("Location")).toBe("/dev?name=alice");
+    expect(next).not.toHaveBeenCalled();
+  });
+
+  test("execute doGet and return transformed host html", async () => {
+    const server = createServer();
+    const { response, headers, getBody } = createResponse();
+    const execute = vi.fn(async (request) => {
+      expect(request.functionName).toBe("doGet");
+      expect(request.args[0].parameter).toStrictEqual({ name: "alice" });
+      return {
+        metaTags: [],
+        title: "",
+        faviconUrl: "",
+        content: "<main>Hello</main>",
+        xFrameOptionsMode: "DEFAULT",
+      };
+    });
+
+    const handler = createHostHttpHandler({
+      server,
+      builds: { waitForIdle: async () => undefined },
+      sessions: { issue: () => "session-1" },
+      artifacts: createArtifacts(),
+      executor: { execute },
+      environment,
+      scope,
+    });
+
+    await handler(
+      {
+        url: "/dev?name=alice",
+        method: "GET",
+        headers: { host: "localhost:5173" },
+      } as any,
+      response as any,
+      vi.fn(),
+    );
+
+    expect(response.statusCode).toBe(200);
+    expect(headers.get("Content-Type")).toBe("text/html; charset=utf-8");
+    expect(headers.get("X-Frame-Options")).toBe("SAMEORIGIN");
+    expect(String(getBody())).toContain(
+      'src="http://localhost:5174/userCodeAppPanel?sessionId=session-1"',
+    );
+    expect(server.transformIndexHtml).toHaveBeenCalledOnce();
+  });
+
+  test("execute doPost and return the Apps Script response", async () => {
+    const { response, headers, getBody } = createResponse();
+    const execute = vi.fn(async (request) => {
+      expect(request.functionName).toBe("doPost");
+      expect(request.args[0].postData.contents).toBe("hello");
+      return {
+        mimeType: "text/plain",
+        content: "posted",
+      };
+    });
+
+    const handler = createHostHttpHandler({
+      server: createServer(),
+      builds: { waitForIdle: async () => undefined },
+      sessions: { issue: () => "session-1" },
+      artifacts: createArtifacts(),
+      executor: { execute },
+      environment,
+      scope,
+    });
+
+    const request = Readable.from(["hello"]) as any;
+    request.url = "/exec";
+    request.method = "POST";
+    request.headers = {
+      host: "localhost:5173",
+      "content-type": "text/plain",
+    };
+
+    await handler(request, response as any, vi.fn());
+
+    expect(response.statusCode).toBe(200);
+    expect(headers.get("Content-Type")).toBe("text/plain; charset=utf-8");
+    expect(getBody()).toBe("posted");
+  });
+});
