@@ -8,7 +8,7 @@ import type { ResolvedProject } from "../project";
 import type { Executor, InvocationEnvironment, InvocationScope } from "../runtime";
 import { BuildCoordinator } from "./build-coordinator";
 import { DevBuildManager } from "./build-manager";
-import { classifyProjectFile } from "./project-file";
+import { registerBuildWatchers } from "./build-watcher";
 import { createRuntimeProgram } from "./runtime-program";
 import { createAppsScriptDoGetEvent, createAppsScriptDoPostEvent } from "./webapp/event";
 import { createHostHtml, type AppsScriptDoGetResult } from "./webapp/host-html";
@@ -70,69 +70,12 @@ export class DevApplication {
       }),
     );
 
-    hostServer.watcher.add([this.#project.clientDir, this.#project.serverDir]);
-
-    hostServer.watcher.on("change", async (filePath) => {
-      const scope = classifyProjectFile(this.#project, filePath);
-
-      if (!scope) {
-        return;
-      }
-
-      try {
-        await builds.run(async () => {
-          await this.#buildManager.rebuild(scope);
-
-          if (scope === "client") {
-            hostServer.moduleGraph.invalidateAll();
-            hostServer.ws.send({ type: "full-reload" });
-          }
-        });
-      } catch (err: any) {
-        console.error(err);
-
-        hostServer.ws.send({
-          type: "error",
-          err: {
-            // oxlint-disable-next-line no-control-regex
-            message: err.message.replace(/\x1b\[[\d;]+m/g, ""),
-            // oxlint-disable-next-line no-control-regex
-            stack: err.stack.replace(/\x1b\[[\d;]+m/g, ""),
-          },
-        });
-      }
+    registerBuildWatchers({
+      server: hostServer,
+      project: this.#project,
+      builds,
+      buildManager: this.#buildManager,
     });
-
-    const handleTopologyChange = async (filePath: string): Promise<void> => {
-      const scope = classifyProjectFile(this.#project, filePath);
-      if (!scope) {
-        return;
-      }
-
-      try {
-        await builds.run(async () => {
-          await this.#buildManager.refreshTopology();
-
-          hostServer.moduleGraph.invalidateAll();
-          hostServer.ws.send({ type: "full-reload" });
-        });
-      } catch (err: any) {
-        console.error(err);
-
-        hostServer.ws.send({
-          type: "error",
-          err: {
-            // oxlint-disable-next-line no-control-regex
-            message: err.message.replace(/\x1b\[[\d;]+m/g, ""),
-            // oxlint-disable-next-line no-control-regex
-            stack: err.stack.replace(/\x1b\[[\d;]+m/g, ""),
-          },
-        });
-      }
-    };
-
-    hostServer.watcher.on("add", handleTopologyChange);
-    hostServer.watcher.on("unlink", handleTopologyChange);
 
     hostServer.ws.on("vegas:init", async (data, client) => {
       await builds.waitForIdle();
