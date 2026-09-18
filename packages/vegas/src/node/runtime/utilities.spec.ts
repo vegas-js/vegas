@@ -1,3 +1,5 @@
+import crypto from "node:crypto";
+
 import { describe, expect, test } from "vitest";
 
 import { createUtilities, Utilities } from "./utilities";
@@ -6,11 +8,18 @@ type UtilitiesContract = Pick<
   GoogleAppsScript.Utilities.Utilities,
   | "Charset"
   | "DigestAlgorithm"
+  | "MacAlgorithm"
+  | "RsaAlgorithm"
   | "base64Decode"
   | "base64DecodeWebSafe"
   | "base64Encode"
   | "base64EncodeWebSafe"
   | "computeDigest"
+  | "computeHmacSha256Signature"
+  | "computeHmacSignature"
+  | "computeRsaSha1Signature"
+  | "computeRsaSha256Signature"
+  | "computeRsaSignature"
 >;
 
 function expectDistinctNumericValues(values: Readonly<Record<string, number>>): void {
@@ -131,5 +140,98 @@ describe("Utilities", () => {
     expect(
       utilities.computeDigest(utilities.DigestAlgorithm.SHA_256, "abc", utilities.Charset.US_ASCII),
     ).toStrictEqual(expected);
+  });
+
+  test("compute supported HMAC signatures from public RFC vectors", () => {
+    const utilities = createUtilities();
+    const value = "what do ya want for nothing?";
+    const key = "Jefe";
+    const vectors = [
+      [utilities.MacAlgorithm.HMAC_MD5, "750c783e6ab0b503eaa86e310a5db738"],
+      [utilities.MacAlgorithm.HMAC_SHA_1, "effcdf6ae5eb2fa2d27416d5f184df9c259a7c79"],
+      [
+        utilities.MacAlgorithm.HMAC_SHA_256,
+        "5bdcc146bf60754e6a042426089575c75a003f089d2739839dec58b964ec3843",
+      ],
+      [
+        utilities.MacAlgorithm.HMAC_SHA_384,
+        "af45d2e376484031617f78d2b58a6b1b9c7ef464f5a01b47e42ec3736322445e8e2240ca5e69e2c78b3239ecfab21649",
+      ],
+      [
+        utilities.MacAlgorithm.HMAC_SHA_512,
+        "164b7a7bfcf819e2e395fbe73b56e0a387bd64222e831fd610270cd7ea2505549758bf75c05a994a6d034f65f8f0e6fdcaeab1a34d4a6b4b636e070a38bce737",
+      ],
+    ] as const;
+
+    for (const [algorithm, expected] of vectors) {
+      const signature = utilities.computeHmacSignature(algorithm, value, key);
+
+      expect(Buffer.from(signature).toString("hex")).toBe(expected);
+      expect(signature.every((byte) => byte >= -128 && byte <= 127)).toBe(true);
+    }
+  });
+
+  test("compute HMAC-SHA256 from byte arrays and explicit charsets", () => {
+    const utilities = createUtilities();
+    const value = "what do ya want for nothing?";
+    const key = "Jefe";
+    const expected = utilities.computeHmacSignature(
+      utilities.MacAlgorithm.HMAC_SHA_256,
+      value,
+      key,
+    );
+
+    expect(utilities.computeHmacSha256Signature(value, key)).toStrictEqual(expected);
+    expect(
+      utilities.computeHmacSha256Signature(value, key, utilities.Charset.US_ASCII),
+    ).toStrictEqual(expected);
+
+    const byteSignature = utilities.computeHmacSha256Signature(
+      [...Buffer.from("Hi There")],
+      Array.from({ length: 20 }, () => 0x0b),
+    );
+    expect(Buffer.from(byteSignature).toString("hex")).toBe(
+      "b0344c61d8db38535ca8afceaf0bf12b881dc200c9833da726e9376c2e32cff7",
+    );
+  });
+
+  test("sign RSA values with the Vegas PKCS#1 v1.5 Runtime contract", () => {
+    const utilities = createUtilities();
+    const { privateKey, publicKey } = crypto.generateKeyPairSync("rsa", {
+      modulusLength: 1024,
+      privateKeyEncoding: { type: "pkcs8", format: "pem" },
+      publicKeyEncoding: { type: "spki", format: "pem" },
+    });
+    const value = "Vegas RSA signature";
+    const vectors = [
+      [utilities.RsaAlgorithm.RSA_SHA_1, "sha1"],
+      [utilities.RsaAlgorithm.RSA_SHA_256, "sha256"],
+    ] as const;
+
+    for (const [algorithm, nodeAlgorithm] of vectors) {
+      const signature = utilities.computeRsaSignature(algorithm, value, privateKey);
+
+      expect(signature.every((byte) => byte >= -128 && byte <= 127)).toBe(true);
+      expect(
+        crypto.verify(
+          nodeAlgorithm,
+          Buffer.from(value),
+          { key: publicKey, padding: crypto.constants.RSA_PKCS1_PADDING },
+          Buffer.from(signature),
+        ),
+      ).toBe(true);
+    }
+
+    expect(utilities.computeRsaSha1Signature(value, privateKey)).toStrictEqual(
+      utilities.computeRsaSignature(utilities.RsaAlgorithm.RSA_SHA_1, value, privateKey),
+    );
+    expect(utilities.computeRsaSha256Signature(value, privateKey)).toStrictEqual(
+      utilities.computeRsaSignature(utilities.RsaAlgorithm.RSA_SHA_256, value, privateKey),
+    );
+    expect(
+      utilities.computeRsaSha256Signature(value, privateKey, utilities.Charset.US_ASCII),
+    ).toStrictEqual(
+      utilities.computeRsaSignature(utilities.RsaAlgorithm.RSA_SHA_256, value, privateKey),
+    );
   });
 });

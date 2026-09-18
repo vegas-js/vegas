@@ -93,6 +93,63 @@ function computeDigest(
   return Array.from(crypto.createHash(nodeAlgorithm).update(data).digest(), toSignedByte);
 }
 
+function computeHmac(
+  algorithm: GoogleAppsScript.Utilities.MacAlgorithm,
+  value: Uint8Array,
+  key: Uint8Array,
+): GoogleAppsScript.Byte[] {
+  let nodeAlgorithm: string;
+  switch (algorithm) {
+    case MAC_ALGORITHM.HMAC_MD5:
+      nodeAlgorithm = "md5";
+      break;
+    case MAC_ALGORITHM.HMAC_SHA_1:
+      nodeAlgorithm = "sha1";
+      break;
+    case MAC_ALGORITHM.HMAC_SHA_256:
+      nodeAlgorithm = "sha256";
+      break;
+    case MAC_ALGORITHM.HMAC_SHA_384:
+      nodeAlgorithm = "sha384";
+      break;
+    case MAC_ALGORITHM.HMAC_SHA_512:
+      nodeAlgorithm = "sha512";
+      break;
+    default:
+      throw new Error("Unsupported MAC algorithm.");
+  }
+
+  return Array.from(crypto.createHmac(nodeAlgorithm, key).update(value).digest(), toSignedByte);
+}
+
+function signRsa(
+  algorithm: GoogleAppsScript.Utilities.RsaAlgorithm,
+  value: Uint8Array,
+  key: string,
+): GoogleAppsScript.Byte[] {
+  let nodeAlgorithm: string;
+  switch (algorithm) {
+    case RSA_ALGORITHM.RSA_SHA_1:
+      nodeAlgorithm = "sha1";
+      break;
+    case RSA_ALGORITHM.RSA_SHA_256:
+      nodeAlgorithm = "sha256";
+      break;
+    default:
+      throw new Error("Unsupported RSA algorithm.");
+  }
+
+  // Google public documentation does not specify the RSA padding scheme.
+  // Vegas uses RSASSA-PKCS1-v1_5 as its explicit local Runtime contract.
+  return Array.from(
+    crypto.sign(nodeAlgorithm, value, {
+      key,
+      padding: crypto.constants.RSA_PKCS1_PADDING,
+    }),
+    toSignedByte,
+  );
+}
+
 // https://developers.google.com/apps-script/reference/utilities/utilities
 // @types/google-apps-script models these values as ambient enums. Their concrete
 // numeric values are Vegas-internal identities and are not compatibility promises.
@@ -171,6 +228,105 @@ export class Utilities {
     const bytes = typeof value === "string" ? encodeString(value, charset) : encodeBytes(value);
 
     return computeDigest(algorithm, bytes);
+  }
+
+  computeHmacSha256Signature(
+    value: GoogleAppsScript.Byte[],
+    key: GoogleAppsScript.Byte[],
+  ): GoogleAppsScript.Byte[];
+  computeHmacSha256Signature(value: string, key: string): GoogleAppsScript.Byte[];
+  computeHmacSha256Signature(
+    value: string,
+    key: string,
+    charset: GoogleAppsScript.Utilities.Charset,
+  ): GoogleAppsScript.Byte[];
+  computeHmacSha256Signature(
+    value: GoogleAppsScript.Byte[] | string,
+    key: GoogleAppsScript.Byte[] | string,
+    charset?: GoogleAppsScript.Utilities.Charset,
+  ): GoogleAppsScript.Byte[] {
+    const valueBytes =
+      typeof value === "string" ? encodeString(value, charset) : encodeBytes(value);
+    const keyBytes = typeof key === "string" ? encodeString(key, charset) : encodeBytes(key);
+
+    return computeHmac(MAC_ALGORITHM.HMAC_SHA_256, valueBytes, keyBytes);
+  }
+
+  computeHmacSignature(
+    algorithm: GoogleAppsScript.Utilities.MacAlgorithm,
+    value: GoogleAppsScript.Byte[],
+    key: GoogleAppsScript.Byte[],
+  ): GoogleAppsScript.Byte[];
+  computeHmacSignature(
+    algorithm: GoogleAppsScript.Utilities.MacAlgorithm,
+    value: string,
+    key: string,
+  ): GoogleAppsScript.Byte[];
+  computeHmacSignature(
+    algorithm: GoogleAppsScript.Utilities.MacAlgorithm,
+    value: string,
+    key: string,
+    charset: GoogleAppsScript.Utilities.Charset,
+  ): GoogleAppsScript.Byte[];
+  computeHmacSignature(
+    algorithm: GoogleAppsScript.Utilities.MacAlgorithm,
+    value: GoogleAppsScript.Byte[] | string,
+    key: GoogleAppsScript.Byte[] | string,
+    charset?: GoogleAppsScript.Utilities.Charset,
+  ): GoogleAppsScript.Byte[] {
+    const valueBytes =
+      typeof value === "string" ? encodeString(value, charset) : encodeBytes(value);
+    const keyBytes = typeof key === "string" ? encodeString(key, charset) : encodeBytes(key);
+
+    return computeHmac(algorithm, valueBytes, keyBytes);
+  }
+
+  computeRsaSha1Signature(value: string, key: string): GoogleAppsScript.Byte[];
+  computeRsaSha1Signature(
+    value: string,
+    key: string,
+    charset: GoogleAppsScript.Utilities.Charset,
+  ): GoogleAppsScript.Byte[];
+  computeRsaSha1Signature(
+    value: string,
+    key: string,
+    charset?: GoogleAppsScript.Utilities.Charset,
+  ): GoogleAppsScript.Byte[] {
+    return signRsa(RSA_ALGORITHM.RSA_SHA_1, encodeString(value, charset), key);
+  }
+
+  computeRsaSha256Signature(value: string, key: string): GoogleAppsScript.Byte[];
+  computeRsaSha256Signature(
+    value: string,
+    key: string,
+    charset: GoogleAppsScript.Utilities.Charset,
+  ): GoogleAppsScript.Byte[];
+  computeRsaSha256Signature(
+    value: string,
+    key: string,
+    charset?: GoogleAppsScript.Utilities.Charset,
+  ): GoogleAppsScript.Byte[] {
+    return signRsa(RSA_ALGORITHM.RSA_SHA_256, encodeString(value, charset), key);
+  }
+
+  computeRsaSignature(
+    algorithm: GoogleAppsScript.Utilities.RsaAlgorithm,
+    value: string,
+    key: string,
+  ): GoogleAppsScript.Byte[];
+  computeRsaSignature(
+    algorithm: GoogleAppsScript.Utilities.RsaAlgorithm,
+    value: string,
+    key: string,
+    charset: GoogleAppsScript.Utilities.Charset,
+  ): GoogleAppsScript.Byte[];
+  computeRsaSignature(
+    algorithm: GoogleAppsScript.Utilities.RsaAlgorithm,
+    value: string,
+    key: string,
+    charset?: GoogleAppsScript.Utilities.Charset,
+  ): GoogleAppsScript.Byte[] {
+    return signRsa(algorithm, encodeString(value, charset), key);
   }
 }
 
