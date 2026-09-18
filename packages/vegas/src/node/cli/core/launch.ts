@@ -10,6 +10,7 @@ import {
   NodeUrlFetchCapability,
   PropertiesHostHandler,
   resolveDriveNamespace,
+  SpreadsheetHostHandler,
   UrlFetchHostHandler,
   type CacheStore,
   type DriveIteratorStore,
@@ -20,6 +21,7 @@ import {
   type LockStore,
   type Program,
   type PropertiesStore,
+  type SpreadsheetStore,
 } from "../../runtime";
 import type { ServeContext } from "./context";
 import { SpreadsheetAppHandler, SheetHandler, RangeHandler } from "./handlers";
@@ -120,6 +122,7 @@ export function createLegacyAppsScriptExecutor(
   propertiesStore: PropertiesStore,
   driveStore: DriveStore,
   driveIteratorStore: DriveIteratorStore,
+  spreadsheetStore: SpreadsheetStore,
 ): Executor {
   const handler = new GASHandler();
   const urlFetch = new UrlFetchHostHandler(new NodeUrlFetchCapability());
@@ -137,6 +140,7 @@ export function createLegacyAppsScriptExecutor(
         ),
         lock: new LockHostHandler(lockSession, request.scope),
         properties: new PropertiesHostHandler(propertiesStore, request.scope),
+        spreadsheet: new SpreadsheetHostHandler(spreadsheetStore),
         urlFetch,
       });
 

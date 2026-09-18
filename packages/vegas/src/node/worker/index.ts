@@ -11,13 +11,13 @@ import { createConsole, createLogger } from "../runtime/logging";
 import type { Program } from "../runtime/program";
 import { createPropertiesService } from "../runtime/properties-objects";
 import { createSession } from "../runtime/session-objects";
+import { createSpreadsheetApp } from "../runtime/spreadsheet-object-hydrator";
 import { createUrlFetchApp } from "../runtime/url-fetch-app";
 import { createUtilities } from "../runtime/utilities";
 import { createWorkerHostBridge } from "../runtime/worker-host-bridge";
 import { Range } from "./api/spreadsheet/Range";
 import { Sheet } from "./api/spreadsheet/Sheet";
 import { Spreadsheet } from "./api/spreadsheet/Spreadsheet";
-import { SpreadsheetApp } from "./api/spreadsheet/SpreadsheetApp";
 
 type RuntimeWorkerData = {
   readonly program: Program;
@@ -90,7 +90,7 @@ const scriptContext = vm.createContext({
   /* Gmail */
   GmailApp: undefined,
   /* Sheets */
-  SpreadsheetApp: new SpreadsheetApp(createSpreadsheet, requestSync),
+  SpreadsheetApp: createSpreadsheetApp(hostBridge),
   /* Slides */
   SlidesApp: undefined,
   /* Workspace */

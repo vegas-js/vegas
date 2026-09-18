@@ -8,6 +8,7 @@ import {
   InMemoryDriveStore,
   InMemoryLockStore,
   InMemoryPropertiesStore,
+  InMemorySpreadsheetStore,
 } from "../runtime";
 import { createServeContext } from "./core/context";
 import { createLegacyAppsScriptExecutor } from "./core/launch";
@@ -45,6 +46,7 @@ export async function runPreview(root?: string) {
   const propertiesStore = new InMemoryPropertiesStore();
   const driveStore = new InMemoryDriveStore();
   const driveIteratorStore = new InMemoryDriveIteratorStore();
+  const spreadsheetStore = new InMemorySpreadsheetStore();
 
   await loadRuntimeData(ctx, snapshot.runtimeDataSources, propertiesStore, scope);
 
@@ -56,6 +58,7 @@ export async function runPreview(root?: string) {
     propertiesStore,
     driveStore,
     driveIteratorStore,
+    spreadsheetStore,
   );
 
   const application = new DevApplication({
