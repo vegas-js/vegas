@@ -1,9 +1,7 @@
 import { describe, expect, test } from "vitest";
 
-import { ArtifactStore } from "../../build";
 import type { ResolvedProject } from "../../project";
-import { createServeContext } from "./context";
-import { createLegacyInvocationScope } from "./runtime-scope";
+import { createInvocationScope } from "./runtime-scope";
 
 const project = {
   root: "/project",
@@ -19,11 +17,9 @@ const project = {
   },
 } satisfies ResolvedProject;
 
-describe("createLegacyInvocationScope", () => {
+describe("createInvocationScope", () => {
   test("create local invocation scope", () => {
-    const ctx = createServeContext(project, new ArtifactStore());
-
-    expect(createLegacyInvocationScope(ctx)).toStrictEqual({
+    expect(createInvocationScope(project)).toStrictEqual({
       scriptKey: "/project",
       userKey: "local-user",
     });

@@ -1,11 +1,24 @@
-import { describe, expect, test } from "vitest";
+import { describe, expect, expectTypeOf, test } from "vitest";
 
 import {
   InMemoryPropertiesStore,
   resolvePropertiesNamespace,
   type InvocationScope,
 } from "../../runtime";
-import { applyPropertiesRuntimeData } from "./runtime-data";
+import { applyPropertiesRuntimeData, type LoadedRuntimeData } from "./runtime-data";
+
+describe("runtime data", () => {
+  test("keep loaded Session data explicit instead of storing it on ServeContext", () => {
+    expectTypeOf<LoadedRuntimeData>().toEqualTypeOf<{
+      readonly session?: {
+        activeUserEmail?: string;
+        activeUserLocale?: string;
+        effectiveUserEmail?: string;
+        temporaryActiveUserKey?: string;
+      };
+    }>();
+  });
+});
 
 describe("applyPropertiesRuntimeData", () => {
   test("replace runtime property data in each available namespace", async () => {

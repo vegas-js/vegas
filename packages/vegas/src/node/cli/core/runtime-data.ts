@@ -1,21 +1,26 @@
 import { RuntimeDataTarget } from "../../../shared/gas";
-import type { RuntimeDataProperties } from "../../../shared/gas";
+import type { RuntimeDataProperties, RuntimeDataSession } from "../../../shared/gas";
 import { loadModule } from "../../module";
 import {
   resolvePropertiesNamespace,
   type InvocationScope,
   type PropertiesStore,
 } from "../../runtime";
-import type { ServeContext } from "./context";
+
+export interface LoadedRuntimeData {
+  readonly session?: RuntimeDataSession;
+}
 
 export async function loadRuntimeData(
-  ctx: ServeContext,
+  projectRoot: string,
   runtimeDataSources: readonly string[],
   propertiesStore: PropertiesStore,
   scope: InvocationScope,
-) {
+): Promise<LoadedRuntimeData> {
+  let session: RuntimeDataSession | undefined;
+
   for (const source of runtimeDataSources) {
-    const data = await loadModule({ root: ctx.project.root, filePath: source });
+    const data = await loadModule({ root: projectRoot, filePath: source });
 
     switch (data.target) {
       case RuntimeDataTarget.Properties: {
@@ -23,12 +28,14 @@ export async function loadRuntimeData(
         break;
       }
       case RuntimeDataTarget.Session: {
-        ctx.mock[data.target] = data;
+        session = data;
         break;
       }
       // TODO
     }
   }
+
+  return session === undefined ? {} : { session };
 }
 
 export async function applyPropertiesRuntimeData(

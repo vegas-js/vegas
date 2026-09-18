@@ -1,10 +1,7 @@
 import { describe, expect, test } from "vitest";
 
-import { RuntimeDataTarget } from "../../../shared/gas";
-import { ArtifactStore } from "../../build";
 import type { ResolvedProject } from "../../project";
-import { createServeContext } from "./context";
-import { createLegacyInvocationEnvironment } from "./runtime-environment";
+import { createInvocationEnvironment } from "./runtime-environment";
 
 const project = {
   root: "/project",
@@ -23,23 +20,31 @@ const project = {
 } satisfies ResolvedProject;
 
 // https://developers.google.com/apps-script/reference/base/session
-describe("createLegacyInvocationEnvironment", () => {
+describe("createInvocationEnvironment", () => {
   test("preserve invocation environment values", () => {
-    const ctx = createServeContext(project, new ArtifactStore());
-
-    ctx.mock[RuntimeDataTarget.Session] = {
-      activeUserEmail: "active@example.com",
-      activeUserLocale: "ja",
-      effectiveUserEmail: "effective@example.com",
-      temporaryActiveUserKey: "temporary-user-key",
-    };
-
-    expect(createLegacyInvocationEnvironment(ctx)).toStrictEqual({
+    expect(
+      createInvocationEnvironment(project, {
+        activeUserEmail: "active@example.com",
+        activeUserLocale: "ja",
+        effectiveUserEmail: "effective@example.com",
+        temporaryActiveUserKey: "temporary-user-key",
+      }),
+    ).toStrictEqual({
       activeUserEmail: "active@example.com",
       activeUserLocale: "ja",
       effectiveUserEmail: "effective@example.com",
       scriptTimeZone: "Asia/Tokyo",
       temporaryActiveUserKey: "temporary-user-key",
+    });
+  });
+
+  test("provide local defaults without Session runtime data", () => {
+    expect(createInvocationEnvironment(project)).toStrictEqual({
+      activeUserEmail: "",
+      activeUserLocale: "en",
+      effectiveUserEmail: "",
+      scriptTimeZone: "Asia/Tokyo",
+      temporaryActiveUserKey: "",
     });
   });
 });

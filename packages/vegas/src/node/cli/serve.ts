@@ -11,10 +11,9 @@ import {
   InMemorySpreadsheetStore,
 } from "../runtime";
 import { createAppsScriptExecutor } from "./core/apps-script-executor";
-import { createServeContext } from "./core/context";
 import { loadRuntimeData } from "./core/runtime-data";
-import { createLegacyInvocationEnvironment } from "./core/runtime-environment";
-import { createLegacyInvocationScope } from "./core/runtime-scope";
+import { createInvocationEnvironment } from "./core/runtime-environment";
+import { createInvocationScope } from "./core/runtime-scope";
 
 export async function runServe(root?: string) {
   const project = await loadProject({
@@ -39,9 +38,7 @@ export async function runServe(root?: string) {
     },
   ]);
 
-  const ctx = createServeContext(project, artifacts);
-
-  const scope = createLegacyInvocationScope(ctx);
+  const scope = createInvocationScope(project);
   const cacheStore = new InMemoryCacheStore();
   const lockStore = new InMemoryLockStore();
   const propertiesStore = new InMemoryPropertiesStore();
@@ -49,9 +46,14 @@ export async function runServe(root?: string) {
   const driveIteratorStore = new InMemoryDriveIteratorStore();
   const spreadsheetStore = new InMemorySpreadsheetStore();
 
-  await loadRuntimeData(ctx, snapshot.runtimeDataSources, propertiesStore, scope);
+  const runtimeData = await loadRuntimeData(
+    project.root,
+    snapshot.runtimeDataSources,
+    propertiesStore,
+    scope,
+  );
 
-  const environment = createLegacyInvocationEnvironment(ctx);
+  const environment = createInvocationEnvironment(project, runtimeData.session);
   const executor = createAppsScriptExecutor(
     cacheStore,
     lockStore,

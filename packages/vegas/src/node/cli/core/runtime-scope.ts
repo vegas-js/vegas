@@ -1,9 +1,9 @@
+import type { ResolvedProject } from "../../project";
 import type { InvocationScope } from "../../runtime";
-import type { ServeContext } from "./context";
 
-export function createLegacyInvocationScope(ctx: ServeContext): InvocationScope {
+export function createInvocationScope(project: ResolvedProject): InvocationScope {
   return {
-    scriptKey: ctx.project.root,
+    scriptKey: project.root,
     userKey: "local-user",
   };
 }
