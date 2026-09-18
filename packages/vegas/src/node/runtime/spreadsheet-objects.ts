@@ -17,6 +17,12 @@ function assertPositiveInteger(value: number, label: string): void {
   }
 }
 
+function assertInteger(value: number, label: string): void {
+  if (!Number.isInteger(value)) {
+    throw new RangeError(`${label} must be an integer.`);
+  }
+}
+
 const A1_COLUMN_ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 function formatA1Cell(row: number, column: number): string {
@@ -262,6 +268,37 @@ export class Range {
         range: this.#reference,
       }),
     );
+  }
+
+  offset(rowOffset: number, columnOffset: number): Range;
+  offset(rowOffset: number, columnOffset: number, numRows: number): Range;
+  offset(rowOffset: number, columnOffset: number, numRows: number, numColumns: number): Range;
+  offset(
+    rowOffset: number,
+    columnOffset: number,
+    numRows = this.#reference.numRows,
+    numColumns = this.#reference.numColumns,
+  ): Range {
+    assertInteger(rowOffset, "Spreadsheet range rowOffset");
+    assertInteger(columnOffset, "Spreadsheet range columnOffset");
+    assertPositiveInteger(numRows, "Spreadsheet range numRows");
+    assertPositiveInteger(numColumns, "Spreadsheet range numColumns");
+
+    const row = this.#reference.row + rowOffset;
+    const column = this.#reference.column + columnOffset;
+    assertPositiveInteger(row, "Spreadsheet range row");
+    assertPositiveInteger(column, "Spreadsheet range column");
+
+    return this.#hydrator.hydrate({
+      service: "spreadsheet",
+      kind: "range",
+      spreadsheetId: this.#reference.spreadsheetId,
+      sheetId: this.#reference.sheetId,
+      row,
+      column,
+      numRows,
+      numColumns,
+    });
   }
 
   setValue(value: SpreadsheetCellValue): Range {

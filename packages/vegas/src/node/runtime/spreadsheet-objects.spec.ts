@@ -200,6 +200,52 @@ describe("Spreadsheet Runtime objects", () => {
     expect(bridge.calls).toHaveLength(0);
   });
 
+  test("offset Ranges locally with Apps Script overload semantics", () => {
+    const bridge = createBridge();
+    const hydrator = createSpreadsheetObjectHydrator(bridge);
+    const range = hydrator.hydrate({
+      service: "spreadsheet",
+      kind: "range",
+      spreadsheetId: "spreadsheet-a",
+      sheetId: 7,
+      row: 5,
+      column: 5,
+      numRows: 2,
+      numColumns: 3,
+    });
+
+    const sameSize = range.offset(-2, 1);
+
+    expect(sameSize).not.toBe(range);
+    expect(sameSize.getA1Notation()).toBe("F3:H4");
+    expect(range.offset(1, -2, 4).getA1Notation()).toBe("C6:E9");
+    expect(range.offset(-4, -4, 3, 2).getA1Notation()).toBe("A1:B3");
+    expect(bridge.calls).toHaveLength(0);
+  });
+
+  test("reject invalid Range offsets before creating an object", () => {
+    const bridge = createBridge();
+    const hydrator = createSpreadsheetObjectHydrator(bridge);
+    const range = hydrator.hydrate({
+      service: "spreadsheet",
+      kind: "range",
+      spreadsheetId: "spreadsheet-a",
+      sheetId: 7,
+      row: 5,
+      column: 5,
+      numRows: 2,
+      numColumns: 3,
+    });
+
+    expect(() => range.offset(0.5, 0)).toThrow("rowOffset must be an integer");
+    expect(() => range.offset(0, 0.5)).toThrow("columnOffset must be an integer");
+    expect(() => range.offset(-5, 0)).toThrow("row must be a positive integer");
+    expect(() => range.offset(0, -5)).toThrow("column must be a positive integer");
+    expect(() => range.offset(0, 0, 0)).toThrow("numRows must be a positive integer");
+    expect(() => range.offset(0, 0, 1, 0)).toThrow("numColumns must be a positive integer");
+    expect(bridge.calls).toHaveLength(0);
+  });
+
   test("clear Range content through the HostBridge and preserve chaining", () => {
     const bridge = createBridge();
     const spreadsheet = createSpreadsheetApp(bridge).openById("spreadsheet-a");
