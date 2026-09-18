@@ -218,6 +218,17 @@ export class Range {
     );
   }
 
+  setValue(value: SpreadsheetCellValue): Range {
+    this.#bridge.call({
+      service: "spreadsheet",
+      operation: "set-range-values",
+      range: this.#reference,
+      values: [[value]],
+    });
+
+    return this;
+  }
+
   setValues(values: SpreadsheetGrid): Range {
     this.#bridge.call({
       service: "spreadsheet",
