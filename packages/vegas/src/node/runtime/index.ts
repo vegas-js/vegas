@@ -116,3 +116,4 @@ export type {
   UrlFetchResponseValue,
 } from "./url-fetch-value";
 export { createUtilities, Utilities } from "./utilities";
+export type { UtilitiesArchiveEntry, UtilitiesCapability } from "./utilities-capability";

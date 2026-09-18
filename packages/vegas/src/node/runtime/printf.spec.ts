@@ -1,12 +1,12 @@
 import { describe, expect, test } from "vitest";
 
-import { createUtilities } from "./utilities";
+import { createNodeUtilities } from "./node";
 
 type FormatStringContract = Pick<GoogleAppsScript.Utilities.Utilities, "formatString">;
 
 describe("Utilities.formatString", () => {
   test("match the documented width and floating-point precision examples", () => {
-    const utilities = createUtilities();
+    const utilities = createNodeUtilities();
     const contract: FormatStringContract = utilities;
 
     expect(contract).toBe(utilities);
@@ -15,7 +15,7 @@ describe("Utilities.formatString", () => {
   });
 
   test("format the locale-independent Vegas printf subset", () => {
-    const utilities = createUtilities();
+    const utilities = createNodeUtilities();
 
     expect(utilities.formatString("id=%04d hex=%#06x str=%-5.3s %%", 42, 42, "abcdef")).toBe(
       "id=0042 hex=0x002a str=abc   %",
@@ -26,14 +26,14 @@ describe("Utilities.formatString", () => {
   });
 
   test("apply integer precision before field width", () => {
-    const utilities = createUtilities();
+    const utilities = createNodeUtilities();
 
     expect(utilities.formatString("%.4d", 42)).toBe("0042");
     expect(utilities.formatString("%08.4d", 42)).toBe("    0042");
   });
 
   test("ignore extra arguments and reject unsupported or incomplete formats", () => {
-    const utilities = createUtilities();
+    const utilities = createNodeUtilities();
 
     expect(utilities.formatString("%s", "abc", "unused")).toBe("abc");
     expect(() => utilities.formatString("%*s", 6, "abc")).toThrow();

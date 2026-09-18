@@ -1,9 +1,6 @@
 import zlib from "node:zlib";
 
-export interface ZipEntry {
-  readonly name: string;
-  readonly data: Uint8Array;
-}
+import type { UtilitiesArchiveEntry } from "../utilities-capability";
 
 const LOCAL_FILE_HEADER_SIGNATURE = 0x04034b50;
 const CENTRAL_DIRECTORY_HEADER_SIGNATURE = 0x02014b50;
@@ -62,7 +59,7 @@ interface EncodedEntry {
 }
 
 function createLocalFileRecord(
-  entry: ZipEntry,
+  entry: UtilitiesArchiveEntry,
   localOffset: number,
 ): {
   readonly record: Buffer;
@@ -123,7 +120,7 @@ function createCentralDirectoryRecord(entry: EncodedEntry): Buffer {
   return Buffer.concat([header, entry.name]);
 }
 
-export function createZip(entries: readonly ZipEntry[]): Uint8Array {
+export function createZip(entries: readonly UtilitiesArchiveEntry[]): Uint8Array {
   if (entries.length > MAX_UINT16) {
     throw new RangeError(
       "ZIP archive entry count requires ZIP64, which is not supported by Vegas.",
@@ -203,7 +200,7 @@ function extractEntryData(
   throw new RangeError(`ZIP compression method ${method} is not supported by Vegas.`);
 }
 
-export function extractZip(data: Uint8Array): ZipEntry[] {
+export function extractZip(data: Uint8Array): UtilitiesArchiveEntry[] {
   const archive = Buffer.from(data);
   if (archive.length < 22) throw new SyntaxError("ZIP archive is too short.");
 
@@ -225,7 +222,7 @@ export function extractZip(data: Uint8Array): ZipEntry[] {
     throw new SyntaxError("Invalid ZIP central-directory bounds.");
   }
 
-  const entries: ZipEntry[] = [];
+  const entries: UtilitiesArchiveEntry[] = [];
   let offset = centralOffset;
   for (let index = 0; index < entryCount; index++) {
     if (offset + 46 > archive.length) throw new SyntaxError("Invalid ZIP central-directory entry.");

@@ -2,7 +2,8 @@ import crypto from "node:crypto";
 
 import { describe, expect, test } from "vitest";
 
-import { createUtilities, Utilities } from "./utilities";
+import { createNodeUtilities } from "./node";
+import { Utilities } from "./utilities";
 
 type UtilitiesContract = Pick<
   GoogleAppsScript.Utilities.Utilities,
@@ -33,7 +34,7 @@ function expectDistinctNumericValues(values: Readonly<Record<string, number>>): 
 
 describe("Utilities", () => {
   test("expose Google Apps Script utility enums as named numeric identities", () => {
-    const utilities = createUtilities();
+    const utilities = createNodeUtilities();
 
     const contract: UtilitiesContract = utilities;
 
@@ -64,7 +65,7 @@ describe("Utilities", () => {
   });
 
   test("decode standard and web-safe Base64 into signed bytes", () => {
-    const utilities = createUtilities();
+    const utilities = createNodeUtilities();
     const expected = [
       71, 111, 111, 103, 108, 101, 32, -29, -126, -80, -29, -125, -85, -29, -125, -68, -29, -125,
       -105,
@@ -81,7 +82,7 @@ describe("Utilities", () => {
   });
 
   test("encode byte arrays with standard and web-safe Base64 alphabets", () => {
-    const utilities = createUtilities();
+    const utilities = createNodeUtilities();
     const bytes = [-5, -1];
 
     expect(utilities.base64Encode(bytes)).toBe("+/8=");
@@ -89,7 +90,7 @@ describe("Utilities", () => {
   });
 
   test("encode strings with default and explicit charsets", () => {
-    const utilities = createUtilities();
+    const utilities = createNodeUtilities();
 
     expect(utilities.base64Encode("A string here")).toBe("QSBzdHJpbmcgaGVyZQ==");
     expect(utilities.base64Encode("A string here", utilities.Charset.US_ASCII)).toBe(
@@ -104,7 +105,7 @@ describe("Utilities", () => {
   });
 
   test("compute supported message digests", () => {
-    const utilities = createUtilities();
+    const utilities = createNodeUtilities();
     const vectors = [
       [utilities.DigestAlgorithm.MD2, "da853b0d3f88d99b30283a69e6ded6bb"],
       [utilities.DigestAlgorithm.MD5, "900150983cd24fb0d6963f7d28e17f72"],
@@ -133,7 +134,7 @@ describe("Utilities", () => {
   });
 
   test("compute digest from byte arrays and explicit charsets", () => {
-    const utilities = createUtilities();
+    const utilities = createNodeUtilities();
     const expected = utilities.computeDigest(utilities.DigestAlgorithm.SHA_256, "abc");
 
     expect(utilities.computeDigest(utilities.DigestAlgorithm.SHA_256, [97, 98, 99])).toStrictEqual(
@@ -145,7 +146,7 @@ describe("Utilities", () => {
   });
 
   test("compute supported HMAC signatures from public RFC vectors", () => {
-    const utilities = createUtilities();
+    const utilities = createNodeUtilities();
     const value = "what do ya want for nothing?";
     const key = "Jefe";
     const vectors = [
@@ -174,7 +175,7 @@ describe("Utilities", () => {
   });
 
   test("compute HMAC-SHA256 from byte arrays and explicit charsets", () => {
-    const utilities = createUtilities();
+    const utilities = createNodeUtilities();
     const value = "what do ya want for nothing?";
     const key = "Jefe";
     const expected = utilities.computeHmacSignature(
@@ -198,7 +199,7 @@ describe("Utilities", () => {
   });
 
   test("generate a version 4 UUID string", () => {
-    const utilities = createUtilities();
+    const utilities = createNodeUtilities();
 
     expect(utilities.getUuid()).toMatch(
       /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/,
@@ -206,7 +207,7 @@ describe("Utilities", () => {
   });
 
   test("sleep synchronously and reject durations above the documented maximum", () => {
-    const utilities = createUtilities();
+    const utilities = createNodeUtilities();
     const startedAt = performance.now();
 
     expect(utilities.sleep(10)).toBeUndefined();
@@ -215,7 +216,7 @@ describe("Utilities", () => {
   });
 
   test("sign RSA values with the Vegas PKCS#1 v1.5 Runtime contract", () => {
-    const utilities = createUtilities();
+    const utilities = createNodeUtilities();
     const { privateKey, publicKey } = crypto.generateKeyPairSync("rsa", {
       modulusLength: 1024,
       privateKeyEncoding: { type: "pkcs8", format: "pem" },

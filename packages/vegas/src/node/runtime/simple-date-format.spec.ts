@@ -1,12 +1,12 @@
 import { describe, expect, test } from "vitest";
 
-import { createUtilities } from "./utilities";
+import { createNodeUtilities } from "./node";
 
 type DateContract = Pick<GoogleAppsScript.Utilities.Utilities, "formatDate" | "parseDate">;
 
 describe("Utilities date formatting", () => {
   test("match the documented GMT format and parse examples", () => {
-    const utilities = createUtilities();
+    const utilities = createNodeUtilities();
     const contract: DateContract = utilities;
 
     expect(contract).toBe(utilities);
@@ -19,7 +19,7 @@ describe("Utilities date formatting", () => {
   });
 
   test("apply IANA time zones and RFC 822 / ISO 8601 offsets", () => {
-    const utilities = createUtilities();
+    const utilities = createNodeUtilities();
 
     expect(utilities.formatDate(new Date(0), "Asia/Tokyo", "yyyy-MM-dd HH:mm:ss Z XXX")).toBe(
       "1970-01-01 09:00:00 +0900 +09:00",
@@ -37,7 +37,7 @@ describe("Utilities date formatting", () => {
   });
 
   test("respect daylight-saving offsets for IANA time zones", () => {
-    const utilities = createUtilities();
+    const utilities = createNodeUtilities();
 
     expect(
       utilities.formatDate(
@@ -56,7 +56,7 @@ describe("Utilities date formatting", () => {
   });
 
   test("ignore numeric pattern width during separated-field parsing", () => {
-    const utilities = createUtilities();
+    const utilities = createNodeUtilities();
 
     expect(utilities.parseDate("1/2/2024", "GMT", "MM/dd/yyyy").getTime()).toBe(
       Date.UTC(2024, 0, 2),
@@ -65,7 +65,7 @@ describe("Utilities date formatting", () => {
   });
 
   test("support quoted literals, day-of-year, and ISO weekday numbers", () => {
-    const utilities = createUtilities();
+    const utilities = createNodeUtilities();
     const date = new Date("2024-12-31T23:05:07.009Z");
 
     expect(utilities.formatDate(date, "GMT", "yyyy DDD u 'at' HH:mm:ss.SSS ''")).toBe(
@@ -77,7 +77,7 @@ describe("Utilities date formatting", () => {
   });
 
   test("reject locale or calendar dependent patterns until Runtime locale semantics exist", () => {
-    const utilities = createUtilities();
+    const utilities = createNodeUtilities();
 
     expect(() => utilities.formatDate(new Date(0), "GMT", "MMM d, yyyy")).toThrow();
     expect(() => utilities.formatDate(new Date(0), "GMT", "EEE")).toThrow();

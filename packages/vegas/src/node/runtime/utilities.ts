@@ -1,12 +1,9 @@
-import crypto from "node:crypto";
-import zlib from "node:zlib";
-
 import { createBlob, type RuntimeBlob, type RuntimeBlobSource } from "./blob";
 import { parseCsv as parseCsvString } from "./csv";
 import { computeMd2 } from "./md2";
 import { formatPrintf } from "./printf";
 import { formatSimpleDate, parseSimpleDate } from "./simple-date-format";
-import { createZip, extractZip } from "./zip";
+import type { UtilitiesCapability } from "./utilities-capability";
 
 const CHARSET = {
   US_ASCII: 0,
@@ -43,34 +40,36 @@ function toSignedByte(value: number): number {
   return unsigned > 0x7f ? unsigned - 0x100 : unsigned;
 }
 
-function encodeBytes(data: GoogleAppsScript.Byte[]): Buffer {
-  return Buffer.from(Uint8Array.from(data, (value) => value & 0xff));
+function encodeBytes(data: readonly GoogleAppsScript.Byte[]): Uint8Array {
+  return Uint8Array.from(data, (value) => value & 0xff);
 }
 
 function encodeString(
+  capability: UtilitiesCapability,
   data: string,
   charset: GoogleAppsScript.Utilities.Charset | undefined,
-): Buffer {
-  if (charset === CHARSET.US_ASCII) {
-    return Buffer.from(data, "ascii");
-  }
-
-  return Buffer.from(data, "utf8");
+): Uint8Array {
+  return capability.encodeString(data, charset === CHARSET.US_ASCII ? "ascii" : "utf8");
 }
 
-function encodeBase64(data: Buffer, webSafe: boolean): string {
-  const encoded = data.toString("base64");
+function encodeBase64(capability: UtilitiesCapability, data: Uint8Array, webSafe: boolean): string {
+  const encoded = capability.encodeBase64(data);
 
   return webSafe ? encoded.replaceAll("+", "-").replaceAll("/", "_") : encoded;
 }
 
-function decodeBase64(encoded: string, webSafe: boolean): GoogleAppsScript.Byte[] {
+function decodeBase64(
+  capability: UtilitiesCapability,
+  encoded: string,
+  webSafe: boolean,
+): GoogleAppsScript.Byte[] {
   const normalized = webSafe ? encoded.replaceAll("-", "+").replaceAll("_", "/") : encoded;
 
-  return Array.from(Buffer.from(normalized, "base64"), toSignedByte);
+  return Array.from(capability.decodeBase64(normalized), toSignedByte);
 }
 
 function computeDigest(
+  capability: UtilitiesCapability,
   algorithm: GoogleAppsScript.Utilities.DigestAlgorithm,
   data: Uint8Array,
 ): GoogleAppsScript.Byte[] {
@@ -78,85 +77,79 @@ function computeDigest(
     return Array.from(computeMd2(data), toSignedByte);
   }
 
-  let nodeAlgorithm: string;
+  let capabilityAlgorithm: "md5" | "sha1" | "sha256" | "sha384" | "sha512";
   switch (algorithm) {
     case DIGEST_ALGORITHM.MD5:
-      nodeAlgorithm = "md5";
+      capabilityAlgorithm = "md5";
       break;
     case DIGEST_ALGORITHM.SHA_1:
-      nodeAlgorithm = "sha1";
+      capabilityAlgorithm = "sha1";
       break;
     case DIGEST_ALGORITHM.SHA_256:
-      nodeAlgorithm = "sha256";
+      capabilityAlgorithm = "sha256";
       break;
     case DIGEST_ALGORITHM.SHA_384:
-      nodeAlgorithm = "sha384";
+      capabilityAlgorithm = "sha384";
       break;
     case DIGEST_ALGORITHM.SHA_512:
-      nodeAlgorithm = "sha512";
+      capabilityAlgorithm = "sha512";
       break;
     default:
       throw new Error("Unsupported digest algorithm.");
   }
 
-  return Array.from(crypto.createHash(nodeAlgorithm).update(data).digest(), toSignedByte);
+  return Array.from(capability.computeDigest(capabilityAlgorithm, data), toSignedByte);
 }
 
 function computeHmac(
+  capability: UtilitiesCapability,
   algorithm: GoogleAppsScript.Utilities.MacAlgorithm,
   value: Uint8Array,
   key: Uint8Array,
 ): GoogleAppsScript.Byte[] {
-  let nodeAlgorithm: string;
+  let capabilityAlgorithm: "md5" | "sha1" | "sha256" | "sha384" | "sha512";
   switch (algorithm) {
     case MAC_ALGORITHM.HMAC_MD5:
-      nodeAlgorithm = "md5";
+      capabilityAlgorithm = "md5";
       break;
     case MAC_ALGORITHM.HMAC_SHA_1:
-      nodeAlgorithm = "sha1";
+      capabilityAlgorithm = "sha1";
       break;
     case MAC_ALGORITHM.HMAC_SHA_256:
-      nodeAlgorithm = "sha256";
+      capabilityAlgorithm = "sha256";
       break;
     case MAC_ALGORITHM.HMAC_SHA_384:
-      nodeAlgorithm = "sha384";
+      capabilityAlgorithm = "sha384";
       break;
     case MAC_ALGORITHM.HMAC_SHA_512:
-      nodeAlgorithm = "sha512";
+      capabilityAlgorithm = "sha512";
       break;
     default:
       throw new Error("Unsupported MAC algorithm.");
   }
 
-  return Array.from(crypto.createHmac(nodeAlgorithm, key).update(value).digest(), toSignedByte);
+  return Array.from(capability.computeHmac(capabilityAlgorithm, value, key), toSignedByte);
 }
 
 function signRsa(
+  capability: UtilitiesCapability,
   algorithm: GoogleAppsScript.Utilities.RsaAlgorithm,
   value: Uint8Array,
   key: string,
 ): GoogleAppsScript.Byte[] {
-  let nodeAlgorithm: string;
+  let capabilityAlgorithm: "sha1" | "sha256";
   switch (algorithm) {
     case RSA_ALGORITHM.RSA_SHA_1:
-      nodeAlgorithm = "sha1";
+      capabilityAlgorithm = "sha1";
       break;
     case RSA_ALGORITHM.RSA_SHA_256:
-      nodeAlgorithm = "sha256";
+      capabilityAlgorithm = "sha256";
       break;
     default:
       throw new Error("Unsupported RSA algorithm.");
   }
 
-  // Google public documentation does not specify the RSA padding scheme.
-  // Vegas uses RSASSA-PKCS1-v1_5 as its explicit local Runtime contract.
-  return Array.from(
-    crypto.sign(nodeAlgorithm, value, {
-      key,
-      padding: crypto.constants.RSA_PKCS1_PADDING,
-    }),
-    toSignedByte,
-  );
+  return Array.from(capability.computeRsaSignature(capabilityAlgorithm, value, key), toSignedByte);
 }
 
 // https://developers.google.com/apps-script/reference/utilities/utilities
@@ -167,6 +160,11 @@ export class Utilities {
   readonly DigestAlgorithm = DIGEST_ALGORITHM;
   readonly MacAlgorithm = MAC_ALGORITHM;
   readonly RsaAlgorithm = RSA_ALGORITHM;
+  readonly #capability: UtilitiesCapability;
+
+  constructor(capability: UtilitiesCapability) {
+    this.#capability = capability;
+  }
 
   base64Decode(encoded: string): GoogleAppsScript.Byte[];
   base64Decode(
@@ -177,7 +175,7 @@ export class Utilities {
     encoded: string,
     _charset?: GoogleAppsScript.Utilities.Charset,
   ): GoogleAppsScript.Byte[] {
-    return decodeBase64(encoded, false);
+    return decodeBase64(this.#capability, encoded, false);
   }
 
   base64DecodeWebSafe(encoded: string): GoogleAppsScript.Byte[];
@@ -189,7 +187,7 @@ export class Utilities {
     encoded: string,
     _charset?: GoogleAppsScript.Utilities.Charset,
   ): GoogleAppsScript.Byte[] {
-    return decodeBase64(encoded, true);
+    return decodeBase64(this.#capability, encoded, true);
   }
 
   base64Encode(data: GoogleAppsScript.Byte[]): string;
@@ -199,9 +197,10 @@ export class Utilities {
     data: GoogleAppsScript.Byte[] | string,
     charset?: GoogleAppsScript.Utilities.Charset,
   ): string {
-    const bytes = typeof data === "string" ? encodeString(data, charset) : encodeBytes(data);
+    const bytes =
+      typeof data === "string" ? encodeString(this.#capability, data, charset) : encodeBytes(data);
 
-    return encodeBase64(bytes, false);
+    return encodeBase64(this.#capability, bytes, false);
   }
 
   base64EncodeWebSafe(data: GoogleAppsScript.Byte[]): string;
@@ -211,9 +210,10 @@ export class Utilities {
     data: GoogleAppsScript.Byte[] | string,
     charset?: GoogleAppsScript.Utilities.Charset,
   ): string {
-    const bytes = typeof data === "string" ? encodeString(data, charset) : encodeBytes(data);
+    const bytes =
+      typeof data === "string" ? encodeString(this.#capability, data, charset) : encodeBytes(data);
 
-    return encodeBase64(bytes, true);
+    return encodeBase64(this.#capability, bytes, true);
   }
 
   computeDigest(
@@ -234,9 +234,12 @@ export class Utilities {
     value: GoogleAppsScript.Byte[] | string,
     charset?: GoogleAppsScript.Utilities.Charset,
   ): GoogleAppsScript.Byte[] {
-    const bytes = typeof value === "string" ? encodeString(value, charset) : encodeBytes(value);
+    const bytes =
+      typeof value === "string"
+        ? encodeString(this.#capability, value, charset)
+        : encodeBytes(value);
 
-    return computeDigest(algorithm, bytes);
+    return computeDigest(this.#capability, algorithm, bytes);
   }
 
   computeHmacSha256Signature(
@@ -255,10 +258,13 @@ export class Utilities {
     charset?: GoogleAppsScript.Utilities.Charset,
   ): GoogleAppsScript.Byte[] {
     const valueBytes =
-      typeof value === "string" ? encodeString(value, charset) : encodeBytes(value);
-    const keyBytes = typeof key === "string" ? encodeString(key, charset) : encodeBytes(key);
+      typeof value === "string"
+        ? encodeString(this.#capability, value, charset)
+        : encodeBytes(value);
+    const keyBytes =
+      typeof key === "string" ? encodeString(this.#capability, key, charset) : encodeBytes(key);
 
-    return computeHmac(MAC_ALGORITHM.HMAC_SHA_256, valueBytes, keyBytes);
+    return computeHmac(this.#capability, MAC_ALGORITHM.HMAC_SHA_256, valueBytes, keyBytes);
   }
 
   computeHmacSignature(
@@ -284,10 +290,13 @@ export class Utilities {
     charset?: GoogleAppsScript.Utilities.Charset,
   ): GoogleAppsScript.Byte[] {
     const valueBytes =
-      typeof value === "string" ? encodeString(value, charset) : encodeBytes(value);
-    const keyBytes = typeof key === "string" ? encodeString(key, charset) : encodeBytes(key);
+      typeof value === "string"
+        ? encodeString(this.#capability, value, charset)
+        : encodeBytes(value);
+    const keyBytes =
+      typeof key === "string" ? encodeString(this.#capability, key, charset) : encodeBytes(key);
 
-    return computeHmac(algorithm, valueBytes, keyBytes);
+    return computeHmac(this.#capability, algorithm, valueBytes, keyBytes);
   }
 
   computeRsaSha1Signature(value: string, key: string): GoogleAppsScript.Byte[];
@@ -301,7 +310,12 @@ export class Utilities {
     key: string,
     charset?: GoogleAppsScript.Utilities.Charset,
   ): GoogleAppsScript.Byte[] {
-    return signRsa(RSA_ALGORITHM.RSA_SHA_1, encodeString(value, charset), key);
+    return signRsa(
+      this.#capability,
+      RSA_ALGORITHM.RSA_SHA_1,
+      encodeString(this.#capability, value, charset),
+      key,
+    );
   }
 
   computeRsaSha256Signature(value: string, key: string): GoogleAppsScript.Byte[];
@@ -315,7 +329,12 @@ export class Utilities {
     key: string,
     charset?: GoogleAppsScript.Utilities.Charset,
   ): GoogleAppsScript.Byte[] {
-    return signRsa(RSA_ALGORITHM.RSA_SHA_256, encodeString(value, charset), key);
+    return signRsa(
+      this.#capability,
+      RSA_ALGORITHM.RSA_SHA_256,
+      encodeString(this.#capability, value, charset),
+      key,
+    );
   }
 
   computeRsaSignature(
@@ -335,7 +354,12 @@ export class Utilities {
     key: string,
     charset?: GoogleAppsScript.Utilities.Charset,
   ): GoogleAppsScript.Byte[] {
-    return signRsa(algorithm, encodeString(value, charset), key);
+    return signRsa(
+      this.#capability,
+      algorithm,
+      encodeString(this.#capability, value, charset),
+      key,
+    );
   }
 
   formatDate(date: GoogleAppsScript.Base.Date, timeZone: string, format: string): string {
@@ -347,13 +371,13 @@ export class Utilities {
   }
 
   getUuid(): string {
-    return crypto.randomUUID();
+    return this.#capability.randomUuid();
   }
 
   gzip(blob: RuntimeBlobSource): RuntimeBlob;
   gzip(blob: RuntimeBlobSource, name: string): RuntimeBlob;
   gzip(blob: RuntimeBlobSource, name?: string): RuntimeBlob {
-    const compressed = zlib.gzipSync(Buffer.from(blob.getBlob().getBytes()));
+    const compressed = this.#capability.gzip(encodeBytes(blob.getBlob().getBytes()));
     return createBlob(Array.from(compressed, toSignedByte), null, name ?? null);
   }
 
@@ -394,14 +418,14 @@ export class Utilities {
   }
 
   ungzip(blob: RuntimeBlobSource): RuntimeBlob {
-    const uncompressed = zlib.gunzipSync(Buffer.from(blob.getBlob().getBytes()));
+    const uncompressed = this.#capability.gunzip(encodeBytes(blob.getBlob().getBytes()));
     return createBlob(Array.from(uncompressed, toSignedByte));
   }
 
   unzip(blob: RuntimeBlobSource): RuntimeBlob[] {
-    return extractZip(Uint8Array.from(blob.getBlob().getBytes(), (value) => value & 0xff)).map(
-      (entry) => createBlob(Array.from(entry.data, toSignedByte), null, entry.name),
-    );
+    return this.#capability
+      .unzip(encodeBytes(blob.getBlob().getBytes()))
+      .map((entry) => createBlob(Array.from(entry.data, toSignedByte), null, entry.name));
   }
 
   zip(blobs: RuntimeBlobSource[]): RuntimeBlob;
@@ -415,13 +439,14 @@ export class Utilities {
       }
       return {
         name: entryName,
-        data: Uint8Array.from(blob.getBytes(), (value) => value & 0xff),
+        data: encodeBytes(blob.getBytes()),
       };
     });
-    return createBlob(Array.from(createZip(entries), toSignedByte), null, name ?? null);
+
+    return createBlob(Array.from(this.#capability.zip(entries), toSignedByte), null, name ?? null);
   }
 }
 
-export function createUtilities(): Utilities {
-  return new Utilities();
+export function createUtilities(capability: UtilitiesCapability): Utilities {
+  return new Utilities(capability);
 }

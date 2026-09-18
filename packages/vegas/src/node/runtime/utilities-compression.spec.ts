@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 
 import { RuntimeBlob } from "./blob";
-import { createUtilities } from "./utilities";
+import { createNodeUtilities } from "./node";
 
 type CompressionMethodName = keyof Pick<
   GoogleAppsScript.Utilities.Utilities,
@@ -18,7 +18,7 @@ const COMPRESSION_METHODS = [
 
 describe("Utilities Blob and compression contract", () => {
   test("create byte and UTF-8 blobs with nullable metadata", () => {
-    const utilities = createUtilities();
+    const utilities = createNodeUtilities();
     const bytes = utilities.newBlob([71, 79, 79, 71, 76, 69], null, null);
     const text = utilities.newBlob("Google グ", "text/plain", "google.txt");
 
@@ -35,7 +35,7 @@ describe("Utilities Blob and compression contract", () => {
   });
 
   test("gzip and ungzip BlobSource data without mutating the source", () => {
-    const utilities = createUtilities();
+    const utilities = createNodeUtilities();
     const source = utilities.newBlob("Some text to compress using gzip compression");
     const compressed = utilities.gzip({ getBlob: () => source }, "text.gz");
     const uncompressed = utilities.ungzip(compressed);
@@ -49,7 +49,7 @@ describe("Utilities Blob and compression contract", () => {
   });
 
   test("zip named blobs and restore full entry paths", () => {
-    const utilities = createUtilities();
+    const utilities = createNodeUtilities();
     const root = utilities.newBlob("root", "text/plain", "root.txt");
     const nested = utilities.newBlob("Google グ", "text/plain", "nested/日本語.txt");
 
@@ -65,7 +65,7 @@ describe("Utilities Blob and compression contract", () => {
   });
 
   test("require a name for every zip input blob", () => {
-    const utilities = createUtilities();
+    const utilities = createNodeUtilities();
 
     expect(() => utilities.zip([utilities.newBlob("unnamed")])).toThrow();
   });
