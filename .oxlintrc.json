@@ -27,6 +27,23 @@
           }
         ]
       }
+    },
+    {
+      "files": ["packages/vegas/src/node/runtime/node/**/*.ts"],
+      "excludeFiles": ["packages/vegas/src/node/runtime/node/**/*.spec.ts"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "regex": "^\\.\\./\\.\\./",
+                "message": "Runtime Node adapters must not depend on higher-level Node layers."
+              }
+            ]
+          }
+        ]
+      }
     }
   ],
   "options": {
