@@ -43,7 +43,6 @@ export type { HostCallDispatcher, HostDispatcherOptions } from "./host-dispatche
 export type { HostBridge } from "./host-bridge";
 export type { HostCall, HostCallResult } from "./host-call";
 export type { HostError, HostRequestMessage, HostResponseMessage } from "./host-protocol";
-export { createHostResponse, handleHostRequestMessage } from "./host-request-handler";
 export { InMemoryCacheStore } from "./in-memory-cache-store";
 export { InMemoryDriveIteratorStore } from "./in-memory-drive-iterator-store";
 export { InMemoryDriveStore } from "./in-memory-drive-store";
@@ -51,7 +50,6 @@ export { InMemoryLockStore } from "./in-memory-lock-store";
 export { InMemoryPropertiesStore } from "./in-memory-properties-store";
 export { InMemorySpreadsheetStore } from "./in-memory-spreadsheet-store";
 export type { InMemorySheetSeed, InMemorySpreadsheetSeed } from "./in-memory-spreadsheet-store";
-export { NodeUrlFetchCapability } from "./node-url-fetch-capability";
 export type { InvocationEnvironment } from "./invocation";
 export { AppsScriptConsole, createConsole, createLogger, Logger } from "./logging";
 export type { LoggingTarget } from "./logging";

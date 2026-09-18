@@ -4,7 +4,6 @@ import { describe, expect, test } from "vitest";
 
 import {
   CacheHostHandler,
-  handleHostRequestMessage,
   HostDispatcher,
   InMemoryCacheStore,
   InMemoryDriveIteratorStore,
@@ -16,6 +15,7 @@ import {
   PropertiesHostHandler,
   resolveDriveNamespace,
 } from "./index";
+import { handleHostRequestMessage } from "./node";
 
 const WORKER_SOURCE = String.raw`
 const worker = require("node:worker_threads");

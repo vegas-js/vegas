@@ -3,13 +3,12 @@ import worker from "node:worker_threads";
 import { describe, expect, test } from "vitest";
 
 import {
-  createHostResponse,
-  handleHostRequestMessage,
   HostDispatcher,
   InMemoryPropertiesStore,
   PropertiesHostHandler,
   UrlFetchHostHandler,
 } from "./index";
+import { createHostResponse, handleHostRequestMessage } from "./node";
 
 function createDispatcher() {
   return new HostDispatcher({

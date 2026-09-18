@@ -1,7 +1,7 @@
 import worker from "node:worker_threads";
 
-import type { HostCallDispatcher } from "./host-dispatcher";
-import type { HostError, HostRequestMessage, HostResponseMessage } from "./host-protocol";
+import type { HostCallDispatcher } from "../host-dispatcher";
+import type { HostError, HostRequestMessage, HostResponseMessage } from "../host-protocol";
 
 export async function createHostResponse(
   dispatcher: HostCallDispatcher,

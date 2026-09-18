@@ -8,13 +8,13 @@ import { createHtmlService } from "../runtime/html-service";
 import type { InvocationEnvironment } from "../runtime/invocation";
 import { createLockService } from "../runtime/lock-objects";
 import { createConsole, createLogger } from "../runtime/logging";
+import { createWorkerHostBridge } from "../runtime/node";
 import type { Program } from "../runtime/program";
 import { createPropertiesService } from "../runtime/properties-objects";
 import { createSession } from "../runtime/session-objects";
 import { createSpreadsheetApp } from "../runtime/spreadsheet-object-hydrator";
 import { createUrlFetchApp } from "../runtime/url-fetch-app";
 import { createUtilities } from "../runtime/utilities";
-import { createWorkerHostBridge } from "../runtime/worker-host-bridge";
 
 type RuntimeWorkerData = {
   readonly program: Program;

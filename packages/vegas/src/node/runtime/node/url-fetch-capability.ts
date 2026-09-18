@@ -1,11 +1,11 @@
-import type { UrlFetchCapability } from "./url-fetch-capability";
+import type { UrlFetchCapability } from "../url-fetch-capability";
 import type {
   UrlFetchFormFieldValue,
   UrlFetchPayloadValue,
   UrlFetchRequestValue,
   UrlFetchResponseHeaderValue,
   UrlFetchResponseValue,
-} from "./url-fetch-value";
+} from "../url-fetch-value";
 
 type FetchFunction = (url: string, init: RequestInit) => Promise<Response>;
 

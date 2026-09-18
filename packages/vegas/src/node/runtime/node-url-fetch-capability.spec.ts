@@ -1,6 +1,7 @@
 import { describe, expect, test } from "vitest";
 
-import { NodeUrlFetchCapability, type UrlFetchRequestValue } from "./index";
+import type { UrlFetchRequestValue } from "./index";
+import { NodeUrlFetchCapability } from "./node";
 
 describe("NodeUrlFetchCapability", () => {
   test("map a request through fetch and serialize the response", async () => {

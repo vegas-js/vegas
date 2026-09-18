@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import { readHostResponse } from "./worker-host-bridge";
+import { readHostResponse } from "./node";
 
 const REQUEST = {
   id: 23,

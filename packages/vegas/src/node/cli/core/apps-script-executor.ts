@@ -3,8 +3,6 @@ import worker from "node:worker_threads";
 
 import {
   createAppsScriptExecutor,
-  handleHostRequestMessage,
-  NodeUrlFetchCapability,
   type AppsScriptWorkerRunner,
   type CacheStore,
   type DriveIteratorStore,
@@ -14,6 +12,7 @@ import {
   type PropertiesStore,
   type SpreadsheetStore,
 } from "../../runtime";
+import { handleHostRequestMessage, NodeUrlFetchCapability } from "../../runtime/node";
 
 const runAppsScriptWorker: AppsScriptWorkerRunner = (dispatcher, request) =>
   new Promise((resolve, reject) => {

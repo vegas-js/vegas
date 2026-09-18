@@ -1,8 +1,8 @@
 import worker from "node:worker_threads";
 
-import type { HostBridge } from "./host-bridge";
-import type { HostCall, HostCallResult } from "./host-call";
-import type { HostError, HostRequestMessage, HostResponseMessage } from "./host-protocol";
+import type { HostBridge } from "../host-bridge";
+import type { HostCall, HostCallResult } from "../host-call";
+import type { HostError, HostRequestMessage, HostResponseMessage } from "../host-protocol";
 
 class WorkerHostBridge implements HostBridge {
   readonly #port: worker.MessagePort;
