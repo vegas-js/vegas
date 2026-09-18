@@ -10,6 +10,7 @@ import { createLockService } from "../runtime/lock-objects";
 import type { Program } from "../runtime/program";
 import { createPropertiesService } from "../runtime/properties-objects";
 import { createSession } from "../runtime/session-objects";
+import { createUtilities } from "../runtime/utilities";
 import { createWorkerHostBridge } from "../runtime/worker-host-bridge";
 import { Console } from "./api/base/console";
 import { Logger } from "./api/base/Logger";
@@ -18,7 +19,6 @@ import { Sheet } from "./api/spreadsheet/Sheet";
 import { Spreadsheet } from "./api/spreadsheet/Spreadsheet";
 import { SpreadsheetApp } from "./api/spreadsheet/SpreadsheetApp";
 import { UrlFetchApp } from "./api/url_fetch/UrlFetchApp";
-import { Utilities } from "./api/utilities/Utilities";
 
 type RuntimeWorkerData = {
   readonly program: Program;
@@ -144,7 +144,7 @@ const scriptContext = vm.createContext({
   /* Optimization */
   LinearOptimizationService: undefined,
   /* Utilities */
-  Utilities: new Utilities(),
+  Utilities: createUtilities(),
   /* XML */
   XmlService: undefined,
   /* Charts */
