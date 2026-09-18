@@ -2,6 +2,7 @@ import crypto from "node:crypto";
 
 import { parseCsv as parseCsvString } from "./csv";
 import { computeMd2 } from "./md2";
+import { formatPrintf } from "./printf";
 import { formatSimpleDate, parseSimpleDate } from "./simple-date-format";
 
 const CHARSET = {
@@ -336,6 +337,10 @@ export class Utilities {
 
   formatDate(date: GoogleAppsScript.Base.Date, timeZone: string, format: string): string {
     return formatSimpleDate(new Date(date.getTime()), timeZone, format);
+  }
+
+  formatString(template: string, ...args: unknown[]): string {
+    return formatPrintf(template, args);
   }
 
   getUuid(): string {
