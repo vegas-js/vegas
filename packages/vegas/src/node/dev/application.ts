@@ -1,6 +1,6 @@
 import path from "node:path";
 
-import { type Connect, type ViteBuilder, createServer } from "vite";
+import { type ViteBuilder, createServer } from "vite";
 
 import type { ArtifactStore } from "../build";
 import type { ResolvedProject } from "../project";
@@ -12,7 +12,7 @@ import { createHostHttpHandler } from "./webapp/host-http-handler";
 import { createHostServerConfig } from "./webapp/host-server";
 import { registerHostWebSocketHandlers } from "./webapp/host-websocket";
 import { WebAppSessionRegistry } from "./webapp/session-registry";
-import { createBlankUserContentHtml, createUserContentPanelHtml } from "./webapp/user-content-html";
+import { createUserContentHttpHandler } from "./webapp/user-content-http-handler";
 import { createUserContentServerConfig } from "./webapp/user-content-server";
 
 interface DevApplicationOptions {
@@ -100,32 +100,12 @@ export class DevApplication {
       }),
     );
 
-    const userContentHandler: Connect.NextHandleFunction = async (request, response, next) => {
-      await builds.waitForIdle();
-
-      if (request.url) {
-        const scheme = userContentServer.config.server.https ? "https" : "http";
-        const url = new URL(request.url, `${scheme}://${request.headers.host}`);
-        if (url.pathname === "/blank") {
-          response.statusCode = 200;
-          response.setHeader("Content-Type", "text/html; charset=utf-8");
-          response.end(createBlankUserContentHtml());
-          return;
-        } else if (url.pathname === "/userCodeAppPanel") {
-          const requestedSessionId = url.searchParams.get("sessionId");
-          const sessionId =
-            requestedSessionId && sessions.claim(requestedSessionId) ? requestedSessionId : "";
-
-          const hostOrigin = `${url.protocol}//${url.hostname}:${hostServer.config.server.port}`;
-
-          response.statusCode = 200;
-          response.setHeader("Content-Type", "text/html; charset=utf-8");
-          response.end(createUserContentPanelHtml(hostOrigin, sessionId));
-          return;
-        }
-      }
-      next();
-    };
+    const userContentHandler = createUserContentHttpHandler({
+      server: userContentServer,
+      builds,
+      sessions,
+      hostPort: hostServer.config.server.port,
+    });
 
     userContentServer.middlewares.stack.unshift({ route: "", handle: userContentHandler });
 
