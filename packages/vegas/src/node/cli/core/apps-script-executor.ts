@@ -2,35 +2,21 @@ import path from "node:path";
 import worker from "node:worker_threads";
 
 import {
-  CacheHostHandler,
+  createAppsScriptExecutor,
   handleHostRequestMessage,
-  HostDispatcher,
-  LocalDriveHostHandler,
-  LockHostHandler,
   NodeUrlFetchCapability,
-  PropertiesHostHandler,
-  resolveDriveNamespace,
-  SpreadsheetHostHandler,
-  UrlFetchHostHandler,
+  type AppsScriptWorkerRunner,
   type CacheStore,
   type DriveIteratorStore,
   type DriveStore,
   type Executor,
-  type InvocationEnvironment,
   type LockStore,
-  type Program,
   type PropertiesStore,
   type SpreadsheetStore,
 } from "../../runtime";
 
-function runAppsScriptWorker(
-  dispatcher: HostDispatcher,
-  environment: InvocationEnvironment,
-  program: Program,
-  fn: string,
-  ...args: any[]
-): Promise<any> {
-  return new Promise((resolve, reject) => {
+const runAppsScriptWorker: AppsScriptWorkerRunner = (dispatcher, request) =>
+  new Promise((resolve, reject) => {
     const sharedBuffer = new SharedArrayBuffer(4);
     const sharedArray = new Int32Array(sharedBuffer);
     const { port1, port2 } = new worker.MessageChannel();
@@ -38,8 +24,8 @@ function runAppsScriptWorker(
       env: { ...process.env, FORCE_COLOR: "1" },
       transferList: [port2],
       workerData: {
-        program,
-        environment,
+        program: request.program,
+        environment: request.environment,
         sharedArray,
         port: port2,
       },
@@ -64,11 +50,13 @@ function runAppsScriptWorker(
       port1.close();
       reject(new Error(`Unexpected worker message: ${String(data.message)}`));
     });
-    port1.postMessage({ fn, args });
+    port1.postMessage({
+      fn: request.functionName,
+      args: request.args,
+    });
   });
-}
 
-export function createAppsScriptExecutor(
+export function createNodeAppsScriptExecutor(
   cacheStore: CacheStore,
   lockStore: LockStore,
   propertiesStore: PropertiesStore,
@@ -76,32 +64,14 @@ export function createAppsScriptExecutor(
   driveIteratorStore: DriveIteratorStore,
   spreadsheetStore: SpreadsheetStore,
 ): Executor {
-  const urlFetch = new UrlFetchHostHandler(new NodeUrlFetchCapability());
-
-  return {
-    execute(request) {
-      const driveNamespace = resolveDriveNamespace(request.scope);
-      const lockSession = lockStore.createSession();
-      const dispatcher = new HostDispatcher({
-        cache: new CacheHostHandler(cacheStore, request.scope),
-        drive: new LocalDriveHostHandler(
-          driveStore,
-          driveNamespace,
-          driveIteratorStore.createSession(driveNamespace),
-        ),
-        lock: new LockHostHandler(lockSession, request.scope),
-        properties: new PropertiesHostHandler(propertiesStore, request.scope),
-        spreadsheet: new SpreadsheetHostHandler(spreadsheetStore),
-        urlFetch,
-      });
-
-      return runAppsScriptWorker(
-        dispatcher,
-        request.environment,
-        request.program,
-        request.functionName,
-        ...request.args,
-      ).finally(() => lockSession.releaseAll());
-    },
-  };
+  return createAppsScriptExecutor({
+    cacheStore,
+    driveIteratorStore,
+    driveStore,
+    lockStore,
+    propertiesStore,
+    spreadsheetStore,
+    urlFetchCapability: new NodeUrlFetchCapability(),
+    runWorker: runAppsScriptWorker,
+  });
 }

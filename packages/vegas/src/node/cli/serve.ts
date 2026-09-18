@@ -10,7 +10,7 @@ import {
   InMemoryPropertiesStore,
   InMemorySpreadsheetStore,
 } from "../runtime";
-import { createAppsScriptExecutor } from "./core/apps-script-executor";
+import { createNodeAppsScriptExecutor } from "./core/apps-script-executor";
 import { loadRuntimeData } from "./core/runtime-data";
 import { createInvocationEnvironment } from "./core/runtime-environment";
 import { createInvocationScope } from "./core/runtime-scope";
@@ -54,7 +54,7 @@ export async function runServe(root?: string) {
 
   const spreadsheetStore = new InMemorySpreadsheetStore(runtimeData.spreadsheets);
   const environment = createInvocationEnvironment(project, runtimeData.session);
-  const executor = createAppsScriptExecutor(
+  const executor = createNodeAppsScriptExecutor(
     cacheStore,
     lockStore,
     propertiesStore,
