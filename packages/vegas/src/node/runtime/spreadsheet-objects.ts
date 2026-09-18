@@ -17,6 +17,21 @@ function assertPositiveInteger(value: number, label: string): void {
   }
 }
 
+const A1_COLUMN_ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+function formatA1Cell(row: number, column: number): string {
+  let columnIndex = column;
+  let columnName = "";
+
+  while (columnIndex > 0) {
+    columnIndex -= 1;
+    columnName = A1_COLUMN_ALPHABET.charAt(columnIndex % 26) + columnName;
+    columnIndex = Math.floor(columnIndex / 26);
+  }
+
+  return `${columnName}${row}`;
+}
+
 // https://developers.google.com/apps-script/reference/spreadsheet/spreadsheet-app
 export class SpreadsheetApp {
   readonly #bridge: HostBridge;
@@ -184,6 +199,16 @@ export class Range {
     });
 
     return this;
+  }
+
+  getA1Notation(): string {
+    const start = formatA1Cell(this.#reference.row, this.#reference.column);
+    const end = formatA1Cell(
+      this.#reference.row + this.#reference.numRows - 1,
+      this.#reference.column + this.#reference.numColumns - 1,
+    );
+
+    return start === end ? start : `${start}:${end}`;
   }
 
   getColumn(): number {

@@ -2,6 +2,7 @@ import { describe, expect, expectTypeOf, test } from "vitest";
 
 import {
   createSpreadsheetApp,
+  createSpreadsheetObjectHydrator,
   Range,
   Sheet,
   Spreadsheet,
@@ -165,6 +166,36 @@ describe("Spreadsheet Runtime objects", () => {
     date.setUTCFullYear(2030);
 
     expect(range.getValues()[0]?.[1]).toStrictEqual(new Date("2026-09-18T00:00:00.000Z"));
+  });
+
+  test("format Range coordinates as A1 notation without HostBridge calls", () => {
+    const bridge = createBridge();
+    const hydrator = createSpreadsheetObjectHydrator(bridge);
+    const cases = [
+      [1, 1, 1, 1, "A1"],
+      [5, 26, 1, 1, "Z5"],
+      [5, 27, 1, 1, "AA5"],
+      [5, 52, 1, 1, "AZ5"],
+      [5, 53, 3, 2, "BA5:BB7"],
+      [1, 1, 2, 5, "A1:E2"],
+    ] as const;
+
+    for (const [row, column, numRows, numColumns, expected] of cases) {
+      const range = hydrator.hydrate({
+        service: "spreadsheet",
+        kind: "range",
+        spreadsheetId: "spreadsheet-a",
+        sheetId: 7,
+        row,
+        column,
+        numRows,
+        numColumns,
+      });
+
+      expect(range.getA1Notation()).toBe(expected);
+    }
+
+    expect(bridge.calls).toHaveLength(0);
   });
 
   test("clear Range content through the HostBridge and preserve chaining", () => {
