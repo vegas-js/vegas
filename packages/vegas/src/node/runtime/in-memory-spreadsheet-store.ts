@@ -120,6 +120,7 @@ function createSheetState(spreadsheetId: string, seed: InMemorySheetSeed): Sheet
 
 export class InMemorySpreadsheetStore implements SpreadsheetStore {
   readonly #spreadsheets = new Map<string, SpreadsheetState>();
+  #nextSpreadsheetId = 0;
 
   constructor(spreadsheets: readonly InMemorySpreadsheetSeed[] = []) {
     for (const seed of spreadsheets) {
@@ -154,6 +155,38 @@ export class InMemorySpreadsheetStore implements SpreadsheetStore {
         sheets,
       });
     }
+  }
+
+  async createSpreadsheet(
+    name: string,
+    rows: number,
+    columns: number,
+  ): Promise<SpreadsheetReference> {
+    assertPositiveInteger(rows, "Spreadsheet rows");
+    assertPositiveInteger(columns, "Spreadsheet columns");
+
+    const id = this.#createSpreadsheetId();
+    const reference: SpreadsheetReference = {
+      service: "spreadsheet",
+      kind: "spreadsheet",
+      id,
+    };
+    const sheet = createSheetState(id, {
+      id: 0,
+      name: "Sheet1",
+      maxRows: rows,
+      maxColumns: columns,
+    });
+
+    this.#spreadsheets.set(id, {
+      reference,
+      metadata: {
+        name,
+      },
+      sheets: new Map([[sheet.reference.sheetId, sheet]]),
+    });
+
+    return cloneSpreadsheetReference(reference);
   }
 
   async getSpreadsheet(id: string): Promise<SpreadsheetReference> {
@@ -228,6 +261,17 @@ export class InMemorySpreadsheetStore implements SpreadsheetStore {
         }
       });
     });
+  }
+
+  #createSpreadsheetId(): string {
+    while (true) {
+      this.#nextSpreadsheetId += 1;
+      const id = `spreadsheet:${this.#nextSpreadsheetId}`;
+
+      if (!this.#spreadsheets.has(id)) {
+        return id;
+      }
+    }
   }
 
   #getSpreadsheetState(id: string): SpreadsheetState {

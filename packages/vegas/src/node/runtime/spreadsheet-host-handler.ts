@@ -14,6 +14,9 @@ export class SpreadsheetHostHandler implements SpreadsheetHostCallHandler {
 
   async handle(call: SpreadsheetHostCall): Promise<SpreadsheetHostCallResult<SpreadsheetHostCall>> {
     switch (call.operation) {
+      case "create-spreadsheet": {
+        return this.#store.createSpreadsheet(call.name, call.rows, call.columns);
+      }
       case "get-spreadsheet": {
         return this.#store.getSpreadsheet(call.id);
       }

@@ -4,6 +4,13 @@ import type { SheetMetadata, SpreadsheetGrid, SpreadsheetMetadata } from "./spre
 export type SpreadsheetHostCall =
   | {
       readonly service: "spreadsheet";
+      readonly operation: "create-spreadsheet";
+      readonly name: string;
+      readonly rows: number;
+      readonly columns: number;
+    }
+  | {
+      readonly service: "spreadsheet";
       readonly operation: "get-spreadsheet";
       readonly id: string;
     }
@@ -47,7 +54,7 @@ export type SpreadsheetHostCall =
     };
 
 export type SpreadsheetHostCallResult<C extends SpreadsheetHostCall> = C extends {
-  readonly operation: "get-spreadsheet";
+  readonly operation: "create-spreadsheet" | "get-spreadsheet";
 }
   ? SpreadsheetReference
   : C extends {

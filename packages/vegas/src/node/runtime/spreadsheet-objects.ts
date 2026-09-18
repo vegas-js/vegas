@@ -27,6 +27,21 @@ export class SpreadsheetApp {
     this.#hydrator = hydrator;
   }
 
+  create(name: string, rows: number, columns: number): Spreadsheet {
+    assertPositiveInteger(rows, "Spreadsheet rows");
+    assertPositiveInteger(columns, "Spreadsheet columns");
+
+    return this.#hydrator.hydrate(
+      this.#bridge.call({
+        service: "spreadsheet",
+        operation: "create-spreadsheet",
+        name,
+        rows,
+        columns,
+      }),
+    );
+  }
+
   openById(id: string): Spreadsheet {
     return this.#hydrator.hydrate(
       this.#bridge.call({

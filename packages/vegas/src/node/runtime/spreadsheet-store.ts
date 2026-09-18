@@ -23,6 +23,8 @@ export interface SheetMetadata {
  * spreadsheet, sheet, and cell state independently from Google-facing objects.
  */
 export interface SpreadsheetStore {
+  createSpreadsheet(name: string, rows: number, columns: number): Promise<SpreadsheetReference>;
+
   getSpreadsheet(id: string): Promise<SpreadsheetReference>;
 
   getSpreadsheetMetadata(spreadsheet: SpreadsheetReference): Promise<SpreadsheetMetadata>;
