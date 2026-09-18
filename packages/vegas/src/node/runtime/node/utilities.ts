@@ -5,6 +5,8 @@ import { createUtilities } from "../utilities";
 import type { UtilitiesArchiveEntry, UtilitiesCapability } from "../utilities-capability";
 import { createZip, extractZip } from "./zip";
 
+const SLEEP_ARRAY = new Int32Array(new SharedArrayBuffer(Int32Array.BYTES_PER_ELEMENT));
+
 export class NodeUtilitiesCapability implements UtilitiesCapability {
   encodeString(value: string, encoding: "ascii" | "utf8"): Uint8Array {
     return Buffer.from(value, encoding);
@@ -44,6 +46,10 @@ export class NodeUtilitiesCapability implements UtilitiesCapability {
 
   randomUuid(): string {
     return crypto.randomUUID();
+  }
+
+  sleep(milliseconds: number): void {
+    Atomics.wait(SLEEP_ARRAY, 0, 0, milliseconds);
   }
 
   gzip(data: Uint8Array): Uint8Array {

@@ -25,6 +25,8 @@ export interface UtilitiesCapability {
 
   randomUuid(): string;
 
+  sleep(milliseconds: number): void;
+
   gzip(data: Uint8Array): Uint8Array;
 
   gunzip(data: Uint8Array): Uint8Array;

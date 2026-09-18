@@ -33,7 +33,6 @@ const RSA_ALGORITHM = {
 } as const satisfies typeof GoogleAppsScript.Utilities.RsaAlgorithm;
 
 const MAX_SLEEP_MILLISECONDS = 300_000;
-const SLEEP_ARRAY = new Int32Array(new SharedArrayBuffer(Int32Array.BYTES_PER_ELEMENT));
 
 function toSignedByte(value: number): number {
   const unsigned = value & 0xff;
@@ -414,7 +413,7 @@ export class Utilities {
       throw new RangeError("Sleep duration exceeds 300000 milliseconds.");
     }
 
-    Atomics.wait(SLEEP_ARRAY, 0, 0, milliseconds);
+    this.#capability.sleep(milliseconds);
   }
 
   ungzip(blob: RuntimeBlobSource): RuntimeBlob {
