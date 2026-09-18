@@ -55,21 +55,23 @@ const runAppsScriptWorker: AppsScriptWorkerRunner = (dispatcher, request) =>
     });
   });
 
-export function createNodeAppsScriptExecutor(
-  cacheStore: CacheStore,
-  lockStore: LockStore,
-  propertiesStore: PropertiesStore,
-  driveStore: DriveStore,
-  driveIteratorStore: DriveIteratorStore,
-  spreadsheetStore: SpreadsheetStore,
-): Executor {
+export interface NodeAppsScriptExecutorOptions {
+  readonly cacheStore: CacheStore;
+  readonly driveIteratorStore: DriveIteratorStore;
+  readonly driveStore: DriveStore;
+  readonly lockStore: LockStore;
+  readonly propertiesStore: PropertiesStore;
+  readonly spreadsheetStore: SpreadsheetStore;
+}
+
+export function createNodeAppsScriptExecutor(options: NodeAppsScriptExecutorOptions): Executor {
   return createAppsScriptExecutor({
-    cacheStore,
-    driveIteratorStore,
-    driveStore,
-    lockStore,
-    propertiesStore,
-    spreadsheetStore,
+    cacheStore: options.cacheStore,
+    driveIteratorStore: options.driveIteratorStore,
+    driveStore: options.driveStore,
+    lockStore: options.lockStore,
+    propertiesStore: options.propertiesStore,
+    spreadsheetStore: options.spreadsheetStore,
     urlFetchCapability: new NodeUrlFetchCapability(),
     runWorker: runAppsScriptWorker,
   });

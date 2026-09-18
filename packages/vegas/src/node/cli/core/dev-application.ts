@@ -56,14 +56,14 @@ export async function runDevApplication(mode: DevApplicationMode, root?: string)
 
   const spreadsheetStore = new InMemorySpreadsheetStore(runtimeData.spreadsheets);
   const environment = createInvocationEnvironment(project, runtimeData.session);
-  const executor = createNodeAppsScriptExecutor(
+  const executor = createNodeAppsScriptExecutor({
     cacheStore,
+    driveIteratorStore,
+    driveStore,
     lockStore,
     propertiesStore,
-    driveStore,
-    driveIteratorStore,
     spreadsheetStore,
-  );
+  });
 
   await startDevApplication({
     project,
