@@ -4,6 +4,7 @@ import {
   createBlob,
   createUrlFetchApp,
   HTTPResponse,
+  RuntimeBlob,
   UrlFetchApp,
   type HostBridge,
   type HostCall,
@@ -137,5 +138,93 @@ describe("UrlFetchApp", () => {
         ],
       },
     ]);
+  });
+
+  test("build getRequest locally with the documented minimum fields", () => {
+    const bridge = new RecordingHostBridge();
+    const urlFetch = createUrlFetchApp(bridge);
+
+    expect(urlFetch.getRequest("https://example.com")).toStrictEqual({
+      url: "https://example.com",
+      method: "get",
+      contentType: "application/x-www-form-urlencoded",
+      payload: undefined,
+      headers: {},
+    });
+    expect(bridge.calls).toStrictEqual([]);
+  });
+
+  test("preserve explicit getRequest values without exposing mutable inputs", () => {
+    const bridge = new RecordingHostBridge();
+    const urlFetch = createUrlFetchApp(bridge);
+    const headers = {
+      Authorization: "Bearer token",
+    };
+    const payload = [65, 66, 67];
+
+    const request = urlFetch.getRequest("https://example.com/upload", {
+      method: "put",
+      contentType: "application/octet-stream",
+      headers,
+      payload,
+    });
+
+    expect(request).toStrictEqual({
+      url: "https://example.com/upload",
+      method: "put",
+      contentType: "application/octet-stream",
+      payload: [65, 66, 67],
+      headers: {
+        Authorization: "Bearer token",
+      },
+    });
+
+    headers.Authorization = "changed";
+    payload[0] = 90;
+
+    expect(request.headers).toStrictEqual({
+      Authorization: "Bearer token",
+    });
+    expect(request.payload).toStrictEqual([65, 66, 67]);
+    expect(bridge.calls).toStrictEqual([]);
+  });
+
+  test("use multipart form content type and clone Blob fields in getRequest", () => {
+    const bridge = new RecordingHostBridge();
+    const urlFetch = createUrlFetchApp(bridge);
+    const attachment = createBlob("Hi", "text/plain", "hello.txt");
+
+    const request = urlFetch.getRequest("https://example.com/form", {
+      method: "post",
+      payload: {
+        name: "Vegas",
+        attachment,
+      },
+    });
+
+    expect(request.method).toBe("post");
+    expect(request.contentType).toBe("multipart/form-data");
+
+    const requestPayload = request.payload;
+    if (
+      requestPayload === undefined ||
+      typeof requestPayload !== "object" ||
+      !("attachment" in requestPayload)
+    ) {
+      throw new Error("expected form payload");
+    }
+
+    const requestAttachment = requestPayload.attachment;
+    expect(requestAttachment).toBeInstanceOf(RuntimeBlob);
+
+    if (!(requestAttachment instanceof RuntimeBlob)) {
+      throw new Error("expected Blob form field");
+    }
+
+    attachment.setBytes([90]);
+
+    expect(requestAttachment).not.toBe(attachment);
+    expect(requestAttachment.getBytes()).toStrictEqual([72, 105]);
+    expect(bridge.calls).toStrictEqual([]);
   });
 });
