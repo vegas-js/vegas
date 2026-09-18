@@ -1,9 +1,12 @@
 import crypto from "node:crypto";
+import zlib from "node:zlib";
 
+import { createBlob, type RuntimeBlob, type RuntimeBlobSource } from "./blob";
 import { parseCsv as parseCsvString } from "./csv";
 import { computeMd2 } from "./md2";
 import { formatPrintf } from "./printf";
 import { formatSimpleDate, parseSimpleDate } from "./simple-date-format";
+import { createZip, extractZip } from "./zip";
 
 const CHARSET = {
   US_ASCII: 0,
@@ -347,6 +350,31 @@ export class Utilities {
     return crypto.randomUUID();
   }
 
+  gzip(blob: RuntimeBlobSource): RuntimeBlob;
+  gzip(blob: RuntimeBlobSource, name: string): RuntimeBlob;
+  gzip(blob: RuntimeBlobSource, name?: string): RuntimeBlob {
+    const compressed = zlib.gzipSync(Buffer.from(blob.getBlob().getBytes()));
+    return createBlob(Array.from(compressed, toSignedByte), null, name ?? null);
+  }
+
+  newBlob(data: GoogleAppsScript.Byte[]): RuntimeBlob;
+  newBlob(data: GoogleAppsScript.Byte[], contentType: string | null): RuntimeBlob;
+  newBlob(
+    data: GoogleAppsScript.Byte[],
+    contentType: string | null,
+    name: string | null,
+  ): RuntimeBlob;
+  newBlob(data: string): RuntimeBlob;
+  newBlob(data: string, contentType: string | null): RuntimeBlob;
+  newBlob(data: string, contentType: string | null, name: string | null): RuntimeBlob;
+  newBlob(
+    data: GoogleAppsScript.Byte[] | string,
+    contentType: string | null = null,
+    name: string | null = null,
+  ): RuntimeBlob {
+    return createBlob(data, contentType, name);
+  }
+
   parseCsv(csv: string): string[][];
   parseCsv(csv: string, delimiter: GoogleAppsScript.Char): string[][];
   parseCsv(csv: string, delimiter: GoogleAppsScript.Char = ","): string[][] {
@@ -363,6 +391,34 @@ export class Utilities {
     }
 
     Atomics.wait(SLEEP_ARRAY, 0, 0, milliseconds);
+  }
+
+  ungzip(blob: RuntimeBlobSource): RuntimeBlob {
+    const uncompressed = zlib.gunzipSync(Buffer.from(blob.getBlob().getBytes()));
+    return createBlob(Array.from(uncompressed, toSignedByte));
+  }
+
+  unzip(blob: RuntimeBlobSource): RuntimeBlob[] {
+    return extractZip(Uint8Array.from(blob.getBlob().getBytes(), (value) => value & 0xff)).map(
+      (entry) => createBlob(Array.from(entry.data, toSignedByte), null, entry.name),
+    );
+  }
+
+  zip(blobs: RuntimeBlobSource[]): RuntimeBlob;
+  zip(blobs: RuntimeBlobSource[], name: string): RuntimeBlob;
+  zip(blobs: RuntimeBlobSource[], name?: string): RuntimeBlob {
+    const entries = blobs.map((source) => {
+      const blob = source.getBlob();
+      const entryName = blob.getName();
+      if (entryName === null || entryName.length === 0) {
+        throw new RangeError("Utilities.zip() requires every input blob to have a name.");
+      }
+      return {
+        name: entryName,
+        data: Uint8Array.from(blob.getBytes(), (value) => value & 0xff),
+      };
+    });
+    return createBlob(Array.from(createZip(entries), toSignedByte), null, name ?? null);
   }
 }
 
