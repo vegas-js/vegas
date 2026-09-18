@@ -1,6 +1,6 @@
 import path from "node:path";
 
-import { type Connect, type ViteBuilder, createLogger, createServer } from "vite";
+import { type Connect, type ViteBuilder, createServer } from "vite";
 
 import type { ServerFunctionCallRequest } from "../../shared/webapp-protocol";
 import { type ArtifactStore, buildApp } from "../build";
@@ -12,6 +12,7 @@ import { classifyProjectFile } from "./project-file";
 import { createRuntimeProgram } from "./runtime-program";
 import { createAppsScriptDoGetEvent, createAppsScriptDoPostEvent } from "./webapp/event";
 import { createHostHtml, type AppsScriptDoGetResult } from "./webapp/host-html";
+import { createHostServerConfig } from "./webapp/host-server";
 import {
   createAppsScriptDoPostHttpResponse,
   parseWebAppPath,
@@ -74,24 +75,12 @@ export class DevApplication {
     const sessions = new WebAppSessionRegistry();
     const builds = new BuildCoordinator();
 
-    const hostServer = await createServer({
-      root: this.#project.root,
-      mode: this.#mode,
-      configFile: false,
-      customLogger: createLogger("info", { prefix: "[vegas]" }),
-      cacheDir: path.join(this.#project.root, "node_modules", ".vegas-host"),
-      plugins: [
-        {
-          name: "vite-plugin-configfile",
-          configureServer(server) {
-            Object.assign(server.config, { configFile: "vegas.config.ts" });
-          },
-        },
-      ],
-      server: {
-        open: false,
-      },
-    });
+    const hostServer = await createServer(
+      createHostServerConfig({
+        root: this.#project.root,
+        mode: this.#mode,
+      }),
+    );
 
     hostServer.watcher.add([this.#project.clientDir, this.#project.serverDir]);
 
