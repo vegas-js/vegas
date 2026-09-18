@@ -34,7 +34,7 @@ function validateRequest(request: UrlFetchRequestValue): void {
     throw new RangeError("UrlFetch timeoutSeconds must be a positive integer.");
   }
 
-  if (request.method === "get" && request.payload !== undefined) {
+  if ((request.method ?? "get") === "get" && request.payload !== undefined) {
     throw new Error("UrlFetch GET requests cannot include a payload.");
   }
 }
@@ -51,8 +51,19 @@ function createBody(payload: UrlFetchPayloadValue | undefined): BodyInit | undef
       return Uint8Array.from(payload.value, (value) => value & 0xff);
     case "blob":
       return Uint8Array.from(payload.value.bytes, (value) => value & 0xff);
-    case "form":
-      throw new Error("Node UrlFetch form payloads are not implemented yet.");
+    case "form": {
+      const params = new URLSearchParams();
+
+      for (const [name, value] of Object.entries(payload.fields)) {
+        if (typeof value !== "string") {
+          throw new Error("Node UrlFetch multipart form payloads are not implemented yet.");
+        }
+
+        params.append(name, value);
+      }
+
+      return params;
+    }
   }
 }
 
@@ -70,6 +81,10 @@ function createRequestInit(request: UrlFetchRequestValue): RequestInit {
     !headers.has("content-type")
   ) {
     headers.set("content-type", request.payload.value.contentType);
+  }
+
+  if (request.payload?.kind === "form" && !headers.has("content-type")) {
+    headers.set("content-type", "application/x-www-form-urlencoded");
   }
 
   return {

@@ -76,6 +76,53 @@ describe("NodeUrlFetchCapability", () => {
     expect(new Headers(calls[0]?.headers).get("content-type")).toBe("application/json");
   });
 
+  test("encode string form payloads as application/x-www-form-urlencoded", async () => {
+    const calls: RequestInit[] = [];
+    const capability = new NodeUrlFetchCapability(async (_url, init) => {
+      calls.push(init);
+      return new Response("ok");
+    });
+
+    await capability.fetch({
+      url: "https://example.com/form",
+      method: "post",
+      payload: {
+        kind: "form",
+        fields: {
+          name: "Vegas",
+          message: "Hello World",
+        },
+      },
+    });
+
+    expect(calls).toHaveLength(1);
+    expect(calls[0]?.body).toBeInstanceOf(URLSearchParams);
+    expect(String(calls[0]?.body)).toBe("name=Vegas&message=Hello+World");
+    expect(new Headers(calls[0]?.headers).get("content-type")).toBe(
+      "application/x-www-form-urlencoded",
+    );
+  });
+
+  test("reject payload when the default request method is GET", async () => {
+    let calls = 0;
+    const capability = new NodeUrlFetchCapability(async () => {
+      calls += 1;
+      return new Response();
+    });
+
+    await expect(
+      capability.fetch({
+        url: "https://example.com",
+        payload: {
+          kind: "text",
+          value: "body",
+        },
+      }),
+    ).rejects.toThrow("GET requests cannot include a payload");
+
+    expect(calls).toBe(0);
+  });
+
   test("throw for HTTP failures unless muteHttpExceptions is enabled", async () => {
     const capability = new NodeUrlFetchCapability(async () => {
       return new Response("failed", { status: 500 });
@@ -142,11 +189,16 @@ describe("NodeUrlFetchCapability", () => {
         payload: {
           kind: "form",
           fields: {
-            name: "Vegas",
+            attachment: {
+              bytes: [86, 101, 103, 97, 115],
+              contentType: "text/plain",
+              name: "vegas.txt",
+              googleType: false,
+            },
           },
         },
       }),
-    ).rejects.toThrow("form payloads");
+    ).rejects.toThrow("multipart form payloads");
 
     expect(calls).toBe(0);
   });
