@@ -69,4 +69,13 @@ export type { Program } from "./program";
 export { resolvePropertiesNamespace } from "./properties-namespace";
 export type { InvocationScope } from "./scope";
 export { createSession, Session, User } from "./session-objects";
+export type { UrlFetchHostCall, UrlFetchHostCallResult } from "./url-fetch-host-call";
+export type {
+  UrlFetchFormFieldValue,
+  UrlFetchMethod,
+  UrlFetchPayloadValue,
+  UrlFetchRequestValue,
+  UrlFetchResponseHeaderValue,
+  UrlFetchResponseValue,
+} from "./url-fetch-value";
 export { createUtilities, Utilities } from "./utilities";
