@@ -1,13 +1,4 @@
-import { createBuilder } from "vite";
-
-import {
-  buildApp,
-  createBuilderConfig,
-  createBuildPlan,
-  createAppsScriptManifestArtifact,
-  isWebApp,
-  replaceOutputArtifacts,
-} from "../build";
+import { buildProjectArtifacts, replaceOutputArtifacts } from "../build";
 import { loadProject, scanProject } from "../project";
 import { printBanner } from "./core/banner";
 import { printReport } from "./core/print-report";
@@ -24,18 +15,7 @@ export async function runBuild(root?: string) {
 
   const startTime = performance.now();
 
-  const plan = createBuildPlan(project, snapshot, "production");
-
-  const builderConfig = createBuilderConfig(plan);
-
-  const builder = await createBuilder(builderConfig);
-
-  const buildArtifacts = await buildApp(builder);
-  const manifestArtifact = createAppsScriptManifestArtifact(
-    project.appsScript.manifest,
-    isWebApp(buildArtifacts),
-  );
-  const artifacts = [...buildArtifacts, manifestArtifact];
+  const artifacts = await buildProjectArtifacts(project, snapshot);
 
   await replaceOutputArtifacts(project.outputDir, artifacts);
 

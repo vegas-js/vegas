@@ -2,12 +2,11 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 
-import { createBuilder } from "vite";
 import { describe, expect, test } from "vitest";
 
 import { scanProject, type ResolvedProject } from "../project";
-import { createBuildPlan } from "./plan";
-import { buildApp, createBuilderConfig, isWebApp } from "./vite";
+import { buildProjectArtifacts } from "./pipeline";
+import { isWebApp } from "./vite";
 
 function createProject(
   root: string,
@@ -67,10 +66,7 @@ describe("build pipeline", () => {
       );
 
       const snapshot = await scanProject(project);
-      const plan = createBuildPlan(project, snapshot, "production");
-      const builder = await createBuilder(createBuilderConfig(plan));
-
-      const artifacts = await buildApp(builder);
+      const artifacts = await buildProjectArtifacts(project, snapshot);
       const serverArtifact = artifacts.find((artifact) => artifact.path === "Code.js");
       const clientArtifact = artifacts.find((artifact) => artifact.path === "index.html");
 
@@ -116,9 +112,7 @@ describe("build pipeline", () => {
       );
 
       const snapshot = await scanProject(project);
-      const plan = createBuildPlan(project, snapshot, "production");
-      const builder = await createBuilder(createBuilderConfig(plan));
-      const artifacts = await buildApp(builder);
+      const artifacts = await buildProjectArtifacts(project, snapshot);
 
       expect(artifacts.some((artifact) => artifact.path === "Code.js")).toBe(true);
       expect(artifacts.some((artifact) => artifact.path.endsWith(".html"))).toBe(false);
