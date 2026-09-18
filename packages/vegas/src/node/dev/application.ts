@@ -22,6 +22,7 @@ import {
 import { executeServerFunctionCall } from "./webapp/server-function-call";
 import { WebAppSessionRegistry } from "./webapp/session-registry";
 import { createBlankUserContentHtml, createUserContentPanelHtml } from "./webapp/user-content-html";
+import { createUserContentServerConfig } from "./webapp/user-content-server";
 
 interface DevApplicationOptions {
   readonly project: ResolvedProject;
@@ -293,33 +294,14 @@ export class DevApplication {
 
     await hostServer.listen();
 
-    const userContentServer = await createServer({
-      root: this.#project.root,
-      mode: this.#mode,
-      configFile: false,
-      plugins: [
-        {
-          name: "vegas",
-
-          resolveId(source, _importer, _options) {
-            if (source === "/@vegas/client") {
-              return "\0virtual:vegas";
-            }
-          },
-
-          async load(id, _options) {
-            if (id === "\0virtual:vegas") {
-              return await this.fs.readFile(path.join(import.meta.dirname, "webapp-bridge.js"), {
-                encoding: "utf8",
-              });
-            }
-          },
-        },
-      ],
-      server: { port: hostServer.config.server.port + 1 },
-      customLogger: createLogger("info", { prefix: "[vegas]" }),
-      cacheDir: path.join(this.#project.root, "node_modules", ".vegas-content"),
-    });
+    const userContentServer = await createServer(
+      createUserContentServerConfig({
+        root: this.#project.root,
+        mode: this.#mode,
+        port: hostServer.config.server.port + 1,
+        bridgeFilePath: path.join(import.meta.dirname, "webapp-bridge.js"),
+      }),
+    );
 
     const userContentHandler: Connect.NextHandleFunction = async (request, response, next) => {
       await builds.waitForIdle();
