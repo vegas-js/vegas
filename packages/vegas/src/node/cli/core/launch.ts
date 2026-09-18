@@ -17,46 +17,15 @@ import {
   type DriveStore,
   type Executor,
   type InvocationEnvironment,
-  type InvocationScope,
   type LockStore,
   type Program,
   type PropertiesStore,
   type SpreadsheetStore,
 } from "../../runtime";
-import type { ServeContext } from "./context";
-class GASHandler {
-  #handlers: Record<string, Record<string, any>>;
-
-  constructor() {
-    this.#handlers = {};
-
-    const proxyHandler: ProxyHandler<this> = {
-      get(target, property) {
-        return async (port: worker.MessagePort, sharedArray: Int32Array, ...args: any[]) => {
-          const [clazz, method] = String(property).split("#");
-          try {
-            const result = await target.#handlers[clazz][method](...args);
-            if (result !== undefined) {
-              port.postMessage(result);
-            }
-          } finally {
-            Atomics.store(sharedArray, 0, 0);
-            Atomics.notify(sharedArray, 0);
-          }
-        };
-      },
-    };
-
-    return new Proxy(this, proxyHandler);
-  }
-}
 
 function launchGAS(
-  ctx: ServeContext,
-  handler: GASHandler,
   dispatcher: HostDispatcher,
   environment: InvocationEnvironment,
-  invocationScope: InvocationScope,
   program: Program,
   fn: string,
   ...args: any[]
@@ -89,28 +58,17 @@ function launchGAS(
       if (data.message === "resolve") {
         port1.close();
         resolve(data.payload);
-      } else {
-        try {
-          await (handler as any)[data.message](
-            port1,
-            sharedArray,
-            ctx,
-            data.payload,
-            invocationScope,
-          );
-        } catch (err: any) {
-          port1.close();
-          console.error(err);
-          reject(err);
-        }
+        return;
       }
+
+      port1.close();
+      reject(new Error(`Unexpected worker message: ${String(data.message)}`));
     });
     port1.postMessage({ fn, args });
   });
 }
 
 export function createLegacyAppsScriptExecutor(
-  ctx: ServeContext,
   cacheStore: CacheStore,
   lockStore: LockStore,
   propertiesStore: PropertiesStore,
@@ -118,7 +76,6 @@ export function createLegacyAppsScriptExecutor(
   driveIteratorStore: DriveIteratorStore,
   spreadsheetStore: SpreadsheetStore,
 ): Executor {
-  const handler = new GASHandler();
   const urlFetch = new UrlFetchHostHandler(new NodeUrlFetchCapability());
 
   return {
@@ -139,11 +96,8 @@ export function createLegacyAppsScriptExecutor(
       });
 
       return launchGAS(
-        ctx,
-        handler,
         dispatcher,
         request.environment,
-        request.scope,
         request.program,
         request.functionName,
         ...request.args,

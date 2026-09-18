@@ -52,7 +52,6 @@ export async function runPreview(root?: string) {
 
   const environment = createLegacyInvocationEnvironment(ctx);
   const executor = createLegacyAppsScriptExecutor(
-    ctx,
     cacheStore,
     lockStore,
     propertiesStore,

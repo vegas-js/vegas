@@ -33,16 +33,6 @@ const sharedArray = runtimeWorkerData.sharedArray;
 const port = runtimeWorkerData.port;
 const hostBridge = createWorkerHostBridge(port, sharedArray);
 
-function requestSync(request: { message: string; payload?: any }, timeout?: number) {
-  Atomics.store(sharedArray, 0, 1);
-  port.postMessage(request);
-  Atomics.wait(sharedArray, 0, 1, timeout);
-  const received = worker.receiveMessageOnPort(port);
-
-  return received?.message ?? null;
-}
-export type RequestSync = typeof requestSync;
-
 const script = new vm.Script(runtimeWorkerData.program.source);
 const scriptContext = vm.createContext({
   /* Admin Console */

@@ -53,7 +53,6 @@ export async function runServe(root?: string) {
 
   const environment = createLegacyInvocationEnvironment(ctx);
   const executor = createLegacyAppsScriptExecutor(
-    ctx,
     cacheStore,
     lockStore,
     propertiesStore,
