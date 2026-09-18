@@ -217,6 +217,26 @@ export class Range {
     return start === end ? start : `${start}:${end}`;
   }
 
+  getCell(row: number, column: number): Range {
+    assertPositiveInteger(row, "Spreadsheet range cell row");
+    assertPositiveInteger(column, "Spreadsheet range cell column");
+
+    if (row > this.#reference.numRows || column > this.#reference.numColumns) {
+      throw new RangeError("Spreadsheet range cell is outside the range.");
+    }
+
+    return this.#hydrator.hydrate({
+      service: "spreadsheet",
+      kind: "range",
+      spreadsheetId: this.#reference.spreadsheetId,
+      sheetId: this.#reference.sheetId,
+      row: this.#reference.row + row - 1,
+      column: this.#reference.column + column - 1,
+      numRows: 1,
+      numColumns: 1,
+    });
+  }
+
   getColumn(): number {
     return this.#reference.column;
   }

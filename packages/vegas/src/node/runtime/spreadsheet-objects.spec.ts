@@ -200,6 +200,48 @@ describe("Spreadsheet Runtime objects", () => {
     expect(bridge.calls).toHaveLength(0);
   });
 
+  test("resolve cells relative to a Range without HostBridge calls", () => {
+    const bridge = createBridge();
+    const hydrator = createSpreadsheetObjectHydrator(bridge);
+    const range = hydrator.hydrate({
+      service: "spreadsheet",
+      kind: "range",
+      spreadsheetId: "spreadsheet-a",
+      sheetId: 7,
+      row: 2,
+      column: 2,
+      numRows: 3,
+      numColumns: 3,
+    });
+
+    expect(range.getCell(1, 1).getA1Notation()).toBe("B2");
+    expect(range.getCell(2, 2).getA1Notation()).toBe("C3");
+    expect(range.getCell(3, 3).getA1Notation()).toBe("D4");
+    expect(bridge.calls).toHaveLength(0);
+  });
+
+  test("reject cell coordinates outside the Range before creating an object", () => {
+    const bridge = createBridge();
+    const hydrator = createSpreadsheetObjectHydrator(bridge);
+    const range = hydrator.hydrate({
+      service: "spreadsheet",
+      kind: "range",
+      spreadsheetId: "spreadsheet-a",
+      sheetId: 7,
+      row: 2,
+      column: 2,
+      numRows: 3,
+      numColumns: 3,
+    });
+
+    expect(() => range.getCell(0, 1)).toThrow("cell row must be a positive integer");
+    expect(() => range.getCell(1, 0)).toThrow("cell column must be a positive integer");
+    expect(() => range.getCell(1.5, 1)).toThrow("cell row must be a positive integer");
+    expect(() => range.getCell(4, 1)).toThrow("outside the range");
+    expect(() => range.getCell(1, 4)).toThrow("outside the range");
+    expect(bridge.calls).toHaveLength(0);
+  });
+
   test("offset Ranges locally with Apps Script overload semantics", () => {
     const bridge = createBridge();
     const hydrator = createSpreadsheetObjectHydrator(bridge);
