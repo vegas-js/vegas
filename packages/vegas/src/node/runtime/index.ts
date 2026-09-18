@@ -74,6 +74,13 @@ export type { UrlFetchCapability } from "./url-fetch-capability";
 export { UrlFetchHostHandler } from "./url-fetch-host-handler";
 export type { UrlFetchHostCallHandler } from "./url-fetch-host-handler";
 export type { UrlFetchHostCall, UrlFetchHostCallResult } from "./url-fetch-host-call";
+export { normalizeUrlFetchRequest } from "./url-fetch-request";
+export type {
+  UrlFetchFormFieldInput,
+  UrlFetchPayloadInput,
+  UrlFetchRequestInput,
+  UrlFetchRequestOptionsInput,
+} from "./url-fetch-request";
 export type {
   UrlFetchFormFieldValue,
   UrlFetchMethod,
