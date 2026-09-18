@@ -25,93 +25,74 @@ interface DevApplicationOptions {
   readonly mode: "development" | "production";
 }
 
-export class DevApplication {
-  readonly #project: ResolvedProject;
-  readonly #artifacts: ArtifactStore;
-  readonly #executor: Executor;
-  readonly #environment: InvocationEnvironment;
-  readonly #scope: InvocationScope;
-  readonly #mode: "development" | "production";
-  readonly #buildManager: DevBuildManager;
+export async function startDevApplication(options: DevApplicationOptions): Promise<void> {
+  const buildManager = new DevBuildManager({
+    project: options.project,
+    artifacts: options.artifacts,
+    builder: options.builder,
+    mode: options.mode,
+  });
+  const sessions = new WebAppSessionRegistry();
+  const builds = new BuildCoordinator();
 
-  constructor(options: DevApplicationOptions) {
-    this.#project = options.project;
-    this.#artifacts = options.artifacts;
-    this.#executor = options.executor;
-    this.#environment = options.environment;
-    this.#scope = options.scope;
-    this.#mode = options.mode;
-    this.#buildManager = new DevBuildManager({
-      project: options.project,
-      artifacts: options.artifacts,
-      builder: options.builder,
+  const hostServer = await createServer(
+    createHostServerConfig({
+      root: options.project.root,
       mode: options.mode,
-    });
-  }
+    }),
+  );
 
-  async start(): Promise<void> {
-    const sessions = new WebAppSessionRegistry();
-    const builds = new BuildCoordinator();
+  registerBuildWatchers({
+    server: hostServer,
+    project: options.project,
+    builds,
+    buildManager,
+  });
 
-    const hostServer = await createServer(
-      createHostServerConfig({
-        root: this.#project.root,
-        mode: this.#mode,
-      }),
-    );
+  registerHostWebSocketHandlers({
+    server: hostServer,
+    builds,
+    sessions,
+    artifacts: options.artifacts,
+    executor: options.executor,
+    environment: options.environment,
+    scope: options.scope,
+  });
 
-    registerBuildWatchers({
-      server: hostServer,
-      project: this.#project,
-      builds,
-      buildManager: this.#buildManager,
-    });
+  const hostHandler = createHostHttpHandler({
+    server: hostServer,
+    builds,
+    sessions,
+    artifacts: options.artifacts,
+    executor: options.executor,
+    environment: options.environment,
+    scope: options.scope,
+  });
 
-    registerHostWebSocketHandlers({
-      server: hostServer,
-      builds,
-      sessions,
-      artifacts: this.#artifacts,
-      executor: this.#executor,
-      environment: this.#environment,
-      scope: this.#scope,
-    });
+  hostServer.middlewares.stack.unshift({ route: "", handle: hostHandler });
 
-    const hostHandler = createHostHttpHandler({
-      server: hostServer,
-      builds,
-      sessions,
-      artifacts: this.#artifacts,
-      executor: this.#executor,
-      environment: this.#environment,
-      scope: this.#scope,
-    });
+  await hostServer.listen();
 
-    hostServer.middlewares.stack.unshift({ route: "", handle: hostHandler });
+  const userContentServer = await createServer(
+    createUserContentServerConfig({
+      root: options.project.root,
+      mode: options.mode,
+      port: hostServer.config.server.port + 1,
+      bridgeFilePath: path.join(import.meta.dirname, "webapp-bridge.js"),
+    }),
+  );
 
-    await hostServer.listen();
+  const userContentHandler = createUserContentHttpHandler({
+    server: userContentServer,
+    builds,
+    sessions,
+    hostPort: hostServer.config.server.port,
+  });
 
-    const userContentServer = await createServer(
-      createUserContentServerConfig({
-        root: this.#project.root,
-        mode: this.#mode,
-        port: hostServer.config.server.port + 1,
-        bridgeFilePath: path.join(import.meta.dirname, "webapp-bridge.js"),
-      }),
-    );
+  userContentServer.middlewares.stack.unshift({ route: "", handle: userContentHandler });
 
-    const userContentHandler = createUserContentHttpHandler({
-      server: userContentServer,
-      builds,
-      sessions,
-      hostPort: hostServer.config.server.port,
-    });
+  await userContentServer.listen();
 
-    userContentServer.middlewares.stack.unshift({ route: "", handle: userContentHandler });
-
-    await userContentServer.listen();
-
-    hostServer.printUrls();
-    hostServer.bindCLIShortcuts({ print: true });
-  }
+  hostServer.printUrls();
+  hostServer.bindCLIShortcuts({ print: true });
 }

@@ -1,5 +1,5 @@
 import { ArtifactStore } from "../../build";
-import { DevApplication } from "../../dev/application";
+import { startDevApplication } from "../../dev/application";
 import { buildDevTopology } from "../../dev/build-topology";
 import { loadProject } from "../../project";
 import {
@@ -65,7 +65,7 @@ export async function runDevApplication(mode: DevApplicationMode, root?: string)
     spreadsheetStore,
   );
 
-  const application = new DevApplication({
+  await startDevApplication({
     project,
     artifacts,
     builder,
@@ -74,6 +74,4 @@ export async function runDevApplication(mode: DevApplicationMode, root?: string)
     scope,
     mode,
   });
-
-  await application.start();
 }
