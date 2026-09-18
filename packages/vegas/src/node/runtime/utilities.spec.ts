@@ -20,6 +20,8 @@ type UtilitiesContract = Pick<
   | "computeRsaSha1Signature"
   | "computeRsaSha256Signature"
   | "computeRsaSignature"
+  | "getUuid"
+  | "sleep"
 >;
 
 function expectDistinctNumericValues(values: Readonly<Record<string, number>>): void {
@@ -193,6 +195,23 @@ describe("Utilities", () => {
     expect(Buffer.from(byteSignature).toString("hex")).toBe(
       "b0344c61d8db38535ca8afceaf0bf12b881dc200c9833da726e9376c2e32cff7",
     );
+  });
+
+  test("generate a version 4 UUID string", () => {
+    const utilities = createUtilities();
+
+    expect(utilities.getUuid()).toMatch(
+      /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/,
+    );
+  });
+
+  test("sleep synchronously and reject durations above the documented maximum", () => {
+    const utilities = createUtilities();
+    const startedAt = performance.now();
+
+    expect(utilities.sleep(10)).toBeUndefined();
+    expect(performance.now() - startedAt).toBeGreaterThanOrEqual(8);
+    expect(() => utilities.sleep(300_001)).toThrow();
   });
 
   test("sign RSA values with the Vegas PKCS#1 v1.5 Runtime contract", () => {

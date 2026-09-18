@@ -29,6 +29,9 @@ const RSA_ALGORITHM = {
   RSA_SHA_256: 1,
 } as const satisfies typeof GoogleAppsScript.Utilities.RsaAlgorithm;
 
+const MAX_SLEEP_MILLISECONDS = 300_000;
+const SLEEP_ARRAY = new Int32Array(new SharedArrayBuffer(Int32Array.BYTES_PER_ELEMENT));
+
 function toSignedByte(value: number): number {
   const unsigned = value & 0xff;
   return unsigned > 0x7f ? unsigned - 0x100 : unsigned;
@@ -327,6 +330,18 @@ export class Utilities {
     charset?: GoogleAppsScript.Utilities.Charset,
   ): GoogleAppsScript.Byte[] {
     return signRsa(algorithm, encodeString(value, charset), key);
+  }
+
+  getUuid(): string {
+    return crypto.randomUUID();
+  }
+
+  sleep(milliseconds: GoogleAppsScript.Integer): void {
+    if (milliseconds > MAX_SLEEP_MILLISECONDS) {
+      throw new RangeError("Sleep duration exceeds 300000 milliseconds.");
+    }
+
+    Atomics.wait(SLEEP_ARRAY, 0, 0, milliseconds);
   }
 }
 
