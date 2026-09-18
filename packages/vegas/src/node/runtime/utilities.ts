@@ -1,3 +1,7 @@
+import crypto from "node:crypto";
+
+import { computeMd2 } from "./md2";
+
 const CHARSET = {
   US_ASCII: 0,
   UTF_8: 1,
@@ -57,6 +61,38 @@ function decodeBase64(encoded: string, webSafe: boolean): GoogleAppsScript.Byte[
   return Array.from(Buffer.from(normalized, "base64"), toSignedByte);
 }
 
+function computeDigest(
+  algorithm: GoogleAppsScript.Utilities.DigestAlgorithm,
+  data: Uint8Array,
+): GoogleAppsScript.Byte[] {
+  if (algorithm === DIGEST_ALGORITHM.MD2) {
+    return Array.from(computeMd2(data), toSignedByte);
+  }
+
+  let nodeAlgorithm: string;
+  switch (algorithm) {
+    case DIGEST_ALGORITHM.MD5:
+      nodeAlgorithm = "md5";
+      break;
+    case DIGEST_ALGORITHM.SHA_1:
+      nodeAlgorithm = "sha1";
+      break;
+    case DIGEST_ALGORITHM.SHA_256:
+      nodeAlgorithm = "sha256";
+      break;
+    case DIGEST_ALGORITHM.SHA_384:
+      nodeAlgorithm = "sha384";
+      break;
+    case DIGEST_ALGORITHM.SHA_512:
+      nodeAlgorithm = "sha512";
+      break;
+    default:
+      throw new Error("Unsupported digest algorithm.");
+  }
+
+  return Array.from(crypto.createHash(nodeAlgorithm).update(data).digest(), toSignedByte);
+}
+
 // https://developers.google.com/apps-script/reference/utilities/utilities
 // @types/google-apps-script models these values as ambient enums. Their concrete
 // numeric values are Vegas-internal identities and are not compatibility promises.
@@ -112,6 +148,29 @@ export class Utilities {
     const bytes = typeof data === "string" ? encodeString(data, charset) : encodeBytes(data);
 
     return encodeBase64(bytes, true);
+  }
+
+  computeDigest(
+    algorithm: GoogleAppsScript.Utilities.DigestAlgorithm,
+    value: GoogleAppsScript.Byte[],
+  ): GoogleAppsScript.Byte[];
+  computeDigest(
+    algorithm: GoogleAppsScript.Utilities.DigestAlgorithm,
+    value: string,
+  ): GoogleAppsScript.Byte[];
+  computeDigest(
+    algorithm: GoogleAppsScript.Utilities.DigestAlgorithm,
+    value: string,
+    charset: GoogleAppsScript.Utilities.Charset,
+  ): GoogleAppsScript.Byte[];
+  computeDigest(
+    algorithm: GoogleAppsScript.Utilities.DigestAlgorithm,
+    value: GoogleAppsScript.Byte[] | string,
+    charset?: GoogleAppsScript.Utilities.Charset,
+  ): GoogleAppsScript.Byte[] {
+    const bytes = typeof value === "string" ? encodeString(value, charset) : encodeBytes(value);
+
+    return computeDigest(algorithm, bytes);
   }
 }
 
