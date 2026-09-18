@@ -35,6 +35,7 @@ export type {
 } from "./drive-reference";
 export type { DriveFileMetadata, DriveNamespace, DriveStore } from "./drive-store";
 export type { ExecutionRequest, Executor } from "./executor";
+export { executeRuntimeFunction } from "./function-execution";
 export { HostDispatcher } from "./host-dispatcher";
 export { HtmlOutput, HtmlOutputMetaTag, serializeHtmlOutput } from "./html-output";
 export type { HtmlOutputSnapshot, HtmlSandboxMode, HtmlXFrameOptionsMode } from "./html-output";

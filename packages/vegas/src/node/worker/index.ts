@@ -3,7 +3,7 @@ import worker from "node:worker_threads";
 
 import {
   createRuntimeGlobals,
-  serializeHtmlOutput,
+  executeRuntimeFunction,
   type InvocationEnvironment,
   type Program,
 } from "../runtime";
@@ -17,8 +17,8 @@ type RuntimeWorkerData = {
 };
 
 type GASWorkerData = {
-  fn: string;
-  args: any[];
+  readonly fn: string;
+  readonly args: readonly unknown[];
 };
 
 const runtimeWorkerData = worker.workerData as RuntimeWorkerData;
@@ -38,27 +38,8 @@ const scriptContext = vm.createContext(
 );
 script.runInContext(scriptContext);
 
-async function invokeFn(fn: Function, ...args: any[]) {
-  const result = await fn(...args);
-  if (fn.name === "doGet") {
-    return serializeHtmlOutput(result);
-  } else if (fn.name === "doPost") {
-    return {
-      mimeType: typeof result.getMimeType === "function" ? result.getMimeType() : "text/html",
-      content: result.getContent(),
-    };
-  }
-
-  return result;
-}
-
 port.on("message", async (data: GASWorkerData) => {
-  const targetFn = scriptContext[data.fn];
-  if (typeof targetFn !== "function") {
-    throw new Error(`${data.fn} is not a function`);
-  }
-
-  const result = await invokeFn(targetFn, ...data.args);
+  const result = await executeRuntimeFunction(scriptContext, data.fn, data.args);
   port.postMessage({ message: "resolve", payload: result });
 });
 
