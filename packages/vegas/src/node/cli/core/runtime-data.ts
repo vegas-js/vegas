@@ -1,5 +1,9 @@
 import { RuntimeDataTarget } from "../../../shared/gas";
-import type { RuntimeDataProperties, RuntimeDataSession } from "../../../shared/gas";
+import type {
+  RuntimeDataProperties,
+  RuntimeDataSession,
+  RuntimeDataSpreadsheet,
+} from "../../../shared/gas";
 import { loadModule } from "../../module";
 import {
   resolvePropertiesNamespace,
@@ -9,6 +13,7 @@ import {
 
 export interface LoadedRuntimeData {
   readonly session?: RuntimeDataSession;
+  readonly spreadsheets: readonly RuntimeDataSpreadsheet[];
 }
 
 export async function loadRuntimeData(
@@ -16,11 +21,13 @@ export async function loadRuntimeData(
   runtimeDataSources: readonly string[],
   propertiesStore: PropertiesStore,
   scope: InvocationScope,
+  load: typeof loadModule = loadModule,
 ): Promise<LoadedRuntimeData> {
   let session: RuntimeDataSession | undefined;
+  const spreadsheets: RuntimeDataSpreadsheet[] = [];
 
   for (const source of runtimeDataSources) {
-    const data = await loadModule({ root: projectRoot, filePath: source });
+    const data = await load({ root: projectRoot, filePath: source });
 
     switch (data.target) {
       case RuntimeDataTarget.Properties: {
@@ -31,11 +38,15 @@ export async function loadRuntimeData(
         session = data;
         break;
       }
+      case RuntimeDataTarget.Spreadsheet: {
+        spreadsheets.push(data);
+        break;
+      }
       // TODO
     }
   }
 
-  return session === undefined ? {} : { session };
+  return session === undefined ? { spreadsheets } : { session, spreadsheets };
 }
 
 export async function applyPropertiesRuntimeData(

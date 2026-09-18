@@ -2,6 +2,7 @@ export enum RuntimeDataTarget {
   Cache = "Cache",
   Properties = "Properties",
   Session = "Session",
+  Spreadsheet = "Spreadsheet",
   // TODO
 }
 
@@ -16,4 +17,20 @@ export interface RuntimeDataSession {
   activeUserLocale?: string;
   effectiveUserEmail?: string;
   temporaryActiveUserKey?: string;
+}
+
+export type RuntimeDataSpreadsheetCellValue = string | number | boolean | Date;
+
+export interface RuntimeDataSpreadsheetSheet {
+  readonly id: number;
+  readonly name: string;
+  readonly maxRows: number;
+  readonly maxColumns: number;
+  readonly values?: readonly (readonly RuntimeDataSpreadsheetCellValue[])[];
+}
+
+export interface RuntimeDataSpreadsheet {
+  readonly id: string;
+  readonly name: string;
+  readonly sheets: readonly RuntimeDataSpreadsheetSheet[];
 }

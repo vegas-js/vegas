@@ -44,7 +44,6 @@ export async function runServe(root?: string) {
   const propertiesStore = new InMemoryPropertiesStore();
   const driveStore = new InMemoryDriveStore();
   const driveIteratorStore = new InMemoryDriveIteratorStore();
-  const spreadsheetStore = new InMemorySpreadsheetStore();
 
   const runtimeData = await loadRuntimeData(
     project.root,
@@ -53,6 +52,7 @@ export async function runServe(root?: string) {
     scope,
   );
 
+  const spreadsheetStore = new InMemorySpreadsheetStore(runtimeData.spreadsheets);
   const environment = createInvocationEnvironment(project, runtimeData.session);
   const executor = createAppsScriptExecutor(
     cacheStore,
