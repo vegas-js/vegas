@@ -70,6 +70,8 @@ export type {
 export type { PropertiesNamespace, PropertiesStore } from "./properties-store";
 export type { Program } from "./program";
 export { resolvePropertiesNamespace } from "./properties-namespace";
+export { createRuntimeGlobals } from "./runtime-globals";
+export type { RuntimeGlobalsOptions } from "./runtime-globals";
 export type { InvocationScope } from "./scope";
 export { SpreadsheetHostHandler } from "./spreadsheet-host-handler";
 export type { SpreadsheetHostCallHandler } from "./spreadsheet-host-handler";
