@@ -23,7 +23,7 @@ import {
   type SpreadsheetStore,
 } from "../../runtime";
 
-function launchGAS(
+function runAppsScriptWorker(
   dispatcher: HostDispatcher,
   environment: InvocationEnvironment,
   program: Program,
@@ -68,7 +68,7 @@ function launchGAS(
   });
 }
 
-export function createLegacyAppsScriptExecutor(
+export function createAppsScriptExecutor(
   cacheStore: CacheStore,
   lockStore: LockStore,
   propertiesStore: PropertiesStore,
@@ -95,7 +95,7 @@ export function createLegacyAppsScriptExecutor(
         urlFetch,
       });
 
-      return launchGAS(
+      return runAppsScriptWorker(
         dispatcher,
         request.environment,
         request.program,

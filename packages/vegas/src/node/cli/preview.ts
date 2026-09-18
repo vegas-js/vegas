@@ -10,8 +10,8 @@ import {
   InMemoryPropertiesStore,
   InMemorySpreadsheetStore,
 } from "../runtime";
+import { createAppsScriptExecutor } from "./core/apps-script-executor";
 import { createServeContext } from "./core/context";
-import { createLegacyAppsScriptExecutor } from "./core/launch";
 import { loadRuntimeData } from "./core/runtime-data";
 import { createLegacyInvocationEnvironment } from "./core/runtime-environment";
 import { createLegacyInvocationScope } from "./core/runtime-scope";
@@ -51,7 +51,7 @@ export async function runPreview(root?: string) {
   await loadRuntimeData(ctx, snapshot.runtimeDataSources, propertiesStore, scope);
 
   const environment = createLegacyInvocationEnvironment(ctx);
-  const executor = createLegacyAppsScriptExecutor(
+  const executor = createAppsScriptExecutor(
     cacheStore,
     lockStore,
     propertiesStore,
