@@ -74,6 +74,12 @@ export type { InvocationScope } from "./scope";
 export { SpreadsheetHostHandler } from "./spreadsheet-host-handler";
 export type { SpreadsheetHostCallHandler } from "./spreadsheet-host-handler";
 export type { SpreadsheetHostCall, SpreadsheetHostCallResult } from "./spreadsheet-host-call";
+export {
+  createSpreadsheetApp,
+  createSpreadsheetObjectHydrator,
+} from "./spreadsheet-object-hydrator";
+export type { HydratedSpreadsheetObject, SpreadsheetObjectHydrator } from "./spreadsheet-hydrator";
+export { Range, Sheet, Spreadsheet, SpreadsheetApp } from "./spreadsheet-objects";
 export type {
   RangeReference,
   SheetReference,
