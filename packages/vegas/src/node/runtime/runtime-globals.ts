@@ -3,7 +3,7 @@ import { createDriveApp } from "./drive-object-hydrator";
 import type { HostBridge } from "./host-bridge";
 import { createHtmlService } from "./html-service";
 import type { InvocationEnvironment } from "./invocation";
-import { createLockService } from "./lock-objects";
+import { createLockService } from "./lock-service";
 import { createConsole, createLogger, type LoggingTarget } from "./logging";
 import { createPropertiesService } from "./properties-objects";
 import { createSession } from "./session-objects";
