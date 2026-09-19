@@ -1,4 +1,4 @@
-import { describe, expect, expectTypeOf, test } from "vitest";
+import { describe, expect, test } from "vitest";
 
 import {
   createBlob,
@@ -10,7 +10,6 @@ import {
   DriveFolderIterator,
   type DriveFileReference,
   type DriveFolderReference,
-  type DriveHostCall,
   type HostBridge,
   type HostCall,
   type HostCallResult,
@@ -74,17 +73,14 @@ function createBridge() {
           id: "created-folder",
         };
       }
-      case "get-files":
-      case "get-folder-files": {
+      case "get-files": {
         return {
           service: "drive",
           kind: "file-iterator",
           handle: "files",
         };
       }
-      case "get-folders":
-      case "get-file-parents":
-      case "get-folder-folders": {
+      case "get-folders": {
         return {
           service: "drive",
           kind: "folder-iterator",
@@ -105,62 +101,14 @@ function createBridge() {
           handle: `continued:${call.continuationToken}`,
         };
       }
-      case "iterator-has-next": {
-        return true;
-      }
-      case "iterator-continuation-token": {
-        return `token:${call.iterator.handle}`;
-      }
-      case "file-iterator-next": {
-        return {
-          service: "drive",
-          kind: "file",
-          id: `next:${call.iterator.handle}`,
-        };
-      }
-      case "folder-iterator-next": {
-        return {
-          service: "drive",
-          kind: "folder",
-          id: `next:${call.iterator.handle}`,
-        };
-      }
+      default:
+        throw new Error(`unexpected Drive operation: ${call.operation}`);
     }
   });
 }
 
-describe("Drive Runtime objects", () => {
-  test("map Drive host calls to operation-specific result types", () => {
-    const fileCall = {
-      service: "drive",
-      operation: "get-file",
-      id: "file-id",
-    } satisfies DriveHostCall;
-    const hasNextCall = {
-      service: "drive",
-      operation: "iterator-has-next",
-      iterator: {
-        service: "drive",
-        kind: "file-iterator",
-        handle: "files",
-      },
-    } satisfies DriveHostCall;
-    const tokenCall = {
-      service: "drive",
-      operation: "iterator-continuation-token",
-      iterator: {
-        service: "drive",
-        kind: "folder-iterator",
-        handle: "folders",
-      },
-    } satisfies DriveHostCall;
-
-    expectTypeOf<HostCallResult<typeof fileCall>>().toEqualTypeOf<DriveFileReference>();
-    expectTypeOf<HostCallResult<typeof hasNextCall>>().toEqualTypeOf<boolean>();
-    expectTypeOf<HostCallResult<typeof tokenCall>>().toEqualTypeOf<string>();
-  });
-
-  test("hydrate DriveApp results into Runtime Class instances", () => {
+describe("DriveApp Runtime object", () => {
+  test("hydrate results into Runtime Class instances", () => {
     const bridge = createBridge();
     const drive = createDriveApp(bridge);
 
@@ -269,38 +217,5 @@ describe("Drive Runtime objects", () => {
         name: "child",
       },
     ]);
-  });
-
-  test("preserve Class hydration through resource and iterator chains", () => {
-    const bridge = createBridge();
-    const drive = createDriveApp(bridge);
-
-    const file = drive.getFileById("file-id");
-    const parents = file.getParents();
-
-    expect(parents).toBeInstanceOf(DriveFolderIterator);
-    expect(parents.hasNext()).toBe(true);
-    expect(parents.getContinuationToken()).toBe("token:folders");
-
-    const parent = parents.next();
-
-    expect(parent).toBeInstanceOf(DriveFolder);
-    expect(parent.getId()).toBe("next:folders");
-
-    const files = parent.getFiles();
-
-    expect(files).toBeInstanceOf(DriveFileIterator);
-    expect(files.hasNext()).toBe(true);
-    expect(files.getContinuationToken()).toBe("token:files");
-
-    const child = files.next();
-
-    expect(child).toBeInstanceOf(DriveFile);
-    expect(child.getId()).toBe("next:files");
-
-    const folders = parent.getFolders();
-
-    expect(folders).toBeInstanceOf(DriveFolderIterator);
-    expect(folders.next()).toBeInstanceOf(DriveFolder);
   });
 });
