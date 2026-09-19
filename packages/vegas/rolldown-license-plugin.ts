@@ -3,6 +3,31 @@ import path from "node:path";
 
 import { Rolldown } from "tsdown";
 
+const PREFERRED_LICENSE_FILE_NAMES = ["LICENSE", "LICENSE.md", "license"] as const;
+const LICENSE_FILE_NAME_PATTERN = /^(?:licen[cs]e|copying)(?:[._-].*)?$/i;
+
+export function resolvePackageLicenseFile(packageRoot: string): string {
+  const entries = fs.readdirSync(packageRoot, { withFileTypes: true });
+  const fileNames = entries.filter((entry) => entry.isFile()).map((entry) => entry.name);
+  const availableFiles = new Set(fileNames);
+
+  for (const fileName of PREFERRED_LICENSE_FILE_NAMES) {
+    if (availableFiles.has(fileName)) {
+      return path.join(packageRoot, fileName);
+    }
+  }
+
+  const fallback = fileNames
+    .filter((fileName) => LICENSE_FILE_NAME_PATTERN.test(fileName))
+    .sort((left, right) => left.localeCompare(right))[0];
+
+  if (fallback) {
+    return path.join(packageRoot, fallback);
+  }
+
+  throw new Error(`Could not find a license file for bundled package: ${packageRoot}`);
+}
+
 export default function rolldownLicensePlugin(
   root: string,
   additionalLicenseFiles?: string[],
@@ -70,17 +95,8 @@ export default function rolldownLicensePlugin(
           }
         }
         outputLicenses.push("");
-        const upperLicenseFileName = "LICENSE";
-        const lowerLicenseFileName = upperLicenseFileName.toLowerCase();
-        let readPath = "";
-        if (fs.existsSync(path.join(pkgRootPath, upperLicenseFileName))) {
-          readPath = path.join(pkgRootPath, upperLicenseFileName);
-        } else if (fs.existsSync(path.join(pkgRootPath, `${upperLicenseFileName}.md`))) {
-          readPath = path.join(pkgRootPath, `${upperLicenseFileName}.md`);
-        } else if (fs.existsSync(path.join(pkgRootPath, lowerLicenseFileName))) {
-          readPath = path.join(pkgRootPath, lowerLicenseFileName);
-        }
-        const licenseText = fs.readFileSync(readPath, "utf8");
+        const licensePath = resolvePackageLicenseFile(pkgRootPath);
+        const licenseText = fs.readFileSync(licensePath, "utf8");
         outputLicenses.push(licenseText.replace(/\n$/g, "").replace(/^/gm, "> "));
         if (index !== packages.length - 1) {
           outputLicenses.push("\n---------------------------------------\n");
