@@ -5,7 +5,7 @@ import type { HostBridge } from "./host-bridge";
 import { createHtmlService } from "./html-service";
 import type { InvocationEnvironment } from "./invocation";
 import { createLockService } from "./lock-service";
-import { createLogger } from "./logging";
+import { createLogger } from "./logger";
 import type { LoggingTarget } from "./logging-target";
 import { createPropertiesService } from "./properties-service";
 import { createSession } from "./session";

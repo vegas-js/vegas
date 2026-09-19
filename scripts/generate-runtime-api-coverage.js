@@ -35,7 +35,7 @@ const API_SURFACES = {
     ["HtmlService", "html-service.ts", "HtmlService"],
     ["HtmlOutput", "html-output.ts", "HtmlOutput"],
   ],
-  Logger: [["Logger", "logging.ts", "Logger"]],
+  Logger: [["Logger", "logger.ts", "Logger"]],
   Session: [
     ["Session", "session.ts", "Session"],
     ["User", "user.ts", "User"],

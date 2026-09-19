@@ -52,7 +52,7 @@ export { InMemorySpreadsheetStore } from "./in-memory-spreadsheet-store";
 export type { InMemorySheetSeed, InMemorySpreadsheetSeed } from "./in-memory-spreadsheet-store";
 export type { InvocationEnvironment } from "./invocation";
 export { AppsScriptConsole, createConsole } from "./console";
-export { createLogger, Logger } from "./logging";
+export { createLogger, Logger } from "./logger";
 export type { LoggingTarget } from "./logging-target";
 export type { LockHostCall, LockHostCallResult, LockHostScope } from "./lock-host-call";
 export { LockHostHandler } from "./lock-host-handler";
