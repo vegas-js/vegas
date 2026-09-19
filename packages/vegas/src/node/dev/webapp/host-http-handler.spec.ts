@@ -4,21 +4,7 @@ import type { ViteDevServer } from "vite";
 import { describe, expect, test, vi } from "vitest";
 
 import { ArtifactStore } from "../../build";
-import type { InvocationEnvironment, InvocationScope } from "../../runtime";
 import { createHostHttpHandler } from "./host-http-handler";
-
-const environment: InvocationEnvironment = {
-  activeUserEmail: "",
-  activeUserLocale: "en",
-  effectiveUserEmail: "",
-  scriptTimeZone: "UTC",
-  temporaryActiveUserKey: "",
-};
-
-const scope: InvocationScope = {
-  scriptKey: "/project",
-  userKey: "local-user",
-};
 
 function createArtifacts() {
   const artifacts = new ArtifactStore();
@@ -73,9 +59,7 @@ describe("createHostHttpHandler", () => {
       builds: { waitForIdle },
       sessions: { issue: () => "session-1" },
       artifacts: createArtifacts(),
-      executor: { execute: async () => undefined },
-      environment,
-      scope,
+      runtime: { execute: async () => undefined },
     });
 
     await handler(
@@ -114,9 +98,7 @@ describe("createHostHttpHandler", () => {
       builds: { waitForIdle: async () => undefined },
       sessions: { issue: () => "session-1" },
       artifacts: createArtifacts(),
-      executor: { execute },
-      environment,
-      scope,
+      runtime: { execute },
     });
 
     await handler(
@@ -154,9 +136,7 @@ describe("createHostHttpHandler", () => {
       builds: { waitForIdle: async () => undefined },
       sessions: { issue: () => "session-1" },
       artifacts: createArtifacts(),
-      executor: { execute },
-      environment,
-      scope,
+      runtime: { execute },
     });
 
     const request = Readable.from(["hello"]) as any;

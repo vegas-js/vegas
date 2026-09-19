@@ -1,7 +1,7 @@
 import type { Connect, ViteDevServer } from "vite";
 
 import type { ArtifactStore } from "../../build";
-import type { Executor, InvocationEnvironment, InvocationScope } from "../../runtime";
+import type { RuntimeBackend } from "../../runtime";
 import type { BuildCoordinator } from "../build-coordinator";
 import { createRuntimeProgram } from "../runtime-program";
 import { createAppsScriptDoGetEvent, createAppsScriptDoPostEvent } from "./event";
@@ -20,13 +20,11 @@ interface HostHttpHandlerOptions {
   readonly builds: Pick<BuildCoordinator, "waitForIdle">;
   readonly sessions: Pick<WebAppSessionRegistry, "issue">;
   readonly artifacts: ArtifactStore;
-  readonly executor: Executor;
-  readonly environment: InvocationEnvironment;
-  readonly scope: InvocationScope;
+  readonly runtime: RuntimeBackend;
 }
 
 export function createHostHttpHandler(options: HostHttpHandlerOptions): Connect.NextHandleFunction {
-  const { server, builds, sessions, artifacts, executor, environment, scope } = options;
+  const { server, builds, sessions, artifacts, runtime } = options;
 
   return async (request, response, next) => {
     try {
@@ -50,12 +48,10 @@ export function createHostHttpHandler(options: HostHttpHandlerOptions): Connect.
             const doGetEvent = createAppsScriptDoGetEvent(url);
             const program = createRuntimeProgram(artifacts);
 
-            const result = (await executor.execute({
+            const result = (await runtime.execute({
               program,
               functionName: "doGet",
               args: [doGetEvent],
-              environment,
-              scope,
             })) as AppsScriptDoGetResult;
 
             const sessionId = sessions.issue();
@@ -85,12 +81,10 @@ export function createHostHttpHandler(options: HostHttpHandlerOptions): Connect.
             );
             const program = createRuntimeProgram(artifacts);
 
-            const result = (await executor.execute({
+            const result = (await runtime.execute({
               program,
               functionName: "doPost",
               args: [doPostEvent],
-              environment,
-              scope,
             })) as AppsScriptDoPostResult;
 
             const httpResponse = createAppsScriptDoPostHttpResponse(result);

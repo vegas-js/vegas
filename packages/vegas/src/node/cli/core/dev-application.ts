@@ -29,18 +29,13 @@ export async function runDevApplication(mode: DevApplicationMode, root?: string)
     },
   ]);
 
-  const { executor, environment, scope } = await createLocalRuntime(
-    project,
-    snapshot.runtimeDataSources,
-  );
+  const runtime = await createLocalRuntime(project, snapshot.runtimeDataSources);
 
   await startDevApplication({
     project,
     artifacts,
     builder,
-    executor,
-    environment,
-    scope,
+    runtime,
     mode,
   });
 }

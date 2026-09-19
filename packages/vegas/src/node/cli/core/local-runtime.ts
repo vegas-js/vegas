@@ -6,40 +6,45 @@ import {
   InMemoryLockStore,
   InMemoryPropertiesStore,
   InMemorySpreadsheetStore,
-  type Executor,
-  type InvocationEnvironment,
-  type InvocationScope,
+  type RuntimeBackend,
 } from "../../runtime";
 import { createNodeAppsScriptExecutor } from "./apps-script-executor";
 import { loadRuntimeData } from "./runtime-data";
 import { createInvocationEnvironment } from "./runtime-environment";
 import { createInvocationScope } from "./runtime-scope";
 
-export interface LocalRuntime {
-  readonly executor: Executor;
-  readonly environment: InvocationEnvironment;
-  readonly scope: InvocationScope;
+interface LocalRuntimeDependencies {
+  readonly loadRuntimeData?: typeof loadRuntimeData;
+  readonly createExecutor?: typeof createNodeAppsScriptExecutor;
 }
 
 export async function createLocalRuntime(
   project: ResolvedProject,
   runtimeDataSources: readonly string[],
-  load: typeof loadRuntimeData = loadRuntimeData,
-): Promise<LocalRuntime> {
+  dependencies: LocalRuntimeDependencies = {},
+): Promise<RuntimeBackend> {
   const scope = createInvocationScope(project);
   const propertiesStore = new InMemoryPropertiesStore();
+  const load = dependencies.loadRuntimeData ?? loadRuntimeData;
   const runtimeData = await load(project.root, runtimeDataSources, propertiesStore, scope);
+  const createExecutor = dependencies.createExecutor ?? createNodeAppsScriptExecutor;
+  const executor = createExecutor({
+    cacheStore: new InMemoryCacheStore(),
+    driveIteratorStore: new InMemoryDriveIteratorStore(),
+    driveStore: new InMemoryDriveStore(),
+    lockStore: new InMemoryLockStore(),
+    propertiesStore,
+    spreadsheetStore: new InMemorySpreadsheetStore(runtimeData.spreadsheets),
+  });
+  const environment = createInvocationEnvironment(project, runtimeData.session);
 
   return {
-    executor: createNodeAppsScriptExecutor({
-      cacheStore: new InMemoryCacheStore(),
-      driveIteratorStore: new InMemoryDriveIteratorStore(),
-      driveStore: new InMemoryDriveStore(),
-      lockStore: new InMemoryLockStore(),
-      propertiesStore,
-      spreadsheetStore: new InMemorySpreadsheetStore(runtimeData.spreadsheets),
-    }),
-    environment: createInvocationEnvironment(project, runtimeData.session),
-    scope,
+    execute(request) {
+      return executor.execute({
+        ...request,
+        environment,
+        scope,
+      });
+    },
   };
 }

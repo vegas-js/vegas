@@ -2,22 +2,18 @@ import type {
   ServerFunctionCallRequest,
   ServerFunctionCallResponse,
 } from "../../../shared/webapp-protocol";
-import type { Executor, InvocationEnvironment, InvocationScope, Program } from "../../runtime";
+import type { Program, RuntimeBackend } from "../../runtime";
 
 export async function executeServerFunctionCall(
-  executor: Executor,
+  runtime: RuntimeBackend,
   request: ServerFunctionCallRequest,
   program: Program,
-  environment: InvocationEnvironment,
-  scope: InvocationScope,
 ): Promise<ServerFunctionCallResponse> {
   try {
-    const result = await executor.execute({
+    const result = await runtime.execute({
       program,
       functionName: request.functionName,
       args: request.args,
-      environment,
-      scope,
     });
 
     return {

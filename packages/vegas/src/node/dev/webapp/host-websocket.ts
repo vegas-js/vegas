@@ -2,7 +2,7 @@ import type { ViteDevServer } from "vite";
 
 import type { ServerFunctionCallRequest } from "../../../shared/webapp-protocol";
 import type { ArtifactStore } from "../../build";
-import type { Executor, InvocationEnvironment, InvocationScope } from "../../runtime";
+import type { RuntimeBackend } from "../../runtime";
 import type { BuildCoordinator } from "../build-coordinator";
 import { createRuntimeProgram } from "../runtime-program";
 import { executeServerFunctionCall } from "./server-function-call";
@@ -13,13 +13,11 @@ interface HostWebSocketOptions {
   readonly builds: Pick<BuildCoordinator, "waitForIdle">;
   readonly sessions: Pick<WebAppSessionRegistry, "consume">;
   readonly artifacts: ArtifactStore;
-  readonly executor: Executor;
-  readonly environment: InvocationEnvironment;
-  readonly scope: InvocationScope;
+  readonly runtime: RuntimeBackend;
 }
 
 export function registerHostWebSocketHandlers(options: HostWebSocketOptions): void {
-  const { server, builds, sessions, artifacts, executor, environment, scope } = options;
+  const { server, builds, sessions, artifacts, runtime } = options;
 
   server.ws.on("vegas:init", async (data, client) => {
     await builds.waitForIdle();
@@ -35,7 +33,7 @@ export function registerHostWebSocketHandlers(options: HostWebSocketOptions): vo
     await builds.waitForIdle();
 
     const program = createRuntimeProgram(artifacts);
-    const response = await executeServerFunctionCall(executor, data, program, environment, scope);
+    const response = await executeServerFunctionCall(runtime, data, program);
 
     client.send("vegas:return", response);
   });

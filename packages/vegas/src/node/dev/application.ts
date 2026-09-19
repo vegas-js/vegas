@@ -4,7 +4,7 @@ import { type ViteBuilder, createServer } from "vite";
 
 import type { ArtifactStore } from "../build";
 import type { ResolvedProject } from "../project";
-import type { Executor, InvocationEnvironment, InvocationScope } from "../runtime";
+import type { RuntimeBackend } from "../runtime";
 import { BuildCoordinator } from "./build-coordinator";
 import { DevBuildManager } from "./build-manager";
 import { registerBuildWatchers } from "./build-watcher";
@@ -19,9 +19,7 @@ interface DevApplicationOptions {
   readonly project: ResolvedProject;
   readonly artifacts: ArtifactStore;
   readonly builder: ViteBuilder;
-  readonly executor: Executor;
-  readonly environment: InvocationEnvironment;
-  readonly scope: InvocationScope;
+  readonly runtime: RuntimeBackend;
   readonly mode: "development" | "production";
 }
 
@@ -54,9 +52,7 @@ export async function startDevApplication(options: DevApplicationOptions): Promi
     builds,
     sessions,
     artifacts: options.artifacts,
-    executor: options.executor,
-    environment: options.environment,
-    scope: options.scope,
+    runtime: options.runtime,
   });
 
   const hostHandler = createHostHttpHandler({
@@ -64,9 +60,7 @@ export async function startDevApplication(options: DevApplicationOptions): Promi
     builds,
     sessions,
     artifacts: options.artifacts,
-    executor: options.executor,
-    environment: options.environment,
-    scope: options.scope,
+    runtime: options.runtime,
   });
 
   hostServer.middlewares.stack.unshift({ route: "", handle: hostHandler });

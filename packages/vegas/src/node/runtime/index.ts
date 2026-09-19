@@ -33,7 +33,12 @@ export type {
   DriveResourceReference,
 } from "./drive-reference";
 export type { DriveFileMetadata, DriveNamespace, DriveStore } from "./drive-store";
-export type { ExecutionRequest, Executor } from "./executor";
+export type {
+  ExecutionRequest,
+  Executor,
+  RuntimeBackend,
+  RuntimeExecutionRequest,
+} from "./executor";
 export { executeRuntimeFunction } from "./function-execution";
 export { HostDispatcher } from "./host-dispatcher";
 export { HtmlOutput, HtmlOutputMetaTag, serializeHtmlOutput } from "./html-output";
