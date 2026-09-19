@@ -1,10 +1,12 @@
 import { createCacheService } from "./cache-service";
+import { createConsole } from "./console";
 import { createDriveApp } from "./drive-object-hydrator";
 import type { HostBridge } from "./host-bridge";
 import { createHtmlService } from "./html-service";
 import type { InvocationEnvironment } from "./invocation";
 import { createLockService } from "./lock-service";
-import { createConsole, createLogger, type LoggingTarget } from "./logging";
+import { createLogger } from "./logging";
+import type { LoggingTarget } from "./logging-target";
 import { createPropertiesService } from "./properties-service";
 import { createSession } from "./session";
 import { createSpreadsheetApp } from "./spreadsheet-object-hydrator";

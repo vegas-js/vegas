@@ -40,7 +40,7 @@ const API_SURFACES = {
     ["Session", "session.ts", "Session"],
     ["User", "user.ts", "User"],
   ],
-  console: [["Console", "logging.ts", "AppsScriptConsole"]],
+  console: [["Console", "console.ts", "AppsScriptConsole"]],
   CacheService: [
     ["CacheService", "cache-service.ts", "CacheService"],
     ["Cache", "cache.ts", "Cache"],

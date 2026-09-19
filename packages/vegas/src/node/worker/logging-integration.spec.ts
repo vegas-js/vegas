@@ -2,7 +2,9 @@ import vm from "node:vm";
 
 import { describe, expect, test } from "vitest";
 
-import { createConsole, createLogger, type LoggingTarget } from "../runtime/logging";
+import { createConsole } from "../runtime/console";
+import { createLogger } from "../runtime/logging";
+import type { LoggingTarget } from "../runtime/logging-target";
 import type { Program } from "../runtime/program";
 
 type LoggingMethod = keyof LoggingTarget;
