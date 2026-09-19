@@ -6,6 +6,7 @@ import {
   InMemoryLockStore,
   InMemoryPropertiesStore,
   InMemorySpreadsheetStore,
+  type Program,
   type RuntimeBackend,
 } from "../../runtime";
 import { createNodeAppsScriptExecutor } from "./apps-script-executor";
@@ -21,6 +22,7 @@ interface LocalRuntimeDependencies {
 export async function createLocalRuntime(
   project: ResolvedProject,
   runtimeDataSources: readonly string[],
+  getProgram: () => Program,
   dependencies: LocalRuntimeDependencies = {},
 ): Promise<RuntimeBackend> {
   const scope = createInvocationScope(project);
@@ -42,6 +44,7 @@ export async function createLocalRuntime(
     execute(request) {
       return executor.execute({
         ...request,
+        program: getProgram(),
         environment,
         scope,
       });

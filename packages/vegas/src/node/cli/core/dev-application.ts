@@ -1,6 +1,7 @@
 import { ArtifactStore } from "../../build";
 import { startDevApplication } from "../../dev/application";
 import { buildDevTopology } from "../../dev/build-topology";
+import { createRuntimeProgram } from "../../dev/runtime-program";
 import { loadProject } from "../../project";
 import { createLocalRuntime } from "./local-runtime";
 
@@ -29,7 +30,9 @@ export async function runDevApplication(mode: DevApplicationMode, root?: string)
     },
   ]);
 
-  const runtime = await createLocalRuntime(project, snapshot.runtimeDataSources);
+  const runtime = await createLocalRuntime(project, snapshot.runtimeDataSources, () =>
+    createRuntimeProgram(artifacts),
+  );
 
   await startDevApplication({
     project,

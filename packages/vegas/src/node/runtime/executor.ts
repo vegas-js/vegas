@@ -3,7 +3,6 @@ import type { Program } from "./program";
 import type { InvocationScope } from "./scope";
 
 export interface RuntimeExecutionRequest {
-  readonly program: Program;
   readonly functionName: string;
   readonly args: readonly unknown[];
 }
@@ -13,6 +12,7 @@ export interface RuntimeBackend {
 }
 
 export interface ExecutionRequest extends RuntimeExecutionRequest {
+  readonly program: Program;
   readonly environment: InvocationEnvironment;
   readonly scope: InvocationScope;
 }

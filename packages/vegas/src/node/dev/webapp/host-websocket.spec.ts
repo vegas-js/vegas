@@ -1,7 +1,6 @@
 import type { ViteDevServer } from "vite";
 import { describe, expect, test, vi } from "vitest";
 
-import { ArtifactStore } from "../../build";
 import { registerHostWebSocketHandlers } from "./host-websocket";
 
 type WebSocketHandler = (data: any, client: any) => Promise<void> | void;
@@ -21,17 +20,6 @@ function createServer() {
   };
 }
 
-function createArtifacts() {
-  const artifacts = new ArtifactStore();
-  artifacts.replaceScope("server", [
-    {
-      path: "Code.js",
-      content: "function hello() {}",
-    },
-  ]);
-  return artifacts;
-}
-
 describe("registerHostWebSocketHandlers", () => {
   test("initialize a claimed session after builds become idle", async () => {
     const { server, handlers } = createServer();
@@ -44,7 +32,6 @@ describe("registerHostWebSocketHandlers", () => {
       server,
       builds: { waitForIdle },
       sessions: { consume },
-      artifacts: createArtifacts(),
       runtime: { execute: async () => undefined },
     });
 
@@ -65,7 +52,6 @@ describe("registerHostWebSocketHandlers", () => {
       server,
       builds: { waitForIdle: async () => undefined },
       sessions: { consume: () => false },
-      artifacts: createArtifacts(),
       runtime: { execute: async () => undefined },
     });
 
@@ -75,11 +61,14 @@ describe("registerHostWebSocketHandlers", () => {
     expect(close).toHaveBeenCalledOnce();
   });
 
-  test("execute a server function against the current artifacts", async () => {
+  test("execute a server function through the Runtime backend", async () => {
     const { server, handlers } = createServer();
     const send = vi.fn();
     const execute = vi.fn(async (request) => {
-      expect(request.program.source).toBe("function hello() {}");
+      expect(request).toStrictEqual({
+        functionName: "hello",
+        args: [],
+      });
       return "result";
     });
 
@@ -87,7 +76,6 @@ describe("registerHostWebSocketHandlers", () => {
       server,
       builds: { waitForIdle: async () => undefined },
       sessions: { consume: () => true },
-      artifacts: createArtifacts(),
       runtime: { execute },
     });
 

@@ -4,6 +4,7 @@ import type { ResolvedProject } from "../../project";
 import type {
   ExecutionRequest,
   InvocationScope,
+  Program,
   RuntimeBackend,
   RuntimeExecutionRequest,
 } from "../../runtime";
@@ -27,7 +28,7 @@ const project = {
 } satisfies ResolvedProject;
 
 describe("createLocalRuntime", () => {
-  test("bind local invocation context behind the Runtime backend", async () => {
+  test("bind the current local Program and invocation context behind the Runtime backend", async () => {
     const runtimeDataSources = ["/project/runtime/session.ts", "/project/runtime/budget.ts"];
     let loadedRoot: string | undefined;
     let loadedSources: readonly string[] | undefined;
@@ -55,8 +56,13 @@ describe("createLocalRuntime", () => {
       };
     };
     const execute = vi.fn(async (_request: ExecutionRequest) => "result");
+    let program: Program = {
+      source: "function main() { return 'first'; }",
+      htmlFiles: {},
+    };
+    const getProgram = vi.fn(() => program);
 
-    const runtime = await createLocalRuntime(project, runtimeDataSources, {
+    const runtime = await createLocalRuntime(project, runtimeDataSources, getProgram, {
       loadRuntimeData: load,
       createExecutor: () => ({ execute }),
     });
@@ -71,17 +77,38 @@ describe("createLocalRuntime", () => {
     });
 
     const request: RuntimeExecutionRequest = {
-      program: {
-        source: "function main() {}",
-        htmlFiles: {},
-      },
       functionName: "main",
       args: ["value"],
     };
 
     await expect(runtime.execute(request)).resolves.toBe("result");
-    expect(execute).toHaveBeenCalledWith({
+    expect(execute).toHaveBeenLastCalledWith({
       ...request,
+      program,
+      environment: {
+        activeUserEmail: "active@example.com",
+        activeUserLocale: "ja",
+        effectiveUserEmail: "effective@example.com",
+        scriptTimeZone: "Asia/Tokyo",
+        temporaryActiveUserKey: "temporary-user-key",
+      },
+      scope: {
+        scriptKey: "/project",
+        userKey: "local-user",
+      },
+    });
+
+    program = {
+      source: "function main() { return 'second'; }",
+      htmlFiles: {},
+    };
+
+    await runtime.execute(request);
+
+    expect(getProgram).toHaveBeenCalledTimes(2);
+    expect(execute).toHaveBeenLastCalledWith({
+      ...request,
+      program,
       environment: {
         activeUserEmail: "active@example.com",
         activeUserLocale: "ja",

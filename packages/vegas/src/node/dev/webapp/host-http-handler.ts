@@ -1,9 +1,7 @@
 import type { Connect, ViteDevServer } from "vite";
 
-import type { ArtifactStore } from "../../build";
 import type { RuntimeBackend } from "../../runtime";
 import type { BuildCoordinator } from "../build-coordinator";
-import { createRuntimeProgram } from "../runtime-program";
 import { createAppsScriptDoGetEvent, createAppsScriptDoPostEvent } from "./event";
 import { createHostHtml, type AppsScriptDoGetResult } from "./host-html";
 import {
@@ -19,12 +17,11 @@ interface HostHttpHandlerOptions {
   readonly server: ViteDevServer;
   readonly builds: Pick<BuildCoordinator, "waitForIdle">;
   readonly sessions: Pick<WebAppSessionRegistry, "issue">;
-  readonly artifacts: ArtifactStore;
   readonly runtime: RuntimeBackend;
 }
 
 export function createHostHttpHandler(options: HostHttpHandlerOptions): Connect.NextHandleFunction {
-  const { server, builds, sessions, artifacts, runtime } = options;
+  const { server, builds, sessions, runtime } = options;
 
   return async (request, response, next) => {
     try {
@@ -46,10 +43,8 @@ export function createHostHttpHandler(options: HostHttpHandlerOptions): Connect.
         if (parseWebAppPath(url.pathname)) {
           if (request.method === "GET") {
             const doGetEvent = createAppsScriptDoGetEvent(url);
-            const program = createRuntimeProgram(artifacts);
 
             const result = (await runtime.execute({
-              program,
               functionName: "doGet",
               args: [doGetEvent],
             })) as AppsScriptDoGetResult;
@@ -79,10 +74,8 @@ export function createHostHttpHandler(options: HostHttpHandlerOptions): Connect.
               body,
               request.headers["content-type"],
             );
-            const program = createRuntimeProgram(artifacts);
 
             const result = (await runtime.execute({
-              program,
               functionName: "doPost",
               args: [doPostEvent],
             })) as AppsScriptDoPostResult;

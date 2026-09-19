@@ -3,19 +3,7 @@ import { Readable } from "node:stream";
 import type { ViteDevServer } from "vite";
 import { describe, expect, test, vi } from "vitest";
 
-import { ArtifactStore } from "../../build";
 import { createHostHttpHandler } from "./host-http-handler";
-
-function createArtifacts() {
-  const artifacts = new ArtifactStore();
-  artifacts.replaceScope("server", [
-    {
-      path: "Code.js",
-      content: "function doGet() {} function doPost() {}",
-    },
-  ]);
-  return artifacts;
-}
 
 function createServer(mode: "development" | "production" = "development") {
   return {
@@ -58,7 +46,6 @@ describe("createHostHttpHandler", () => {
       server: createServer(),
       builds: { waitForIdle },
       sessions: { issue: () => "session-1" },
-      artifacts: createArtifacts(),
       runtime: { execute: async () => undefined },
     });
 
@@ -84,6 +71,7 @@ describe("createHostHttpHandler", () => {
     const execute = vi.fn(async (request) => {
       expect(request.functionName).toBe("doGet");
       expect(request.args[0].parameter).toStrictEqual({ name: "alice" });
+      expect(request).not.toHaveProperty("program");
       return {
         metaTags: [],
         title: "",
@@ -97,7 +85,6 @@ describe("createHostHttpHandler", () => {
       server,
       builds: { waitForIdle: async () => undefined },
       sessions: { issue: () => "session-1" },
-      artifacts: createArtifacts(),
       runtime: { execute },
     });
 
@@ -125,6 +112,7 @@ describe("createHostHttpHandler", () => {
     const execute = vi.fn(async (request) => {
       expect(request.functionName).toBe("doPost");
       expect(request.args[0].postData.contents).toBe("hello");
+      expect(request).not.toHaveProperty("program");
       return {
         mimeType: "text/plain",
         content: "posted",
@@ -135,7 +123,6 @@ describe("createHostHttpHandler", () => {
       server: createServer(),
       builds: { waitForIdle: async () => undefined },
       sessions: { issue: () => "session-1" },
-      artifacts: createArtifacts(),
       runtime: { execute },
     });
 

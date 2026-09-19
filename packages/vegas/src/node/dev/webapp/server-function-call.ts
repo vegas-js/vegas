@@ -2,16 +2,14 @@ import type {
   ServerFunctionCallRequest,
   ServerFunctionCallResponse,
 } from "../../../shared/webapp-protocol";
-import type { Program, RuntimeBackend } from "../../runtime";
+import type { RuntimeBackend } from "../../runtime";
 
 export async function executeServerFunctionCall(
   runtime: RuntimeBackend,
   request: ServerFunctionCallRequest,
-  program: Program,
 ): Promise<ServerFunctionCallResponse> {
   try {
     const result = await runtime.execute({
-      program,
       functionName: request.functionName,
       args: request.args,
     });

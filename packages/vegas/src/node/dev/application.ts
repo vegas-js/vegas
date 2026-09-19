@@ -51,7 +51,6 @@ export async function startDevApplication(options: DevApplicationOptions): Promi
     server: hostServer,
     builds,
     sessions,
-    artifacts: options.artifacts,
     runtime: options.runtime,
   });
 
@@ -59,7 +58,6 @@ export async function startDevApplication(options: DevApplicationOptions): Promi
     server: hostServer,
     builds,
     sessions,
-    artifacts: options.artifacts,
     runtime: options.runtime,
   });
 

@@ -1,12 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import type { Program } from "../../runtime";
 import { executeServerFunctionCall } from "./server-function-call";
-
-const program: Program = {
-  source: "function hello() {}",
-  htmlFiles: {},
-};
 
 describe("executeServerFunctionCall", () => {
   test("return successful response", async () => {
@@ -14,7 +8,6 @@ describe("executeServerFunctionCall", () => {
       {
         execute: async (request) => {
           expect(request).toStrictEqual({
-            program,
             functionName: "hello",
             args: ["world"],
           });
@@ -27,7 +20,6 @@ describe("executeServerFunctionCall", () => {
         functionName: "hello",
         args: ["world"],
       },
-      program,
     );
 
     expect(response).toStrictEqual({
@@ -49,7 +41,6 @@ describe("executeServerFunctionCall", () => {
         functionName: "hello",
         args: [],
       },
-      program,
     );
 
     expect(response).toStrictEqual({
