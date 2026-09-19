@@ -176,6 +176,42 @@ describe("Spreadsheet Runtime objects", () => {
     expect(bridge.calls).toHaveLength(0);
   });
 
+  test("resolve the 1-based Sheet index from parent sheet order", () => {
+    const bridge = createBridge();
+    const hydrator = createSpreadsheetObjectHydrator(bridge);
+    const sheet = hydrator.hydrate({
+      service: "spreadsheet",
+      kind: "sheet",
+      spreadsheetId: "spreadsheet-a",
+      sheetId: 9,
+    });
+
+    expect(sheet.getIndex()).toBe(2);
+    expect(bridge.calls).toStrictEqual([
+      {
+        service: "spreadsheet",
+        operation: "list-sheets",
+        spreadsheet: {
+          service: "spreadsheet",
+          kind: "spreadsheet",
+          id: "spreadsheet-a",
+        },
+      },
+    ]);
+  });
+
+  test("reject a Sheet reference that is absent from its parent", () => {
+    const bridge = createBridge();
+    const sheet = createSpreadsheetObjectHydrator(bridge).hydrate({
+      service: "spreadsheet",
+      kind: "sheet",
+      spreadsheetId: "spreadsheet-a",
+      sheetId: 999,
+    });
+
+    expect(() => sheet.getIndex()).toThrow("Spreadsheet sheet is not present in its parent.");
+  });
+
   test("read Sheet values through the existing Range HostBridge path", () => {
     const bridge = createBridge();
     const hydrator = createSpreadsheetObjectHydrator(bridge);

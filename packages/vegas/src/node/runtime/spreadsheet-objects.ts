@@ -157,6 +157,26 @@ export class Sheet {
     this.#hydrator = hydrator;
   }
 
+  getIndex(): number {
+    const index = this.#bridge
+      .call({
+        service: "spreadsheet",
+        operation: "list-sheets",
+        spreadsheet: {
+          service: "spreadsheet",
+          kind: "spreadsheet",
+          id: this.#reference.spreadsheetId,
+        },
+      })
+      .findIndex(({ sheetId }) => sheetId === this.#reference.sheetId);
+
+    if (index < 0) {
+      throw new Error("Spreadsheet sheet is not present in its parent.");
+    }
+
+    return index + 1;
+  }
+
   getMaxColumns(): number {
     return this.#metadata().maxColumns;
   }
