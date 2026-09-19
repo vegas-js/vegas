@@ -1,13 +1,18 @@
 import { describe, expect, test } from "vitest";
 
-import {
-  createSpreadsheetObjectHydrator,
-  Spreadsheet,
-  type HostBridge,
-  type HostCall,
-  type HostCallResult,
-  type SheetReference,
-} from "./index";
+import type { HostBridge } from "./host-bridge";
+import type { HostCall, HostCallResult } from "./host-call";
+import type { SpreadsheetObjectHydrator } from "./spreadsheet-hydrator";
+import type { Range } from "./spreadsheet-range";
+import type {
+  RangeReference,
+  SheetReference,
+  SpreadsheetObjectReference,
+  SpreadsheetReference,
+} from "./spreadsheet-reference";
+import { Sheet } from "./spreadsheet-sheet";
+import type { Spreadsheet } from "./spreadsheet-spreadsheet";
+import type { SpreadsheetGrid } from "./spreadsheet-store";
 
 class RecordingHostBridge implements HostBridge {
   readonly calls: HostCall[] = [];
@@ -22,6 +27,40 @@ class RecordingHostBridge implements HostBridge {
     return this.#respond(call) as HostCallResult<C>;
   }
 }
+
+class RecordingSpreadsheetObjectHydrator implements SpreadsheetObjectHydrator {
+  readonly references: SpreadsheetObjectReference[] = [];
+  readonly #spreadsheet: Spreadsheet;
+  readonly #range: Range;
+
+  constructor(spreadsheet: Spreadsheet, range: Range) {
+    this.#spreadsheet = spreadsheet;
+    this.#range = range;
+  }
+
+  hydrate(reference: SpreadsheetReference): Spreadsheet;
+  hydrate(reference: SheetReference): Sheet;
+  hydrate(reference: RangeReference): Range;
+  hydrate(reference: SpreadsheetObjectReference): Spreadsheet | Sheet | Range {
+    this.references.push(reference);
+
+    switch (reference.kind) {
+      case "spreadsheet":
+        return this.#spreadsheet;
+      case "range":
+        return this.#range;
+      case "sheet":
+        throw new Error("unexpected Sheet hydration");
+    }
+  }
+}
+
+const defaultSheetReference = {
+  service: "spreadsheet",
+  kind: "sheet",
+  spreadsheetId: "spreadsheet-a",
+  sheetId: 7,
+} satisfies SheetReference;
 
 function createBridge() {
   return new RecordingHostBridge((call) => {
@@ -53,45 +92,79 @@ function createBridge() {
           hiddenGridlines: false,
           rightToLeft: false,
         };
-      case "get-range-values":
-        return [
-          ["Vegas", new Date("2026-09-18T00:00:00.000Z")],
-          [42, true],
-        ];
-      case "set-range-values":
-        return undefined;
       default:
         throw new Error(`unexpected host call: ${call.service}#${call.operation}`);
     }
   });
 }
 
+function createRangeDouble(values: SpreadsheetGrid = []) {
+  const clearContentCalls: true[] = [];
+  const getValuesCalls: true[] = [];
+
+  const range = {
+    clearContent() {
+      clearContentCalls.push(true);
+      return range;
+    },
+    getValues() {
+      getValuesCalls.push(true);
+      return values;
+    },
+  } as unknown as Range;
+
+  return {
+    clearContentCalls,
+    getValuesCalls,
+    range,
+  };
+}
+
+function createFixture({
+  bridge = createBridge(),
+  rangeValues = [],
+  reference = defaultSheetReference,
+}: {
+  bridge?: RecordingHostBridge;
+  rangeValues?: SpreadsheetGrid;
+  reference?: SheetReference;
+} = {}) {
+  const spreadsheet = {} as Spreadsheet;
+  const rangeDouble = createRangeDouble(rangeValues);
+  const hydrator = new RecordingSpreadsheetObjectHydrator(spreadsheet, rangeDouble.range);
+
+  return {
+    bridge,
+    hydrator,
+    rangeDouble,
+    sheet: new Sheet(bridge, reference, hydrator),
+    spreadsheet,
+  };
+}
+
 describe("Sheet", () => {
   test("hydrate a Sheet parent Spreadsheet without HostBridge calls", () => {
-    const bridge = createBridge();
-    const hydrator = createSpreadsheetObjectHydrator(bridge);
-    const sheet = hydrator.hydrate({
-      service: "spreadsheet",
-      kind: "sheet",
-      spreadsheetId: "spreadsheet-a",
-      sheetId: 7,
-    });
+    const { bridge, hydrator, sheet, spreadsheet } = createFixture();
 
-    const parent = sheet.getParent();
-
-    expect(parent).toBeInstanceOf(Spreadsheet);
-    expect(parent.getId()).toBe("spreadsheet-a");
+    expect(sheet.getParent()).toBe(spreadsheet);
     expect(bridge.calls).toHaveLength(0);
+    expect(hydrator.references).toStrictEqual([
+      {
+        service: "spreadsheet",
+        kind: "spreadsheet",
+        id: "spreadsheet-a",
+      },
+    ]);
   });
 
   test("resolve the 1-based Sheet index from parent sheet order", () => {
-    const bridge = createBridge();
-    const hydrator = createSpreadsheetObjectHydrator(bridge);
-    const sheet = hydrator.hydrate({
-      service: "spreadsheet",
-      kind: "sheet",
-      spreadsheetId: "spreadsheet-a",
-      sheetId: 9,
+    const { bridge, hydrator, sheet } = createFixture({
+      reference: {
+        service: "spreadsheet",
+        kind: "sheet",
+        spreadsheetId: "spreadsheet-a",
+        sheetId: 9,
+      },
     });
 
     expect(sheet.getIndex()).toBe(2);
@@ -106,18 +179,21 @@ describe("Sheet", () => {
         },
       },
     ]);
+    expect(hydrator.references).toHaveLength(0);
   });
 
   test("reject a Sheet reference that is absent from its parent", () => {
-    const bridge = createBridge();
-    const sheet = createSpreadsheetObjectHydrator(bridge).hydrate({
-      service: "spreadsheet",
-      kind: "sheet",
-      spreadsheetId: "spreadsheet-a",
-      sheetId: 999,
+    const { hydrator, sheet } = createFixture({
+      reference: {
+        service: "spreadsheet",
+        kind: "sheet",
+        spreadsheetId: "spreadsheet-a",
+        sheetId: 999,
+      },
     });
 
     expect(() => sheet.getIndex()).toThrow("Spreadsheet sheet is not present in its parent.");
+    expect(hydrator.references).toHaveLength(0);
   });
 
   test("read and update Sheet display state through the HostBridge", () => {
@@ -147,12 +223,7 @@ describe("Sheet", () => {
           throw new Error(`unexpected host call: ${call.service}#${call.operation}`);
       }
     });
-    const sheet = createSpreadsheetObjectHydrator(bridge).hydrate({
-      service: "spreadsheet",
-      kind: "sheet",
-      spreadsheetId: "spreadsheet-a",
-      sheetId: 7,
-    });
+    const { hydrator, sheet } = createFixture({ bridge });
 
     expect(sheet.hasHiddenGridlines()).toBe(false);
     expect(sheet.isRightToLeft()).toBe(false);
@@ -168,6 +239,7 @@ describe("Sheet", () => {
       "get-sheet-metadata",
       "get-sheet-metadata",
     ]);
+    expect(hydrator.references).toHaveLength(0);
   });
 
   test("rename a Sheet through the HostBridge and preserve chaining", () => {
@@ -193,12 +265,7 @@ describe("Sheet", () => {
           throw new Error(`unexpected host call: ${call.service}#${call.operation}`);
       }
     });
-    const sheet = createSpreadsheetObjectHydrator(bridge).hydrate({
-      service: "spreadsheet",
-      kind: "sheet",
-      spreadsheetId: "spreadsheet-a",
-      sheetId: 7,
-    });
+    const { hydrator, sheet } = createFixture({ bridge });
 
     expect(sheet.getName()).toBe("Summary");
     expect(sheet.setName("Overview")).toBe(sheet);
@@ -208,66 +275,44 @@ describe("Sheet", () => {
       "rename-sheet",
       "get-sheet-metadata",
     ]);
+    expect(hydrator.references).toHaveLength(0);
   });
 
-  test("clear Sheet contents through the existing data bounds and Range paths", () => {
+  test("clear Sheet contents through data bounds and a hydrated Range", () => {
     const bridge = new RecordingHostBridge((call) => {
-      if (call.service !== "spreadsheet") {
-        throw new Error(`unexpected service: ${call.service}`);
+      if (call.service === "spreadsheet" && call.operation === "get-sheet-data-bounds") {
+        return {
+          lastRow: 2,
+          lastColumn: 3,
+        };
       }
 
-      switch (call.operation) {
-        case "get-sheet-data-bounds":
-          return {
-            lastRow: 2,
-            lastColumn: 3,
-          };
-        case "set-range-values":
-          return undefined;
-        default:
-          throw new Error(`unexpected host call: ${call.service}#${call.operation}`);
-      }
+      throw new Error(`unexpected host call: ${call.service}#${call.operation}`);
     });
-    const sheet = createSpreadsheetObjectHydrator(bridge).hydrate({
-      service: "spreadsheet",
-      kind: "sheet",
-      spreadsheetId: "spreadsheet-a",
-      sheetId: 7,
-    });
+    const { hydrator, rangeDouble, sheet } = createFixture({ bridge });
 
-    const result = sheet.clearContents();
-
-    expect(result).toBe(sheet);
+    expect(sheet.clearContents()).toBe(sheet);
     expect(bridge.calls).toStrictEqual([
       {
         service: "spreadsheet",
         operation: "get-sheet-data-bounds",
-        sheet: {
-          service: "spreadsheet",
-          kind: "sheet",
-          spreadsheetId: "spreadsheet-a",
-          sheetId: 7,
-        },
-      },
-      {
-        service: "spreadsheet",
-        operation: "set-range-values",
-        range: {
-          service: "spreadsheet",
-          kind: "range",
-          spreadsheetId: "spreadsheet-a",
-          sheetId: 7,
-          row: 1,
-          column: 1,
-          numRows: 2,
-          numColumns: 3,
-        },
-        values: [
-          ["", "", ""],
-          ["", "", ""],
-        ],
+        sheet: defaultSheetReference,
       },
     ]);
+    expect(hydrator.references).toStrictEqual([
+      {
+        service: "spreadsheet",
+        kind: "range",
+        spreadsheetId: "spreadsheet-a",
+        sheetId: 7,
+        row: 1,
+        column: 1,
+        numRows: 2,
+        numColumns: 3,
+      },
+    ]);
+    expect(rangeDouble.clearContentCalls).toHaveLength(1);
+    expect(rangeDouble.getValuesCalls).toHaveLength(0);
   });
 
   test("leave an empty Sheet unchanged when clearing contents", () => {
@@ -281,73 +326,57 @@ describe("Sheet", () => {
 
       throw new Error(`unexpected host call: ${call.service}#${call.operation}`);
     });
-    const sheet = createSpreadsheetObjectHydrator(bridge).hydrate({
-      service: "spreadsheet",
-      kind: "sheet",
-      spreadsheetId: "spreadsheet-a",
-      sheetId: 7,
-    });
+    const { hydrator, rangeDouble, sheet } = createFixture({ bridge });
 
     expect(sheet.clearContents()).toBe(sheet);
     expect(bridge.calls).toHaveLength(1);
     expect(bridge.calls[0]?.operation).toBe("get-sheet-data-bounds");
+    expect(hydrator.references).toHaveLength(0);
+    expect(rangeDouble.clearContentCalls).toHaveLength(0);
+    expect(rangeDouble.getValuesCalls).toHaveLength(0);
   });
 
-  test("read Sheet values through the existing Range HostBridge path", () => {
-    const bridge = createBridge();
-    const hydrator = createSpreadsheetObjectHydrator(bridge);
-    const sheet = hydrator.hydrate({
-      service: "spreadsheet",
-      kind: "sheet",
-      spreadsheetId: "spreadsheet-a",
-      sheetId: 7,
-    });
-
-    expect(sheet.getSheetValues(2, 3, 2, 2)).toStrictEqual([
+  test("read Sheet values through a hydrated Range", () => {
+    const values = [
       ["Vegas", new Date("2026-09-18T00:00:00.000Z")],
       [42, true],
-    ]);
-    expect(bridge.calls).toStrictEqual([
+    ] as const;
+    const { bridge, hydrator, rangeDouble, sheet } = createFixture({
+      rangeValues: values,
+    });
+
+    expect(sheet.getSheetValues(2, 3, 2, 2)).toStrictEqual(values);
+    expect(bridge.calls).toHaveLength(0);
+    expect(hydrator.references).toStrictEqual([
       {
         service: "spreadsheet",
-        operation: "get-range-values",
-        range: {
-          service: "spreadsheet",
-          kind: "range",
-          spreadsheetId: "spreadsheet-a",
-          sheetId: 7,
-          row: 2,
-          column: 3,
-          numRows: 2,
-          numColumns: 2,
-        },
+        kind: "range",
+        spreadsheetId: "spreadsheet-a",
+        sheetId: 7,
+        row: 2,
+        column: 3,
+        numRows: 2,
+        numColumns: 2,
       },
     ]);
+    expect(rangeDouble.getValuesCalls).toHaveLength(1);
+    expect(rangeDouble.clearContentCalls).toHaveLength(0);
   });
 
   test("resolve -1 Sheet value start coordinates from data bounds", () => {
     const bridge = new RecordingHostBridge((call) => {
-      if (call.service !== "spreadsheet") {
-        throw new Error(`unexpected service: ${call.service}`);
+      if (call.service === "spreadsheet" && call.operation === "get-sheet-data-bounds") {
+        return {
+          lastRow: 4,
+          lastColumn: 5,
+        };
       }
 
-      switch (call.operation) {
-        case "get-sheet-data-bounds":
-          return {
-            lastRow: 4,
-            lastColumn: 5,
-          };
-        case "get-range-values":
-          return [["last"]];
-        default:
-          throw new Error(`unexpected host call: ${call.service}#${call.operation}`);
-      }
+      throw new Error(`unexpected host call: ${call.service}#${call.operation}`);
     });
-    const sheet = createSpreadsheetObjectHydrator(bridge).hydrate({
-      service: "spreadsheet",
-      kind: "sheet",
-      spreadsheetId: "spreadsheet-a",
-      sheetId: 7,
+    const { hydrator, rangeDouble, sheet } = createFixture({
+      bridge,
+      rangeValues: [["last"]],
     });
 
     expect(sheet.getSheetValues(-1, -1, 1, 1)).toStrictEqual([["last"]]);
@@ -355,38 +384,26 @@ describe("Sheet", () => {
       {
         service: "spreadsheet",
         operation: "get-sheet-data-bounds",
-        sheet: {
-          service: "spreadsheet",
-          kind: "sheet",
-          spreadsheetId: "spreadsheet-a",
-          sheetId: 7,
-        },
-      },
-      {
-        service: "spreadsheet",
-        operation: "get-range-values",
-        range: {
-          service: "spreadsheet",
-          kind: "range",
-          spreadsheetId: "spreadsheet-a",
-          sheetId: 7,
-          row: 4,
-          column: 5,
-          numRows: 1,
-          numColumns: 1,
-        },
+        sheet: defaultSheetReference,
       },
     ]);
+    expect(hydrator.references).toStrictEqual([
+      {
+        service: "spreadsheet",
+        kind: "range",
+        spreadsheetId: "spreadsheet-a",
+        sheetId: 7,
+        row: 4,
+        column: 5,
+        numRows: 1,
+        numColumns: 1,
+      },
+    ]);
+    expect(rangeDouble.getValuesCalls).toHaveLength(1);
   });
 
-  test("reject invalid Sheet value start coordinates before HostBridge calls", () => {
-    const bridge = createBridge();
-    const sheet = createSpreadsheetObjectHydrator(bridge).hydrate({
-      service: "spreadsheet",
-      kind: "sheet",
-      spreadsheetId: "spreadsheet-a",
-      sheetId: 7,
-    });
+  test("reject invalid Sheet value start coordinates before crossing collaborators", () => {
+    const { bridge, hydrator, sheet } = createFixture();
 
     expect(() => sheet.getSheetValues(0, 1, 1, 1)).toThrow(
       "startRow must be -1 or a positive integer",
@@ -401,6 +418,7 @@ describe("Sheet", () => {
       "startColumn must be -1 or a positive integer",
     );
     expect(bridge.calls).toHaveLength(0);
+    expect(hydrator.references).toHaveLength(0);
   });
 
   test("reject -1 Sheet value coordinates when the Sheet has no data", () => {
@@ -414,14 +432,10 @@ describe("Sheet", () => {
 
       throw new Error(`unexpected host call: ${call.service}#${call.operation}`);
     });
-    const sheet = createSpreadsheetObjectHydrator(bridge).hydrate({
-      service: "spreadsheet",
-      kind: "sheet",
-      spreadsheetId: "spreadsheet-a",
-      sheetId: 7,
-    });
+    const { hydrator, sheet } = createFixture({ bridge });
 
     expect(() => sheet.getSheetValues(-1, 1, 1, 1)).toThrow("has no data row");
     expect(bridge.calls).toHaveLength(1);
+    expect(hydrator.references).toHaveLength(0);
   });
 });
