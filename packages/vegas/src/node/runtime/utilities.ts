@@ -1,36 +1,21 @@
 import { createBlob, type RuntimeBlob, type RuntimeBlobSource } from "./blob";
 import { parseCsv as parseCsvString } from "./csv";
-import { computeMd2 } from "./md2";
 import { formatPrintf } from "./printf";
 import { formatSimpleDate, parseSimpleDate } from "./simple-date-format";
 import type { UtilitiesCapability } from "./utilities-capability";
+import {
+  computeUtilitiesDigest,
+  computeUtilitiesHmac,
+  computeUtilitiesRsaSignature,
+  DIGEST_ALGORITHM,
+  MAC_ALGORITHM,
+  RSA_ALGORITHM,
+} from "./utilities-crypto";
 
 const CHARSET = {
   US_ASCII: 0,
   UTF_8: 1,
 } as const satisfies typeof GoogleAppsScript.Utilities.Charset;
-
-const DIGEST_ALGORITHM = {
-  MD2: 0,
-  MD5: 1,
-  SHA_1: 2,
-  SHA_256: 3,
-  SHA_384: 4,
-  SHA_512: 5,
-} as const satisfies typeof GoogleAppsScript.Utilities.DigestAlgorithm;
-
-const MAC_ALGORITHM = {
-  HMAC_MD5: 0,
-  HMAC_SHA_1: 1,
-  HMAC_SHA_256: 2,
-  HMAC_SHA_384: 3,
-  HMAC_SHA_512: 4,
-} as const satisfies typeof GoogleAppsScript.Utilities.MacAlgorithm;
-
-const RSA_ALGORITHM = {
-  RSA_SHA_1: 0,
-  RSA_SHA_256: 1,
-} as const satisfies typeof GoogleAppsScript.Utilities.RsaAlgorithm;
 
 const MAX_SLEEP_MILLISECONDS = 300_000;
 
@@ -65,90 +50,6 @@ function decodeBase64(
   const normalized = webSafe ? encoded.replaceAll("-", "+").replaceAll("_", "/") : encoded;
 
   return Array.from(capability.decodeBase64(normalized), toSignedByte);
-}
-
-function computeDigest(
-  capability: UtilitiesCapability,
-  algorithm: GoogleAppsScript.Utilities.DigestAlgorithm,
-  data: Uint8Array,
-): GoogleAppsScript.Byte[] {
-  if (algorithm === DIGEST_ALGORITHM.MD2) {
-    return Array.from(computeMd2(data), toSignedByte);
-  }
-
-  let capabilityAlgorithm: "md5" | "sha1" | "sha256" | "sha384" | "sha512";
-  switch (algorithm) {
-    case DIGEST_ALGORITHM.MD5:
-      capabilityAlgorithm = "md5";
-      break;
-    case DIGEST_ALGORITHM.SHA_1:
-      capabilityAlgorithm = "sha1";
-      break;
-    case DIGEST_ALGORITHM.SHA_256:
-      capabilityAlgorithm = "sha256";
-      break;
-    case DIGEST_ALGORITHM.SHA_384:
-      capabilityAlgorithm = "sha384";
-      break;
-    case DIGEST_ALGORITHM.SHA_512:
-      capabilityAlgorithm = "sha512";
-      break;
-    default:
-      throw new Error("Unsupported digest algorithm.");
-  }
-
-  return Array.from(capability.computeDigest(capabilityAlgorithm, data), toSignedByte);
-}
-
-function computeHmac(
-  capability: UtilitiesCapability,
-  algorithm: GoogleAppsScript.Utilities.MacAlgorithm,
-  value: Uint8Array,
-  key: Uint8Array,
-): GoogleAppsScript.Byte[] {
-  let capabilityAlgorithm: "md5" | "sha1" | "sha256" | "sha384" | "sha512";
-  switch (algorithm) {
-    case MAC_ALGORITHM.HMAC_MD5:
-      capabilityAlgorithm = "md5";
-      break;
-    case MAC_ALGORITHM.HMAC_SHA_1:
-      capabilityAlgorithm = "sha1";
-      break;
-    case MAC_ALGORITHM.HMAC_SHA_256:
-      capabilityAlgorithm = "sha256";
-      break;
-    case MAC_ALGORITHM.HMAC_SHA_384:
-      capabilityAlgorithm = "sha384";
-      break;
-    case MAC_ALGORITHM.HMAC_SHA_512:
-      capabilityAlgorithm = "sha512";
-      break;
-    default:
-      throw new Error("Unsupported MAC algorithm.");
-  }
-
-  return Array.from(capability.computeHmac(capabilityAlgorithm, value, key), toSignedByte);
-}
-
-function signRsa(
-  capability: UtilitiesCapability,
-  algorithm: GoogleAppsScript.Utilities.RsaAlgorithm,
-  value: Uint8Array,
-  key: string,
-): GoogleAppsScript.Byte[] {
-  let capabilityAlgorithm: "sha1" | "sha256";
-  switch (algorithm) {
-    case RSA_ALGORITHM.RSA_SHA_1:
-      capabilityAlgorithm = "sha1";
-      break;
-    case RSA_ALGORITHM.RSA_SHA_256:
-      capabilityAlgorithm = "sha256";
-      break;
-    default:
-      throw new Error("Unsupported RSA algorithm.");
-  }
-
-  return Array.from(capability.computeRsaSignature(capabilityAlgorithm, value, key), toSignedByte);
 }
 
 // https://developers.google.com/apps-script/reference/utilities/utilities
@@ -238,7 +139,7 @@ export class Utilities {
         ? encodeString(this.#capability, value, charset)
         : encodeBytes(value);
 
-    return computeDigest(this.#capability, algorithm, bytes);
+    return computeUtilitiesDigest(this.#capability, algorithm, bytes);
   }
 
   computeHmacSha256Signature(
@@ -263,7 +164,7 @@ export class Utilities {
     const keyBytes =
       typeof key === "string" ? encodeString(this.#capability, key, charset) : encodeBytes(key);
 
-    return computeHmac(this.#capability, MAC_ALGORITHM.HMAC_SHA_256, valueBytes, keyBytes);
+    return computeUtilitiesHmac(this.#capability, MAC_ALGORITHM.HMAC_SHA_256, valueBytes, keyBytes);
   }
 
   computeHmacSignature(
@@ -295,7 +196,7 @@ export class Utilities {
     const keyBytes =
       typeof key === "string" ? encodeString(this.#capability, key, charset) : encodeBytes(key);
 
-    return computeHmac(this.#capability, algorithm, valueBytes, keyBytes);
+    return computeUtilitiesHmac(this.#capability, algorithm, valueBytes, keyBytes);
   }
 
   computeRsaSha1Signature(value: string, key: string): GoogleAppsScript.Byte[];
@@ -309,7 +210,7 @@ export class Utilities {
     key: string,
     charset?: GoogleAppsScript.Utilities.Charset,
   ): GoogleAppsScript.Byte[] {
-    return signRsa(
+    return computeUtilitiesRsaSignature(
       this.#capability,
       RSA_ALGORITHM.RSA_SHA_1,
       encodeString(this.#capability, value, charset),
@@ -328,7 +229,7 @@ export class Utilities {
     key: string,
     charset?: GoogleAppsScript.Utilities.Charset,
   ): GoogleAppsScript.Byte[] {
-    return signRsa(
+    return computeUtilitiesRsaSignature(
       this.#capability,
       RSA_ALGORITHM.RSA_SHA_256,
       encodeString(this.#capability, value, charset),
@@ -353,7 +254,7 @@ export class Utilities {
     key: string,
     charset?: GoogleAppsScript.Utilities.Charset,
   ): GoogleAppsScript.Byte[] {
-    return signRsa(
+    return computeUtilitiesRsaSignature(
       this.#capability,
       algorithm,
       encodeString(this.#capability, value, charset),
