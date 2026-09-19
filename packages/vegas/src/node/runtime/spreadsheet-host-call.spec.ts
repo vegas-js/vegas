@@ -2,6 +2,7 @@ import { describe, expect, expectTypeOf, test } from "vitest";
 
 import type {
   HostCallResult,
+  SheetDataBounds,
   SheetMetadata,
   SheetReference,
   SpreadsheetGrid,
@@ -76,6 +77,11 @@ describe("Spreadsheet host contract", () => {
         sheetId: 42,
       },
     } as const;
+    const getSheetDataBounds = {
+      service: "spreadsheet",
+      operation: "get-sheet-data-bounds",
+      sheet: getSheetMetadata.sheet,
+    } as const;
     const getRangeValues = {
       service: "spreadsheet",
       operation: "get-range-values",
@@ -117,6 +123,9 @@ describe("Spreadsheet host contract", () => {
     expectTypeOf<
       SpreadsheetHostCallResult<typeof getSheetMetadata>
     >().toEqualTypeOf<SheetMetadata>();
+    expectTypeOf<
+      SpreadsheetHostCallResult<typeof getSheetDataBounds>
+    >().toEqualTypeOf<SheetDataBounds>();
     expectTypeOf<
       SpreadsheetHostCallResult<typeof getRangeValues>
     >().toEqualTypeOf<SpreadsheetGrid>();

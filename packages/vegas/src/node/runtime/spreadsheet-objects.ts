@@ -232,7 +232,43 @@ export class Sheet {
     numRows: number,
     numColumns: number,
   ): SpreadsheetCellValue[][] {
-    return this.getRange(startRow, startColumn, numRows, numColumns).getValues();
+    assertInteger(startRow, "Spreadsheet sheet startRow");
+    assertInteger(startColumn, "Spreadsheet sheet startColumn");
+    assertPositiveInteger(numRows, "Spreadsheet sheet numRows");
+    assertPositiveInteger(numColumns, "Spreadsheet sheet numColumns");
+
+    if (startRow === 0 || startRow < -1) {
+      throw new RangeError("Spreadsheet sheet startRow must be -1 or a positive integer.");
+    }
+    if (startColumn === 0 || startColumn < -1) {
+      throw new RangeError("Spreadsheet sheet startColumn must be -1 or a positive integer.");
+    }
+
+    let row = startRow;
+    let column = startColumn;
+
+    if (row === -1 || column === -1) {
+      const bounds = this.#bridge.call({
+        service: "spreadsheet",
+        operation: "get-sheet-data-bounds",
+        sheet: this.#reference,
+      });
+
+      if (row === -1) {
+        if (bounds.lastRow === null) {
+          throw new RangeError("Spreadsheet sheet has no data row.");
+        }
+        row = bounds.lastRow;
+      }
+      if (column === -1) {
+        if (bounds.lastColumn === null) {
+          throw new RangeError("Spreadsheet sheet has no data column.");
+        }
+        column = bounds.lastColumn;
+      }
+    }
+
+    return this.getRange(row, column, numRows, numColumns).getValues();
   }
 
   #metadata() {

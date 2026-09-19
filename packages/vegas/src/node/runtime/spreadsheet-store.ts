@@ -16,6 +16,11 @@ export interface SheetMetadata {
   readonly maxColumns: number;
 }
 
+export interface SheetDataBounds {
+  readonly lastRow: number | null;
+  readonly lastColumn: number | null;
+}
+
 /**
  * Persistent resource state for the local Spreadsheet service.
  *
@@ -36,6 +41,8 @@ export interface SpreadsheetStore {
   getSheetByName(spreadsheet: SpreadsheetReference, name: string): Promise<SheetReference | null>;
 
   getSheetMetadata(sheet: SheetReference): Promise<SheetMetadata>;
+
+  getSheetDataBounds(sheet: SheetReference): Promise<SheetDataBounds>;
 
   getRangeValues(range: RangeReference): Promise<SpreadsheetGrid>;
 

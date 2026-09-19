@@ -91,6 +91,18 @@ describe("SpreadsheetHostHandler", () => {
       spreadsheetId: "spreadsheet-a",
       sheetId: 7,
     });
+    await expect(
+      handler.handle({
+        service: "spreadsheet",
+        operation: "get-sheet-data-bounds",
+        sheet: {
+          service: "spreadsheet",
+          kind: "sheet",
+          spreadsheetId: "spreadsheet-a",
+          sheetId: 7,
+        },
+      }),
+    ).resolves.toStrictEqual({ lastRow: 2, lastColumn: 2 });
   });
 
   test("delegate Range reads and writes to the store", async () => {

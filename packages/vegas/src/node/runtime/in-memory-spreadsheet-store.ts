@@ -1,5 +1,6 @@
 import type { RangeReference, SheetReference, SpreadsheetReference } from "./spreadsheet-reference";
 import type {
+  SheetDataBounds,
   SheetMetadata,
   SpreadsheetCellValue,
   SpreadsheetGrid,
@@ -229,6 +230,26 @@ export class InMemorySpreadsheetStore implements SpreadsheetStore {
 
   async getSheetMetadata(sheet: SheetReference): Promise<SheetMetadata> {
     return { ...this.#getSheetState(sheet.spreadsheetId, sheet.sheetId).metadata };
+  }
+
+  async getSheetDataBounds(sheet: SheetReference): Promise<SheetDataBounds> {
+    const state = this.#getSheetState(sheet.spreadsheetId, sheet.sheetId);
+    let lastRow: number | null = null;
+    let lastColumn: number | null = null;
+
+    for (const key of state.cells.keys()) {
+      const separator = key.indexOf(":");
+      const row = Number(key.slice(0, separator));
+      const column = Number(key.slice(separator + 1));
+
+      lastRow = lastRow === null ? row : Math.max(lastRow, row);
+      lastColumn = lastColumn === null ? column : Math.max(lastColumn, column);
+    }
+
+    return {
+      lastRow,
+      lastColumn,
+    };
   }
 
   async getRangeValues(range: RangeReference): Promise<SpreadsheetGrid> {

@@ -82,6 +82,25 @@ describe("InMemorySpreadsheetStore resources", () => {
       sheetId: 9,
     });
     await expect(store.getSheetByName(SPREADSHEET, "Missing")).resolves.toBeNull();
+    await expect(
+      store.getSheetDataBounds({
+        service: "spreadsheet",
+        kind: "sheet",
+        spreadsheetId: "spreadsheet-a",
+        sheetId: 7,
+      }),
+    ).resolves.toStrictEqual({
+      lastRow: 2,
+      lastColumn: 3,
+    });
+    await expect(
+      store.getSheetDataBounds({
+        service: "spreadsheet",
+        kind: "sheet",
+        spreadsheetId: "spreadsheet-a",
+        sheetId: 9,
+      }),
+    ).resolves.toStrictEqual({ lastRow: null, lastColumn: null });
   });
 
   test("return seeded values, empty strings for blank cells, and detached Dates", async () => {

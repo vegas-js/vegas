@@ -244,6 +244,106 @@ describe("Spreadsheet Runtime objects", () => {
     ]);
   });
 
+  test("resolve -1 Sheet value start coordinates from data bounds", () => {
+    const bridge = new RecordingHostBridge((call) => {
+      if (call.service !== "spreadsheet") {
+        throw new Error(`unexpected service: ${call.service}`);
+      }
+
+      switch (call.operation) {
+        case "get-sheet-data-bounds":
+          return {
+            lastRow: 4,
+            lastColumn: 5,
+          };
+        case "get-range-values":
+          return [["last"]];
+        default:
+          throw new Error(`unexpected host call: ${call.service}#${call.operation}`);
+      }
+    });
+    const sheet = createSpreadsheetObjectHydrator(bridge).hydrate({
+      service: "spreadsheet",
+      kind: "sheet",
+      spreadsheetId: "spreadsheet-a",
+      sheetId: 7,
+    });
+
+    expect(sheet.getSheetValues(-1, -1, 1, 1)).toStrictEqual([["last"]]);
+    expect(bridge.calls).toStrictEqual([
+      {
+        service: "spreadsheet",
+        operation: "get-sheet-data-bounds",
+        sheet: {
+          service: "spreadsheet",
+          kind: "sheet",
+          spreadsheetId: "spreadsheet-a",
+          sheetId: 7,
+        },
+      },
+      {
+        service: "spreadsheet",
+        operation: "get-range-values",
+        range: {
+          service: "spreadsheet",
+          kind: "range",
+          spreadsheetId: "spreadsheet-a",
+          sheetId: 7,
+          row: 4,
+          column: 5,
+          numRows: 1,
+          numColumns: 1,
+        },
+      },
+    ]);
+  });
+
+  test("reject invalid Sheet value start coordinates before HostBridge calls", () => {
+    const bridge = createBridge();
+    const sheet = createSpreadsheetObjectHydrator(bridge).hydrate({
+      service: "spreadsheet",
+      kind: "sheet",
+      spreadsheetId: "spreadsheet-a",
+      sheetId: 7,
+    });
+
+    expect(() => sheet.getSheetValues(0, 1, 1, 1)).toThrow(
+      "startRow must be -1 or a positive integer",
+    );
+    expect(() => sheet.getSheetValues(-2, 1, 1, 1)).toThrow(
+      "startRow must be -1 or a positive integer",
+    );
+    expect(() => sheet.getSheetValues(1, 0, 1, 1)).toThrow(
+      "startColumn must be -1 or a positive integer",
+    );
+    expect(() => sheet.getSheetValues(1, -2, 1, 1)).toThrow(
+      "startColumn must be -1 or a positive integer",
+    );
+    expect(bridge.calls).toHaveLength(0);
+  });
+
+  test("reject -1 Sheet value coordinates when the Sheet has no data", () => {
+    const bridge = new RecordingHostBridge((call) => {
+      if (call.service === "spreadsheet" && call.operation === "get-sheet-data-bounds") {
+        return {
+          lastRow: null,
+          lastColumn: null,
+        };
+      }
+
+      throw new Error(`unexpected host call: ${call.service}#${call.operation}`);
+    });
+    const sheet = createSpreadsheetObjectHydrator(bridge).hydrate({
+      service: "spreadsheet",
+      kind: "sheet",
+      spreadsheetId: "spreadsheet-a",
+      sheetId: 7,
+    });
+
+    expect(() => sheet.getSheetValues(-1, 1, 1, 1)).toThrow("has no data row");
+    expect(bridge.calls).toHaveLength(1);
+  });
+
   test("construct numeric Ranges locally and read values through the HostBridge", () => {
     const bridge = createBridge();
     const spreadsheet = createSpreadsheetApp(bridge).openById("spreadsheet-a");

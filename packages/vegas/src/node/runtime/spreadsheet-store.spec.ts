@@ -2,6 +2,7 @@ import { describe, expectTypeOf, test } from "vitest";
 
 import type {
   RangeReference,
+  SheetDataBounds,
   SheetReference,
   SpreadsheetCellValue,
   SpreadsheetGrid,
@@ -32,6 +33,9 @@ describe("SpreadsheetStore contract", () => {
     expectTypeOf<
       SpreadsheetStore["getSheetByName"]
     >().returns.resolves.toEqualTypeOf<SheetReference | null>();
+    expectTypeOf<
+      SpreadsheetStore["getSheetDataBounds"]
+    >().returns.resolves.toEqualTypeOf<SheetDataBounds>();
     expectTypeOf<SpreadsheetStore["getRangeValues"]>().parameter(0).toEqualTypeOf<RangeReference>();
     expectTypeOf<
       SpreadsheetStore["getRangeValues"]

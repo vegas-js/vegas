@@ -90,6 +90,7 @@ export type {
   SpreadsheetReference,
 } from "./spreadsheet-reference";
 export type {
+  SheetDataBounds,
   SheetMetadata,
   SpreadsheetCellValue,
   SpreadsheetGrid,

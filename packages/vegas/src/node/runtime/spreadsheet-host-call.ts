@@ -1,5 +1,10 @@
 import type { RangeReference, SheetReference, SpreadsheetReference } from "./spreadsheet-reference";
-import type { SheetMetadata, SpreadsheetGrid, SpreadsheetMetadata } from "./spreadsheet-store";
+import type {
+  SheetDataBounds,
+  SheetMetadata,
+  SpreadsheetGrid,
+  SpreadsheetMetadata,
+} from "./spreadsheet-store";
 
 export type SpreadsheetHostCall =
   | {
@@ -43,6 +48,11 @@ export type SpreadsheetHostCall =
     }
   | {
       readonly service: "spreadsheet";
+      readonly operation: "get-sheet-data-bounds";
+      readonly sheet: SheetReference;
+    }
+  | {
+      readonly service: "spreadsheet";
       readonly operation: "get-range-values";
       readonly range: RangeReference;
     }
@@ -78,11 +88,15 @@ export type SpreadsheetHostCallResult<C extends SpreadsheetHostCall> = C extends
               }
             ? SheetMetadata
             : C extends {
-                  readonly operation: "get-range-values";
+                  readonly operation: "get-sheet-data-bounds";
                 }
-              ? SpreadsheetGrid
+              ? SheetDataBounds
               : C extends {
-                    readonly operation: "set-range-values";
+                    readonly operation: "get-range-values";
                   }
-                ? void
-                : never;
+                ? SpreadsheetGrid
+                : C extends {
+                      readonly operation: "set-range-values";
+                    }
+                  ? void
+                  : never;
