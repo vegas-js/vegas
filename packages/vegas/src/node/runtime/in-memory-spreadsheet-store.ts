@@ -7,7 +7,7 @@ import type {
   SpreadsheetMetadata,
   SpreadsheetStore,
 } from "./spreadsheet-store";
-import { assertPositiveInteger } from "./spreadsheet-validation";
+import { assertInteger, assertPositiveInteger } from "./spreadsheet-validation";
 
 export interface InMemorySheetSeed {
   readonly id: number;
@@ -46,9 +46,7 @@ function cloneSheetReference(reference: SheetReference): SheetReference {
 }
 
 function createSheetState(spreadsheetId: string, seed: InMemorySheetSeed): SheetState {
-  if (!Number.isInteger(seed.id)) {
-    throw new RangeError("Spreadsheet sheet id must be an integer.");
-  }
+  assertInteger(seed.id, "Spreadsheet sheet id");
 
   return {
     reference: {
