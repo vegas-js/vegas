@@ -101,7 +101,7 @@ export type {
   SpreadsheetMetadata,
   SpreadsheetStore,
 } from "./spreadsheet-store";
-export { createSession, Session } from "./session-objects";
+export { createSession, Session } from "./session";
 export { User } from "./user";
 export { createUrlFetchApp, UrlFetchApp } from "./url-fetch-app";
 export { HTTPResponse, hydrateHttpResponse } from "./url-fetch-http-response";

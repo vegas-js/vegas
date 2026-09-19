@@ -6,7 +6,7 @@ import type { InvocationEnvironment } from "./invocation";
 import { createLockService } from "./lock-service";
 import { createConsole, createLogger, type LoggingTarget } from "./logging";
 import { createPropertiesService } from "./properties-service";
-import { createSession } from "./session-objects";
+import { createSession } from "./session";
 import { createSpreadsheetApp } from "./spreadsheet-object-hydrator";
 import { createUrlFetchApp } from "./url-fetch-app";
 import type { Utilities } from "./utilities";

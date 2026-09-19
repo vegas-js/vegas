@@ -37,7 +37,7 @@ const API_SURFACES = {
   ],
   Logger: [["Logger", "logging.ts", "Logger"]],
   Session: [
-    ["Session", "session-objects.ts", "Session"],
+    ["Session", "session.ts", "Session"],
     ["User", "user.ts", "User"],
   ],
   console: [["Console", "logging.ts", "AppsScriptConsole"]],
