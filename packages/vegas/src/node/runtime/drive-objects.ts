@@ -1,11 +1,8 @@
 import { hydrateBlob, serializeBlob, type RuntimeBlob } from "./blob";
-import { DriveFileIterator } from "./drive-file-iterator";
+import type { DriveFileIterator } from "./drive-file-iterator";
+import type { DriveFolderIterator } from "./drive-folder-iterator";
 import type { DriveObjectHydrator } from "./drive-hydrator";
-import type {
-  DriveFileReference,
-  DriveFolderIteratorReference,
-  DriveFolderReference,
-} from "./drive-reference";
+import type { DriveFileReference, DriveFolderReference } from "./drive-reference";
 import type { HostBridge } from "./host-bridge";
 
 type DriveFolderIdentity = {
@@ -295,49 +292,6 @@ export class DriveFolder {
         service: "drive",
         operation: "get-folder-parents",
         folder: this.#reference,
-      }),
-    );
-  }
-}
-
-// https://developers.google.com/apps-script/reference/drive/folder-iterator
-export class DriveFolderIterator {
-  readonly #bridge: HostBridge;
-  readonly #hydrator: DriveObjectHydrator;
-  readonly #reference: DriveFolderIteratorReference;
-
-  constructor(
-    bridge: HostBridge,
-    reference: DriveFolderIteratorReference,
-    hydrator: DriveObjectHydrator,
-  ) {
-    this.#bridge = bridge;
-    this.#reference = reference;
-    this.#hydrator = hydrator;
-  }
-
-  getContinuationToken(): string {
-    return this.#bridge.call({
-      service: "drive",
-      operation: "iterator-continuation-token",
-      iterator: this.#reference,
-    });
-  }
-
-  hasNext(): boolean {
-    return this.#bridge.call({
-      service: "drive",
-      operation: "iterator-has-next",
-      iterator: this.#reference,
-    });
-  }
-
-  next(): DriveFolder {
-    return this.#hydrator.hydrate(
-      this.#bridge.call({
-        service: "drive",
-        operation: "folder-iterator-next",
-        iterator: this.#reference,
       }),
     );
   }

@@ -17,8 +17,9 @@ export type { DriveIteratorSession, DriveIteratorStore } from "./drive-iterator-
 export type { DriveLiveCapability } from "./drive-live-capability";
 export { createDriveApp, createDriveObjectHydrator } from "./drive-object-hydrator";
 export { DriveFileIterator } from "./drive-file-iterator";
+export { DriveFolderIterator } from "./drive-folder-iterator";
 export type { DriveObjectHydrator, HydratedDriveObject } from "./drive-hydrator";
-export { DriveApp, DriveFile, DriveFolder, DriveFolderIterator } from "./drive-objects";
+export { DriveApp, DriveFile, DriveFolder } from "./drive-objects";
 export type {
   DriveFileIteratorReference,
   DriveFileReference,
