@@ -1,21 +1,5 @@
 import type { InvocationEnvironment } from "./invocation";
-
-// https://developers.google.com/apps-script/reference/base/user
-export class User {
-  readonly #email: string;
-
-  constructor(email: string) {
-    this.#email = email;
-  }
-
-  getEmail(): string {
-    return this.#email;
-  }
-
-  getUserLoginId(): string {
-    return this.getEmail();
-  }
-}
+import { User } from "./user";
 
 // https://developers.google.com/apps-script/reference/base/session
 export class Session {
