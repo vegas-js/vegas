@@ -117,6 +117,7 @@ describe("Spreadsheet Runtime objects", () => {
     expect(spreadsheet).toBeInstanceOf(Spreadsheet);
     expect(spreadsheet.getId()).toBe("spreadsheet-a");
     expect(spreadsheet.getName()).toBe("Budget");
+    expect(spreadsheet.getNumSheets()).toBe(2);
 
     const sheets = spreadsheet.getSheets();
     expect(sheets).toHaveLength(2);
@@ -126,6 +127,7 @@ describe("Spreadsheet Runtime objects", () => {
     const summary = spreadsheet.getSheetByName("Summary");
     expect(summary).toBeInstanceOf(Sheet);
     expect(summary?.getName()).toBe("Summary");
+    expect(summary?.getSheetName()).toBe("Summary");
     expect(summary?.getMaxRows()).toBe(100);
     expect(summary?.getMaxColumns()).toBe(26);
 

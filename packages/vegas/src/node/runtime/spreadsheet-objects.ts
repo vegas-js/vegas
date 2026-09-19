@@ -102,6 +102,14 @@ export class Spreadsheet {
     }).name;
   }
 
+  getNumSheets(): number {
+    return this.#bridge.call({
+      service: "spreadsheet",
+      operation: "list-sheets",
+      spreadsheet: this.#reference,
+    }).length;
+  }
+
   getSheets(): Sheet[] {
     return this.#bridge
       .call({
@@ -146,6 +154,10 @@ export class Sheet {
 
   getName(): string {
     return this.#metadata().name;
+  }
+
+  getSheetName(): string {
+    return this.getName();
   }
 
   getParent(): Spreadsheet {
