@@ -63,6 +63,10 @@ export class SpreadsheetApp {
     );
   }
 
+  flush(): void {
+    return;
+  }
+
   openById(id: string): Spreadsheet {
     return this.#hydrator.hydrate(
       this.#bridge.call({

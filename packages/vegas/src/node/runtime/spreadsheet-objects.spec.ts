@@ -116,6 +116,14 @@ describe("Spreadsheet Runtime objects", () => {
     expectTypeOf<HydratedSpreadsheetObject<RangeReference>>().toEqualTypeOf<Range>();
   });
 
+  test("flush SpreadsheetApp without HostBridge calls", () => {
+    const bridge = createBridge();
+    const spreadsheetApp = createSpreadsheetApp(bridge);
+
+    expect(spreadsheetApp.flush()).toBeUndefined();
+    expect(bridge.calls).toHaveLength(0);
+  });
+
   test("open Spreadsheet resources and hydrate Sheet chains", () => {
     const bridge = createBridge();
     const spreadsheetApp = createSpreadsheetApp(bridge);
