@@ -10,7 +10,7 @@ import {
   type SpreadsheetReference,
 } from "./index";
 
-describe("Spreadsheet Runtime objects", () => {
+describe("SpreadsheetObjectHydrator", () => {
   test("map each reference kind to its Runtime public object Class", () => {
     expectTypeOf<HydratedSpreadsheetObject<SpreadsheetReference>>().toEqualTypeOf<Spreadsheet>();
     expectTypeOf<HydratedSpreadsheetObject<SheetReference>>().toEqualTypeOf<Sheet>();
