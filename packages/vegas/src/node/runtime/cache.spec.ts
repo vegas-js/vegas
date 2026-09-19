@@ -1,22 +1,9 @@
-import { describe, expect, expectTypeOf, test } from "vitest";
+import { describe, expect, test } from "vitest";
 
-import {
-  Cache,
-  CacheService,
-  createCacheService,
-  type CacheHostCall,
-  type HostBridge,
-  type HostCall,
-  type HostCallResult,
-} from "./index";
+import { Cache, type HostBridge, type HostCall, type HostCallResult } from "./index";
 
 class RecordingHostBridge implements HostBridge {
   readonly calls: HostCall[] = [];
-  readonly #documentAvailable: boolean;
-
-  constructor(documentAvailable = true) {
-    this.#documentAvailable = documentAvailable;
-  }
 
   call<C extends HostCall>(call: C): HostCallResult<C> {
     this.calls.push(call);
@@ -26,10 +13,6 @@ class RecordingHostBridge implements HostBridge {
     }
 
     switch (call.operation) {
-      case "isAvailable": {
-        return (call.namespace !== "document" ||
-          this.#documentAvailable) as unknown as HostCallResult<C>;
-      }
       case "get": {
         return (call.key === "found" ? "value" : null) as unknown as HostCallResult<C>;
       }
@@ -44,63 +27,16 @@ class RecordingHostBridge implements HostBridge {
       case "removeAll": {
         return undefined as unknown as HostCallResult<C>;
       }
+      default:
+        throw new Error(`unexpected Cache operation: ${call.operation}`);
     }
   }
 }
 
-describe("Cache Runtime objects", () => {
-  test("map Cache host calls to operation-specific result types", () => {
-    const getCall = {
-      service: "cache",
-      operation: "get",
-      namespace: "script",
-      key: "key",
-    } satisfies CacheHostCall;
-    const getAllCall = {
-      service: "cache",
-      operation: "getAll",
-      namespace: "user",
-      keys: ["first", "second"],
-    } satisfies CacheHostCall;
-    const putCall = {
-      service: "cache",
-      operation: "put",
-      namespace: "script",
-      key: "key",
-      value: "value",
-      expirationInSeconds: 600,
-    } satisfies CacheHostCall;
-
-    expectTypeOf<HostCallResult<typeof getCall>>().toEqualTypeOf<string | null>();
-    expectTypeOf<HostCallResult<typeof getAllCall>>().toEqualTypeOf<Record<string, string>>();
-    expectTypeOf<HostCallResult<typeof putCall>>().toEqualTypeOf<void>();
-  });
-
-  test("expose script and user caches and return null when document cache is unavailable", () => {
-    const availableBridge = new RecordingHostBridge();
-    const available = createCacheService(availableBridge);
-
-    expect(available).toBeInstanceOf(CacheService);
-    expect(available.getScriptCache()).toBeInstanceOf(Cache);
-    expect(available.getUserCache()).toBeInstanceOf(Cache);
-    expect(available.getDocumentCache()).toBeInstanceOf(Cache);
-
-    const unavailableBridge = new RecordingHostBridge(false);
-    const unavailable = createCacheService(unavailableBridge);
-
-    expect(unavailable.getDocumentCache()).toBeNull();
-    expect(unavailableBridge.calls).toStrictEqual([
-      {
-        service: "cache",
-        operation: "isAvailable",
-        namespace: "document",
-      },
-    ]);
-  });
-
-  test("map Cache methods to semantic host calls with default and explicit expiration", () => {
+describe("Cache Runtime object", () => {
+  test("map methods to semantic host calls with default and explicit expiration", () => {
     const bridge = new RecordingHostBridge();
-    const cache = createCacheService(bridge).getScriptCache();
+    const cache = new Cache(bridge, "script");
 
     expect(cache.get("missing")).toBeNull();
     expect(cache.getAll(["found", "missing"])).toStrictEqual({
@@ -184,7 +120,7 @@ describe("Cache Runtime objects", () => {
 
   test("reject invalid expiration before issuing a host call", () => {
     const bridge = new RecordingHostBridge();
-    const cache = createCacheService(bridge).getScriptCache();
+    const cache = new Cache(bridge, "script");
 
     expect(() => cache.put("key", "value", 0)).toThrow(
       "Local Cache expiration must be an integer from 1 to 21600 seconds.",
@@ -200,7 +136,7 @@ describe("Cache Runtime objects", () => {
 
   test("enforce local write-size boundaries before issuing a host call", () => {
     const bridge = new RecordingHostBridge();
-    const cache = createCacheService(bridge).getScriptCache();
+    const cache = new Cache(bridge, "script");
 
     expect(() => cache.put("x".repeat(251), "value")).toThrow(
       "Local Cache key exceeds the 250 character limit.",
