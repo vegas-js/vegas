@@ -89,6 +89,29 @@ describe("HostDispatcher", () => {
     ).rejects.toThrow("Cache host handler is not configured for this invocation.");
   });
 
+  test("capture handler configuration when constructed", async () => {
+    const properties = createPropertiesHandler();
+    const options: {
+      properties: ReturnType<typeof createPropertiesHandler>;
+      cache?: CacheHostHandler;
+    } = { properties };
+    const dispatcher = new HostDispatcher(options);
+
+    options.cache = new CacheHostHandler(new InMemoryCacheStore(), {
+      scriptKey: "script",
+      userKey: "user",
+    });
+
+    await expect(
+      dispatcher.dispatch({
+        service: "cache",
+        operation: "get",
+        namespace: "script",
+        key: "name",
+      }),
+    ).rejects.toThrow("Cache host handler is not configured for this invocation.");
+  });
+
   test("dispatch Lock calls only when the invocation provides a Lock handler", async () => {
     const lock = new LockHostHandler(new InMemoryLockStore().createSession(), {
       scriptKey: "script",

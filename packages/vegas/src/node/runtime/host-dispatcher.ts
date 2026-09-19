@@ -20,61 +20,61 @@ export interface HostDispatcherOptions {
 }
 
 export class HostDispatcher implements HostCallDispatcher {
-  readonly #cache: CacheHostCallHandler | undefined;
-  readonly #drive: DriveHostCallHandler | undefined;
-  readonly #lock: LockHostCallHandler | undefined;
-  readonly #properties: PropertiesHostCallHandler;
-  readonly #spreadsheet: SpreadsheetHostCallHandler | undefined;
-  readonly #urlFetch: UrlFetchHostCallHandler | undefined;
+  readonly #handlers: HostDispatcherOptions;
 
   constructor(options: HostDispatcherOptions) {
-    this.#cache = options.cache;
-    this.#drive = options.drive;
-    this.#lock = options.lock;
-    this.#properties = options.properties;
-    this.#spreadsheet = options.spreadsheet;
-    this.#urlFetch = options.urlFetch;
+    this.#handlers = { ...options };
   }
 
   async dispatch<C extends HostCall>(call: C): Promise<HostCallResult<C>> {
     switch (call.service) {
       case "cache": {
-        if (!this.#cache) {
+        const handler = this.#handlers.cache;
+
+        if (!handler) {
           throw new Error("Cache host handler is not configured for this invocation.");
         }
 
-        return (await this.#cache.handle(call)) as HostCallResult<C>;
+        return (await handler.handle(call)) as HostCallResult<C>;
       }
       case "drive": {
-        if (!this.#drive) {
+        const handler = this.#handlers.drive;
+
+        if (!handler) {
           throw new Error("Drive host handler is not configured for this invocation.");
         }
 
-        return (await this.#drive.handle(call)) as HostCallResult<C>;
+        return (await handler.handle(call)) as HostCallResult<C>;
       }
       case "lock": {
-        if (!this.#lock) {
+        const handler = this.#handlers.lock;
+
+        if (!handler) {
           throw new Error("Lock host handler is not configured for this invocation.");
         }
 
-        return (await this.#lock.handle(call)) as HostCallResult<C>;
+        return (await handler.handle(call)) as HostCallResult<C>;
       }
       case "properties": {
-        return (await this.#properties.handle(call)) as HostCallResult<C>;
+        return (await this.#handlers.properties.handle(call)) as HostCallResult<C>;
       }
       case "spreadsheet": {
-        if (!this.#spreadsheet) {
+        const handler = this.#handlers.spreadsheet;
+
+        if (!handler) {
           throw new Error("Spreadsheet host handler is not configured for this invocation.");
         }
 
-        return (await this.#spreadsheet.handle(call)) as HostCallResult<C>;
+        return (await handler.handle(call)) as HostCallResult<C>;
       }
       case "url-fetch": {
-        if (!this.#urlFetch) {
+        const handler = this.#handlers.urlFetch;
+
+        if (!handler) {
           throw new Error("UrlFetch host handler is not configured for this invocation.");
         }
 
-        return (await this.#urlFetch.handle(call)) as HostCallResult<C>;
+        return (await handler.handle(call)) as HostCallResult<C>;
       }
     }
   }
