@@ -79,6 +79,18 @@ export class SpreadsheetApp {
     );
   }
 
+  enableAllDataSourcesExecution(): void {
+    return;
+  }
+
+  enableBigQueryExecution(): void {
+    return;
+  }
+
+  enableLookerExecution(): void {
+    return;
+  }
+
   flush(): void {
     return;
   }

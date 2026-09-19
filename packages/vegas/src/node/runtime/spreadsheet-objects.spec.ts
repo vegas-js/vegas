@@ -116,6 +116,16 @@ describe("Spreadsheet Runtime objects", () => {
     expectTypeOf<HydratedSpreadsheetObject<RangeReference>>().toEqualTypeOf<Range>();
   });
 
+  test("enable Spreadsheet data source execution without HostBridge calls", () => {
+    const bridge = createBridge();
+    const spreadsheetApp = createSpreadsheetApp(bridge);
+
+    expect(spreadsheetApp.enableAllDataSourcesExecution()).toBeUndefined();
+    expect(spreadsheetApp.enableBigQueryExecution()).toBeUndefined();
+    expect(spreadsheetApp.enableLookerExecution()).toBeUndefined();
+    expect(bridge.calls).toHaveLength(0);
+  });
+
   test("flush SpreadsheetApp without HostBridge calls", () => {
     const bridge = createBridge();
     const spreadsheetApp = createSpreadsheetApp(bridge);
