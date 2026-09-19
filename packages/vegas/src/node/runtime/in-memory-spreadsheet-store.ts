@@ -7,6 +7,7 @@ import type {
   SpreadsheetMetadata,
   SpreadsheetStore,
 } from "./spreadsheet-store";
+import { assertPositiveInteger } from "./spreadsheet-validation";
 
 export interface InMemorySheetSeed {
   readonly id: number;
@@ -50,12 +51,6 @@ function cloneSheetReference(reference: SheetReference): SheetReference {
 
 function createCellKey(row: number, column: number): string {
   return `${row}:${column}`;
-}
-
-function assertPositiveInteger(value: number, label: string): void {
-  if (!Number.isInteger(value) || value <= 0) {
-    throw new RangeError(`${label} must be a positive integer.`);
-  }
 }
 
 function validateRange(range: RangeReference, metadata: SheetMetadata): void {
