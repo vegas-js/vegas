@@ -6,6 +6,44 @@ import { Rolldown } from "tsdown";
 const PREFERRED_LICENSE_FILE_NAMES = ["LICENSE", "LICENSE.md", "license"] as const;
 const LICENSE_FILE_NAME_PATTERN = /^(?:licen[cs]e|copying)(?:[._-].*)?$/i;
 const NOTICE_FILE_NAME_PATTERN = /^notice(?:[._-].*)?$/i;
+const NODE_MODULES_SEGMENT = "/node_modules/";
+
+export interface BundledPackage {
+  readonly name: string;
+  readonly root: string;
+}
+
+export function resolveBundledPackage(moduleId: string): BundledPackage | null {
+  const normalizedModuleId = moduleId.replaceAll("\\", "/");
+  const nodeModulesIndex = normalizedModuleId.lastIndexOf(NODE_MODULES_SEGMENT);
+
+  if (nodeModulesIndex < 0) {
+    return null;
+  }
+
+  const packagePath = normalizedModuleId.slice(nodeModulesIndex + NODE_MODULES_SEGMENT.length);
+  const segments = packagePath.split("/");
+  const isScoped = segments[0]?.startsWith("@") ?? false;
+  const packageSegments = isScoped ? segments.slice(0, 2) : segments.slice(0, 1);
+
+  if (
+    packageSegments.length !== (isScoped ? 2 : 1) ||
+    packageSegments.some((segment) => !segment)
+  ) {
+    return null;
+  }
+
+  const name = packageSegments.join("/");
+  const nodeModulesRoot = normalizedModuleId.slice(
+    0,
+    nodeModulesIndex + NODE_MODULES_SEGMENT.length,
+  );
+
+  return {
+    name,
+    root: `${nodeModulesRoot}${name}`,
+  };
+}
 
 export function resolvePackageLegalFiles(packageRoot: string): string[] {
   const entries = fs.readdirSync(packageRoot, { withFileTypes: true });
@@ -47,19 +85,13 @@ export default function rolldownLicensePlugin(
 
     generateBundle(_, bundle) {
       const packageMap: Map<string, string> = new Map();
-      const nodeModuleDirName = "/node_modules/";
       Object.values(bundle).forEach((output) => {
         if (output.type === "chunk") {
           output.moduleIds.forEach((moduleId) => {
-            if (moduleId.includes(nodeModuleDirName)) {
-              const nodeModuleIndex = moduleId.lastIndexOf(nodeModuleDirName);
-              const modulePath = moduleId.slice(0, nodeModuleIndex + nodeModuleDirName.length);
-              const moduleInnerPath = moduleId.slice(nodeModuleIndex + nodeModuleDirName.length);
-              const splittedModuleInnerPath = moduleInnerPath.split("/");
-              const packageName = splittedModuleInnerPath[0].startsWith("@")
-                ? splittedModuleInnerPath.slice(0, 2).join("/")
-                : splittedModuleInnerPath[0];
-              packageMap.set(packageName, modulePath);
+            const bundledPackage = resolveBundledPackage(moduleId);
+
+            if (bundledPackage) {
+              packageMap.set(bundledPackage.name, bundledPackage.root);
             }
           });
         }
@@ -72,9 +104,8 @@ export default function rolldownLicensePlugin(
       ];
 
       const licenseSet: Set<string> = new Set();
-      packages.forEach(([pkgName, pkgPath], index) => {
+      packages.forEach(([pkgName, pkgRootPath], index) => {
         outputLicenses.push(`## ${pkgName}`);
-        const pkgRootPath = path.join(pkgPath, pkgName);
         const packageJsonPath = path.join(pkgRootPath, "package.json");
         const packageJsonText = fs.readFileSync(packageJsonPath, "utf8");
         const packageJson = JSON.parse(packageJsonText);

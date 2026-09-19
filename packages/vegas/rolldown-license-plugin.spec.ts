@@ -4,7 +4,7 @@ import path from "node:path";
 
 import { describe, expect, test } from "vitest";
 
-import { resolvePackageLegalFiles } from "./rolldown-license-plugin";
+import { resolveBundledPackage, resolvePackageLegalFiles } from "./rolldown-license-plugin";
 
 function withPackageRoot(
   files: Readonly<Record<string, string | null>>,
@@ -28,6 +28,52 @@ function withPackageRoot(
     fs.rmSync(packageRoot, { recursive: true, force: true });
   }
 }
+
+describe("resolveBundledPackage", () => {
+  test("resolve an unscoped package from a POSIX module path", () => {
+    expect(resolveBundledPackage("/repo/node_modules/cac/dist/index.js")).toStrictEqual({
+      name: "cac",
+      root: "/repo/node_modules/cac",
+    });
+  });
+
+  test("resolve a scoped package from a POSIX module path", () => {
+    expect(resolveBundledPackage("/repo/node_modules/@clack/prompts/dist/index.js")).toStrictEqual({
+      name: "@clack/prompts",
+      root: "/repo/node_modules/@clack/prompts",
+    });
+  });
+
+  test("resolve the innermost package root from a pnpm module path", () => {
+    expect(
+      resolveBundledPackage(
+        "/repo/node_modules/.pnpm/@clack+prompts@1.8.0/node_modules/@clack/prompts/dist/index.js",
+      ),
+    ).toStrictEqual({
+      name: "@clack/prompts",
+      root: "/repo/node_modules/.pnpm/@clack+prompts@1.8.0/node_modules/@clack/prompts",
+    });
+  });
+
+  test("normalize Windows module path separators", () => {
+    expect(
+      resolveBundledPackage(
+        String.raw`C:\repo\node_modules\.pnpm\cac@7.0.0\node_modules\cac\dist\index.js`,
+      ),
+    ).toStrictEqual({
+      name: "cac",
+      root: "C:/repo/node_modules/.pnpm/cac@7.0.0/node_modules/cac",
+    });
+  });
+
+  test("ignore modules outside node_modules", () => {
+    expect(resolveBundledPackage("/repo/src/index.ts")).toBeNull();
+  });
+
+  test("ignore malformed scoped package paths", () => {
+    expect(resolveBundledPackage("/repo/node_modules/@scope")).toBeNull();
+  });
+});
 
 describe("resolvePackageLegalFiles", () => {
   test("preserve the existing preferred license file order", () => {
