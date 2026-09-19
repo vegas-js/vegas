@@ -13,6 +13,13 @@ export interface BundledPackage {
   readonly root: string;
 }
 
+export interface BundledPackageMetadata {
+  readonly version: unknown;
+  readonly license: string | null;
+  readonly author: string | null;
+  readonly repository: string | null;
+}
+
 export function resolveBundledPackage(moduleId: string): BundledPackage | null {
   const normalizedModuleId = moduleId.replaceAll("\\", "/");
   const nodeModulesIndex = normalizedModuleId.lastIndexOf(NODE_MODULES_SEGMENT);
@@ -125,7 +132,76 @@ export function resolvePackageLegalFiles(packageRoot: string): string[] {
   return [...licenseFiles, ...noticeFiles].map((fileName) => path.join(packageRoot, fileName));
 }
 
-function readPackageJson(packageRoot: string) {
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function nonEmptyString(value: unknown): string | null {
+  return typeof value === "string" && value.length > 0 ? value : null;
+}
+
+function formatAuthor(author: unknown): string | null {
+  const directAuthor = nonEmptyString(author);
+  if (directAuthor) {
+    return directAuthor;
+  }
+
+  if (!isRecord(author)) {
+    return null;
+  }
+
+  const name = nonEmptyString(author.name);
+  if (!name) {
+    return null;
+  }
+
+  const parts = [name];
+  const email = nonEmptyString(author.email);
+  const url = nonEmptyString(author.url);
+
+  if (email) {
+    parts.push(`<${email}>`);
+  }
+
+  if (url) {
+    parts.push(`(${url})`);
+  }
+
+  return parts.join(" ");
+}
+
+function formatRepository(repository: unknown): string | null {
+  const directRepository = nonEmptyString(repository);
+  if (directRepository) {
+    return directRepository;
+  }
+
+  return isRecord(repository) ? nonEmptyString(repository.url) : null;
+}
+
+export function normalizeBundledPackageMetadata(
+  packageName: string,
+  packageJson: unknown,
+): BundledPackageMetadata {
+  const metadata = isRecord(packageJson) ? packageJson : {};
+  const licenseValue = metadata.license;
+
+  if (
+    licenseValue !== undefined &&
+    (typeof licenseValue !== "string" || licenseValue.length === 0)
+  ) {
+    throw new Error(`Invalid license metadata for bundled package: ${packageName}`);
+  }
+
+  return {
+    version: metadata.version,
+    license: licenseValue ?? null,
+    author: formatAuthor(metadata.author),
+    repository: formatRepository(metadata.repository),
+  };
+}
+
+function readPackageJson(packageRoot: string): unknown {
   return JSON.parse(fs.readFileSync(path.join(packageRoot, "package.json"), "utf8"));
 }
 
@@ -164,43 +240,28 @@ function renderBundledPackage(
   includeVersion: boolean,
   licenses: Set<string>,
 ): string[] {
-  const packageJson = readPackageJson(bundledPackage.root);
+  const metadata = normalizeBundledPackageMetadata(
+    bundledPackage.name,
+    readPackageJson(bundledPackage.root),
+  );
   const heading = formatBundledPackageHeading(
     bundledPackage.name,
-    packageJson.version,
+    metadata.version,
     includeVersion,
   );
   const lines: string[] = [`## ${heading}`];
 
-  if (packageJson.license) {
-    lines.push(`License: ${packageJson.license}`);
-    licenses.add(packageJson.license);
+  if (metadata.license) {
+    lines.push(`License: ${metadata.license}`);
+    licenses.add(metadata.license);
   }
 
-  if (packageJson.author) {
-    if (typeof packageJson.author === "object") {
-      const author: string[] = [packageJson.author.name];
-
-      if (packageJson.author.email) {
-        author.push(`<${packageJson.author.email}>`);
-      }
-
-      if (packageJson.author.url) {
-        author.push(`(${packageJson.author.url})`);
-      }
-
-      lines.push(`By: ${author.join(" ")}`);
-    } else {
-      lines.push(`By: ${packageJson.author}`);
-    }
+  if (metadata.author) {
+    lines.push(`By: ${metadata.author}`);
   }
 
-  if (packageJson.repository) {
-    if (typeof packageJson.repository === "string") {
-      lines.push(`Repositories: ${packageJson.repository}`);
-    } else if (packageJson.repository.url) {
-      lines.push(`Repositories: ${packageJson.repository.url}`);
-    }
+  if (metadata.repository) {
+    lines.push(`Repositories: ${metadata.repository}`);
   }
 
   lines.push("", ...renderPackageLegalFiles(bundledPackage.root));

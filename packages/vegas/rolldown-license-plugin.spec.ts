@@ -7,6 +7,7 @@ import { describe, expect, test } from "vitest";
 import {
   collectBundledPackages,
   formatBundledPackageHeading,
+  normalizeBundledPackageMetadata,
   readAdditionalLicenseFiles,
   resolveBundledPackage,
   resolvePackageLegalFiles,
@@ -118,6 +119,96 @@ describe("formatBundledPackageHeading", () => {
         "Could not determine version for duplicate bundled package: shared",
       );
     }
+  });
+});
+
+describe("normalizeBundledPackageMetadata", () => {
+  test("preserve valid metadata", () => {
+    expect(
+      normalizeBundledPackageMetadata("example", {
+        version: "1.2.3",
+        license: "MIT",
+        author: {
+          name: "Example Author",
+          email: "author@example.com",
+          url: "https://example.com",
+        },
+        repository: {
+          type: "git",
+          url: "https://example.com/repository.git",
+        },
+      }),
+    ).toStrictEqual({
+      version: "1.2.3",
+      license: "MIT",
+      author: "Example Author <author@example.com> (https://example.com)",
+      repository: "https://example.com/repository.git",
+    });
+  });
+
+  test("allow missing license metadata", () => {
+    expect(normalizeBundledPackageMetadata("example", {})).toStrictEqual({
+      version: undefined,
+      license: null,
+      author: null,
+      repository: null,
+    });
+  });
+
+  test("reject invalid license metadata", () => {
+    for (const license of [null, "", 123, {}, []]) {
+      expect(() => normalizeBundledPackageMetadata("example", { license })).toThrow(
+        "Invalid license metadata for bundled package: example",
+      );
+    }
+  });
+
+  test("ignore invalid optional author and repository metadata", () => {
+    for (const [author, repository] of [
+      [123, 456],
+      [{}, {}],
+      [{ name: "" }, { url: "" }],
+      [[], []],
+    ]) {
+      expect(
+        normalizeBundledPackageMetadata("example", {
+          license: "MIT",
+          author,
+          repository,
+        }),
+      ).toStrictEqual({
+        version: undefined,
+        license: "MIT",
+        author: null,
+        repository: null,
+      });
+    }
+  });
+
+  test("preserve valid string author and repository metadata", () => {
+    expect(
+      normalizeBundledPackageMetadata("example", {
+        author: "Example Author",
+        repository: "https://example.com/repository.git",
+      }),
+    ).toMatchObject({
+      author: "Example Author",
+      repository: "https://example.com/repository.git",
+    });
+  });
+
+  test("ignore invalid optional fields while preserving a valid author name", () => {
+    expect(
+      normalizeBundledPackageMetadata("example", {
+        author: {
+          name: "Example Author",
+          email: 123,
+          url: {},
+        },
+      }),
+    ).toMatchObject({
+      author: "Example Author",
+    });
   });
 });
 
