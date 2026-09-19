@@ -438,4 +438,14 @@ describe("Sheet", () => {
     expect(bridge.calls).toHaveLength(1);
     expect(hydrator.references).toHaveLength(0);
   });
+  test("reject invalid numeric Range coordinates before hydration", () => {
+    const { bridge, hydrator, sheet } = createFixture();
+
+    expect(() => sheet.getRange(0, 1)).toThrow("row must be a positive integer");
+    expect(() => sheet.getRange(1, 0)).toThrow("column must be a positive integer");
+    expect(() => sheet.getRange(1, 1, 0)).toThrow("numRows must be a positive integer");
+    expect(() => sheet.getRange(1, 1, 1, 0)).toThrow("numColumns must be a positive integer");
+    expect(bridge.calls).toHaveLength(0);
+    expect(hydrator.references).toHaveLength(0);
+  });
 });
