@@ -1,29 +1,10 @@
 import { hydrateBlob, serializeBlob, type RuntimeBlob } from "./blob";
 import type { DriveFileIterator } from "./drive-file-iterator";
+import { registerDriveFolderIdentity, resolveDriveFolderReference } from "./drive-folder-identity";
 import type { DriveFolderIterator } from "./drive-folder-iterator";
 import type { DriveObjectHydrator } from "./drive-hydrator";
 import type { DriveFileReference, DriveFolderReference } from "./drive-reference";
 import type { HostBridge } from "./host-bridge";
-
-type DriveFolderIdentity = {
-  readonly bridge: HostBridge;
-  readonly reference: DriveFolderReference;
-};
-
-const driveFolderIdentities = new WeakMap<DriveFolder, DriveFolderIdentity>();
-
-function resolveDriveFolderReference(
-  bridge: HostBridge,
-  folder: DriveFolder,
-): DriveFolderReference {
-  const identity = driveFolderIdentities.get(folder);
-
-  if (!identity || identity.bridge !== bridge) {
-    throw new Error("Drive folder does not belong to this Runtime Drive.");
-  }
-
-  return { ...identity.reference };
-}
 
 // https://developers.google.com/apps-script/reference/drive/drive-app
 export class DriveApp {
@@ -226,10 +207,7 @@ export class DriveFolder {
     this.#bridge = bridge;
     this.#reference = reference;
     this.#hydrator = hydrator;
-    driveFolderIdentities.set(this, {
-      bridge,
-      reference: { ...reference },
-    });
+    registerDriveFolderIdentity(this, bridge, reference);
   }
 
   createFile(blob: RuntimeBlob): DriveFile {
