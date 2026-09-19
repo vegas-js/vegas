@@ -124,6 +124,35 @@ describe("Spreadsheet Runtime objects", () => {
     expect(bridge.calls).toHaveLength(0);
   });
 
+  test("open Spreadsheet resources by URL through the existing id path", () => {
+    const bridge = createBridge();
+    const spreadsheetApp = createSpreadsheetApp(bridge);
+
+    const spreadsheet = spreadsheetApp.openByUrl(
+      "https://docs.google.com/spreadsheets/d/spreadsheet-a/edit#gid=7",
+    );
+
+    expect(spreadsheet).toBeInstanceOf(Spreadsheet);
+    expect(spreadsheet.getId()).toBe("spreadsheet-a");
+    expect(bridge.calls).toStrictEqual([
+      {
+        service: "spreadsheet",
+        operation: "get-spreadsheet",
+        id: "spreadsheet-a",
+      },
+    ]);
+  });
+
+  test("reject non-Spreadsheets URLs before HostBridge calls", () => {
+    const bridge = createBridge();
+    const spreadsheetApp = createSpreadsheetApp(bridge);
+
+    expect(() => spreadsheetApp.openByUrl("https://example.com/spreadsheet-a")).toThrow(
+      "Invalid Spreadsheet URL.",
+    );
+    expect(bridge.calls).toHaveLength(0);
+  });
+
   test("open Spreadsheet resources and hydrate Sheet chains", () => {
     const bridge = createBridge();
     const spreadsheetApp = createSpreadsheetApp(bridge);

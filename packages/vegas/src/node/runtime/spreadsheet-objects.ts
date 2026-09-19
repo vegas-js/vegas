@@ -23,6 +23,20 @@ function assertInteger(value: number, label: string): void {
   }
 }
 
+function extractSpreadsheetIdFromUrl(url: string): string {
+  const parsed = new URL(url);
+  const segments = parsed.pathname.split("/").filter(Boolean);
+  const spreadsheetsIndex = segments.indexOf("spreadsheets");
+  const idMarkerIndex = segments.indexOf("d", spreadsheetsIndex + 1);
+  const id = idMarkerIndex < 0 ? undefined : segments[idMarkerIndex + 1];
+
+  if (parsed.hostname !== "docs.google.com" || spreadsheetsIndex < 0 || !id) {
+    throw new Error("Invalid Spreadsheet URL.");
+  }
+
+  return id;
+}
+
 const A1_COLUMN_ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 function formatA1Cell(row: number, column: number): string {
@@ -65,6 +79,10 @@ export class SpreadsheetApp {
 
   flush(): void {
     return;
+  }
+
+  openByUrl(url: string): Spreadsheet {
+    return this.openById(extractSpreadsheetIdFromUrl(url));
   }
 
   openById(id: string): Spreadsheet {
