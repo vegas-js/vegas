@@ -26,6 +26,12 @@ export type SpreadsheetHostCall =
     }
   | {
       readonly service: "spreadsheet";
+      readonly operation: "rename-spreadsheet";
+      readonly spreadsheet: SpreadsheetReference;
+      readonly name: string;
+    }
+  | {
+      readonly service: "spreadsheet";
       readonly operation: "list-sheets";
       readonly spreadsheet: SpreadsheetReference;
     }
@@ -72,31 +78,35 @@ export type SpreadsheetHostCallResult<C extends SpreadsheetHostCall> = C extends
       }
     ? SpreadsheetMetadata
     : C extends {
-          readonly operation: "list-sheets";
+          readonly operation: "rename-spreadsheet";
         }
-      ? readonly SheetReference[]
+      ? void
       : C extends {
-            readonly operation: "get-sheet";
+            readonly operation: "list-sheets";
           }
-        ? SheetReference | null
+        ? readonly SheetReference[]
         : C extends {
-              readonly operation: "get-sheet-by-name";
+              readonly operation: "get-sheet";
             }
           ? SheetReference | null
           : C extends {
-                readonly operation: "get-sheet-metadata";
+                readonly operation: "get-sheet-by-name";
               }
-            ? SheetMetadata
+            ? SheetReference | null
             : C extends {
-                  readonly operation: "get-sheet-data-bounds";
+                  readonly operation: "get-sheet-metadata";
                 }
-              ? SheetDataBounds
+              ? SheetMetadata
               : C extends {
-                    readonly operation: "get-range-values";
+                    readonly operation: "get-sheet-data-bounds";
                   }
-                ? SpreadsheetGrid
+                ? SheetDataBounds
                 : C extends {
-                      readonly operation: "set-range-values";
+                      readonly operation: "get-range-values";
                     }
-                  ? void
-                  : never;
+                  ? SpreadsheetGrid
+                  : C extends {
+                        readonly operation: "set-range-values";
+                      }
+                    ? void
+                    : never;

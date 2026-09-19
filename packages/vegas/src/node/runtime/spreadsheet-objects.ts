@@ -143,6 +143,15 @@ export class Spreadsheet {
 
     return reference === null ? null : this.#hydrator.hydrate(reference);
   }
+
+  rename(newName: string): void {
+    this.#bridge.call({
+      service: "spreadsheet",
+      operation: "rename-spreadsheet",
+      spreadsheet: this.#reference,
+      name: newName,
+    });
+  }
 }
 
 // https://developers.google.com/apps-script/reference/spreadsheet/sheet

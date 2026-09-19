@@ -54,6 +54,11 @@ describe("InMemorySpreadsheetStore resources", () => {
     await expect(store.getSpreadsheetMetadata(SPREADSHEET)).resolves.toStrictEqual({
       name: "Budget",
     });
+    await store.renameSpreadsheet(SPREADSHEET, "Forecast");
+    await expect(store.getSpreadsheetMetadata(SPREADSHEET)).resolves.toStrictEqual({
+      name: "Forecast",
+    });
+
     await expect(store.listSheets(SPREADSHEET)).resolves.toStrictEqual([
       {
         service: "spreadsheet",

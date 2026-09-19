@@ -198,6 +198,18 @@ export class InMemorySpreadsheetStore implements SpreadsheetStore {
     return { ...this.#getSpreadsheetState(spreadsheet.id).metadata };
   }
 
+  async renameSpreadsheet(spreadsheet: SpreadsheetReference, name: string): Promise<void> {
+    const state = this.#getSpreadsheetState(spreadsheet.id);
+
+    this.#spreadsheets.set(spreadsheet.id, {
+      ...state,
+      metadata: {
+        ...state.metadata,
+        name,
+      },
+    });
+  }
+
   async listSheets(spreadsheet: SpreadsheetReference): Promise<readonly SheetReference[]> {
     return [...this.#getSpreadsheetState(spreadsheet.id).sheets.values()].map(({ reference }) =>
       cloneSheetReference(reference),

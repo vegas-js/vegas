@@ -147,6 +147,39 @@ describe("Spreadsheet Runtime objects", () => {
     expect(spreadsheet.getSheetByName("Missing")).toBeNull();
   });
 
+  test("rename a Spreadsheet through the HostBridge", () => {
+    let name = "Budget";
+    const bridge = new RecordingHostBridge((call) => {
+      if (call.service !== "spreadsheet") {
+        throw new Error(`unexpected service: ${call.service}`);
+      }
+
+      switch (call.operation) {
+        case "get-spreadsheet-metadata":
+          return { name };
+        case "rename-spreadsheet":
+          name = call.name;
+          return undefined;
+        default:
+          throw new Error(`unexpected host call: ${call.service}#${call.operation}`);
+      }
+    });
+    const spreadsheet = createSpreadsheetObjectHydrator(bridge).hydrate({
+      service: "spreadsheet",
+      kind: "spreadsheet",
+      id: "spreadsheet-a",
+    });
+
+    expect(spreadsheet.getName()).toBe("Budget");
+    expect(spreadsheet.rename("Forecast")).toBeUndefined();
+    expect(spreadsheet.getName()).toBe("Forecast");
+    expect(bridge.calls.map(({ operation }) => operation)).toStrictEqual([
+      "get-spreadsheet-metadata",
+      "rename-spreadsheet",
+      "get-spreadsheet-metadata",
+    ]);
+  });
+
   test("reject non-integer Sheet ids before HostBridge calls", () => {
     const bridge = createBridge();
     const spreadsheet = createSpreadsheetObjectHydrator(bridge).hydrate({

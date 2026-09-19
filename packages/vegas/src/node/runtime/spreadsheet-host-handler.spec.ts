@@ -60,6 +60,23 @@ describe("SpreadsheetHostHandler", () => {
     await expect(
       handler.handle({
         service: "spreadsheet",
+        operation: "rename-spreadsheet",
+        spreadsheet,
+        name: "Forecast",
+      }),
+    ).resolves.toBeUndefined();
+    await expect(
+      handler.handle({
+        service: "spreadsheet",
+        operation: "get-spreadsheet-metadata",
+        spreadsheet,
+      }),
+    ).resolves.toStrictEqual({
+      name: "Forecast",
+    });
+    await expect(
+      handler.handle({
+        service: "spreadsheet",
         operation: "get-sheet",
         spreadsheet,
         sheetId: 7,

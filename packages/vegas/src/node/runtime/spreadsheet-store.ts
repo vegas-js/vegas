@@ -34,6 +34,8 @@ export interface SpreadsheetStore {
 
   getSpreadsheetMetadata(spreadsheet: SpreadsheetReference): Promise<SpreadsheetMetadata>;
 
+  renameSpreadsheet(spreadsheet: SpreadsheetReference, name: string): Promise<void>;
+
   listSheets(spreadsheet: SpreadsheetReference): Promise<readonly SheetReference[]>;
 
   getSheet(spreadsheet: SpreadsheetReference, sheetId: number): Promise<SheetReference | null>;

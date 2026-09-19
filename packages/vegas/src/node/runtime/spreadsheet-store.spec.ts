@@ -24,6 +24,7 @@ describe("SpreadsheetStore contract", () => {
     expectTypeOf<
       SpreadsheetStore["getSpreadsheetMetadata"]
     >().returns.resolves.toEqualTypeOf<SpreadsheetMetadata>();
+    expectTypeOf<SpreadsheetStore["renameSpreadsheet"]>().returns.resolves.toEqualTypeOf<void>();
     expectTypeOf<SpreadsheetStore["listSheets"]>().returns.resolves.toEqualTypeOf<
       readonly SheetReference[]
     >();
