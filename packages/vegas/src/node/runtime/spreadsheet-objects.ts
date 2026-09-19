@@ -250,6 +250,10 @@ export class Sheet {
     return this.#metadata().name;
   }
 
+  hasHiddenGridlines(): boolean {
+    return this.#metadata().hiddenGridlines;
+  }
+
   getSheetName(): string {
     return this.getName();
   }
@@ -260,6 +264,32 @@ export class Sheet {
       operation: "rename-sheet",
       sheet: this.#reference,
       name,
+    });
+
+    return this;
+  }
+
+  isRightToLeft(): boolean {
+    return this.#metadata().rightToLeft;
+  }
+
+  setHiddenGridlines(hideGridlines: boolean): Sheet {
+    this.#bridge.call({
+      service: "spreadsheet",
+      operation: "set-sheet-hidden-gridlines",
+      sheet: this.#reference,
+      hidden: hideGridlines,
+    });
+
+    return this;
+  }
+
+  setRightToLeft(rightToLeft: boolean): Sheet {
+    this.#bridge.call({
+      service: "spreadsheet",
+      operation: "set-sheet-right-to-left",
+      sheet: this.#reference,
+      rightToLeft,
     });
 
     return this;

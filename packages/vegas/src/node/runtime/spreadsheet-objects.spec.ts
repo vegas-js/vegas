@@ -94,6 +94,8 @@ function createBridge() {
           name: "Summary",
           maxRows: 100,
           maxColumns: 26,
+          hiddenGridlines: false,
+          rightToLeft: false,
         };
       }
       case "get-range-values": {
@@ -312,6 +314,56 @@ describe("Spreadsheet Runtime objects", () => {
     expect(() => sheet.getIndex()).toThrow("Spreadsheet sheet is not present in its parent.");
   });
 
+  test("read and update Sheet display state through the HostBridge", () => {
+    let hiddenGridlines = false;
+    let rightToLeft = false;
+    const bridge = new RecordingHostBridge((call) => {
+      if (call.service !== "spreadsheet") {
+        throw new Error(`unexpected service: ${call.service}`);
+      }
+
+      switch (call.operation) {
+        case "get-sheet-metadata":
+          return {
+            name: "Summary",
+            maxRows: 100,
+            maxColumns: 26,
+            hiddenGridlines,
+            rightToLeft,
+          };
+        case "set-sheet-hidden-gridlines":
+          hiddenGridlines = call.hidden;
+          return undefined;
+        case "set-sheet-right-to-left":
+          rightToLeft = call.rightToLeft;
+          return undefined;
+        default:
+          throw new Error(`unexpected host call: ${call.service}#${call.operation}`);
+      }
+    });
+    const sheet = createSpreadsheetObjectHydrator(bridge).hydrate({
+      service: "spreadsheet",
+      kind: "sheet",
+      spreadsheetId: "spreadsheet-a",
+      sheetId: 7,
+    });
+
+    expect(sheet.hasHiddenGridlines()).toBe(false);
+    expect(sheet.isRightToLeft()).toBe(false);
+    expect(sheet.setHiddenGridlines(true)).toBe(sheet);
+    expect(sheet.setRightToLeft(true)).toBe(sheet);
+    expect(sheet.hasHiddenGridlines()).toBe(true);
+    expect(sheet.isRightToLeft()).toBe(true);
+    expect(bridge.calls.map(({ operation }) => operation)).toStrictEqual([
+      "get-sheet-metadata",
+      "get-sheet-metadata",
+      "set-sheet-hidden-gridlines",
+      "set-sheet-right-to-left",
+      "get-sheet-metadata",
+      "get-sheet-metadata",
+    ]);
+  });
+
   test("rename a Sheet through the HostBridge and preserve chaining", () => {
     let name = "Summary";
     const bridge = new RecordingHostBridge((call) => {
@@ -325,6 +377,8 @@ describe("Spreadsheet Runtime objects", () => {
             name,
             maxRows: 100,
             maxColumns: 26,
+            hiddenGridlines: false,
+            rightToLeft: false,
           };
         case "rename-sheet":
           name = call.name;

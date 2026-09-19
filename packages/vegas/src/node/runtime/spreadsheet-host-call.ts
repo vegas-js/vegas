@@ -60,6 +60,18 @@ export type SpreadsheetHostCall =
     }
   | {
       readonly service: "spreadsheet";
+      readonly operation: "set-sheet-hidden-gridlines";
+      readonly sheet: SheetReference;
+      readonly hidden: boolean;
+    }
+  | {
+      readonly service: "spreadsheet";
+      readonly operation: "set-sheet-right-to-left";
+      readonly sheet: SheetReference;
+      readonly rightToLeft: boolean;
+    }
+  | {
+      readonly service: "spreadsheet";
       readonly operation: "get-sheet-data-bounds";
       readonly sheet: SheetReference;
     }
@@ -103,9 +115,15 @@ export type SpreadsheetHostCallResult<C extends SpreadsheetHostCall> = C extends
                   readonly operation: "get-sheet-metadata";
                 }
               ? SheetMetadata
-              : C extends {
-                    readonly operation: "rename-sheet";
-                  }
+              : C extends
+                    | {
+                        readonly operation: "rename-sheet";
+                      }
+                    | {
+                        readonly operation:
+                          | "set-sheet-hidden-gridlines"
+                          | "set-sheet-right-to-left";
+                      }
                 ? void
                 : C extends {
                       readonly operation: "get-sheet-data-bounds";

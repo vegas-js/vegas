@@ -13,6 +13,8 @@ export interface InMemorySheetSeed {
   readonly name: string;
   readonly maxRows: number;
   readonly maxColumns: number;
+  readonly hiddenGridlines?: boolean;
+  readonly rightToLeft?: boolean;
   readonly values?: SpreadsheetGrid;
 }
 
@@ -114,6 +116,8 @@ function createSheetState(spreadsheetId: string, seed: InMemorySheetSeed): Sheet
       name: seed.name,
       maxRows: seed.maxRows,
       maxColumns: seed.maxColumns,
+      hiddenGridlines: seed.hiddenGridlines ?? false,
+      rightToLeft: seed.rightToLeft ?? false,
     },
     cells,
   };
@@ -259,6 +263,32 @@ export class InMemorySpreadsheetStore implements SpreadsheetStore {
       metadata: {
         ...state.metadata,
         name,
+      },
+    });
+  }
+
+  async setSheetHiddenGridlines(sheet: SheetReference, hidden: boolean): Promise<void> {
+    const spreadsheet = this.#getSpreadsheetState(sheet.spreadsheetId);
+    const state = this.#getSheetState(sheet.spreadsheetId, sheet.sheetId);
+
+    spreadsheet.sheets.set(sheet.sheetId, {
+      ...state,
+      metadata: {
+        ...state.metadata,
+        hiddenGridlines: hidden,
+      },
+    });
+  }
+
+  async setSheetRightToLeft(sheet: SheetReference, rightToLeft: boolean): Promise<void> {
+    const spreadsheet = this.#getSpreadsheetState(sheet.spreadsheetId);
+    const state = this.#getSheetState(sheet.spreadsheetId, sheet.sheetId);
+
+    spreadsheet.sheets.set(sheet.sheetId, {
+      ...state,
+      metadata: {
+        ...state.metadata,
+        rightToLeft,
       },
     });
   }

@@ -108,6 +108,51 @@ describe("SpreadsheetHostHandler", () => {
       spreadsheetId: "spreadsheet-a",
       sheetId: 7,
     });
+    const sheet = {
+      service: "spreadsheet",
+      kind: "sheet",
+      spreadsheetId: "spreadsheet-a",
+      sheetId: 7,
+    } as const;
+    await expect(
+      handler.handle({
+        service: "spreadsheet",
+        operation: "get-sheet-metadata",
+        sheet,
+      }),
+    ).resolves.toStrictEqual({
+      name: "Summary",
+      maxRows: 10,
+      maxColumns: 8,
+      hiddenGridlines: false,
+      rightToLeft: false,
+    });
+    await expect(
+      handler.handle({
+        service: "spreadsheet",
+        operation: "set-sheet-hidden-gridlines",
+        sheet,
+        hidden: true,
+      }),
+    ).resolves.toBeUndefined();
+    await expect(
+      handler.handle({
+        service: "spreadsheet",
+        operation: "set-sheet-right-to-left",
+        sheet,
+        rightToLeft: true,
+      }),
+    ).resolves.toBeUndefined();
+    await expect(
+      handler.handle({
+        service: "spreadsheet",
+        operation: "get-sheet-metadata",
+        sheet,
+      }),
+    ).resolves.toMatchObject({
+      hiddenGridlines: true,
+      rightToLeft: true,
+    });
     await expect(
       handler.handle({
         service: "spreadsheet",

@@ -123,6 +123,8 @@ describe("InMemorySpreadsheetStore resources", () => {
       name: "Overview",
       maxRows: 10,
       maxColumns: 8,
+      hiddenGridlines: false,
+      rightToLeft: false,
     });
     await expect(store.getSheetByName(SPREADSHEET, "Overview")).resolves.toStrictEqual(sheet);
     await expect(store.getSheetByName(SPREADSHEET, "Summary")).resolves.toBeNull();
@@ -134,6 +136,31 @@ describe("InMemorySpreadsheetStore resources", () => {
       name: "Overview",
       maxRows: 10,
       maxColumns: 8,
+      hiddenGridlines: false,
+      rightToLeft: false,
+    });
+  });
+
+  test("persist Sheet display state with documented defaults", async () => {
+    const store = createStore();
+    const sheet = {
+      service: "spreadsheet",
+      kind: "sheet",
+      spreadsheetId: "spreadsheet-a",
+      sheetId: 7,
+    } as const;
+
+    await expect(store.getSheetMetadata(sheet)).resolves.toMatchObject({
+      hiddenGridlines: false,
+      rightToLeft: false,
+    });
+
+    await store.setSheetHiddenGridlines(sheet, true);
+    await store.setSheetRightToLeft(sheet, true);
+
+    await expect(store.getSheetMetadata(sheet)).resolves.toMatchObject({
+      hiddenGridlines: true,
+      rightToLeft: true,
     });
   });
 
