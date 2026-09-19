@@ -22,7 +22,7 @@ const API_SURFACES = {
   ],
   SpreadsheetApp: [
     ["SpreadsheetApp", "spreadsheet-objects.ts", "SpreadsheetApp"],
-    ["Spreadsheet", "spreadsheet-objects.ts", "Spreadsheet"],
+    ["Spreadsheet", "spreadsheet-spreadsheet.ts", "Spreadsheet"],
     ["Sheet", "spreadsheet-sheet.ts", "Sheet"],
     ["Range", "spreadsheet-range.ts", "Range"],
   ],
