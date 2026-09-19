@@ -14,7 +14,7 @@ const STANDALONE_GLOBAL_ENUMS = new Set(["MimeType"]);
 
 const API_SURFACES = {
   DriveApp: [
-    ["DriveApp", "drive-objects.ts", "DriveApp"],
+    ["DriveApp", "drive-app.ts", "DriveApp"],
     ["File", "drive-file.ts", "DriveFile"],
     ["Folder", "drive-folder.ts", "DriveFolder"],
     ["FileIterator", "drive-file-iterator.ts", "DriveFileIterator"],

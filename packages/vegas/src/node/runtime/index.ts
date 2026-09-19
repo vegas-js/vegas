@@ -21,7 +21,7 @@ export { DriveFileIterator } from "./drive-file-iterator";
 export { DriveFolder } from "./drive-folder";
 export { DriveFolderIterator } from "./drive-folder-iterator";
 export type { DriveObjectHydrator, HydratedDriveObject } from "./drive-hydrator";
-export { DriveApp } from "./drive-objects";
+export { DriveApp } from "./drive-app";
 export type {
   DriveFileIteratorReference,
   DriveFileReference,
