@@ -18,8 +18,7 @@ function createServerFunctionClient<T extends object>(): ServerFunctionClient<T>
 import { createServerFunctionClient } from "@vegasjs/vegas/client";
 import type * as serverFunctions from "../path/to/Code.ts";
 
-const server =
-  createServerFunctionClient<typeof serverFunctions>();
+const server = createServerFunctionClient<typeof serverFunctions>();
 
 await server.myFunction();
 ```
