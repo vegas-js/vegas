@@ -28,6 +28,7 @@ export default defineConfig({
           text: "APIs",
           items: [
             { text: "JavaScript API", link: "/guide/api-javascript/" },
+            { text: "Runtime API coverage", link: "/guide/runtime-api-coverage/" },
             { text: "Config reference", link: "/config/" },
           ],
         },
