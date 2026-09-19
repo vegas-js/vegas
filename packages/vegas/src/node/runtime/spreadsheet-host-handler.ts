@@ -1,5 +1,6 @@
 import type { SpreadsheetHostCall, SpreadsheetHostCallResult } from "./spreadsheet-host-call";
 import type { SpreadsheetStore } from "./spreadsheet-store";
+import { unsupportedHostCall } from "./unsupported-host-call";
 
 export interface SpreadsheetHostCallHandler {
   handle(call: SpreadsheetHostCall): Promise<SpreadsheetHostCallResult<SpreadsheetHostCall>>;
@@ -62,5 +63,7 @@ export class SpreadsheetHostHandler implements SpreadsheetHostCallHandler {
         return;
       }
     }
+
+    return unsupportedHostCall(call);
   }
 }

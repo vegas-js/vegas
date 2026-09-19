@@ -2,6 +2,7 @@ import type { CacheHostCall, CacheHostCallResult, CacheHostScope } from "./cache
 import { resolveCacheNamespace } from "./cache-namespace";
 import type { CacheNamespace, CacheStore } from "./cache-store";
 import type { InvocationScope } from "./scope";
+import { unsupportedHostCall } from "./unsupported-host-call";
 
 export interface CacheHostCallHandler {
   handle(call: CacheHostCall): Promise<CacheHostCallResult<CacheHostCall>>;
@@ -74,6 +75,8 @@ export class CacheHostHandler implements CacheHostCallHandler {
         return;
       }
     }
+
+    return unsupportedHostCall(call);
   }
 
   #expiresAt(expirationInSeconds: number): number {

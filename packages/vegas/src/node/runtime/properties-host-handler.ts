@@ -6,6 +6,7 @@ import type {
 import { resolvePropertiesNamespace } from "./properties-namespace";
 import type { PropertiesNamespace, PropertiesStore } from "./properties-store";
 import type { InvocationScope } from "./scope";
+import { unsupportedHostCall } from "./unsupported-host-call";
 
 export interface PropertiesHostCallHandler {
   handle(call: PropertiesHostCall): Promise<PropertiesHostCallResult<PropertiesHostCall>>;
@@ -80,6 +81,8 @@ export class PropertiesHostHandler implements PropertiesHostCallHandler {
         return;
       }
     }
+
+    return unsupportedHostCall(call);
   }
 
   #resolve(kind: PropertiesHostScope): PropertiesNamespace | undefined {

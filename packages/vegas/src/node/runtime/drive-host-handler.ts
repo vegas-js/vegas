@@ -1,6 +1,7 @@
 import type { DriveHostCall, DriveHostCallResult } from "./drive-host-call";
 import type { DriveIteratorSession } from "./drive-iterator-store";
 import type { DriveNamespace, DriveStore } from "./drive-store";
+import { unsupportedHostCall } from "./unsupported-host-call";
 
 const MAX_LOCAL_DRIVE_FILE_CONTENT_BYTES = 10_000_000;
 
@@ -135,5 +136,7 @@ export class LocalDriveHostHandler implements DriveHostCallHandler {
         return this.#iterators.nextFolder(call.iterator);
       }
     }
+
+    return unsupportedHostCall(call);
   }
 }

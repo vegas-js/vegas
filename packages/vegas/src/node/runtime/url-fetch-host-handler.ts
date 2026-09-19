@@ -1,3 +1,4 @@
+import { unsupportedHostCall } from "./unsupported-host-call";
 import type { UrlFetchCapability } from "./url-fetch-capability";
 import type { UrlFetchHostCall, UrlFetchHostCallResult } from "./url-fetch-host-call";
 
@@ -21,5 +22,7 @@ export class UrlFetchHostHandler implements UrlFetchHostCallHandler {
         return this.#capability.fetchAll(call.requests);
       }
     }
+
+    return unsupportedHostCall(call);
   }
 }

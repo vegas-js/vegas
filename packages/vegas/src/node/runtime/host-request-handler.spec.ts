@@ -69,6 +69,28 @@ describe("createHostResponse", () => {
       },
     });
   });
+
+  test("serialize unsupported operations instead of returning undefined success", async () => {
+    const dispatcher = createDispatcher();
+
+    const response = await createHostResponse(dispatcher, {
+      id: 19,
+      call: {
+        service: "properties",
+        operation: "unknown",
+      },
+    } as never);
+
+    expect(response).toMatchObject({
+      id: 19,
+      ok: false,
+      error: {
+        name: "Error",
+        type: "Error",
+        message: "Unsupported host call: properties#unknown",
+      },
+    });
+  });
 });
 
 describe("handleHostRequestMessage", () => {

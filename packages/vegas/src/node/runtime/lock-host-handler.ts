@@ -2,6 +2,7 @@ import type { LockHostCall, LockHostCallResult, LockHostScope } from "./lock-hos
 import { resolveLockNamespace } from "./lock-namespace";
 import type { LockNamespace, LockStoreSession } from "./lock-store";
 import type { InvocationScope } from "./scope";
+import { unsupportedHostCall } from "./unsupported-host-call";
 
 export interface LockHostCallHandler {
   handle(call: LockHostCall): Promise<LockHostCallResult<LockHostCall>>;
@@ -45,6 +46,8 @@ export class LockHostHandler implements LockHostCallHandler {
         return;
       }
     }
+
+    return unsupportedHostCall(call);
   }
 
   #resolve(kind: LockHostScope): LockNamespace | undefined {
