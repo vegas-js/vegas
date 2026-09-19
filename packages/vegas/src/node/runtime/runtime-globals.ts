@@ -1,4 +1,4 @@
-import { createCacheService } from "./cache-objects";
+import { createCacheService } from "./cache-service";
 import { createDriveApp } from "./drive-object-hydrator";
 import type { HostBridge } from "./host-bridge";
 import { createHtmlService } from "./html-service";

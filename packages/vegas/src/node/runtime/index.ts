@@ -8,7 +8,7 @@ export { CacheHostHandler } from "./cache-host-handler";
 export type { CacheHostCallHandler } from "./cache-host-handler";
 export { resolveCacheNamespace } from "./cache-namespace";
 export { Cache } from "./cache";
-export { CacheService, createCacheService } from "./cache-objects";
+export { CacheService, createCacheService } from "./cache-service";
 export type { CacheNamespace, CacheStore } from "./cache-store";
 export type { DriveHostCall, DriveHostCallResult } from "./drive-host-call";
 export { LocalDriveHostHandler } from "./drive-host-handler";
