@@ -15,11 +15,12 @@ export { resolveDriveNamespace } from "./drive-namespace";
 export type { DriveHostCallHandler } from "./drive-host-handler";
 export type { DriveIteratorSession, DriveIteratorStore } from "./drive-iterator-store";
 export type { DriveLiveCapability } from "./drive-live-capability";
+export { DriveFile } from "./drive-file";
 export { createDriveApp, createDriveObjectHydrator } from "./drive-object-hydrator";
 export { DriveFileIterator } from "./drive-file-iterator";
 export { DriveFolderIterator } from "./drive-folder-iterator";
 export type { DriveObjectHydrator, HydratedDriveObject } from "./drive-hydrator";
-export { DriveApp, DriveFile, DriveFolder } from "./drive-objects";
+export { DriveApp, DriveFolder } from "./drive-objects";
 export type {
   DriveFileIteratorReference,
   DriveFileReference,
