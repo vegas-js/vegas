@@ -5,27 +5,37 @@ import { Rolldown } from "tsdown";
 
 const PREFERRED_LICENSE_FILE_NAMES = ["LICENSE", "LICENSE.md", "license"] as const;
 const LICENSE_FILE_NAME_PATTERN = /^(?:licen[cs]e|copying)(?:[._-].*)?$/i;
+const NOTICE_FILE_NAME_PATTERN = /^notice(?:[._-].*)?$/i;
 
-export function resolvePackageLicenseFile(packageRoot: string): string {
+export function resolvePackageLegalFiles(packageRoot: string): string[] {
   const entries = fs.readdirSync(packageRoot, { withFileTypes: true });
   const fileNames = entries.filter((entry) => entry.isFile()).map((entry) => entry.name);
   const availableFiles = new Set(fileNames);
+  const licenseFiles: string[] = [];
 
   for (const fileName of PREFERRED_LICENSE_FILE_NAMES) {
-    if (availableFiles.has(fileName)) {
-      return path.join(packageRoot, fileName);
+    if (availableFiles.delete(fileName)) {
+      licenseFiles.push(fileName);
     }
   }
 
-  const fallback = fileNames
-    .filter((fileName) => LICENSE_FILE_NAME_PATTERN.test(fileName))
-    .sort((left, right) => left.localeCompare(right))[0];
+  licenseFiles.push(
+    ...fileNames
+      .filter(
+        (fileName) => availableFiles.has(fileName) && LICENSE_FILE_NAME_PATTERN.test(fileName),
+      )
+      .sort((left, right) => left.localeCompare(right)),
+  );
 
-  if (fallback) {
-    return path.join(packageRoot, fallback);
+  if (licenseFiles.length === 0) {
+    throw new Error(`Could not find a license file for bundled package: ${packageRoot}`);
   }
 
-  throw new Error(`Could not find a license file for bundled package: ${packageRoot}`);
+  const noticeFiles = fileNames
+    .filter((fileName) => NOTICE_FILE_NAME_PATTERN.test(fileName))
+    .sort((left, right) => left.localeCompare(right));
+
+  return [...licenseFiles, ...noticeFiles].map((fileName) => path.join(packageRoot, fileName));
 }
 
 export default function rolldownLicensePlugin(
@@ -95,9 +105,21 @@ export default function rolldownLicensePlugin(
           }
         }
         outputLicenses.push("");
-        const licensePath = resolvePackageLicenseFile(pkgRootPath);
-        const licenseText = fs.readFileSync(licensePath, "utf8");
-        outputLicenses.push(licenseText.replace(/\n$/g, "").replace(/^/gm, "> "));
+
+        const legalFiles = resolvePackageLegalFiles(pkgRootPath);
+        legalFiles.forEach((legalFile, legalFileIndex) => {
+          if (legalFiles.length > 1) {
+            outputLicenses.push(`### ${path.basename(legalFile)}`, "");
+          }
+
+          const legalText = fs.readFileSync(legalFile, "utf8");
+          outputLicenses.push(legalText.replace(/\n$/g, "").replace(/^/gm, "> "));
+
+          if (legalFileIndex !== legalFiles.length - 1) {
+            outputLicenses.push("");
+          }
+        });
+
         if (index !== packages.length - 1) {
           outputLicenses.push("\n---------------------------------------\n");
         }

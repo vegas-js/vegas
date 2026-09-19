@@ -4,7 +4,7 @@ import path from "node:path";
 
 import { describe, expect, test } from "vitest";
 
-import { resolvePackageLicenseFile } from "./rolldown-license-plugin";
+import { resolvePackageLegalFiles } from "./rolldown-license-plugin";
 
 function withPackageRoot(
   files: Readonly<Record<string, string | null>>,
@@ -29,7 +29,7 @@ function withPackageRoot(
   }
 }
 
-describe("resolvePackageLicenseFile", () => {
+describe("resolvePackageLegalFiles", () => {
   test("preserve the existing preferred license file order", () => {
     withPackageRoot(
       {
@@ -38,7 +38,11 @@ describe("resolvePackageLicenseFile", () => {
         license: "lowercase license",
       },
       (packageRoot) => {
-        expect(resolvePackageLicenseFile(packageRoot)).toBe(path.join(packageRoot, "LICENSE"));
+        expect(resolvePackageLegalFiles(packageRoot)).toStrictEqual([
+          path.join(packageRoot, "LICENSE"),
+          path.join(packageRoot, "LICENSE.md"),
+          path.join(packageRoot, "license"),
+        ]);
       },
     );
   });
@@ -46,26 +50,60 @@ describe("resolvePackageLicenseFile", () => {
   test("support conventional alternative license file names", () => {
     for (const fileName of ["LICENSE.txt", "LICENCE.md", "COPYING", "LICENSE-MIT"]) {
       withPackageRoot({ [fileName]: "license" }, (packageRoot) => {
-        expect(resolvePackageLicenseFile(packageRoot)).toBe(path.join(packageRoot, fileName));
+        expect(resolvePackageLegalFiles(packageRoot)).toStrictEqual([
+          path.join(packageRoot, fileName),
+        ]);
       });
     }
   });
 
-  test("ignore directories that look like license files", () => {
+  test("collect multiple license files and notice files", () => {
     withPackageRoot(
       {
-        LICENSE: null,
-        "COPYING.txt": "license",
+        LICENSE: "license",
+        "LICENSE-MIT": "mit",
+        "LICENSE-APACHE": "apache",
+        NOTICE: "notice",
+        "NOTICE.txt": "notice text",
       },
       (packageRoot) => {
-        expect(resolvePackageLicenseFile(packageRoot)).toBe(path.join(packageRoot, "COPYING.txt"));
+        expect(resolvePackageLegalFiles(packageRoot)).toStrictEqual([
+          path.join(packageRoot, "LICENSE"),
+          path.join(packageRoot, "LICENSE-APACHE"),
+          path.join(packageRoot, "LICENSE-MIT"),
+          path.join(packageRoot, "NOTICE"),
+          path.join(packageRoot, "NOTICE.txt"),
+        ]);
       },
     );
   });
 
+  test("ignore directories that look like legal files", () => {
+    withPackageRoot(
+      {
+        LICENSE: null,
+        NOTICE: null,
+        "COPYING.txt": "license",
+      },
+      (packageRoot) => {
+        expect(resolvePackageLegalFiles(packageRoot)).toStrictEqual([
+          path.join(packageRoot, "COPYING.txt"),
+        ]);
+      },
+    );
+  });
+
+  test("require a license file even when a notice file exists", () => {
+    withPackageRoot({ NOTICE: "notice" }, (packageRoot) => {
+      expect(() => resolvePackageLegalFiles(packageRoot)).toThrow(
+        `Could not find a license file for bundled package: ${packageRoot}`,
+      );
+    });
+  });
+
   test("fail with the package path when no license file can be found", () => {
     withPackageRoot({ "README.md": "readme" }, (packageRoot) => {
-      expect(() => resolvePackageLicenseFile(packageRoot)).toThrow(
+      expect(() => resolvePackageLegalFiles(packageRoot)).toThrow(
         `Could not find a license file for bundled package: ${packageRoot}`,
       );
     });
