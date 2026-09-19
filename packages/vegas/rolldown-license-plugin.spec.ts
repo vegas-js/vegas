@@ -4,7 +4,11 @@ import path from "node:path";
 
 import { describe, expect, test } from "vitest";
 
-import { resolveBundledPackage, resolvePackageLegalFiles } from "./rolldown-license-plugin";
+import {
+  collectBundledPackages,
+  resolveBundledPackage,
+  resolvePackageLegalFiles,
+} from "./rolldown-license-plugin";
 
 function withPackageRoot(
   files: Readonly<Record<string, string | null>>,
@@ -72,6 +76,28 @@ describe("resolveBundledPackage", () => {
 
   test("ignore malformed scoped package paths", () => {
     expect(resolveBundledPackage("/repo/node_modules/@scope")).toBeNull();
+  });
+});
+
+describe("collectBundledPackages", () => {
+  test("deduplicate modules from the same package root and retain separate installed versions", () => {
+    expect(
+      collectBundledPackages([
+        "/repo/node_modules/.pnpm/shared@1.0.0/node_modules/shared/a.js",
+        "/repo/node_modules/.pnpm/shared@1.0.0/node_modules/shared/b.js",
+        "/repo/node_modules/.pnpm/shared@2.0.0/node_modules/shared/index.js",
+        "/repo/src/local.ts",
+      ]),
+    ).toStrictEqual([
+      {
+        name: "shared",
+        root: "/repo/node_modules/.pnpm/shared@1.0.0/node_modules/shared",
+      },
+      {
+        name: "shared",
+        root: "/repo/node_modules/.pnpm/shared@2.0.0/node_modules/shared",
+      },
+    ]);
   });
 });
 

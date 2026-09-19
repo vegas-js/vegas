@@ -45,6 +45,22 @@ export function resolveBundledPackage(moduleId: string): BundledPackage | null {
   };
 }
 
+export function collectBundledPackages(moduleIds: Iterable<string>): BundledPackage[] {
+  const packagesByRoot = new Map<string, BundledPackage>();
+
+  for (const moduleId of moduleIds) {
+    const bundledPackage = resolveBundledPackage(moduleId);
+
+    if (bundledPackage) {
+      packagesByRoot.set(bundledPackage.root, bundledPackage);
+    }
+  }
+
+  return [...packagesByRoot.values()].sort(
+    (left, right) => left.name.localeCompare(right.name) || left.root.localeCompare(right.root),
+  );
+}
+
 export function resolvePackageLegalFiles(packageRoot: string): string[] {
   const entries = fs.readdirSync(packageRoot, { withFileTypes: true });
   const fileNames = entries.filter((entry) => entry.isFile()).map((entry) => entry.name);
@@ -84,27 +100,21 @@ export default function rolldownLicensePlugin(
     name: "rolldown-license-plugin",
 
     generateBundle(_, bundle) {
-      const packageMap: Map<string, string> = new Map();
+      const moduleIds: string[] = [];
       Object.values(bundle).forEach((output) => {
         if (output.type === "chunk") {
-          output.moduleIds.forEach((moduleId) => {
-            const bundledPackage = resolveBundledPackage(moduleId);
-
-            if (bundledPackage) {
-              packageMap.set(bundledPackage.name, bundledPackage.root);
-            }
-          });
+          moduleIds.push(...output.moduleIds);
         }
       });
 
-      const packages = [...packageMap.entries()].sort((a, b) => a[0].localeCompare(b[0]));
+      const packages = collectBundledPackages(moduleIds);
       const outputLicenses: string[] = [
         "# Bundled Third-Party Licenses",
         "This file contains licenses of third-party libraries bundled in this package.\n",
       ];
 
       const licenseSet: Set<string> = new Set();
-      packages.forEach(([pkgName, pkgRootPath], index) => {
+      packages.forEach(({ name: pkgName, root: pkgRootPath }, index) => {
         outputLicenses.push(`## ${pkgName}`);
         const packageJsonPath = path.join(pkgRootPath, "package.json");
         const packageJsonText = fs.readFileSync(packageJsonPath, "utf8");
