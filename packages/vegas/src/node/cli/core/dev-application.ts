@@ -2,18 +2,7 @@ import { ArtifactStore } from "../../build";
 import { startDevApplication } from "../../dev/application";
 import { buildDevTopology } from "../../dev/build-topology";
 import { loadProject } from "../../project";
-import {
-  InMemoryCacheStore,
-  InMemoryDriveIteratorStore,
-  InMemoryDriveStore,
-  InMemoryLockStore,
-  InMemoryPropertiesStore,
-  InMemorySpreadsheetStore,
-} from "../../runtime";
-import { createNodeAppsScriptExecutor } from "./apps-script-executor";
-import { loadRuntimeData } from "./runtime-data";
-import { createInvocationEnvironment } from "./runtime-environment";
-import { createInvocationScope } from "./runtime-scope";
+import { createLocalRuntime } from "./local-runtime";
 
 type DevApplicationMode = "development" | "production";
 
@@ -40,30 +29,10 @@ export async function runDevApplication(mode: DevApplicationMode, root?: string)
     },
   ]);
 
-  const scope = createInvocationScope(project);
-  const cacheStore = new InMemoryCacheStore();
-  const lockStore = new InMemoryLockStore();
-  const propertiesStore = new InMemoryPropertiesStore();
-  const driveStore = new InMemoryDriveStore();
-  const driveIteratorStore = new InMemoryDriveIteratorStore();
-
-  const runtimeData = await loadRuntimeData(
-    project.root,
+  const { executor, environment, scope } = await createLocalRuntime(
+    project,
     snapshot.runtimeDataSources,
-    propertiesStore,
-    scope,
   );
-
-  const spreadsheetStore = new InMemorySpreadsheetStore(runtimeData.spreadsheets);
-  const environment = createInvocationEnvironment(project, runtimeData.session);
-  const executor = createNodeAppsScriptExecutor({
-    cacheStore,
-    driveIteratorStore,
-    driveStore,
-    lockStore,
-    propertiesStore,
-    spreadsheetStore,
-  });
 
   await startDevApplication({
     project,
