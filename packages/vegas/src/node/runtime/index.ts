@@ -61,7 +61,7 @@ export { Lock } from "./lock";
 export { createLockService, LockService } from "./lock-service";
 export type { LockNamespace, LockStore, LockStoreSession } from "./lock-store";
 export { Properties } from "./properties";
-export { createPropertiesService, PropertiesService } from "./properties-objects";
+export { createPropertiesService, PropertiesService } from "./properties-service";
 export { PropertiesHostHandler } from "./properties-host-handler";
 export type { PropertiesHostCallHandler } from "./properties-host-handler";
 export type {

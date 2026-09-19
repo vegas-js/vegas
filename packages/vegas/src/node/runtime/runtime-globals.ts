@@ -5,7 +5,7 @@ import { createHtmlService } from "./html-service";
 import type { InvocationEnvironment } from "./invocation";
 import { createLockService } from "./lock-service";
 import { createConsole, createLogger, type LoggingTarget } from "./logging";
-import { createPropertiesService } from "./properties-objects";
+import { createPropertiesService } from "./properties-service";
 import { createSession } from "./session-objects";
 import { createSpreadsheetApp } from "./spreadsheet-object-hydrator";
 import { createUrlFetchApp } from "./url-fetch-app";
