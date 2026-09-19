@@ -84,14 +84,6 @@ function createBridge() {
             sheetId: 9,
           },
         ] satisfies SheetReference[];
-      case "get-sheet-metadata":
-        return {
-          name: "Summary",
-          maxRows: 100,
-          maxColumns: 26,
-          hiddenGridlines: false,
-          rightToLeft: false,
-        };
       default:
         throw new Error(`unexpected host call: ${call.service}#${call.operation}`);
     }
