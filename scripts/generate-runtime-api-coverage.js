@@ -43,7 +43,7 @@ const API_SURFACES = {
   console: [["Console", "logging.ts", "AppsScriptConsole"]],
   CacheService: [
     ["CacheService", "cache-objects.ts", "CacheService"],
-    ["Cache", "cache-objects.ts", "Cache"],
+    ["Cache", "cache.ts", "Cache"],
   ],
   LockService: [
     ["LockService", "lock-objects.ts", "LockService"],
