@@ -156,4 +156,39 @@ describe("handleHostRequestMessage", () => {
       port2.close();
     }
   });
+
+  test("leave messages outside the Host request envelope untouched", async () => {
+    const dispatcher = createDispatcher();
+    const sharedArray = new Int32Array(new SharedArrayBuffer(4));
+    const { port1, port2 } = new worker.MessageChannel();
+
+    Atomics.store(sharedArray, 0, 1);
+
+    try {
+      await expect(
+        handleHostRequestMessage(port1, sharedArray, dispatcher, {
+          id: 20,
+          call: {
+            service: "unknown",
+            operation: "noop",
+          },
+        }),
+      ).resolves.toBe(false);
+      expect(Atomics.load(sharedArray, 0)).toBe(1);
+
+      await expect(
+        handleHostRequestMessage(port1, sharedArray, dispatcher, {
+          id: "20",
+          call: {
+            service: "properties",
+            operation: "get",
+          },
+        }),
+      ).resolves.toBe(false);
+      expect(Atomics.load(sharedArray, 0)).toBe(1);
+    } finally {
+      port1.close();
+      port2.close();
+    }
+  });
 });
