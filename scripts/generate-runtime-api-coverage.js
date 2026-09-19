@@ -9,6 +9,7 @@ const RUNTIME_ROOT = path.join(VEGAS_ROOT, "src", "node", "runtime");
 const RUNTIME_GLOBALS_PATH = path.join(RUNTIME_ROOT, "runtime-globals.ts");
 const OUTPUT_PATH = path.join(ROOT, "docs", "guide", "runtime-api-coverage.md");
 const PNPM = process.platform === "win32" ? "pnpm.cmd" : "pnpm";
+const STANDALONE_GLOBAL_ENUMS = new Set(["MimeType"]);
 
 const API_SURFACES = {
   DriveApp: [
@@ -186,6 +187,16 @@ export function extractInterfaceEnumPropertyNames(source, interfaceName) {
 
 export function hasEnumDeclaration(source, enumName) {
   return new RegExp(`^\\s*enum\\s+${escapeRegExp(enumName)}\\b`, "m").test(source);
+}
+
+export function isStandaloneGlobalEnum(name, declaration) {
+  const interfaceName = extractInterfaceName(declaration.typeReference);
+
+  if (interfaceName === null) {
+    return false;
+  }
+
+  return hasEnumDeclaration(declaration.source, interfaceName) || STANDALONE_GLOBAL_ENUMS.has(name);
 }
 
 export function extractClassMethodNames(source, className) {
@@ -515,9 +526,7 @@ function buildStandaloneEnumRows(runtimeGlobals, declarations) {
       continue;
     }
 
-    const interfaceName = extractInterfaceName(declaration.typeReference);
-
-    if (interfaceName === null || !hasEnumDeclaration(declaration.source, interfaceName)) {
+    if (!isStandaloneGlobalEnum(global.name, declaration)) {
       continue;
     }
 

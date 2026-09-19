@@ -8,6 +8,7 @@ import {
   extractInterfaceMethodNames,
   extractRuntimeGlobals,
   hasEnumDeclaration,
+  isStandaloneGlobalEnum,
 } from "./generate-runtime-api-coverage.js";
 
 describe("runtime API coverage generator", () => {
@@ -79,6 +80,25 @@ declare namespace GoogleAppsScript {
     expect(extractInterfaceEnumPropertyNames(source, "ExampleApp")).toStrictEqual(["Mode"]);
     expect(hasEnumDeclaration(source, "Mode")).toBe(true);
     expect(hasEnumDeclaration(source, "ExampleApp")).toBe(false);
+  });
+
+  test("recognize standalone Global enums with non-enum type declarations", () => {
+    const declaration = {
+      typeReference: "GoogleAppsScript.Base.MimeType",
+      source: `
+declare namespace GoogleAppsScript {
+  namespace Base {
+    interface MimeType {
+      PDF: string;
+      ZIP: string;
+    }
+  }
+}
+`,
+    };
+
+    expect(isStandaloneGlobalEnum("MimeType", declaration)).toBe(true);
+    expect(isStandaloneGlobalEnum("Example", declaration)).toBe(false);
   });
 
   test("read unique public Runtime class methods", () => {

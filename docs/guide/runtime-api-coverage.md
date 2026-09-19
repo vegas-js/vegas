@@ -83,12 +83,13 @@ Measured Global Object enum surface coverage: **6 / 100 (6.0%)**
 | `Browser`                   |    0 / 1 |         0.0% | `Buttons`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
 | `ScriptApp`                 |    0 / 5 |         0.0% | `AuthMode`<br>`AuthorizationStatus`<br>`EventType`<br>`InstallationSource`<br>`TriggerSource`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
 
-Measured standalone Global enum coverage: **0 / 0 (—)**
+Measured standalone Global enum coverage: **0 / 1 (0.0%)**
 
 ## Standalone Global enums
 
 | Global enum | Coverage | Coverage (%) |
 | ----------- | -------: | -----------: |
+| `MimeType`  |    0 / 1 |         0.0% |
 
 ## Declared nested APIs not yet measured
 
@@ -99,7 +100,6 @@ These Global Objects are declared by the installed type package but expose no di
 | `AdminGroupsMigration` | Not implemented |
 | `Tasks`                | Not implemented |
 | `Adsense`              | Not implemented |
-| `MimeType`             | Not implemented |
 
 ## Untracked by installed @types
 
