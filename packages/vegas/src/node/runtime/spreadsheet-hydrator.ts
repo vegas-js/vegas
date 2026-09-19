@@ -1,10 +1,12 @@
-import type { Range, Sheet, Spreadsheet } from "./spreadsheet-objects";
+import type { Range } from "./spreadsheet-range";
 import type {
   RangeReference,
   SheetReference,
   SpreadsheetObjectReference,
   SpreadsheetReference,
 } from "./spreadsheet-reference";
+import type { Sheet } from "./spreadsheet-sheet";
+import type { Spreadsheet } from "./spreadsheet-spreadsheet";
 
 export type HydratedSpreadsheetObject<R extends SpreadsheetObjectReference> =
   R extends SpreadsheetReference

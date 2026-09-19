@@ -1,12 +1,15 @@
 import type { HostBridge } from "./host-bridge";
+import { SpreadsheetApp } from "./spreadsheet-app";
 import type { SpreadsheetObjectHydrator } from "./spreadsheet-hydrator";
-import { Range, Sheet, Spreadsheet, SpreadsheetApp } from "./spreadsheet-objects";
+import { Range } from "./spreadsheet-range";
 import type {
   RangeReference,
   SheetReference,
   SpreadsheetObjectReference,
   SpreadsheetReference,
 } from "./spreadsheet-reference";
+import { Sheet } from "./spreadsheet-sheet";
+import { Spreadsheet } from "./spreadsheet-spreadsheet";
 
 class RuntimeSpreadsheetObjectHydrator implements SpreadsheetObjectHydrator {
   readonly #bridge: HostBridge;
