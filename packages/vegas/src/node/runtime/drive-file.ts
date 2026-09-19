@@ -1,8 +1,8 @@
 import { hydrateBlob, type RuntimeBlob } from "./blob";
+import type { DriveFolder } from "./drive-folder";
 import { resolveDriveFolderReference } from "./drive-folder-identity";
 import type { DriveFolderIterator } from "./drive-folder-iterator";
 import type { DriveObjectHydrator } from "./drive-hydrator";
-import type { DriveFolder } from "./drive-objects";
 import type { DriveFileReference } from "./drive-reference";
 import type { HostBridge } from "./host-bridge";
 

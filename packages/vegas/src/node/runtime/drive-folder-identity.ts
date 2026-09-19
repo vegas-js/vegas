@@ -1,4 +1,4 @@
-import type { DriveFolder } from "./drive-objects";
+import type { DriveFolder } from "./drive-folder";
 import type { DriveFolderReference } from "./drive-reference";
 import type { HostBridge } from "./host-bridge";
 

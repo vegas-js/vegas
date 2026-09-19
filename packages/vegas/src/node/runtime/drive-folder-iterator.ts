@@ -1,5 +1,5 @@
+import type { DriveFolder } from "./drive-folder";
 import type { DriveObjectHydrator } from "./drive-hydrator";
-import type { DriveFolder } from "./drive-objects";
 import type { DriveFolderIteratorReference } from "./drive-reference";
 import type { HostBridge } from "./host-bridge";
 

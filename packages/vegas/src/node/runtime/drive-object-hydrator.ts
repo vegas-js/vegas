@@ -1,8 +1,9 @@
 import { DriveFile } from "./drive-file";
 import { DriveFileIterator } from "./drive-file-iterator";
+import { DriveFolder } from "./drive-folder";
 import { DriveFolderIterator } from "./drive-folder-iterator";
 import type { DriveObjectHydrator } from "./drive-hydrator";
-import { DriveApp, DriveFolder } from "./drive-objects";
+import { DriveApp } from "./drive-objects";
 import type {
   DriveFileIteratorReference,
   DriveFileReference,
