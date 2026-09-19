@@ -241,6 +241,14 @@ export class Range {
     return this.#reference.column;
   }
 
+  getGridId(): number {
+    return this.#reference.sheetId;
+  }
+
+  getHeight(): number {
+    return this.#reference.numRows;
+  }
+
   getLastColumn(): number {
     return this.#reference.column + this.#reference.numColumns - 1;
   }
@@ -259,6 +267,14 @@ export class Range {
 
   getRow(): number {
     return this.#reference.row;
+  }
+
+  getRowIndex(): number {
+    return this.#reference.row;
+  }
+
+  getWidth(): number {
+    return this.#reference.numColumns;
   }
 
   getSheet(): Sheet {
