@@ -48,6 +48,29 @@ function assertFile(root, relativePath) {
   assert.equal(fs.existsSync(filePath), true, `Expected packed package file: ${relativePath}`);
 }
 
+function assertPackedLicense(root, requiredSections) {
+  const relativePath = "LICENSE.md";
+
+  assertFile(root, relativePath);
+
+  const licenseText = fs.readFileSync(path.join(root, relativePath), "utf8");
+  const coreLicense = fs.readFileSync(path.join(ROOT, "LICENSE"), "utf8").trim();
+
+  assert.equal(
+    licenseText.includes(coreLicense),
+    true,
+    "Expected packed package license to include the Vegas core license",
+  );
+
+  for (const section of requiredSections) {
+    assert.equal(
+      licenseText.includes(section),
+      true,
+      `Expected packed package license section: ${section}`,
+    );
+  }
+}
+
 function smokeVanillaConsumer(tarballPath, tempRoot) {
   const consumerRoot = path.join(tempRoot, "vanilla-consumer");
 
@@ -266,6 +289,13 @@ function smokeCreateVegasPackage() {
     );
 
     assert.equal(packageJson.name, "create-vegas");
+    assert.equal(packageJson.license, "MIT");
+
+    assertPackedLicense(installedRoot, [
+      '# License of the files in the directories starting with "template-" in create-vegas',
+      "CC0 1.0 Universal",
+      "# Bundled Third-Party Licenses",
+    ]);
 
     assert.deepEqual(packageJson.bin, {
       "create-vegas": "dist/create-vegas.js",
@@ -365,6 +395,13 @@ function smokeVegasPackage() {
     const packageJson = JSON.parse(
       fs.readFileSync(path.join(installedRoot, "package.json"), "utf8"),
     );
+
+    assert.equal(packageJson.license, "MIT");
+
+    assertPackedLicense(installedRoot, [
+      "# Licenses of bundled dependencies",
+      "# Bundled Third-Party Licenses",
+    ]);
 
     assert.deepEqual(packageJson.exports["."], {
       types: "./dist/config.d.ts",
