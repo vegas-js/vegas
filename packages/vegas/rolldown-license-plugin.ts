@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 
-import { Rolldown } from "tsdown";
+import type { Rolldown } from "tsdown";
 
 const PREFERRED_LICENSE_FILE_NAMES = ["LICENSE", "LICENSE.md", "license"] as const;
 const LICENSE_FILE_NAME_PATTERN = /^(?:licen[cs]e|copying)(?:[._-].*)?$/i;
@@ -84,7 +84,9 @@ export function readAdditionalLicenseFiles(
   return (additionalLicenseFiles ?? []).map((licenseFile) => {
     const filePath = path.join(packageRoot, licenseFile);
 
-    if (!fs.existsSync(filePath) || !fs.statSync(filePath).isFile()) {
+    const stats = fs.statSync(filePath, { throwIfNoEntry: false });
+
+    if (!stats?.isFile()) {
       throw new Error(`Could not find additional license file: ${filePath}`);
     }
 
@@ -123,6 +125,120 @@ export function resolvePackageLegalFiles(packageRoot: string): string[] {
   return [...licenseFiles, ...noticeFiles].map((fileName) => path.join(packageRoot, fileName));
 }
 
+function readPackageJson(packageRoot: string) {
+  return JSON.parse(fs.readFileSync(path.join(packageRoot, "package.json"), "utf8"));
+}
+
+function countPackageNames(packages: readonly BundledPackage[]): Map<string, number> {
+  const counts = new Map<string, number>();
+
+  for (const { name } of packages) {
+    counts.set(name, (counts.get(name) ?? 0) + 1);
+  }
+
+  return counts;
+}
+
+function renderPackageLegalFiles(packageRoot: string): string[] {
+  const legalFiles = resolvePackageLegalFiles(packageRoot);
+  const lines: string[] = [];
+
+  legalFiles.forEach((legalFile, index) => {
+    if (legalFiles.length > 1) {
+      lines.push(`### ${path.basename(legalFile)}`, "");
+    }
+
+    const legalText = fs.readFileSync(legalFile, "utf8");
+    lines.push(legalText.replace(/\n$/g, "").replace(/^/gm, "> "));
+
+    if (index !== legalFiles.length - 1) {
+      lines.push("");
+    }
+  });
+
+  return lines;
+}
+
+function renderBundledPackage(
+  bundledPackage: BundledPackage,
+  includeVersion: boolean,
+  licenses: Set<string>,
+): string[] {
+  const packageJson = readPackageJson(bundledPackage.root);
+  const heading = formatBundledPackageHeading(
+    bundledPackage.name,
+    packageJson.version,
+    includeVersion,
+  );
+  const lines: string[] = [`## ${heading}`];
+
+  if (packageJson.license) {
+    lines.push(`License: ${packageJson.license}`);
+    licenses.add(packageJson.license);
+  }
+
+  if (packageJson.author) {
+    if (typeof packageJson.author === "object") {
+      const author: string[] = [packageJson.author.name];
+
+      if (packageJson.author.email) {
+        author.push(`<${packageJson.author.email}>`);
+      }
+
+      if (packageJson.author.url) {
+        author.push(`(${packageJson.author.url})`);
+      }
+
+      lines.push(`By: ${author.join(" ")}`);
+    } else {
+      lines.push(`By: ${packageJson.author}`);
+    }
+  }
+
+  if (packageJson.repository) {
+    if (typeof packageJson.repository === "string") {
+      lines.push(`Repositories: ${packageJson.repository}`);
+    } else if (packageJson.repository.url) {
+      lines.push(`Repositories: ${packageJson.repository.url}`);
+    }
+  }
+
+  lines.push("", ...renderPackageLegalFiles(bundledPackage.root));
+
+  return lines;
+}
+
+function renderBundledLicenses(packages: readonly BundledPackage[]): {
+  readonly lines: string[];
+  readonly licenses: string[];
+} {
+  const packageNameCounts = countPackageNames(packages);
+  const licenses = new Set<string>();
+  const lines: string[] = [
+    "# Bundled Third-Party Licenses",
+    "This file contains licenses of third-party libraries bundled in this package.\n",
+  ];
+
+  packages.forEach((bundledPackage, index) => {
+    lines.push(
+      ...renderBundledPackage(
+        bundledPackage,
+        (packageNameCounts.get(bundledPackage.name) ?? 0) > 1,
+        licenses,
+      ),
+    );
+
+    if (index !== packages.length - 1) {
+      lines.push("\n---------------------------------------\n");
+    }
+  });
+
+  return {
+    lines,
+    licenses: [...licenses].sort(),
+  };
+}
+
 export default function rolldownLicensePlugin(
   root: string,
   additionalLicenseFiles?: string[],
@@ -132,103 +248,30 @@ export default function rolldownLicensePlugin(
 
     generateBundle(_, bundle) {
       const moduleIds: string[] = [];
-      Object.values(bundle).forEach((output) => {
+
+      for (const output of Object.values(bundle)) {
         if (output.type === "chunk") {
           moduleIds.push(...output.moduleIds);
         }
-      });
+      }
 
-      const packages = collectBundledPackages(moduleIds);
-      const packageNameCounts = new Map<string, number>();
-      packages.forEach(({ name }) => {
-        packageNameCounts.set(name, (packageNameCounts.get(name) ?? 0) + 1);
-      });
-
-      const outputLicenses: string[] = [
-        "# Bundled Third-Party Licenses",
-        "This file contains licenses of third-party libraries bundled in this package.\n",
-      ];
-
-      const licenseSet: Set<string> = new Set();
-      packages.forEach(({ name: pkgName, root: pkgRootPath }, index) => {
-        const packageJsonPath = path.join(pkgRootPath, "package.json");
-        const packageJsonText = fs.readFileSync(packageJsonPath, "utf8");
-        const packageJson = JSON.parse(packageJsonText);
-        const heading = formatBundledPackageHeading(
-          pkgName,
-          packageJson.version,
-          (packageNameCounts.get(pkgName) ?? 0) > 1,
-        );
-
-        outputLicenses.push(`## ${heading}`);
-        if (packageJson.license) {
-          outputLicenses.push(`License: ${packageJson.license}`);
-          licenseSet.add(packageJson.license);
-        }
-        if (packageJson.author) {
-          if (typeof packageJson.author === "object") {
-            const author: string[] = [packageJson.author.name];
-            if (packageJson.author.email) {
-              author.push(`<${packageJson.author.email}>`);
-            }
-            if (packageJson.author.url) {
-              author.push(`(${packageJson.author.url})`);
-            }
-
-            outputLicenses.push(`By: ${author.join(" ")}`);
-          } else {
-            outputLicenses.push(`By: ${packageJson.author}`);
-          }
-        }
-        if (packageJson.repository) {
-          if (typeof packageJson.repository === "string") {
-            outputLicenses.push(`Repositories: ${packageJson.repository}`);
-          } else if (packageJson.repository.url) {
-            outputLicenses.push(`Repositories: ${packageJson.repository.url}`);
-          }
-        }
-        outputLicenses.push("");
-
-        const legalFiles = resolvePackageLegalFiles(pkgRootPath);
-        legalFiles.forEach((legalFile, legalFileIndex) => {
-          if (legalFiles.length > 1) {
-            outputLicenses.push(`### ${path.basename(legalFile)}`, "");
-          }
-
-          const legalText = fs.readFileSync(legalFile, "utf8");
-          outputLicenses.push(legalText.replace(/\n$/g, "").replace(/^/gm, "> "));
-
-          if (legalFileIndex !== legalFiles.length - 1) {
-            outputLicenses.push("");
-          }
-        });
-
-        if (index !== packages.length - 1) {
-          outputLicenses.push("\n---------------------------------------\n");
-        }
-      });
-
+      const { lines: bundledLicenseLines, licenses } = renderBundledLicenses(
+        collectBundledPackages(moduleIds),
+      );
       const coreLicensePath = path.resolve(root, "..", "..", "LICENSE");
-      const coreLicenseText = fs.readFileSync(coreLicensePath, "utf8");
-      const licenseHeader: string[] = [
+      const licenseLines: string[] = [
         "# Vegas core license",
         "Vegas is released under the MIT license:\n",
-        coreLicenseText,
-      ];
-      licenseHeader.push(...readAdditionalLicenseFiles(root, additionalLicenseFiles));
-
-      licenseHeader.push(
+        fs.readFileSync(coreLicensePath, "utf8"),
+        ...readAdditionalLicenseFiles(root, additionalLicenseFiles),
         "# Licenses of bundled dependencies",
         "The published Vegas artifact additionally contains code with the following licenses:",
-        Array.from(licenseSet).sort().join(", "),
+        licenses.join(", "),
         "",
-      );
+        ...bundledLicenseLines,
+      ];
 
-      fs.writeFileSync(
-        path.join(root, "LICENSE.md"),
-        `${licenseHeader.concat(outputLicenses).join("\n")}\n`,
-        "utf8",
-      );
+      fs.writeFileSync(path.join(root, "LICENSE.md"), `${licenseLines.join("\n")}\n`, "utf8");
     },
   };
 }
