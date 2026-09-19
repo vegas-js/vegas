@@ -157,7 +157,68 @@ describe("handleHostRequestMessage", () => {
     }
   });
 
-  test("leave messages outside the Host request envelope untouched", async () => {
+  test.each([
+    [
+      "an unknown service",
+      {
+        id: 20,
+        call: {
+          service: "unknown",
+          operation: "noop",
+        },
+      },
+    ],
+    [
+      "an inherited object key as service",
+      {
+        id: 20,
+        call: {
+          service: "toString",
+          operation: "noop",
+        },
+      },
+    ],
+    [
+      "a zero request id",
+      {
+        id: 0,
+        call: {
+          service: "properties",
+          operation: "get",
+        },
+      },
+    ],
+    [
+      "a fractional request id",
+      {
+        id: 1.5,
+        call: {
+          service: "properties",
+          operation: "get",
+        },
+      },
+    ],
+    [
+      "an empty operation",
+      {
+        id: 20,
+        call: {
+          service: "properties",
+          operation: "",
+        },
+      },
+    ],
+    [
+      "a non-numeric request id",
+      {
+        id: "20",
+        call: {
+          service: "properties",
+          operation: "get",
+        },
+      },
+    ],
+  ])("leave messages with %s outside the Host request envelope", async (_label, value) => {
     const dispatcher = createDispatcher();
     const sharedArray = new Int32Array(new SharedArrayBuffer(4));
     const { port1, port2 } = new worker.MessageChannel();
@@ -165,37 +226,9 @@ describe("handleHostRequestMessage", () => {
     Atomics.store(sharedArray, 0, 1);
 
     try {
-      await expect(
-        handleHostRequestMessage(port1, sharedArray, dispatcher, {
-          id: 20,
-          call: {
-            service: "unknown",
-            operation: "noop",
-          },
-        }),
-      ).resolves.toBe(false);
-      expect(Atomics.load(sharedArray, 0)).toBe(1);
-
-      await expect(
-        handleHostRequestMessage(port1, sharedArray, dispatcher, {
-          id: 20,
-          call: {
-            service: "toString",
-            operation: "noop",
-          },
-        }),
-      ).resolves.toBe(false);
-      expect(Atomics.load(sharedArray, 0)).toBe(1);
-
-      await expect(
-        handleHostRequestMessage(port1, sharedArray, dispatcher, {
-          id: "20",
-          call: {
-            service: "properties",
-            operation: "get",
-          },
-        }),
-      ).resolves.toBe(false);
+      await expect(handleHostRequestMessage(port1, sharedArray, dispatcher, value)).resolves.toBe(
+        false,
+      );
       expect(Atomics.load(sharedArray, 0)).toBe(1);
     } finally {
       port1.close();

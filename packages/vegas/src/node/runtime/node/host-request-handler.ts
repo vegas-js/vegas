@@ -1,8 +1,12 @@
 import worker from "node:worker_threads";
 
-import { isHostService } from "../host-call";
 import type { HostCallDispatcher } from "../host-dispatcher";
-import type { HostError, HostRequestMessage, HostResponseMessage } from "../host-protocol";
+import {
+  isHostRequestEnvelope,
+  type HostError,
+  type HostRequestMessage,
+  type HostResponseMessage,
+} from "../host-protocol";
 
 export async function createHostResponse(
   dispatcher: HostCallDispatcher,
@@ -46,38 +50,19 @@ export async function handleHostRequestMessage(
   dispatcher: HostCallDispatcher,
   value: unknown,
 ): Promise<boolean> {
-  if (!isHostRequestMessage(value)) {
+  if (!isHostRequestEnvelope(value)) {
     return false;
   }
 
+  // WorkerHostBridge is the typed producer; only the transport envelope is validated here.
+  const request = value as HostRequestMessage;
+
   try {
-    port.postMessage(await createHostResponse(dispatcher, value));
+    port.postMessage(await createHostResponse(dispatcher, request));
   } finally {
     Atomics.store(sharedArray, 0, 0);
     Atomics.notify(sharedArray, 0);
   }
 
   return true;
-}
-
-function isHostRequestMessage(value: unknown): value is HostRequestMessage {
-  if (typeof value !== "object" || value === null) {
-    return false;
-  }
-
-  const request = value as {
-    id?: unknown;
-    call?: unknown;
-  };
-
-  if (typeof request.id !== "number" || typeof request.call !== "object" || request.call === null) {
-    return false;
-  }
-
-  const call = request.call as {
-    service?: unknown;
-    operation?: unknown;
-  };
-
-  return isHostService(call.service) && typeof call.operation === "string";
 }
