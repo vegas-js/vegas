@@ -167,11 +167,7 @@ export class Sheet {
   }
 
   clearContents(): Sheet {
-    const bounds = this.#bridge.call({
-      service: "spreadsheet",
-      operation: "get-sheet-data-bounds",
-      sheet: this.#reference,
-    });
+    const bounds = this.#dataBounds();
 
     if (bounds.lastRow === null || bounds.lastColumn === null) {
       return this;
@@ -284,11 +280,7 @@ export class Sheet {
     let column = startColumn;
 
     if (row === -1 || column === -1) {
-      const bounds = this.#bridge.call({
-        service: "spreadsheet",
-        operation: "get-sheet-data-bounds",
-        sheet: this.#reference,
-      });
+      const bounds = this.#dataBounds();
 
       if (row === -1) {
         if (bounds.lastRow === null) {
@@ -305,6 +297,14 @@ export class Sheet {
     }
 
     return this.getRange(row, column, numRows, numColumns).getValues();
+  }
+
+  #dataBounds() {
+    return this.#bridge.call({
+      service: "spreadsheet",
+      operation: "get-sheet-data-bounds",
+      sheet: this.#reference,
+    });
   }
 
   #metadata() {
