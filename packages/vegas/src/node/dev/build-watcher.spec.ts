@@ -123,4 +123,39 @@ describe("registerBuildWatchers", () => {
     expect(invalidateAll).toHaveBeenCalledOnce();
     expect(send).toHaveBeenCalledWith({ type: "full-reload" });
   });
+
+  test("report build errors without requiring a stack", async () => {
+    const project = createProject();
+    const { server, handlers, send } = createServer();
+    const error = new Error("\x1b[31mbuild failed\x1b[0m");
+    error.stack = undefined;
+    const rebuild = vi.fn(async () => {
+      throw error;
+    });
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => undefined);
+
+    try {
+      registerBuildWatchers({
+        server,
+        project,
+        builds: new BuildCoordinator(),
+        buildManager: {
+          rebuild,
+          refreshTopology: vi.fn(async () => undefined),
+        },
+      });
+
+      await handlers.get("change")?.(path.join(project.serverDir, "Code.ts"));
+
+      expect(send).toHaveBeenCalledWith({
+        type: "error",
+        err: {
+          message: "build failed",
+          stack: "build failed",
+        },
+      });
+    } finally {
+      consoleError.mockRestore();
+    }
+  });
 });

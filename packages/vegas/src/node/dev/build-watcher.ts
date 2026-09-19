@@ -12,17 +12,29 @@ interface BuildWatcherOptions {
   readonly buildManager: Pick<DevBuildManager, "rebuild" | "refreshTopology">;
 }
 
-function reportBuildError(server: ViteDevServer, err: any): void {
-  console.error(err);
+// oxlint-disable-next-line no-control-regex
+const ANSI_ESCAPE_PATTERN = /\x1b\[[\d;]+m/g;
+
+function stripAnsi(value: string): string {
+  return value.replace(ANSI_ESCAPE_PATTERN, "");
+}
+
+function normalizeBuildError(error: unknown): { message: string; stack: string } {
+  const message = error instanceof Error ? error.message : String(error);
+  const stack = error instanceof Error && error.stack !== undefined ? error.stack : message;
+
+  return {
+    message: stripAnsi(message),
+    stack: stripAnsi(stack),
+  };
+}
+
+function reportBuildError(server: ViteDevServer, error: unknown): void {
+  console.error(error);
 
   server.ws.send({
     type: "error",
-    err: {
-      // oxlint-disable-next-line no-control-regex
-      message: err.message.replace(/\x1b\[[\d;]+m/g, ""),
-      // oxlint-disable-next-line no-control-regex
-      stack: err.stack.replace(/\x1b\[[\d;]+m/g, ""),
-    },
+    err: normalizeBuildError(error),
   });
 }
 
@@ -47,8 +59,8 @@ export function registerBuildWatchers(options: BuildWatcherOptions): void {
           server.ws.send({ type: "full-reload" });
         }
       });
-    } catch (err: any) {
-      reportBuildError(server, err);
+    } catch (error) {
+      reportBuildError(server, error);
     }
   });
 
@@ -66,8 +78,8 @@ export function registerBuildWatchers(options: BuildWatcherOptions): void {
         server.moduleGraph.invalidateAll();
         server.ws.send({ type: "full-reload" });
       });
-    } catch (err: any) {
-      reportBuildError(server, err);
+    } catch (error) {
+      reportBuildError(server, error);
     }
   };
 
