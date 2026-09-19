@@ -47,7 +47,7 @@ const API_SURFACES = {
   ],
   LockService: [
     ["LockService", "lock-objects.ts", "LockService"],
-    ["Lock", "lock-objects.ts", "Lock"],
+    ["Lock", "lock.ts", "Lock"],
   ],
   PropertiesService: [
     ["PropertiesService", "properties-objects.ts", "PropertiesService"],

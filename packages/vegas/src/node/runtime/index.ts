@@ -57,7 +57,8 @@ export type { LockHostCall, LockHostCallResult, LockHostScope } from "./lock-hos
 export { LockHostHandler } from "./lock-host-handler";
 export type { LockHostCallHandler } from "./lock-host-handler";
 export { resolveLockNamespace } from "./lock-namespace";
-export { createLockService, Lock, LockService } from "./lock-objects";
+export { Lock } from "./lock";
+export { createLockService, LockService } from "./lock-objects";
 export type { LockNamespace, LockStore, LockStoreSession } from "./lock-store";
 export { createPropertiesService, Properties, PropertiesService } from "./properties-objects";
 export { PropertiesHostHandler } from "./properties-host-handler";
