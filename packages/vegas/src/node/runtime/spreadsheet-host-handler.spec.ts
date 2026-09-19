@@ -111,6 +111,32 @@ describe("SpreadsheetHostHandler", () => {
     await expect(
       handler.handle({
         service: "spreadsheet",
+        operation: "rename-sheet",
+        sheet: {
+          service: "spreadsheet",
+          kind: "sheet",
+          spreadsheetId: "spreadsheet-a",
+          sheetId: 7,
+        },
+        name: "Overview",
+      }),
+    ).resolves.toBeUndefined();
+    await expect(
+      handler.handle({
+        service: "spreadsheet",
+        operation: "get-sheet-by-name",
+        spreadsheet,
+        name: "Overview",
+      }),
+    ).resolves.toStrictEqual({
+      service: "spreadsheet",
+      kind: "sheet",
+      spreadsheetId: "spreadsheet-a",
+      sheetId: 7,
+    });
+    await expect(
+      handler.handle({
+        service: "spreadsheet",
         operation: "get-sheet-data-bounds",
         sheet: {
           service: "spreadsheet",

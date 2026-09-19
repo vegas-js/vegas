@@ -108,6 +108,35 @@ describe("InMemorySpreadsheetStore resources", () => {
     ).resolves.toStrictEqual({ lastRow: null, lastColumn: null });
   });
 
+  test("rename a Sheet without allowing duplicate sibling names", async () => {
+    const store = createStore();
+    const sheet = {
+      service: "spreadsheet",
+      kind: "sheet",
+      spreadsheetId: "spreadsheet-a",
+      sheetId: 7,
+    } as const;
+
+    await store.renameSheet(sheet, "Overview");
+
+    await expect(store.getSheetMetadata(sheet)).resolves.toStrictEqual({
+      name: "Overview",
+      maxRows: 10,
+      maxColumns: 8,
+    });
+    await expect(store.getSheetByName(SPREADSHEET, "Overview")).resolves.toStrictEqual(sheet);
+    await expect(store.getSheetByName(SPREADSHEET, "Summary")).resolves.toBeNull();
+
+    await expect(store.renameSheet(sheet, "Archive")).rejects.toThrow(
+      "Duplicate local Spreadsheet sheet name: Archive",
+    );
+    await expect(store.getSheetMetadata(sheet)).resolves.toStrictEqual({
+      name: "Overview",
+      maxRows: 10,
+      maxColumns: 8,
+    });
+  });
+
   test("return seeded values, empty strings for blank cells, and detached Dates", async () => {
     const seedDate = new Date("2026-09-18T00:00:00.000Z");
     const store = createStore(seedDate);

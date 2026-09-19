@@ -44,6 +44,8 @@ export interface SpreadsheetStore {
 
   getSheetMetadata(sheet: SheetReference): Promise<SheetMetadata>;
 
+  renameSheet(sheet: SheetReference, name: string): Promise<void>;
+
   getSheetDataBounds(sheet: SheetReference): Promise<SheetDataBounds>;
 
   getRangeValues(range: RangeReference): Promise<SpreadsheetGrid>;

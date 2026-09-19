@@ -244,6 +244,25 @@ export class InMemorySpreadsheetStore implements SpreadsheetStore {
     return { ...this.#getSheetState(sheet.spreadsheetId, sheet.sheetId).metadata };
   }
 
+  async renameSheet(sheet: SheetReference, name: string): Promise<void> {
+    const spreadsheet = this.#getSpreadsheetState(sheet.spreadsheetId);
+    const state = this.#getSheetState(sheet.spreadsheetId, sheet.sheetId);
+
+    for (const sibling of spreadsheet.sheets.values()) {
+      if (sibling.reference.sheetId !== sheet.sheetId && sibling.metadata.name === name) {
+        throw new Error(`Duplicate local Spreadsheet sheet name: ${name}`);
+      }
+    }
+
+    spreadsheet.sheets.set(sheet.sheetId, {
+      ...state,
+      metadata: {
+        ...state.metadata,
+        name,
+      },
+    });
+  }
+
   async getSheetDataBounds(sheet: SheetReference): Promise<SheetDataBounds> {
     const state = this.#getSheetState(sheet.spreadsheetId, sheet.sheetId);
     let lastRow: number | null = null;

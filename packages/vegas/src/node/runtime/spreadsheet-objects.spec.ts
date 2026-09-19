@@ -245,6 +245,44 @@ describe("Spreadsheet Runtime objects", () => {
     expect(() => sheet.getIndex()).toThrow("Spreadsheet sheet is not present in its parent.");
   });
 
+  test("rename a Sheet through the HostBridge and preserve chaining", () => {
+    let name = "Summary";
+    const bridge = new RecordingHostBridge((call) => {
+      if (call.service !== "spreadsheet") {
+        throw new Error(`unexpected service: ${call.service}`);
+      }
+
+      switch (call.operation) {
+        case "get-sheet-metadata":
+          return {
+            name,
+            maxRows: 100,
+            maxColumns: 26,
+          };
+        case "rename-sheet":
+          name = call.name;
+          return undefined;
+        default:
+          throw new Error(`unexpected host call: ${call.service}#${call.operation}`);
+      }
+    });
+    const sheet = createSpreadsheetObjectHydrator(bridge).hydrate({
+      service: "spreadsheet",
+      kind: "sheet",
+      spreadsheetId: "spreadsheet-a",
+      sheetId: 7,
+    });
+
+    expect(sheet.getName()).toBe("Summary");
+    expect(sheet.setName("Overview")).toBe(sheet);
+    expect(sheet.getName()).toBe("Overview");
+    expect(bridge.calls.map(({ operation }) => operation)).toStrictEqual([
+      "get-sheet-metadata",
+      "rename-sheet",
+      "get-sheet-metadata",
+    ]);
+  });
+
   test("clear Sheet contents through the existing data bounds and Range paths", () => {
     const bridge = new RecordingHostBridge((call) => {
       if (call.service !== "spreadsheet") {

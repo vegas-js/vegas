@@ -54,6 +54,12 @@ export type SpreadsheetHostCall =
     }
   | {
       readonly service: "spreadsheet";
+      readonly operation: "rename-sheet";
+      readonly sheet: SheetReference;
+      readonly name: string;
+    }
+  | {
+      readonly service: "spreadsheet";
       readonly operation: "get-sheet-data-bounds";
       readonly sheet: SheetReference;
     }
@@ -98,15 +104,19 @@ export type SpreadsheetHostCallResult<C extends SpreadsheetHostCall> = C extends
                 }
               ? SheetMetadata
               : C extends {
-                    readonly operation: "get-sheet-data-bounds";
+                    readonly operation: "rename-sheet";
                   }
-                ? SheetDataBounds
+                ? void
                 : C extends {
-                      readonly operation: "get-range-values";
+                      readonly operation: "get-sheet-data-bounds";
                     }
-                  ? SpreadsheetGrid
+                  ? SheetDataBounds
                   : C extends {
-                        readonly operation: "set-range-values";
+                        readonly operation: "get-range-values";
                       }
-                    ? void
-                    : never;
+                    ? SpreadsheetGrid
+                    : C extends {
+                          readonly operation: "set-range-values";
+                        }
+                      ? void
+                      : never;

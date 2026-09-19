@@ -34,6 +34,7 @@ describe("SpreadsheetStore contract", () => {
     expectTypeOf<
       SpreadsheetStore["getSheetByName"]
     >().returns.resolves.toEqualTypeOf<SheetReference | null>();
+    expectTypeOf<SpreadsheetStore["renameSheet"]>().returns.resolves.toEqualTypeOf<void>();
     expectTypeOf<
       SpreadsheetStore["getSheetDataBounds"]
     >().returns.resolves.toEqualTypeOf<SheetDataBounds>();

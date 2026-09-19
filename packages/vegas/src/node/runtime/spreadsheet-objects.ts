@@ -218,6 +218,17 @@ export class Sheet {
     return this.getName();
   }
 
+  setName(name: string): Sheet {
+    this.#bridge.call({
+      service: "spreadsheet",
+      operation: "rename-sheet",
+      sheet: this.#reference,
+      name,
+    });
+
+    return this;
+  }
+
   getParent(): Spreadsheet {
     return this.#hydrator.hydrate({
       service: "spreadsheet",

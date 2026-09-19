@@ -39,6 +39,10 @@ export class SpreadsheetHostHandler implements SpreadsheetHostCallHandler {
       case "get-sheet-metadata": {
         return this.#store.getSheetMetadata(call.sheet);
       }
+      case "rename-sheet": {
+        await this.#store.renameSheet(call.sheet, call.name);
+        return;
+      }
       case "get-sheet-data-bounds": {
         return this.#store.getSheetDataBounds(call.sheet);
       }
