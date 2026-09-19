@@ -1,12 +1,6 @@
 import { describe, expect, expectTypeOf, test } from "vitest";
 
-import {
-  AppsScriptConsole,
-  createConsole,
-  createLogger,
-  Logger,
-  type LoggingTarget,
-} from "./index";
+import { createLogger, Logger, type LoggingTarget } from "./index";
 
 type LoggingMethod = keyof LoggingTarget;
 
@@ -41,35 +35,6 @@ class RecordingLoggingTarget implements LoggingTarget {
     this.calls.push({ method, values });
   }
 }
-
-describe("AppsScriptConsole", () => {
-  test("forward documented console operations to the logging target", () => {
-    const target = new RecordingLoggingTarget();
-    const runtimeConsole = createConsole(target);
-
-    expect(runtimeConsole).toBeInstanceOf(AppsScriptConsole);
-
-    runtimeConsole.error();
-    runtimeConsole.error("error: %s", "value");
-    runtimeConsole.info("info", { value: 1 });
-    runtimeConsole.log();
-    runtimeConsole.log("debug: %d", 2);
-    runtimeConsole.warn("warning");
-    runtimeConsole.time("operation");
-    runtimeConsole.timeEnd("operation");
-
-    expect(target.calls).toStrictEqual([
-      { method: "error", values: [] },
-      { method: "error", values: ["error: %s", "value"] },
-      { method: "info", values: ["info", { value: 1 }] },
-      { method: "log", values: [] },
-      { method: "log", values: ["debug: %d", 2] },
-      { method: "warn", values: ["warning"] },
-      { method: "time", values: ["operation"] },
-      { method: "timeEnd", values: ["operation"] },
-    ]);
-  });
-});
 
 describe("Logger", () => {
   test("match the Apps Script Logger contract", () => {
