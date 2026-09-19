@@ -61,6 +61,22 @@ export function collectBundledPackages(moduleIds: Iterable<string>): BundledPack
   );
 }
 
+export function formatBundledPackageHeading(
+  packageName: string,
+  packageVersion: unknown,
+  includeVersion: boolean,
+): string {
+  if (!includeVersion) {
+    return packageName;
+  }
+
+  if (typeof packageVersion !== "string" || packageVersion.length === 0) {
+    throw new Error(`Could not determine version for duplicate bundled package: ${packageName}`);
+  }
+
+  return `${packageName}@${packageVersion}`;
+}
+
 export function resolvePackageLegalFiles(packageRoot: string): string[] {
   const entries = fs.readdirSync(packageRoot, { withFileTypes: true });
   const fileNames = entries.filter((entry) => entry.isFile()).map((entry) => entry.name);
@@ -108,6 +124,11 @@ export default function rolldownLicensePlugin(
       });
 
       const packages = collectBundledPackages(moduleIds);
+      const packageNameCounts = new Map<string, number>();
+      packages.forEach(({ name }) => {
+        packageNameCounts.set(name, (packageNameCounts.get(name) ?? 0) + 1);
+      });
+
       const outputLicenses: string[] = [
         "# Bundled Third-Party Licenses",
         "This file contains licenses of third-party libraries bundled in this package.\n",
@@ -115,10 +136,16 @@ export default function rolldownLicensePlugin(
 
       const licenseSet: Set<string> = new Set();
       packages.forEach(({ name: pkgName, root: pkgRootPath }, index) => {
-        outputLicenses.push(`## ${pkgName}`);
         const packageJsonPath = path.join(pkgRootPath, "package.json");
         const packageJsonText = fs.readFileSync(packageJsonPath, "utf8");
         const packageJson = JSON.parse(packageJsonText);
+        const heading = formatBundledPackageHeading(
+          pkgName,
+          packageJson.version,
+          (packageNameCounts.get(pkgName) ?? 0) > 1,
+        );
+
+        outputLicenses.push(`## ${heading}`);
         if (packageJson.license) {
           outputLicenses.push(`License: ${packageJson.license}`);
           licenseSet.add(packageJson.license);

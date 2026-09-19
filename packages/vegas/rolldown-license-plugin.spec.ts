@@ -6,6 +6,7 @@ import { describe, expect, test } from "vitest";
 
 import {
   collectBundledPackages,
+  formatBundledPackageHeading,
   resolveBundledPackage,
   resolvePackageLegalFiles,
 } from "./rolldown-license-plugin";
@@ -98,6 +99,24 @@ describe("collectBundledPackages", () => {
         root: "/repo/node_modules/.pnpm/shared@2.0.0/node_modules/shared",
       },
     ]);
+  });
+});
+
+describe("formatBundledPackageHeading", () => {
+  test("preserve the package name when it is unique", () => {
+    expect(formatBundledPackageHeading("shared", undefined, false)).toBe("shared");
+  });
+
+  test("include the package version when the name is duplicated", () => {
+    expect(formatBundledPackageHeading("shared", "2.0.0", true)).toBe("shared@2.0.0");
+  });
+
+  test("fail when a duplicate package has no usable version", () => {
+    for (const version of [undefined, null, ""]) {
+      expect(() => formatBundledPackageHeading("shared", version, true)).toThrow(
+        "Could not determine version for duplicate bundled package: shared",
+      );
+    }
   });
 });
 
