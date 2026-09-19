@@ -1,8 +1,8 @@
+import { InMemorySpreadsheetGrid } from "./in-memory-spreadsheet-grid";
 import type { RangeReference, SheetReference, SpreadsheetReference } from "./spreadsheet-reference";
 import type {
   SheetDataBounds,
   SheetMetadata,
-  SpreadsheetCellValue,
   SpreadsheetGrid,
   SpreadsheetMetadata,
   SpreadsheetStore,
@@ -28,7 +28,7 @@ export interface InMemorySpreadsheetSeed {
 type SheetState = {
   readonly reference: SheetReference;
   readonly metadata: SheetMetadata;
-  readonly cells: Map<string, SpreadsheetCellValue>;
+  readonly grid: InMemorySpreadsheetGrid;
 };
 
 type SpreadsheetState = {
@@ -36,10 +36,6 @@ type SpreadsheetState = {
   readonly metadata: SpreadsheetMetadata;
   readonly sheets: Map<number, SheetState>;
 };
-
-function cloneCellValue(value: SpreadsheetCellValue): SpreadsheetCellValue {
-  return value instanceof Date ? new Date(value.getTime()) : value;
-}
 
 function cloneSpreadsheetReference(reference: SpreadsheetReference): SpreadsheetReference {
   return { ...reference };
@@ -49,56 +45,10 @@ function cloneSheetReference(reference: SheetReference): SheetReference {
   return { ...reference };
 }
 
-function createCellKey(row: number, column: number): string {
-  return `${row}:${column}`;
-}
-
-function validateRange(range: RangeReference, metadata: SheetMetadata): void {
-  assertPositiveInteger(range.row, "Spreadsheet range row");
-  assertPositiveInteger(range.column, "Spreadsheet range column");
-  assertPositiveInteger(range.numRows, "Spreadsheet range numRows");
-  assertPositiveInteger(range.numColumns, "Spreadsheet range numColumns");
-
-  const lastRow = range.row + range.numRows - 1;
-  const lastColumn = range.column + range.numColumns - 1;
-
-  if (lastRow > metadata.maxRows || lastColumn > metadata.maxColumns) {
-    throw new RangeError("Spreadsheet range is outside sheet bounds.");
-  }
-}
-
 function createSheetState(spreadsheetId: string, seed: InMemorySheetSeed): SheetState {
   if (!Number.isInteger(seed.id)) {
     throw new RangeError("Spreadsheet sheet id must be an integer.");
   }
-
-  assertPositiveInteger(seed.maxRows, "Spreadsheet sheet maxRows");
-  assertPositiveInteger(seed.maxColumns, "Spreadsheet sheet maxColumns");
-
-  const values = seed.values ?? [];
-  if (values.length > seed.maxRows) {
-    throw new RangeError("Spreadsheet seed values exceed sheet row bounds.");
-  }
-
-  const width = values[0]?.length ?? 0;
-  if (width > seed.maxColumns) {
-    throw new RangeError("Spreadsheet seed values exceed sheet column bounds.");
-  }
-
-  for (const row of values) {
-    if (row.length !== width) {
-      throw new RangeError("Spreadsheet seed values must be rectangular.");
-    }
-  }
-
-  const cells = new Map<string, SpreadsheetCellValue>();
-  values.forEach((row, rowIndex) => {
-    row.forEach((value, columnIndex) => {
-      if (value !== "") {
-        cells.set(createCellKey(rowIndex + 1, columnIndex + 1), cloneCellValue(value));
-      }
-    });
-  });
 
   return {
     reference: {
@@ -114,7 +64,7 @@ function createSheetState(spreadsheetId: string, seed: InMemorySheetSeed): Sheet
       hiddenGridlines: seed.hiddenGridlines ?? false,
       rightToLeft: seed.rightToLeft ?? false,
     },
-    cells,
+    grid: new InMemorySpreadsheetGrid(seed.maxRows, seed.maxColumns, seed.values),
   };
 }
 
@@ -289,60 +239,15 @@ export class InMemorySpreadsheetStore implements SpreadsheetStore {
   }
 
   async getSheetDataBounds(sheet: SheetReference): Promise<SheetDataBounds> {
-    const state = this.#getSheetState(sheet.spreadsheetId, sheet.sheetId);
-    let lastRow: number | null = null;
-    let lastColumn: number | null = null;
-
-    for (const key of state.cells.keys()) {
-      const separator = key.indexOf(":");
-      const row = Number(key.slice(0, separator));
-      const column = Number(key.slice(separator + 1));
-
-      lastRow = lastRow === null ? row : Math.max(lastRow, row);
-      lastColumn = lastColumn === null ? column : Math.max(lastColumn, column);
-    }
-
-    return {
-      lastRow,
-      lastColumn,
-    };
+    return this.#getSheetState(sheet.spreadsheetId, sheet.sheetId).grid.getDataBounds();
   }
 
   async getRangeValues(range: RangeReference): Promise<SpreadsheetGrid> {
-    const sheet = this.#getSheetState(range.spreadsheetId, range.sheetId);
-    validateRange(range, sheet.metadata);
-
-    return Array.from({ length: range.numRows }, (_, rowOffset) =>
-      Array.from({ length: range.numColumns }, (_, columnOffset) => {
-        const value = sheet.cells.get(
-          createCellKey(range.row + rowOffset, range.column + columnOffset),
-        );
-        return value === undefined ? "" : cloneCellValue(value);
-      }),
-    );
+    return this.#getSheetState(range.spreadsheetId, range.sheetId).grid.getValues(range);
   }
 
   async setRangeValues(range: RangeReference, values: SpreadsheetGrid): Promise<void> {
-    const sheet = this.#getSheetState(range.spreadsheetId, range.sheetId);
-    validateRange(range, sheet.metadata);
-
-    if (values.length !== range.numRows || values.some((row) => row.length !== range.numColumns)) {
-      throw new RangeError("Spreadsheet values dimensions must match the target range.");
-    }
-
-    const copiedValues = values.map((row) => row.map(cloneCellValue));
-
-    copiedValues.forEach((row, rowOffset) => {
-      row.forEach((value, columnOffset) => {
-        const key = createCellKey(range.row + rowOffset, range.column + columnOffset);
-
-        if (value === "") {
-          sheet.cells.delete(key);
-        } else {
-          sheet.cells.set(key, value);
-        }
-      });
-    });
+    this.#getSheetState(range.spreadsheetId, range.sheetId).grid.setValues(range, values);
   }
 
   #createSpreadsheetId(): string {
