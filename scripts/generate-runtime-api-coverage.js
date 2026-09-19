@@ -51,7 +51,7 @@ const API_SURFACES = {
   ],
   PropertiesService: [
     ["PropertiesService", "properties-objects.ts", "PropertiesService"],
-    ["Properties", "properties-objects.ts", "Properties"],
+    ["Properties", "properties.ts", "Properties"],
   ],
 };
 
