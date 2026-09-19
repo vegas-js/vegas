@@ -8,6 +8,7 @@ const VEGAS_ROOT = path.join(ROOT, "packages", "vegas");
 const RUNTIME_ROOT = path.join(VEGAS_ROOT, "src", "node", "runtime");
 const RUNTIME_GLOBALS_PATH = path.join(RUNTIME_ROOT, "runtime-globals.ts");
 const OUTPUT_PATH = path.join(ROOT, "docs", "guide", "runtime-api-coverage.md");
+const SUPPLEMENT_PATH = path.join(ROOT, "scripts", "runtime-api-supplement.json");
 const PNPM = process.platform === "win32" ? "pnpm.cmd" : "pnpm";
 const STANDALONE_GLOBAL_ENUMS = new Set(["MimeType"]);
 
@@ -330,6 +331,67 @@ function formatMissing(methods, prefix = "") {
   return methods.map((method) => `\`${prefix}${method}()\``).join("<br>");
 }
 
+export function validateRuntimeApiSupplement(supplement) {
+  if (supplement.schemaVersion !== 1 || typeof supplement.globals !== "object") {
+    throw new Error("Invalid Runtime API supplement schema.");
+  }
+
+  for (const [name, entry] of Object.entries(supplement.globals)) {
+    if (entry.mode !== "augment" && entry.mode !== "complete") {
+      throw new Error(`Invalid Runtime API supplement mode for ${name}.`);
+    }
+
+    if (
+      !Array.isArray(entry.methods) ||
+      entry.methods.some((method) => typeof method !== "string")
+    ) {
+      throw new Error(`Invalid Runtime API supplement methods for ${name}.`);
+    }
+
+    if (new Set(entry.methods).size !== entry.methods.length) {
+      throw new Error(`Duplicate Runtime API supplement methods for ${name}.`);
+    }
+
+    const source = new URL(entry.source);
+
+    if (source.protocol !== "https:" || source.hostname !== "developers.google.com") {
+      throw new Error(`Runtime API supplement source for ${name} must use Google official docs.`);
+    }
+  }
+}
+
+export function mergeMethodSurface(methods, supplementalMethods = []) {
+  return [...new Set([...methods, ...supplementalMethods])];
+}
+
+function resolveMethodSurface(globalName, declaration, supplement) {
+  const entry = supplement.globals[globalName];
+
+  if (!declaration) {
+    return entry?.mode === "complete" ? [...entry.methods] : null;
+  }
+
+  if (entry?.mode === "complete") {
+    throw new Error(
+      `Runtime API supplement for ${globalName} is complete, but @types now declares the Global Object.`,
+    );
+  }
+
+  const interfaceName = extractInterfaceName(declaration.typeReference);
+
+  if (interfaceName === null) {
+    return null;
+  }
+
+  const methods = extractInterfaceMethodNames(declaration.source, interfaceName);
+
+  if (methods === null) {
+    return null;
+  }
+
+  return mergeMethodSurface(methods, entry?.methods);
+}
+
 function formatNames(names) {
   if (names.length === 0) {
     return "—";
@@ -346,8 +408,10 @@ function percentage(implemented, total) {
   return `${((implemented / total) * 100).toFixed(1)}%`;
 }
 
-function buildRow(global, declaration, runtimeMethods) {
-  if (!declaration) {
+function buildRow(global, declaration, runtimeMethods, supplement) {
+  const officialMethods = resolveMethodSurface(global.name, declaration, supplement);
+
+  if (officialMethods === null && !declaration) {
     return {
       name: global.name,
       implemented: null,
@@ -357,27 +421,13 @@ function buildRow(global, declaration, runtimeMethods) {
     };
   }
 
-  const interfaceName = extractInterfaceName(declaration.typeReference);
-
-  if (interfaceName === null) {
-    return {
-      name: global.name,
-      implemented: null,
-      total: null,
-      percentage: "—",
-      missing: `Could not resolve \`${declaration.typeReference.replaceAll("|", "\\|")}\` as a single method interface`,
-    };
-  }
-
-  const officialMethods = extractInterfaceMethodNames(declaration.source, interfaceName);
-
   if (officialMethods === null) {
     return {
       name: global.name,
       implemented: null,
       total: null,
       percentage: "—",
-      missing: `Could not resolve \`${declaration.typeReference}\` as a method interface`,
+      missing: `Could not resolve \`${declaration.typeReference.replaceAll("|", "\\|")}\` as a method interface`,
     };
   }
 
@@ -432,7 +482,7 @@ function loadRuntimeProperties(global) {
   return extractClassPropertyNames(source, className);
 }
 
-function buildDetailSections(runtimeGlobals, declarations) {
+function buildDetailSections(runtimeGlobals, declarations, supplement) {
   const sections = [];
 
   for (const global of runtimeGlobals) {
@@ -449,13 +499,17 @@ function buildDetailSections(runtimeGlobals, declarations) {
 
     const rows = [];
 
-    for (const [interfaceName, relativePath, className] of surfaces) {
-      const officialMethods = extractInterfaceMethodNames(declaration.source, interfaceName);
+    for (const [index, [interfaceName, relativePath, className]] of surfaces.entries()) {
+      const declaredMethods = extractInterfaceMethodNames(declaration.source, interfaceName);
 
-      if (officialMethods === null) {
+      if (declaredMethods === null) {
         continue;
       }
 
+      const officialMethods =
+        index === 0
+          ? mergeMethodSurface(declaredMethods, supplement.globals[global.name]?.methods)
+          : declaredMethods;
       const runtimeSource = fs.readFileSync(path.join(RUNTIME_ROOT, relativePath), "utf8");
       const runtimeMethods = new Set(extractClassMethodNames(runtimeSource, className));
       const implemented = officialMethods.filter((method) => runtimeMethods.has(method));
@@ -541,15 +595,25 @@ function buildStandaloneEnumRows(runtimeGlobals, declarations) {
   return rows;
 }
 
-export function renderCoverageMarkdown({ version, runtimeGlobals, declarations }) {
+export function renderCoverageMarkdown({ version, runtimeGlobals, declarations, supplement }) {
   const standaloneEnums = buildStandaloneEnumRows(runtimeGlobals, declarations);
   const standaloneEnumNames = new Set(standaloneEnums.map(({ name }) => name));
   const rows = runtimeGlobals
-    .filter((global) => declarations.has(global.name) && !standaloneEnumNames.has(global.name))
-    .map((global) => buildRow(global, declarations.get(global.name), loadRuntimeMethods(global)));
+    .filter(
+      (global) =>
+        (declarations.has(global.name) || supplement.globals[global.name]?.mode === "complete") &&
+        !standaloneEnumNames.has(global.name),
+    )
+    .map((global) =>
+      buildRow(global, declarations.get(global.name), loadRuntimeMethods(global), supplement),
+    );
   const methodRows = rows.filter((row) => row.total > 0);
   const nestedRows = rows.filter((row) => row.total === 0);
-  const untrackedGlobals = runtimeGlobals.filter((global) => !declarations.has(global.name));
+  const untrackedGlobals = runtimeGlobals.filter(
+    (global) =>
+      !declarations.has(global.name) && supplement.globals[global.name]?.mode !== "complete",
+  );
+  const supplementedGlobals = Object.entries(supplement.globals);
   const implemented = methodRows.reduce((sum, row) => sum + row.implemented, 0);
   const total = methodRows.reduce((sum, row) => sum + row.total, 0);
   const enumRows = buildEnumRows(runtimeGlobals, declarations);
@@ -557,7 +621,7 @@ export function renderCoverageMarkdown({ version, runtimeGlobals, declarations }
   const totalEnums = enumRows.reduce((sum, row) => sum + row.total, 0);
   const implementedStandaloneEnums = standaloneEnums.reduce((sum, row) => sum + row.implemented, 0);
   const totalStandaloneEnums = standaloneEnums.reduce((sum, row) => sum + row.total, 0);
-  const details = buildDetailSections(runtimeGlobals, declarations);
+  const details = buildDetailSections(runtimeGlobals, declarations, supplement);
   const lines = [
     "<!-- Generated by `pnpm docs:api-coverage`. Do not edit manually. -->",
     "",
@@ -567,6 +631,7 @@ export function renderCoverageMarkdown({ version, runtimeGlobals, declarations }
     "",
     `- Google API declarations: \`@types/google-apps-script@${version}\``,
     "- Global implementation inventory: `packages/vegas/src/node/runtime/runtime-globals.ts`",
+    "- Supplemental API declarations: `scripts/runtime-api-supplement.json`, sourced from Google official documentation.",
     "- Coverage unit: unique method names (overloads count once); properties and enum values are not counted.",
     "- Enum surface coverage is measured separately by enum properties exposed on Global Objects; enum members are not counted individually.",
     "- Standalone Global enums are measured separately from methods and service enum properties.",
@@ -622,6 +687,22 @@ export function renderCoverageMarkdown({ version, runtimeGlobals, declarations }
 
   lines.push(
     "",
+    "## Supplemental API declarations",
+    "",
+    "These checked-in declarations cover API surface confirmed in Google official documentation but missing from the installed `@types/google-apps-script`. `augment` entries add missing members to an existing type surface. `complete` entries may be used only after the full Global Object surface has been audited.",
+    "",
+    "| API (Global Object) | Mode | Supplemental methods | Source |",
+    "| --- | --- | --- | --- |",
+  );
+
+  for (const [name, entry] of supplementedGlobals) {
+    lines.push(
+      `| \`${name}\` | \`${entry.mode}\` | ${formatMissing(entry.methods)} | <${entry.source}> |`,
+    );
+  }
+
+  lines.push(
+    "",
     "## Declared nested APIs not yet measured",
     "",
     "These Global Objects are declared by the installed type package but expose no direct methods. Advanced services commonly expose nested collection/resource objects instead. They are excluded from the headline method coverage until recursive API measurement is added.",
@@ -639,7 +720,7 @@ export function renderCoverageMarkdown({ version, runtimeGlobals, declarations }
     "",
     "## Untracked by installed @types",
     "",
-    "These Global Objects exist in the Vegas Runtime inventory but are not declared by the installed `@types/google-apps-script`. They are excluded from numeric coverage. Before assigning a denominator, add a checked-in supplemental surface derived from Google official documentation; the coverage generator should remain deterministic and must not fetch live documentation during CI.",
+    "These Global Objects exist in the Vegas Runtime inventory but are not declared by the installed `@types/google-apps-script`, and do not yet have a `complete` supplemental surface. They are excluded from numeric coverage. The coverage generator remains deterministic and does not fetch live documentation during CI.",
     "",
     "| API (Global Object) | Vegas status |",
     "| --- | --- |",
@@ -707,11 +788,15 @@ function generate() {
   const typeSources = loadTypeSources(typesRoot);
   const declarations = collectGlobalDeclarations(typeSources);
   const runtimeGlobals = extractRuntimeGlobals(fs.readFileSync(RUNTIME_GLOBALS_PATH, "utf8"));
+  const supplement = JSON.parse(fs.readFileSync(SUPPLEMENT_PATH, "utf8"));
+
+  validateRuntimeApiSupplement(supplement);
 
   const markdown = renderCoverageMarkdown({
     version: packageJson.version,
     runtimeGlobals,
     declarations,
+    supplement,
   });
 
   return formatGeneratedMarkdown(markdown);

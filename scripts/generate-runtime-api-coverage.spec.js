@@ -9,6 +9,8 @@ import {
   extractRuntimeGlobals,
   hasEnumDeclaration,
   isStandaloneGlobalEnum,
+  mergeMethodSurface,
+  validateRuntimeApiSupplement,
 } from "./generate-runtime-api-coverage.js";
 
 describe("runtime API coverage generator", () => {
@@ -99,6 +101,41 @@ declare namespace GoogleAppsScript {
 
     expect(isStandaloneGlobalEnum("MimeType", declaration)).toBe(true);
     expect(isStandaloneGlobalEnum("Example", declaration)).toBe(false);
+  });
+
+  test("merge supplemental methods without duplicating declared methods", () => {
+    expect(mergeMethodSurface(["open", "flush"], ["flush", "enableLookerExecution"])).toStrictEqual(
+      ["open", "flush", "enableLookerExecution"],
+    );
+  });
+
+  test("validate supplemental Runtime API declarations", () => {
+    expect(() =>
+      validateRuntimeApiSupplement({
+        schemaVersion: 1,
+        globals: {
+          SpreadsheetApp: {
+            mode: "augment",
+            source:
+              "https://developers.google.com/apps-script/reference/spreadsheet/spreadsheet-app",
+            methods: ["enableLookerExecution"],
+          },
+        },
+      }),
+    ).not.toThrow();
+
+    expect(() =>
+      validateRuntimeApiSupplement({
+        schemaVersion: 1,
+        globals: {
+          SpreadsheetApp: {
+            mode: "augment",
+            source: "https://example.com/spreadsheet-app",
+            methods: ["enableLookerExecution"],
+          },
+        },
+      }),
+    ).toThrow("must use Google official docs");
   });
 
   test("read unique public Runtime class methods", () => {

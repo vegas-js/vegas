@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "globals": {
+    "SpreadsheetApp": {
+      "mode": "augment",
+      "source": "https://developers.google.com/apps-script/reference/spreadsheet/spreadsheet-app",
+      "methods": ["enableLookerExecution"]
+    }
+  }
+}
