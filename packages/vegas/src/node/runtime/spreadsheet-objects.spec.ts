@@ -280,6 +280,43 @@ describe("Spreadsheet Runtime objects", () => {
     expect(range.getValues()[0]?.[1]).toStrictEqual(new Date("2026-09-18T00:00:00.000Z"));
   });
 
+  test("report whether a Range is totally blank", () => {
+    let blank = true;
+    const bridge = new RecordingHostBridge((call) => {
+      if (call.service !== "spreadsheet" || call.operation !== "get-range-values") {
+        throw new Error(`unexpected host call: ${call.service}#${call.operation}`);
+      }
+
+      return blank
+        ? [
+            ["", ""],
+            ["", ""],
+          ]
+        : [
+            ["", 0],
+            ["", ""],
+          ];
+    });
+    const range = createSpreadsheetObjectHydrator(bridge).hydrate({
+      service: "spreadsheet",
+      kind: "range",
+      spreadsheetId: "spreadsheet-a",
+      sheetId: 7,
+      row: 2,
+      column: 3,
+      numRows: 2,
+      numColumns: 2,
+    });
+
+    expect(range.isBlank()).toBe(true);
+
+    blank = false;
+
+    expect(range.isBlank()).toBe(false);
+    expect(bridge.calls).toHaveLength(2);
+    expect(bridge.calls.every((call) => call.operation === "get-range-values")).toBe(true);
+  });
+
   test("format Range coordinates as A1 notation without HostBridge calls", () => {
     const bridge = createBridge();
     const hydrator = createSpreadsheetObjectHydrator(bridge);

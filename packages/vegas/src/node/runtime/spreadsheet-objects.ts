@@ -368,6 +368,10 @@ export class Range {
     );
   }
 
+  isBlank(): boolean {
+    return this.getValues().every((row) => row.every((value) => value === ""));
+  }
+
   offset(rowOffset: number, columnOffset: number): Range;
   offset(rowOffset: number, columnOffset: number, numRows: number): Range;
   offset(rowOffset: number, columnOffset: number, numRows: number, numColumns: number): Range;
