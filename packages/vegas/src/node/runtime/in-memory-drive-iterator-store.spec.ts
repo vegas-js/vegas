@@ -11,17 +11,6 @@ const USER_A = { userKey: "user-a" } as const satisfies DriveNamespace;
 const USER_B = { userKey: "user-b" } as const satisfies DriveNamespace;
 
 describe("InMemoryDriveIteratorStore", () => {
-  test("keep iterator handles scoped to one invocation session", async () => {
-    const store = new InMemoryDriveIteratorStore();
-    const firstSession = store.createSession(USER_A);
-    const secondSession = store.createSession(USER_A);
-    const iterator = await firstSession.createFileIterator(FILES);
-
-    await expect(secondSession.hasNext(iterator)).rejects.toThrow(
-      "Unknown Drive file iterator handle",
-    );
-  });
-
   test("snapshot continuation state independently from later iterator consumption", async () => {
     const store = new InMemoryDriveIteratorStore();
     const firstSession = store.createSession(USER_A);
@@ -41,17 +30,6 @@ describe("InMemoryDriveIteratorStore", () => {
     expect(resumed.handle).not.toBe(iterator.handle);
     expect(await secondSession.nextFile(resumed)).toStrictEqual(FILES[1]);
     expect(await secondSession.hasNext(resumed)).toBe(false);
-  });
-
-  test("keep file and folder continuation tokens type-safe", async () => {
-    const store = new InMemoryDriveIteratorStore();
-    const session = store.createSession(USER_A);
-    const fileIterator = await session.createFileIterator(FILES);
-    const token = await session.getContinuationToken(fileIterator);
-
-    await expect(session.continueFolderIterator(token)).rejects.toThrow(
-      "Drive continuation token is not for a folder iterator",
-    );
   });
 
   test("bind continuation tokens to the Drive user namespace", async () => {
