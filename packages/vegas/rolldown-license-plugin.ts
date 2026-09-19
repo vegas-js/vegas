@@ -193,7 +193,7 @@ export default function rolldownLicensePlugin(
         }
       });
 
-      const coreLicensePath = path.join(process.cwd(), "LICENSE");
+      const coreLicensePath = path.resolve(root, "..", "..", "LICENSE");
       const coreLicenseText = fs.readFileSync(coreLicensePath, "utf8");
       const licenseHeader: string[] = [
         "# Vegas core license",
