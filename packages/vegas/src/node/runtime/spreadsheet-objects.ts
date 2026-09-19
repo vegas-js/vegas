@@ -206,6 +206,15 @@ export class Sheet {
     return this.#reference.sheetId;
   }
 
+  getSheetValues(
+    startRow: number,
+    startColumn: number,
+    numRows: number,
+    numColumns: number,
+  ): SpreadsheetCellValue[][] {
+    return this.getRange(startRow, startColumn, numRows, numColumns).getValues();
+  }
+
   #metadata() {
     return this.#bridge.call({
       service: "spreadsheet",

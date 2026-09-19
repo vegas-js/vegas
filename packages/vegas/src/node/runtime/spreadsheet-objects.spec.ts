@@ -176,6 +176,38 @@ describe("Spreadsheet Runtime objects", () => {
     expect(bridge.calls).toHaveLength(0);
   });
 
+  test("read Sheet values through the existing Range HostBridge path", () => {
+    const bridge = createBridge();
+    const hydrator = createSpreadsheetObjectHydrator(bridge);
+    const sheet = hydrator.hydrate({
+      service: "spreadsheet",
+      kind: "sheet",
+      spreadsheetId: "spreadsheet-a",
+      sheetId: 7,
+    });
+
+    expect(sheet.getSheetValues(2, 3, 2, 2)).toStrictEqual([
+      ["Vegas", new Date("2026-09-18T00:00:00.000Z")],
+      [42, true],
+    ]);
+    expect(bridge.calls).toStrictEqual([
+      {
+        service: "spreadsheet",
+        operation: "get-range-values",
+        range: {
+          service: "spreadsheet",
+          kind: "range",
+          spreadsheetId: "spreadsheet-a",
+          sheetId: 7,
+          row: 2,
+          column: 3,
+          numRows: 2,
+          numColumns: 2,
+        },
+      },
+    ]);
+  });
+
   test("construct numeric Ranges locally and read values through the HostBridge", () => {
     const bridge = createBridge();
     const spreadsheet = createSpreadsheetApp(bridge).openById("spreadsheet-a");
