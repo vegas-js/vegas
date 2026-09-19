@@ -1,7 +1,7 @@
 import type { HostBridge } from "./host-bridge";
 import type { SpreadsheetObjectHydrator } from "./spreadsheet-hydrator";
-import type { Sheet } from "./spreadsheet-objects";
 import type { RangeReference } from "./spreadsheet-reference";
+import type { Sheet } from "./spreadsheet-sheet";
 import type { SpreadsheetCellValue, SpreadsheetGrid } from "./spreadsheet-store";
 import { assertInteger, assertPositiveInteger } from "./spreadsheet-validation";
 

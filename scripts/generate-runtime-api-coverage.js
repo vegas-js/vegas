@@ -23,7 +23,7 @@ const API_SURFACES = {
   SpreadsheetApp: [
     ["SpreadsheetApp", "spreadsheet-objects.ts", "SpreadsheetApp"],
     ["Spreadsheet", "spreadsheet-objects.ts", "Spreadsheet"],
-    ["Sheet", "spreadsheet-objects.ts", "Sheet"],
+    ["Sheet", "spreadsheet-sheet.ts", "Sheet"],
     ["Range", "spreadsheet-range.ts", "Range"],
   ],
   UrlFetchApp: [
