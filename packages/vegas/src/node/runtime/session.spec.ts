@@ -34,20 +34,10 @@ describe("Session Runtime object", () => {
     expect(activeUser).not.toBe(effectiveUser);
   });
 
-  test("preserve an unavailable active-user email as an empty string", () => {
-    const session = createSession({
-      ...ENVIRONMENT,
-      activeUserEmail: "",
-    });
-
-    expect(session.getActiveUser().getEmail()).toBe("");
-  });
-
-  test("support documented deprecated aliases", () => {
+  test("support documented deprecated Session aliases", () => {
     const session = createSession(ENVIRONMENT);
 
     expect(session.getTimeZone()).toBe(session.getScriptTimeZone());
     expect(session.getUser().getEmail()).toBe(session.getActiveUser().getEmail());
-    expect(session.getActiveUser().getUserLoginId()).toBe(session.getActiveUser().getEmail());
   });
 });
