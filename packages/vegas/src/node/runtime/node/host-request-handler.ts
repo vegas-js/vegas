@@ -1,5 +1,6 @@
 import worker from "node:worker_threads";
 
+import { isHostService } from "../host-call";
 import type { HostCallDispatcher } from "../host-dispatcher";
 import type { HostError, HostRequestMessage, HostResponseMessage } from "../host-protocol";
 
@@ -78,13 +79,5 @@ function isHostRequestMessage(value: unknown): value is HostRequestMessage {
     operation?: unknown;
   };
 
-  return (
-    (call.service === "cache" ||
-      call.service === "drive" ||
-      call.service === "lock" ||
-      call.service === "properties" ||
-      call.service === "spreadsheet" ||
-      call.service === "url-fetch") &&
-    typeof call.operation === "string"
-  );
+  return isHostService(call.service) && typeof call.operation === "string";
 }

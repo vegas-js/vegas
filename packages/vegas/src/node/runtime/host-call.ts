@@ -13,6 +13,21 @@ export type HostCall =
   | SpreadsheetHostCall
   | UrlFetchHostCall;
 
+export type HostService = HostCall["service"];
+
+const HOST_SERVICES = {
+  cache: true,
+  drive: true,
+  lock: true,
+  properties: true,
+  spreadsheet: true,
+  "url-fetch": true,
+} as const satisfies Record<HostService, true>;
+
+export function isHostService(value: unknown): value is HostService {
+  return typeof value === "string" && Object.hasOwn(HOST_SERVICES, value);
+}
+
 export type HostCallResult<C extends HostCall> = C extends CacheHostCall
   ? CacheHostCallResult<C>
   : C extends DriveHostCall

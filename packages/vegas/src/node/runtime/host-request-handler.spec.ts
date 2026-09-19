@@ -178,6 +178,17 @@ describe("handleHostRequestMessage", () => {
 
       await expect(
         handleHostRequestMessage(port1, sharedArray, dispatcher, {
+          id: 20,
+          call: {
+            service: "toString",
+            operation: "noop",
+          },
+        }),
+      ).resolves.toBe(false);
+      expect(Atomics.load(sharedArray, 0)).toBe(1);
+
+      await expect(
+        handleHostRequestMessage(port1, sharedArray, dispatcher, {
           id: "20",
           call: {
             service: "properties",
