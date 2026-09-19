@@ -3,6 +3,8 @@ import type { SpreadsheetObjectHydrator } from "./spreadsheet-hydrator";
 import type { RangeReference, SheetReference, SpreadsheetReference } from "./spreadsheet-reference";
 import type { SpreadsheetCellValue, SpreadsheetGrid } from "./spreadsheet-store";
 
+type SpreadsheetFile = Pick<GoogleAppsScript.Drive.File, "getId">;
+
 function cloneCellValue(value: SpreadsheetCellValue): SpreadsheetCellValue {
   return value instanceof Date ? new Date(value.getTime()) : value;
 }
@@ -79,6 +81,10 @@ export class SpreadsheetApp {
 
   flush(): void {
     return;
+  }
+
+  open(file: SpreadsheetFile): Spreadsheet {
+    return this.openById(file.getId());
   }
 
   openByUrl(url: string): Spreadsheet {

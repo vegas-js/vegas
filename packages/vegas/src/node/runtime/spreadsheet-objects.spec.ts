@@ -124,6 +124,26 @@ describe("Spreadsheet Runtime objects", () => {
     expect(bridge.calls).toHaveLength(0);
   });
 
+  test("open a Spreadsheet from a Drive File identity through the existing id path", () => {
+    const bridge = createBridge();
+    const spreadsheetApp = createSpreadsheetApp(bridge);
+    const file = {
+      getId: () => "spreadsheet-a",
+    };
+
+    const spreadsheet = spreadsheetApp.open(file);
+
+    expect(spreadsheet).toBeInstanceOf(Spreadsheet);
+    expect(spreadsheet.getId()).toBe("spreadsheet-a");
+    expect(bridge.calls).toStrictEqual([
+      {
+        service: "spreadsheet",
+        operation: "get-spreadsheet",
+        id: "spreadsheet-a",
+      },
+    ]);
+  });
+
   test("open Spreadsheet resources by URL through the existing id path", () => {
     const bridge = createBridge();
     const spreadsheetApp = createSpreadsheetApp(bridge);
