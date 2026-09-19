@@ -158,4 +158,38 @@ describe("registerBuildWatchers", () => {
       consoleError.mockRestore();
     }
   });
+
+  test("report topology errors thrown as non-Error values", async () => {
+    const project = createProject();
+    const { server, handlers, invalidateAll, send } = createServer();
+    const refreshTopology = vi.fn(async () => {
+      throw "\x1b[31mtopology failed\x1b[0m";
+    });
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => undefined);
+
+    try {
+      registerBuildWatchers({
+        server,
+        project,
+        builds: new BuildCoordinator(),
+        buildManager: {
+          rebuild: vi.fn(async () => undefined),
+          refreshTopology,
+        },
+      });
+
+      await handlers.get("add")?.(path.join(project.clientDir, "admin.ts"));
+
+      expect(invalidateAll).not.toHaveBeenCalled();
+      expect(send).toHaveBeenCalledWith({
+        type: "error",
+        err: {
+          message: "topology failed",
+          stack: "topology failed",
+        },
+      });
+    } finally {
+      consoleError.mockRestore();
+    }
+  });
 });

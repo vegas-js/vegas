@@ -1,3 +1,5 @@
+import { stripVTControlCharacters } from "node:util";
+
 import type { ViteDevServer } from "vite";
 
 import type { ResolvedProject } from "../project";
@@ -12,20 +14,13 @@ interface BuildWatcherOptions {
   readonly buildManager: Pick<DevBuildManager, "rebuild" | "refreshTopology">;
 }
 
-// oxlint-disable-next-line no-control-regex
-const ANSI_ESCAPE_PATTERN = /\x1b\[[\d;]+m/g;
-
-function stripAnsi(value: string): string {
-  return value.replace(ANSI_ESCAPE_PATTERN, "");
-}
-
 function normalizeBuildError(error: unknown): { message: string; stack: string } {
   const message = error instanceof Error ? error.message : String(error);
   const stack = error instanceof Error && error.stack !== undefined ? error.stack : message;
 
   return {
-    message: stripAnsi(message),
-    stack: stripAnsi(stack),
+    message: stripVTControlCharacters(message),
+    stack: stripVTControlCharacters(stack),
   };
 }
 
@@ -41,6 +36,14 @@ function reportBuildError(server: ViteDevServer, error: unknown): void {
 export function registerBuildWatchers(options: BuildWatcherOptions): void {
   const { server, project, builds, buildManager } = options;
 
+  const runBuild = async (task: () => Promise<void>): Promise<void> => {
+    try {
+      await builds.run(task);
+    } catch (error) {
+      reportBuildError(server, error);
+    }
+  };
+
   server.watcher.add([project.clientDir, project.serverDir]);
 
   server.watcher.on("change", async (filePath) => {
@@ -50,18 +53,14 @@ export function registerBuildWatchers(options: BuildWatcherOptions): void {
       return;
     }
 
-    try {
-      await builds.run(async () => {
-        await buildManager.rebuild(scope);
+    await runBuild(async () => {
+      await buildManager.rebuild(scope);
 
-        if (scope === "client") {
-          server.moduleGraph.invalidateAll();
-          server.ws.send({ type: "full-reload" });
-        }
-      });
-    } catch (error) {
-      reportBuildError(server, error);
-    }
+      if (scope === "client") {
+        server.moduleGraph.invalidateAll();
+        server.ws.send({ type: "full-reload" });
+      }
+    });
   });
 
   const handleTopologyChange = async (filePath: string): Promise<void> => {
@@ -71,16 +70,12 @@ export function registerBuildWatchers(options: BuildWatcherOptions): void {
       return;
     }
 
-    try {
-      await builds.run(async () => {
-        await buildManager.refreshTopology();
+    await runBuild(async () => {
+      await buildManager.refreshTopology();
 
-        server.moduleGraph.invalidateAll();
-        server.ws.send({ type: "full-reload" });
-      });
-    } catch (error) {
-      reportBuildError(server, error);
-    }
+      server.moduleGraph.invalidateAll();
+      server.ws.send({ type: "full-reload" });
+    });
   };
 
   server.watcher.on("add", handleTopologyChange);
