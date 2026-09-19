@@ -87,54 +87,22 @@ export type SpreadsheetHostCall =
       readonly values: SpreadsheetGrid;
     };
 
-export type SpreadsheetHostCallResult<C extends SpreadsheetHostCall> = C extends {
-  readonly operation: "create-spreadsheet" | "get-spreadsheet";
-}
-  ? SpreadsheetReference
-  : C extends {
-        readonly operation: "get-spreadsheet-metadata";
-      }
-    ? SpreadsheetMetadata
-    : C extends {
-          readonly operation: "rename-spreadsheet";
-        }
-      ? void
-      : C extends {
-            readonly operation: "list-sheets";
-          }
-        ? readonly SheetReference[]
-        : C extends {
-              readonly operation: "get-sheet";
-            }
-          ? SheetReference | null
-          : C extends {
-                readonly operation: "get-sheet-by-name";
-              }
-            ? SheetReference | null
-            : C extends {
-                  readonly operation: "get-sheet-metadata";
-                }
-              ? SheetMetadata
-              : C extends
-                    | {
-                        readonly operation: "rename-sheet";
-                      }
-                    | {
-                        readonly operation:
-                          | "set-sheet-hidden-gridlines"
-                          | "set-sheet-right-to-left";
-                      }
-                ? void
-                : C extends {
-                      readonly operation: "get-sheet-data-bounds";
-                    }
-                  ? SheetDataBounds
-                  : C extends {
-                        readonly operation: "get-range-values";
-                      }
-                    ? SpreadsheetGrid
-                    : C extends {
-                          readonly operation: "set-range-values";
-                        }
-                      ? void
-                      : never;
+type SpreadsheetHostCallResultMap = {
+  "create-spreadsheet": SpreadsheetReference;
+  "get-spreadsheet": SpreadsheetReference;
+  "get-spreadsheet-metadata": SpreadsheetMetadata;
+  "rename-spreadsheet": void;
+  "list-sheets": readonly SheetReference[];
+  "get-sheet": SheetReference | null;
+  "get-sheet-by-name": SheetReference | null;
+  "get-sheet-metadata": SheetMetadata;
+  "rename-sheet": void;
+  "set-sheet-hidden-gridlines": void;
+  "set-sheet-right-to-left": void;
+  "get-sheet-data-bounds": SheetDataBounds;
+  "get-range-values": SpreadsheetGrid;
+  "set-range-values": void;
+};
+
+export type SpreadsheetHostCallResult<C extends SpreadsheetHostCall> =
+  SpreadsheetHostCallResultMap[C["operation"]];
