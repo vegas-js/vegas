@@ -60,6 +60,27 @@ describe("SpreadsheetHostHandler", () => {
     await expect(
       handler.handle({
         service: "spreadsheet",
+        operation: "get-sheet",
+        spreadsheet,
+        sheetId: 7,
+      }),
+    ).resolves.toStrictEqual({
+      service: "spreadsheet",
+      kind: "sheet",
+      spreadsheetId: "spreadsheet-a",
+      sheetId: 7,
+    });
+    await expect(
+      handler.handle({
+        service: "spreadsheet",
+        operation: "get-sheet",
+        spreadsheet,
+        sheetId: 999,
+      }),
+    ).resolves.toBeNull();
+    await expect(
+      handler.handle({
+        service: "spreadsheet",
         operation: "get-sheet-by-name",
         spreadsheet,
         name: "Summary",

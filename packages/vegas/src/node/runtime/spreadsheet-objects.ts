@@ -120,6 +120,19 @@ export class Spreadsheet {
       .map((reference) => this.#hydrator.hydrate(reference));
   }
 
+  getSheetById(id: number): Sheet | null {
+    assertInteger(id, "Spreadsheet sheet id");
+
+    const reference = this.#bridge.call({
+      service: "spreadsheet",
+      operation: "get-sheet",
+      spreadsheet: this.#reference,
+      sheetId: id,
+    });
+
+    return reference === null ? null : this.#hydrator.hydrate(reference);
+  }
+
   getSheetByName(name: string): Sheet | null {
     const reference = this.#bridge.call({
       service: "spreadsheet",

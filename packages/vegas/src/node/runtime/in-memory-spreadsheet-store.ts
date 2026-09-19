@@ -203,8 +203,13 @@ export class InMemorySpreadsheetStore implements SpreadsheetStore {
     );
   }
 
-  async getSheet(spreadsheet: SpreadsheetReference, sheetId: number): Promise<SheetReference> {
-    return cloneSheetReference(this.#getSheetState(spreadsheet.id, sheetId).reference);
+  async getSheet(
+    spreadsheet: SpreadsheetReference,
+    sheetId: number,
+  ): Promise<SheetReference | null> {
+    const state = this.#getSpreadsheetState(spreadsheet.id).sheets.get(sheetId);
+
+    return state === undefined ? null : cloneSheetReference(state.reference);
   }
 
   async getSheetByName(

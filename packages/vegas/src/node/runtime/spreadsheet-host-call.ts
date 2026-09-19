@@ -68,7 +68,7 @@ export type SpreadsheetHostCallResult<C extends SpreadsheetHostCall> = C extends
       : C extends {
             readonly operation: "get-sheet";
           }
-        ? SheetReference
+        ? SheetReference | null
         : C extends {
               readonly operation: "get-sheet-by-name";
             }

@@ -27,6 +27,9 @@ describe("SpreadsheetStore contract", () => {
       readonly SheetReference[]
     >();
     expectTypeOf<
+      SpreadsheetStore["getSheet"]
+    >().returns.resolves.toEqualTypeOf<SheetReference | null>();
+    expectTypeOf<
       SpreadsheetStore["getSheetByName"]
     >().returns.resolves.toEqualTypeOf<SheetReference | null>();
     expectTypeOf<SpreadsheetStore["getRangeValues"]>().parameter(0).toEqualTypeOf<RangeReference>();

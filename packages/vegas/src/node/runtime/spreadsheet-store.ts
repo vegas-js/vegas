@@ -31,7 +31,7 @@ export interface SpreadsheetStore {
 
   listSheets(spreadsheet: SpreadsheetReference): Promise<readonly SheetReference[]>;
 
-  getSheet(spreadsheet: SpreadsheetReference, sheetId: number): Promise<SheetReference>;
+  getSheet(spreadsheet: SpreadsheetReference, sheetId: number): Promise<SheetReference | null>;
 
   getSheetByName(spreadsheet: SpreadsheetReference, name: string): Promise<SheetReference | null>;
 

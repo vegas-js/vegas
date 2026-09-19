@@ -65,6 +65,18 @@ function createBridge() {
           },
         ] satisfies SheetReference[];
       }
+      case "get-sheet": {
+        if (call.sheetId !== 7 && call.sheetId !== 9) {
+          return null;
+        }
+
+        return {
+          service: "spreadsheet",
+          kind: "sheet",
+          spreadsheetId: call.spreadsheet.id,
+          sheetId: call.sheetId,
+        } satisfies SheetReference;
+      }
       case "get-sheet-by-name": {
         if (call.name === "Missing") {
           return null;
@@ -92,9 +104,6 @@ function createBridge() {
       }
       case "set-range-values": {
         return undefined;
-      }
-      case "get-sheet": {
-        throw new Error("unexpected get-sheet call");
       }
     }
   });
@@ -124,6 +133,10 @@ describe("Spreadsheet Runtime objects", () => {
     expect(sheets[0]).toBeInstanceOf(Sheet);
     expect(sheets[0]?.getSheetId()).toBe(7);
 
+    expect(spreadsheet.getSheetById(7)).toBeInstanceOf(Sheet);
+    expect(spreadsheet.getSheetById(7)?.getSheetId()).toBe(7);
+    expect(spreadsheet.getSheetById(999)).toBeNull();
+
     const summary = spreadsheet.getSheetByName("Summary");
     expect(summary).toBeInstanceOf(Sheet);
     expect(summary?.getName()).toBe("Summary");
@@ -132,6 +145,18 @@ describe("Spreadsheet Runtime objects", () => {
     expect(summary?.getMaxColumns()).toBe(26);
 
     expect(spreadsheet.getSheetByName("Missing")).toBeNull();
+  });
+
+  test("reject non-integer Sheet ids before HostBridge calls", () => {
+    const bridge = createBridge();
+    const spreadsheet = createSpreadsheetObjectHydrator(bridge).hydrate({
+      service: "spreadsheet",
+      kind: "spreadsheet",
+      id: "spreadsheet-a",
+    });
+
+    expect(() => spreadsheet.getSheetById(7.5)).toThrow("Spreadsheet sheet id must be an integer.");
+    expect(bridge.calls).toHaveLength(0);
   });
 
   test("hydrate a Sheet parent Spreadsheet without HostBridge calls", () => {

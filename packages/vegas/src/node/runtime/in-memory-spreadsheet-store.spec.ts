@@ -68,6 +68,13 @@ describe("InMemorySpreadsheetStore resources", () => {
         sheetId: 9,
       },
     ]);
+    await expect(store.getSheet(SPREADSHEET, 7)).resolves.toStrictEqual({
+      service: "spreadsheet",
+      kind: "sheet",
+      spreadsheetId: "spreadsheet-a",
+      sheetId: 7,
+    });
+    await expect(store.getSheet(SPREADSHEET, 999)).resolves.toBeNull();
     await expect(store.getSheetByName(SPREADSHEET, "Archive")).resolves.toStrictEqual({
       service: "spreadsheet",
       kind: "sheet",
