@@ -8,7 +8,7 @@ import {
   InMemoryPropertiesStore,
   InMemorySpreadsheetStore,
   type Executor,
-} from "../../runtime";
+} from "../index";
 import { createNodeAppsScriptExecutor } from "./apps-script-executor";
 
 describe("createNodeAppsScriptExecutor", () => {

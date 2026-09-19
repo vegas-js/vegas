@@ -1,18 +1,16 @@
 import path from "node:path";
 import worker from "node:worker_threads";
 
-import {
-  createAppsScriptExecutor,
-  type AppsScriptWorkerRunner,
-  type CacheStore,
-  type DriveIteratorStore,
-  type DriveStore,
-  type Executor,
-  type LockStore,
-  type PropertiesStore,
-  type SpreadsheetStore,
-} from "../../runtime";
-import { handleHostRequestMessage, NodeUrlFetchCapability } from "../../runtime/node";
+import { createAppsScriptExecutor, type AppsScriptWorkerRunner } from "../apps-script-executor";
+import type { CacheStore } from "../cache-store";
+import type { DriveIteratorStore } from "../drive-iterator-store";
+import type { DriveStore } from "../drive-store";
+import type { Executor } from "../executor";
+import type { LockStore } from "../lock-store";
+import type { PropertiesStore } from "../properties-store";
+import type { SpreadsheetStore } from "../spreadsheet-store";
+import { handleHostRequestMessage } from "./host-request-handler";
+import { NodeUrlFetchCapability } from "./url-fetch-capability";
 
 const runAppsScriptWorker: AppsScriptWorkerRunner = (dispatcher, request) =>
   new Promise((resolve, reject) => {

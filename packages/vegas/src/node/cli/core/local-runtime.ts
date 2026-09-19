@@ -9,7 +9,7 @@ import {
   type Program,
   type RuntimeBackend,
 } from "../../runtime";
-import { createNodeAppsScriptExecutor } from "./apps-script-executor";
+import { createNodeAppsScriptExecutor } from "../../runtime/node";
 import { loadRuntimeData } from "./runtime-data";
 import { createInvocationEnvironment } from "./runtime-environment";
 import { createInvocationScope } from "./runtime-scope";
