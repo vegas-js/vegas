@@ -17,7 +17,7 @@ const API_SURFACES = {
     ["DriveApp", "drive-objects.ts", "DriveApp"],
     ["File", "drive-objects.ts", "DriveFile"],
     ["Folder", "drive-objects.ts", "DriveFolder"],
-    ["FileIterator", "drive-objects.ts", "DriveFileIterator"],
+    ["FileIterator", "drive-file-iterator.ts", "DriveFileIterator"],
     ["FolderIterator", "drive-objects.ts", "DriveFolderIterator"],
   ],
   SpreadsheetApp: [

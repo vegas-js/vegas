@@ -1,9 +1,5 @@
-import type {
-  DriveFile,
-  DriveFileIterator,
-  DriveFolder,
-  DriveFolderIterator,
-} from "./drive-objects";
+import type { DriveFileIterator } from "./drive-file-iterator";
+import type { DriveFile, DriveFolder, DriveFolderIterator } from "./drive-objects";
 import type {
   DriveFileIteratorReference,
   DriveFileReference,
