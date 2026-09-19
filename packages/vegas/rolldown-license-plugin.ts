@@ -77,6 +77,21 @@ export function formatBundledPackageHeading(
   return `${packageName}@${packageVersion}`;
 }
 
+export function readAdditionalLicenseFiles(
+  packageRoot: string,
+  additionalLicenseFiles: readonly string[] | undefined,
+): string[] {
+  return (additionalLicenseFiles ?? []).map((licenseFile) => {
+    const filePath = path.join(packageRoot, licenseFile);
+
+    if (!fs.existsSync(filePath) || !fs.statSync(filePath).isFile()) {
+      throw new Error(`Could not find additional license file: ${filePath}`);
+    }
+
+    return fs.readFileSync(filePath, "utf8");
+  });
+}
+
 export function resolvePackageLegalFiles(packageRoot: string): string[] {
   const entries = fs.readdirSync(packageRoot, { withFileTypes: true });
   const fileNames = entries.filter((entry) => entry.isFile()).map((entry) => entry.name);
@@ -200,15 +215,7 @@ export default function rolldownLicensePlugin(
         "Vegas is released under the MIT license:\n",
         coreLicenseText,
       ];
-      if (additionalLicenseFiles) {
-        additionalLicenseFiles.forEach((licenseFile) => {
-          const filePath = path.join(root, licenseFile);
-          if (fs.existsSync(filePath)) {
-            const content = fs.readFileSync(filePath, "utf8");
-            licenseHeader.push(content);
-          }
-        });
-      }
+      licenseHeader.push(...readAdditionalLicenseFiles(root, additionalLicenseFiles));
 
       licenseHeader.push(
         "# Licenses of bundled dependencies",

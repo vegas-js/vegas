@@ -7,6 +7,7 @@ import { describe, expect, test } from "vitest";
 import {
   collectBundledPackages,
   formatBundledPackageHeading,
+  readAdditionalLicenseFiles,
   resolveBundledPackage,
   resolvePackageLegalFiles,
 } from "./rolldown-license-plugin";
@@ -117,6 +118,39 @@ describe("formatBundledPackageHeading", () => {
         "Could not determine version for duplicate bundled package: shared",
       );
     }
+  });
+});
+
+describe("readAdditionalLicenseFiles", () => {
+  test("read configured files in order", () => {
+    withPackageRoot(
+      {
+        FIRST: "first",
+        SECOND: "second",
+      },
+      (packageRoot) => {
+        expect(readAdditionalLicenseFiles(packageRoot, ["SECOND", "FIRST"])).toStrictEqual([
+          "second",
+          "first",
+        ]);
+      },
+    );
+  });
+
+  test("allow no additional license files", () => {
+    withPackageRoot({}, (packageRoot) => {
+      expect(readAdditionalLicenseFiles(packageRoot, undefined)).toStrictEqual([]);
+    });
+  });
+
+  test("fail when a configured additional license file is missing or not a file", () => {
+    withPackageRoot({ DIRECTORY: null }, (packageRoot) => {
+      for (const licenseFile of ["MISSING", "DIRECTORY"]) {
+        expect(() => readAdditionalLicenseFiles(packageRoot, [licenseFile])).toThrow(
+          `Could not find additional license file: ${path.join(packageRoot, licenseFile)}`,
+        );
+      }
+    });
   });
 });
 
