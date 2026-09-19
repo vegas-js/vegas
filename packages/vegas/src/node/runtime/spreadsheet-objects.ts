@@ -148,6 +148,14 @@ export class Sheet {
     return this.#metadata().name;
   }
 
+  getParent(): Spreadsheet {
+    return this.#hydrator.hydrate({
+      service: "spreadsheet",
+      kind: "spreadsheet",
+      id: this.#reference.spreadsheetId,
+    });
+  }
+
   getRange(row: number, column: number): Range;
   getRange(row: number, column: number, numRows: number): Range;
   getRange(row: number, column: number, numRows: number, numColumns: number): Range;

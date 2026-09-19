@@ -132,6 +132,23 @@ describe("Spreadsheet Runtime objects", () => {
     expect(spreadsheet.getSheetByName("Missing")).toBeNull();
   });
 
+  test("hydrate a Sheet parent Spreadsheet without HostBridge calls", () => {
+    const bridge = createBridge();
+    const hydrator = createSpreadsheetObjectHydrator(bridge);
+    const sheet = hydrator.hydrate({
+      service: "spreadsheet",
+      kind: "sheet",
+      spreadsheetId: "spreadsheet-a",
+      sheetId: 7,
+    });
+
+    const parent = sheet.getParent();
+
+    expect(parent).toBeInstanceOf(Spreadsheet);
+    expect(parent.getId()).toBe("spreadsheet-a");
+    expect(bridge.calls).toHaveLength(0);
+  });
+
   test("construct numeric Ranges locally and read values through the HostBridge", () => {
     const bridge = createBridge();
     const spreadsheet = createSpreadsheetApp(bridge).openById("spreadsheet-a");
