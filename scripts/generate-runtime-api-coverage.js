@@ -21,7 +21,7 @@ const API_SURFACES = {
     ["FolderIterator", "drive-objects.ts", "DriveFolderIterator"],
   ],
   SpreadsheetApp: [
-    ["SpreadsheetApp", "spreadsheet-objects.ts", "SpreadsheetApp"],
+    ["SpreadsheetApp", "spreadsheet-app.ts", "SpreadsheetApp"],
     ["Spreadsheet", "spreadsheet-spreadsheet.ts", "Spreadsheet"],
     ["Sheet", "spreadsheet-sheet.ts", "Sheet"],
     ["Range", "spreadsheet-range.ts", "Range"],
