@@ -157,6 +157,22 @@ export class Sheet {
     this.#hydrator = hydrator;
   }
 
+  clearContents(): Sheet {
+    const bounds = this.#bridge.call({
+      service: "spreadsheet",
+      operation: "get-sheet-data-bounds",
+      sheet: this.#reference,
+    });
+
+    if (bounds.lastRow === null || bounds.lastColumn === null) {
+      return this;
+    }
+
+    this.getRange(1, 1, bounds.lastRow, bounds.lastColumn).clearContent();
+
+    return this;
+  }
+
   getIndex(): number {
     const index = this.#bridge
       .call({

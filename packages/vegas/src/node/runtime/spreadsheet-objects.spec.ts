@@ -212,6 +212,89 @@ describe("Spreadsheet Runtime objects", () => {
     expect(() => sheet.getIndex()).toThrow("Spreadsheet sheet is not present in its parent.");
   });
 
+  test("clear Sheet contents through the existing data bounds and Range paths", () => {
+    const bridge = new RecordingHostBridge((call) => {
+      if (call.service !== "spreadsheet") {
+        throw new Error(`unexpected service: ${call.service}`);
+      }
+
+      switch (call.operation) {
+        case "get-sheet-data-bounds":
+          return {
+            lastRow: 2,
+            lastColumn: 3,
+          };
+        case "set-range-values":
+          return undefined;
+        default:
+          throw new Error(`unexpected host call: ${call.service}#${call.operation}`);
+      }
+    });
+    const sheet = createSpreadsheetObjectHydrator(bridge).hydrate({
+      service: "spreadsheet",
+      kind: "sheet",
+      spreadsheetId: "spreadsheet-a",
+      sheetId: 7,
+    });
+
+    const result = sheet.clearContents();
+
+    expect(result).toBe(sheet);
+    expect(bridge.calls).toStrictEqual([
+      {
+        service: "spreadsheet",
+        operation: "get-sheet-data-bounds",
+        sheet: {
+          service: "spreadsheet",
+          kind: "sheet",
+          spreadsheetId: "spreadsheet-a",
+          sheetId: 7,
+        },
+      },
+      {
+        service: "spreadsheet",
+        operation: "set-range-values",
+        range: {
+          service: "spreadsheet",
+          kind: "range",
+          spreadsheetId: "spreadsheet-a",
+          sheetId: 7,
+          row: 1,
+          column: 1,
+          numRows: 2,
+          numColumns: 3,
+        },
+        values: [
+          ["", "", ""],
+          ["", "", ""],
+        ],
+      },
+    ]);
+  });
+
+  test("leave an empty Sheet unchanged when clearing contents", () => {
+    const bridge = new RecordingHostBridge((call) => {
+      if (call.service === "spreadsheet" && call.operation === "get-sheet-data-bounds") {
+        return {
+          lastRow: null,
+          lastColumn: null,
+        };
+      }
+
+      throw new Error(`unexpected host call: ${call.service}#${call.operation}`);
+    });
+    const sheet = createSpreadsheetObjectHydrator(bridge).hydrate({
+      service: "spreadsheet",
+      kind: "sheet",
+      spreadsheetId: "spreadsheet-a",
+      sheetId: 7,
+    });
+
+    expect(sheet.clearContents()).toBe(sheet);
+    expect(bridge.calls).toHaveLength(1);
+    expect(bridge.calls[0]?.operation).toBe("get-sheet-data-bounds");
+  });
+
   test("read Sheet values through the existing Range HostBridge path", () => {
     const bridge = createBridge();
     const hydrator = createSpreadsheetObjectHydrator(bridge);
