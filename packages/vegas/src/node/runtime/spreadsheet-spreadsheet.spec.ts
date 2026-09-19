@@ -1,17 +1,17 @@
 import { describe, expect, test } from "vitest";
 
-import {
-  createSpreadsheetApp,
-  createSpreadsheetObjectHydrator,
-  Sheet,
-  Spreadsheet,
-  SpreadsheetApp,
-  type HostBridge,
-  type HostCall,
-  type HostCallResult,
-  type SheetReference,
-  type SpreadsheetReference,
-} from "./index";
+import type { HostBridge } from "./host-bridge";
+import type { HostCall, HostCallResult } from "./host-call";
+import type { SpreadsheetObjectHydrator } from "./spreadsheet-hydrator";
+import type { Range } from "./spreadsheet-range";
+import type {
+  RangeReference,
+  SheetReference,
+  SpreadsheetObjectReference,
+  SpreadsheetReference,
+} from "./spreadsheet-reference";
+import type { Sheet } from "./spreadsheet-sheet";
+import { Spreadsheet } from "./spreadsheet-spreadsheet";
 
 class RecordingHostBridge implements HostBridge {
   readonly calls: HostCall[] = [];
@@ -27,19 +27,38 @@ class RecordingHostBridge implements HostBridge {
   }
 }
 
-function createBridge() {
-  return new RecordingHostBridge((call) => {
+class RecordingSpreadsheetObjectHydrator implements SpreadsheetObjectHydrator {
+  readonly references: SpreadsheetObjectReference[] = [];
+  readonly #respond: (reference: SpreadsheetObjectReference) => Spreadsheet | Sheet | Range;
+
+  constructor(respond: (reference: SpreadsheetObjectReference) => Spreadsheet | Sheet | Range) {
+    this.#respond = respond;
+  }
+
+  hydrate(reference: SpreadsheetReference): Spreadsheet;
+  hydrate(reference: SheetReference): Sheet;
+  hydrate(reference: RangeReference): Range;
+  hydrate(reference: SpreadsheetObjectReference): Spreadsheet | Sheet | Range {
+    this.references.push(reference);
+    return this.#respond(reference);
+  }
+}
+
+const spreadsheetReference = {
+  service: "spreadsheet",
+  kind: "spreadsheet",
+  id: "spreadsheet-a",
+} satisfies SpreadsheetReference;
+
+function createFixture() {
+  const sheet7 = {} as Sheet;
+  const sheet9 = {} as Sheet;
+  const bridge = new RecordingHostBridge((call) => {
     if (call.service !== "spreadsheet") {
       throw new Error(`unexpected service: ${call.service}`);
     }
 
     switch (call.operation) {
-      case "get-spreadsheet":
-        return {
-          service: "spreadsheet",
-          kind: "spreadsheet",
-          id: call.id,
-        } satisfies SpreadsheetReference;
       case "get-spreadsheet-metadata":
         return {
           name: "Budget",
@@ -81,50 +100,83 @@ function createBridge() {
           spreadsheetId: call.spreadsheet.id,
           sheetId: 7,
         } satisfies SheetReference;
-      case "get-sheet-metadata":
-        return {
-          name: "Summary",
-          maxRows: 100,
-          maxColumns: 26,
-          hiddenGridlines: false,
-          rightToLeft: false,
-        };
       default:
         throw new Error(`unexpected host call: ${call.service}#${call.operation}`);
     }
   });
+  const hydrator = new RecordingSpreadsheetObjectHydrator((reference) => {
+    if (reference.kind !== "sheet") {
+      throw new Error(`unexpected Spreadsheet object reference: ${reference.kind}`);
+    }
+
+    if (reference.sheetId === 7) {
+      return sheet7;
+    }
+
+    if (reference.sheetId === 9) {
+      return sheet9;
+    }
+
+    throw new Error(`unexpected Sheet reference: ${reference.sheetId}`);
+  });
+
+  return {
+    bridge,
+    hydrator,
+    sheet7,
+    sheet9,
+    spreadsheet: new Spreadsheet(bridge, spreadsheetReference, hydrator),
+  };
 }
 
 describe("Spreadsheet", () => {
-  test("open Spreadsheet resources and hydrate Sheet chains", () => {
-    const bridge = createBridge();
-    const spreadsheetApp = createSpreadsheetApp(bridge);
+  test("read metadata and hydrate Sheet references through collaborators", () => {
+    const { bridge, hydrator, sheet7, sheet9, spreadsheet } = createFixture();
 
-    expect(spreadsheetApp).toBeInstanceOf(SpreadsheetApp);
-
-    const spreadsheet = spreadsheetApp.openById("spreadsheet-a");
-    expect(spreadsheet).toBeInstanceOf(Spreadsheet);
     expect(spreadsheet.getId()).toBe("spreadsheet-a");
     expect(spreadsheet.getName()).toBe("Budget");
     expect(spreadsheet.getNumSheets()).toBe(2);
-
-    const sheets = spreadsheet.getSheets();
-    expect(sheets).toHaveLength(2);
-    expect(sheets[0]).toBeInstanceOf(Sheet);
-    expect(sheets[0]?.getSheetId()).toBe(7);
-
-    expect(spreadsheet.getSheetById(7)).toBeInstanceOf(Sheet);
-    expect(spreadsheet.getSheetById(7)?.getSheetId()).toBe(7);
+    expect(spreadsheet.getSheets()).toStrictEqual([sheet7, sheet9]);
+    expect(spreadsheet.getSheetById(7)).toBe(sheet7);
     expect(spreadsheet.getSheetById(999)).toBeNull();
-
-    const summary = spreadsheet.getSheetByName("Summary");
-    expect(summary).toBeInstanceOf(Sheet);
-    expect(summary?.getName()).toBe("Summary");
-    expect(summary?.getSheetName()).toBe("Summary");
-    expect(summary?.getMaxRows()).toBe(100);
-    expect(summary?.getMaxColumns()).toBe(26);
-
+    expect(spreadsheet.getSheetByName("Summary")).toBe(sheet7);
     expect(spreadsheet.getSheetByName("Missing")).toBeNull();
+
+    expect(bridge.calls.map(({ operation }) => operation)).toStrictEqual([
+      "get-spreadsheet-metadata",
+      "list-sheets",
+      "list-sheets",
+      "get-sheet",
+      "get-sheet",
+      "get-sheet-by-name",
+      "get-sheet-by-name",
+    ]);
+    expect(hydrator.references).toStrictEqual([
+      {
+        service: "spreadsheet",
+        kind: "sheet",
+        spreadsheetId: "spreadsheet-a",
+        sheetId: 7,
+      },
+      {
+        service: "spreadsheet",
+        kind: "sheet",
+        spreadsheetId: "spreadsheet-a",
+        sheetId: 9,
+      },
+      {
+        service: "spreadsheet",
+        kind: "sheet",
+        spreadsheetId: "spreadsheet-a",
+        sheetId: 7,
+      },
+      {
+        service: "spreadsheet",
+        kind: "sheet",
+        spreadsheetId: "spreadsheet-a",
+        sheetId: 7,
+      },
+    ]);
   });
 
   test("rename a Spreadsheet through the HostBridge", () => {
@@ -144,11 +196,10 @@ describe("Spreadsheet", () => {
           throw new Error(`unexpected host call: ${call.service}#${call.operation}`);
       }
     });
-    const spreadsheet = createSpreadsheetObjectHydrator(bridge).hydrate({
-      service: "spreadsheet",
-      kind: "spreadsheet",
-      id: "spreadsheet-a",
+    const hydrator = new RecordingSpreadsheetObjectHydrator(() => {
+      throw new Error("unexpected hydration");
     });
+    const spreadsheet = new Spreadsheet(bridge, spreadsheetReference, hydrator);
 
     expect(spreadsheet.getName()).toBe("Budget");
     expect(spreadsheet.rename("Forecast")).toBeUndefined();
@@ -158,17 +209,14 @@ describe("Spreadsheet", () => {
       "rename-spreadsheet",
       "get-spreadsheet-metadata",
     ]);
+    expect(hydrator.references).toHaveLength(0);
   });
 
   test("reject non-integer Sheet ids before HostBridge calls", () => {
-    const bridge = createBridge();
-    const spreadsheet = createSpreadsheetObjectHydrator(bridge).hydrate({
-      service: "spreadsheet",
-      kind: "spreadsheet",
-      id: "spreadsheet-a",
-    });
+    const { bridge, hydrator, spreadsheet } = createFixture();
 
     expect(() => spreadsheet.getSheetById(7.5)).toThrow("Spreadsheet sheet id must be an integer.");
     expect(bridge.calls).toHaveLength(0);
+    expect(hydrator.references).toHaveLength(0);
   });
 });
