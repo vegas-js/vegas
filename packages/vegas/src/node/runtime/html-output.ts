@@ -1,4 +1,5 @@
 import type { HtmlSandboxMode, HtmlXFrameOptionsMode } from "./html-enum";
+import { HtmlTemplate } from "./html-template";
 
 export interface HtmlOutputSnapshot {
   readonly content: string;
@@ -56,6 +57,10 @@ export class HtmlOutput {
   append(addedContent: string): this {
     this.#content += addedContent;
     return this;
+  }
+
+  asTemplate(): HtmlTemplate {
+    return new HtmlTemplate(() => this.#content);
   }
 
   clear(): this {

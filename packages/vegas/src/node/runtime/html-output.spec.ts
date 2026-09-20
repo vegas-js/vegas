@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import { HtmlOutput, HtmlOutputMetaTag, serializeHtmlOutput } from "./index";
+import { HtmlOutput, HtmlOutputMetaTag, HtmlTemplate, serializeHtmlOutput } from "./index";
 
 describe("HtmlOutput", () => {
   test("hold and mutate trusted HTML content with chaining", () => {
@@ -14,6 +14,23 @@ describe("HtmlOutput", () => {
 
     expect(output.setContent("<main>Local Runtime</main>")).toBe(output);
     expect(output.getContent()).toBe("<main>Local Runtime</main>");
+  });
+
+  test("create a template backed by current HtmlOutput content", () => {
+    const output = new HtmlOutput("<b>Hello</b>");
+    const template = output.asTemplate();
+
+    expect(template).toBeInstanceOf(HtmlTemplate);
+    expect(template.getRawContent()).toBe("<b>Hello</b>");
+
+    output.append("<p>Vegas</p>");
+    expect(template.getRawContent()).toBe("<b>Hello</b><p>Vegas</p>");
+
+    output.setContent("<main>Local Runtime</main>");
+    expect(template.getRawContent()).toBe("<main>Local Runtime</main>");
+
+    output.clear();
+    expect(template.getRawContent()).toBe("");
   });
 
   test("store meta tags as HtmlOutputMetaTag objects", () => {
