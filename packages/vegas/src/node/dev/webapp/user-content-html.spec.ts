@@ -9,6 +9,18 @@ describe("user content html", () => {
     expect(html).toContain('<meta http-equiv="X-UA-Compatible" content="IE=edge">');
   });
 
+  test("serialize dynamic values before embedding them in inline script", () => {
+    const hostOrigin = 'http://localhost:5173/</script><script>alert("host")</script>';
+    const sessionId = '</script><script>alert("session")</script>';
+
+    const html = createUserContentPanelHtml(hostOrigin, sessionId);
+
+    expect(html).not.toContain(hostOrigin);
+    expect(html).not.toContain(sessionId);
+    expect(html).toContain("\\u003c/script>");
+    expect(html).toContain("\\u003cscript>");
+  });
+
   test("create the user content panel document", () => {
     const html = createUserContentPanelHtml("http://localhost:5173", "session-1");
 

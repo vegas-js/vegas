@@ -20,5 +20,6 @@ describe("createHostHtml", () => {
     expect(output).toContain("\\u003c/div>");
     expect(output).toContain("\\u003c/script>");
     expect(output).toContain('src="http://localhost:5174/userCodeAppPanel?sessionId=session-1"');
+    expect(output).toContain('event.origin !== "http://localhost:5174"');
   });
 });

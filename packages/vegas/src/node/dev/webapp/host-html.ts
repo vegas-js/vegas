@@ -50,6 +50,7 @@ export function createHostHtml(url: URL, result: AppsScriptDoGetResult, sessionI
     },
   });
 
+  const hostOrigin = serializeInlineScriptValue(url.origin);
   const serverData = serializeInlineScriptValue({ userHtml: result.content });
 
   html.appendToBody("script", {
@@ -72,7 +73,7 @@ if (import.meta.hot) {
   });
 }
 window.addEventListener("message", (event) => {
-  if (event.origin !== "${url.origin}") {
+  if (event.origin !== ${hostOrigin}) {
     return;
   }
   if (event.data.type === "vegas:preinit") {

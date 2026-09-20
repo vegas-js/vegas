@@ -1,4 +1,5 @@
 import { HtmlDocument } from "../../html";
+import { serializeInlineScriptValue } from "./inline-script";
 
 const USER_CONTENT_IFRAME_ALLOW =
   "accelerometer *; ambient-light-sensor *; autoplay *; camera *; clipboard-read *; clipboard-write *; encrypted-media *; fullscreen *; geolocation *; gyroscope *; local-network-access *; magnetometer *; microphone *; midi *; payment *; picture-in-picture *; screen-wake-lock *; speaker *; sync-xhr *; usb *; vibrate *; vr *; web-share *";
@@ -20,8 +21,11 @@ export function createUserContentPanelHtml(hostOrigin: string, sessionId: string
   html.appendToHead("style", {
     text: "html, body, iframe {border: 0; display: block; height: 100%; margin: 0; padding: 0; width: 100%;}iframe#userHtmlFrame {overflow-y: scroll; -webkit-overflow-scrolling: touch;}",
   });
+  const serializedSessionId = serializeInlineScriptValue(sessionId);
+  const serializedHostOrigin = serializeInlineScriptValue(hostOrigin);
+
   html.appendToHead("script", {
-    text: `window.vegas = { id: "${sessionId}", hostOrigin: "${hostOrigin}", requestMap: new Map() }`,
+    text: `window.vegas = { id: ${serializedSessionId}, hostOrigin: ${serializedHostOrigin}, requestMap: new Map() }`,
   });
   html.appendToHead("script", {
     attributes: {
