@@ -157,7 +157,7 @@ These detail tables cover returned object types that already have a Vegas Runtim
 | Object type    | Coverage | Coverage (%) | Unimplemented API (methods) |
 | -------------- | -------: | -----------: | --------------------------- |
 | `UrlFetchApp`  |    3 / 3 |       100.0% | —                           |
-| `HTTPResponse` |    5 / 7 |        71.4% | `getAs()`<br>`getHeaders()` |
+| `HTTPResponse` |    6 / 7 |        85.7% | `getAs()`                   |
 
 ### Utilities
 

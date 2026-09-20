@@ -56,6 +56,36 @@ describe("HTTPResponse", () => {
     });
   });
 
+  test("return one value per response header without exposing internal state", () => {
+    const response = hydrateHttpResponse({
+      statusCode: 200,
+      headers: {
+        "content-type": "text/plain",
+        "set-cookie": ["a=1", "b=2"],
+        "x-empty": [],
+      },
+      content: [],
+    });
+
+    const headers = response.getHeaders();
+
+    expect(headers).toStrictEqual({
+      "content-type": "text/plain",
+      "set-cookie": "a=1",
+    });
+
+    headers["set-cookie"] = "changed=1";
+    expect(response.getHeaders()).toStrictEqual({
+      "content-type": "text/plain",
+      "set-cookie": "a=1",
+    });
+    expect(response.getAllHeaders()).toStrictEqual({
+      "content-type": "text/plain",
+      "set-cookie": ["a=1", "b=2"],
+      "x-empty": [],
+    });
+  });
+
   test("create an independent Blob for the response body", () => {
     const response = hydrateHttpResponse(createResponseValue());
     const blob = response.getBlob();

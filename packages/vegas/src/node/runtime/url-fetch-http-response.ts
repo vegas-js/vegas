@@ -21,6 +21,21 @@ function cloneResponseValue(value: UrlFetchResponseValue): UrlFetchResponseValue
   };
 }
 
+function flattenHeaders(
+  headers: Readonly<Record<string, UrlFetchResponseHeaderValue>>,
+): Record<string, string> {
+  return Object.fromEntries(
+    Object.entries(headers).flatMap(([name, value]) => {
+      if (typeof value === "string") {
+        return [[name, value]];
+      }
+
+      const firstValue = value[0];
+      return firstValue === undefined ? [] : [[name, firstValue]];
+    }),
+  );
+}
+
 const DEFAULT_CONTENT_CHARSET = "UTF-8";
 
 function decodeContent(content: readonly number[], charset: string): string {
@@ -54,6 +69,13 @@ export class HTTPResponse {
     // zero-argument form. Vegas uses UTF-8 as its explicit local Runtime contract; undocumented
     // Google behavior remains intentionally unspecified.
     return decodeContent(this.#value.content, charset);
+  }
+
+  getHeaders(): Record<string, string> {
+    // Apps Script documents that getAllHeaders() preserves multiple values as arrays, but does not
+    // define how getHeaders() reduces those values to a single map entry. Vegas returns the first
+    // value and omits empty arrays; undocumented Google behavior remains intentionally unspecified.
+    return flattenHeaders(this.#value.headers);
   }
 
   getResponseCode(): number {
