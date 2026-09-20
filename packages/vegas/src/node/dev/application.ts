@@ -11,6 +11,7 @@ import { registerBuildWatchers } from "./build-watcher";
 import { createHostHttpHandler } from "./webapp/host-http-handler";
 import { createHostServerConfig } from "./webapp/host-server";
 import { registerHostWebSocketHandlers } from "./webapp/host-websocket";
+import { getListeningPort } from "./webapp/server-port";
 import { WebAppSessionRegistry } from "./webapp/session-registry";
 import { createUserContentHttpHandler } from "./webapp/user-content-http-handler";
 import { createUserContentServerConfig } from "./webapp/user-content-server";
@@ -78,22 +79,14 @@ export async function startDevApplication(
       runtime: options.runtime,
     });
 
-    const hostHandler = createHostHttpHandler({
-      server: hostServer,
-      builds,
-      sessions,
-      runtime: options.runtime,
-    });
-
-    hostServer.middlewares.stack.unshift({ route: "", handle: hostHandler });
-
     await hostServer.listen();
+    const hostPort = getListeningPort(hostServer);
 
     const userContentServer = await createViteServer(
       createUserContentServerConfig({
         root: options.project.root,
         mode: options.mode,
-        port: hostServer.config.server.port + 1,
+        port: hostPort + 1,
         bridgeFilePath: path.join(import.meta.dirname, "webapp-bridge.js"),
       }),
     );
@@ -103,12 +96,23 @@ export async function startDevApplication(
       server: userContentServer,
       builds,
       sessions,
-      hostPort: hostServer.config.server.port,
+      hostPort,
     });
 
     userContentServer.middlewares.stack.unshift({ route: "", handle: userContentHandler });
 
     await userContentServer.listen();
+    const userContentPort = getListeningPort(userContentServer);
+
+    const hostHandler = createHostHttpHandler({
+      server: hostServer,
+      builds,
+      sessions,
+      runtime: options.runtime,
+      userContentPort,
+    });
+
+    hostServer.middlewares.stack.unshift({ route: "", handle: hostHandler });
 
     hostServer.printUrls();
     hostServer.bindCLIShortcuts({ print: true });

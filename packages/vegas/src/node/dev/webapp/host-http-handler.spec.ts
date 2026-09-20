@@ -47,6 +47,7 @@ describe("createHostHttpHandler", () => {
       builds: { waitForIdle },
       sessions: { issue: () => "session-1" },
       runtime: { execute: async () => undefined },
+      userContentPort: 62000,
     });
 
     await handler(
@@ -90,6 +91,7 @@ describe("createHostHttpHandler", () => {
       builds: { waitForIdle: async () => undefined },
       sessions: { issue: () => "session-1" },
       runtime: { execute },
+      userContentPort: 62000,
     });
 
     await handler(
@@ -109,9 +111,12 @@ describe("createHostHttpHandler", () => {
     expect(headers.get("Content-Type")).toBe("text/html; charset=utf-8");
     expect(headers.get("X-Frame-Options")).toBe("SAMEORIGIN");
     expect(String(getBody())).toContain(
-      'src="http://localhost:5174/userCodeAppPanel?sessionId=session-1"',
+      'src="http://localhost:62000/userCodeAppPanel?sessionId=session-1"',
     );
-    expect(server.transformIndexHtml).toHaveBeenCalledOnce();
+    expect(server.transformIndexHtml).toHaveBeenCalledWith(
+      "http://localhost:5173/dev?name=alice",
+      expect.any(String),
+    );
   });
 
   test("execute doPost and return the Apps Script response", async () => {
@@ -135,6 +140,7 @@ describe("createHostHttpHandler", () => {
       builds: { waitForIdle: async () => undefined },
       sessions: { issue: () => "session-1" },
       runtime: { execute },
+      userContentPort: 62000,
     });
 
     const request = Readable.from(["hello"]) as any;

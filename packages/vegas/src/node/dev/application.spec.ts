@@ -1,6 +1,6 @@
 import path from "node:path";
 
-import type { InlineConfig, ViteBuilder, ViteDevServer } from "vite";
+import type { Connect, InlineConfig, ViteBuilder, ViteDevServer } from "vite";
 import { describe, expect, test, vi } from "vitest";
 
 import { ArtifactStore } from "../build";
@@ -29,7 +29,7 @@ const project = {
   },
 } satisfies ResolvedProject;
 
-function createServer(options: { port: number; listenError?: Error }) {
+function createServer(options: { port: number; listeningPort?: number; listenError?: Error }) {
   const close = vi.fn(async () => undefined);
   const listen = vi.fn(async () => {
     if (options.listenError) {
@@ -56,6 +56,14 @@ function createServer(options: { port: number; listenError?: Error }) {
     middlewares: {
       stack: [],
     },
+    httpServer: {
+      address: () => ({
+        address: "127.0.0.1",
+        family: "IPv4",
+        port: options.listeningPort ?? options.port,
+      }),
+    },
+    transformIndexHtml: vi.fn(async (_url: string, html: string) => html),
     listen,
     close,
     printUrls: vi.fn(),
@@ -70,9 +78,90 @@ function createServer(options: { port: number; listenError?: Error }) {
 }
 
 describe("startDevApplication", () => {
+  test("wire servers using their actual listening ports", async () => {
+    const host = createServer({ port: 5173, listeningPort: 62000 });
+    const userContent = createServer({ port: 62001, listeningPort: 63000 });
+    const createViteServer = vi
+      .fn(async (_config?: InlineConfig) => host.server)
+      .mockResolvedValueOnce(host.server)
+      .mockResolvedValueOnce(userContent.server);
+    const execute = vi.fn(async () => ({
+      metaTags: [],
+      title: "",
+      faviconUrl: "",
+      content: "<main>Hello</main>",
+      xFrameOptionsMode: "DEFAULT",
+    }));
+
+    await startDevApplication(
+      {
+        project,
+        artifacts: new ArtifactStore(),
+        builder: {} as ViteBuilder,
+        runtime: { execute },
+        reloadRuntime: async () => undefined,
+        mode: "development",
+      },
+      {
+        createServer: createViteServer as typeof import("vite").createServer,
+      },
+    );
+
+    const userContentConfig = createViteServer.mock.calls[1]?.[0];
+    expect(userContentConfig?.server?.port).toBe(62001);
+
+    const hostHandler = host.server.middlewares.stack[0]?.handle as Connect.NextHandleFunction;
+    const hostBody: unknown[] = [];
+    await hostHandler?.(
+      {
+        url: "/dev",
+        method: "GET",
+        headers: {
+          host: "localhost:62000",
+          "user-agent": "Vegas Browser",
+        },
+      } as any,
+      {
+        statusCode: 0,
+        setHeader() {},
+        end(value?: unknown) {
+          hostBody.push(value);
+        },
+      } as any,
+      (() => undefined) as any,
+    );
+
+    expect(String(hostBody[0])).toContain(
+      'src="http://localhost:63000/userCodeAppPanel?sessionId=',
+    );
+
+    const userContentHandler = userContent.server.middlewares.stack[0]
+      ?.handle as Connect.NextHandleFunction;
+    const userContentBody: unknown[] = [];
+    await userContentHandler?.(
+      {
+        url: "/userCodeAppPanel",
+        method: "GET",
+        headers: {
+          host: "localhost:63000",
+        },
+      } as any,
+      {
+        statusCode: 0,
+        setHeader() {},
+        end(value?: unknown) {
+          userContentBody.push(value);
+        },
+      } as any,
+      (() => undefined) as any,
+    );
+
+    expect(String(userContentBody[0])).toContain('hostOrigin: "http://localhost:62000"');
+  });
+
   test("close created servers when user content startup fails", async () => {
     const error = new Error("user content listen failed");
-    const host = createServer({ port: 5173 });
+    const host = createServer({ port: 5173, listeningPort: 62000 });
     const userContent = createServer({
       port: 5174,
       listenError: error,

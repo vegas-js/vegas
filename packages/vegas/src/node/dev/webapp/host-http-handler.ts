@@ -18,10 +18,11 @@ interface HostHttpHandlerOptions {
   readonly builds: Pick<BuildCoordinator, "waitForIdle">;
   readonly sessions: Pick<WebAppSessionRegistry, "issue">;
   readonly runtime: RuntimeBackend;
+  readonly userContentPort: number;
 }
 
 export function createHostHttpHandler(options: HostHttpHandlerOptions): Connect.NextHandleFunction {
-  const { server, builds, sessions, runtime } = options;
+  const { server, builds, sessions, runtime, userContentPort } = options;
 
   return async (request, response, next) => {
     try {
@@ -30,7 +31,6 @@ export function createHostHttpHandler(options: HostHttpHandlerOptions): Connect.
       if (request.url) {
         const scheme = server.config.server.https ? "https" : "http";
         const url = new URL(request.url, `${scheme}://${request.headers.host}`);
-        url.port = String(Number.parseInt(url.port) + 1);
 
         if (url.pathname === "/") {
           const basePath = server.config.mode === "production" ? "/exec" : "/dev";
@@ -56,7 +56,9 @@ export function createHostHttpHandler(options: HostHttpHandlerOptions): Connect.
             })) as AppsScriptDoGetResult;
 
             const sessionId = sessions.issue();
-            const html = createHostHtml(url, result, sessionId);
+            const userContentUrl = new URL(url.href);
+            userContentUrl.port = String(userContentPort);
+            const html = createHostHtml(userContentUrl, result, sessionId);
             const transformedHtml = await server.transformIndexHtml(url.href, html);
 
             response.statusCode = 200;
