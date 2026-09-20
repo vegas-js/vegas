@@ -1,5 +1,6 @@
 import type { HostBridge } from "./host-bridge";
 import type { SpreadsheetObjectHydrator } from "./spreadsheet-hydrator";
+import { SPREADSHEET_SHEET_TYPE } from "./spreadsheet-sheet-type";
 import type { Spreadsheet } from "./spreadsheet-spreadsheet";
 import { assertPositiveInteger } from "./spreadsheet-validation";
 
@@ -23,6 +24,8 @@ function extractSpreadsheetIdFromUrl(url: string): string {
 export class SpreadsheetApp {
   readonly #bridge: HostBridge;
   readonly #hydrator: SpreadsheetObjectHydrator;
+
+  readonly SheetType = SPREADSHEET_SHEET_TYPE;
 
   constructor(bridge: HostBridge, hydrator: SpreadsheetObjectHydrator) {
     this.#bridge = bridge;

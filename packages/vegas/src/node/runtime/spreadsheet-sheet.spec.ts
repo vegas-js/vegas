@@ -135,6 +135,14 @@ function createFixture({
 }
 
 describe("Sheet", () => {
+  test("report local Sheets as GRID without collaborator calls", () => {
+    const { bridge, hydrator, sheet } = createFixture();
+
+    expect(sheet.getType()).toBe("GRID");
+    expect(bridge.calls).toHaveLength(0);
+    expect(hydrator.references).toHaveLength(0);
+  });
+
   test("hydrate a Sheet parent Spreadsheet without HostBridge calls", () => {
     const { bridge, hydrator, sheet, spreadsheet } = createFixture();
 

@@ -2,6 +2,7 @@ import type { HostBridge } from "./host-bridge";
 import type { SpreadsheetObjectHydrator } from "./spreadsheet-hydrator";
 import type { Range } from "./spreadsheet-range";
 import type { SheetReference } from "./spreadsheet-reference";
+import { SPREADSHEET_SHEET_TYPE, type SpreadsheetSheetType } from "./spreadsheet-sheet-type";
 import type { Spreadsheet } from "./spreadsheet-spreadsheet";
 import type { SpreadsheetCellValue } from "./spreadsheet-store";
 import { assertInteger, assertPositiveInteger } from "./spreadsheet-validation";
@@ -114,6 +115,11 @@ export class Sheet {
   /** @deprecated Replaced by getTabColorObject() in Apps Script. */
   getTabColor(): string | null {
     return this.#metadata().tabColor;
+  }
+
+  getType(): SpreadsheetSheetType {
+    // The local Spreadsheet model currently creates only standard grid sheets.
+    return SPREADSHEET_SHEET_TYPE.GRID;
   }
 
   setName(name: string): Sheet {

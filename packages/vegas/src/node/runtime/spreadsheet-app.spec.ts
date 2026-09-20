@@ -74,6 +74,19 @@ function createFixture() {
 }
 
 describe("SpreadsheetApp", () => {
+  test("expose the documented SheetType runtime enum", () => {
+    const { bridge, hydrator, spreadsheetApp } = createFixture();
+
+    expect(spreadsheetApp.SheetType).toStrictEqual({
+      GRID: "GRID",
+      OBJECT: "OBJECT",
+      DATASOURCE: "DATASOURCE",
+    });
+    expect(JSON.stringify(spreadsheetApp.SheetType.GRID)).toBe('"GRID"');
+    expect(bridge.calls).toHaveLength(0);
+    expect(hydrator.references).toHaveLength(0);
+  });
+
   test("enable Spreadsheet data source execution without HostBridge calls", () => {
     const { bridge, hydrator, spreadsheetApp } = createFixture();
 
