@@ -156,6 +156,70 @@ describe("virtualHtml", () => {
     }
   });
 
+  test("reject multiple JavaScript chunks for one client environment", async () => {
+    const tempDirPath = fs.mkdtempSync(path.join(os.tmpdir(), "vegas-"));
+
+    try {
+      const sourcePath = path.join(tempDirPath, "main.ts");
+      const extraSourcePath = path.join(tempDirPath, "extra.ts");
+
+      fs.writeFileSync(sourcePath, `console.log("main");`);
+      fs.writeFileSync(extraSourcePath, `console.log("extra");`);
+
+      const entry: ClientEntry = {
+        id: "index",
+        sourcePath,
+        htmlPath: "index.html",
+      };
+      const builder = await createBuilder({
+        root: tempDirPath,
+        configFile: false,
+        plugins: [
+          {
+            name: "emit-extra-client-chunk",
+
+            buildStart() {
+              this.emitFile({
+                type: "chunk",
+                id: extraSourcePath,
+              });
+            },
+          },
+          virtualHtml([entry]),
+        ],
+        environments: {
+          client0: {
+            consumer: "client",
+            build: {
+              rolldownOptions: {
+                input: entry.sourcePath,
+              },
+            },
+          },
+        },
+        build: {
+          write: false,
+          cssCodeSplit: false,
+          rolldownOptions: {
+            output: {
+              codeSplitting: false,
+            },
+          },
+        },
+        logLevel: "silent",
+      });
+
+      await expect(builder.build(builder.environments.client0)).rejects.toThrow(
+        'Client environment "client0" must produce exactly one JavaScript chunk; received 2.',
+      );
+    } finally {
+      fs.rmSync(tempDirPath, {
+        recursive: true,
+        force: true,
+      });
+    }
+  });
+
   test("reject non-css client asset", async () => {
     const tempDirPath = fs.mkdtempSync(path.join(os.tmpdir(), "vegas-"));
 

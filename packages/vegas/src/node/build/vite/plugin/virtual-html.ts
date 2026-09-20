@@ -51,9 +51,7 @@ export function virtualHtml(entries: BuildPlan["clientEntries"]): Plugin {
         code: string;
       }[] = [];
 
-      for (const key of Object.keys(bundle)) {
-        const output = bundle[key];
-
+      for (const output of Object.values(bundle)) {
         if (output.type === "chunk") {
           chunks.push({
             originalFileName: output.facadeModuleId ?? "",
@@ -62,29 +60,37 @@ export function virtualHtml(entries: BuildPlan["clientEntries"]): Plugin {
         } else {
           styles.push(readCssAsset(output));
         }
+      }
 
+      if (chunks.length !== 1) {
+        throw new Error(
+          `Client environment "${this.environment.name}" must produce exactly one JavaScript chunk; received ${chunks.length}.`,
+        );
+      }
+
+      for (const key of Object.keys(bundle)) {
         delete bundle[key];
       }
 
-      for (const chunk of chunks) {
-        const html = new HtmlDocument();
-        for (const style of styles) {
-          html.appendToHead("style", { text: style });
-        }
+      const [chunk] = chunks;
+      const html = new HtmlDocument();
 
-        html.appendToBody("div", { attributes: { id: "root" } });
-        html.appendToBody("script", {
-          text: escapeInlineScript(chunk.code),
-          attributes: { type: "module" },
-        });
-
-        this.emitFile({
-          originalFileName: chunk.originalFileName,
-          fileName: entry.htmlPath,
-          type: "asset",
-          source: html.toString(),
-        });
+      for (const style of styles) {
+        html.appendToHead("style", { text: style });
       }
+
+      html.appendToBody("div", { attributes: { id: "root" } });
+      html.appendToBody("script", {
+        text: escapeInlineScript(chunk.code),
+        attributes: { type: "module" },
+      });
+
+      this.emitFile({
+        originalFileName: chunk.originalFileName,
+        fileName: entry.htmlPath,
+        type: "asset",
+        source: html.toString(),
+      });
     },
   };
 }
