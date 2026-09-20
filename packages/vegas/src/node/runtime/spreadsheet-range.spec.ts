@@ -464,4 +464,43 @@ describe("Range", () => {
     ]);
     expect(hydrator.references).toHaveLength(0);
   });
+
+  test("trim whitespace in string cells and preserve non-string values", () => {
+    const sourceDate = new Date("2026-09-20T00:00:00.000Z");
+    const reference = {
+      ...defaultRangeReference,
+      row: 1,
+      column: 1,
+      numRows: 4,
+      numColumns: 2,
+    };
+    const bridge = createBridge([
+      [" preceding space", "following space "],
+      ["two  middle\tspaces", "\n   =SUM(1,2) \t"],
+      [42, true],
+      [sourceDate, "   "],
+    ]);
+    const { hydrator, range } = createFixture({ bridge, reference });
+
+    expect(range.trimWhitespace()).toBe(range);
+    expect(bridge.calls).toStrictEqual([
+      {
+        service: "spreadsheet",
+        operation: "get-range-values",
+        range: reference,
+      },
+      {
+        service: "spreadsheet",
+        operation: "set-range-values",
+        range: reference,
+        values: [
+          ["preceding space", "following space"],
+          ["two middle spaces", "=SUM(1,2)"],
+          [42, true],
+          [new Date("2026-09-20T00:00:00.000Z"), ""],
+        ],
+      },
+    ]);
+    expect(hydrator.references).toHaveLength(0);
+  });
 });

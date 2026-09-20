@@ -13,6 +13,10 @@ function cloneGrid(values: SpreadsheetGrid): SpreadsheetCellValue[][] {
   return values.map((row) => row.map(cloneCellValue));
 }
 
+function trimCellWhitespace(value: SpreadsheetCellValue): SpreadsheetCellValue {
+  return typeof value === "string" ? value.trim().replace(/\s+/g, " ") : value;
+}
+
 const A1_COLUMN_ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 function formatA1Cell(row: number, column: number): string {
@@ -233,5 +237,9 @@ export class Range {
     });
 
     return this;
+  }
+
+  trimWhitespace(): Range {
+    return this.setValues(this.getValues().map((row) => row.map(trimCellWhitespace)));
   }
 }
