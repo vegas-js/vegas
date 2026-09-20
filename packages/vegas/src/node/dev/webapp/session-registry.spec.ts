@@ -25,6 +25,24 @@ describe("WebAppSessionRegistry", () => {
     expect(registry.issue()).toBe("session-2");
   });
 
+  test("reuse an expired session id when issuing a new session", () => {
+    const ids = ["session-1", "session-1", "session-2"];
+    let index = 0;
+    let now = 1000;
+
+    const registry = new WebAppSessionRegistry({
+      createId: () => ids[index++]!,
+      now: () => now,
+      ttlMs: 30_000,
+    });
+
+    expect(registry.issue()).toBe("session-1");
+
+    now = 31_000;
+
+    expect(registry.issue()).toBe("session-1");
+  });
+
   test("claim and consume session", () => {
     const registry = new WebAppSessionRegistry({
       createId: () => "session-1",

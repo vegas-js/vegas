@@ -27,6 +27,8 @@ export class WebAppSessionRegistry {
   }
 
   issue(): string {
+    this.#deleteExpired();
+
     let id = "";
 
     do {
