@@ -43,6 +43,31 @@ describe("registerHostWebSocketHandlers", () => {
     expect(close).not.toHaveBeenCalled();
   });
 
+  test("close the client when session initialization fails", async () => {
+    const { server, handlers } = createServer();
+    const error = new Error("build failed");
+    const consume = vi.fn();
+    const send = vi.fn();
+    const close = vi.fn();
+
+    registerHostWebSocketHandlers({
+      server,
+      builds: {
+        waitForIdle: async () => {
+          throw error;
+        },
+      },
+      sessions: { consume },
+      runtime: { execute: async () => undefined },
+    });
+
+    await handlers.get("vegas:init")?.({ payload: { id: "session-1" } }, { send, close });
+
+    expect(consume).not.toHaveBeenCalled();
+    expect(send).not.toHaveBeenCalled();
+    expect(close).toHaveBeenCalledOnce();
+  });
+
   test("close the client when session initialization is rejected", async () => {
     const { server, handlers } = createServer();
     const send = vi.fn();
@@ -58,6 +83,73 @@ describe("registerHostWebSocketHandlers", () => {
     await handlers.get("vegas:init")?.({ payload: { id: "session-1" } }, { send, close });
 
     expect(send).not.toHaveBeenCalled();
+    expect(close).toHaveBeenCalledOnce();
+  });
+
+  test("return a failed server function response when builds fail", async () => {
+    const { server, handlers } = createServer();
+    const error = new Error("build failed");
+    const send = vi.fn();
+    const close = vi.fn();
+    const execute = vi.fn();
+
+    registerHostWebSocketHandlers({
+      server,
+      builds: {
+        waitForIdle: async () => {
+          throw error;
+        },
+      },
+      sessions: { consume: () => true },
+      runtime: { execute },
+    });
+
+    await handlers.get("vegas:server-function-call")?.(
+      {
+        requestId: 1,
+        functionName: "hello",
+        args: [],
+      },
+      { send, close },
+    );
+
+    expect(execute).not.toHaveBeenCalled();
+    expect(send).toHaveBeenCalledWith("vegas:return", {
+      requestId: 1,
+      status: "err",
+      message: "build failed",
+    });
+    expect(close).not.toHaveBeenCalled();
+  });
+
+  test("close the client when a failed server function response cannot be sent", async () => {
+    const { server, handlers } = createServer();
+    const send = vi.fn(() => {
+      throw new Error("send failed");
+    });
+    const close = vi.fn();
+
+    registerHostWebSocketHandlers({
+      server,
+      builds: {
+        waitForIdle: async () => {
+          throw new Error("build failed");
+        },
+      },
+      sessions: { consume: () => true },
+      runtime: { execute: vi.fn() },
+    });
+
+    await handlers.get("vegas:server-function-call")?.(
+      {
+        requestId: 1,
+        functionName: "hello",
+        args: [],
+      },
+      { send, close },
+    );
+
+    expect(send).toHaveBeenCalledOnce();
     expect(close).toHaveBeenCalledOnce();
   });
 
