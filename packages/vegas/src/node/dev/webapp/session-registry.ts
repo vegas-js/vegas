@@ -55,6 +55,7 @@ export class WebAppSessionRegistry {
     this.#sessions.set(id, {
       ...session,
       state: "claimed",
+      expiresAt: this.#now() + this.#ttlMs,
     });
 
     return true;

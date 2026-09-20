@@ -56,6 +56,24 @@ describe("WebAppSessionRegistry", () => {
     expect(registry.consume("session-1")).toBe(false);
   });
 
+  test("renew session expiry when claimed", () => {
+    let now = 1000;
+
+    const registry = new WebAppSessionRegistry({
+      createId: () => "session-1",
+      now: () => now,
+      ttlMs: 30_000,
+    });
+
+    registry.issue();
+
+    now = 30_000;
+    expect(registry.claim("session-1")).toBe(true);
+
+    now = 31_000;
+    expect(registry.consume("session-1")).toBe(true);
+  });
+
   test("do not consume unclaimed session", () => {
     const registry = new WebAppSessionRegistry({
       createId: () => "session-1",
