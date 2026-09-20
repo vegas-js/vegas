@@ -81,6 +81,36 @@ describe("detectServerEntry", () => {
     }
   });
 
+  test("reject query-suffixed imports of non-entry server sources", async () => {
+    const tempDirPath = fs.mkdtempSync(path.join(os.tmpdir(), "vegas-"));
+
+    try {
+      const clientDir = path.join(tempDirPath, "src", "client");
+      const serverDir = path.join(tempDirPath, "src", "server");
+      const clientSource = path.join(clientDir, "main.ts");
+      const serverEntry = path.join(serverDir, "Code.ts");
+      const serverHelper = path.join(serverDir, "helper.ts");
+
+      fs.mkdirSync(clientDir, { recursive: true });
+      fs.mkdirSync(serverDir, { recursive: true });
+
+      fs.writeFileSync(clientSource, `import "../server/helper?server";`);
+      fs.writeFileSync(serverEntry, `export function doGet() { return "ok"; }`);
+      fs.writeFileSync(serverHelper, `export const secret = "server-only";`);
+
+      const plan = createPlan(tempDirPath, [clientSource], [serverEntry, serverHelper]);
+
+      await expect(buildServer(plan)).rejects.toThrow(
+        "The only file that can be imported from the server side is Code.ts",
+      );
+    } finally {
+      fs.rmSync(tempDirPath, {
+        recursive: true,
+        force: true,
+      });
+    }
+  });
+
   test("reject multiple different server entries", async () => {
     const tempDirPath = fs.mkdtempSync(path.join(os.tmpdir(), "vegas-"));
 

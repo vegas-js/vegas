@@ -7,7 +7,15 @@ import type { BuildPlan } from "../../plan";
 
 export const VIRTUAL_DETECT_SERVER_ENTRY = "virtual:detectserverentry";
 
+function normalizeResolvedFileId(id: string): string {
+  return path.normalize(id.replace(/[?#].*$/, ""));
+}
+
 export function detectServerEntry(plan: BuildPlan): Plugin {
+  const serverSourcesById = new Map(
+    plan.serverSources.map((source) => [normalizeResolvedFileId(source), source]),
+  );
+
   return {
     name: "vite-plugin-detect-server-entry",
 
@@ -39,13 +47,18 @@ export function detectServerEntry(plan: BuildPlan): Plugin {
         for (const [clientSourcePath, imports] of importMap) {
           for (const importPath of imports) {
             const resolvedId = await this.resolve(importPath, clientSourcePath, options);
-            if (resolvedId && plan.serverSources.includes(resolvedId.id)) {
-              if (path.parse(resolvedId.id).base !== "Code.ts") {
+            const serverSource =
+              resolvedId === null
+                ? undefined
+                : serverSourcesById.get(normalizeResolvedFileId(resolvedId.id));
+
+            if (serverSource) {
+              if (path.parse(serverSource).base !== "Code.ts") {
                 throw new Error(
                   "The only file that can be imported from the server side is Code.ts",
                 );
               }
-              serverEntries.add(resolvedId.id);
+              serverEntries.add(serverSource);
             }
           }
         }
