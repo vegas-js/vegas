@@ -47,10 +47,20 @@ async function transpileModule(ctx: { root: string; filePath: string; outputDir:
     },
     logLevel: "silent",
   });
-  const output = (
-    (Array.isArray(result) ? result[0] : result) as Rolldown.RolldownOutput
-  ).output.flat()[0] as Rolldown.OutputChunk;
-  return path.join(ctx.outputDir, output.fileName);
+  const outputs = (Array.isArray(result) ? result : [result]).flatMap((buildResult) =>
+    "output" in buildResult ? buildResult.output : [],
+  );
+  const chunks = outputs.filter(
+    (output): output is Rolldown.OutputChunk => output.type === "chunk",
+  );
+
+  if (chunks.length !== 1) {
+    throw new Error(
+      `Module transpilation must produce exactly one JavaScript chunk; received ${chunks.length}.`,
+    );
+  }
+
+  return path.join(ctx.outputDir, chunks[0].fileName);
 }
 
 export async function loadModule(ctx: { root: string; filePath: string }): Promise<any> {

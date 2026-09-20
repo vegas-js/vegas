@@ -124,6 +124,39 @@ describe("loadModule", () => {
     }
   });
 
+  test("load module when transpilation also emits assets", async () => {
+    const tempDirPath = fs.mkdtempSync(path.join(os.tmpdir(), "vegas-"));
+    const projectDir = path.join(tempDirPath, "project");
+
+    try {
+      fs.mkdirSync(projectDir, { recursive: true });
+
+      const configPath = path.join(projectDir, "config.ts");
+
+      fs.writeFileSync(
+        configPath,
+        `
+          import "./style.css";
+
+          export default { value: "loaded" };
+        `,
+      );
+      fs.writeFileSync(path.join(projectDir, "style.css"), "body { color: red; }");
+
+      await expect(
+        loadModule({
+          root: projectDir,
+          filePath: configPath,
+        }),
+      ).resolves.toStrictEqual({ value: "loaded" });
+    } finally {
+      fs.rmSync(tempDirPath, {
+        recursive: true,
+        force: true,
+      });
+    }
+  });
+
   test("ignore project vite config", async () => {
     const tempDirPath = fs.mkdtempSync(path.join(os.tmpdir(), "vegas-"));
     const projectDir = path.join(tempDirPath, "project");
