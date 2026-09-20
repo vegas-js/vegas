@@ -469,5 +469,29 @@ describe("SpreadsheetHostHandler", () => {
       ["name", ""],
       ["local", "amount"],
     ]);
+
+    await expect(
+      handler.handle({
+        service: "spreadsheet",
+        operation: "clear-sheet-notes",
+        sheet: {
+          service: "spreadsheet",
+          kind: "sheet",
+          spreadsheetId: "spreadsheet-a",
+          sheetId: 7,
+        },
+      }),
+    ).resolves.toBeUndefined();
+
+    await expect(
+      handler.handle({
+        service: "spreadsheet",
+        operation: "get-range-notes",
+        range,
+      }),
+    ).resolves.toStrictEqual([
+      ["", ""],
+      ["", ""],
+    ]);
   });
 });

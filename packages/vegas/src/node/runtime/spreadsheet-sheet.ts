@@ -36,6 +36,16 @@ export class Sheet {
     return this;
   }
 
+  clearNotes(): Sheet {
+    this.#bridge.call({
+      service: "spreadsheet",
+      operation: "clear-sheet-notes",
+      sheet: this.#reference,
+    });
+
+    return this;
+  }
+
   getDataRange(): Range {
     const bounds = this.#dataBounds();
 

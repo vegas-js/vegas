@@ -87,6 +87,10 @@ export class SpreadsheetHostHandler implements SpreadsheetHostCallHandler {
         await this.#store.setSheetTabColor(call.sheet, call.tabColor);
         return;
       }
+      case "clear-sheet-notes": {
+        await this.#store.clearSheetNotes(call.sheet);
+        return;
+      }
       case "get-sheet-data-bounds": {
         return this.#store.getSheetDataBounds(call.sheet);
       }

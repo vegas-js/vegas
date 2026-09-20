@@ -107,6 +107,21 @@ describe("InMemorySpreadsheetGrid", () => {
       lastColumn: 3,
     });
 
+    grid.clearNotes();
+
+    expect(grid.getNotes(RANGE)).toStrictEqual([
+      ["", "", ""],
+      ["", "", ""],
+    ]);
+    expect(grid.getValues(RANGE)).toStrictEqual([
+      ["Name", "Amount", new Date("2026-09-18T00:00:00.000Z")],
+      ["Vegas", 42, true],
+    ]);
+    expect(grid.getDataBounds()).toStrictEqual({
+      lastRow: 2,
+      lastColumn: 3,
+    });
+
     expect(() => grid.setNotes(RANGE, [["too short"]])).toThrow("note dimensions must match");
   });
 

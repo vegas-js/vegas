@@ -623,6 +623,27 @@ describe("Sheet", () => {
     expect(hydrator.references).toHaveLength(0);
   });
 
+  test("clear all Sheet notes through the HostBridge and preserve chaining", () => {
+    const bridge = new RecordingHostBridge((call) => {
+      if (call.service === "spreadsheet" && call.operation === "clear-sheet-notes") {
+        return undefined;
+      }
+
+      throw new Error(`unexpected host call: ${call.service}#${call.operation}`);
+    });
+    const { hydrator, sheet } = createFixture({ bridge });
+
+    expect(sheet.clearNotes()).toBe(sheet);
+    expect(bridge.calls).toStrictEqual([
+      {
+        service: "spreadsheet",
+        operation: "clear-sheet-notes",
+        sheet: defaultSheetReference,
+      },
+    ]);
+    expect(hydrator.references).toHaveLength(0);
+  });
+
   test("clear Sheet contents through data bounds and a hydrated Range", () => {
     const bridge = new RecordingHostBridge((call) => {
       if (call.service === "spreadsheet" && call.operation === "get-sheet-data-bounds") {

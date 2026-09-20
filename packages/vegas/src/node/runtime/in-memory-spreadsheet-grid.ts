@@ -49,6 +49,10 @@ export class InMemorySpreadsheetGrid {
     });
   }
 
+  clearNotes(): void {
+    this.#notes.clear();
+  }
+
   getDataBounds(): SheetDataBounds {
     let lastRow: number | null = null;
     let lastColumn: number | null = null;

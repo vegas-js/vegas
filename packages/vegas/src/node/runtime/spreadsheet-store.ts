@@ -84,6 +84,8 @@ export interface SpreadsheetStore {
 
   setSheetTabColor(sheet: SheetReference, tabColor: string | null): Promise<void>;
 
+  clearSheetNotes(sheet: SheetReference): Promise<void>;
+
   getSheetDataBounds(sheet: SheetReference): Promise<SheetDataBounds>;
 
   getRangeNotes(range: RangeReference): Promise<SpreadsheetNoteGrid>;

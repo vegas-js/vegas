@@ -414,6 +414,10 @@ export class InMemorySpreadsheetStore implements SpreadsheetStore {
     });
   }
 
+  async clearSheetNotes(sheet: SheetReference): Promise<void> {
+    this.#getSheetState(sheet.spreadsheetId, sheet.sheetId).grid.clearNotes();
+  }
+
   async getSheetDataBounds(sheet: SheetReference): Promise<SheetDataBounds> {
     return this.#getSheetState(sheet.spreadsheetId, sheet.sheetId).grid.getDataBounds();
   }

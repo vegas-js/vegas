@@ -125,6 +125,11 @@ export type SpreadsheetHostCall =
     }
   | {
       readonly service: "spreadsheet";
+      readonly operation: "clear-sheet-notes";
+      readonly sheet: SheetReference;
+    }
+  | {
+      readonly service: "spreadsheet";
       readonly operation: "get-sheet-data-bounds";
       readonly sheet: SheetReference;
     }
@@ -171,6 +176,7 @@ type SpreadsheetHostCallResultMap = {
   "set-sheet-hidden-gridlines": void;
   "set-sheet-right-to-left": void;
   "set-sheet-tab-color": void;
+  "clear-sheet-notes": void;
   "get-sheet-data-bounds": SheetDataBounds;
   "get-range-notes": SpreadsheetNoteGrid;
   "get-range-values": SpreadsheetGrid;
