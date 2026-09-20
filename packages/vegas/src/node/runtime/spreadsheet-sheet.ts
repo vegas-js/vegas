@@ -19,6 +19,11 @@ export class Sheet {
     this.#hydrator = hydrator;
   }
 
+  asDataSourceSheet(): GoogleAppsScript.Spreadsheet.DataSourceSheet | null {
+    // The local Spreadsheet model currently creates only standard grid sheets.
+    return null;
+  }
+
   clearContents(): Sheet {
     const bounds = this.#dataBounds();
 

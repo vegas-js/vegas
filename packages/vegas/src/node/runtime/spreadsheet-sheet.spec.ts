@@ -135,10 +135,11 @@ function createFixture({
 }
 
 describe("Sheet", () => {
-  test("report local Sheets as GRID without collaborator calls", () => {
+  test("report local Sheets as GRID and not data source sheets without collaborator calls", () => {
     const { bridge, hydrator, sheet } = createFixture();
 
     expect(sheet.getType()).toBe("GRID");
+    expect(sheet.asDataSourceSheet()).toBeNull();
     expect(bridge.calls).toHaveLength(0);
     expect(hydrator.references).toHaveLength(0);
   });
