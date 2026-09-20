@@ -73,11 +73,11 @@ if (import.meta.hot) {
   });
 }
 window.addEventListener("message", (event) => {
-  if (event.origin !== ${hostOrigin}) {
+  const sandboxFrame = document.getElementById("sandboxFrame");
+  if (event.origin !== ${hostOrigin} || event.source !== sandboxFrame?.contentWindow) {
     return;
   }
   if (event.data.type === "vegas:preinit") {
-    const sandboxFrame = document.getElementById("sandboxFrame");
     sandboxFrame.contentWindow.postMessage({ type: "vegas:preinit" }, event.data.payload.contentOrigin);
   } else if (event.data.type === "vegas:init" && event.data.payload.id) {
     port = event.data.payload.port;
