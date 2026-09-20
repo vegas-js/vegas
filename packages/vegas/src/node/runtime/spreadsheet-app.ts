@@ -1,6 +1,6 @@
 import type { HostBridge } from "./host-bridge";
+import { SPREADSHEET_SHEET_TYPE } from "./spreadsheet-enum";
 import type { SpreadsheetObjectHydrator } from "./spreadsheet-hydrator";
-import { SPREADSHEET_SHEET_TYPE } from "./spreadsheet-sheet-type";
 import type { Spreadsheet } from "./spreadsheet-spreadsheet";
 import { assertPositiveInteger } from "./spreadsheet-validation";
 

@@ -41,8 +41,9 @@ export type {
 } from "./executor";
 export { executeRuntimeFunction } from "./function-execution";
 export { HostDispatcher } from "./host-dispatcher";
+export type { HtmlSandboxMode, HtmlXFrameOptionsMode } from "./html-enum";
 export { HtmlOutput, HtmlOutputMetaTag, serializeHtmlOutput } from "./html-output";
-export type { HtmlOutputSnapshot, HtmlSandboxMode, HtmlXFrameOptionsMode } from "./html-output";
+export type { HtmlOutputSnapshot } from "./html-output";
 export { createHtmlService, HtmlService } from "./html-service";
 export type { HostCallDispatcher, HostDispatcherOptions } from "./host-dispatcher";
 export type { HostBridge } from "./host-bridge";

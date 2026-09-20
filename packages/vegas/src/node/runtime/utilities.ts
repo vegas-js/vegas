@@ -7,15 +7,17 @@ import {
   computeUtilitiesDigest,
   computeUtilitiesHmac,
   computeUtilitiesRsaSignature,
-  DIGEST_ALGORITHM,
-  MAC_ALGORITHM,
-  RSA_ALGORITHM,
 } from "./utilities-crypto";
-
-const CHARSET = {
-  US_ASCII: 0,
-  UTF_8: 1,
-} as const satisfies typeof GoogleAppsScript.Utilities.Charset;
+import {
+  UTILITIES_CHARSET,
+  UTILITIES_DIGEST_ALGORITHM,
+  UTILITIES_MAC_ALGORITHM,
+  UTILITIES_RSA_ALGORITHM,
+  type UtilitiesCharset,
+  type UtilitiesDigestAlgorithm,
+  type UtilitiesMacAlgorithm,
+  type UtilitiesRsaAlgorithm,
+} from "./utilities-enum";
 
 const MAX_SLEEP_MILLISECONDS = 300_000;
 
@@ -33,7 +35,12 @@ function encodeString(
   data: string,
   charset: GoogleAppsScript.Utilities.Charset | undefined,
 ): Uint8Array {
-  return capability.encodeString(data, charset === CHARSET.US_ASCII ? "ascii" : "utf8");
+  const runtimeCharset = charset as unknown as UtilitiesCharset | undefined;
+
+  return capability.encodeString(
+    data,
+    runtimeCharset === UTILITIES_CHARSET.US_ASCII ? "ascii" : "utf8",
+  );
 }
 
 function encodeBase64(capability: UtilitiesCapability, data: Uint8Array, webSafe: boolean): string {
@@ -53,13 +60,16 @@ function decodeBase64(
 }
 
 // https://developers.google.com/apps-script/reference/utilities/utilities
-// @types/google-apps-script models these values as ambient enums. Their concrete
-// numeric values are Vegas-internal identities and are not compatibility promises.
 export class Utilities {
-  readonly Charset = CHARSET;
-  readonly DigestAlgorithm = DIGEST_ALGORITHM;
-  readonly MacAlgorithm = MAC_ALGORITHM;
-  readonly RsaAlgorithm = RSA_ALGORITHM;
+  // Preserve the @types/google-apps-script static surface while the Runtime values themselves use
+  // the string representation defined by createRuntimeEnum().
+  readonly Charset = UTILITIES_CHARSET as unknown as typeof GoogleAppsScript.Utilities.Charset;
+  readonly DigestAlgorithm =
+    UTILITIES_DIGEST_ALGORITHM as unknown as typeof GoogleAppsScript.Utilities.DigestAlgorithm;
+  readonly MacAlgorithm =
+    UTILITIES_MAC_ALGORITHM as unknown as typeof GoogleAppsScript.Utilities.MacAlgorithm;
+  readonly RsaAlgorithm =
+    UTILITIES_RSA_ALGORITHM as unknown as typeof GoogleAppsScript.Utilities.RsaAlgorithm;
   readonly #capability: UtilitiesCapability;
 
   constructor(capability: UtilitiesCapability) {
@@ -139,7 +149,11 @@ export class Utilities {
         ? encodeString(this.#capability, value, charset)
         : encodeBytes(value);
 
-    return computeUtilitiesDigest(this.#capability, algorithm, bytes);
+    return computeUtilitiesDigest(
+      this.#capability,
+      algorithm as unknown as UtilitiesDigestAlgorithm,
+      bytes,
+    );
   }
 
   computeHmacSha256Signature(
@@ -164,7 +178,12 @@ export class Utilities {
     const keyBytes =
       typeof key === "string" ? encodeString(this.#capability, key, charset) : encodeBytes(key);
 
-    return computeUtilitiesHmac(this.#capability, MAC_ALGORITHM.HMAC_SHA_256, valueBytes, keyBytes);
+    return computeUtilitiesHmac(
+      this.#capability,
+      UTILITIES_MAC_ALGORITHM.HMAC_SHA_256,
+      valueBytes,
+      keyBytes,
+    );
   }
 
   computeHmacSignature(
@@ -196,7 +215,12 @@ export class Utilities {
     const keyBytes =
       typeof key === "string" ? encodeString(this.#capability, key, charset) : encodeBytes(key);
 
-    return computeUtilitiesHmac(this.#capability, algorithm, valueBytes, keyBytes);
+    return computeUtilitiesHmac(
+      this.#capability,
+      algorithm as unknown as UtilitiesMacAlgorithm,
+      valueBytes,
+      keyBytes,
+    );
   }
 
   computeRsaSha1Signature(value: string, key: string): GoogleAppsScript.Byte[];
@@ -212,7 +236,7 @@ export class Utilities {
   ): GoogleAppsScript.Byte[] {
     return computeUtilitiesRsaSignature(
       this.#capability,
-      RSA_ALGORITHM.RSA_SHA_1,
+      UTILITIES_RSA_ALGORITHM.RSA_SHA_1,
       encodeString(this.#capability, value, charset),
       key,
     );
@@ -231,7 +255,7 @@ export class Utilities {
   ): GoogleAppsScript.Byte[] {
     return computeUtilitiesRsaSignature(
       this.#capability,
-      RSA_ALGORITHM.RSA_SHA_256,
+      UTILITIES_RSA_ALGORITHM.RSA_SHA_256,
       encodeString(this.#capability, value, charset),
       key,
     );
@@ -256,7 +280,7 @@ export class Utilities {
   ): GoogleAppsScript.Byte[] {
     return computeUtilitiesRsaSignature(
       this.#capability,
-      algorithm,
+      algorithm as unknown as UtilitiesRsaAlgorithm,
       encodeString(this.#capability, value, charset),
       key,
     );

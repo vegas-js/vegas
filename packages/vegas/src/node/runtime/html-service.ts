@@ -1,20 +1,12 @@
-import { HtmlOutput, type HtmlSandboxMode, type HtmlXFrameOptionsMode } from "./html-output";
-import { createRuntimeEnum } from "./runtime-enum";
-
-const SANDBOX_MODE = createRuntimeEnum("EMULATED", "IFRAME", "NATIVE") satisfies Readonly<
-  Record<HtmlSandboxMode, HtmlSandboxMode>
->;
-
-const X_FRAME_OPTIONS_MODE = createRuntimeEnum("ALLOWALL", "DEFAULT") satisfies Readonly<
-  Record<HtmlXFrameOptionsMode, HtmlXFrameOptionsMode>
->;
+import { HTML_SANDBOX_MODE, HTML_X_FRAME_OPTIONS_MODE } from "./html-enum";
+import { HtmlOutput } from "./html-output";
 
 // https://developers.google.com/apps-script/reference/html/html-service
 export class HtmlService {
   readonly #htmlFiles: Readonly<Record<string, string>>;
 
-  readonly SandboxMode = SANDBOX_MODE;
-  readonly XFrameOptionsMode = X_FRAME_OPTIONS_MODE;
+  readonly SandboxMode = HTML_SANDBOX_MODE;
+  readonly XFrameOptionsMode = HTML_X_FRAME_OPTIONS_MODE;
 
   constructor(htmlFiles: Readonly<Record<string, string>> = {}) {
     this.#htmlFiles = htmlFiles;

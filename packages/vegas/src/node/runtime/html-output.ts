@@ -1,5 +1,4 @@
-export type HtmlSandboxMode = "EMULATED" | "IFRAME" | "NATIVE";
-export type HtmlXFrameOptionsMode = "ALLOWALL" | "DEFAULT";
+import type { HtmlSandboxMode, HtmlXFrameOptionsMode } from "./html-enum";
 
 export interface HtmlOutputSnapshot {
   readonly content: string;

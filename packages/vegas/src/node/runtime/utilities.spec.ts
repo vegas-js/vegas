@@ -25,43 +25,41 @@ type UtilitiesContract = Pick<
   | "sleep"
 >;
 
-function expectDistinctNumericValues(values: Readonly<Record<string, number>>): void {
-  const identities = Object.values(values);
-
-  expect(identities.every((value) => typeof value === "number")).toBe(true);
-  expect(new Set(identities).size).toBe(identities.length);
-}
-
 describe("Utilities", () => {
-  test("expose Google Apps Script utility enums as named numeric identities", () => {
+  test("expose Google Apps Script utility enums through the Runtime enum representation", () => {
     const utilities = createNodeUtilities();
 
     const contract: UtilitiesContract = utilities;
 
     expect(contract).toBe(utilities);
     expect(utilities).toBeInstanceOf(Utilities);
-    expect(Object.keys(utilities.Charset)).toStrictEqual(["US_ASCII", "UTF_8"]);
-    expect(Object.keys(utilities.DigestAlgorithm)).toStrictEqual([
-      "MD2",
-      "MD5",
-      "SHA_1",
-      "SHA_256",
-      "SHA_384",
-      "SHA_512",
-    ]);
-    expect(Object.keys(utilities.MacAlgorithm)).toStrictEqual([
-      "HMAC_MD5",
-      "HMAC_SHA_1",
-      "HMAC_SHA_256",
-      "HMAC_SHA_384",
-      "HMAC_SHA_512",
-    ]);
-    expect(Object.keys(utilities.RsaAlgorithm)).toStrictEqual(["RSA_SHA_1", "RSA_SHA_256"]);
-
-    expectDistinctNumericValues(utilities.Charset);
-    expectDistinctNumericValues(utilities.DigestAlgorithm);
-    expectDistinctNumericValues(utilities.MacAlgorithm);
-    expectDistinctNumericValues(utilities.RsaAlgorithm);
+    expect(utilities.Charset).toStrictEqual({
+      US_ASCII: "US_ASCII",
+      UTF_8: "UTF_8",
+    });
+    expect(utilities.DigestAlgorithm).toStrictEqual({
+      MD2: "MD2",
+      MD5: "MD5",
+      SHA_1: "SHA_1",
+      SHA_256: "SHA_256",
+      SHA_384: "SHA_384",
+      SHA_512: "SHA_512",
+    });
+    expect(utilities.MacAlgorithm).toStrictEqual({
+      HMAC_MD5: "HMAC_MD5",
+      HMAC_SHA_1: "HMAC_SHA_1",
+      HMAC_SHA_256: "HMAC_SHA_256",
+      HMAC_SHA_384: "HMAC_SHA_384",
+      HMAC_SHA_512: "HMAC_SHA_512",
+    });
+    expect(utilities.RsaAlgorithm).toStrictEqual({
+      RSA_SHA_1: "RSA_SHA_1",
+      RSA_SHA_256: "RSA_SHA_256",
+    });
+    expect(JSON.stringify(utilities.Charset.UTF_8)).toBe('"UTF_8"');
+    expect(JSON.stringify(utilities.DigestAlgorithm.SHA_256)).toBe('"SHA_256"');
+    expect(JSON.stringify(utilities.MacAlgorithm.HMAC_SHA_256)).toBe('"HMAC_SHA_256"');
+    expect(JSON.stringify(utilities.RsaAlgorithm.RSA_SHA_256)).toBe('"RSA_SHA_256"');
   });
 
   test("decode standard and web-safe Base64 into signed bytes", () => {
