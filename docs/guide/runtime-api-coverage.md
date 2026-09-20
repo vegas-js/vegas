@@ -167,10 +167,10 @@ These detail tables cover returned object types that already have a Vegas Runtim
 
 ### HtmlService
 
-| Object type   | Coverage | Coverage (%) | Unimplemented API (methods)                                                                                                         |
-| ------------- | -------: | -----------: | ----------------------------------------------------------------------------------------------------------------------------------- |
-| `HtmlService` |    3 / 5 |        60.0% | `createTemplate()`<br>`createTemplateFromFile()`                                                                                    |
-| `HtmlOutput`  |  12 / 20 |        60.0% | `appendUntrusted()`<br>`asTemplate()`<br>`getAs()`<br>`getBlob()`<br>`getHeight()`<br>`getWidth()`<br>`setHeight()`<br>`setWidth()` |
+| Object type   | Coverage | Coverage (%) | Unimplemented API (methods)                                       |
+| ------------- | -------: | -----------: | ----------------------------------------------------------------- |
+| `HtmlService` |    3 / 5 |        60.0% | `createTemplate()`<br>`createTemplateFromFile()`                  |
+| `HtmlOutput`  |  16 / 20 |        80.0% | `appendUntrusted()`<br>`asTemplate()`<br>`getAs()`<br>`getBlob()` |
 
 ### Logger
 

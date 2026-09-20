@@ -42,6 +42,22 @@ describe("HtmlOutput", () => {
     expect(output.getFaviconUrl()).toBe("https://example.com/favicon.png");
   });
 
+  test("store initial dialog dimensions with chaining", () => {
+    const output = new HtmlOutput();
+
+    expect(output.setHeight(320)).toBe(output);
+    expect(output.setWidth(480)).toBe(output);
+
+    expect(output.getHeight()).toBe(320);
+    expect(output.getWidth()).toBe(480);
+
+    expect(output.setHeight(null)).toBe(output);
+    expect(output.setWidth(null)).toBe(output);
+
+    expect(output.getHeight()).toBeNull();
+    expect(output.getWidth()).toBeNull();
+  });
+
   test("use DEFAULT X-Frame-Options mode until explicitly changed", () => {
     const output = new HtmlOutput("<main>Vegas</main>");
 

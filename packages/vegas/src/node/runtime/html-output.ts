@@ -36,12 +36,16 @@ export class HtmlOutputMetaTag {
 export class HtmlOutput {
   #content: string;
   #faviconUrl = "";
+  #height: number | null = null;
   readonly #metaTags: HtmlOutputMetaTag[] = [];
   #title = "";
+  readonly #webApp: boolean;
+  #width: number | null = null;
   #xFrameOptionsMode: HtmlXFrameOptionsMode = "DEFAULT";
 
-  constructor(content = "") {
+  constructor(content = "", webApp = false) {
     this.#content = content;
+    this.#webApp = webApp;
   }
 
   addMetaTag(name: string, content: string): this {
@@ -67,12 +71,20 @@ export class HtmlOutput {
     return this.#faviconUrl;
   }
 
+  getHeight(): number | null {
+    return this.#webApp ? null : this.#height;
+  }
+
   getMetaTags(): HtmlOutputMetaTag[] {
     return [...this.#metaTags];
   }
 
   getTitle(): string {
     return this.#title;
+  }
+
+  getWidth(): number | null {
+    return this.#webApp ? null : this.#width;
   }
 
   setContent(content: string): this {
@@ -85,12 +97,28 @@ export class HtmlOutput {
     return this;
   }
 
+  setHeight(height: number | null): this {
+    if (!this.#webApp) {
+      this.#height = height;
+    }
+
+    return this;
+  }
+
   setSandboxMode(_mode: HtmlSandboxMode): this {
     return this;
   }
 
   setTitle(title: string): this {
     this.#title = title;
+    return this;
+  }
+
+  setWidth(width: number | null): this {
+    if (!this.#webApp) {
+      this.#width = width;
+    }
+
     return this;
   }
 

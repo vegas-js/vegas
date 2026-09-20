@@ -32,6 +32,27 @@ describe("HtmlService", () => {
     expect(scriptService.getUserAgent()).toBeNull();
   });
 
+  test("ignore dialog dimensions for web app HtmlOutput", () => {
+    const service = createHtmlService(
+      {
+        "index.html": "<main>Index</main>",
+      },
+      {
+        webApp: true,
+        userAgent: "Vegas Browser",
+      },
+    );
+
+    const outputs = [service.createHtmlOutput(), service.createHtmlOutputFromFile("index")];
+
+    for (const output of outputs) {
+      expect(output.setHeight(320)).toBe(output);
+      expect(output.setWidth(480)).toBe(output);
+      expect(output.getHeight()).toBeNull();
+      expect(output.getWidth()).toBeNull();
+    }
+  });
+
   test("create HtmlOutput with optional string content", () => {
     const service = createHtmlService();
 

@@ -22,7 +22,7 @@ export class HtmlService {
   createHtmlOutput(source: string | RuntimeBlobSource = ""): HtmlOutput {
     const html = typeof source === "string" ? source : source.getBlob().getDataAsString();
 
-    return new HtmlOutput(html);
+    return new HtmlOutput(html, this.#context?.webApp === true);
   }
 
   createHtmlOutputFromFile(filename: string): HtmlOutput {
@@ -33,7 +33,7 @@ export class HtmlService {
       throw new Error(`HTML file not found: ${filename}`);
     }
 
-    return new HtmlOutput(html);
+    return new HtmlOutput(html, this.#context?.webApp === true);
   }
 
   getUserAgent(): string | null {
