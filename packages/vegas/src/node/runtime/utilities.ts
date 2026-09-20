@@ -298,6 +298,18 @@ export class Utilities {
     return this.#capability.randomUuid();
   }
 
+  /** @deprecated Replaced by JSON.parse() in Apps Script. */
+  jsonParse(jsonString: string): unknown {
+    return JSON.parse(jsonString);
+  }
+
+  /** @deprecated Replaced by JSON.stringify() in Apps Script. */
+  jsonStringify(obj: unknown): string {
+    // Apps Script documents this legacy helper as a direct replacement by JSON.stringify().
+    // Preserve native JSON serialization semantics while retaining the Apps Script string surface.
+    return JSON.stringify(obj) as string;
+  }
+
   gzip(blob: RuntimeBlobSource): RuntimeBlob;
   gzip(blob: RuntimeBlobSource, name: string): RuntimeBlob;
   gzip(blob: RuntimeBlobSource, name?: string): RuntimeBlob {

@@ -22,6 +22,8 @@ type UtilitiesContract = Pick<
   | "computeRsaSha256Signature"
   | "computeRsaSignature"
   | "getUuid"
+  | "jsonParse"
+  | "jsonStringify"
   | "sleep"
 >;
 
@@ -194,6 +196,20 @@ describe("Utilities", () => {
     expect(Buffer.from(byteSignature).toString("hex")).toBe(
       "b0344c61d8db38535ca8afceaf0bf12b881dc200c9833da726e9376c2e32cff7",
     );
+  });
+
+  test("preserve native JSON semantics through deprecated compatibility helpers", () => {
+    const utilities = createNodeUtilities();
+    const value = {
+      name: "Vegas",
+      enabled: true,
+      values: [1, null, "three"],
+    };
+    const json = '{"name":"Vegas","enabled":true,"values":[1,null,"three"]}';
+
+    expect(utilities.jsonParse(json)).toStrictEqual(value);
+    expect(utilities.jsonStringify(value)).toBe(json);
+    expect(() => utilities.jsonParse("{")).toThrow(SyntaxError);
   });
 
   test("generate a version 4 UUID string", () => {
