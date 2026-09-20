@@ -2,6 +2,7 @@ import { ArtifactStore } from "../../build";
 import { startDevApplication } from "../../dev/application";
 import { replaceDevBuildArtifacts } from "../../dev/build-artifacts";
 import { buildDevTopology } from "../../dev/build-topology";
+import { ReloadableRuntimeBackend } from "../../dev/reloadable-runtime-backend";
 import { createRuntimeProgram } from "../../dev/runtime-program";
 import { loadProject } from "../../project";
 import { createLocalRuntime } from "./local-runtime";
@@ -19,8 +20,10 @@ export async function runDevApplication(mode: DevApplicationMode, root?: string)
   const artifacts = new ArtifactStore();
   replaceDevBuildArtifacts(artifacts, topology);
 
-  const runtime = await createLocalRuntime(project, topology.snapshot.runtimeDataSources, () =>
-    createRuntimeProgram(artifacts),
+  const runtime = new ReloadableRuntimeBackend(
+    await createLocalRuntime(project, topology.snapshot.runtimeDataSources, () =>
+      createRuntimeProgram(artifacts),
+    ),
   );
 
   await startDevApplication({
