@@ -16,6 +16,13 @@ function normalizeResolvedFileId(id: string): string {
   return path.normalize(id.replace(/[?#].*$/, ""));
 }
 
+function isVirtualServerEntryId(source: string, root: string): boolean {
+  return (
+    source === VIRTUAL_DETECT_SERVER_ENTRY ||
+    path.normalize(source) === path.resolve(root, VIRTUAL_DETECT_SERVER_ENTRY)
+  );
+}
+
 function isTypeOnlyImport(node: {
   readonly importKind?: string;
   readonly specifiers: readonly {
@@ -106,7 +113,7 @@ export function detectServerEntry(plan: BuildPlan): Plugin {
     },
 
     async resolveId(source, _importer, options) {
-      if (source.endsWith(VIRTUAL_DETECT_SERVER_ENTRY)) {
+      if (isVirtualServerEntryId(source, plan.root)) {
         const serverEntries = new Set<string>();
 
         for (const clientSourcePath of plan.clientSources) {

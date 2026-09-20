@@ -2,8 +2,8 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 
-import { createBuilder } from "vite";
-import { describe, expect, test } from "vitest";
+import { createBuilder, type Plugin } from "vite";
+import { describe, expect, test, vi } from "vitest";
 
 import type { BuildPlan } from "../../plan";
 import { VIRTUAL_DETECT_SERVER_ENTRY, detectServerEntry } from "./detect-server-entry";
@@ -26,11 +26,11 @@ function createPlan(
   };
 }
 
-async function buildServer(plan: BuildPlan) {
+async function buildServer(plan: BuildPlan, plugins: readonly Plugin[] = []) {
   const builder = await createBuilder({
     root: plan.root,
     configFile: false,
-    plugins: [detectServerEntry(plan)],
+    plugins: [detectServerEntry(plan), ...plugins],
     environments: {
       server: {
         build: {
@@ -220,6 +220,54 @@ describe("detectServerEntry", () => {
       const plan = createPlan(tempDirPath, [mainSource, adminSource], [serverA, serverB]);
 
       await expect(buildServer(plan)).rejects.toThrow("Duplicate server entry.");
+    } finally {
+      fs.rmSync(tempDirPath, {
+        recursive: true,
+        force: true,
+      });
+    }
+  });
+
+  test("do not intercept module ids that only end with the virtual server entry id", async () => {
+    const tempDirPath = fs.mkdtempSync(path.join(os.tmpdir(), "vegas-"));
+    const fixtureId = `fixture:${VIRTUAL_DETECT_SERVER_ENTRY}`;
+    const resolvedFixtureId = "\0fixture:server-entry-suffix";
+    const resolveFixture = vi.fn((source: string) =>
+      source === fixtureId ? resolvedFixtureId : undefined,
+    );
+
+    try {
+      const serverDir = path.join(tempDirPath, "src", "server");
+      const serverSource = path.join(serverDir, "Code.ts");
+
+      fs.mkdirSync(serverDir, { recursive: true });
+      fs.writeFileSync(
+        serverSource,
+        `
+          import { value } from "${fixtureId}";
+          export function doGet() {
+            return value;
+          }
+        `,
+      );
+
+      const plan = createPlan(tempDirPath, [], [serverSource]);
+
+      await expect(
+        buildServer(plan, [
+          {
+            name: "resolve-virtual-entry-suffix-fixture",
+            resolveId: resolveFixture,
+            load(id) {
+              if (id === resolvedFixtureId) {
+                return `export const value = "ok";`;
+              }
+            },
+          },
+        ]),
+      ).resolves.toBeDefined();
+
+      expect(resolveFixture).toHaveBeenCalledWith(fixtureId, serverSource, expect.any(Object));
     } finally {
       fs.rmSync(tempDirPath, {
         recursive: true,
