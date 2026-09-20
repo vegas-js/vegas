@@ -153,6 +153,40 @@ describe("registerHostWebSocketHandlers", () => {
     expect(close).toHaveBeenCalledOnce();
   });
 
+  test("close the client without sending a second response when success delivery fails", async () => {
+    const { server, handlers } = createServer();
+    const send = vi.fn(() => {
+      throw new Error("send failed");
+    });
+    const close = vi.fn();
+    const execute = vi.fn(async () => "result");
+
+    registerHostWebSocketHandlers({
+      server,
+      builds: { waitForIdle: async () => undefined },
+      sessions: { consume: () => true },
+      runtime: { execute },
+    });
+
+    await handlers.get("vegas:server-function-call")?.(
+      {
+        requestId: 1,
+        functionName: "hello",
+        args: [],
+      },
+      { send, close },
+    );
+
+    expect(execute).toHaveBeenCalledOnce();
+    expect(send).toHaveBeenCalledOnce();
+    expect(send).toHaveBeenCalledWith("vegas:return", {
+      requestId: 1,
+      status: "ok",
+      result: "result",
+    });
+    expect(close).toHaveBeenCalledOnce();
+  });
+
   test("execute a server function through the Runtime backend", async () => {
     const { server, handlers } = createServer();
     const send = vi.fn();

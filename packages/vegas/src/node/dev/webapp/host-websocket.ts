@@ -17,6 +17,21 @@ function formatWebSocketError(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
 }
 
+function sendServerFunctionResponse(
+  client: { send(event: string, data: unknown): void; close(): void },
+  response: unknown,
+): void {
+  try {
+    client.send("vegas:return", response);
+  } catch {
+    try {
+      client.close();
+    } catch {
+      // The client is no longer usable, so there is nowhere else to report the error.
+    }
+  }
+}
+
 async function runWebSocketTask(
   task: () => Promise<void>,
   handleError: (error: unknown) => void,
@@ -59,18 +74,14 @@ export function registerHostWebSocketHandlers(options: HostWebSocketOptions): vo
 
         const response = await executeServerFunctionCall(runtime, data);
 
-        client.send("vegas:return", response);
+        sendServerFunctionResponse(client, response);
       },
       (error) => {
-        try {
-          client.send("vegas:return", {
-            requestId: data.requestId,
-            status: "err",
-            message: formatWebSocketError(error),
-          });
-        } catch {
-          client.close();
-        }
+        sendServerFunctionResponse(client, {
+          requestId: data.requestId,
+          status: "err",
+          message: formatWebSocketError(error),
+        });
       },
     ),
   );
