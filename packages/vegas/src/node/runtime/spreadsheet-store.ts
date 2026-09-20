@@ -14,6 +14,8 @@ export interface SheetMetadata {
   readonly name: string;
   readonly maxRows: number;
   readonly maxColumns: number;
+  readonly frozenColumns: number;
+  readonly frozenRows: number;
   readonly hidden: boolean;
   readonly hiddenGridlines: boolean;
   readonly rightToLeft: boolean;
@@ -48,6 +50,10 @@ export interface SpreadsheetStore {
   getSheetMetadata(sheet: SheetReference): Promise<SheetMetadata>;
 
   renameSheet(sheet: SheetReference, name: string): Promise<void>;
+
+  setSheetFrozenColumns(sheet: SheetReference, columns: number): Promise<void>;
+
+  setSheetFrozenRows(sheet: SheetReference, rows: number): Promise<void>;
 
   setSheetHidden(sheet: SheetReference, hidden: boolean): Promise<void>;
 

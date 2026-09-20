@@ -89,6 +89,18 @@ describe("Spreadsheet host contract", () => {
       sheet: getSheetMetadata.sheet,
       name: "Overview",
     } as const;
+    const setSheetFrozenColumns = {
+      service: "spreadsheet",
+      operation: "set-sheet-frozen-columns",
+      sheet: getSheetMetadata.sheet,
+      columns: 2,
+    } as const;
+    const setSheetFrozenRows = {
+      service: "spreadsheet",
+      operation: "set-sheet-frozen-rows",
+      sheet: getSheetMetadata.sheet,
+      rows: 3,
+    } as const;
     const setSheetHidden = {
       service: "spreadsheet",
       operation: "set-sheet-hidden",
@@ -143,6 +155,8 @@ describe("Spreadsheet host contract", () => {
       SpreadsheetHostCallResult<typeof getSheetMetadata>
     >().toEqualTypeOf<SheetMetadata>();
     expectTypeOf<SpreadsheetHostCallResult<typeof renameSheet>>().toEqualTypeOf<void>();
+    expectTypeOf<SpreadsheetHostCallResult<typeof setSheetFrozenColumns>>().toEqualTypeOf<void>();
+    expectTypeOf<SpreadsheetHostCallResult<typeof setSheetFrozenRows>>().toEqualTypeOf<void>();
     expectTypeOf<SpreadsheetHostCallResult<typeof setSheetHidden>>().toEqualTypeOf<void>();
     expectTypeOf<
       SpreadsheetHostCallResult<typeof getSheetDataBounds>

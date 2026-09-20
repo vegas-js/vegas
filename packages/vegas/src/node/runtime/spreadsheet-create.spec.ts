@@ -34,6 +34,8 @@ describe("Spreadsheet creation", () => {
       name: "Sheet1",
       maxRows: 50,
       maxColumns: 5,
+      frozenColumns: 0,
+      frozenRows: 0,
       hiddenGridlines: false,
       rightToLeft: false,
       hidden: false,

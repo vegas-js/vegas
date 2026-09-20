@@ -42,6 +42,16 @@ export class Sheet {
     return this.getRange(1, 1, bounds.lastRow, bounds.lastColumn);
   }
 
+  // Apps Script documents integer counts and zero-to-unfreeze semantics, but not invalid-count
+  // behavior. Vegas constrains local frozen counts to the current Sheet grid bounds.
+  getFrozenColumns(): number {
+    return this.#metadata().frozenColumns;
+  }
+
+  getFrozenRows(): number {
+    return this.#metadata().frozenRows;
+  }
+
   getIndex(): number {
     const index = this.#bridge
       .call({
@@ -120,6 +130,24 @@ export class Sheet {
 
   isSheetHidden(): boolean {
     return this.#metadata().hidden;
+  }
+
+  setFrozenColumns(columns: number): void {
+    this.#bridge.call({
+      service: "spreadsheet",
+      operation: "set-sheet-frozen-columns",
+      sheet: this.#reference,
+      columns,
+    });
+  }
+
+  setFrozenRows(rows: number): void {
+    this.#bridge.call({
+      service: "spreadsheet",
+      operation: "set-sheet-frozen-rows",
+      sheet: this.#reference,
+      rows,
+    });
   }
 
   setHiddenGridlines(hideGridlines: boolean): Sheet {

@@ -44,6 +44,14 @@ export class SpreadsheetHostHandler implements SpreadsheetHostCallHandler {
         await this.#store.renameSheet(call.sheet, call.name);
         return;
       }
+      case "set-sheet-frozen-columns": {
+        await this.#store.setSheetFrozenColumns(call.sheet, call.columns);
+        return;
+      }
+      case "set-sheet-frozen-rows": {
+        await this.#store.setSheetFrozenRows(call.sheet, call.rows);
+        return;
+      }
       case "set-sheet-hidden": {
         await this.#store.setSheetHidden(call.sheet, call.hidden);
         return;

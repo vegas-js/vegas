@@ -46,6 +46,16 @@ function cloneSheetReference(reference: SheetReference): SheetReference {
   return { ...reference };
 }
 
+// Apps Script documents integer counts and zero-to-unfreeze semantics, but not invalid-count
+// behavior. Vegas constrains local frozen counts to the current Sheet grid bounds.
+function assertFrozenCount(value: number, maximum: number, label: string): void {
+  assertInteger(value, label);
+
+  if (value < 0 || value > maximum) {
+    throw new RangeError(`${label} must be between 0 and ${maximum}.`);
+  }
+}
+
 function createSheetState(spreadsheetId: string, seed: InMemorySheetSeed): SheetState {
   assertInteger(seed.id, "Spreadsheet sheet id");
 
@@ -60,6 +70,8 @@ function createSheetState(spreadsheetId: string, seed: InMemorySheetSeed): Sheet
       name: seed.name,
       maxRows: seed.maxRows,
       maxColumns: seed.maxColumns,
+      frozenColumns: 0,
+      frozenRows: 0,
       hidden: seed.hidden ?? false,
       hiddenGridlines: seed.hiddenGridlines ?? false,
       rightToLeft: seed.rightToLeft ?? false,
@@ -208,6 +220,34 @@ export class InMemorySpreadsheetStore implements SpreadsheetStore {
       metadata: {
         ...state.metadata,
         name,
+      },
+    });
+  }
+
+  async setSheetFrozenColumns(sheet: SheetReference, columns: number): Promise<void> {
+    const spreadsheet = this.#getSpreadsheetState(sheet.spreadsheetId);
+    const state = this.#getSheetState(sheet.spreadsheetId, sheet.sheetId);
+    assertFrozenCount(columns, state.metadata.maxColumns, "Spreadsheet sheet frozen columns");
+
+    spreadsheet.sheets.set(sheet.sheetId, {
+      ...state,
+      metadata: {
+        ...state.metadata,
+        frozenColumns: columns,
+      },
+    });
+  }
+
+  async setSheetFrozenRows(sheet: SheetReference, rows: number): Promise<void> {
+    const spreadsheet = this.#getSpreadsheetState(sheet.spreadsheetId);
+    const state = this.#getSheetState(sheet.spreadsheetId, sheet.sheetId);
+    assertFrozenCount(rows, state.metadata.maxRows, "Spreadsheet sheet frozen rows");
+
+    spreadsheet.sheets.set(sheet.sheetId, {
+      ...state,
+      metadata: {
+        ...state.metadata,
+        frozenRows: rows,
       },
     });
   }

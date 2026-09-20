@@ -220,6 +220,63 @@ describe("Sheet", () => {
     expect(hydrator.references).toHaveLength(0);
   });
 
+  test("read and update frozen Sheet dimensions through the HostBridge", () => {
+    let frozenColumns = 0;
+    let frozenRows = 0;
+    const bridge = new RecordingHostBridge((call) => {
+      if (call.service !== "spreadsheet") {
+        throw new Error(`unexpected service: ${call.service}`);
+      }
+
+      switch (call.operation) {
+        case "get-sheet-metadata":
+          return {
+            name: "Summary",
+            maxRows: 100,
+            maxColumns: 26,
+            frozenColumns,
+            frozenRows,
+            hidden: false,
+            hiddenGridlines: false,
+            rightToLeft: false,
+          };
+        case "set-sheet-frozen-columns":
+          frozenColumns = call.columns;
+          return undefined;
+        case "set-sheet-frozen-rows":
+          frozenRows = call.rows;
+          return undefined;
+        default:
+          throw new Error(`unexpected host call: ${call.service}#${call.operation}`);
+      }
+    });
+    const { hydrator, sheet } = createFixture({ bridge });
+
+    expect(sheet.getFrozenColumns()).toBe(0);
+    expect(sheet.getFrozenRows()).toBe(0);
+    expect(sheet.setFrozenColumns(2)).toBeUndefined();
+    expect(sheet.setFrozenRows(3)).toBeUndefined();
+    expect(sheet.getFrozenColumns()).toBe(2);
+    expect(sheet.getFrozenRows()).toBe(3);
+    expect(sheet.setFrozenColumns(0)).toBeUndefined();
+    expect(sheet.setFrozenRows(0)).toBeUndefined();
+    expect(sheet.getFrozenColumns()).toBe(0);
+    expect(sheet.getFrozenRows()).toBe(0);
+    expect(bridge.calls.map(({ operation }) => operation)).toStrictEqual([
+      "get-sheet-metadata",
+      "get-sheet-metadata",
+      "set-sheet-frozen-columns",
+      "set-sheet-frozen-rows",
+      "get-sheet-metadata",
+      "get-sheet-metadata",
+      "set-sheet-frozen-columns",
+      "set-sheet-frozen-rows",
+      "get-sheet-metadata",
+      "get-sheet-metadata",
+    ]);
+    expect(hydrator.references).toHaveLength(0);
+  });
+
   test("read and update Sheet display state through the HostBridge", () => {
     let hidden = false;
     let hiddenGridlines = false;

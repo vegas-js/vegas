@@ -130,10 +130,28 @@ describe("SpreadsheetHostHandler", () => {
       name: "Summary",
       maxRows: 10,
       maxColumns: 8,
+      frozenColumns: 0,
+      frozenRows: 0,
       hidden: false,
       hiddenGridlines: false,
       rightToLeft: false,
     });
+    await expect(
+      handler.handle({
+        service: "spreadsheet",
+        operation: "set-sheet-frozen-columns",
+        sheet,
+        columns: 2,
+      }),
+    ).resolves.toBeUndefined();
+    await expect(
+      handler.handle({
+        service: "spreadsheet",
+        operation: "set-sheet-frozen-rows",
+        sheet,
+        rows: 3,
+      }),
+    ).resolves.toBeUndefined();
     await expect(
       handler.handle({
         service: "spreadsheet",
@@ -165,6 +183,8 @@ describe("SpreadsheetHostHandler", () => {
         sheet,
       }),
     ).resolves.toMatchObject({
+      frozenColumns: 2,
+      frozenRows: 3,
       hidden: true,
       hiddenGridlines: true,
       rightToLeft: true,

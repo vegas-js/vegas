@@ -96,6 +96,8 @@ describe("InMemorySpreadsheetStore resources", () => {
       name: "Overview",
       maxRows: 10,
       maxColumns: 8,
+      frozenColumns: 0,
+      frozenRows: 0,
       hidden: false,
       hiddenGridlines: false,
       rightToLeft: false,
@@ -110,6 +112,8 @@ describe("InMemorySpreadsheetStore resources", () => {
       name: "Overview",
       maxRows: 10,
       maxColumns: 8,
+      frozenColumns: 0,
+      frozenRows: 0,
       hidden: false,
       hiddenGridlines: false,
       rightToLeft: false,
@@ -120,24 +124,55 @@ describe("InMemorySpreadsheetStore resources", () => {
     const store = createStore();
 
     await expect(store.getSheetMetadata(SUMMARY)).resolves.toMatchObject({
+      frozenColumns: 0,
+      frozenRows: 0,
       hidden: false,
       hiddenGridlines: false,
       rightToLeft: false,
     });
 
+    await store.setSheetFrozenColumns(SUMMARY, 2);
+    await store.setSheetFrozenRows(SUMMARY, 3);
     await store.setSheetHidden(SUMMARY, true);
     await store.setSheetHiddenGridlines(SUMMARY, true);
     await store.setSheetRightToLeft(SUMMARY, true);
 
     await expect(store.getSheetMetadata(SUMMARY)).resolves.toMatchObject({
+      frozenColumns: 2,
+      frozenRows: 3,
       hidden: true,
       hiddenGridlines: true,
       rightToLeft: true,
     });
 
+    await store.setSheetFrozenColumns(SUMMARY, 0);
+    await store.setSheetFrozenRows(SUMMARY, 0);
     await store.setSheetHidden(SUMMARY, false);
     await expect(store.getSheetMetadata(SUMMARY)).resolves.toMatchObject({
+      frozenColumns: 0,
+      frozenRows: 0,
       hidden: false,
+    });
+  });
+
+  test("reject invalid local frozen Sheet counts", async () => {
+    const store = createStore();
+
+    await expect(store.setSheetFrozenColumns(SUMMARY, -1)).rejects.toThrow(
+      "frozen columns must be between 0 and 8",
+    );
+    await expect(store.setSheetFrozenColumns(SUMMARY, 9)).rejects.toThrow(
+      "frozen columns must be between 0 and 8",
+    );
+    await expect(store.setSheetFrozenRows(SUMMARY, -1)).rejects.toThrow(
+      "frozen rows must be between 0 and 10",
+    );
+    await expect(store.setSheetFrozenRows(SUMMARY, 11)).rejects.toThrow(
+      "frozen rows must be between 0 and 10",
+    );
+    await expect(store.getSheetMetadata(SUMMARY)).resolves.toMatchObject({
+      frozenColumns: 0,
+      frozenRows: 0,
     });
   });
 
