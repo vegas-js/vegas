@@ -15,6 +15,16 @@ function isStrictDescendant(parent: string, child: string): boolean {
   );
 }
 
+function assertOutputDirDoesNotContain(
+  outputDir: string,
+  sourceDir: string,
+  sourceOption: string,
+): void {
+  if (outputDir === sourceDir || isStrictDescendant(outputDir, sourceDir)) {
+    throw new ConfigValidationError(`"output.dir" must not contain "${sourceOption}".`);
+  }
+}
+
 function resolveOutputDir(root: string, output: UserConfig["output"]): string {
   const outputDir =
     output?.dir === undefined ? path.resolve(root, "dist") : path.resolve(root, output.dir);
@@ -43,25 +53,33 @@ export function resolveProject(
   const root = path.resolve(options.cwd, options.root ?? config.root ?? ".");
   const appType = config.appType ?? "spa";
   const appsScriptManifest = config.appsScript?.manifest;
+  const clientDir =
+    config.clientDir === undefined
+      ? path.resolve(root, "src", "client")
+      : path.resolve(root, config.clientDir);
+  const serverDir =
+    config.serverDir === undefined
+      ? appType === "script"
+        ? path.resolve(root, "src")
+        : path.resolve(root, "src", "server")
+      : path.resolve(root, config.serverDir);
+  const runtimeDataDir =
+    config.runtimeDataDir === undefined
+      ? path.resolve(root, "runtime")
+      : path.resolve(root, config.runtimeDataDir);
+  const outputDir = resolveOutputDir(root, config.output);
+
+  assertOutputDirDoesNotContain(outputDir, clientDir, "clientDir");
+  assertOutputDirDoesNotContain(outputDir, serverDir, "serverDir");
+  assertOutputDirDoesNotContain(outputDir, runtimeDataDir, "runtimeDataDir");
 
   return {
     root,
     appType,
-    clientDir:
-      config.clientDir === undefined
-        ? path.resolve(root, "src", "client")
-        : path.resolve(root, config.clientDir),
-    serverDir:
-      config.serverDir === undefined
-        ? appType === "script"
-          ? path.resolve(root, "src")
-          : path.resolve(root, "src", "server")
-        : path.resolve(root, config.serverDir),
-    runtimeDataDir:
-      config.runtimeDataDir === undefined
-        ? path.resolve(root, "runtime")
-        : path.resolve(root, config.runtimeDataDir),
-    outputDir: resolveOutputDir(root, config.output),
+    clientDir,
+    serverDir,
+    runtimeDataDir,
+    outputDir,
     configFile: options.configFile,
     plugins: config.plugins ?? [],
 

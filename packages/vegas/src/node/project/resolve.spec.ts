@@ -331,6 +331,37 @@ describe("resolveProject", () => {
       ).toThrow('Invalid Vegas config: "output.dir" must not contain the project root.');
     });
 
+    test("reject output directory containing client source directory", () => {
+      expect(() =>
+        resolve({
+          output: {
+            dir: "src",
+          },
+        }),
+      ).toThrow('Invalid Vegas config: "output.dir" must not contain "clientDir".');
+    });
+
+    test("reject output directory containing server source directory", () => {
+      expect(() =>
+        resolve({
+          clientDir: "client",
+          output: {
+            dir: "src",
+          },
+        }),
+      ).toThrow('Invalid Vegas config: "output.dir" must not contain "serverDir".');
+    });
+
+    test("reject output directory containing runtime data directory", () => {
+      expect(() =>
+        resolve({
+          output: {
+            dir: "runtime",
+          },
+        }),
+      ).toThrow('Invalid Vegas config: "output.dir" must not contain "runtimeDataDir".');
+    });
+
     test("reject output directory outside project root by default", () => {
       expect(() =>
         resolve({
