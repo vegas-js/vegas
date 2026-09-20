@@ -40,6 +40,12 @@ export class Range {
     this.#hydrator = hydrator;
   }
 
+  canEdit(): boolean {
+    // Apps Script bases this result on spreadsheet permissions and protections.
+    // Vegas does not model either yet, so every local Range is editable.
+    return true;
+  }
+
   clearContent(): Range {
     this.#bridge.call({
       service: "spreadsheet",

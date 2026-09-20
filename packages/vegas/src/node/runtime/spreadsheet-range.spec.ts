@@ -104,6 +104,14 @@ function createFixture({
 }
 
 describe("Range", () => {
+  test("report local Ranges as editable without collaborators", () => {
+    const { bridge, hydrator, range } = createFixture();
+
+    expect(range.canEdit()).toBe(true);
+    expect(bridge.calls).toHaveLength(0);
+    expect(hydrator.references).toHaveLength(0);
+  });
+
   test("read Range geometry, parent Sheet, and values through collaborators", () => {
     const sourceDate = new Date("2026-09-18T00:00:00.000Z");
     const bridge = createBridge([
