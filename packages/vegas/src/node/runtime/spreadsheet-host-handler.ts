@@ -40,8 +40,20 @@ export class SpreadsheetHostHandler implements SpreadsheetHostCallHandler {
       case "get-sheet-metadata": {
         return this.#store.getSheetMetadata(call.sheet);
       }
+      case "get-sheet-column-hidden-by-user": {
+        return this.#store.isSheetColumnHiddenByUser(call.sheet, call.column);
+      }
       case "rename-sheet": {
         await this.#store.renameSheet(call.sheet, call.name);
+        return;
+      }
+      case "set-sheet-columns-hidden": {
+        await this.#store.setSheetColumnsHidden(
+          call.sheet,
+          call.startColumn,
+          call.numColumns,
+          call.hidden,
+        );
         return;
       }
       case "set-sheet-frozen-columns": {

@@ -54,9 +54,23 @@ export type SpreadsheetHostCall =
     }
   | {
       readonly service: "spreadsheet";
+      readonly operation: "get-sheet-column-hidden-by-user";
+      readonly sheet: SheetReference;
+      readonly column: number;
+    }
+  | {
+      readonly service: "spreadsheet";
       readonly operation: "rename-sheet";
       readonly sheet: SheetReference;
       readonly name: string;
+    }
+  | {
+      readonly service: "spreadsheet";
+      readonly operation: "set-sheet-columns-hidden";
+      readonly sheet: SheetReference;
+      readonly startColumn: number;
+      readonly numColumns: number;
+      readonly hidden: boolean;
     }
   | {
       readonly service: "spreadsheet";
@@ -120,7 +134,9 @@ type SpreadsheetHostCallResultMap = {
   "get-sheet": SheetReference | null;
   "get-sheet-by-name": SheetReference | null;
   "get-sheet-metadata": SheetMetadata;
+  "get-sheet-column-hidden-by-user": boolean;
   "rename-sheet": void;
+  "set-sheet-columns-hidden": void;
   "set-sheet-frozen-columns": void;
   "set-sheet-frozen-rows": void;
   "set-sheet-hidden": void;

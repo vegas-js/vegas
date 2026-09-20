@@ -239,6 +239,81 @@ describe("SpreadsheetHostHandler", () => {
     ).resolves.toStrictEqual({ lastRow: 2, lastColumn: 2 });
   });
 
+  test("delegate user-hidden Sheet column state to the store", async () => {
+    const handler = createHandler();
+    const sheet = {
+      service: "spreadsheet",
+      kind: "sheet",
+      spreadsheetId: "spreadsheet-a",
+      sheetId: 7,
+    } as const;
+
+    await expect(
+      handler.handle({
+        service: "spreadsheet",
+        operation: "get-sheet-column-hidden-by-user",
+        sheet,
+        column: 2,
+      }),
+    ).resolves.toBe(false);
+
+    await expect(
+      handler.handle({
+        service: "spreadsheet",
+        operation: "set-sheet-columns-hidden",
+        sheet,
+        startColumn: 2,
+        numColumns: 2,
+        hidden: true,
+      }),
+    ).resolves.toBeUndefined();
+
+    await expect(
+      handler.handle({
+        service: "spreadsheet",
+        operation: "get-sheet-column-hidden-by-user",
+        sheet,
+        column: 2,
+      }),
+    ).resolves.toBe(true);
+    await expect(
+      handler.handle({
+        service: "spreadsheet",
+        operation: "get-sheet-column-hidden-by-user",
+        sheet,
+        column: 3,
+      }),
+    ).resolves.toBe(true);
+
+    await expect(
+      handler.handle({
+        service: "spreadsheet",
+        operation: "set-sheet-columns-hidden",
+        sheet,
+        startColumn: 2,
+        numColumns: 1,
+        hidden: false,
+      }),
+    ).resolves.toBeUndefined();
+
+    await expect(
+      handler.handle({
+        service: "spreadsheet",
+        operation: "get-sheet-column-hidden-by-user",
+        sheet,
+        column: 2,
+      }),
+    ).resolves.toBe(false);
+    await expect(
+      handler.handle({
+        service: "spreadsheet",
+        operation: "get-sheet-column-hidden-by-user",
+        sheet,
+        column: 3,
+      }),
+    ).resolves.toBe(true);
+  });
+
   test("delegate Range reads and writes to the store", async () => {
     const handler = createHandler();
     const range = {

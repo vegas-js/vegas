@@ -50,7 +50,16 @@ export interface SpreadsheetStore {
 
   getSheetMetadata(sheet: SheetReference): Promise<SheetMetadata>;
 
+  isSheetColumnHiddenByUser(sheet: SheetReference, column: number): Promise<boolean>;
+
   renameSheet(sheet: SheetReference, name: string): Promise<void>;
+
+  setSheetColumnsHidden(
+    sheet: SheetReference,
+    startColumn: number,
+    numColumns: number,
+    hidden: boolean,
+  ): Promise<void>;
 
   setSheetFrozenColumns(sheet: SheetReference, columns: number): Promise<void>;
 

@@ -286,6 +286,62 @@ describe("Sheet", () => {
     expect(hydrator.references).toHaveLength(0);
   });
 
+  test("read and update user-hidden Sheet columns through the HostBridge", () => {
+    const hiddenColumns = new Set<number>();
+    const bridge = new RecordingHostBridge((call) => {
+      if (call.service !== "spreadsheet") {
+        throw new Error(`unexpected service: ${call.service}`);
+      }
+
+      switch (call.operation) {
+        case "get-sheet-column-hidden-by-user":
+          return hiddenColumns.has(call.column);
+        case "set-sheet-columns-hidden":
+          for (
+            let column = call.startColumn;
+            column < call.startColumn + call.numColumns;
+            column += 1
+          ) {
+            if (call.hidden) {
+              hiddenColumns.add(column);
+            } else {
+              hiddenColumns.delete(column);
+            }
+          }
+          return undefined;
+        default:
+          throw new Error(`unexpected host call: ${call.service}#${call.operation}`);
+      }
+    });
+    const { hydrator, sheet } = createFixture({ bridge });
+
+    expect(sheet.isColumnHiddenByUser(2)).toBe(false);
+    expect(sheet.hideColumns(2)).toBeUndefined();
+    expect(sheet.hideColumns(4, 2)).toBeUndefined();
+    expect(sheet.isColumnHiddenByUser(2)).toBe(true);
+    expect(sheet.isColumnHiddenByUser(3)).toBe(false);
+    expect(sheet.isColumnHiddenByUser(4)).toBe(true);
+    expect(sheet.isColumnHiddenByUser(5)).toBe(true);
+    expect(sheet.showColumns(4)).toBeUndefined();
+    expect(sheet.showColumns(5, 1)).toBeUndefined();
+    expect(sheet.isColumnHiddenByUser(4)).toBe(false);
+    expect(sheet.isColumnHiddenByUser(5)).toBe(false);
+    expect(bridge.calls.map(({ operation }) => operation)).toStrictEqual([
+      "get-sheet-column-hidden-by-user",
+      "set-sheet-columns-hidden",
+      "set-sheet-columns-hidden",
+      "get-sheet-column-hidden-by-user",
+      "get-sheet-column-hidden-by-user",
+      "get-sheet-column-hidden-by-user",
+      "get-sheet-column-hidden-by-user",
+      "set-sheet-columns-hidden",
+      "set-sheet-columns-hidden",
+      "get-sheet-column-hidden-by-user",
+      "get-sheet-column-hidden-by-user",
+    ]);
+    expect(hydrator.references).toHaveLength(0);
+  });
+
   test("read and update Sheet display state through the HostBridge", () => {
     let hidden = false;
     let hiddenGridlines = false;

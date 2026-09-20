@@ -30,6 +30,7 @@ export interface InMemorySpreadsheetSeed {
 type SheetState = {
   readonly reference: SheetReference;
   readonly metadata: SheetMetadata;
+  readonly hiddenColumns: ReadonlySet<number>;
   readonly grid: InMemorySpreadsheetGrid;
 };
 
@@ -57,6 +58,17 @@ function assertFrozenCount(value: number, maximum: number, label: string): void 
   }
 }
 
+// Apps Script documents 1-based column positions, but not invalid-span behavior.
+// Vegas constrains local column visibility spans to the current Sheet grid.
+function assertColumnSpan(startColumn: number, numColumns: number, maximum: number): void {
+  assertPositiveInteger(startColumn, "Spreadsheet sheet column start");
+  assertPositiveInteger(numColumns, "Spreadsheet sheet column count");
+
+  if (startColumn + numColumns - 1 > maximum) {
+    throw new RangeError(`Spreadsheet sheet columns must stay within 1 and ${maximum}.`);
+  }
+}
+
 function createSheetState(spreadsheetId: string, seed: InMemorySheetSeed): SheetState {
   assertInteger(seed.id, "Spreadsheet sheet id");
 
@@ -78,6 +90,7 @@ function createSheetState(spreadsheetId: string, seed: InMemorySheetSeed): Sheet
       rightToLeft: seed.rightToLeft ?? false,
       tabColor: seed.tabColor ?? null,
     },
+    hiddenColumns: new Set(),
     grid: new InMemorySpreadsheetGrid(seed.maxRows, seed.maxColumns, seed.values),
   };
 }
@@ -207,6 +220,13 @@ export class InMemorySpreadsheetStore implements SpreadsheetStore {
     return { ...this.#getSheetState(sheet.spreadsheetId, sheet.sheetId).metadata };
   }
 
+  async isSheetColumnHiddenByUser(sheet: SheetReference, column: number): Promise<boolean> {
+    const state = this.#getSheetState(sheet.spreadsheetId, sheet.sheetId);
+    assertColumnSpan(column, 1, state.metadata.maxColumns);
+
+    return state.hiddenColumns.has(column);
+  }
+
   async renameSheet(sheet: SheetReference, name: string): Promise<void> {
     const spreadsheet = this.#getSpreadsheetState(sheet.spreadsheetId);
     const state = this.#getSheetState(sheet.spreadsheetId, sheet.sheetId);
@@ -223,6 +243,31 @@ export class InMemorySpreadsheetStore implements SpreadsheetStore {
         ...state.metadata,
         name,
       },
+    });
+  }
+
+  async setSheetColumnsHidden(
+    sheet: SheetReference,
+    startColumn: number,
+    numColumns: number,
+    hidden: boolean,
+  ): Promise<void> {
+    const spreadsheet = this.#getSpreadsheetState(sheet.spreadsheetId);
+    const state = this.#getSheetState(sheet.spreadsheetId, sheet.sheetId);
+    assertColumnSpan(startColumn, numColumns, state.metadata.maxColumns);
+
+    const hiddenColumns = new Set(state.hiddenColumns);
+    for (let column = startColumn; column < startColumn + numColumns; column += 1) {
+      if (hidden) {
+        hiddenColumns.add(column);
+      } else {
+        hiddenColumns.delete(column);
+      }
+    }
+
+    spreadsheet.sheets.set(sheet.sheetId, {
+      ...state,
+      hiddenColumns,
     });
   }
 

@@ -102,6 +102,19 @@ export class Sheet {
     return this.#metadata().hiddenGridlines;
   }
 
+  hideColumns(columnIndex: number): void;
+  hideColumns(columnIndex: number, numColumns: number): void;
+  hideColumns(columnIndex: number, numColumns = 1): void {
+    this.#bridge.call({
+      service: "spreadsheet",
+      operation: "set-sheet-columns-hidden",
+      sheet: this.#reference,
+      startColumn: columnIndex,
+      numColumns,
+      hidden: true,
+    });
+  }
+
   hideSheet(): Sheet {
     this.#bridge.call({
       service: "spreadsheet",
@@ -136,6 +149,15 @@ export class Sheet {
     });
 
     return this;
+  }
+
+  isColumnHiddenByUser(columnPosition: number): boolean {
+    return this.#bridge.call({
+      service: "spreadsheet",
+      operation: "get-sheet-column-hidden-by-user",
+      sheet: this.#reference,
+      column: columnPosition,
+    });
   }
 
   isRightToLeft(): boolean {
@@ -195,6 +217,19 @@ export class Sheet {
     });
 
     return this;
+  }
+
+  showColumns(columnIndex: number): void;
+  showColumns(columnIndex: number, numColumns: number): void;
+  showColumns(columnIndex: number, numColumns = 1): void {
+    this.#bridge.call({
+      service: "spreadsheet",
+      operation: "set-sheet-columns-hidden",
+      sheet: this.#reference,
+      startColumn: columnIndex,
+      numColumns,
+      hidden: false,
+    });
   }
 
   showSheet(): Sheet {

@@ -162,6 +162,38 @@ describe("InMemorySpreadsheetStore resources", () => {
     });
   });
 
+  test("persist user-hidden Sheet columns within local grid bounds", async () => {
+    const store = createStore();
+
+    await expect(store.isSheetColumnHiddenByUser(SUMMARY, 2)).resolves.toBe(false);
+
+    await store.setSheetColumnsHidden(SUMMARY, 2, 3, true);
+
+    await expect(store.isSheetColumnHiddenByUser(SUMMARY, 2)).resolves.toBe(true);
+    await expect(store.isSheetColumnHiddenByUser(SUMMARY, 3)).resolves.toBe(true);
+    await expect(store.isSheetColumnHiddenByUser(SUMMARY, 4)).resolves.toBe(true);
+    await expect(store.isSheetColumnHiddenByUser(SUMMARY, 5)).resolves.toBe(false);
+
+    await store.setSheetColumnsHidden(SUMMARY, 3, 2, false);
+
+    await expect(store.isSheetColumnHiddenByUser(SUMMARY, 2)).resolves.toBe(true);
+    await expect(store.isSheetColumnHiddenByUser(SUMMARY, 3)).resolves.toBe(false);
+    await expect(store.isSheetColumnHiddenByUser(SUMMARY, 4)).resolves.toBe(false);
+
+    await expect(store.setSheetColumnsHidden(SUMMARY, 0, 1, true)).rejects.toThrow(
+      "column start must be a positive integer",
+    );
+    await expect(store.setSheetColumnsHidden(SUMMARY, 1, 0, true)).rejects.toThrow(
+      "column count must be a positive integer",
+    );
+    await expect(store.setSheetColumnsHidden(SUMMARY, 8, 2, true)).rejects.toThrow(
+      "columns must stay within 1 and 8",
+    );
+    await expect(store.isSheetColumnHiddenByUser(SUMMARY, 9)).rejects.toThrow(
+      "columns must stay within 1 and 8",
+    );
+  });
+
   test("reject invalid local frozen Sheet counts", async () => {
     const store = createStore();
 
