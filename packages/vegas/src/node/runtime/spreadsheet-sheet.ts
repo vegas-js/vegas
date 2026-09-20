@@ -50,6 +50,8 @@ export class Sheet {
     return index + 1;
   }
 
+  // Google Apps Script does not document the return value for an empty Sheet.
+  // Vegas normalizes missing local data bounds to 0 for these 1-based position accessors.
   getLastColumn(): number {
     return this.#dataBounds().lastColumn ?? 0;
   }
