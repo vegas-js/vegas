@@ -1,5 +1,3 @@
-import worker from "node:worker_threads";
-
 import type { HostCallDispatcher } from "../host-dispatcher";
 import {
   isHostRequestEnvelope,
@@ -7,6 +5,10 @@ import {
   type HostRequestMessage,
   type HostResponseMessage,
 } from "../host-protocol";
+
+interface HostResponsePort {
+  postMessage(value: HostResponseMessage): void;
+}
 
 export async function createHostResponse(
   dispatcher: HostCallDispatcher,
@@ -45,7 +47,7 @@ function serializeHostError(error: unknown): HostError {
 }
 
 export async function handleHostRequestMessage(
-  port: worker.MessagePort,
+  port: HostResponsePort,
   sharedArray: Int32Array,
   dispatcher: HostCallDispatcher,
   value: unknown,

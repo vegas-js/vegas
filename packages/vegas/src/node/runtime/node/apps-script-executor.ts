@@ -6,6 +6,7 @@ import type { CacheStore } from "../cache-store";
 import type { DriveIteratorStore } from "../drive-iterator-store";
 import type { DriveStore } from "../drive-store";
 import type { Executor } from "../executor";
+import type { HostCallDispatcher } from "../host-dispatcher";
 import type { LockStore } from "../lock-store";
 import type { PropertiesStore } from "../properties-store";
 import type { SpreadsheetStore } from "../spreadsheet-store";
@@ -17,54 +18,114 @@ import {
 import { handleHostRequestMessage } from "./host-request-handler";
 import { NodeUrlFetchCapability } from "./url-fetch-capability";
 
-const runAppsScriptWorker: AppsScriptWorkerRunner = (dispatcher, request) =>
-  new Promise((resolve, reject) => {
-    const sharedBuffer = new SharedArrayBuffer(4);
-    const sharedArray = new Int32Array(sharedBuffer);
-    const { port1, port2 } = new worker.MessageChannel();
-    const gasWorker = new worker.Worker(path.join(import.meta.dirname, "worker.js"), {
-      env: { ...process.env, FORCE_COLOR: "1" },
-      transferList: [port2],
-      workerData: {
-        program: request.program,
-        environment: request.environment,
-        sharedArray,
-        port: port2,
-      },
-    });
+interface AppsScriptWorkerProcess {
+  on(event: "error", listener: (error: Error) => void): unknown;
+  on(event: "exit", listener: (exitCode: number) => void): unknown;
+}
 
-    gasWorker.on("error", (error) => {
-      console.error(error);
-      reject(error);
-    });
+interface AppsScriptWorkerPort {
+  on(event: "message", listener: (data: unknown) => void): unknown;
+  postMessage(value: unknown): void;
+  close(): void;
+}
 
-    port1.on("message", async (data) => {
-      if (await handleHostRequestMessage(port1, sharedArray, dispatcher, data)) {
+export function runAppsScriptWorkerSession(
+  gasWorker: AppsScriptWorkerProcess,
+  port: AppsScriptWorkerPort,
+  sharedArray: Int32Array,
+  dispatcher: HostCallDispatcher,
+  invocation: AppsScriptWorkerRequest,
+): Promise<unknown> {
+  return new Promise((resolve, reject) => {
+    let settled = false;
+
+    const settle = (complete: () => void): void => {
+      if (settled) {
         return;
       }
 
-      port1.close();
+      settled = true;
+      port.close();
+      complete();
+    };
+
+    const fail = (error: unknown): void => {
+      settle(() => {
+        reject(error);
+      });
+    };
+
+    const handleMessage = async (data: unknown): Promise<void> => {
+      if (await handleHostRequestMessage(port, sharedArray, dispatcher, data)) {
+        return;
+      }
 
       if (!isAppsScriptWorkerResponse(data)) {
-        reject(new Error("Unexpected Apps Script worker message."));
+        fail(new Error("Unexpected Apps Script worker message."));
         return;
       }
 
       if (data.ok) {
-        resolve(data.value);
+        settle(() => {
+          resolve(data.value);
+        });
         return;
       }
 
-      reject(restoreAppsScriptWorkerError(data.error));
+      fail(restoreAppsScriptWorkerError(data.error));
+    };
+
+    gasWorker.on("error", (error) => {
+      if (settled) {
+        return;
+      }
+
+      console.error(error);
+      fail(error);
     });
 
-    const invocation: AppsScriptWorkerRequest = {
-      type: "invoke",
-      functionName: request.functionName,
-      args: request.args,
-    };
-    port1.postMessage(invocation);
+    gasWorker.on("exit", (exitCode) => {
+      fail(new Error(`Apps Script worker exited before returning a result (code ${exitCode}).`));
+    });
+
+    port.on("message", (data) => {
+      if (settled) {
+        return;
+      }
+
+      void handleMessage(data).catch(fail);
+    });
+
+    try {
+      port.postMessage(invocation);
+    } catch (error) {
+      fail(error);
+    }
   });
+}
+
+const runAppsScriptWorker: AppsScriptWorkerRunner = (dispatcher, request) => {
+  const sharedBuffer = new SharedArrayBuffer(4);
+  const sharedArray = new Int32Array(sharedBuffer);
+  const { port1, port2 } = new worker.MessageChannel();
+  const gasWorker = new worker.Worker(path.join(import.meta.dirname, "worker.js"), {
+    env: { ...process.env, FORCE_COLOR: "1" },
+    transferList: [port2],
+    workerData: {
+      program: request.program,
+      environment: request.environment,
+      sharedArray,
+      port: port2,
+    },
+  });
+  const invocation: AppsScriptWorkerRequest = {
+    type: "invoke",
+    functionName: request.functionName,
+    args: request.args,
+  };
+
+  return runAppsScriptWorkerSession(gasWorker, port1, sharedArray, dispatcher, invocation);
+};
 
 export interface NodeAppsScriptExecutorOptions {
   readonly cacheStore: CacheStore;
