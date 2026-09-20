@@ -39,7 +39,7 @@ async function buildServer(plan: BuildPlan, plugins: readonly Plugin[] = []) {
   const builder = await createBuilder({
     root: plan.root,
     configFile: false,
-    plugins: [detectServerEntry(plan), ...plugins],
+    plugins: [...plugins, detectServerEntry(plan)],
     environments: {
       server: {
         build: {
@@ -321,6 +321,107 @@ describe("detectServerEntry", () => {
       await expect(buildServer(plan)).rejects.toThrow(
         "Server sources may only be referenced from client code as types.",
       );
+    } finally {
+      fs.rmSync(tempDirPath, {
+        recursive: true,
+        force: true,
+      });
+    }
+  });
+
+  test("follow cyclic client modules once when detecting the server entry", async () => {
+    const tempDirPath = fs.mkdtempSync(path.join(os.tmpdir(), "vegas-"));
+
+    try {
+      const clientDir = path.join(tempDirPath, "src", "client");
+      const serverDir = path.join(tempDirPath, "src", "server");
+      const clientEntry = path.join(clientDir, "main.ts");
+      const clientHelper = path.join(clientDir, "helper.ts");
+      const serverSource = path.join(serverDir, "Code.ts");
+
+      fs.mkdirSync(clientDir, { recursive: true });
+      fs.mkdirSync(serverDir, { recursive: true });
+
+      fs.writeFileSync(clientEntry, `import "./helper";`);
+      fs.writeFileSync(
+        clientHelper,
+        `
+          import "./main";
+          import type * as Server from "../server/Code";
+        `,
+      );
+      fs.writeFileSync(serverSource, `export function doGet() { return "ok"; }`);
+
+      const plan = createPlan(tempDirPath, [clientEntry, clientHelper], [serverSource]);
+
+      await expect(buildServer(plan)).resolves.toBeDefined();
+    } finally {
+      fs.rmSync(tempDirPath, {
+        recursive: true,
+        force: true,
+      });
+    }
+  });
+
+  test("follow query-suffixed reachable client modules", async () => {
+    const tempDirPath = fs.mkdtempSync(path.join(os.tmpdir(), "vegas-"));
+
+    try {
+      const clientDir = path.join(tempDirPath, "src", "client");
+      const serverDir = path.join(tempDirPath, "src", "server");
+      const clientEntry = path.join(clientDir, "main.ts");
+      const clientHelper = path.join(clientDir, "helper.ts");
+      const serverSource = path.join(serverDir, "Code.ts");
+
+      fs.mkdirSync(clientDir, { recursive: true });
+      fs.mkdirSync(serverDir, { recursive: true });
+
+      fs.writeFileSync(clientEntry, `import "./helper?client";`);
+      fs.writeFileSync(clientHelper, `import type * as Server from "../server/Code";`);
+      fs.writeFileSync(serverSource, `export function doGet() { return "ok"; }`);
+
+      const plan = createPlan(tempDirPath, [clientEntry, clientHelper], [serverSource]);
+
+      await expect(buildServer(plan)).resolves.toBeDefined();
+    } finally {
+      fs.rmSync(tempDirPath, {
+        recursive: true,
+        force: true,
+      });
+    }
+  });
+
+  test("follow reachable client modules through a user resolver plugin", async () => {
+    const tempDirPath = fs.mkdtempSync(path.join(os.tmpdir(), "vegas-"));
+
+    try {
+      const clientDir = path.join(tempDirPath, "src", "client");
+      const serverDir = path.join(tempDirPath, "src", "server");
+      const clientEntry = path.join(clientDir, "main.ts");
+      const clientHelper = path.join(clientDir, "helper.ts");
+      const serverSource = path.join(serverDir, "Code.ts");
+
+      fs.mkdirSync(clientDir, { recursive: true });
+      fs.mkdirSync(serverDir, { recursive: true });
+
+      fs.writeFileSync(clientEntry, `import "@client/helper";`);
+      fs.writeFileSync(clientHelper, `import type * as Server from "../server/Code";`);
+      fs.writeFileSync(serverSource, `export function doGet() { return "ok"; }`);
+
+      const plan = createPlan(tempDirPath, [clientEntry, clientHelper], [serverSource]);
+
+      await expect(
+        buildServer(plan, [
+          {
+            name: "resolve-client-alias-fixture",
+            resolveId(source) {
+              if (source === "@client/helper") {
+                return clientHelper;
+              }
+            },
+          },
+        ]),
+      ).resolves.toBeDefined();
     } finally {
       fs.rmSync(tempDirPath, {
         recursive: true,
