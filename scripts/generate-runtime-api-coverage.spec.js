@@ -1,6 +1,7 @@
 import { describe, expect, test } from "vitest";
 
 import {
+  API_SURFACES,
   extractClassMethodNames,
   extractClassPropertyNames,
   extractInterfaceName,
@@ -136,6 +137,14 @@ declare namespace GoogleAppsScript {
         },
       }),
     ).toThrow("must use Google official docs");
+  });
+
+  test("track HtmlTemplate as a modeled HtmlService Runtime object", () => {
+    expect(API_SURFACES.HtmlService).toContainEqual([
+      "HtmlTemplate",
+      "html-template.ts",
+      "HtmlTemplate",
+    ]);
   });
 
   test("read unique public Runtime class methods", () => {

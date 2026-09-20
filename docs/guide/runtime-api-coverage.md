@@ -167,10 +167,11 @@ These detail tables cover returned object types that already have a Vegas Runtim
 
 ### HtmlService
 
-| Object type   | Coverage | Coverage (%) | Unimplemented API (methods) |
-| ------------- | -------: | -----------: | --------------------------- |
-| `HtmlService` |    5 / 5 |       100.0% | —                           |
-| `HtmlOutput`  |  20 / 20 |       100.0% | —                           |
+| Object type    | Coverage | Coverage (%) | Unimplemented API (methods) |
+| -------------- | -------: | -----------: | --------------------------- |
+| `HtmlService`  |    5 / 5 |       100.0% | —                           |
+| `HtmlOutput`   |  20 / 20 |       100.0% | —                           |
+| `HtmlTemplate` |    4 / 4 |       100.0% | —                           |
 
 ### Logger
 

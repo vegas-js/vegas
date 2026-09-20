@@ -12,7 +12,7 @@ const SUPPLEMENT_PATH = path.join(ROOT, "scripts", "runtime-api-supplement.json"
 const PNPM = process.platform === "win32" ? "pnpm.cmd" : "pnpm";
 const STANDALONE_GLOBAL_ENUMS = new Set(["MimeType"]);
 
-const API_SURFACES = {
+export const API_SURFACES = {
   DriveApp: [
     ["DriveApp", "drive-app.ts", "DriveApp"],
     ["File", "drive-file.ts", "DriveFile"],
@@ -34,6 +34,7 @@ const API_SURFACES = {
   HtmlService: [
     ["HtmlService", "html-service.ts", "HtmlService"],
     ["HtmlOutput", "html-output.ts", "HtmlOutput"],
+    ["HtmlTemplate", "html-template.ts", "HtmlTemplate"],
   ],
   Logger: [["Logger", "logger.ts", "Logger"]],
   Session: [
