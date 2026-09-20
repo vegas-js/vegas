@@ -48,9 +48,19 @@ function evaluateTemplateCode() {
 
   return eval(template.getCode()).getContent();
 }
+
+function renderTemplateFactories() {
+  const inline = HtmlService.createTemplate("<p><?= formatLocale() ?></p>").evaluate();
+
+  const file = HtmlService.createTemplateFromFile("template");
+  file.greeting = "<Hello>";
+
+  return [inline.getContent(), file.evaluate().getContent()].join(":");
+}
 `,
   htmlFiles: {
     "index.html": "<main>Vegas</main>",
+    "template.html": "<main><?= greeting ?> <?= formatLocale() ?></main>",
   },
 } satisfies Program;
 
@@ -75,6 +85,7 @@ describe("createWorkerRuntimeContext", () => {
       expect(context.run()).toBe("ja:<main>Vegas</main>:Vegas Browser");
       expect(context.renderTemplate()).toBe("<main>&lt;Hello&gt; JA <b>Trusted</b></main>");
       expect(context.evaluateTemplateCode()).toBe("<p>&lt;Vegas&gt;</p>");
+      expect(context.renderTemplateFactories()).toBe("<p>JA</p>:<main>&lt;Hello&gt; JA</main>");
     } finally {
       port1.close();
       port2.close();

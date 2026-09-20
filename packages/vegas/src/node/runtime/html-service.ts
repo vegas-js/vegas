@@ -1,7 +1,7 @@
 import type { RuntimeBlobSource } from "./blob";
 import { HTML_SANDBOX_MODE, HTML_X_FRAME_OPTIONS_MODE } from "./html-enum";
 import { HtmlOutput } from "./html-output";
-import type { HtmlTemplateEvaluator } from "./html-template";
+import { HtmlTemplate, type HtmlTemplateEvaluator } from "./html-template";
 import type { InvocationContext } from "./invocation";
 
 // https://developers.google.com/apps-script/reference/html/html-service
@@ -33,6 +33,31 @@ export class HtmlService {
   }
 
   createHtmlOutputFromFile(filename: string): HtmlOutput {
+    return new HtmlOutput(
+      this.#readHtmlFile(filename),
+      this.#context?.webApp === true,
+      this.#htmlTemplateEvaluator,
+    );
+  }
+
+  createTemplate(blob: RuntimeBlobSource): HtmlTemplate;
+  createTemplate(html: string): HtmlTemplate;
+  createTemplate(source: string | RuntimeBlobSource): HtmlTemplate {
+    const html = typeof source === "string" ? source : source.getBlob().getDataAsString();
+
+    return new HtmlTemplate(html, this.#htmlTemplateEvaluator);
+  }
+
+  createTemplateFromFile(filename: string): HtmlTemplate {
+    return new HtmlTemplate(this.#readHtmlFile(filename), this.#htmlTemplateEvaluator);
+  }
+
+  getUserAgent(): string | null {
+    const context = this.#context;
+    return context?.webApp === true ? context.userAgent : null;
+  }
+
+  #readHtmlFile(filename: string): string {
     const path = filename.endsWith(".html") ? filename : `${filename}.html`;
     const html = this.#htmlFiles[path];
 
@@ -40,12 +65,7 @@ export class HtmlService {
       throw new Error(`HTML file not found: ${filename}`);
     }
 
-    return new HtmlOutput(html, this.#context?.webApp === true, this.#htmlTemplateEvaluator);
-  }
-
-  getUserAgent(): string | null {
-    const context = this.#context;
-    return context?.webApp === true ? context.userAgent : null;
+    return html;
   }
 }
 

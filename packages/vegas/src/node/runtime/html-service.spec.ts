@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import { createBlob, createHtmlService, HtmlOutput, HtmlService } from "./index";
+import { createBlob, createHtmlService, HtmlOutput, HtmlService, HtmlTemplate } from "./index";
 
 describe("HtmlService", () => {
   test("expose HTML service enums", () => {
@@ -92,6 +92,36 @@ describe("HtmlService", () => {
     expect(adminOutput.getContent()).toBe("<main>Admin</main>");
   });
 
+  test("create HtmlTemplate from string and BlobSource content", () => {
+    const service = createHtmlService();
+    const source = createBlob("<main><?= blob ?></main>", "text/html");
+
+    const contentTemplate = service.createTemplate("<main><?= value ?></main>");
+    const blobTemplate = service.createTemplate(source);
+
+    expect(contentTemplate).toBeInstanceOf(HtmlTemplate);
+    expect(contentTemplate.getRawContent()).toBe("<main><?= value ?></main>");
+
+    expect(blobTemplate).toBeInstanceOf(HtmlTemplate);
+    expect(blobTemplate.getRawContent()).toBe("<main><?= blob ?></main>");
+  });
+
+  test("create HtmlTemplate from project HTML file", () => {
+    const service = createHtmlService({
+      "index.html": "<main><?= value ?></main>",
+      "admin.html": "<main><?= admin ?></main>",
+    });
+
+    const indexTemplate = service.createTemplateFromFile("index");
+    const adminTemplate = service.createTemplateFromFile("admin.html");
+
+    expect(indexTemplate).toBeInstanceOf(HtmlTemplate);
+    expect(indexTemplate.getRawContent()).toBe("<main><?= value ?></main>");
+
+    expect(adminTemplate).toBeInstanceOf(HtmlTemplate);
+    expect(adminTemplate.getRawContent()).toBe("<main><?= admin ?></main>");
+  });
+
   test("throw when project HTML file is missing", () => {
     const service = createHtmlService({
       "index.html": "<main>Index</main>",
@@ -99,5 +129,7 @@ describe("HtmlService", () => {
 
     expect(() => service.createHtmlOutputFromFile("missing")).toThrow(Error);
     expect(() => service.createHtmlOutputFromFile("missing.html")).toThrow(Error);
+    expect(() => service.createTemplateFromFile("missing")).toThrow(Error);
+    expect(() => service.createTemplateFromFile("missing.html")).toThrow(Error);
   });
 });
