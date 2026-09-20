@@ -96,6 +96,7 @@ describe("InMemorySpreadsheetStore resources", () => {
       name: "Overview",
       maxRows: 10,
       maxColumns: 8,
+      hidden: false,
       hiddenGridlines: false,
       rightToLeft: false,
     });
@@ -109,6 +110,7 @@ describe("InMemorySpreadsheetStore resources", () => {
       name: "Overview",
       maxRows: 10,
       maxColumns: 8,
+      hidden: false,
       hiddenGridlines: false,
       rightToLeft: false,
     });
@@ -118,16 +120,46 @@ describe("InMemorySpreadsheetStore resources", () => {
     const store = createStore();
 
     await expect(store.getSheetMetadata(SUMMARY)).resolves.toMatchObject({
+      hidden: false,
       hiddenGridlines: false,
       rightToLeft: false,
     });
 
+    await store.setSheetHidden(SUMMARY, true);
     await store.setSheetHiddenGridlines(SUMMARY, true);
     await store.setSheetRightToLeft(SUMMARY, true);
 
     await expect(store.getSheetMetadata(SUMMARY)).resolves.toMatchObject({
+      hidden: true,
       hiddenGridlines: true,
       rightToLeft: true,
+    });
+
+    await store.setSheetHidden(SUMMARY, false);
+    await expect(store.getSheetMetadata(SUMMARY)).resolves.toMatchObject({
+      hidden: false,
+    });
+  });
+
+  test("reject hiding the only visible Sheet", async () => {
+    const store = new InMemorySpreadsheetStore([
+      {
+        id: "spreadsheet-a",
+        name: "Budget",
+        sheets: [
+          {
+            id: 7,
+            name: "Summary",
+            maxRows: 10,
+            maxColumns: 8,
+          },
+        ],
+      },
+    ]);
+
+    await expect(store.setSheetHidden(SUMMARY, true)).rejects.toThrow();
+    await expect(store.getSheetMetadata(SUMMARY)).resolves.toMatchObject({
+      hidden: false,
     });
   });
 

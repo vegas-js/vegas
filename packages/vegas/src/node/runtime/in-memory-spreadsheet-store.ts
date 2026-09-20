@@ -14,6 +14,7 @@ export interface InMemorySheetSeed {
   readonly name: string;
   readonly maxRows: number;
   readonly maxColumns: number;
+  readonly hidden?: boolean;
   readonly hiddenGridlines?: boolean;
   readonly rightToLeft?: boolean;
   readonly values?: SpreadsheetGrid;
@@ -59,6 +60,7 @@ function createSheetState(spreadsheetId: string, seed: InMemorySheetSeed): Sheet
       name: seed.name,
       maxRows: seed.maxRows,
       maxColumns: seed.maxColumns,
+      hidden: seed.hidden ?? false,
       hiddenGridlines: seed.hiddenGridlines ?? false,
       rightToLeft: seed.rightToLeft ?? false,
     },
@@ -206,6 +208,34 @@ export class InMemorySpreadsheetStore implements SpreadsheetStore {
       metadata: {
         ...state.metadata,
         name,
+      },
+    });
+  }
+
+  async setSheetHidden(sheet: SheetReference, hidden: boolean): Promise<void> {
+    const spreadsheet = this.#getSpreadsheetState(sheet.spreadsheetId);
+    const state = this.#getSheetState(sheet.spreadsheetId, sheet.sheetId);
+
+    if (state.metadata.hidden === hidden) {
+      return;
+    }
+
+    if (hidden) {
+      const visibleSheetCount = [...spreadsheet.sheets.values()].filter(
+        ({ metadata }) => !metadata.hidden,
+      ).length;
+
+      if (visibleSheetCount === 1) {
+        // Google documents the exception condition, but not its message.
+        throw new Error("Cannot hide the only visible local Spreadsheet sheet.");
+      }
+    }
+
+    spreadsheet.sheets.set(sheet.sheetId, {
+      ...state,
+      metadata: {
+        ...state.metadata,
+        hidden,
       },
     });
   }

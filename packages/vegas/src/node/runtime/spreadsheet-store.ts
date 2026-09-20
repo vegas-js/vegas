@@ -14,6 +14,7 @@ export interface SheetMetadata {
   readonly name: string;
   readonly maxRows: number;
   readonly maxColumns: number;
+  readonly hidden: boolean;
   readonly hiddenGridlines: boolean;
   readonly rightToLeft: boolean;
 }
@@ -47,6 +48,8 @@ export interface SpreadsheetStore {
   getSheetMetadata(sheet: SheetReference): Promise<SheetMetadata>;
 
   renameSheet(sheet: SheetReference, name: string): Promise<void>;
+
+  setSheetHidden(sheet: SheetReference, hidden: boolean): Promise<void>;
 
   setSheetHiddenGridlines(sheet: SheetReference, hidden: boolean): Promise<void>;
 

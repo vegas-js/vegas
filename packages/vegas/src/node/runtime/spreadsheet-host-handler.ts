@@ -44,6 +44,10 @@ export class SpreadsheetHostHandler implements SpreadsheetHostCallHandler {
         await this.#store.renameSheet(call.sheet, call.name);
         return;
       }
+      case "set-sheet-hidden": {
+        await this.#store.setSheetHidden(call.sheet, call.hidden);
+        return;
+      }
       case "set-sheet-hidden-gridlines": {
         await this.#store.setSheetHiddenGridlines(call.sheet, call.hidden);
         return;

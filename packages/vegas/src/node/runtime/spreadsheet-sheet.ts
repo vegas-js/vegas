@@ -88,6 +88,17 @@ export class Sheet {
     return this.#metadata().hiddenGridlines;
   }
 
+  hideSheet(): Sheet {
+    this.#bridge.call({
+      service: "spreadsheet",
+      operation: "set-sheet-hidden",
+      sheet: this.#reference,
+      hidden: true,
+    });
+
+    return this;
+  }
+
   getSheetName(): string {
     return this.getName();
   }
@@ -107,6 +118,10 @@ export class Sheet {
     return this.#metadata().rightToLeft;
   }
 
+  isSheetHidden(): boolean {
+    return this.#metadata().hidden;
+  }
+
   setHiddenGridlines(hideGridlines: boolean): Sheet {
     this.#bridge.call({
       service: "spreadsheet",
@@ -124,6 +139,17 @@ export class Sheet {
       operation: "set-sheet-right-to-left",
       sheet: this.#reference,
       rightToLeft,
+    });
+
+    return this;
+  }
+
+  showSheet(): Sheet {
+    this.#bridge.call({
+      service: "spreadsheet",
+      operation: "set-sheet-hidden",
+      sheet: this.#reference,
+      hidden: false,
     });
 
     return this;

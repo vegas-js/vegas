@@ -36,6 +36,7 @@ describe("Spreadsheet creation", () => {
       maxColumns: 5,
       hiddenGridlines: false,
       rightToLeft: false,
+      hidden: false,
     });
   });
 

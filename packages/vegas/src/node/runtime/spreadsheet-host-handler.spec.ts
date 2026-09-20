@@ -19,6 +19,12 @@ function createHandler() {
               ["Vegas", 42],
             ],
           },
+          {
+            id: 9,
+            name: "Archive",
+            maxRows: 5,
+            maxColumns: 5,
+          },
         ],
       },
     ]),
@@ -124,9 +130,18 @@ describe("SpreadsheetHostHandler", () => {
       name: "Summary",
       maxRows: 10,
       maxColumns: 8,
+      hidden: false,
       hiddenGridlines: false,
       rightToLeft: false,
     });
+    await expect(
+      handler.handle({
+        service: "spreadsheet",
+        operation: "set-sheet-hidden",
+        sheet,
+        hidden: true,
+      }),
+    ).resolves.toBeUndefined();
     await expect(
       handler.handle({
         service: "spreadsheet",
@@ -150,6 +165,7 @@ describe("SpreadsheetHostHandler", () => {
         sheet,
       }),
     ).resolves.toMatchObject({
+      hidden: true,
       hiddenGridlines: true,
       rightToLeft: true,
     });

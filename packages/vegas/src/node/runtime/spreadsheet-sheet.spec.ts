@@ -221,6 +221,7 @@ describe("Sheet", () => {
   });
 
   test("read and update Sheet display state through the HostBridge", () => {
+    let hidden = false;
     let hiddenGridlines = false;
     let rightToLeft = false;
     const bridge = new RecordingHostBridge((call) => {
@@ -234,9 +235,13 @@ describe("Sheet", () => {
             name: "Summary",
             maxRows: 100,
             maxColumns: 26,
+            hidden,
             hiddenGridlines,
             rightToLeft,
           };
+        case "set-sheet-hidden":
+          hidden = call.hidden;
+          return undefined;
         case "set-sheet-hidden-gridlines":
           hiddenGridlines = call.hidden;
           return undefined;
@@ -249,14 +254,24 @@ describe("Sheet", () => {
     });
     const { hydrator, sheet } = createFixture({ bridge });
 
+    expect(sheet.isSheetHidden()).toBe(false);
     expect(sheet.hasHiddenGridlines()).toBe(false);
     expect(sheet.isRightToLeft()).toBe(false);
+    expect(sheet.hideSheet()).toBe(sheet);
+    expect(sheet.isSheetHidden()).toBe(true);
+    expect(sheet.showSheet()).toBe(sheet);
+    expect(sheet.isSheetHidden()).toBe(false);
     expect(sheet.setHiddenGridlines(true)).toBe(sheet);
     expect(sheet.setRightToLeft(true)).toBe(sheet);
     expect(sheet.hasHiddenGridlines()).toBe(true);
     expect(sheet.isRightToLeft()).toBe(true);
     expect(bridge.calls.map(({ operation }) => operation)).toStrictEqual([
       "get-sheet-metadata",
+      "get-sheet-metadata",
+      "get-sheet-metadata",
+      "set-sheet-hidden",
+      "get-sheet-metadata",
+      "set-sheet-hidden",
       "get-sheet-metadata",
       "set-sheet-hidden-gridlines",
       "set-sheet-right-to-left",

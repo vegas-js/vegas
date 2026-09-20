@@ -60,6 +60,12 @@ export type SpreadsheetHostCall =
     }
   | {
       readonly service: "spreadsheet";
+      readonly operation: "set-sheet-hidden";
+      readonly sheet: SheetReference;
+      readonly hidden: boolean;
+    }
+  | {
+      readonly service: "spreadsheet";
       readonly operation: "set-sheet-hidden-gridlines";
       readonly sheet: SheetReference;
       readonly hidden: boolean;
@@ -97,6 +103,7 @@ type SpreadsheetHostCallResultMap = {
   "get-sheet-by-name": SheetReference | null;
   "get-sheet-metadata": SheetMetadata;
   "rename-sheet": void;
+  "set-sheet-hidden": void;
   "set-sheet-hidden-gridlines": void;
   "set-sheet-right-to-left": void;
   "get-sheet-data-bounds": SheetDataBounds;

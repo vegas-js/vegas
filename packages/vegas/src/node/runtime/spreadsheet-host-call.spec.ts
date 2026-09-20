@@ -89,6 +89,12 @@ describe("Spreadsheet host contract", () => {
       sheet: getSheetMetadata.sheet,
       name: "Overview",
     } as const;
+    const setSheetHidden = {
+      service: "spreadsheet",
+      operation: "set-sheet-hidden",
+      sheet: getSheetMetadata.sheet,
+      hidden: true,
+    } as const;
     const getSheetDataBounds = {
       service: "spreadsheet",
       operation: "get-sheet-data-bounds",
@@ -137,6 +143,7 @@ describe("Spreadsheet host contract", () => {
       SpreadsheetHostCallResult<typeof getSheetMetadata>
     >().toEqualTypeOf<SheetMetadata>();
     expectTypeOf<SpreadsheetHostCallResult<typeof renameSheet>>().toEqualTypeOf<void>();
+    expectTypeOf<SpreadsheetHostCallResult<typeof setSheetHidden>>().toEqualTypeOf<void>();
     expectTypeOf<
       SpreadsheetHostCallResult<typeof getSheetDataBounds>
     >().toEqualTypeOf<SheetDataBounds>();
