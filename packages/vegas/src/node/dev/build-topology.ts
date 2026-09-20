@@ -1,6 +1,6 @@
-import { createBuilder, type ViteBuilder } from "vite";
+import type { ViteBuilder } from "vite";
 
-import { type BuildArtifact, buildApp, createBuilderConfig, createBuildPlan } from "../build";
+import { type BuildArtifact, buildApp, createProjectBuilder } from "../build";
 import { type ProjectSnapshot, type ResolvedProject, scanProject } from "../project";
 
 export interface DevBuildTopology {
@@ -15,8 +15,7 @@ export async function buildDevTopology(
   mode: "development" | "production",
 ): Promise<DevBuildTopology> {
   const snapshot = await scanProject(project);
-  const plan = createBuildPlan(project, snapshot, mode);
-  const builder = await createBuilder(createBuilderConfig(plan));
+  const builder = await createProjectBuilder(project, snapshot, mode);
 
   const [clientArtifacts, serverArtifacts] = await Promise.all([
     buildApp(builder, /^client\d+$/),
