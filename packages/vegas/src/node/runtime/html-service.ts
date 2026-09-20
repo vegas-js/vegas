@@ -1,3 +1,4 @@
+import type { RuntimeBlobSource } from "./blob";
 import { HTML_SANDBOX_MODE, HTML_X_FRAME_OPTIONS_MODE } from "./html-enum";
 import { HtmlOutput } from "./html-output";
 
@@ -13,8 +14,11 @@ export class HtmlService {
   }
 
   createHtmlOutput(): HtmlOutput;
+  createHtmlOutput(blob: RuntimeBlobSource): HtmlOutput;
   createHtmlOutput(html: string): HtmlOutput;
-  createHtmlOutput(html = ""): HtmlOutput {
+  createHtmlOutput(source: string | RuntimeBlobSource = ""): HtmlOutput {
+    const html = typeof source === "string" ? source : source.getBlob().getDataAsString();
+
     return new HtmlOutput(html);
   }
 

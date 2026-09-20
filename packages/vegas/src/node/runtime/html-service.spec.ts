@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import { createHtmlService, HtmlOutput, HtmlService } from "./index";
+import { createBlob, createHtmlService, HtmlOutput, HtmlService } from "./index";
 
 describe("HtmlService", () => {
   test("expose HTML service enums", () => {
@@ -29,6 +29,16 @@ describe("HtmlService", () => {
 
     expect(contentOutput).toBeInstanceOf(HtmlOutput);
     expect(contentOutput.getContent()).toBe("<main>Vegas</main>");
+  });
+
+  test("create HtmlOutput from BlobSource content", () => {
+    const service = createHtmlService();
+    const source = createBlob("<main>Blob</main>", "text/html");
+
+    const output = service.createHtmlOutput(source);
+
+    expect(output).toBeInstanceOf(HtmlOutput);
+    expect(output.getContent()).toBe("<main>Blob</main>");
   });
 
   test("create HtmlOutput from project HTML file", () => {
