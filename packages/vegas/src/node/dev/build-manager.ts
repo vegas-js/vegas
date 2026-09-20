@@ -2,7 +2,7 @@ import type { ViteBuilder } from "vite";
 
 import { type ArtifactStore, buildApp } from "../build";
 import type { ResolvedProject } from "../project";
-import { replaceDevBuildArtifacts } from "./build-artifacts";
+import { buildDevArtifacts, replaceDevBuildArtifacts } from "./build-artifacts";
 import { buildDevTopology } from "./build-topology";
 import type { ProjectFileScope } from "./project-file";
 
@@ -37,16 +37,8 @@ export class DevBuildManager {
 
   async rebuild(scope: ProjectFileScope): Promise<void> {
     if (scope === "client") {
-      const [clientArtifacts, serverArtifacts] = await Promise.all([
-        this.#buildApp(this.#builder, /^client\d+$/),
-        this.#buildApp(this.#builder, /^server$/),
-      ]);
-
-      replaceDevBuildArtifacts(this.#artifacts, {
-        clientArtifacts,
-        serverArtifacts,
-      });
-
+      const artifacts = await buildDevArtifacts(this.#builder, this.#buildApp);
+      replaceDevBuildArtifacts(this.#artifacts, artifacts);
       return;
     }
 
