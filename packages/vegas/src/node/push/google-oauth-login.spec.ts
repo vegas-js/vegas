@@ -180,6 +180,103 @@ describe("loginGoogleAppsScript", () => {
     await expect(credentialStore.load("default")).resolves.toBeUndefined();
   });
 
+  test("preserve authorization error when listener cleanup also fails", async () => {
+    const root = await createTempDir();
+    const clientFilePath = path.join(root, "client.json");
+
+    await fs.promises.writeFile(
+      clientFilePath,
+      JSON.stringify({
+        installed: {
+          client_id: "client-id",
+          client_secret: "client-secret",
+        },
+      }),
+      "utf8",
+    );
+
+    const authorizationError = new Error("authorization failed");
+    const close = vi.fn(async () => {
+      throw new Error("listener close failed");
+    });
+    const waitForCallback = vi.fn(async () => {
+      throw authorizationError;
+    });
+    const save = vi.fn();
+
+    await expect(
+      loginGoogleAppsScript(
+        {
+          clientFilePath,
+          credentialStore: {
+            load: vi.fn(),
+            save,
+          },
+          openAuthorizationUrl: vi.fn(async () => undefined),
+          fetch: vi.fn(),
+        },
+        {
+          startLoopbackListener: vi.fn(async () => ({
+            redirectUri: "http://127.0.0.1:45678",
+            waitForCallback,
+            close,
+          })),
+        },
+      ),
+    ).rejects.toBe(authorizationError);
+
+    expect(close).toHaveBeenCalledOnce();
+    expect(save).not.toHaveBeenCalled();
+  });
+
+  test("stop before token exchange when listener cleanup fails after authorization", async () => {
+    const root = await createTempDir();
+    const clientFilePath = path.join(root, "client.json");
+
+    await fs.promises.writeFile(
+      clientFilePath,
+      JSON.stringify({
+        installed: {
+          client_id: "client-id",
+          client_secret: "client-secret",
+        },
+      }),
+      "utf8",
+    );
+
+    const closeError = new Error("listener close failed");
+    const close = vi.fn(async () => {
+      throw closeError;
+    });
+    const tokenFetch = vi.fn();
+    const save = vi.fn();
+
+    await expect(
+      loginGoogleAppsScript(
+        {
+          clientFilePath,
+          credentialStore: {
+            load: vi.fn(),
+            save,
+          },
+          openAuthorizationUrl: vi.fn(async () => undefined),
+          fetch: tokenFetch,
+        },
+        {
+          startLoopbackListener: vi.fn(async () => ({
+            redirectUri: "http://127.0.0.1:45678",
+            waitForCallback: vi.fn(async () => ({ code: "authorization-code" })),
+            close,
+          })),
+        },
+      ),
+    ).rejects.toBe(closeError);
+
+    expect(close).toHaveBeenCalledOnce();
+    expect(tokenFetch).not.toHaveBeenCalled();
+    expect(save).not.toHaveBeenCalled();
+  });
+
   test("reject missing OAuth client file", async () => {
     const root = await createTempDir();
 

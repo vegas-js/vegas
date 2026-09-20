@@ -23,6 +23,10 @@ interface LoginGoogleAppsScriptOptions {
   readonly now?: () => number;
 }
 
+interface LoginGoogleAppsScriptDependencies {
+  readonly startLoopbackListener?: typeof startGoogleOAuthLoopbackListener;
+}
+
 async function readGoogleOAuthDesktopClientFile(filePath: string): Promise<string> {
   try {
     return await fs.promises.readFile(filePath, "utf8");
@@ -45,7 +49,12 @@ function createGoogleOAuthCodeVerifier(): string {
   return crypto.randomBytes(48).toString("base64url");
 }
 
-export async function loginGoogleAppsScript(options: LoginGoogleAppsScriptOptions): Promise<void> {
+export async function loginGoogleAppsScript(
+  options: LoginGoogleAppsScriptOptions,
+  dependencies: LoginGoogleAppsScriptDependencies = {},
+): Promise<void> {
+  const startLoopbackListener =
+    dependencies.startLoopbackListener ?? startGoogleOAuthLoopbackListener;
   const profile = requireAppsScriptAuthProfile(options.profile ?? DEFAULT_APPS_SCRIPT_AUTH_PROFILE);
 
   const clientContent = await readGoogleOAuthDesktopClientFile(options.clientFilePath);
@@ -56,7 +65,7 @@ export async function loginGoogleAppsScript(options: LoginGoogleAppsScriptOption
   const codeVerifier = createGoogleOAuthCodeVerifier();
   const codeChallenge = createGoogleOAuthCodeChallenge(codeVerifier);
 
-  const listener = await startGoogleOAuthLoopbackListener(state);
+  const listener = await startLoopbackListener(state);
 
   let code: string;
 
@@ -72,9 +81,17 @@ export async function loginGoogleAppsScript(options: LoginGoogleAppsScriptOption
 
     const callback = await listener.waitForCallback();
     code = callback.code;
-  } finally {
-    await listener.close();
+  } catch (error) {
+    try {
+      await listener.close();
+    } catch {
+      // Preserve the authorization error that triggered cleanup.
+    }
+
+    throw error;
   }
+
+  await listener.close();
 
   const tokens = await exchangeGoogleOAuthAuthorizationCode({
     client,
