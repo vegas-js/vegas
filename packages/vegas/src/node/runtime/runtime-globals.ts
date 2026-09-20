@@ -1,3 +1,4 @@
+import { createBlobConverter } from "./blob-converter";
 import { createCacheService } from "./cache-service";
 import { createConsole } from "./console";
 import { createDriveApp } from "./drive-object-hydrator";
@@ -34,6 +35,7 @@ export function createRuntimeGlobals(options: RuntimeGlobalsOptions) {
     loggingTarget,
     utilities,
   } = options;
+  const blobConverter = createBlobConverter(hostBridge);
 
   return {
     /* Admin Console */
@@ -117,7 +119,7 @@ export function createRuntimeGlobals(options: RuntimeGlobalsOptions) {
     /* Content */
     ContentService: undefined,
     /* HTML */
-    HtmlService: createHtmlService(htmlFiles, context, htmlTemplateEvaluator),
+    HtmlService: createHtmlService(htmlFiles, context, htmlTemplateEvaluator, blobConverter),
     /* Mail */
     MailApp: undefined,
     /* Base */

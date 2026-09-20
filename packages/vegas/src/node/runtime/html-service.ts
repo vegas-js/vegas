@@ -1,4 +1,5 @@
 import type { RuntimeBlobSource } from "./blob";
+import type { BlobConverter } from "./blob-converter";
 import { HTML_SANDBOX_MODE, HTML_X_FRAME_OPTIONS_MODE } from "./html-enum";
 import { HtmlOutput } from "./html-output";
 import { HtmlTemplate, type HtmlTemplateEvaluator } from "./html-template";
@@ -6,6 +7,7 @@ import type { InvocationContext } from "./invocation";
 
 // https://developers.google.com/apps-script/reference/html/html-service
 export class HtmlService {
+  readonly #blobConverter: BlobConverter | undefined;
   readonly #context: InvocationContext | undefined;
   readonly #htmlFiles: Readonly<Record<string, string>>;
   readonly #htmlTemplateEvaluator: HtmlTemplateEvaluator | undefined;
@@ -17,7 +19,9 @@ export class HtmlService {
     htmlFiles: Readonly<Record<string, string>> = {},
     context?: InvocationContext,
     htmlTemplateEvaluator?: HtmlTemplateEvaluator,
+    blobConverter?: BlobConverter,
   ) {
+    this.#blobConverter = blobConverter;
     this.#context = context;
     this.#htmlFiles = htmlFiles;
     this.#htmlTemplateEvaluator = htmlTemplateEvaluator;
@@ -29,7 +33,12 @@ export class HtmlService {
   createHtmlOutput(source: string | RuntimeBlobSource = ""): HtmlOutput {
     const html = typeof source === "string" ? source : source.getBlob().getDataAsString();
 
-    return new HtmlOutput(html, this.#context?.webApp === true, this.#htmlTemplateEvaluator);
+    return new HtmlOutput(
+      html,
+      this.#context?.webApp === true,
+      this.#htmlTemplateEvaluator,
+      this.#blobConverter,
+    );
   }
 
   createHtmlOutputFromFile(filename: string): HtmlOutput {
@@ -37,6 +46,7 @@ export class HtmlService {
       this.#readHtmlFile(filename),
       this.#context?.webApp === true,
       this.#htmlTemplateEvaluator,
+      this.#blobConverter,
     );
   }
 
@@ -73,6 +83,7 @@ export function createHtmlService(
   htmlFiles: Readonly<Record<string, string>> = {},
   context?: InvocationContext,
   htmlTemplateEvaluator?: HtmlTemplateEvaluator,
+  blobConverter?: BlobConverter,
 ): HtmlService {
-  return new HtmlService(htmlFiles, context, htmlTemplateEvaluator);
+  return new HtmlService(htmlFiles, context, htmlTemplateEvaluator, blobConverter);
 }

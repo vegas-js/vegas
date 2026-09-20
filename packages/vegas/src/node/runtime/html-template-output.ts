@@ -1,3 +1,4 @@
+import type { BlobConverter } from "./blob-converter";
 import { HtmlOutput } from "./html-output";
 import type { HtmlTemplateEvaluator } from "./html-template";
 
@@ -7,8 +8,9 @@ import type { HtmlTemplateEvaluator } from "./html-template";
 export function createHtmlTemplateOutput(
   webApp: boolean,
   htmlTemplateEvaluator?: HtmlTemplateEvaluator,
+  blobConverter?: BlobConverter,
 ) {
-  const output = new HtmlOutput("", webApp, htmlTemplateEvaluator);
+  const output = new HtmlOutput("", webApp, htmlTemplateEvaluator, blobConverter);
 
   return {
     set escaped(value: unknown) {

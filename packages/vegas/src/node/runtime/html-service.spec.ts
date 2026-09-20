@@ -1,5 +1,6 @@
 import { describe, expect, test } from "vitest";
 
+import type { BlobConverter } from "./blob-converter";
 import { createBlob, createHtmlService, HtmlOutput, HtmlService, HtmlTemplate } from "./index";
 
 describe("HtmlService", () => {
@@ -90,6 +91,29 @@ describe("HtmlService", () => {
 
     expect(adminOutput).toBeInstanceOf(HtmlOutput);
     expect(adminOutput.getContent()).toBe("<main>Admin</main>");
+  });
+
+  test("propagate Blob conversion to created HtmlOutput objects", () => {
+    const convert: BlobConverter = (value, contentType) => ({
+      ...value,
+      bytes: [80, 68, 70],
+      contentType,
+    });
+    const service = createHtmlService(
+      {
+        "index.html": "<main>Index</main>",
+      },
+      undefined,
+      undefined,
+      convert,
+    );
+
+    expect(
+      service.createHtmlOutput("<main>Inline</main>").getAs("application/pdf").getBytes(),
+    ).toStrictEqual([80, 68, 70]);
+    expect(
+      service.createHtmlOutputFromFile("index").getAs("application/pdf").getBytes(),
+    ).toStrictEqual([80, 68, 70]);
   });
 
   test("create HtmlTemplate from string and BlobSource content", () => {

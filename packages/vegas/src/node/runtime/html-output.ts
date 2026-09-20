@@ -1,4 +1,5 @@
 import { createBlob, type RuntimeBlob } from "./blob";
+import { convertBlob, type BlobConverter } from "./blob-converter";
 import { escapeHtmlContextually } from "./html-contextual-escape";
 import type { HtmlSandboxMode, HtmlXFrameOptionsMode } from "./html-enum";
 import { HtmlTemplate, type HtmlTemplateEvaluator } from "./html-template";
@@ -37,6 +38,7 @@ export class HtmlOutputMetaTag {
 
 // https://developers.google.com/apps-script/reference/html/html-output
 export class HtmlOutput {
+  readonly #blobConverter: BlobConverter | undefined;
   #content: string;
   #faviconUrl = "";
   #height: number | null = null;
@@ -47,7 +49,13 @@ export class HtmlOutput {
   #width: number | null = null;
   #xFrameOptionsMode: HtmlXFrameOptionsMode = "DEFAULT";
 
-  constructor(content = "", webApp = false, htmlTemplateEvaluator?: HtmlTemplateEvaluator) {
+  constructor(
+    content = "",
+    webApp = false,
+    htmlTemplateEvaluator?: HtmlTemplateEvaluator,
+    blobConverter?: BlobConverter,
+  ) {
+    this.#blobConverter = blobConverter;
     this.#content = content;
     this.#htmlTemplateEvaluator = htmlTemplateEvaluator;
     this.#webApp = webApp;
@@ -75,6 +83,14 @@ export class HtmlOutput {
   clear(): this {
     this.#content = "";
     return this;
+  }
+
+  getAs(contentType: string): RuntimeBlob {
+    if (this.#blobConverter === undefined) {
+      throw new Error("HtmlOutput Blob conversion is not available in this Runtime context.");
+    }
+
+    return convertBlob(this.getBlob(), contentType, this.#blobConverter);
   }
 
   getBlob(): RuntimeBlob {

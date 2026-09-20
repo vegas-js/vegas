@@ -1,5 +1,6 @@
 import { describe, expect, test } from "vitest";
 
+import type { BlobConverter } from "./blob-converter";
 import {
   HtmlOutput,
   HtmlOutputMetaTag,
@@ -61,6 +62,29 @@ describe("HtmlOutput", () => {
     expect(blob.getDataAsString()).toBe("changed");
     expect(output.getContent()).toBe("<main>Updated</main>");
     expect(output.getBlob().getDataAsString()).toBe("<main>Updated</main>");
+  });
+
+  test("convert current HTML content through the bound Blob converter", () => {
+    const convert: BlobConverter = (value, contentType) => ({
+      ...value,
+      bytes: [80, 68, 70],
+      contentType,
+    });
+    const output = new HtmlOutput("<main>Vegas</main>", false, undefined, convert);
+
+    const converted = output.getAs("application/pdf");
+
+    expect(converted).toBeInstanceOf(RuntimeBlob);
+    expect(converted.getBytes()).toStrictEqual([80, 68, 70]);
+    expect(converted.getContentType()).toBe("application/pdf");
+  });
+
+  test("reject conversion without a bound Runtime conversion context", () => {
+    const output = new HtmlOutput("<main>Vegas</main>");
+
+    expect(() => output.getAs("application/pdf")).toThrow(
+      "HtmlOutput Blob conversion is not available in this Runtime context.",
+    );
   });
 
   test("store meta tags as HtmlOutputMetaTag objects", () => {

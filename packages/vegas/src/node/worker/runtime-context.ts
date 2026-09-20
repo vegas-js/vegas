@@ -7,6 +7,7 @@ import {
   type InvocationEnvironment,
   type Program,
 } from "../runtime";
+import { createBlobConverter } from "../runtime/blob-converter";
 import type { HtmlTemplateEvaluator } from "../runtime/html-template";
 import { HTML_TEMPLATE_OUTPUT_FACTORY } from "../runtime/html-template-compiler";
 import { createHtmlTemplateOutput } from "../runtime/html-template-output";
@@ -22,6 +23,7 @@ export interface RuntimeWorkerData {
 
 export function createWorkerRuntimeContext(data: RuntimeWorkerData): Context {
   const hostBridge = createWorkerHostBridge(data.port, data.sharedArray);
+  const blobConverter = createBlobConverter(hostBridge);
   let context: Context;
 
   // Apps Script documents that HtmlTemplate.evaluate() makes template properties available in
@@ -60,7 +62,8 @@ export function createWorkerRuntimeContext(data: RuntimeWorkerData): Context {
 
   Object.defineProperty(globals, HTML_TEMPLATE_OUTPUT_FACTORY, {
     enumerable: false,
-    value: () => createHtmlTemplateOutput(data.context?.webApp === true, evaluateHtmlTemplate),
+    value: () =>
+      createHtmlTemplateOutput(data.context?.webApp === true, evaluateHtmlTemplate, blobConverter),
   });
 
   context = vm.createContext(globals);
