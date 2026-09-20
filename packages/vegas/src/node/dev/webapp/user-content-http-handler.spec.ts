@@ -118,6 +118,39 @@ describe("createUserContentHttpHandler", () => {
     );
   });
 
+  test("forward async errors to the next middleware", async () => {
+    const error = new Error("build failed");
+    const { response } = createResponse();
+    const next = vi.fn();
+
+    const handler = createUserContentHttpHandler({
+      server: createServer(),
+      builds: {
+        waitForIdle: async () => {
+          throw error;
+        },
+      },
+      sessions: { claim: () => false },
+      hostPort: 5173,
+    });
+
+    await handler(
+      {
+        url: "/blank",
+        method: "GET",
+        headers: { host: "localhost:5174" },
+      } as any,
+      response as any,
+      next,
+    );
+
+    expect(next).toHaveBeenCalledOnce();
+    expect(next).toHaveBeenCalledWith(error);
+    expect(response.statusCode).toBe(0);
+    expect(response.setHeader).not.toHaveBeenCalled();
+    expect(response.end).not.toHaveBeenCalled();
+  });
+
   test("pass unrelated requests to the next middleware", async () => {
     const { response } = createResponse();
     const next = vi.fn();
