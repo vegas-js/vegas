@@ -102,6 +102,11 @@ export class Sheet {
     return this.#metadata().hiddenGridlines;
   }
 
+  hideColumn(column: Range): void {
+    this.#assertRangeBelongsToSheet(column);
+    this.hideColumns(column.getColumn(), column.getNumColumns());
+  }
+
   hideColumns(columnIndex: number): void;
   hideColumns(columnIndex: number, numColumns: number): void;
   hideColumns(columnIndex: number, numColumns = 1): void {
@@ -113,6 +118,11 @@ export class Sheet {
       numColumns,
       hidden: true,
     });
+  }
+
+  hideRow(row: Range): void {
+    this.#assertRangeBelongsToSheet(row);
+    this.hideRows(row.getRow(), row.getNumRows());
   }
 
   hideRows(rowIndex: number): void;
@@ -267,6 +277,16 @@ export class Sheet {
     });
   }
 
+  unhideColumn(column: Range): void {
+    this.#assertRangeBelongsToSheet(column);
+    this.showColumns(column.getColumn(), column.getNumColumns());
+  }
+
+  unhideRow(row: Range): void {
+    this.#assertRangeBelongsToSheet(row);
+    this.showRows(row.getRow(), row.getNumRows());
+  }
+
   showSheet(): Sheet {
     this.#bridge.call({
       service: "spreadsheet",
@@ -358,6 +378,19 @@ export class Sheet {
       operation: "get-sheet-data-bounds",
       sheet: this.#reference,
     });
+  }
+
+  #assertRangeBelongsToSheet(range: Range): void {
+    const rangeSheet = range.getSheet();
+
+    if (
+      rangeSheet.getSheetId() !== this.#reference.sheetId ||
+      rangeSheet.getParent().getId() !== this.#reference.spreadsheetId
+    ) {
+      // Apps Script does not document cross-Sheet Range behavior for visibility methods.
+      // Vegas rejects foreign Ranges instead of applying their coordinates to this Sheet.
+      throw new RangeError("Spreadsheet visibility Range must belong to this Sheet.");
+    }
   }
 
   #metadata() {

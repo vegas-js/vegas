@@ -112,6 +112,38 @@ function createRangeDouble(values: SpreadsheetGrid = []) {
   };
 }
 
+function createVisibilityRangeDouble({
+  spreadsheetId = "spreadsheet-a",
+  sheetId = 7,
+  row = 2,
+  column = 3,
+  numRows = 4,
+  numColumns = 2,
+}: {
+  spreadsheetId?: string;
+  sheetId?: number;
+  row?: number;
+  column?: number;
+  numRows?: number;
+  numColumns?: number;
+} = {}): Range {
+  const spreadsheet = {
+    getId: () => spreadsheetId,
+  } as unknown as Spreadsheet;
+  const sheet = {
+    getParent: () => spreadsheet,
+    getSheetId: () => sheetId,
+  } as unknown as Sheet;
+
+  return {
+    getColumn: () => column,
+    getNumColumns: () => numColumns,
+    getNumRows: () => numRows,
+    getRow: () => row,
+    getSheet: () => sheet,
+  } as unknown as Range;
+}
+
 function createFixture({
   bridge = createBridge(),
   rangeValues = [],
@@ -378,6 +410,75 @@ describe("Sheet", () => {
     expect(sheet.showRows(5, 1)).toBeUndefined();
     expect(sheet.isRowHiddenByUser(4)).toBe(false);
     expect(sheet.isRowHiddenByUser(5)).toBe(false);
+    expect(hydrator.references).toHaveLength(0);
+  });
+
+  test("hide and unhide Sheet rows and columns described by an owned Range", () => {
+    const bridge = new RecordingHostBridge((call) => {
+      if (
+        call.service === "spreadsheet" &&
+        (call.operation === "set-sheet-columns-hidden" ||
+          call.operation === "set-sheet-rows-hidden")
+      ) {
+        return undefined;
+      }
+
+      throw new Error(`unexpected host call: ${call.service}#${call.operation}`);
+    });
+    const { hydrator, sheet } = createFixture({ bridge });
+    const range = createVisibilityRangeDouble();
+
+    expect(sheet.hideColumn(range)).toBeUndefined();
+    expect(sheet.hideRow(range)).toBeUndefined();
+    expect(sheet.unhideColumn(range)).toBeUndefined();
+    expect(sheet.unhideRow(range)).toBeUndefined();
+    expect(bridge.calls).toStrictEqual([
+      {
+        service: "spreadsheet",
+        operation: "set-sheet-columns-hidden",
+        sheet: defaultSheetReference,
+        startColumn: 3,
+        numColumns: 2,
+        hidden: true,
+      },
+      {
+        service: "spreadsheet",
+        operation: "set-sheet-rows-hidden",
+        sheet: defaultSheetReference,
+        startRow: 2,
+        numRows: 4,
+        hidden: true,
+      },
+      {
+        service: "spreadsheet",
+        operation: "set-sheet-columns-hidden",
+        sheet: defaultSheetReference,
+        startColumn: 3,
+        numColumns: 2,
+        hidden: false,
+      },
+      {
+        service: "spreadsheet",
+        operation: "set-sheet-rows-hidden",
+        sheet: defaultSheetReference,
+        startRow: 2,
+        numRows: 4,
+        hidden: false,
+      },
+    ]);
+    expect(hydrator.references).toHaveLength(0);
+  });
+
+  test("reject visibility Ranges from another Sheet or Spreadsheet", () => {
+    const { bridge, hydrator, sheet } = createFixture();
+
+    expect(() => sheet.hideRow(createVisibilityRangeDouble({ sheetId: 9 }))).toThrow(
+      "visibility Range must belong to this Sheet",
+    );
+    expect(() =>
+      sheet.hideColumn(createVisibilityRangeDouble({ spreadsheetId: "spreadsheet-b" })),
+    ).toThrow("visibility Range must belong to this Sheet");
+    expect(bridge.calls).toHaveLength(0);
     expect(hydrator.references).toHaveLength(0);
   });
 
