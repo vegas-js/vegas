@@ -16,6 +16,13 @@ describe("HtmlOutput", () => {
     expect(output.getContent()).toBe("<main>Local Runtime</main>");
   });
 
+  test("append untrusted HTML with contextual escaping", () => {
+    const output = new HtmlOutput("<b>Hello, world!</b>");
+
+    expect(output.appendUntrusted("<p>Hello again, world.</p>")).toBe(output);
+    expect(output.getContent()).toBe("<b>Hello, world!</b>&lt;p&gt;Hello again, world.&lt;/p&gt;");
+  });
+
   test("create a template backed by current HtmlOutput content", () => {
     const output = new HtmlOutput("<b>Hello</b>");
     const template = output.asTemplate();

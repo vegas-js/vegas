@@ -13,6 +13,10 @@ export type HtmlTemplateSegment =
       readonly escaping: "contextual" | "none";
     };
 
+// Apps Script documents the scriptlet forms and the behavior of HtmlTemplate.getCode(), but does
+// not define the generated JavaScript representation. Vegas compiles templates to this private
+// output-sink protocol instead of reproducing Google-internal generated identifiers or helpers.
+// Runtime behavior that Apps Script does not document remains intentionally unspecified.
 const TEMPLATE_OUTPUT_FACTORY = "__vegasCreateHtmlTemplateOutput";
 const TEMPLATE_OUTPUT = "__vegasHtmlTemplateOutput";
 

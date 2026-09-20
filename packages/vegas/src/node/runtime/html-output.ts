@@ -1,3 +1,4 @@
+import { escapeHtmlContextually } from "./html-contextual-escape";
 import type { HtmlSandboxMode, HtmlXFrameOptionsMode } from "./html-enum";
 import { HtmlTemplate } from "./html-template";
 
@@ -56,6 +57,11 @@ export class HtmlOutput {
 
   append(addedContent: string): this {
     this.#content += addedContent;
+    return this;
+  }
+
+  appendUntrusted(addedContent: string): this {
+    this.#content += escapeHtmlContextually(this.#content, addedContent);
     return this;
   }
 
