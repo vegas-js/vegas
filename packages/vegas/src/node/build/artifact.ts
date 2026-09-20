@@ -146,6 +146,25 @@ export class ArtifactStore {
   }
 }
 
+function normalizeArtifactPath(artifactPath: string): string {
+  const portablePath = artifactPath.replaceAll("\\", "/");
+  const normalizedPath = path.posix.normalize(portablePath);
+
+  if (
+    portablePath.length === 0 ||
+    portablePath.includes("\0") ||
+    path.posix.isAbsolute(portablePath) ||
+    path.win32.isAbsolute(artifactPath) ||
+    normalizedPath === "." ||
+    normalizedPath === ".." ||
+    normalizedPath.startsWith("../")
+  ) {
+    throw new Error(`Invalid build artifact path: ${artifactPath}`);
+  }
+
+  return normalizedPath;
+}
+
 export async function writeArtifacts(
   outputDir: string,
   artifacts: readonly BuildArtifact[],
@@ -153,7 +172,7 @@ export async function writeArtifacts(
   const outputs = new Map<string, BuildArtifact["content"]>();
 
   for (const artifact of artifacts) {
-    outputs.set(artifact.path, artifact.content);
+    outputs.set(normalizeArtifactPath(artifact.path), artifact.content);
   }
 
   await Promise.all(

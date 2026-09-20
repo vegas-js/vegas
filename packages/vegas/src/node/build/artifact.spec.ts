@@ -291,6 +291,63 @@ describe("writeArtifacts", () => {
     }
   });
 
+  test.each([
+    "../outside.txt",
+    "nested/../../outside.txt",
+    "/absolute.txt",
+    String.raw`C:\absolute.txt`,
+  ])("reject artifact path outside the output directory: %s", async (artifactPath) => {
+    const tempDirPath = fs.mkdtempSync(path.join(os.tmpdir(), "vegas-"));
+    const outputDir = path.join(tempDirPath, "dist");
+
+    try {
+      await expect(
+        writeArtifacts(outputDir, [
+          {
+            path: "safe.txt",
+            content: "safe",
+          },
+          {
+            path: artifactPath,
+            content: "outside",
+          },
+        ]),
+      ).rejects.toThrow(`Invalid build artifact path: ${artifactPath}`);
+
+      expect(fs.existsSync(path.join(outputDir, "safe.txt"))).toBe(false);
+    } finally {
+      fs.rmSync(tempDirPath, {
+        recursive: true,
+        force: true,
+      });
+    }
+  });
+
+  test("normalize equivalent artifact paths before resolving duplicates", async () => {
+    const tempDirPath = fs.mkdtempSync(path.join(os.tmpdir(), "vegas-"));
+
+    try {
+      await writeArtifacts(tempDirPath, [
+        {
+          path: "nested/../Code.js",
+          content: "first",
+        },
+        {
+          path: "Code.js",
+          content: "second",
+        },
+      ]);
+
+      expect(fs.readFileSync(path.join(tempDirPath, "Code.js"), "utf8")).toBe("second");
+      expect(fs.existsSync(path.join(tempDirPath, "nested"))).toBe(false);
+    } finally {
+      fs.rmSync(tempDirPath, {
+        recursive: true,
+        force: true,
+      });
+    }
+  });
+
   test("use last artifact for duplicate path", async () => {
     const tempDirPath = fs.mkdtempSync(path.join(os.tmpdir(), "vegas-"));
 
