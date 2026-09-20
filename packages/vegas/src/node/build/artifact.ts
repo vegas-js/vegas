@@ -1,3 +1,4 @@
+import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 
@@ -188,14 +189,84 @@ export async function writeArtifacts(
   );
 }
 
+function createOutputReplacementPath(outputDir: string, kind: "staging" | "backup"): string {
+  const name = path.basename(outputDir) || "output";
+
+  return path.join(path.dirname(outputDir), `.${name}.${kind}-${crypto.randomUUID()}`);
+}
+
+async function renameIfExists(source: string, destination: string): Promise<boolean> {
+  try {
+    await fs.promises.rename(source, destination);
+    return true;
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") {
+      return false;
+    }
+
+    throw error;
+  }
+}
+
+async function cleanupFailedOutput(pathToRemove: string): Promise<void> {
+  try {
+    await fs.promises.rm(pathToRemove, {
+      recursive: true,
+      force: true,
+    });
+  } catch {
+    // Preserve the replacement error that triggered cleanup.
+  }
+}
+
 export async function replaceOutputArtifacts(
   outputDir: string,
   artifacts: readonly BuildArtifact[],
 ): Promise<void> {
-  await fs.promises.rm(outputDir, {
-    recursive: true,
-    force: true,
-  });
+  const stagingDir = createOutputReplacementPath(outputDir, "staging");
+  const backupDir = createOutputReplacementPath(outputDir, "backup");
 
-  await writeArtifacts(outputDir, artifacts);
+  try {
+    await writeArtifacts(stagingDir, artifacts);
+  } catch (error) {
+    await cleanupFailedOutput(stagingDir);
+    throw error;
+  }
+
+  let hasBackup: boolean;
+
+  try {
+    hasBackup = await renameIfExists(outputDir, backupDir);
+  } catch (error) {
+    await cleanupFailedOutput(stagingDir);
+    throw error;
+  }
+
+  try {
+    await fs.promises.rename(stagingDir, outputDir);
+  } catch (error) {
+    if (hasBackup) {
+      try {
+        await fs.promises.rename(backupDir, outputDir);
+        hasBackup = false;
+      } catch (rollbackError) {
+        await cleanupFailedOutput(stagingDir);
+
+        throw new AggregateError(
+          [error, rollbackError],
+          `Failed to replace build output and restore previous output. Previous output remains at ${backupDir}.`,
+        );
+      }
+    }
+
+    await cleanupFailedOutput(stagingDir);
+    throw error;
+  }
+
+  if (hasBackup) {
+    await fs.promises.rm(backupDir, {
+      recursive: true,
+      force: true,
+    });
+  }
 }
