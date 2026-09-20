@@ -9,6 +9,11 @@ import type { Executor } from "../executor";
 import type { LockStore } from "../lock-store";
 import type { PropertiesStore } from "../properties-store";
 import type { SpreadsheetStore } from "../spreadsheet-store";
+import {
+  isAppsScriptWorkerResponse,
+  restoreAppsScriptWorkerError,
+  type AppsScriptWorkerRequest,
+} from "./apps-script-worker-protocol";
 import { handleHostRequestMessage } from "./host-request-handler";
 import { NodeUrlFetchCapability } from "./url-fetch-capability";
 
@@ -28,9 +33,9 @@ const runAppsScriptWorker: AppsScriptWorkerRunner = (dispatcher, request) =>
       },
     });
 
-    gasWorker.on("error", (err: any) => {
-      console.error(err);
-      reject(err);
+    gasWorker.on("error", (error) => {
+      console.error(error);
+      reject(error);
     });
 
     port1.on("message", async (data) => {
@@ -38,19 +43,27 @@ const runAppsScriptWorker: AppsScriptWorkerRunner = (dispatcher, request) =>
         return;
       }
 
-      if (data.message === "resolve") {
-        port1.close();
-        resolve(data.payload);
+      port1.close();
+
+      if (!isAppsScriptWorkerResponse(data)) {
+        reject(new Error("Unexpected Apps Script worker message."));
         return;
       }
 
-      port1.close();
-      reject(new Error(`Unexpected worker message: ${String(data.message)}`));
+      if (data.ok) {
+        resolve(data.value);
+        return;
+      }
+
+      reject(restoreAppsScriptWorkerError(data.error));
     });
-    port1.postMessage({
-      fn: request.functionName,
+
+    const invocation: AppsScriptWorkerRequest = {
+      type: "invoke",
+      functionName: request.functionName,
       args: request.args,
-    });
+    };
+    port1.postMessage(invocation);
   });
 
 export interface NodeAppsScriptExecutorOptions {
