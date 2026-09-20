@@ -52,12 +52,34 @@ export class DriveFolder {
     );
   }
 
+  getFilesByName(name: string): DriveFileIterator {
+    return this.#hydrator.hydrate(
+      this.#bridge.call({
+        service: "drive",
+        operation: "get-files-by-name",
+        folder: this.#reference,
+        name,
+      }),
+    );
+  }
+
   getFolders(): DriveFolderIterator {
     return this.#hydrator.hydrate(
       this.#bridge.call({
         service: "drive",
         operation: "get-folder-folders",
         folder: this.#reference,
+      }),
+    );
+  }
+
+  getFoldersByName(name: string): DriveFolderIterator {
+    return this.#hydrator.hydrate(
+      this.#bridge.call({
+        service: "drive",
+        operation: "get-folders-by-name",
+        folder: this.#reference,
+        name,
       }),
     );
   }

@@ -2,6 +2,7 @@ import { describe, expect, expectTypeOf, test } from "vitest";
 
 import {
   createDriveApp,
+  DriveFileIterator,
   DriveFolder,
   DriveFolderIterator,
   type DriveFolderReference,
@@ -36,6 +37,18 @@ class RecordingHostBridge implements HostBridge {
         } as HostCallResult<C>;
       case "get-folder-name":
         return `name:${call.folder.id}` as HostCallResult<C>;
+      case "get-files-by-name":
+        return {
+          service: "drive",
+          kind: "file-iterator",
+          handle: `files:${call.folder?.id ?? "all"}:${call.name}`,
+        } as HostCallResult<C>;
+      case "get-folders-by-name":
+        return {
+          service: "drive",
+          kind: "folder-iterator",
+          handle: `folders:${call.folder?.id ?? "all"}:${call.name}`,
+        } as HostCallResult<C>;
       case "get-folder-parents":
         return {
           service: "drive",
@@ -92,8 +105,12 @@ describe("DriveFolder Runtime object", () => {
     expect(child.getId()).toBe("created:child");
     expect(child.getName()).toBe("name:created:child");
 
+    const files = child.getFilesByName("report.txt");
+    const folders = child.getFoldersByName("nested");
     const parents = child.getParents();
 
+    expect(files).toBeInstanceOf(DriveFileIterator);
+    expect(folders).toBeInstanceOf(DriveFolderIterator);
     expect(parents).toBeInstanceOf(DriveFolderIterator);
     expect(parents.hasNext()).toBe(true);
     expect(parents.next()).toBeInstanceOf(DriveFolder);
@@ -121,6 +138,26 @@ describe("DriveFolder Runtime object", () => {
           kind: "folder",
           id: "created:child",
         },
+      },
+      {
+        service: "drive",
+        operation: "get-files-by-name",
+        folder: {
+          service: "drive",
+          kind: "folder",
+          id: "created:child",
+        },
+        name: "report.txt",
+      },
+      {
+        service: "drive",
+        operation: "get-folders-by-name",
+        folder: {
+          service: "drive",
+          kind: "folder",
+          id: "created:child",
+        },
+        name: "nested",
       },
       {
         service: "drive",

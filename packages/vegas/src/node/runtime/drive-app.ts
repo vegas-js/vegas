@@ -74,6 +74,16 @@ export class DriveApp {
     );
   }
 
+  getFilesByName(name: string): DriveFileIterator {
+    return this.#hydrator.hydrate(
+      this.#bridge.call({
+        service: "drive",
+        operation: "get-files-by-name",
+        name,
+      }),
+    );
+  }
+
   getFolderById(id: string): DriveFolder {
     return this.#hydrator.hydrate(
       this.#bridge.call({
@@ -100,6 +110,16 @@ export class DriveApp {
       this.#bridge.call({
         service: "drive",
         operation: "get-folders",
+      }),
+    );
+  }
+
+  getFoldersByName(name: string): DriveFolderIterator {
+    return this.#hydrator.hydrate(
+      this.#bridge.call({
+        service: "drive",
+        operation: "get-folders-by-name",
+        name,
       }),
     );
   }

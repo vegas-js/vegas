@@ -1,9 +1,45 @@
 import type { DriveHostCall, DriveHostCallResult } from "./drive-host-call";
 import type { DriveIteratorSession } from "./drive-iterator-store";
+import type { DriveFileReference, DriveFolderReference } from "./drive-reference";
 import type { DriveNamespace, DriveStore } from "./drive-store";
 import { unsupportedHostCall } from "./unsupported-host-call";
 
 const MAX_LOCAL_DRIVE_FILE_CONTENT_BYTES = 10_000_000;
+
+async function filterFilesByName(
+  store: DriveStore,
+  namespace: DriveNamespace,
+  files: readonly DriveFileReference[],
+  name: string,
+): Promise<readonly DriveFileReference[]> {
+  const matches: DriveFileReference[] = [];
+
+  for (const file of files) {
+    const metadata = await store.getFileMetadata(namespace, file);
+    if (metadata.name === name) {
+      matches.push(file);
+    }
+  }
+
+  return matches;
+}
+
+async function filterFoldersByName(
+  store: DriveStore,
+  namespace: DriveNamespace,
+  folders: readonly DriveFolderReference[],
+  name: string,
+): Promise<readonly DriveFolderReference[]> {
+  const matches: DriveFolderReference[] = [];
+
+  for (const folder of folders) {
+    if ((await store.getFolderName(namespace, folder)) === name) {
+      matches.push(folder);
+    }
+  }
+
+  return matches;
+}
 
 export interface DriveHostCallHandler {
   handle(call: DriveHostCall): Promise<DriveHostCallResult<DriveHostCall>>;
@@ -94,8 +130,28 @@ export class LocalDriveHostHandler implements DriveHostCallHandler {
       case "get-files": {
         return this.#iterators.createFileIterator(await this.#store.listFiles(this.#namespace));
       }
+      case "get-files-by-name": {
+        const files =
+          call.folder === undefined
+            ? await this.#store.listFiles(this.#namespace)
+            : await this.#store.listFolderFiles(this.#namespace, call.folder);
+
+        return this.#iterators.createFileIterator(
+          await filterFilesByName(this.#store, this.#namespace, files, call.name),
+        );
+      }
       case "get-folders": {
         return this.#iterators.createFolderIterator(await this.#store.listFolders(this.#namespace));
+      }
+      case "get-folders-by-name": {
+        const folders =
+          call.folder === undefined
+            ? await this.#store.listFolders(this.#namespace)
+            : await this.#store.listFolderFolders(this.#namespace, call.folder);
+
+        return this.#iterators.createFolderIterator(
+          await filterFoldersByName(this.#store, this.#namespace, folders, call.name),
+        );
       }
       case "continue-file-iterator": {
         return this.#iterators.continueFileIterator(call.continuationToken);

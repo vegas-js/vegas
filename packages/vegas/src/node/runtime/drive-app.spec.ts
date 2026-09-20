@@ -80,11 +80,25 @@ function createBridge() {
           handle: "files",
         };
       }
+      case "get-files-by-name": {
+        return {
+          service: "drive",
+          kind: "file-iterator",
+          handle: `files:${call.name}`,
+        };
+      }
       case "get-folders": {
         return {
           service: "drive",
           kind: "folder-iterator",
           handle: "folders",
+        };
+      }
+      case "get-folders-by-name": {
+        return {
+          service: "drive",
+          kind: "folder-iterator",
+          handle: `folders:${call.name}`,
         };
       }
       case "continue-file-iterator": {
@@ -118,7 +132,9 @@ describe("DriveApp Runtime object", () => {
     const folder = drive.getFolderById("folder-id");
     const root = drive.getRootFolder();
     const files = drive.getFiles();
+    const namedFiles = drive.getFilesByName("report.txt");
     const folders = drive.getFolders();
+    const namedFolders = drive.getFoldersByName("Reports");
     const continuedFiles = drive.continueFileIterator("file-token");
     const continuedFolders = drive.continueFolderIterator("folder-token");
 
@@ -129,7 +145,9 @@ describe("DriveApp Runtime object", () => {
     expect(root).toBeInstanceOf(DriveFolder);
     expect(root.getId()).toBe("root");
     expect(files).toBeInstanceOf(DriveFileIterator);
+    expect(namedFiles).toBeInstanceOf(DriveFileIterator);
     expect(folders).toBeInstanceOf(DriveFolderIterator);
+    expect(namedFolders).toBeInstanceOf(DriveFolderIterator);
     expect(continuedFiles).toBeInstanceOf(DriveFileIterator);
     expect(continuedFolders).toBeInstanceOf(DriveFolderIterator);
 
@@ -155,7 +173,17 @@ describe("DriveApp Runtime object", () => {
       },
       {
         service: "drive",
+        operation: "get-files-by-name",
+        name: "report.txt",
+      },
+      {
+        service: "drive",
         operation: "get-folders",
+      },
+      {
+        service: "drive",
+        operation: "get-folders-by-name",
+        name: "Reports",
       },
       {
         service: "drive",

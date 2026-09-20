@@ -80,7 +80,19 @@ export type DriveHostCall =
     }
   | {
       readonly service: "drive";
+      readonly operation: "get-files-by-name";
+      readonly name: string;
+      readonly folder?: DriveFolderReference;
+    }
+  | {
+      readonly service: "drive";
       readonly operation: "get-folders";
+    }
+  | {
+      readonly service: "drive";
+      readonly operation: "get-folders-by-name";
+      readonly name: string;
+      readonly folder?: DriveFolderReference;
     }
   | {
       readonly service: "drive";
@@ -146,12 +158,17 @@ export type DriveHostCallResult<C extends DriveHostCall> = C extends {
       }
     ? DriveFolderReference
     : C extends {
-          readonly operation: "get-files" | "continue-file-iterator" | "get-folder-files";
+          readonly operation:
+            | "get-files"
+            | "get-files-by-name"
+            | "continue-file-iterator"
+            | "get-folder-files";
         }
       ? DriveFileIteratorReference
       : C extends {
             readonly operation:
               | "get-folders"
+              | "get-folders-by-name"
               | "continue-folder-iterator"
               | "get-file-parents"
               | "get-folder-folders"
