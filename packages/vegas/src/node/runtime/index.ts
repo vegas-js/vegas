@@ -1,5 +1,9 @@
 export { createBlob, hydrateBlob, RuntimeBlob, serializeBlob } from "./blob";
 export type { RuntimeBlobSource } from "./blob";
+export type { BlobConversionCapability } from "./blob-conversion-capability";
+export { BlobHostHandler } from "./blob-host-handler";
+export type { BlobHostCallHandler } from "./blob-host-handler";
+export type { BlobHostCall, BlobHostCallResult } from "./blob-host-call";
 export type { BlobValue } from "./blob-value";
 export { createAppsScriptExecutor } from "./apps-script-executor";
 export type { AppsScriptExecutorOptions, AppsScriptWorkerRunner } from "./apps-script-executor";

@@ -1,3 +1,4 @@
+import type { BlobHostCallHandler } from "./blob-host-handler";
 import type { CacheHostCallHandler } from "./cache-host-handler";
 import type { DriveHostCallHandler } from "./drive-host-handler";
 import type { HostCall, HostCallResult } from "./host-call";
@@ -11,6 +12,7 @@ export interface HostCallDispatcher {
 }
 
 export interface HostDispatcherOptions {
+  readonly blob?: BlobHostCallHandler;
   readonly cache?: CacheHostCallHandler;
   readonly drive?: DriveHostCallHandler;
   readonly lock?: LockHostCallHandler;
@@ -28,6 +30,15 @@ export class HostDispatcher implements HostCallDispatcher {
 
   async dispatch<C extends HostCall>(call: C): Promise<HostCallResult<C>> {
     switch (call.service) {
+      case "blob": {
+        const handler = this.#handlers.blob;
+
+        if (!handler) {
+          throw new Error("Blob host handler is not configured for this invocation.");
+        }
+
+        return (await handler.handle(call)) as HostCallResult<C>;
+      }
       case "cache": {
         const handler = this.#handlers.cache;
 

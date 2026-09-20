@@ -1,3 +1,4 @@
+import type { BlobHostCall, BlobHostCallResult } from "./blob-host-call";
 import type { CacheHostCall, CacheHostCallResult } from "./cache-host-call";
 import type { DriveHostCall, DriveHostCallResult } from "./drive-host-call";
 import type { LockHostCall, LockHostCallResult } from "./lock-host-call";
@@ -6,6 +7,7 @@ import type { SpreadsheetHostCall, SpreadsheetHostCallResult } from "./spreadshe
 import type { UrlFetchHostCall, UrlFetchHostCallResult } from "./url-fetch-host-call";
 
 export type HostCall =
+  | BlobHostCall
   | CacheHostCall
   | DriveHostCall
   | LockHostCall
@@ -16,6 +18,7 @@ export type HostCall =
 export type HostService = HostCall["service"];
 
 const HOST_SERVICES = {
+  blob: true,
   cache: true,
   drive: true,
   lock: true,
@@ -28,16 +31,18 @@ export function isHostService(value: unknown): value is HostService {
   return typeof value === "string" && Object.hasOwn(HOST_SERVICES, value);
 }
 
-export type HostCallResult<C extends HostCall> = C extends CacheHostCall
-  ? CacheHostCallResult<C>
-  : C extends DriveHostCall
-    ? DriveHostCallResult<C>
-    : C extends LockHostCall
-      ? LockHostCallResult<C>
-      : C extends PropertiesHostCall
-        ? PropertiesHostCallResult<C>
-        : C extends SpreadsheetHostCall
-          ? SpreadsheetHostCallResult<C>
-          : C extends UrlFetchHostCall
-            ? UrlFetchHostCallResult<C>
-            : never;
+export type HostCallResult<C extends HostCall> = C extends BlobHostCall
+  ? BlobHostCallResult<C>
+  : C extends CacheHostCall
+    ? CacheHostCallResult<C>
+    : C extends DriveHostCall
+      ? DriveHostCallResult<C>
+      : C extends LockHostCall
+        ? LockHostCallResult<C>
+        : C extends PropertiesHostCall
+          ? PropertiesHostCallResult<C>
+          : C extends SpreadsheetHostCall
+            ? SpreadsheetHostCallResult<C>
+            : C extends UrlFetchHostCall
+              ? UrlFetchHostCallResult<C>
+              : never;

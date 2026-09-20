@@ -15,6 +15,7 @@ import {
   restoreAppsScriptWorkerError,
   type AppsScriptWorkerRequest,
 } from "./apps-script-worker-protocol";
+import { NodeBlobConversionCapability } from "./blob-conversion-capability";
 import { handleHostRequestMessage } from "./host-request-handler";
 import { NodeUrlFetchCapability } from "./url-fetch-capability";
 
@@ -139,6 +140,7 @@ export interface NodeAppsScriptExecutorOptions {
 
 export function createNodeAppsScriptExecutor(options: NodeAppsScriptExecutorOptions): Executor {
   return createAppsScriptExecutor({
+    blobConversionCapability: new NodeBlobConversionCapability(),
     cacheStore: options.cacheStore,
     driveIteratorStore: options.driveIteratorStore,
     driveStore: options.driveStore,

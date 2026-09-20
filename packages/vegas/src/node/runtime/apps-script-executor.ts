@@ -1,3 +1,5 @@
+import type { BlobConversionCapability } from "./blob-conversion-capability";
+import { BlobHostHandler } from "./blob-host-handler";
 import { CacheHostHandler } from "./cache-host-handler";
 import type { CacheStore } from "./cache-store";
 import { LocalDriveHostHandler } from "./drive-host-handler";
@@ -22,6 +24,7 @@ export type AppsScriptWorkerRunner = (
 ) => Promise<unknown>;
 
 export interface AppsScriptExecutorOptions {
+  readonly blobConversionCapability: BlobConversionCapability;
   readonly cacheStore: CacheStore;
   readonly driveIteratorStore: DriveIteratorStore;
   readonly driveStore: DriveStore;
@@ -33,6 +36,7 @@ export interface AppsScriptExecutorOptions {
 }
 
 export function createAppsScriptExecutor(options: AppsScriptExecutorOptions): Executor {
+  const blob = new BlobHostHandler(options.blobConversionCapability);
   const urlFetch = new UrlFetchHostHandler(options.urlFetchCapability);
 
   return {
@@ -40,6 +44,7 @@ export function createAppsScriptExecutor(options: AppsScriptExecutorOptions): Ex
       const driveNamespace = resolveDriveNamespace(request.scope);
       const lockSession = options.lockStore.createSession();
       const dispatcher = new HostDispatcher({
+        blob,
         cache: new CacheHostHandler(options.cacheStore, request.scope),
         drive: new LocalDriveHostHandler(
           options.driveStore,

@@ -9,8 +9,18 @@ import {
   InMemoryPropertiesStore,
   InMemorySpreadsheetStore,
   type AppsScriptWorkerRunner,
+  type BlobConversionCapability,
   type UrlFetchCapability,
 } from "./index";
+
+const blobConversionCapability: BlobConversionCapability = {
+  async convert(value, contentType) {
+    return {
+      ...value,
+      contentType,
+    };
+  },
+};
 
 const urlFetchCapability: UrlFetchCapability = {
   async fetch() {
@@ -58,15 +68,28 @@ describe("createAppsScriptExecutor", () => {
         namespace: "script",
         timeoutInMillis: 0,
       });
+      const converted = await dispatcher.dispatch({
+        service: "blob",
+        operation: "convert",
+        value: {
+          bytes: [86, 101, 103, 97, 115],
+          contentType: "text/plain",
+          name: "vegas.txt",
+          googleType: false,
+        },
+        contentType: "application/pdf",
+      });
 
       return {
         functionName: request.functionName,
         name,
         acquired,
+        converted,
       };
     };
 
     const executor = createAppsScriptExecutor({
+      blobConversionCapability,
       cacheStore: new InMemoryCacheStore(),
       driveIteratorStore: new InMemoryDriveIteratorStore(),
       driveStore: new InMemoryDriveStore(),
@@ -92,6 +115,12 @@ describe("createAppsScriptExecutor", () => {
       functionName: "main",
       name: "Vegas",
       acquired: true,
+      converted: {
+        bytes: [86, 101, 103, 97, 115],
+        contentType: "application/pdf",
+        name: "vegas.txt",
+        googleType: false,
+      },
     });
 
     const nextLockSession = lockStore.createSession();
@@ -120,6 +149,7 @@ describe("createAppsScriptExecutor", () => {
     };
 
     const executor = createAppsScriptExecutor({
+      blobConversionCapability,
       cacheStore: new InMemoryCacheStore(),
       driveIteratorStore: new InMemoryDriveIteratorStore(),
       driveStore: new InMemoryDriveStore(),
