@@ -25,6 +25,28 @@ describe("DisposableTempDir", () => {
     }
   });
 
+  test("create temp directory in nearest ancestor node_modules", () => {
+    const tempDirPath = fs.mkdtempSync(path.join(os.tmpdir(), "vegas-"));
+
+    try {
+      const workspaceDir = path.join(tempDirPath, "workspace");
+      const nodeModulesPath = path.join(workspaceDir, "node_modules");
+      const projectDir = path.join(workspaceDir, "apps", "project");
+
+      fs.mkdirSync(nodeModulesPath, { recursive: true });
+      fs.mkdirSync(projectDir, { recursive: true });
+
+      using tempDir = new DisposableTempDir("test", projectDir);
+
+      expect(tempDir.getPath().startsWith(path.join(nodeModulesPath, "test-"))).toBe(true);
+    } finally {
+      fs.rmSync(tempDirPath, {
+        recursive: true,
+        force: true,
+      });
+    }
+  });
+
   test("create temp directory in system temp directory when node_modules does not exist", () => {
     const tempDirPath = fs.mkdtempSync(path.join(os.tmpdir(), "vegas-"));
 

@@ -41,6 +41,51 @@ describe("loadModule", () => {
     }
   });
 
+  test("resolve bare import from ancestor node_modules", async () => {
+    const tempDirPath = fs.mkdtempSync(path.join(os.tmpdir(), "vegas-"));
+    const workspaceDir = path.join(tempDirPath, "workspace");
+    const projectDir = path.join(workspaceDir, "apps", "project");
+    const packageDir = path.join(workspaceDir, "node_modules", "fixture-package");
+
+    try {
+      fs.mkdirSync(projectDir, { recursive: true });
+      fs.mkdirSync(packageDir, { recursive: true });
+
+      fs.writeFileSync(
+        path.join(packageDir, "package.json"),
+        JSON.stringify({
+          name: "fixture-package",
+          version: "1.0.0",
+          type: "module",
+          exports: "./index.js",
+        }),
+      );
+      fs.writeFileSync(path.join(packageDir, "index.js"), 'export const value = "hoisted";');
+
+      const configPath = path.join(projectDir, "config.ts");
+      fs.writeFileSync(
+        configPath,
+        `
+          import { value } from "fixture-package";
+
+          export default { value };
+        `,
+      );
+
+      await expect(
+        loadModule({
+          root: projectDir,
+          filePath: configPath,
+        }),
+      ).resolves.toStrictEqual({ value: "hoisted" });
+    } finally {
+      fs.rmSync(tempDirPath, {
+        recursive: true,
+        force: true,
+      });
+    }
+  });
+
   test("ignore project vite config", async () => {
     const tempDirPath = fs.mkdtempSync(path.join(os.tmpdir(), "vegas-"));
     const projectDir = path.join(tempDirPath, "project");
