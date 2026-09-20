@@ -19,7 +19,11 @@ const environment = {
 const program = {
   source: `
 function run() {
-  return Session.getActiveUserLocale() + ":" + HtmlService.createHtmlOutputFromFile("index").getContent();
+  return [
+    Session.getActiveUserLocale(),
+    HtmlService.createHtmlOutputFromFile("index").getContent(),
+    HtmlService.getUserAgent(),
+  ].join(":");
 }
 `,
   htmlFiles: {
@@ -34,6 +38,10 @@ describe("createWorkerRuntimeContext", () => {
     try {
       const context = createWorkerRuntimeContext({
         program,
+        context: {
+          webApp: true,
+          userAgent: "Vegas Browser",
+        },
         environment,
         port: port1,
         sharedArray: new Int32Array(new SharedArrayBuffer(4)),
@@ -41,7 +49,7 @@ describe("createWorkerRuntimeContext", () => {
 
       expect(context.SpreadsheetApp).toBeInstanceOf(SpreadsheetApp);
       expect(context.Utilities).toBeInstanceOf(Utilities);
-      expect(context.run()).toBe("ja:<main>Vegas</main>");
+      expect(context.run()).toBe("ja:<main>Vegas</main>:Vegas Browser");
     } finally {
       port1.close();
       port2.close();

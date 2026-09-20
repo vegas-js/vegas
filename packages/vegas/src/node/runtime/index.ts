@@ -56,7 +56,7 @@ export { InMemoryLockStore } from "./in-memory-lock-store";
 export { InMemoryPropertiesStore } from "./in-memory-properties-store";
 export { InMemorySpreadsheetStore } from "./in-memory-spreadsheet-store";
 export type { InMemorySheetSeed, InMemorySpreadsheetSeed } from "./in-memory-spreadsheet-store";
-export type { InvocationEnvironment } from "./invocation";
+export type { InvocationContext, InvocationEnvironment } from "./invocation";
 export { AppsScriptConsole, createConsole } from "./console";
 export { createLogger, Logger } from "./logger";
 export type { LoggingTarget } from "./logging-target";

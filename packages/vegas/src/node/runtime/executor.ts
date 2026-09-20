@@ -1,10 +1,11 @@
-import type { InvocationEnvironment } from "./invocation";
+import type { InvocationContext, InvocationEnvironment } from "./invocation";
 import type { Program } from "./program";
 import type { InvocationScope } from "./scope";
 
 export interface RuntimeExecutionRequest {
   readonly functionName: string;
   readonly args: readonly unknown[];
+  readonly context?: InvocationContext;
 }
 
 export interface RuntimeBackend {

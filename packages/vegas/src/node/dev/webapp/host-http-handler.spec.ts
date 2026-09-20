@@ -71,6 +71,10 @@ describe("createHostHttpHandler", () => {
     const execute = vi.fn(async (request) => {
       expect(request.functionName).toBe("doGet");
       expect(request.args[0].parameter).toStrictEqual({ name: "alice" });
+      expect(request.context).toStrictEqual({
+        webApp: true,
+        userAgent: "Vegas Browser",
+      });
       expect(request).not.toHaveProperty("program");
       return {
         metaTags: [],
@@ -92,7 +96,10 @@ describe("createHostHttpHandler", () => {
       {
         url: "/dev?name=alice",
         method: "GET",
-        headers: { host: "localhost:5173" },
+        headers: {
+          host: "localhost:5173",
+          "user-agent": "Vegas Browser",
+        },
       } as any,
       response as any,
       vi.fn(),
@@ -112,6 +119,10 @@ describe("createHostHttpHandler", () => {
     const execute = vi.fn(async (request) => {
       expect(request.functionName).toBe("doPost");
       expect(request.args[0].postData.contents).toBe("hello");
+      expect(request.context).toStrictEqual({
+        webApp: true,
+        userAgent: "Vegas Browser",
+      });
       expect(request).not.toHaveProperty("program");
       return {
         mimeType: "text/plain",
@@ -132,6 +143,7 @@ describe("createHostHttpHandler", () => {
     request.headers = {
       host: "localhost:5173",
       "content-type": "text/plain",
+      "user-agent": "Vegas Browser",
     };
 
     await handler(request, response as any, vi.fn());

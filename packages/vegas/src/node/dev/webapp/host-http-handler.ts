@@ -1,6 +1,6 @@
 import type { Connect, ViteDevServer } from "vite";
 
-import type { RuntimeBackend } from "../../runtime";
+import type { InvocationContext, RuntimeBackend } from "../../runtime";
 import type { BuildCoordinator } from "../build-coordinator";
 import { createAppsScriptDoGetEvent, createAppsScriptDoPostEvent } from "./event";
 import { createHostHtml, type AppsScriptDoGetResult } from "./host-html";
@@ -41,12 +41,18 @@ export function createHostHttpHandler(options: HostHttpHandlerOptions): Connect.
         }
 
         if (parseWebAppPath(url.pathname)) {
+          const context: InvocationContext = {
+            webApp: true,
+            userAgent: request.headers["user-agent"] ?? null,
+          };
+
           if (request.method === "GET") {
             const doGetEvent = createAppsScriptDoGetEvent(url);
 
             const result = (await runtime.execute({
               functionName: "doGet",
               args: [doGetEvent],
+              context,
             })) as AppsScriptDoGetResult;
 
             const sessionId = sessions.issue();
@@ -78,6 +84,7 @@ export function createHostHttpHandler(options: HostHttpHandlerOptions): Connect.
             const result = (await runtime.execute({
               functionName: "doPost",
               args: [doPostEvent],
+              context,
             })) as AppsScriptDoPostResult;
 
             const httpResponse = createAppsScriptDoPostHttpResponse(result);

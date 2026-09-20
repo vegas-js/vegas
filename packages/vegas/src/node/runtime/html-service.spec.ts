@@ -18,6 +18,20 @@ describe("HtmlService", () => {
     });
   });
 
+  test("return user agent only for web app invocations", () => {
+    const webAppService = createHtmlService(
+      {},
+      {
+        webApp: true,
+        userAgent: "Vegas Browser",
+      },
+    );
+    const scriptService = createHtmlService();
+
+    expect(webAppService.getUserAgent()).toBe("Vegas Browser");
+    expect(scriptService.getUserAgent()).toBeNull();
+  });
+
   test("create HtmlOutput with optional string content", () => {
     const service = createHtmlService();
 

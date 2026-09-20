@@ -114,6 +114,7 @@ const runAppsScriptWorker: AppsScriptWorkerRunner = (dispatcher, request) => {
     workerData: {
       program: request.program,
       environment: request.environment,
+      context: request.context,
       sharedArray,
       port: port2,
     },
