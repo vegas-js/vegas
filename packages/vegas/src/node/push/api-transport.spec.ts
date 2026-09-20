@@ -56,6 +56,31 @@ describe("createAppsScriptApiPushTransport", () => {
     );
   });
 
+  test("trim surrounding whitespace from bearer token", async () => {
+    const accessTokenProvider = {
+      getAccessToken: vi.fn(async () => "  access-token  "),
+    };
+    const fetch = vi.fn<typeof globalThis.fetch>();
+    fetch.mockResolvedValue(new Response("{}", { status: 200 }));
+
+    const transport = createAppsScriptApiPushTransport({
+      accessTokenProvider,
+      fetch,
+    });
+
+    await transport.push(request);
+
+    expect(fetch).toHaveBeenCalledWith(
+      "https://script.googleapis.com/v1/projects/script-id/content",
+      expect.objectContaining({
+        headers: {
+          Authorization: "Bearer access-token",
+          "Content-Type": "application/json",
+        },
+      }),
+    );
+  });
+
   test("reject empty access token before network request", async () => {
     const accessTokenProvider = {
       getAccessToken: vi.fn(async () => ""),

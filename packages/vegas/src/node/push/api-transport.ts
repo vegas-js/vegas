@@ -11,11 +11,13 @@ interface CreateAppsScriptApiPushTransportOptions {
 }
 
 function requireAccessToken(accessToken: string): string {
-  if (accessToken.trim().length === 0) {
+  const normalizedAccessToken = accessToken.trim();
+
+  if (normalizedAccessToken.length === 0) {
     throw new Error("Apps Script access token is required.");
   }
 
-  return accessToken;
+  return normalizedAccessToken;
 }
 
 export function createAppsScriptApiPushTransport(
