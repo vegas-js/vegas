@@ -66,11 +66,96 @@ describe("detectServerEntry", () => {
       fs.mkdirSync(path.dirname(adminSource), { recursive: true });
       fs.mkdirSync(serverDir, { recursive: true });
 
-      fs.writeFileSync(mainSource, `import "../server/Code";`);
-      fs.writeFileSync(adminSource, `import "../../server/Code";`);
+      fs.writeFileSync(mainSource, `import type * as Server from "../server/Code";`);
+      fs.writeFileSync(adminSource, `import type * as Server from "../../server/Code";`);
       fs.writeFileSync(serverSource, `export function doGet() { return "ok"; }`);
 
       const plan = createPlan(tempDirPath, [mainSource, adminSource], [serverSource]);
+
+      await expect(buildServer(plan)).resolves.toBeDefined();
+    } finally {
+      fs.rmSync(tempDirPath, {
+        recursive: true,
+        force: true,
+      });
+    }
+  });
+
+  test.each([
+    ["value import", 'import { doGet } from "../server/Code";'],
+    ["value re-export", 'export { doGet } from "../server/Code";'],
+    ["export all", 'export * from "../server/Code";'],
+    ["dynamic import", 'void import("../server/Code");'],
+  ])("reject %s of server source", async (_case, source) => {
+    const tempDirPath = fs.mkdtempSync(path.join(os.tmpdir(), "vegas-"));
+
+    try {
+      const clientDir = path.join(tempDirPath, "src", "client");
+      const serverDir = path.join(tempDirPath, "src", "server");
+      const clientSource = path.join(clientDir, "main.ts");
+      const serverSource = path.join(serverDir, "Code.ts");
+
+      fs.mkdirSync(clientDir, { recursive: true });
+      fs.mkdirSync(serverDir, { recursive: true });
+
+      fs.writeFileSync(clientSource, source);
+      fs.writeFileSync(serverSource, `export function doGet() { return "ok"; }`);
+
+      const plan = createPlan(tempDirPath, [clientSource], [serverSource]);
+
+      await expect(buildServer(plan)).rejects.toThrow(
+        "Server sources may only be referenced from client code as types.",
+      );
+    } finally {
+      fs.rmSync(tempDirPath, {
+        recursive: true,
+        force: true,
+      });
+    }
+  });
+
+  test("allow specifier-level type-only import of server entry", async () => {
+    const tempDirPath = fs.mkdtempSync(path.join(os.tmpdir(), "vegas-"));
+
+    try {
+      const clientDir = path.join(tempDirPath, "src", "client");
+      const serverDir = path.join(tempDirPath, "src", "server");
+      const clientSource = path.join(clientDir, "main.ts");
+      const serverSource = path.join(serverDir, "Code.ts");
+
+      fs.mkdirSync(clientDir, { recursive: true });
+      fs.mkdirSync(serverDir, { recursive: true });
+
+      fs.writeFileSync(clientSource, `import { type doGet } from "../server/Code";`);
+      fs.writeFileSync(serverSource, `export function doGet() { return "ok"; }`);
+
+      const plan = createPlan(tempDirPath, [clientSource], [serverSource]);
+
+      await expect(buildServer(plan)).resolves.toBeDefined();
+    } finally {
+      fs.rmSync(tempDirPath, {
+        recursive: true,
+        force: true,
+      });
+    }
+  });
+
+  test("allow type-only re-export of server entry", async () => {
+    const tempDirPath = fs.mkdtempSync(path.join(os.tmpdir(), "vegas-"));
+
+    try {
+      const clientDir = path.join(tempDirPath, "src", "client");
+      const serverDir = path.join(tempDirPath, "src", "server");
+      const clientSource = path.join(clientDir, "main.ts");
+      const serverSource = path.join(serverDir, "Code.ts");
+
+      fs.mkdirSync(clientDir, { recursive: true });
+      fs.mkdirSync(serverDir, { recursive: true });
+
+      fs.writeFileSync(clientSource, `export type { doGet } from "../server/Code";`);
+      fs.writeFileSync(serverSource, `export function doGet() { return "ok"; }`);
+
+      const plan = createPlan(tempDirPath, [clientSource], [serverSource]);
 
       await expect(buildServer(plan)).resolves.toBeDefined();
     } finally {
@@ -94,7 +179,7 @@ describe("detectServerEntry", () => {
       fs.mkdirSync(clientDir, { recursive: true });
       fs.mkdirSync(serverDir, { recursive: true });
 
-      fs.writeFileSync(clientSource, `import "../server/helper?server";`);
+      fs.writeFileSync(clientSource, `import type { secret } from "../server/helper?server";`);
       fs.writeFileSync(serverEntry, `export function doGet() { return "ok"; }`);
       fs.writeFileSync(serverHelper, `export const secret = "server-only";`);
 
@@ -127,8 +212,8 @@ describe("detectServerEntry", () => {
       fs.mkdirSync(path.dirname(serverA), { recursive: true });
       fs.mkdirSync(path.dirname(serverB), { recursive: true });
 
-      fs.writeFileSync(mainSource, `import "../server/a/Code";`);
-      fs.writeFileSync(adminSource, `import "../../server/b/Code";`);
+      fs.writeFileSync(mainSource, `import type * as ServerA from "../server/a/Code";`);
+      fs.writeFileSync(adminSource, `import type * as ServerB from "../../server/b/Code";`);
       fs.writeFileSync(serverA, `export function a() {}`);
       fs.writeFileSync(serverB, `export function b() {}`);
 
