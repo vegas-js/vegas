@@ -90,6 +90,36 @@ describe("scanProject", () => {
     }
   });
 
+  test("exclude client sources from a containing server directory", async () => {
+    const tempDirPath = fs.mkdtempSync(path.join(os.tmpdir(), "vegas-"));
+
+    try {
+      const project = {
+        ...createProject(tempDirPath),
+        serverDir: path.join(tempDirPath, "src"),
+      };
+      const clientEntry = path.join(project.clientDir, "main.ts");
+      const clientHelper = path.join(project.clientDir, "helper.ts");
+      const serverEntry = path.join(project.serverDir, "Code.ts");
+
+      fs.mkdirSync(project.clientDir, { recursive: true });
+
+      fs.writeFileSync(clientEntry, "");
+      fs.writeFileSync(clientHelper, "");
+      fs.writeFileSync(serverEntry, "");
+
+      const snapshot = await scanProject(project);
+
+      expect(snapshot.clientSources).toStrictEqual([clientHelper, clientEntry]);
+      expect(snapshot.serverSources).toStrictEqual([serverEntry]);
+    } finally {
+      fs.rmSync(tempDirPath, {
+        recursive: true,
+        force: true,
+      });
+    }
+  });
+
   test("rescan current runtime data sources independently", async () => {
     const tempDirPath = fs.mkdtempSync(path.join(os.tmpdir(), "vegas-"));
 

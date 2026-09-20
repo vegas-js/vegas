@@ -44,7 +44,8 @@ export async function scanProject(project: ResolvedProject): Promise<ProjectSnap
   ]);
 
   const sortedClientSources = clientSources.sort();
-  const sortedServerSources = serverSources.sort();
+  const clientSourceSet = new Set(sortedClientSources);
+  const sortedServerSources = serverSources.filter((source) => !clientSourceSet.has(source)).sort();
 
   return {
     clientSources: sortedClientSources,
