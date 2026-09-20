@@ -61,6 +61,37 @@ describe("exchangeGoogleOAuthAuthorizationCode", () => {
     });
   });
 
+  test("normalize token strings from authorization response", async () => {
+    const fetch = vi.fn(
+      async () =>
+        new Response(
+          JSON.stringify({
+            access_token: "  access-token  ",
+            expires_in: 3600,
+            refresh_token: "  refresh-token  ",
+            scope: `  ${APPS_SCRIPT_PROJECTS_OAUTH_SCOPE}  another-scope  `,
+          }),
+          { status: 200 },
+        ),
+    );
+
+    await expect(
+      exchangeGoogleOAuthAuthorizationCode({
+        client,
+        code: "authorization-code",
+        codeVerifier: "dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk",
+        redirectUri: "http://127.0.0.1:45678",
+        fetch,
+        now: () => now,
+      }),
+    ).resolves.toStrictEqual({
+      accessToken: "access-token",
+      refreshToken: "refresh-token",
+      expiryDate: now + 3_600_000,
+      scopes: [APPS_SCRIPT_PROJECTS_OAUTH_SCOPE, "another-scope"],
+    });
+  });
+
   test("preserve granted scopes", async () => {
     const fetch = vi.fn(
       async () =>

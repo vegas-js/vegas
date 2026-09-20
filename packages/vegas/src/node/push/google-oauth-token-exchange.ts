@@ -58,7 +58,7 @@ function parseAuthorizationCodeTokens(
 
   return {
     accessToken,
-    refreshToken,
+    refreshToken: refreshToken.trim(),
     expiryDate,
     scopes,
   };

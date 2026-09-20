@@ -42,7 +42,7 @@ export function parseGoogleOAuthAccessToken(
   }
 
   return {
-    accessToken,
+    accessToken: accessToken.trim(),
     expiryDate,
   };
 }

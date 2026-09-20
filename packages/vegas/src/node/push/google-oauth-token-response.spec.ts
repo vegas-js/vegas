@@ -22,6 +22,21 @@ describe("Google OAuth token response", () => {
     expect(response.refresh_token).toBe("refresh-token");
   });
 
+  test("trim surrounding whitespace from access token", () => {
+    expect(
+      parseGoogleOAuthAccessToken(
+        {
+          access_token: "  access-token  ",
+          expires_in: 3600,
+        },
+        1_000_000,
+      ),
+    ).toStrictEqual({
+      accessToken: "access-token",
+      expiryDate: 4_600_000,
+    });
+  });
+
   test.each(["not json", "null", "[]"])("reject invalid token response object: %s", (content) => {
     expect(() => parseGoogleOAuthTokenResponse(content)).toThrow(
       "Invalid Google OAuth token response.",
