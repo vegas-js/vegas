@@ -388,6 +388,108 @@ describe("Range", () => {
     expect(hydrator.references).toHaveLength(0);
   });
 
+  test("remove duplicate rows case-insensitively and shrink the resulting Range", () => {
+    const reference = {
+      ...defaultRangeReference,
+      row: 1,
+      column: 2,
+      numRows: 5,
+      numColumns: 3,
+    };
+    const bridge = createBridge([
+      ["Alpha", 1, true],
+      ["alpha", 1, true],
+      ["Beta", 2, false],
+      ["BETA", 2, false],
+      ["Gamma", 3, true],
+    ]);
+    const { childRange, hydrator, range } = createFixture({ bridge, reference });
+
+    expect(range.removeDuplicates()).toBe(childRange);
+    expect(bridge.calls).toStrictEqual([
+      {
+        service: "spreadsheet",
+        operation: "get-range-values",
+        range: reference,
+      },
+      {
+        service: "spreadsheet",
+        operation: "set-range-values",
+        range: reference,
+        values: [
+          ["Alpha", 1, true],
+          ["Beta", 2, false],
+          ["Gamma", 3, true],
+          ["", "", ""],
+          ["", "", ""],
+        ],
+      },
+    ]);
+    expect(hydrator.references).toStrictEqual([
+      {
+        ...reference,
+        numRows: 3,
+      },
+    ]);
+  });
+
+  test("remove duplicate rows using absolute sheet columns", () => {
+    const reference = {
+      ...defaultRangeReference,
+      row: 1,
+      column: 2,
+      numRows: 3,
+      numColumns: 3,
+    };
+    const bridge = createBridge([
+      ["One", "X", 1],
+      ["one", "Y", 2],
+      ["Two", "X", 3],
+    ]);
+    const { childRange, hydrator, range } = createFixture({ bridge, reference });
+
+    expect(range.removeDuplicates([2])).toBe(childRange);
+    expect(bridge.calls).toStrictEqual([
+      {
+        service: "spreadsheet",
+        operation: "get-range-values",
+        range: reference,
+      },
+      {
+        service: "spreadsheet",
+        operation: "set-range-values",
+        range: reference,
+        values: [
+          ["One", "X", 1],
+          ["Two", "X", 3],
+          ["", "", ""],
+        ],
+      },
+    ]);
+    expect(hydrator.references).toStrictEqual([
+      {
+        ...reference,
+        numRows: 2,
+      },
+    ]);
+  });
+
+  test("reject duplicate comparison columns outside the Range before collaborators", () => {
+    const { bridge, hydrator, range } = createFixture({
+      reference: {
+        ...defaultRangeReference,
+        column: 2,
+        numColumns: 3,
+      },
+    });
+
+    expect(() => range.removeDuplicates([1])).toThrow("duplicate column must be within the Range");
+    expect(() => range.removeDuplicates([5])).toThrow("duplicate column must be within the Range");
+    expect(() => range.removeDuplicates([2.5])).toThrow("duplicate column must be an integer");
+    expect(bridge.calls).toHaveLength(0);
+    expect(hydrator.references).toHaveLength(0);
+  });
+
   test("clear Range content through the HostBridge and preserve chaining", () => {
     const bridge = createBridge();
     const { hydrator, range } = createFixture({ bridge });

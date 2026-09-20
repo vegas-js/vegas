@@ -17,6 +17,27 @@ function trimCellWhitespace(value: SpreadsheetCellValue): SpreadsheetCellValue {
   return typeof value === "string" ? value.trim().replace(/\s+/g, " ") : value;
 }
 
+function createDuplicateCellKey(value: SpreadsheetCellValue): string {
+  if (value instanceof Date) {
+    return `date:${value.getTime()}`;
+  }
+
+  if (typeof value === "string") {
+    // Apps Script documents case-insensitive duplicate matching, but not locale-specific casing
+    // rules. Vegas uses JavaScript's locale-independent Unicode lowercase conversion.
+    return `string:${value.toLowerCase()}`;
+  }
+
+  return `${typeof value}:${String(value)}`;
+}
+
+function createDuplicateRowKey(
+  row: readonly SpreadsheetCellValue[],
+  columnOffsets: readonly number[],
+): string {
+  return JSON.stringify(columnOffsets.map((offset) => createDuplicateCellKey(row[offset]!)));
+}
+
 const A1_COLUMN_ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 function formatA1Cell(row: number, column: number): string {
@@ -214,6 +235,52 @@ export class Range {
       column,
       numRows,
       numColumns,
+    });
+  }
+
+  removeDuplicates(): Range;
+  removeDuplicates(columnsToCompare: GoogleAppsScript.Integer[]): Range;
+  removeDuplicates(columnsToCompare?: readonly GoogleAppsScript.Integer[]): Range {
+    const columnOffsets =
+      columnsToCompare === undefined || columnsToCompare.length === 0
+        ? Array.from({ length: this.#reference.numColumns }, (_, offset) => offset)
+        : columnsToCompare.map((column) => {
+            assertInteger(column, "Spreadsheet range duplicate column");
+
+            const offset = column - this.#reference.column;
+            if (offset < 0 || offset >= this.#reference.numColumns) {
+              throw new RangeError("Spreadsheet range duplicate column must be within the Range.");
+            }
+
+            return offset;
+          });
+
+    const values = this.getValues();
+    const seen = new Set<string>();
+    const uniqueRows = values.filter((row) => {
+      const key = createDuplicateRowKey(row, columnOffsets);
+
+      if (seen.has(key)) {
+        return false;
+      }
+
+      seen.add(key);
+      return true;
+    });
+
+    if (uniqueRows.length === values.length) {
+      return this;
+    }
+
+    const emptyRows = Array.from({ length: values.length - uniqueRows.length }, () =>
+      Array.from({ length: this.#reference.numColumns }, () => ""),
+    );
+
+    this.setValues([...uniqueRows, ...emptyRows]);
+
+    return this.#hydrator.hydrate({
+      ...this.#reference,
+      numRows: uniqueRows.length,
     });
   }
 
