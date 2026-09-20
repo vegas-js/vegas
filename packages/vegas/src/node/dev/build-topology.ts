@@ -1,13 +1,12 @@
 import type { ViteBuilder } from "vite";
 
-import { type BuildArtifact, buildApp, createProjectBuilder } from "../build";
+import { buildApp, createProjectBuilder } from "../build";
 import { type ProjectSnapshot, type ResolvedProject, scanProject } from "../project";
+import type { DevBuildArtifacts } from "./build-artifacts";
 
-export interface DevBuildTopology {
+export interface DevBuildTopology extends DevBuildArtifacts {
   readonly snapshot: ProjectSnapshot;
   readonly builder: ViteBuilder;
-  readonly clientArtifacts: readonly BuildArtifact[];
-  readonly serverArtifacts: readonly BuildArtifact[];
 }
 
 export async function buildDevTopology(

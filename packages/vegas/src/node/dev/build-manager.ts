@@ -2,6 +2,7 @@ import type { ViteBuilder } from "vite";
 
 import { type ArtifactStore, buildApp } from "../build";
 import type { ResolvedProject } from "../project";
+import { replaceDevBuildArtifacts } from "./build-artifacts";
 import { buildDevTopology } from "./build-topology";
 import type { ProjectFileScope } from "./project-file";
 
@@ -41,16 +42,10 @@ export class DevBuildManager {
         this.#buildApp(this.#builder, /^server$/),
       ]);
 
-      this.#artifacts.replaceScopes([
-        {
-          scope: "client",
-          artifacts: clientArtifacts,
-        },
-        {
-          scope: "server",
-          artifacts: serverArtifacts,
-        },
-      ]);
+      replaceDevBuildArtifacts(this.#artifacts, {
+        clientArtifacts,
+        serverArtifacts,
+      });
 
       return;
     }
@@ -62,16 +57,7 @@ export class DevBuildManager {
   async refreshTopology(): Promise<void> {
     const next = await this.#buildDevTopology(this.#project, this.#mode);
 
-    this.#artifacts.replaceScopes([
-      {
-        scope: "client",
-        artifacts: next.clientArtifacts,
-      },
-      {
-        scope: "server",
-        artifacts: next.serverArtifacts,
-      },
-    ]);
+    replaceDevBuildArtifacts(this.#artifacts, next);
 
     this.#builder = next.builder;
   }
