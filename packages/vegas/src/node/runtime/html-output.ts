@@ -1,3 +1,4 @@
+import { createBlob, type RuntimeBlob } from "./blob";
 import { escapeHtmlContextually } from "./html-contextual-escape";
 import type { HtmlSandboxMode, HtmlXFrameOptionsMode } from "./html-enum";
 import { HtmlTemplate, type HtmlTemplateEvaluator } from "./html-template";
@@ -74,6 +75,13 @@ export class HtmlOutput {
   clear(): this {
     this.#content = "";
     return this;
+  }
+
+  getBlob(): RuntimeBlob {
+    // Apps Script documents that HtmlOutput.getBlob() returns the output data, but does not define
+    // the returned Blob metadata. Vegas represents the local Runtime value as UTF-8 text/html with
+    // no filename; Google-specific undocumented metadata remains intentionally unspecified.
+    return createBlob(this.#content, "text/html");
   }
 
   getContent(): string {

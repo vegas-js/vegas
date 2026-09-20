@@ -170,7 +170,7 @@ These detail tables cover returned object types that already have a Vegas Runtim
 | Object type   | Coverage | Coverage (%) | Unimplemented API (methods) |
 | ------------- | -------: | -----------: | --------------------------- |
 | `HtmlService` |    5 / 5 |       100.0% | —                           |
-| `HtmlOutput`  |  18 / 20 |        90.0% | `getAs()`<br>`getBlob()`    |
+| `HtmlOutput`  |  19 / 20 |        95.0% | `getAs()`                   |
 
 ### Logger
 

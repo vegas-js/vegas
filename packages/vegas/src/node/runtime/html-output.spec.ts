@@ -1,6 +1,12 @@
 import { describe, expect, test } from "vitest";
 
-import { HtmlOutput, HtmlOutputMetaTag, HtmlTemplate, serializeHtmlOutput } from "./index";
+import {
+  HtmlOutput,
+  HtmlOutputMetaTag,
+  HtmlTemplate,
+  RuntimeBlob,
+  serializeHtmlOutput,
+} from "./index";
 
 describe("HtmlOutput", () => {
   test("hold and mutate trusted HTML content with chaining", () => {
@@ -38,6 +44,23 @@ describe("HtmlOutput", () => {
 
     output.clear();
     expect(template.getRawContent()).toBe("");
+  });
+
+  test("create an independent HTML Blob from current content", () => {
+    const output = new HtmlOutput("<main>Vegas 日本</main>");
+    const blob = output.getBlob();
+
+    expect(blob).toBeInstanceOf(RuntimeBlob);
+    expect(blob.getDataAsString()).toBe("<main>Vegas 日本</main>");
+    expect(blob.getContentType()).toBe("text/html");
+    expect(blob.getName()).toBeNull();
+
+    blob.setDataFromString("changed");
+    output.setContent("<main>Updated</main>");
+
+    expect(blob.getDataAsString()).toBe("changed");
+    expect(output.getContent()).toBe("<main>Updated</main>");
+    expect(output.getBlob().getDataAsString()).toBe("<main>Updated</main>");
   });
 
   test("store meta tags as HtmlOutputMetaTag objects", () => {
