@@ -1,6 +1,6 @@
 import path from "node:path";
 
-import { type ViteBuilder, createServer } from "vite";
+import { type ViteBuilder, type ViteDevServer, createServer } from "vite";
 
 import type { ArtifactStore } from "../build";
 import type { ResolvedProject } from "../project";
@@ -24,7 +24,27 @@ interface DevApplicationOptions {
   readonly mode: "development" | "production";
 }
 
-export async function startDevApplication(options: DevApplicationOptions): Promise<void> {
+interface DevApplicationDependencies {
+  readonly createServer?: typeof createServer;
+}
+
+async function closeServers(servers: readonly ViteDevServer[]): Promise<void> {
+  for (const server of [...servers].reverse()) {
+    try {
+      await server.close();
+    } catch {
+      // Preserve the startup error that triggered cleanup.
+    }
+  }
+}
+
+export async function startDevApplication(
+  options: DevApplicationOptions,
+  dependencies: DevApplicationDependencies = {},
+): Promise<void> {
+  const createViteServer = dependencies.createServer ?? createServer;
+  const servers: ViteDevServer[] = [];
+
   const buildManager = new DevBuildManager({
     project: options.project,
     artifacts: options.artifacts,
@@ -34,59 +54,66 @@ export async function startDevApplication(options: DevApplicationOptions): Promi
   const sessions = new WebAppSessionRegistry();
   const builds = new BuildCoordinator();
 
-  const hostServer = await createServer(
-    createHostServerConfig({
-      root: options.project.root,
-      mode: options.mode,
-    }),
-  );
+  try {
+    const hostServer = await createViteServer(
+      createHostServerConfig({
+        root: options.project.root,
+        mode: options.mode,
+      }),
+    );
+    servers.push(hostServer);
 
-  registerBuildWatchers({
-    server: hostServer,
-    project: options.project,
-    builds,
-    buildManager,
-    reloadRuntime: options.reloadRuntime,
-  });
+    registerBuildWatchers({
+      server: hostServer,
+      project: options.project,
+      builds,
+      buildManager,
+      reloadRuntime: options.reloadRuntime,
+    });
 
-  registerHostWebSocketHandlers({
-    server: hostServer,
-    builds,
-    sessions,
-    runtime: options.runtime,
-  });
+    registerHostWebSocketHandlers({
+      server: hostServer,
+      builds,
+      sessions,
+      runtime: options.runtime,
+    });
 
-  const hostHandler = createHostHttpHandler({
-    server: hostServer,
-    builds,
-    sessions,
-    runtime: options.runtime,
-  });
+    const hostHandler = createHostHttpHandler({
+      server: hostServer,
+      builds,
+      sessions,
+      runtime: options.runtime,
+    });
 
-  hostServer.middlewares.stack.unshift({ route: "", handle: hostHandler });
+    hostServer.middlewares.stack.unshift({ route: "", handle: hostHandler });
 
-  await hostServer.listen();
+    await hostServer.listen();
 
-  const userContentServer = await createServer(
-    createUserContentServerConfig({
-      root: options.project.root,
-      mode: options.mode,
-      port: hostServer.config.server.port + 1,
-      bridgeFilePath: path.join(import.meta.dirname, "webapp-bridge.js"),
-    }),
-  );
+    const userContentServer = await createViteServer(
+      createUserContentServerConfig({
+        root: options.project.root,
+        mode: options.mode,
+        port: hostServer.config.server.port + 1,
+        bridgeFilePath: path.join(import.meta.dirname, "webapp-bridge.js"),
+      }),
+    );
+    servers.push(userContentServer);
 
-  const userContentHandler = createUserContentHttpHandler({
-    server: userContentServer,
-    builds,
-    sessions,
-    hostPort: hostServer.config.server.port,
-  });
+    const userContentHandler = createUserContentHttpHandler({
+      server: userContentServer,
+      builds,
+      sessions,
+      hostPort: hostServer.config.server.port,
+    });
 
-  userContentServer.middlewares.stack.unshift({ route: "", handle: userContentHandler });
+    userContentServer.middlewares.stack.unshift({ route: "", handle: userContentHandler });
 
-  await userContentServer.listen();
+    await userContentServer.listen();
 
-  hostServer.printUrls();
-  hostServer.bindCLIShortcuts({ print: true });
+    hostServer.printUrls();
+    hostServer.bindCLIShortcuts({ print: true });
+  } catch (error) {
+    await closeServers(servers);
+    throw error;
+  }
 }
