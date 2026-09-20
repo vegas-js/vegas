@@ -1,6 +1,6 @@
 import { escapeHtmlContextually } from "./html-contextual-escape";
 import type { HtmlSandboxMode, HtmlXFrameOptionsMode } from "./html-enum";
-import { HtmlTemplate } from "./html-template";
+import { HtmlTemplate, type HtmlTemplateEvaluator } from "./html-template";
 
 export interface HtmlOutputSnapshot {
   readonly content: string;
@@ -39,14 +39,16 @@ export class HtmlOutput {
   #content: string;
   #faviconUrl = "";
   #height: number | null = null;
+  readonly #htmlTemplateEvaluator: HtmlTemplateEvaluator | undefined;
   readonly #metaTags: HtmlOutputMetaTag[] = [];
   #title = "";
   readonly #webApp: boolean;
   #width: number | null = null;
   #xFrameOptionsMode: HtmlXFrameOptionsMode = "DEFAULT";
 
-  constructor(content = "", webApp = false) {
+  constructor(content = "", webApp = false, htmlTemplateEvaluator?: HtmlTemplateEvaluator) {
     this.#content = content;
+    this.#htmlTemplateEvaluator = htmlTemplateEvaluator;
     this.#webApp = webApp;
   }
 
@@ -66,7 +68,7 @@ export class HtmlOutput {
   }
 
   asTemplate(): HtmlTemplate {
-    return new HtmlTemplate(() => this.#content);
+    return new HtmlTemplate(() => this.#content, this.#htmlTemplateEvaluator);
   }
 
   clear(): this {

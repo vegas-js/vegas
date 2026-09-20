@@ -3,6 +3,7 @@ import { createConsole } from "./console";
 import { createDriveApp } from "./drive-object-hydrator";
 import type { HostBridge } from "./host-bridge";
 import { createHtmlService } from "./html-service";
+import type { HtmlTemplateEvaluator } from "./html-template";
 import type { InvocationContext, InvocationEnvironment } from "./invocation";
 import { createLockService } from "./lock-service";
 import { createLogger } from "./logger";
@@ -18,12 +19,21 @@ export interface RuntimeGlobalsOptions {
   readonly context?: InvocationContext;
   readonly environment: InvocationEnvironment;
   readonly htmlFiles: Readonly<Record<string, string>>;
+  readonly htmlTemplateEvaluator?: HtmlTemplateEvaluator;
   readonly loggingTarget: LoggingTarget;
   readonly utilities: Utilities;
 }
 
 export function createRuntimeGlobals(options: RuntimeGlobalsOptions) {
-  const { hostBridge, context, environment, htmlFiles, loggingTarget, utilities } = options;
+  const {
+    hostBridge,
+    context,
+    environment,
+    htmlFiles,
+    htmlTemplateEvaluator,
+    loggingTarget,
+    utilities,
+  } = options;
 
   return {
     /* Admin Console */
@@ -107,7 +117,7 @@ export function createRuntimeGlobals(options: RuntimeGlobalsOptions) {
     /* Content */
     ContentService: undefined,
     /* HTML */
-    HtmlService: createHtmlService(htmlFiles, context),
+    HtmlService: createHtmlService(htmlFiles, context, htmlTemplateEvaluator),
     /* Mail */
     MailApp: undefined,
     /* Base */

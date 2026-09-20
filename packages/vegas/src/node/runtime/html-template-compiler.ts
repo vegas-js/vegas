@@ -17,7 +17,7 @@ export type HtmlTemplateSegment =
 // not define the generated JavaScript representation. Vegas compiles templates to this private
 // output-sink protocol instead of reproducing Google-internal generated identifiers or helpers.
 // Runtime behavior that Apps Script does not document remains intentionally unspecified.
-const TEMPLATE_OUTPUT_FACTORY = "__vegasCreateHtmlTemplateOutput";
+export const HTML_TEMPLATE_OUTPUT_FACTORY = "__vegasCreateHtmlTemplateOutput";
 const TEMPLATE_OUTPUT = "__vegasHtmlTemplateOutput";
 
 export function parseHtmlTemplate(source: string): HtmlTemplateSegment[] {
@@ -77,7 +77,7 @@ export function parseHtmlTemplate(source: string): HtmlTemplateSegment[] {
 export function compileHtmlTemplate(source: string): string {
   const body = parseHtmlTemplate(source).map(compileSegment).join("");
 
-  return `(function() { const ${TEMPLATE_OUTPUT} = ${TEMPLATE_OUTPUT_FACTORY}(); ${body}\nreturn ${TEMPLATE_OUTPUT}.finish(); })()`;
+  return `(function() { const ${TEMPLATE_OUTPUT} = ${HTML_TEMPLATE_OUTPUT_FACTORY}(); ${body}\nreturn ${TEMPLATE_OUTPUT}.finish(); })()`;
 }
 
 export function compileHtmlTemplateWithComments(source: string): string {

@@ -25,6 +25,29 @@ function run() {
     HtmlService.getUserAgent(),
   ].join(":");
 }
+
+function formatLocale() {
+  return Session.getActiveUserLocale().toUpperCase();
+}
+
+function renderTemplate() {
+  const template = HtmlService
+    .createHtmlOutput(
+      "<main><? const locale = formatLocale(); ?><?= greeting ?> <?= locale ?> <?!= trusted ?></main>",
+    )
+    .asTemplate();
+  template.greeting = "<Hello>";
+  template.trusted = "<b>Trusted</b>";
+
+  return template.evaluate().getContent();
+}
+
+function evaluateTemplateCode() {
+  const value = "<Vegas>";
+  const template = HtmlService.createHtmlOutput("<p><?= value ?></p>").asTemplate();
+
+  return eval(template.getCode()).getContent();
+}
 `,
   htmlFiles: {
     "index.html": "<main>Vegas</main>",
@@ -50,6 +73,8 @@ describe("createWorkerRuntimeContext", () => {
       expect(context.SpreadsheetApp).toBeInstanceOf(SpreadsheetApp);
       expect(context.Utilities).toBeInstanceOf(Utilities);
       expect(context.run()).toBe("ja:<main>Vegas</main>:Vegas Browser");
+      expect(context.renderTemplate()).toBe("<main>&lt;Hello&gt; JA <b>Trusted</b></main>");
+      expect(context.evaluateTemplateCode()).toBe("<p>&lt;Vegas&gt;</p>");
     } finally {
       port1.close();
       port2.close();
