@@ -238,6 +238,19 @@ export class Range {
     });
   }
 
+  randomize(): Range {
+    const values = this.getValues();
+
+    // Apps Script does not specify the randomization algorithm. Vegas uses an in-place
+    // Fisher-Yates shuffle driven by the host JavaScript runtime's Math.random().
+    for (let index = values.length - 1; index > 0; index -= 1) {
+      const swapIndex = Math.floor(Math.random() * (index + 1));
+      [values[index], values[swapIndex]] = [values[swapIndex]!, values[index]!];
+    }
+
+    return this.setValues(values);
+  }
+
   removeDuplicates(): Range;
   removeDuplicates(columnsToCompare: GoogleAppsScript.Integer[]): Range;
   removeDuplicates(columnsToCompare?: readonly GoogleAppsScript.Integer[]): Range {

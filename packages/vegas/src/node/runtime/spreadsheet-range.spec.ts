@@ -388,6 +388,49 @@ describe("Range", () => {
     expect(hydrator.references).toHaveLength(0);
   });
 
+  test("randomize Range rows and preserve chaining", () => {
+    const reference = {
+      ...defaultRangeReference,
+      row: 1,
+      column: 1,
+      numRows: 3,
+      numColumns: 2,
+    };
+    const bridge = createBridge([
+      ["A", 1],
+      ["B", 2],
+      ["C", 3],
+    ]);
+    const { hydrator, range } = createFixture({ bridge, reference });
+    const originalRandom = Math.random;
+    Math.random = () => 0;
+
+    try {
+      expect(range.randomize()).toBe(range);
+    } finally {
+      Math.random = originalRandom;
+    }
+
+    expect(bridge.calls).toStrictEqual([
+      {
+        service: "spreadsheet",
+        operation: "get-range-values",
+        range: reference,
+      },
+      {
+        service: "spreadsheet",
+        operation: "set-range-values",
+        range: reference,
+        values: [
+          ["B", 2],
+          ["C", 3],
+          ["A", 1],
+        ],
+      },
+    ]);
+    expect(hydrator.references).toHaveLength(0);
+  });
+
   test("remove duplicate rows case-insensitively and shrink the resulting Range", () => {
     const reference = {
       ...defaultRangeReference,
