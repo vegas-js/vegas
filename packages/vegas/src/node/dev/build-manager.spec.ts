@@ -151,4 +151,50 @@ describe("DevBuildManager", () => {
     expect(build).toHaveBeenCalledTimes(1);
     expect(artifacts.readText("Code.js")).toBe("server:rebuilt");
   });
+  test("keep the previous topology when artifact replacement fails", async () => {
+    const initialBuilder = {} as ViteBuilder;
+    const nextBuilder = {} as ViteBuilder;
+    const artifacts = createArtifacts();
+
+    const build = vi.fn(async (builder: ViteBuilder): Promise<BuildArtifact[]> => {
+      expect(builder).toBe(initialBuilder);
+      return [{ path: "Code.js", content: "server:rebuilt" }];
+    });
+
+    const manager = new DevBuildManager(
+      {
+        project: createProject(),
+        artifacts,
+        builder: initialBuilder,
+        mode: "development",
+      },
+      {
+        buildApp: build,
+        buildDevTopology: async () => ({
+          snapshot: {
+            clientSources: [],
+            serverSources: [],
+            runtimeDataSources: [],
+            clientEntries: [],
+          },
+          builder: nextBuilder,
+          clientArtifacts: [{ path: "shared.html", content: "client:new" }],
+          serverArtifacts: [{ path: "shared.html", content: "server:new" }],
+        }),
+      },
+    );
+
+    await expect(manager.refreshTopology()).rejects.toThrow(
+      'Artifact "shared.html" already belongs to scope "client".',
+    );
+
+    expect(artifacts.readText("index.html")).toBe("client:old");
+    expect(artifacts.readText("Code.js")).toBe("server:old");
+    expect(() => artifacts.readText("shared.html")).toThrow("Artifact not found: shared.html");
+
+    await manager.rebuild("server");
+
+    expect(build).toHaveBeenCalledTimes(1);
+    expect(artifacts.readText("Code.js")).toBe("server:rebuilt");
+  });
 });
