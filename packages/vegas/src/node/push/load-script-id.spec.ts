@@ -34,6 +34,29 @@ describe("loadAppsScriptScriptId", () => {
     }
   });
 
+  test("use provided environment instead of the process environment", async () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), "vegas-"));
+
+    try {
+      vi.stubEnv("VEGAS_SCRIPT_ID", "process-id");
+
+      await expect(
+        loadAppsScriptScriptId({
+          projectRoot: root,
+          projectScriptId: "project-id",
+          env: {
+            VEGAS_SCRIPT_ID: "provided-id",
+          },
+        }),
+      ).resolves.toBe("provided-id");
+    } finally {
+      fs.rmSync(root, {
+        recursive: true,
+        force: true,
+      });
+    }
+  });
+
   test("do not read clasp config when environment script id is defined", async () => {
     const root = fs.mkdtempSync(path.join(os.tmpdir(), "vegas-"));
 

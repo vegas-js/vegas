@@ -19,6 +19,7 @@ export async function pushAppsScriptProject(options: PushAppsScriptProjectOption
     projectRoot: options.projectRoot,
     outputDir: options.outputDir,
     projectScriptId: options.projectScriptId,
+    env: options.env,
   });
 
   const accessTokenProvider = createAppsScriptUserAccessTokenProvider({

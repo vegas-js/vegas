@@ -44,7 +44,7 @@ describe("pushAppsScriptProject", () => {
     const projectRoot = await createTempDir();
     const homeDir = await createTempDir();
     const outputDir = path.join(projectRoot, "dist");
-    const env: NodeJS.ProcessEnv = {};
+    const env: NodeJS.ProcessEnv = { VEGAS_SCRIPT_ID: "environment/id" };
 
     await fs.promises.mkdir(outputDir, { recursive: true });
 
@@ -69,7 +69,7 @@ describe("pushAppsScriptProject", () => {
     await pushAppsScriptProject({
       projectRoot,
       outputDir,
-      projectScriptId: "script/id",
+      projectScriptId: "project/id",
       platform: process.platform,
       homeDir,
       env,
@@ -80,7 +80,7 @@ describe("pushAppsScriptProject", () => {
     expect(fetch).toHaveBeenCalledOnce();
 
     expect(fetch).toHaveBeenCalledWith(
-      "https://script.googleapis.com/v1/projects/script%2Fid/content",
+      "https://script.googleapis.com/v1/projects/environment%2Fid/content",
       {
         method: "PUT",
         headers: {

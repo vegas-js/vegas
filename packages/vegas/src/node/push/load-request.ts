@@ -7,6 +7,7 @@ interface LoadAppsScriptPushRequestOptions {
   readonly projectRoot: string;
   readonly outputDir: string;
   readonly projectScriptId?: string;
+  readonly env?: NodeJS.ProcessEnv;
 }
 
 export async function loadAppsScriptPushRequest(
@@ -17,6 +18,7 @@ export async function loadAppsScriptPushRequest(
   const scriptId = await loadAppsScriptScriptId({
     projectRoot: options.projectRoot,
     projectScriptId: options.projectScriptId,
+    env: options.env,
   });
 
   return createAppsScriptPushRequest(scriptId, content);
