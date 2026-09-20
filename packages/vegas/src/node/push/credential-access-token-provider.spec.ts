@@ -123,6 +123,33 @@ describe("createAppsScriptCredentialAccessTokenProvider", () => {
     });
   });
 
+  test("reject refreshed access token when credential persistence fails", async () => {
+    const staleCredential: AppsScriptCredential = {
+      ...credential,
+      expiryDate: now + 30_000,
+    };
+    const persistenceError = new Error("credential save failed");
+    const load = vi.fn(async () => staleCredential);
+    const save = vi.fn(async () => {
+      throw persistenceError;
+    });
+    const refresher = createRefresher();
+    const provider = createAppsScriptCredentialAccessTokenProvider({
+      credentialStore: { load, save },
+      refresher: refresher.refresher,
+      now: () => now,
+    });
+
+    await expect(provider.getAccessToken()).rejects.toBe(persistenceError);
+
+    expect(refresher.refresh).toHaveBeenCalledWith(staleCredential);
+    expect(save).toHaveBeenCalledWith("default", {
+      ...staleCredential,
+      accessToken: "refreshed-access-token",
+      expiryDate: now + 3_600_000,
+    });
+  });
+
   test("use selected auth profile", async () => {
     const credentialStore = createCredentialStore(credential);
     const refresher = createRefresher();

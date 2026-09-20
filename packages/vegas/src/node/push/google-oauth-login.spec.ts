@@ -277,6 +277,73 @@ describe("loginGoogleAppsScript", () => {
     expect(save).not.toHaveBeenCalled();
   });
 
+  test("reject login when credential persistence fails after token exchange", async () => {
+    const root = await createTempDir();
+    const clientFilePath = path.join(root, "client.json");
+
+    await fs.promises.writeFile(
+      clientFilePath,
+      JSON.stringify({
+        installed: {
+          client_id: "client-id",
+          client_secret: "client-secret",
+        },
+      }),
+      "utf8",
+    );
+
+    const persistenceError = new Error("credential save failed");
+    const save = vi.fn(async () => {
+      throw persistenceError;
+    });
+    const close = vi.fn(async () => undefined);
+    const tokenFetch = vi.fn(
+      async () =>
+        new Response(
+          JSON.stringify({
+            access_token: "access-token",
+            refresh_token: "refresh-token",
+            expires_in: 3600,
+            scope: "https://www.googleapis.com/auth/script.projects",
+          }),
+          { status: 200 },
+        ),
+    );
+
+    await expect(
+      loginGoogleAppsScript(
+        {
+          clientFilePath,
+          credentialStore: {
+            load: vi.fn(),
+            save,
+          },
+          openAuthorizationUrl: vi.fn(async () => undefined),
+          fetch: tokenFetch,
+          now: () => now,
+        },
+        {
+          startLoopbackListener: vi.fn(async () => ({
+            redirectUri: "http://127.0.0.1:45678",
+            waitForCallback: vi.fn(async () => ({ code: "authorization-code" })),
+            close,
+          })),
+        },
+      ),
+    ).rejects.toBe(persistenceError);
+
+    expect(close).toHaveBeenCalledOnce();
+    expect(tokenFetch).toHaveBeenCalledOnce();
+    expect(save).toHaveBeenCalledWith("default", {
+      clientId: "client-id",
+      clientSecret: "client-secret",
+      refreshToken: "refresh-token",
+      accessToken: "access-token",
+      expiryDate: now + 3_600_000,
+      scopes: ["https://www.googleapis.com/auth/script.projects"],
+    });
+  });
+
   test("reject missing OAuth client file", async () => {
     const root = await createTempDir();
 
