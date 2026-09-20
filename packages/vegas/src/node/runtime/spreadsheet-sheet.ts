@@ -50,6 +50,14 @@ export class Sheet {
     return index + 1;
   }
 
+  getLastColumn(): number {
+    return this.#dataBounds().lastColumn ?? 0;
+  }
+
+  getLastRow(): number {
+    return this.#dataBounds().lastRow ?? 0;
+  }
+
   getMaxColumns(): number {
     return this.#metadata().maxColumns;
   }

@@ -188,6 +188,38 @@ describe("Sheet", () => {
     expect(hydrator.references).toHaveLength(0);
   });
 
+  test("read last content coordinates from Sheet data bounds", () => {
+    let lastRow: number | null = 4;
+    let lastColumn: number | null = 5;
+    const bridge = new RecordingHostBridge((call) => {
+      if (call.service === "spreadsheet" && call.operation === "get-sheet-data-bounds") {
+        return {
+          lastRow,
+          lastColumn,
+        };
+      }
+
+      throw new Error(`unexpected host call: ${call.service}#${call.operation}`);
+    });
+    const { hydrator, sheet } = createFixture({ bridge });
+
+    expect(sheet.getLastRow()).toBe(4);
+    expect(sheet.getLastColumn()).toBe(5);
+
+    lastRow = null;
+    lastColumn = null;
+
+    expect(sheet.getLastRow()).toBe(0);
+    expect(sheet.getLastColumn()).toBe(0);
+    expect(bridge.calls.map(({ operation }) => operation)).toStrictEqual([
+      "get-sheet-data-bounds",
+      "get-sheet-data-bounds",
+      "get-sheet-data-bounds",
+      "get-sheet-data-bounds",
+    ]);
+    expect(hydrator.references).toHaveLength(0);
+  });
+
   test("read and update Sheet display state through the HostBridge", () => {
     let hiddenGridlines = false;
     let rightToLeft = false;
