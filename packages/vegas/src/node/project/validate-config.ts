@@ -44,6 +44,14 @@ function assertOptionalString(value: unknown, path: string): void {
   }
 }
 
+function assertOptionalNonEmptyString(value: unknown, path: string): void {
+  assertOptionalString(value, path);
+
+  if (typeof value === "string" && value.trim().length === 0) {
+    throw new ConfigValidationError(`"${path}" must not be empty.`);
+  }
+}
+
 function assertOptionalBoolean(value: unknown, path: string): void {
   if (value !== undefined && typeof value !== "boolean") {
     throw new ConfigValidationError(`"${path}" must be a boolean.`);
@@ -233,9 +241,9 @@ export function validateUserConfig(value: unknown): UserConfig {
   ]);
 
   assertOptionalString(value.root, "root");
-  assertOptionalString(value.clientDir, "clientDir");
-  assertOptionalString(value.serverDir, "serverDir");
-  assertOptionalString(value.runtimeDataDir, "runtimeDataDir");
+  assertOptionalNonEmptyString(value.clientDir, "clientDir");
+  assertOptionalNonEmptyString(value.serverDir, "serverDir");
+  assertOptionalNonEmptyString(value.runtimeDataDir, "runtimeDataDir");
 
   if (value.plugins !== undefined && !Array.isArray(value.plugins)) {
     throw new ConfigValidationError('"plugins" must be an array.');

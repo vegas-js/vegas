@@ -116,6 +116,17 @@ describe("validateUserConfig", () => {
     ).toThrow('Invalid Vegas config: "appsScript.manifest.oauthScopes[1]" must be a string.');
   });
 
+  test.each(["clientDir", "serverDir", "runtimeDataDir"])(
+    "reject empty source directory: %s",
+    (option) => {
+      expect(() =>
+        validateUserConfig({
+          [option]: "   ",
+        }),
+      ).toThrow(`Invalid Vegas config: "${option}" must not be empty.`);
+    },
+  );
+
   test("accept plugin entries without interpreting them", () => {
     const plugin = {
       name: "custom",
