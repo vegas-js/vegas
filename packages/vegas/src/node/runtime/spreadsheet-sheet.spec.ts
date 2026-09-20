@@ -338,6 +338,50 @@ describe("Sheet", () => {
     expect(hydrator.references).toHaveLength(0);
   });
 
+  test("read, update, and reset the Sheet tab color through the HostBridge", () => {
+    let tabColor: string | null = null;
+    const bridge = new RecordingHostBridge((call) => {
+      if (call.service !== "spreadsheet") {
+        throw new Error(`unexpected service: ${call.service}`);
+      }
+
+      switch (call.operation) {
+        case "get-sheet-metadata":
+          return {
+            name: "Summary",
+            maxRows: 100,
+            maxColumns: 26,
+            frozenColumns: 0,
+            frozenRows: 0,
+            hidden: false,
+            hiddenGridlines: false,
+            rightToLeft: false,
+            tabColor,
+          };
+        case "set-sheet-tab-color":
+          tabColor = call.tabColor;
+          return undefined;
+        default:
+          throw new Error(`unexpected host call: ${call.service}#${call.operation}`);
+      }
+    });
+    const { hydrator, sheet } = createFixture({ bridge });
+
+    expect(sheet.getTabColor()).toBeNull();
+    expect(sheet.setTabColor("#ff0000")).toBe(sheet);
+    expect(sheet.getTabColor()).toBe("#ff0000");
+    expect(sheet.setTabColor(null)).toBe(sheet);
+    expect(sheet.getTabColor()).toBeNull();
+    expect(bridge.calls.map(({ operation }) => operation)).toStrictEqual([
+      "get-sheet-metadata",
+      "set-sheet-tab-color",
+      "get-sheet-metadata",
+      "set-sheet-tab-color",
+      "get-sheet-metadata",
+    ]);
+    expect(hydrator.references).toHaveLength(0);
+  });
+
   test("rename a Sheet through the HostBridge and preserve chaining", () => {
     let name = "Summary";
     const bridge = new RecordingHostBridge((call) => {

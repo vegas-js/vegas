@@ -17,6 +17,7 @@ export interface InMemorySheetSeed {
   readonly hidden?: boolean;
   readonly hiddenGridlines?: boolean;
   readonly rightToLeft?: boolean;
+  readonly tabColor?: string | null;
   readonly values?: SpreadsheetGrid;
 }
 
@@ -75,6 +76,7 @@ function createSheetState(spreadsheetId: string, seed: InMemorySheetSeed): Sheet
       hidden: seed.hidden ?? false,
       hiddenGridlines: seed.hiddenGridlines ?? false,
       rightToLeft: seed.rightToLeft ?? false,
+      tabColor: seed.tabColor ?? null,
     },
     grid: new InMemorySpreadsheetGrid(seed.maxRows, seed.maxColumns, seed.values),
   };
@@ -302,6 +304,21 @@ export class InMemorySpreadsheetStore implements SpreadsheetStore {
       metadata: {
         ...state.metadata,
         rightToLeft,
+      },
+    });
+  }
+
+  async setSheetTabColor(sheet: SheetReference, tabColor: string | null): Promise<void> {
+    const spreadsheet = this.#getSpreadsheetState(sheet.spreadsheetId);
+    const state = this.#getSheetState(sheet.spreadsheetId, sheet.sheetId);
+
+    // Apps Script documents CSS color notation and null reset semantics, but not invalid-color
+    // handling. Vegas stores local tab-color strings verbatim instead of guessing Google parsing.
+    spreadsheet.sheets.set(sheet.sheetId, {
+      ...state,
+      metadata: {
+        ...state.metadata,
+        tabColor,
       },
     });
   }

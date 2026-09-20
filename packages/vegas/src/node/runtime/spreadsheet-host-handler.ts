@@ -64,6 +64,10 @@ export class SpreadsheetHostHandler implements SpreadsheetHostCallHandler {
         await this.#store.setSheetRightToLeft(call.sheet, call.rightToLeft);
         return;
       }
+      case "set-sheet-tab-color": {
+        await this.#store.setSheetTabColor(call.sheet, call.tabColor);
+        return;
+      }
       case "get-sheet-data-bounds": {
         return this.#store.getSheetDataBounds(call.sheet);
       }

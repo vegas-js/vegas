@@ -39,6 +39,7 @@ describe("Spreadsheet creation", () => {
       hiddenGridlines: false,
       rightToLeft: false,
       hidden: false,
+      tabColor: null,
     });
   });
 

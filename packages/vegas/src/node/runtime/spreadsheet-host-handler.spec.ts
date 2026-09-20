@@ -135,6 +135,7 @@ describe("SpreadsheetHostHandler", () => {
       hidden: false,
       hiddenGridlines: false,
       rightToLeft: false,
+      tabColor: null,
     });
     await expect(
       handler.handle({
@@ -179,6 +180,14 @@ describe("SpreadsheetHostHandler", () => {
     await expect(
       handler.handle({
         service: "spreadsheet",
+        operation: "set-sheet-tab-color",
+        sheet,
+        tabColor: "#ff0000",
+      }),
+    ).resolves.toBeUndefined();
+    await expect(
+      handler.handle({
+        service: "spreadsheet",
         operation: "get-sheet-metadata",
         sheet,
       }),
@@ -188,6 +197,7 @@ describe("SpreadsheetHostHandler", () => {
       hidden: true,
       hiddenGridlines: true,
       rightToLeft: true,
+      tabColor: "#ff0000",
     });
     await expect(
       handler.handle({

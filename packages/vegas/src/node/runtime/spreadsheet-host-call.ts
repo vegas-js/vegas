@@ -90,6 +90,12 @@ export type SpreadsheetHostCall =
     }
   | {
       readonly service: "spreadsheet";
+      readonly operation: "set-sheet-tab-color";
+      readonly sheet: SheetReference;
+      readonly tabColor: string | null;
+    }
+  | {
+      readonly service: "spreadsheet";
       readonly operation: "get-sheet-data-bounds";
       readonly sheet: SheetReference;
     }
@@ -120,6 +126,7 @@ type SpreadsheetHostCallResultMap = {
   "set-sheet-hidden": void;
   "set-sheet-hidden-gridlines": void;
   "set-sheet-right-to-left": void;
+  "set-sheet-tab-color": void;
   "get-sheet-data-bounds": SheetDataBounds;
   "get-range-values": SpreadsheetGrid;
   "set-range-values": void;

@@ -111,6 +111,11 @@ export class Sheet {
     return this.getName();
   }
 
+  /** @deprecated Replaced by getTabColorObject() in Apps Script. */
+  getTabColor(): string | null {
+    return this.#metadata().tabColor;
+  }
+
   setName(name: string): Sheet {
     this.#bridge.call({
       service: "spreadsheet",
@@ -165,6 +170,17 @@ export class Sheet {
       operation: "set-sheet-right-to-left",
       sheet: this.#reference,
       rightToLeft,
+    });
+
+    return this;
+  }
+
+  setTabColor(color: string | null): Sheet {
+    this.#bridge.call({
+      service: "spreadsheet",
+      operation: "set-sheet-tab-color",
+      sheet: this.#reference,
+      tabColor: color,
     });
 
     return this;

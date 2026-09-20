@@ -19,6 +19,7 @@ export interface SheetMetadata {
   readonly hidden: boolean;
   readonly hiddenGridlines: boolean;
   readonly rightToLeft: boolean;
+  readonly tabColor: string | null;
 }
 
 export interface SheetDataBounds {
@@ -60,6 +61,8 @@ export interface SpreadsheetStore {
   setSheetHiddenGridlines(sheet: SheetReference, hidden: boolean): Promise<void>;
 
   setSheetRightToLeft(sheet: SheetReference, rightToLeft: boolean): Promise<void>;
+
+  setSheetTabColor(sheet: SheetReference, tabColor: string | null): Promise<void>;
 
   getSheetDataBounds(sheet: SheetReference): Promise<SheetDataBounds>;
 

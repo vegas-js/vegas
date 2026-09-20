@@ -101,6 +101,7 @@ describe("InMemorySpreadsheetStore resources", () => {
       hidden: false,
       hiddenGridlines: false,
       rightToLeft: false,
+      tabColor: null,
     });
     await expect(store.getSheetByName(SPREADSHEET, "Overview")).resolves.toStrictEqual(SUMMARY);
     await expect(store.getSheetByName(SPREADSHEET, "Summary")).resolves.toBeNull();
@@ -117,6 +118,7 @@ describe("InMemorySpreadsheetStore resources", () => {
       hidden: false,
       hiddenGridlines: false,
       rightToLeft: false,
+      tabColor: null,
     });
   });
 
@@ -129,6 +131,7 @@ describe("InMemorySpreadsheetStore resources", () => {
       hidden: false,
       hiddenGridlines: false,
       rightToLeft: false,
+      tabColor: null,
     });
 
     await store.setSheetFrozenColumns(SUMMARY, 2);
@@ -136,6 +139,7 @@ describe("InMemorySpreadsheetStore resources", () => {
     await store.setSheetHidden(SUMMARY, true);
     await store.setSheetHiddenGridlines(SUMMARY, true);
     await store.setSheetRightToLeft(SUMMARY, true);
+    await store.setSheetTabColor(SUMMARY, "#ff0000");
 
     await expect(store.getSheetMetadata(SUMMARY)).resolves.toMatchObject({
       frozenColumns: 2,
@@ -143,15 +147,18 @@ describe("InMemorySpreadsheetStore resources", () => {
       hidden: true,
       hiddenGridlines: true,
       rightToLeft: true,
+      tabColor: "#ff0000",
     });
 
     await store.setSheetFrozenColumns(SUMMARY, 0);
     await store.setSheetFrozenRows(SUMMARY, 0);
     await store.setSheetHidden(SUMMARY, false);
+    await store.setSheetTabColor(SUMMARY, null);
     await expect(store.getSheetMetadata(SUMMARY)).resolves.toMatchObject({
       frozenColumns: 0,
       frozenRows: 0,
       hidden: false,
+      tabColor: null,
     });
   });
 

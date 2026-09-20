@@ -107,6 +107,12 @@ describe("Spreadsheet host contract", () => {
       sheet: getSheetMetadata.sheet,
       hidden: true,
     } as const;
+    const setSheetTabColor = {
+      service: "spreadsheet",
+      operation: "set-sheet-tab-color",
+      sheet: getSheetMetadata.sheet,
+      tabColor: "#ff0000",
+    } as const;
     const getSheetDataBounds = {
       service: "spreadsheet",
       operation: "get-sheet-data-bounds",
@@ -158,6 +164,7 @@ describe("Spreadsheet host contract", () => {
     expectTypeOf<SpreadsheetHostCallResult<typeof setSheetFrozenColumns>>().toEqualTypeOf<void>();
     expectTypeOf<SpreadsheetHostCallResult<typeof setSheetFrozenRows>>().toEqualTypeOf<void>();
     expectTypeOf<SpreadsheetHostCallResult<typeof setSheetHidden>>().toEqualTypeOf<void>();
+    expectTypeOf<SpreadsheetHostCallResult<typeof setSheetTabColor>>().toEqualTypeOf<void>();
     expectTypeOf<
       SpreadsheetHostCallResult<typeof getSheetDataBounds>
     >().toEqualTypeOf<SheetDataBounds>();
