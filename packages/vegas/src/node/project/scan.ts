@@ -43,9 +43,14 @@ export async function scanProject(project: ResolvedProject): Promise<ProjectSnap
     scanRuntimeDataSources(project),
   ]);
 
-  const sortedClientSources = clientSources.sort();
+  const runtimeDataSourceSet = new Set(runtimeDataSources);
+  const sortedClientSources = clientSources
+    .filter((source) => !runtimeDataSourceSet.has(source))
+    .sort();
   const clientSourceSet = new Set(sortedClientSources);
-  const sortedServerSources = serverSources.filter((source) => !clientSourceSet.has(source)).sort();
+  const sortedServerSources = serverSources
+    .filter((source) => !runtimeDataSourceSet.has(source) && !clientSourceSet.has(source))
+    .sort();
 
   return {
     clientSources: sortedClientSources,

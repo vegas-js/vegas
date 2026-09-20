@@ -18,16 +18,16 @@ export function classifyProjectFile(
   project: ResolvedProject,
   filePath: string,
 ): ProjectFileScope | null {
+  if (isInsideDirectory(project.runtimeDataDir, filePath)) {
+    return "runtime-data";
+  }
+
   if (isInsideDirectory(project.clientDir, filePath)) {
     return "client";
   }
 
   if (isInsideDirectory(project.serverDir, filePath)) {
     return "server";
-  }
-
-  if (isInsideDirectory(project.runtimeDataDir, filePath)) {
-    return "runtime-data";
   }
 
   return null;

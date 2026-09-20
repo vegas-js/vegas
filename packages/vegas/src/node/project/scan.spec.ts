@@ -120,6 +120,38 @@ describe("scanProject", () => {
     }
   });
 
+  test("give runtime data precedence over overlapping client and server directories", async () => {
+    const tempDirPath = fs.mkdtempSync(path.join(os.tmpdir(), "vegas-"));
+
+    try {
+      const project = {
+        ...createProject(tempDirPath),
+        serverDir: path.join(tempDirPath, "src"),
+        runtimeDataDir: path.join(tempDirPath, "src", "client", "runtime"),
+      };
+      const clientEntry = path.join(project.clientDir, "main.ts");
+      const runtimeData = path.join(project.runtimeDataDir, "session.ts");
+      const serverEntry = path.join(project.serverDir, "Code.ts");
+
+      fs.mkdirSync(project.runtimeDataDir, { recursive: true });
+
+      fs.writeFileSync(clientEntry, "");
+      fs.writeFileSync(runtimeData, "");
+      fs.writeFileSync(serverEntry, "");
+
+      const snapshot = await scanProject(project);
+
+      expect(snapshot.clientSources).toStrictEqual([clientEntry]);
+      expect(snapshot.serverSources).toStrictEqual([serverEntry]);
+      expect(snapshot.runtimeDataSources).toStrictEqual([runtimeData]);
+    } finally {
+      fs.rmSync(tempDirPath, {
+        recursive: true,
+        force: true,
+      });
+    }
+  });
+
   test("rescan current runtime data sources independently", async () => {
     const tempDirPath = fs.mkdtempSync(path.join(os.tmpdir(), "vegas-"));
 

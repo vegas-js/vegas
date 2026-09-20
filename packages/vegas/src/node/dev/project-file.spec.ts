@@ -57,6 +57,21 @@ describe("classifyProjectFile", () => {
     );
   });
 
+  test("give runtime data precedence over overlapping project directories", () => {
+    const root = path.resolve("project");
+    const project = {
+      ...createProject(root),
+      serverDir: path.join(root, "src"),
+      runtimeDataDir: path.join(root, "src", "client", "runtime"),
+    };
+
+    expect(classifyProjectFile(project, path.join(project.runtimeDataDir, "session.ts"))).toBe(
+      "runtime-data",
+    );
+    expect(classifyProjectFile(project, path.join(project.clientDir, "main.ts"))).toBe("client");
+    expect(classifyProjectFile(project, path.join(project.serverDir, "Code.ts"))).toBe("server");
+  });
+
   test("do not classify path with matching directory prefix", () => {
     const project = createProject(path.resolve("project"));
 
