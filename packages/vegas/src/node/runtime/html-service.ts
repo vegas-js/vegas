@@ -1,15 +1,13 @@
 import { HtmlOutput, type HtmlSandboxMode, type HtmlXFrameOptionsMode } from "./html-output";
+import { createRuntimeEnum } from "./runtime-enum";
 
-const SANDBOX_MODE = {
-  EMULATED: "EMULATED",
-  IFRAME: "IFRAME",
-  NATIVE: "NATIVE",
-} as const satisfies Readonly<Record<HtmlSandboxMode, HtmlSandboxMode>>;
+const SANDBOX_MODE = createRuntimeEnum("EMULATED", "IFRAME", "NATIVE") satisfies Readonly<
+  Record<HtmlSandboxMode, HtmlSandboxMode>
+>;
 
-const X_FRAME_OPTIONS_MODE = {
-  ALLOWALL: "ALLOWALL",
-  DEFAULT: "DEFAULT",
-} as const satisfies Readonly<Record<HtmlXFrameOptionsMode, HtmlXFrameOptionsMode>>;
+const X_FRAME_OPTIONS_MODE = createRuntimeEnum("ALLOWALL", "DEFAULT") satisfies Readonly<
+  Record<HtmlXFrameOptionsMode, HtmlXFrameOptionsMode>
+>;
 
 // https://developers.google.com/apps-script/reference/html/html-service
 export class HtmlService {
