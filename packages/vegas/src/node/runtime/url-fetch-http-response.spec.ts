@@ -71,6 +71,17 @@ describe("HTTPResponse", () => {
     expect(response.getBlob().getBytes()).toStrictEqual([65, 66, 67]);
   });
 
+  test("decode zero-argument content text as the local UTF-8 default", () => {
+    const response = hydrateHttpResponse({
+      statusCode: 200,
+      headers: {},
+      content: [86, 101, 103, 97, 115, 32, -29, -126, -80],
+    });
+
+    expect(response.getContentText()).toBe("Vegas グ");
+    expect(response.getContentText()).toBe(response.getContentText("UTF-8"));
+  });
+
   test("decode content with the explicitly requested charset", () => {
     const response = hydrateHttpResponse({
       statusCode: 200,

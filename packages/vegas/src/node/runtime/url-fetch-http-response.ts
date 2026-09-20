@@ -21,6 +21,8 @@ function cloneResponseValue(value: UrlFetchResponseValue): UrlFetchResponseValue
   };
 }
 
+const DEFAULT_CONTENT_CHARSET = "UTF-8";
+
 function decodeContent(content: readonly number[], charset: string): string {
   return new TextDecoder(charset).decode(Uint8Array.from(content, (value) => value & 0xff));
 }
@@ -45,7 +47,12 @@ export class HTTPResponse {
     return [...this.#value.content];
   }
 
-  getContentText(charset: string): string {
+  getContentText(): string;
+  getContentText(charset: string): string;
+  getContentText(charset = DEFAULT_CONTENT_CHARSET): string {
+    // Apps Script documents both overloads but does not define the default charset for the
+    // zero-argument form. Vegas uses UTF-8 as its explicit local Runtime contract; undocumented
+    // Google behavior remains intentionally unspecified.
     return decodeContent(this.#value.content, charset);
   }
 
