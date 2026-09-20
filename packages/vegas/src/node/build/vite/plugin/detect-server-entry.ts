@@ -101,6 +101,9 @@ function collectClientModuleReferences(filePath: string): ClientModuleReference[
 }
 
 export function detectServerEntry(plan: BuildPlan): Plugin {
+  const clientSourcesById = new Map(
+    plan.clientSources.map((source) => [normalizeResolvedFileId(source), source]),
+  );
   const serverSourcesById = new Map(
     plan.serverSources.map((source) => [normalizeResolvedFileId(source), source]),
   );
@@ -115,30 +118,50 @@ export function detectServerEntry(plan: BuildPlan): Plugin {
     async resolveId(source, _importer, options) {
       if (isVirtualServerEntryId(source, plan.root)) {
         const serverEntries = new Set<string>();
+        const visitedClientSources = new Set<string>();
+        const pendingClientSources = plan.clientEntries.map((entry) => entry.sourcePath);
 
-        for (const clientSourcePath of plan.clientSources) {
+        while (pendingClientSources.length > 0) {
+          const clientSourcePath = pendingClientSources.pop();
+
+          if (!clientSourcePath || visitedClientSources.has(clientSourcePath)) {
+            continue;
+          }
+
+          visitedClientSources.add(clientSourcePath);
+
           const references = collectClientModuleReferences(clientSourcePath);
 
           for (const reference of references) {
             const resolvedId = await this.resolve(reference.source, clientSourcePath, options);
-            const serverSource =
-              resolvedId === null
-                ? undefined
-                : serverSourcesById.get(normalizeResolvedFileId(resolvedId.id));
 
-            if (!serverSource) {
+            if (resolvedId === null) {
               continue;
             }
 
-            if (!reference.typeOnly) {
-              throw new Error("Server sources may only be referenced from client code as types.");
+            const normalizedId = normalizeResolvedFileId(resolvedId.id);
+            const serverSource = serverSourcesById.get(normalizedId);
+
+            if (serverSource) {
+              if (!reference.typeOnly) {
+                throw new Error("Server sources may only be referenced from client code as types.");
+              }
+
+              if (path.parse(serverSource).base !== "Code.ts") {
+                throw new Error(
+                  "The only file that can be imported from the server side is Code.ts",
+                );
+              }
+
+              serverEntries.add(serverSource);
+              continue;
             }
 
-            if (path.parse(serverSource).base !== "Code.ts") {
-              throw new Error("The only file that can be imported from the server side is Code.ts");
-            }
+            const clientSource = clientSourcesById.get(normalizedId);
 
-            serverEntries.add(serverSource);
+            if (clientSource && !visitedClientSources.has(clientSource)) {
+              pendingClientSources.push(clientSource);
+            }
           }
         }
 

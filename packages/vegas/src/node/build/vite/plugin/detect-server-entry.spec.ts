@@ -20,7 +20,16 @@ function createPlan(
     appType,
     mode: "production",
     plugins: [],
-    clientEntries: [],
+    clientEntries:
+      appType === "spa"
+        ? clientSources
+            .filter((source) => /^main\.tsx?$/.test(path.basename(source)))
+            .map((source, index) => ({
+              id: `entry-${index}`,
+              sourcePath: source,
+              htmlPath: `entry-${index}.html`,
+            }))
+        : [],
     clientSources,
     serverSources,
   };
@@ -220,6 +229,98 @@ describe("detectServerEntry", () => {
       const plan = createPlan(tempDirPath, [mainSource, adminSource], [serverA, serverB]);
 
       await expect(buildServer(plan)).rejects.toThrow("Duplicate server entry.");
+    } finally {
+      fs.rmSync(tempDirPath, {
+        recursive: true,
+        force: true,
+      });
+    }
+  });
+
+  test("ignore server entry references from unreachable client sources", async () => {
+    const tempDirPath = fs.mkdtempSync(path.join(os.tmpdir(), "vegas-"));
+
+    try {
+      const clientDir = path.join(tempDirPath, "src", "client");
+      const serverDir = path.join(tempDirPath, "src", "server");
+      const clientEntry = path.join(clientDir, "main.ts");
+      const unusedClientSource = path.join(clientDir, "unused.ts");
+      const serverA = path.join(serverDir, "a", "Code.ts");
+      const serverB = path.join(serverDir, "b", "Code.ts");
+
+      fs.mkdirSync(clientDir, { recursive: true });
+      fs.mkdirSync(path.dirname(serverA), { recursive: true });
+      fs.mkdirSync(path.dirname(serverB), { recursive: true });
+
+      fs.writeFileSync(clientEntry, `import type * as ServerA from "../server/a/Code";`);
+      fs.writeFileSync(unusedClientSource, `import type * as ServerB from "../server/b/Code";`);
+      fs.writeFileSync(serverA, `export function a() {}`);
+      fs.writeFileSync(serverB, `export function b() {}`);
+
+      const plan = createPlan(tempDirPath, [clientEntry, unusedClientSource], [serverA, serverB]);
+
+      await expect(buildServer(plan)).resolves.toBeDefined();
+    } finally {
+      fs.rmSync(tempDirPath, {
+        recursive: true,
+        force: true,
+      });
+    }
+  });
+
+  test("follow reachable client modules when detecting the server entry", async () => {
+    const tempDirPath = fs.mkdtempSync(path.join(os.tmpdir(), "vegas-"));
+
+    try {
+      const clientDir = path.join(tempDirPath, "src", "client");
+      const serverDir = path.join(tempDirPath, "src", "server");
+      const clientEntry = path.join(clientDir, "main.ts");
+      const clientHelper = path.join(clientDir, "helper.ts");
+      const serverA = path.join(serverDir, "a", "Code.ts");
+      const serverB = path.join(serverDir, "b", "Code.ts");
+
+      fs.mkdirSync(clientDir, { recursive: true });
+      fs.mkdirSync(path.dirname(serverA), { recursive: true });
+      fs.mkdirSync(path.dirname(serverB), { recursive: true });
+
+      fs.writeFileSync(clientEntry, `import "./helper";`);
+      fs.writeFileSync(clientHelper, `import type * as ServerA from "../server/a/Code";`);
+      fs.writeFileSync(serverA, `export function a() {}`);
+      fs.writeFileSync(serverB, `export function b() {}`);
+
+      const plan = createPlan(tempDirPath, [clientEntry, clientHelper], [serverA, serverB]);
+
+      await expect(buildServer(plan)).resolves.toBeDefined();
+    } finally {
+      fs.rmSync(tempDirPath, {
+        recursive: true,
+        force: true,
+      });
+    }
+  });
+
+  test("reject runtime server references from reachable client modules", async () => {
+    const tempDirPath = fs.mkdtempSync(path.join(os.tmpdir(), "vegas-"));
+
+    try {
+      const clientDir = path.join(tempDirPath, "src", "client");
+      const serverDir = path.join(tempDirPath, "src", "server");
+      const clientEntry = path.join(clientDir, "main.ts");
+      const clientHelper = path.join(clientDir, "helper.ts");
+      const serverSource = path.join(serverDir, "Code.ts");
+
+      fs.mkdirSync(clientDir, { recursive: true });
+      fs.mkdirSync(serverDir, { recursive: true });
+
+      fs.writeFileSync(clientEntry, `import "./helper";`);
+      fs.writeFileSync(clientHelper, `import { doGet } from "../server/Code";`);
+      fs.writeFileSync(serverSource, `export function doGet() { return "ok"; }`);
+
+      const plan = createPlan(tempDirPath, [clientEntry, clientHelper], [serverSource]);
+
+      await expect(buildServer(plan)).rejects.toThrow(
+        "Server sources may only be referenced from client code as types.",
+      );
     } finally {
       fs.rmSync(tempDirPath, {
         recursive: true,
