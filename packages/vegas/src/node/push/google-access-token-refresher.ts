@@ -5,60 +5,15 @@ import type {
 import type { AppsScriptCredential } from "./credential";
 import { AppsScriptRemoteServiceError } from "./error";
 import { formatGoogleHttpError } from "./google-error-response";
-
-const GOOGLE_OAUTH_TOKEN_URL = "https://oauth2.googleapis.com/token";
+import {
+  GOOGLE_OAUTH_TOKEN_URL,
+  parseGoogleOAuthAccessToken,
+  parseGoogleOAuthTokenResponse,
+} from "./google-oauth-token-response";
 
 interface CreateGoogleAppsScriptAccessTokenRefresherOptions {
   readonly fetch?: typeof globalThis.fetch;
   readonly now?: () => number;
-}
-
-function objectValue(value: unknown): Record<string, unknown> | undefined {
-  if (typeof value !== "object" || value === null || Array.isArray(value)) {
-    return undefined;
-  }
-
-  return value as Record<string, unknown>;
-}
-
-function parseRefreshedAccessToken(content: string, now: number): AppsScriptRefreshedAccessToken {
-  let parsed: unknown;
-
-  try {
-    parsed = JSON.parse(content);
-  } catch {
-    throw new Error("Invalid Google OAuth token response.");
-  }
-
-  const response = objectValue(parsed);
-
-  if (!response) {
-    throw new Error("Invalid Google OAuth token response.");
-  }
-
-  const accessToken = response.access_token;
-  const expiresIn = response.expires_in;
-
-  if (
-    typeof accessToken !== "string" ||
-    accessToken.trim().length === 0 ||
-    typeof expiresIn !== "number" ||
-    !Number.isFinite(expiresIn) ||
-    expiresIn <= 0
-  ) {
-    throw new Error("Invalid Google OAuth token response.");
-  }
-
-  const expiryDate = now + expiresIn * 1000;
-
-  if (!Number.isFinite(expiryDate)) {
-    throw new Error("Invalid Google OAuth token response.");
-  }
-
-  return {
-    accessToken,
-    expiryDate,
-  };
 }
 
 export function createGoogleAppsScriptAccessTokenRefresher(
@@ -92,7 +47,7 @@ export function createGoogleAppsScriptAccessTokenRefresher(
         );
       }
 
-      return parseRefreshedAccessToken(responseBody, now());
+      return parseGoogleOAuthAccessToken(parseGoogleOAuthTokenResponse(responseBody), now());
     },
   };
 }

@@ -2,8 +2,11 @@ import { AppsScriptRemoteServiceError } from "./error";
 import { formatGoogleHttpError } from "./google-error-response";
 import { APPS_SCRIPT_PROJECTS_OAUTH_SCOPE } from "./google-oauth-authorization";
 import type { GoogleOAuthDesktopClient } from "./google-oauth-client";
-
-const GOOGLE_OAUTH_TOKEN_URL = "https://oauth2.googleapis.com/token";
+import {
+  GOOGLE_OAUTH_TOKEN_URL,
+  parseGoogleOAuthAccessToken,
+  parseGoogleOAuthTokenResponse,
+} from "./google-oauth-token-response";
 
 export interface GoogleOAuthAuthorizationCodeTokens {
   readonly accessToken: string;
@@ -21,14 +24,6 @@ interface ExchangeGoogleOAuthAuthorizationCodeOptions {
   readonly now?: () => number;
 }
 
-function objectValue(value: unknown): Record<string, unknown> | undefined {
-  if (typeof value !== "object" || value === null || Array.isArray(value)) {
-    return undefined;
-  }
-
-  return value as Record<string, unknown>;
-}
-
 function requireValue(value: string, message: string): string {
   if (value.trim().length === 0) {
     throw new Error(message);
@@ -41,33 +36,14 @@ function parseAuthorizationCodeTokens(
   content: string,
   now: number,
 ): GoogleOAuthAuthorizationCodeTokens {
-  let parsed: unknown;
-
-  try {
-    parsed = JSON.parse(content);
-  } catch {
-    throw new Error("Invalid Google OAuth token response.");
-  }
-
-  const response = objectValue(parsed);
-
-  if (!response) {
-    throw new Error("Invalid Google OAuth token response.");
-  }
-
-  const accessToken = response.access_token;
+  const response = parseGoogleOAuthTokenResponse(content);
+  const { accessToken, expiryDate } = parseGoogleOAuthAccessToken(response, now);
   const refreshToken = response.refresh_token;
-  const expiresIn = response.expires_in;
   const scope = response.scope;
 
   if (
-    typeof accessToken !== "string" ||
-    accessToken.trim().length === 0 ||
     typeof refreshToken !== "string" ||
     refreshToken.trim().length === 0 ||
-    typeof expiresIn !== "number" ||
-    !Number.isFinite(expiresIn) ||
-    expiresIn <= 0 ||
     typeof scope !== "string" ||
     scope.trim().length === 0
   ) {
@@ -78,12 +54,6 @@ function parseAuthorizationCodeTokens(
 
   if (!scopes.includes(APPS_SCRIPT_PROJECTS_OAUTH_SCOPE)) {
     throw new Error("Google OAuth response did not grant the required Apps Script scope.");
-  }
-
-  const expiryDate = now + expiresIn * 1000;
-
-  if (!Number.isFinite(expiryDate)) {
-    throw new Error("Invalid Google OAuth token response.");
   }
 
   return {
