@@ -175,6 +175,17 @@ describe("Range", () => {
     expect(hydrator.references).toHaveLength(0);
   });
 
+  test("report explicit rectangular Ranges as fully bounded without collaborators", () => {
+    const { bridge, hydrator, range } = createFixture();
+
+    expect(range.isStartRowBounded()).toBe(true);
+    expect(range.isEndRowBounded()).toBe(true);
+    expect(range.isStartColumnBounded()).toBe(true);
+    expect(range.isEndColumnBounded()).toBe(true);
+    expect(bridge.calls).toHaveLength(0);
+    expect(hydrator.references).toHaveLength(0);
+  });
+
   test("format Range coordinates as A1 notation without crossing collaborators", () => {
     const bridge = createBridge();
     const childRange = {} as Range;
