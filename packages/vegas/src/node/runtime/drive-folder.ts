@@ -63,6 +63,17 @@ export class DriveFolder {
     );
   }
 
+  getFilesByType(mimeType: string): DriveFileIterator {
+    return this.#hydrator.hydrate(
+      this.#bridge.call({
+        service: "drive",
+        operation: "get-files-by-type",
+        folder: this.#reference,
+        mimeType,
+      }),
+    );
+  }
+
   getFolders(): DriveFolderIterator {
     return this.#hydrator.hydrate(
       this.#bridge.call({

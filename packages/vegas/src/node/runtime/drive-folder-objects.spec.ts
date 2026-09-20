@@ -43,6 +43,12 @@ class RecordingHostBridge implements HostBridge {
           kind: "file-iterator",
           handle: `files:${call.folder?.id ?? "all"}:${call.name}`,
         } as HostCallResult<C>;
+      case "get-files-by-type":
+        return {
+          service: "drive",
+          kind: "file-iterator",
+          handle: `files:${call.folder?.id ?? "all"}:${call.mimeType}`,
+        } as HostCallResult<C>;
       case "get-folders-by-name":
         return {
           service: "drive",
@@ -106,10 +112,12 @@ describe("DriveFolder Runtime object", () => {
     expect(child.getName()).toBe("name:created:child");
 
     const files = child.getFilesByName("report.txt");
+    const typedFiles = child.getFilesByType("text/plain");
     const folders = child.getFoldersByName("nested");
     const parents = child.getParents();
 
     expect(files).toBeInstanceOf(DriveFileIterator);
+    expect(typedFiles).toBeInstanceOf(DriveFileIterator);
     expect(folders).toBeInstanceOf(DriveFolderIterator);
     expect(parents).toBeInstanceOf(DriveFolderIterator);
     expect(parents.hasNext()).toBe(true);
@@ -148,6 +156,16 @@ describe("DriveFolder Runtime object", () => {
           id: "created:child",
         },
         name: "report.txt",
+      },
+      {
+        service: "drive",
+        operation: "get-files-by-type",
+        folder: {
+          service: "drive",
+          kind: "folder",
+          id: "created:child",
+        },
+        mimeType: "text/plain",
       },
       {
         service: "drive",

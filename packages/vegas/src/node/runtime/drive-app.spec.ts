@@ -87,6 +87,13 @@ function createBridge() {
           handle: `files:${call.name}`,
         };
       }
+      case "get-files-by-type": {
+        return {
+          service: "drive",
+          kind: "file-iterator",
+          handle: `files:${call.mimeType}`,
+        };
+      }
       case "get-folders": {
         return {
           service: "drive",
@@ -133,6 +140,7 @@ describe("DriveApp Runtime object", () => {
     const root = drive.getRootFolder();
     const files = drive.getFiles();
     const namedFiles = drive.getFilesByName("report.txt");
+    const typedFiles = drive.getFilesByType("text/plain");
     const folders = drive.getFolders();
     const namedFolders = drive.getFoldersByName("Reports");
     const continuedFiles = drive.continueFileIterator("file-token");
@@ -146,6 +154,7 @@ describe("DriveApp Runtime object", () => {
     expect(root.getId()).toBe("root");
     expect(files).toBeInstanceOf(DriveFileIterator);
     expect(namedFiles).toBeInstanceOf(DriveFileIterator);
+    expect(typedFiles).toBeInstanceOf(DriveFileIterator);
     expect(folders).toBeInstanceOf(DriveFolderIterator);
     expect(namedFolders).toBeInstanceOf(DriveFolderIterator);
     expect(continuedFiles).toBeInstanceOf(DriveFileIterator);
@@ -175,6 +184,11 @@ describe("DriveApp Runtime object", () => {
         service: "drive",
         operation: "get-files-by-name",
         name: "report.txt",
+      },
+      {
+        service: "drive",
+        operation: "get-files-by-type",
+        mimeType: "text/plain",
       },
       {
         service: "drive",

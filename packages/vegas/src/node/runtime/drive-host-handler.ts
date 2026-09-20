@@ -24,6 +24,24 @@ async function filterFilesByName(
   return matches;
 }
 
+async function filterFilesByType(
+  store: DriveStore,
+  namespace: DriveNamespace,
+  files: readonly DriveFileReference[],
+  mimeType: string,
+): Promise<readonly DriveFileReference[]> {
+  const matches: DriveFileReference[] = [];
+
+  for (const file of files) {
+    const metadata = await store.getFileMetadata(namespace, file);
+    if (metadata.mimeType === mimeType) {
+      matches.push(file);
+    }
+  }
+
+  return matches;
+}
+
 async function filterFoldersByName(
   store: DriveStore,
   namespace: DriveNamespace,
@@ -138,6 +156,16 @@ export class LocalDriveHostHandler implements DriveHostCallHandler {
 
         return this.#iterators.createFileIterator(
           await filterFilesByName(this.#store, this.#namespace, files, call.name),
+        );
+      }
+      case "get-files-by-type": {
+        const files =
+          call.folder === undefined
+            ? await this.#store.listFiles(this.#namespace)
+            : await this.#store.listFolderFiles(this.#namespace, call.folder);
+
+        return this.#iterators.createFileIterator(
+          await filterFilesByType(this.#store, this.#namespace, files, call.mimeType),
         );
       }
       case "get-folders": {
