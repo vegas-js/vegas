@@ -21,6 +21,14 @@ function excludeDeclarationFile(fileName: string) {
   return fileName.endsWith(".d.ts");
 }
 
+export async function scanRuntimeDataSources(project: ResolvedProject): Promise<string[]> {
+  const sources = await collectWithGlob(path.join(project.runtimeDataDir, "**", "*.ts"), {
+    exclude: excludeDeclarationFile,
+  });
+
+  return sources.sort();
+}
+
 export async function scanProject(project: ResolvedProject): Promise<ProjectSnapshot> {
   const [clientSources, serverSources, runtimeDataSources] = await Promise.all([
     collectWithGlob(
@@ -32,19 +40,16 @@ export async function scanProject(project: ResolvedProject): Promise<ProjectSnap
       exclude: excludeDeclarationFile,
     }),
 
-    collectWithGlob(path.join(project.runtimeDataDir, "**", "*.ts"), {
-      exclude: excludeDeclarationFile,
-    }),
+    scanRuntimeDataSources(project),
   ]);
 
   const sortedClientSources = clientSources.sort();
   const sortedServerSources = serverSources.sort();
-  const sortedRuntimeDataSources = runtimeDataSources.sort();
 
   return {
     clientSources: sortedClientSources,
     serverSources: sortedServerSources,
-    runtimeDataSources: sortedRuntimeDataSources,
+    runtimeDataSources,
     clientEntries:
       project.appType === "spa" ? createClientEntries(project.clientDir, sortedClientSources) : [],
   };

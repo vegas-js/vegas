@@ -20,6 +20,7 @@ interface DevApplicationOptions {
   readonly artifacts: ArtifactStore;
   readonly builder: ViteBuilder;
   readonly runtime: RuntimeBackend;
+  readonly reloadRuntime: () => Promise<void>;
   readonly mode: "development" | "production";
 }
 
@@ -45,6 +46,7 @@ export async function startDevApplication(options: DevApplicationOptions): Promi
     project: options.project,
     builds,
     buildManager,
+    reloadRuntime: options.reloadRuntime,
   });
 
   registerHostWebSocketHandlers({

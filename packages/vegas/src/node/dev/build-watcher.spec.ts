@@ -69,9 +69,14 @@ describe("registerBuildWatchers", () => {
       project,
       builds: new BuildCoordinator(),
       buildManager: { rebuild, refreshTopology },
+      reloadRuntime: vi.fn(async () => undefined),
     });
 
-    expect(add).toHaveBeenCalledWith([project.clientDir, project.serverDir]);
+    expect(add).toHaveBeenCalledWith([
+      project.clientDir,
+      project.serverDir,
+      project.runtimeDataDir,
+    ]);
 
     await handlers.get("change")?.(path.join(project.clientDir, "main.ts"));
 
@@ -93,6 +98,7 @@ describe("registerBuildWatchers", () => {
         rebuild,
         refreshTopology: vi.fn(async () => undefined),
       },
+      reloadRuntime: vi.fn(async () => undefined),
     });
 
     await handlers.get("change")?.(path.join(project.serverDir, "Code.ts"));
@@ -115,6 +121,7 @@ describe("registerBuildWatchers", () => {
         rebuild: vi.fn(async () => undefined),
         refreshTopology,
       },
+      reloadRuntime: vi.fn(async () => undefined),
     });
 
     await handlers.get(event)?.(path.join(project.clientDir, "admin.ts"));
@@ -123,6 +130,33 @@ describe("registerBuildWatchers", () => {
     expect(invalidateAll).toHaveBeenCalledOnce();
     expect(send).toHaveBeenCalledWith({ type: "full-reload" });
   });
+
+  test.each(["change", "add", "unlink"] as const)(
+    "reload runtime data after %s without rebuilding or reloading the client",
+    async (event) => {
+      const project = createProject();
+      const { server, handlers, invalidateAll, send } = createServer();
+      const rebuild = vi.fn(async () => undefined);
+      const refreshTopology = vi.fn(async () => undefined);
+      const reloadRuntime = vi.fn(async () => undefined);
+
+      registerBuildWatchers({
+        server,
+        project,
+        builds: new BuildCoordinator(),
+        buildManager: { rebuild, refreshTopology },
+        reloadRuntime,
+      });
+
+      await handlers.get(event)?.(path.join(project.runtimeDataDir, "session.ts"));
+
+      expect(reloadRuntime).toHaveBeenCalledOnce();
+      expect(rebuild).not.toHaveBeenCalled();
+      expect(refreshTopology).not.toHaveBeenCalled();
+      expect(invalidateAll).not.toHaveBeenCalled();
+      expect(send).not.toHaveBeenCalled();
+    },
+  );
 
   test("report build errors without requiring a stack", async () => {
     const project = createProject();
@@ -143,6 +177,7 @@ describe("registerBuildWatchers", () => {
           rebuild,
           refreshTopology: vi.fn(async () => undefined),
         },
+        reloadRuntime: vi.fn(async () => undefined),
       });
 
       await handlers.get("change")?.(path.join(project.serverDir, "Code.ts"));
@@ -176,6 +211,7 @@ describe("registerBuildWatchers", () => {
           rebuild: vi.fn(async () => undefined),
           refreshTopology,
         },
+        reloadRuntime: vi.fn(async () => undefined),
       });
 
       await handlers.get("add")?.(path.join(project.clientDir, "admin.ts"));

@@ -4,7 +4,7 @@ import path from "node:path";
 
 import { describe, expect, test } from "vitest";
 
-import { scanProject } from "./scan";
+import { scanProject, scanRuntimeDataSources } from "./scan";
 import type { ResolvedProject } from "./type";
 
 function createProject(tempDirPath: string, appType: "spa" | "script" = "spa"): ResolvedProject {
@@ -82,6 +82,34 @@ describe("scanProject", () => {
           },
         ],
       });
+    } finally {
+      fs.rmSync(tempDirPath, {
+        recursive: true,
+        force: true,
+      });
+    }
+  });
+
+  test("rescan current runtime data sources independently", async () => {
+    const tempDirPath = fs.mkdtempSync(path.join(os.tmpdir(), "vegas-"));
+
+    try {
+      const project = createProject(tempDirPath);
+      fs.mkdirSync(project.runtimeDataDir, { recursive: true });
+
+      const first = path.join(project.runtimeDataDir, "a.ts");
+      const second = path.join(project.runtimeDataDir, "b.ts");
+      const declaration = path.join(project.runtimeDataDir, "types.d.ts");
+
+      fs.writeFileSync(second, "");
+      fs.writeFileSync(first, "");
+      fs.writeFileSync(declaration, "");
+
+      await expect(scanRuntimeDataSources(project)).resolves.toStrictEqual([first, second]);
+
+      fs.rmSync(first);
+
+      await expect(scanRuntimeDataSources(project)).resolves.toStrictEqual([second]);
     } finally {
       fs.rmSync(tempDirPath, {
         recursive: true,

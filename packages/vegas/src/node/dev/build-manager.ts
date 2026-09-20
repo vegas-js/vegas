@@ -4,7 +4,7 @@ import { type ArtifactStore, buildApp } from "../build";
 import type { ResolvedProject } from "../project";
 import { buildDevArtifacts, replaceDevBuildArtifacts } from "./build-artifacts";
 import { buildDevTopology } from "./build-topology";
-import type { ProjectFileScope } from "./project-file";
+import type { ProjectBuildScope } from "./project-file";
 
 interface DevBuildManagerOptions {
   readonly project: ResolvedProject;
@@ -35,7 +35,7 @@ export class DevBuildManager {
     this.#buildDevTopology = dependencies.buildDevTopology ?? buildDevTopology;
   }
 
-  async rebuild(scope: ProjectFileScope): Promise<void> {
+  async rebuild(scope: ProjectBuildScope): Promise<void> {
     if (scope === "client") {
       const artifacts = await buildDevArtifacts(this.#builder, this.#buildApp);
       replaceDevBuildArtifacts(this.#artifacts, artifacts);

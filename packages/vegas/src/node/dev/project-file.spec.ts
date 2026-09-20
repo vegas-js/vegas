@@ -49,6 +49,14 @@ describe("classifyProjectFile", () => {
     expect(classifyProjectFile(project, path.join(project.serverDir, "Code.ts"))).toBe("server");
   });
 
+  test("classify runtime data file", () => {
+    const project = createProject(path.resolve("project"));
+
+    expect(classifyProjectFile(project, path.join(project.runtimeDataDir, "session.ts"))).toBe(
+      "runtime-data",
+    );
+  });
+
   test("do not classify path with matching directory prefix", () => {
     const project = createProject(path.resolve("project"));
 
@@ -57,6 +65,9 @@ describe("classifyProjectFile", () => {
     ).toBeNull();
     expect(
       classifyProjectFile(project, path.join(`${project.serverDir}-old`, "Code.ts")),
+    ).toBeNull();
+    expect(
+      classifyProjectFile(project, path.join(`${project.runtimeDataDir}-old`, "session.ts")),
     ).toBeNull();
   });
 

@@ -12,6 +12,7 @@ interface BuildWatcherOptions {
   readonly project: ResolvedProject;
   readonly builds: BuildCoordinator;
   readonly buildManager: Pick<DevBuildManager, "rebuild" | "refreshTopology">;
+  readonly reloadRuntime: () => Promise<void>;
 }
 
 function normalizeBuildError(error: unknown): { message: string; stack: string } {
@@ -34,9 +35,9 @@ function reportBuildError(server: ViteDevServer, error: unknown): void {
 }
 
 export function registerBuildWatchers(options: BuildWatcherOptions): void {
-  const { server, project, builds, buildManager } = options;
+  const { server, project, builds, buildManager, reloadRuntime } = options;
 
-  const runBuild = async (task: () => Promise<void>): Promise<void> => {
+  const runUpdate = async (task: () => Promise<void>): Promise<void> => {
     try {
       await builds.run(task);
     } catch (error) {
@@ -44,7 +45,7 @@ export function registerBuildWatchers(options: BuildWatcherOptions): void {
     }
   };
 
-  server.watcher.add([project.clientDir, project.serverDir]);
+  server.watcher.add([project.clientDir, project.serverDir, project.runtimeDataDir]);
 
   server.watcher.on("change", async (filePath) => {
     const scope = classifyProjectFile(project, filePath);
@@ -53,7 +54,12 @@ export function registerBuildWatchers(options: BuildWatcherOptions): void {
       return;
     }
 
-    await runBuild(async () => {
+    await runUpdate(async () => {
+      if (scope === "runtime-data") {
+        await reloadRuntime();
+        return;
+      }
+
       await buildManager.rebuild(scope);
 
       if (scope === "client") {
@@ -70,7 +76,12 @@ export function registerBuildWatchers(options: BuildWatcherOptions): void {
       return;
     }
 
-    await runBuild(async () => {
+    await runUpdate(async () => {
+      if (scope === "runtime-data") {
+        await reloadRuntime();
+        return;
+      }
+
       await buildManager.refreshTopology();
 
       server.moduleGraph.invalidateAll();

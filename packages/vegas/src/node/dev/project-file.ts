@@ -2,7 +2,8 @@ import path from "node:path";
 
 import type { ResolvedProject } from "../project";
 
-export type ProjectFileScope = "client" | "server";
+export type ProjectBuildScope = "client" | "server";
+export type ProjectFileScope = ProjectBuildScope | "runtime-data";
 
 function isInsideDirectory(directory: string, filePath: string): boolean {
   const relative = path.relative(directory, filePath);
@@ -23,6 +24,10 @@ export function classifyProjectFile(
 
   if (isInsideDirectory(project.serverDir, filePath)) {
     return "server";
+  }
+
+  if (isInsideDirectory(project.runtimeDataDir, filePath)) {
+    return "runtime-data";
   }
 
   return null;
