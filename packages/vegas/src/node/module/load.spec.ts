@@ -86,6 +86,44 @@ describe("loadModule", () => {
     }
   });
 
+  test("keep relative dynamic imports usable after temporary output cleanup", async () => {
+    const tempDirPath = fs.mkdtempSync(path.join(os.tmpdir(), "vegas-"));
+    const projectDir = path.join(tempDirPath, "project");
+
+    try {
+      fs.mkdirSync(projectDir, { recursive: true });
+
+      const configPath = path.join(projectDir, "config.ts");
+
+      fs.writeFileSync(
+        configPath,
+        `
+          export default {
+            async loadValue() {
+              const module = await import("./dynamic");
+              return module.value;
+            },
+          };
+        `,
+      );
+      fs.writeFileSync(path.join(projectDir, "dynamic.ts"), 'export const value = "loaded";');
+
+      const loaded = (await loadModule({
+        root: projectDir,
+        filePath: configPath,
+      })) as {
+        loadValue(): Promise<string>;
+      };
+
+      await expect(loaded.loadValue()).resolves.toBe("loaded");
+    } finally {
+      fs.rmSync(tempDirPath, {
+        recursive: true,
+        force: true,
+      });
+    }
+  });
+
   test("ignore project vite config", async () => {
     const tempDirPath = fs.mkdtempSync(path.join(os.tmpdir(), "vegas-"));
     const projectDir = path.join(tempDirPath, "project");

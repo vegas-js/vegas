@@ -39,6 +39,7 @@ async function transpileModule(ctx: { root: string; filePath: string; outputDir:
         treeshake: false,
         tsconfig: false,
         output: {
+          codeSplitting: false,
           dir: ctx.outputDir,
           minify: false,
         },
