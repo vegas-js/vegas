@@ -1,4 +1,5 @@
 import { createBlob, type RuntimeBlob } from "./blob";
+import { convertBlob, type BlobConverter } from "./blob-converter";
 import type { UrlFetchResponseHeaderValue, UrlFetchResponseValue } from "./url-fetch-value";
 
 function cloneHeaderValue(value: UrlFetchResponseHeaderValue): UrlFetchResponseHeaderValue {
@@ -44,14 +45,24 @@ function decodeContent(content: readonly number[], charset: string): string {
 
 // https://developers.google.com/apps-script/reference/url-fetch/http-response
 export class HTTPResponse {
+  readonly #blobConverter: BlobConverter | undefined;
   readonly #value: UrlFetchResponseValue;
 
-  constructor(value: UrlFetchResponseValue) {
+  constructor(value: UrlFetchResponseValue, blobConverter?: BlobConverter) {
+    this.#blobConverter = blobConverter;
     this.#value = cloneResponseValue(value);
   }
 
   getAllHeaders(): Record<string, UrlFetchResponseHeaderValue> {
     return cloneHeaders(this.#value.headers);
+  }
+
+  getAs(contentType: string): RuntimeBlob {
+    if (this.#blobConverter === undefined) {
+      throw new Error("HTTPResponse Blob conversion is not available in this Runtime context.");
+    }
+
+    return convertBlob(this.getBlob(), contentType, this.#blobConverter);
   }
 
   getBlob(): RuntimeBlob {
@@ -83,6 +94,9 @@ export class HTTPResponse {
   }
 }
 
-export function hydrateHttpResponse(value: UrlFetchResponseValue): HTTPResponse {
-  return new HTTPResponse(value);
+export function hydrateHttpResponse(
+  value: UrlFetchResponseValue,
+  blobConverter?: BlobConverter,
+): HTTPResponse {
+  return new HTTPResponse(value, blobConverter);
 }

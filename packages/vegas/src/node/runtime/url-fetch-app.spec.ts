@@ -34,15 +34,23 @@ class RecordingHostBridge implements HostBridge {
   call<C extends HostCall>(call: C): HostCallResult<C> {
     this.calls.push(call);
 
-    if (call.service !== "url-fetch") {
-      throw new Error(`unexpected host service: ${call.service}`);
-    }
-
-    switch (call.operation) {
-      case "fetch":
-        return RESPONSE_A as HostCallResult<C>;
-      case "fetch-all":
-        return [RESPONSE_A, RESPONSE_B] as unknown as HostCallResult<C>;
+    switch (call.service) {
+      case "blob":
+        return {
+          ...call.value,
+          bytes: [80, 68, 70],
+          contentType: call.contentType,
+        } as unknown as HostCallResult<C>;
+      case "url-fetch": {
+        switch (call.operation) {
+          case "fetch":
+            return RESPONSE_A as HostCallResult<C>;
+          case "fetch-all":
+            return [RESPONSE_A, RESPONSE_B] as unknown as HostCallResult<C>;
+        }
+      }
+      default:
+        throw new Error(`unexpected host service: ${call.service}`);
     }
   }
 }
@@ -87,6 +95,36 @@ describe("UrlFetchApp", () => {
           },
           timeoutSeconds: 30,
         },
+      },
+    ]);
+  });
+
+  test("propagate Blob conversion to fetched responses", () => {
+    const bridge = new RecordingHostBridge();
+    const response = createUrlFetchApp(bridge).fetch("https://example.com");
+
+    const converted = response.getAs("application/pdf");
+
+    expect(converted.getBytes()).toStrictEqual([80, 68, 70]);
+    expect(converted.getContentType()).toBe("application/pdf");
+    expect(bridge.calls).toStrictEqual([
+      {
+        service: "url-fetch",
+        operation: "fetch",
+        request: {
+          url: "https://example.com",
+        },
+      },
+      {
+        service: "blob",
+        operation: "convert",
+        value: {
+          bytes: [65],
+          contentType: null,
+          name: null,
+          googleType: false,
+        },
+        contentType: "application/pdf",
       },
     ]);
   });

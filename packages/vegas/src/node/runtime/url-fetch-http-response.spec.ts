@@ -1,5 +1,6 @@
 import { describe, expect, test } from "vitest";
 
+import type { BlobConverter } from "./blob-converter";
 import {
   HTTPResponse,
   RuntimeBlob,
@@ -84,6 +85,29 @@ describe("HTTPResponse", () => {
       "set-cookie": ["a=1", "b=2"],
       "x-empty": [],
     });
+  });
+
+  test("convert response content through the bound Blob converter", () => {
+    const convert: BlobConverter = (value, contentType) => ({
+      ...value,
+      bytes: [80, 68, 70],
+      contentType,
+    });
+    const response = hydrateHttpResponse(createResponseValue(), convert);
+
+    const converted = response.getAs("application/pdf");
+
+    expect(converted).toBeInstanceOf(RuntimeBlob);
+    expect(converted.getBytes()).toStrictEqual([80, 68, 70]);
+    expect(converted.getContentType()).toBe("application/pdf");
+  });
+
+  test("reject conversion without a bound Runtime conversion context", () => {
+    const response = hydrateHttpResponse(createResponseValue());
+
+    expect(() => response.getAs("application/pdf")).toThrow(
+      "HTTPResponse Blob conversion is not available in this Runtime context.",
+    );
   });
 
   test("create an independent Blob for the response body", () => {

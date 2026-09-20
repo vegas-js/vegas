@@ -1,4 +1,5 @@
 import { RuntimeBlob } from "./blob";
+import { createBlobConverter, type BlobConverter } from "./blob-converter";
 import type { HostBridge } from "./host-bridge";
 import { hydrateHttpResponse, type HTTPResponse } from "./url-fetch-http-response";
 import {
@@ -20,9 +21,11 @@ export interface UrlFetchRequestPreview {
 
 // https://developers.google.com/apps-script/reference/url-fetch/url-fetch-app
 export class UrlFetchApp {
+  readonly #blobConverter: BlobConverter;
   readonly #bridge: HostBridge;
 
   constructor(bridge: HostBridge) {
+    this.#blobConverter = createBlobConverter(bridge);
     this.#bridge = bridge;
   }
 
@@ -35,6 +38,7 @@ export class UrlFetchApp {
         operation: "fetch",
         request: normalizeUrlFetchRequest(url, params),
       }),
+      this.#blobConverter,
     );
   }
 
@@ -45,7 +49,7 @@ export class UrlFetchApp {
       requests: requests.map((request) => normalizeUrlFetchRequest(request)),
     });
 
-    return responses.map(hydrateHttpResponse);
+    return responses.map((response) => hydrateHttpResponse(response, this.#blobConverter));
   }
 
   getRequest(url: string): UrlFetchRequestPreview;
