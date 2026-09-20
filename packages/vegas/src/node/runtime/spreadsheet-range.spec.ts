@@ -12,7 +12,7 @@ import type {
 } from "./spreadsheet-reference";
 import type { Sheet } from "./spreadsheet-sheet";
 import type { Spreadsheet } from "./spreadsheet-spreadsheet";
-import type { SpreadsheetGrid } from "./spreadsheet-store";
+import type { SpreadsheetGrid, SpreadsheetNoteGrid } from "./spreadsheet-store";
 
 class RecordingHostBridge implements HostBridge {
   readonly calls: HostCall[] = [];
@@ -66,15 +66,18 @@ const defaultRangeReference = {
   numColumns: 2,
 } satisfies RangeReference;
 
-function createBridge(values: SpreadsheetGrid = []) {
+function createBridge(values: SpreadsheetGrid = [], notes: SpreadsheetNoteGrid = []) {
   return new RecordingHostBridge((call) => {
     if (call.service !== "spreadsheet") {
       throw new Error(`unexpected service: ${call.service}`);
     }
 
     switch (call.operation) {
+      case "get-range-notes":
+        return notes;
       case "get-range-values":
         return values;
+      case "set-range-notes":
       case "set-range-values":
         return undefined;
       default:
@@ -153,6 +156,28 @@ describe("Range", () => {
 
     expect(sourceDate).toStrictEqual(new Date("2026-09-18T00:00:00.000Z"));
     expect(bridge.calls.every((call) => call.operation === "get-range-values")).toBe(true);
+  });
+
+  test("read Range notes through the HostBridge", () => {
+    const bridge = createBridge(
+      [],
+      [
+        ["top-left", ""],
+        ["", "bottom-right"],
+      ],
+    );
+    const { hydrator, range } = createFixture({ bridge });
+
+    expect(range.getNote()).toBe("top-left");
+    expect(range.getNotes()).toStrictEqual([
+      ["top-left", ""],
+      ["", "bottom-right"],
+    ]);
+    expect(bridge.calls.map(({ operation }) => operation)).toStrictEqual([
+      "get-range-notes",
+      "get-range-notes",
+    ]);
+    expect(hydrator.references).toHaveLength(0);
   });
 
   test("report whether a Range is totally blank", () => {
@@ -530,6 +555,56 @@ describe("Range", () => {
     expect(() => range.removeDuplicates([5])).toThrow("duplicate column must be within the Range");
     expect(() => range.removeDuplicates([2.5])).toThrow("duplicate column must be an integer");
     expect(bridge.calls).toHaveLength(0);
+    expect(hydrator.references).toHaveLength(0);
+  });
+
+  test("write and clear Range notes through the HostBridge", () => {
+    const bridge = createBridge();
+    const { hydrator, range } = createFixture({ bridge });
+    const notes = [
+      ["first", null],
+      ["", "last"],
+    ] as const;
+
+    expect(range.setNote("shared")).toBe(range);
+    expect(range.setNote(null)).toBe(range);
+    expect(range.setNotes(notes)).toBe(range);
+    expect(range.clearNote()).toBe(range);
+    expect(bridge.calls).toStrictEqual([
+      {
+        service: "spreadsheet",
+        operation: "set-range-notes",
+        range: defaultRangeReference,
+        notes: [
+          ["shared", "shared"],
+          ["shared", "shared"],
+        ],
+      },
+      {
+        service: "spreadsheet",
+        operation: "set-range-notes",
+        range: defaultRangeReference,
+        notes: [
+          [null, null],
+          [null, null],
+        ],
+      },
+      {
+        service: "spreadsheet",
+        operation: "set-range-notes",
+        range: defaultRangeReference,
+        notes,
+      },
+      {
+        service: "spreadsheet",
+        operation: "set-range-notes",
+        range: defaultRangeReference,
+        notes: [
+          [null, null],
+          [null, null],
+        ],
+      },
+    ]);
     expect(hydrator.references).toHaveLength(0);
   });
 

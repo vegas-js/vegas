@@ -16,6 +16,7 @@ export class InMemorySpreadsheetGrid {
   readonly #maxRows: number;
   readonly #maxColumns: number;
   readonly #cells = new Map<string, SpreadsheetCellValue>();
+  readonly #notes = new Map<string, string>();
 
   constructor(maxRows: number, maxColumns: number, values: SpreadsheetGrid = []) {
     assertPositiveInteger(maxRows, "Spreadsheet sheet maxRows");
@@ -80,6 +81,18 @@ export class InMemorySpreadsheetGrid {
     );
   }
 
+  getNotes(range: GridRange): string[][] {
+    this.#validateRange(range);
+
+    return Array.from({ length: range.numRows }, (_, rowOffset) =>
+      Array.from(
+        { length: range.numColumns },
+        (_, columnOffset) =>
+          this.#notes.get(createCellKey(range.row + rowOffset, range.column + columnOffset)) ?? "",
+      ),
+    );
+  }
+
   setValues(range: GridRange, values: SpreadsheetGrid): void {
     this.#validateRange(range);
 
@@ -97,6 +110,26 @@ export class InMemorySpreadsheetGrid {
           this.#cells.delete(key);
         } else {
           this.#cells.set(key, value);
+        }
+      });
+    });
+  }
+
+  setNotes(range: GridRange, notes: readonly (readonly (string | null)[])[]): void {
+    this.#validateRange(range);
+
+    if (notes.length !== range.numRows || notes.some((row) => row.length !== range.numColumns)) {
+      throw new RangeError("Spreadsheet note dimensions must match the target range.");
+    }
+
+    notes.forEach((row, rowOffset) => {
+      row.forEach((note, columnOffset) => {
+        const key = createCellKey(range.row + rowOffset, range.column + columnOffset);
+
+        if (note === null) {
+          this.#notes.delete(key);
+        } else {
+          this.#notes.set(key, note);
         }
       });
     });

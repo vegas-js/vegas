@@ -90,8 +90,15 @@ export class SpreadsheetHostHandler implements SpreadsheetHostCallHandler {
       case "get-sheet-data-bounds": {
         return this.#store.getSheetDataBounds(call.sheet);
       }
+      case "get-range-notes": {
+        return this.#store.getRangeNotes(call.range);
+      }
       case "get-range-values": {
         return this.#store.getRangeValues(call.range);
+      }
+      case "set-range-notes": {
+        await this.#store.setRangeNotes(call.range, call.notes);
+        return;
       }
       case "set-range-values": {
         await this.#store.setRangeValues(call.range, call.values);

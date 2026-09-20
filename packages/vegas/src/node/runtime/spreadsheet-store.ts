@@ -6,6 +6,8 @@ export type SpreadsheetCellValue = string | number | boolean | Date;
 
 export type SpreadsheetGrid = readonly (readonly SpreadsheetCellValue[])[];
 
+export type SpreadsheetNoteGrid = readonly (readonly (string | null)[])[];
+
 export interface SpreadsheetMetadata {
   readonly name: string;
 }
@@ -84,7 +86,11 @@ export interface SpreadsheetStore {
 
   getSheetDataBounds(sheet: SheetReference): Promise<SheetDataBounds>;
 
+  getRangeNotes(range: RangeReference): Promise<SpreadsheetNoteGrid>;
+
   getRangeValues(range: RangeReference): Promise<SpreadsheetGrid>;
+
+  setRangeNotes(range: RangeReference, notes: SpreadsheetNoteGrid): Promise<void>;
 
   setRangeValues(range: RangeReference, values: SpreadsheetGrid): Promise<void>;
 }

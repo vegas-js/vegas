@@ -5,6 +5,7 @@ import type {
   SheetMetadata,
   SpreadsheetGrid,
   SpreadsheetMetadata,
+  SpreadsheetNoteGrid,
   SpreadsheetStore,
 } from "./spreadsheet-store";
 import { assertInteger, assertPositiveInteger } from "./spreadsheet-validation";
@@ -417,8 +418,16 @@ export class InMemorySpreadsheetStore implements SpreadsheetStore {
     return this.#getSheetState(sheet.spreadsheetId, sheet.sheetId).grid.getDataBounds();
   }
 
+  async getRangeNotes(range: RangeReference): Promise<SpreadsheetNoteGrid> {
+    return this.#getSheetState(range.spreadsheetId, range.sheetId).grid.getNotes(range);
+  }
+
   async getRangeValues(range: RangeReference): Promise<SpreadsheetGrid> {
     return this.#getSheetState(range.spreadsheetId, range.sheetId).grid.getValues(range);
+  }
+
+  async setRangeNotes(range: RangeReference, notes: SpreadsheetNoteGrid): Promise<void> {
+    this.#getSheetState(range.spreadsheetId, range.sheetId).grid.setNotes(range, notes);
   }
 
   async setRangeValues(range: RangeReference, values: SpreadsheetGrid): Promise<void> {

@@ -2,7 +2,11 @@ import type { HostBridge } from "./host-bridge";
 import type { SpreadsheetObjectHydrator } from "./spreadsheet-hydrator";
 import type { RangeReference } from "./spreadsheet-reference";
 import type { Sheet } from "./spreadsheet-sheet";
-import type { SpreadsheetCellValue, SpreadsheetGrid } from "./spreadsheet-store";
+import type {
+  SpreadsheetCellValue,
+  SpreadsheetGrid,
+  SpreadsheetNoteGrid,
+} from "./spreadsheet-store";
 import { assertInteger, assertPositiveInteger } from "./spreadsheet-validation";
 
 function cloneCellValue(value: SpreadsheetCellValue): SpreadsheetCellValue {
@@ -69,6 +73,14 @@ export class Range {
     // Apps Script bases this result on spreadsheet permissions and protections.
     // Vegas does not model either yet, so every local Range is editable.
     return true;
+  }
+
+  clearNote(): Range {
+    return this.setNotes(
+      Array.from({ length: this.#reference.numRows }, () =>
+        Array.from({ length: this.#reference.numColumns }, () => null),
+      ),
+    );
   }
 
   clearContent(): Range {
@@ -161,6 +173,20 @@ export class Range {
       spreadsheetId: this.#reference.spreadsheetId,
       sheetId: this.#reference.sheetId,
     });
+  }
+
+  getNote(): string {
+    return this.getNotes()[0]![0]!;
+  }
+
+  getNotes(): string[][] {
+    return this.#bridge
+      .call({
+        service: "spreadsheet",
+        operation: "get-range-notes",
+        range: this.#reference,
+      })
+      .map((row) => row.map((note) => note ?? ""));
   }
 
   getValue(): SpreadsheetCellValue {
@@ -295,6 +321,25 @@ export class Range {
       ...this.#reference,
       numRows: uniqueRows.length,
     });
+  }
+
+  setNote(note: string | null): Range {
+    return this.setNotes(
+      Array.from({ length: this.#reference.numRows }, () =>
+        Array.from({ length: this.#reference.numColumns }, () => note),
+      ),
+    );
+  }
+
+  setNotes(notes: SpreadsheetNoteGrid): Range {
+    this.#bridge.call({
+      service: "spreadsheet",
+      operation: "set-range-notes",
+      range: this.#reference,
+      notes,
+    });
+
+    return this;
   }
 
   setValue(value: SpreadsheetCellValue): Range {

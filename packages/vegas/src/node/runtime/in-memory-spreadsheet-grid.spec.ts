@@ -81,6 +81,35 @@ describe("InMemorySpreadsheetGrid", () => {
     });
   });
 
+  test("store notes independently from values and data bounds", () => {
+    const grid = createGrid();
+
+    expect(grid.getNotes(RANGE)).toStrictEqual([
+      ["", "", ""],
+      ["", "", ""],
+    ]);
+
+    grid.setNotes(RANGE, [
+      ["header", null, ""],
+      ["name", "amount", null],
+    ]);
+
+    expect(grid.getNotes(RANGE)).toStrictEqual([
+      ["header", "", ""],
+      ["name", "amount", ""],
+    ]);
+    expect(grid.getValues(RANGE)).toStrictEqual([
+      ["Name", "Amount", new Date("2026-09-18T00:00:00.000Z")],
+      ["Vegas", 42, true],
+    ]);
+    expect(grid.getDataBounds()).toStrictEqual({
+      lastRow: 2,
+      lastColumn: 3,
+    });
+
+    expect(() => grid.setNotes(RANGE, [["too short"]])).toThrow("note dimensions must match");
+  });
+
   test("reject mismatched value dimensions before changing any cells", () => {
     const grid = createGrid();
 

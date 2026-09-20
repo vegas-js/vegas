@@ -4,6 +4,7 @@ import type {
   SheetMetadata,
   SpreadsheetGrid,
   SpreadsheetMetadata,
+  SpreadsheetNoteGrid,
 } from "./spreadsheet-store";
 
 export type SpreadsheetHostCall =
@@ -129,8 +130,19 @@ export type SpreadsheetHostCall =
     }
   | {
       readonly service: "spreadsheet";
+      readonly operation: "get-range-notes";
+      readonly range: RangeReference;
+    }
+  | {
+      readonly service: "spreadsheet";
       readonly operation: "get-range-values";
       readonly range: RangeReference;
+    }
+  | {
+      readonly service: "spreadsheet";
+      readonly operation: "set-range-notes";
+      readonly range: RangeReference;
+      readonly notes: SpreadsheetNoteGrid;
     }
   | {
       readonly service: "spreadsheet";
@@ -160,7 +172,9 @@ type SpreadsheetHostCallResultMap = {
   "set-sheet-right-to-left": void;
   "set-sheet-tab-color": void;
   "get-sheet-data-bounds": SheetDataBounds;
+  "get-range-notes": SpreadsheetNoteGrid;
   "get-range-values": SpreadsheetGrid;
+  "set-range-notes": void;
   "set-range-values": void;
 };
 
