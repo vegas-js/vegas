@@ -342,6 +342,45 @@ describe("Sheet", () => {
     expect(hydrator.references).toHaveLength(0);
   });
 
+  test("read and update user-hidden Sheet rows through the HostBridge", () => {
+    const hiddenRows = new Set<number>();
+    const bridge = new RecordingHostBridge((call) => {
+      if (call.service !== "spreadsheet") {
+        throw new Error(`unexpected service: ${call.service}`);
+      }
+
+      switch (call.operation) {
+        case "get-sheet-row-hidden-by-user":
+          return hiddenRows.has(call.row);
+        case "set-sheet-rows-hidden":
+          for (let row = call.startRow; row < call.startRow + call.numRows; row += 1) {
+            if (call.hidden) {
+              hiddenRows.add(row);
+            } else {
+              hiddenRows.delete(row);
+            }
+          }
+          return undefined;
+        default:
+          throw new Error(`unexpected host call: ${call.service}#${call.operation}`);
+      }
+    });
+    const { hydrator, sheet } = createFixture({ bridge });
+
+    expect(sheet.isRowHiddenByUser(2)).toBe(false);
+    expect(sheet.hideRows(2)).toBeUndefined();
+    expect(sheet.hideRows(4, 2)).toBeUndefined();
+    expect(sheet.isRowHiddenByUser(2)).toBe(true);
+    expect(sheet.isRowHiddenByUser(3)).toBe(false);
+    expect(sheet.isRowHiddenByUser(4)).toBe(true);
+    expect(sheet.isRowHiddenByUser(5)).toBe(true);
+    expect(sheet.showRows(4)).toBeUndefined();
+    expect(sheet.showRows(5, 1)).toBeUndefined();
+    expect(sheet.isRowHiddenByUser(4)).toBe(false);
+    expect(sheet.isRowHiddenByUser(5)).toBe(false);
+    expect(hydrator.references).toHaveLength(0);
+  });
+
   test("read and update Sheet display state through the HostBridge", () => {
     let hidden = false;
     let hiddenGridlines = false;

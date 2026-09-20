@@ -52,12 +52,21 @@ export interface SpreadsheetStore {
 
   isSheetColumnHiddenByUser(sheet: SheetReference, column: number): Promise<boolean>;
 
+  isSheetRowHiddenByUser(sheet: SheetReference, row: number): Promise<boolean>;
+
   renameSheet(sheet: SheetReference, name: string): Promise<void>;
 
   setSheetColumnsHidden(
     sheet: SheetReference,
     startColumn: number,
     numColumns: number,
+    hidden: boolean,
+  ): Promise<void>;
+
+  setSheetRowsHidden(
+    sheet: SheetReference,
+    startRow: number,
+    numRows: number,
     hidden: boolean,
   ): Promise<void>;
 

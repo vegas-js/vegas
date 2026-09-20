@@ -115,6 +115,19 @@ export class Sheet {
     });
   }
 
+  hideRows(rowIndex: number): void;
+  hideRows(rowIndex: number, numRows: number): void;
+  hideRows(rowIndex: number, numRows = 1): void {
+    this.#bridge.call({
+      service: "spreadsheet",
+      operation: "set-sheet-rows-hidden",
+      sheet: this.#reference,
+      startRow: rowIndex,
+      numRows,
+      hidden: true,
+    });
+  }
+
   hideSheet(): Sheet {
     this.#bridge.call({
       service: "spreadsheet",
@@ -157,6 +170,15 @@ export class Sheet {
       operation: "get-sheet-column-hidden-by-user",
       sheet: this.#reference,
       column: columnPosition,
+    });
+  }
+
+  isRowHiddenByUser(rowPosition: number): boolean {
+    return this.#bridge.call({
+      service: "spreadsheet",
+      operation: "get-sheet-row-hidden-by-user",
+      sheet: this.#reference,
+      row: rowPosition,
     });
   }
 
@@ -228,6 +250,19 @@ export class Sheet {
       sheet: this.#reference,
       startColumn: columnIndex,
       numColumns,
+      hidden: false,
+    });
+  }
+
+  showRows(rowIndex: number): void;
+  showRows(rowIndex: number, numRows: number): void;
+  showRows(rowIndex: number, numRows = 1): void {
+    this.#bridge.call({
+      service: "spreadsheet",
+      operation: "set-sheet-rows-hidden",
+      sheet: this.#reference,
+      startRow: rowIndex,
+      numRows,
       hidden: false,
     });
   }

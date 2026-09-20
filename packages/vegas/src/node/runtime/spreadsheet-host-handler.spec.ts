@@ -314,6 +314,81 @@ describe("SpreadsheetHostHandler", () => {
     ).resolves.toBe(true);
   });
 
+  test("delegate user-hidden Sheet row state to the store", async () => {
+    const handler = createHandler();
+    const sheet = {
+      service: "spreadsheet",
+      kind: "sheet",
+      spreadsheetId: "spreadsheet-a",
+      sheetId: 7,
+    } as const;
+
+    await expect(
+      handler.handle({
+        service: "spreadsheet",
+        operation: "get-sheet-row-hidden-by-user",
+        sheet,
+        row: 2,
+      }),
+    ).resolves.toBe(false);
+
+    await expect(
+      handler.handle({
+        service: "spreadsheet",
+        operation: "set-sheet-rows-hidden",
+        sheet,
+        startRow: 2,
+        numRows: 2,
+        hidden: true,
+      }),
+    ).resolves.toBeUndefined();
+
+    await expect(
+      handler.handle({
+        service: "spreadsheet",
+        operation: "get-sheet-row-hidden-by-user",
+        sheet,
+        row: 2,
+      }),
+    ).resolves.toBe(true);
+    await expect(
+      handler.handle({
+        service: "spreadsheet",
+        operation: "get-sheet-row-hidden-by-user",
+        sheet,
+        row: 3,
+      }),
+    ).resolves.toBe(true);
+
+    await expect(
+      handler.handle({
+        service: "spreadsheet",
+        operation: "set-sheet-rows-hidden",
+        sheet,
+        startRow: 2,
+        numRows: 1,
+        hidden: false,
+      }),
+    ).resolves.toBeUndefined();
+
+    await expect(
+      handler.handle({
+        service: "spreadsheet",
+        operation: "get-sheet-row-hidden-by-user",
+        sheet,
+        row: 2,
+      }),
+    ).resolves.toBe(false);
+    await expect(
+      handler.handle({
+        service: "spreadsheet",
+        operation: "get-sheet-row-hidden-by-user",
+        sheet,
+        row: 3,
+      }),
+    ).resolves.toBe(true);
+  });
+
   test("delegate Range reads and writes to the store", async () => {
     const handler = createHandler();
     const range = {

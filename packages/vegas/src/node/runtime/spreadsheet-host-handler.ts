@@ -43,6 +43,9 @@ export class SpreadsheetHostHandler implements SpreadsheetHostCallHandler {
       case "get-sheet-column-hidden-by-user": {
         return this.#store.isSheetColumnHiddenByUser(call.sheet, call.column);
       }
+      case "get-sheet-row-hidden-by-user": {
+        return this.#store.isSheetRowHiddenByUser(call.sheet, call.row);
+      }
       case "rename-sheet": {
         await this.#store.renameSheet(call.sheet, call.name);
         return;
@@ -54,6 +57,10 @@ export class SpreadsheetHostHandler implements SpreadsheetHostCallHandler {
           call.numColumns,
           call.hidden,
         );
+        return;
+      }
+      case "set-sheet-rows-hidden": {
+        await this.#store.setSheetRowsHidden(call.sheet, call.startRow, call.numRows, call.hidden);
         return;
       }
       case "set-sheet-frozen-columns": {

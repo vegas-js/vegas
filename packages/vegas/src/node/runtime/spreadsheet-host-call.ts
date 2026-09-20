@@ -60,6 +60,12 @@ export type SpreadsheetHostCall =
     }
   | {
       readonly service: "spreadsheet";
+      readonly operation: "get-sheet-row-hidden-by-user";
+      readonly sheet: SheetReference;
+      readonly row: number;
+    }
+  | {
+      readonly service: "spreadsheet";
       readonly operation: "rename-sheet";
       readonly sheet: SheetReference;
       readonly name: string;
@@ -70,6 +76,14 @@ export type SpreadsheetHostCall =
       readonly sheet: SheetReference;
       readonly startColumn: number;
       readonly numColumns: number;
+      readonly hidden: boolean;
+    }
+  | {
+      readonly service: "spreadsheet";
+      readonly operation: "set-sheet-rows-hidden";
+      readonly sheet: SheetReference;
+      readonly startRow: number;
+      readonly numRows: number;
       readonly hidden: boolean;
     }
   | {
@@ -135,8 +149,10 @@ type SpreadsheetHostCallResultMap = {
   "get-sheet-by-name": SheetReference | null;
   "get-sheet-metadata": SheetMetadata;
   "get-sheet-column-hidden-by-user": boolean;
+  "get-sheet-row-hidden-by-user": boolean;
   "rename-sheet": void;
   "set-sheet-columns-hidden": void;
+  "set-sheet-rows-hidden": void;
   "set-sheet-frozen-columns": void;
   "set-sheet-frozen-rows": void;
   "set-sheet-hidden": void;

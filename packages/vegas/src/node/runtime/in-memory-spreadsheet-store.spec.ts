@@ -194,6 +194,35 @@ describe("InMemorySpreadsheetStore resources", () => {
     );
   });
 
+  test("persist user-hidden Sheet rows within local grid bounds", async () => {
+    const store = createStore();
+
+    await expect(store.isSheetRowHiddenByUser(SUMMARY, 2)).resolves.toBe(false);
+    await store.setSheetRowsHidden(SUMMARY, 2, 3, true);
+    await expect(store.isSheetRowHiddenByUser(SUMMARY, 2)).resolves.toBe(true);
+    await expect(store.isSheetRowHiddenByUser(SUMMARY, 3)).resolves.toBe(true);
+    await expect(store.isSheetRowHiddenByUser(SUMMARY, 4)).resolves.toBe(true);
+    await expect(store.isSheetRowHiddenByUser(SUMMARY, 5)).resolves.toBe(false);
+
+    await store.setSheetRowsHidden(SUMMARY, 3, 2, false);
+    await expect(store.isSheetRowHiddenByUser(SUMMARY, 2)).resolves.toBe(true);
+    await expect(store.isSheetRowHiddenByUser(SUMMARY, 3)).resolves.toBe(false);
+    await expect(store.isSheetRowHiddenByUser(SUMMARY, 4)).resolves.toBe(false);
+
+    await expect(store.setSheetRowsHidden(SUMMARY, 0, 1, true)).rejects.toThrow(
+      "row start must be a positive integer",
+    );
+    await expect(store.setSheetRowsHidden(SUMMARY, 1, 0, true)).rejects.toThrow(
+      "row count must be a positive integer",
+    );
+    await expect(store.setSheetRowsHidden(SUMMARY, 10, 2, true)).rejects.toThrow(
+      "rows must stay within 1 and 10",
+    );
+    await expect(store.isSheetRowHiddenByUser(SUMMARY, 11)).rejects.toThrow(
+      "rows must stay within 1 and 10",
+    );
+  });
+
   test("reject invalid local frozen Sheet counts", async () => {
     const store = createStore();
 

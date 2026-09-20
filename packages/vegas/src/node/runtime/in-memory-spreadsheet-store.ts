@@ -31,6 +31,7 @@ type SheetState = {
   readonly reference: SheetReference;
   readonly metadata: SheetMetadata;
   readonly hiddenColumns: ReadonlySet<number>;
+  readonly hiddenRows: ReadonlySet<number>;
   readonly grid: InMemorySpreadsheetGrid;
 };
 
@@ -69,6 +70,17 @@ function assertColumnSpan(startColumn: number, numColumns: number, maximum: numb
   }
 }
 
+// Apps Script documents 1-based row positions, but not invalid-span behavior.
+// Vegas constrains local row visibility spans to the current Sheet grid.
+function assertRowSpan(startRow: number, numRows: number, maximum: number): void {
+  assertPositiveInteger(startRow, "Spreadsheet sheet row start");
+  assertPositiveInteger(numRows, "Spreadsheet sheet row count");
+
+  if (startRow + numRows - 1 > maximum) {
+    throw new RangeError(`Spreadsheet sheet rows must stay within 1 and ${maximum}.`);
+  }
+}
+
 function createSheetState(spreadsheetId: string, seed: InMemorySheetSeed): SheetState {
   assertInteger(seed.id, "Spreadsheet sheet id");
 
@@ -91,6 +103,7 @@ function createSheetState(spreadsheetId: string, seed: InMemorySheetSeed): Sheet
       tabColor: seed.tabColor ?? null,
     },
     hiddenColumns: new Set(),
+    hiddenRows: new Set(),
     grid: new InMemorySpreadsheetGrid(seed.maxRows, seed.maxColumns, seed.values),
   };
 }
@@ -227,6 +240,13 @@ export class InMemorySpreadsheetStore implements SpreadsheetStore {
     return state.hiddenColumns.has(column);
   }
 
+  async isSheetRowHiddenByUser(sheet: SheetReference, row: number): Promise<boolean> {
+    const state = this.#getSheetState(sheet.spreadsheetId, sheet.sheetId);
+    assertRowSpan(row, 1, state.metadata.maxRows);
+
+    return state.hiddenRows.has(row);
+  }
+
   async renameSheet(sheet: SheetReference, name: string): Promise<void> {
     const spreadsheet = this.#getSpreadsheetState(sheet.spreadsheetId);
     const state = this.#getSheetState(sheet.spreadsheetId, sheet.sheetId);
@@ -268,6 +288,31 @@ export class InMemorySpreadsheetStore implements SpreadsheetStore {
     spreadsheet.sheets.set(sheet.sheetId, {
       ...state,
       hiddenColumns,
+    });
+  }
+
+  async setSheetRowsHidden(
+    sheet: SheetReference,
+    startRow: number,
+    numRows: number,
+    hidden: boolean,
+  ): Promise<void> {
+    const spreadsheet = this.#getSpreadsheetState(sheet.spreadsheetId);
+    const state = this.#getSheetState(sheet.spreadsheetId, sheet.sheetId);
+    assertRowSpan(startRow, numRows, state.metadata.maxRows);
+
+    const hiddenRows = new Set(state.hiddenRows);
+    for (let row = startRow; row < startRow + numRows; row += 1) {
+      if (hidden) {
+        hiddenRows.add(row);
+      } else {
+        hiddenRows.delete(row);
+      }
+    }
+
+    spreadsheet.sheets.set(sheet.sheetId, {
+      ...state,
+      hiddenRows,
     });
   }
 
