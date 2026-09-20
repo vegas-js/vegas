@@ -7,6 +7,10 @@ function escapeInlineScript(code: string): string {
   return code.replace(/<\/script/gi, "<\\/script");
 }
 
+function escapeInlineStyle(code: string): string {
+  return code.replace(/<\/style/gi, "<\\/style");
+}
+
 function readCssAsset(asset: Rolldown.OutputAsset): string {
   if (!asset.fileName.toLowerCase().endsWith(".css")) {
     throw new Error(`Unsupported client asset: ${asset.fileName}`);
@@ -76,7 +80,7 @@ export function virtualHtml(entries: BuildPlan["clientEntries"]): Plugin {
       const html = new HtmlDocument();
 
       for (const style of styles) {
-        html.appendToHead("style", { text: style });
+        html.appendToHead("style", { text: escapeInlineStyle(style) });
       }
 
       html.appendToBody("div", { attributes: { id: "root" } });

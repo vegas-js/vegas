@@ -156,6 +156,80 @@ describe("virtualHtml", () => {
     }
   });
 
+  test("escape style end tag in client css", async () => {
+    const tempDirPath = fs.mkdtempSync(path.join(os.tmpdir(), "vegas-"));
+
+    try {
+      const sourcePath = path.join(tempDirPath, "main.ts");
+
+      fs.writeFileSync(sourcePath, `console.log("hello");`);
+
+      const entry: ClientEntry = {
+        id: "index",
+        sourcePath,
+        htmlPath: "index.html",
+      };
+      const builder = await createBuilder({
+        root: tempDirPath,
+        configFile: false,
+        plugins: [
+          {
+            name: "emit-style-end-tag",
+
+            generateBundle() {
+              this.emitFile({
+                type: "asset",
+                fileName: "style.css",
+                source: `body::before { content: "</style><script>alert('x')</script>"; }`,
+              });
+            },
+          },
+          virtualHtml([entry]),
+        ],
+        environments: {
+          client0: {
+            consumer: "client",
+            build: {
+              rolldownOptions: {
+                input: entry.sourcePath,
+              },
+            },
+          },
+        },
+        build: {
+          write: false,
+          cssCodeSplit: false,
+          rolldownOptions: {
+            output: {
+              codeSplitting: false,
+            },
+          },
+        },
+        logLevel: "silent",
+      });
+
+      const result = await builder.build(builder.environments.client0);
+
+      const buildResults = (Array.isArray(result) ? result : [result]) as Rolldown.RolldownOutput[];
+      const outputs = buildResults.flatMap((result) => result.output);
+      const html = outputs.find((output) => output.fileName === "index.html");
+
+      expect(html).toBeDefined();
+
+      if (!html || html.type !== "asset" || typeof html.source !== "string") {
+        throw new Error("Expected HTML asset");
+      }
+
+      expect(html.source).toContain("<\\/style>");
+      expect(html.source.match(/<\/style/gi)).toHaveLength(1);
+    } finally {
+      fs.rmSync(tempDirPath, {
+        recursive: true,
+        force: true,
+      });
+    }
+  });
+
   test("reject multiple JavaScript chunks for one client environment", async () => {
     const tempDirPath = fs.mkdtempSync(path.join(os.tmpdir(), "vegas-"));
 
