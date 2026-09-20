@@ -339,6 +339,69 @@ describe("Sheet", () => {
     expect(rangeDouble.getValuesCalls).toHaveLength(0);
   });
 
+  test("hydrate the Sheet data range from content bounds", () => {
+    let lastRow: number | null = 4;
+    let lastColumn: number | null = 5;
+    const bridge = new RecordingHostBridge((call) => {
+      if (call.service === "spreadsheet" && call.operation === "get-sheet-data-bounds") {
+        return {
+          lastRow,
+          lastColumn,
+        };
+      }
+
+      throw new Error(`unexpected host call: ${call.service}#${call.operation}`);
+    });
+    const { hydrator, rangeDouble, sheet } = createFixture({ bridge });
+
+    expect(sheet.getDataRange()).toBe(rangeDouble.range);
+    expect(hydrator.references).toStrictEqual([
+      {
+        service: "spreadsheet",
+        kind: "range",
+        spreadsheetId: "spreadsheet-a",
+        sheetId: 7,
+        row: 1,
+        column: 1,
+        numRows: 4,
+        numColumns: 5,
+      },
+    ]);
+
+    lastRow = null;
+    lastColumn = null;
+
+    expect(sheet.getDataRange()).toBe(rangeDouble.range);
+    expect(hydrator.references).toStrictEqual([
+      {
+        service: "spreadsheet",
+        kind: "range",
+        spreadsheetId: "spreadsheet-a",
+        sheetId: 7,
+        row: 1,
+        column: 1,
+        numRows: 4,
+        numColumns: 5,
+      },
+      {
+        service: "spreadsheet",
+        kind: "range",
+        spreadsheetId: "spreadsheet-a",
+        sheetId: 7,
+        row: 1,
+        column: 1,
+        numRows: 1,
+        numColumns: 1,
+      },
+    ]);
+    expect(bridge.calls.map(({ operation }) => operation)).toStrictEqual([
+      "get-sheet-data-bounds",
+      "get-sheet-data-bounds",
+    ]);
+    expect(rangeDouble.clearContentCalls).toHaveLength(0);
+    expect(rangeDouble.getValuesCalls).toHaveLength(0);
+  });
+
   test("leave an empty Sheet unchanged when clearing contents", () => {
     const bridge = new RecordingHostBridge((call) => {
       if (call.service === "spreadsheet" && call.operation === "get-sheet-data-bounds") {

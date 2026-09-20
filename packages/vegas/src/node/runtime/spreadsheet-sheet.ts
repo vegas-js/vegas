@@ -30,6 +30,18 @@ export class Sheet {
     return this;
   }
 
+  getDataRange(): Range {
+    const bounds = this.#dataBounds();
+
+    // Google Apps Script defines getDataRange() from A1 through the last content coordinates,
+    // but does not document the empty-Sheet result. Vegas returns A1 to preserve a valid Range.
+    if (bounds.lastRow === null || bounds.lastColumn === null) {
+      return this.getRange(1, 1);
+    }
+
+    return this.getRange(1, 1, bounds.lastRow, bounds.lastColumn);
+  }
+
   getIndex(): number {
     const index = this.#bridge
       .call({
