@@ -14,6 +14,7 @@ import { createInvocationEnvironment } from "./runtime-environment";
 import { createInvocationScope } from "./runtime-scope";
 
 interface LocalRuntimeOptions {
+  readonly propertiesStore?: InMemoryPropertiesStore;
   readonly session?: LocalRuntimeSession;
   readonly spreadsheetStore?: InMemorySpreadsheetStore;
   readonly spreadsheetUrlCapability?: SpreadsheetUrlCapability;
@@ -31,9 +32,9 @@ export async function createLocalRuntime(
   dependencies: LocalRuntimeDependencies = {},
 ): Promise<LocalRuntime> {
   const scope = createInvocationScope(project);
-  const propertiesStore = new InMemoryPropertiesStore();
+  const propertiesStore = options.propertiesStore ?? new InMemoryPropertiesStore();
 
-  if (snapshot.properties !== undefined) {
+  if (options.propertiesStore === undefined && snapshot.properties !== undefined) {
     await applyPropertiesRuntimeData(propertiesStore, scope, snapshot.properties.value);
   }
 

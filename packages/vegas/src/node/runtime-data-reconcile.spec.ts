@@ -5,8 +5,13 @@ import type {
   RuntimeDataSpreadsheet,
   RuntimeDataSpreadsheetSheet,
 } from "../shared/gas";
-import { reconcileLocalSpreadsheetStore } from "./runtime-data-reconcile";
+import {
+  reconcileLocalPropertiesStore,
+  reconcileLocalSpreadsheetStore,
+} from "./runtime-data-reconcile";
+import { InMemoryPropertiesStore } from "./runtime/in-memory-properties-store";
 import { InMemorySpreadsheetStore } from "./runtime/in-memory-spreadsheet-store";
+import type { InvocationScope } from "./runtime/scope";
 import type { RangeReference } from "./runtime/spreadsheet-reference";
 
 function spreadsheet(
@@ -58,6 +63,259 @@ function range(spreadsheetId: string): RangeReference {
     numColumns: 1,
   };
 }
+
+describe("reconcileLocalPropertiesStore", () => {
+  const scope: InvocationScope = {
+    scriptKey: "script-a",
+    userKey: "user-a",
+    documentKey: "document-a",
+  };
+
+  test("preserve runtime mutations when the Properties fixture is unchanged", async () => {
+    const previous = {
+      properties: {
+        source: "runtime/properties.ts",
+        value: {
+          scriptProperties: {
+            environment: "test",
+          },
+        },
+      },
+      spreadsheets: [],
+    } satisfies RuntimeDataSnapshot;
+    const current = new InMemoryPropertiesStore();
+
+    await current.set(
+      {
+        kind: "script",
+        scriptKey: "script-a",
+      },
+      "runtime",
+      "mutation",
+    );
+
+    const next = {
+      properties: {
+        source: "runtime/renamed/properties.ts",
+        value: previous.properties.value,
+      },
+      spreadsheets: [],
+    } satisfies RuntimeDataSnapshot;
+
+    const reconciled = await reconcileLocalPropertiesStore(current, scope, previous, next);
+
+    await expect(
+      reconciled.getAll({
+        kind: "script",
+        scriptKey: "script-a",
+      }),
+    ).resolves.toStrictEqual({
+      runtime: "mutation",
+    });
+
+    await reconciled.set(
+      {
+        kind: "script",
+        scriptKey: "script-a",
+      },
+      "clone",
+      "only",
+    );
+
+    await expect(
+      current.getAll({
+        kind: "script",
+        scriptKey: "script-a",
+      }),
+    ).resolves.toStrictEqual({
+      runtime: "mutation",
+    });
+  });
+
+  test("reset current-scope namespaces when the Properties fixture changes", async () => {
+    const previous = {
+      properties: {
+        source: "runtime/properties.ts",
+        value: {
+          scriptProperties: {
+            environment: "old",
+          },
+        },
+      },
+      spreadsheets: [],
+    } satisfies RuntimeDataSnapshot;
+    const current = new InMemoryPropertiesStore();
+
+    await current.setAll(
+      {
+        kind: "script",
+        scriptKey: "script-a",
+      },
+      {
+        runtime: "script mutation",
+      },
+    );
+    await current.setAll(
+      {
+        kind: "user",
+        scriptKey: "script-a",
+        userKey: "user-a",
+      },
+      {
+        runtime: "user mutation",
+      },
+    );
+    await current.setAll(
+      {
+        kind: "document",
+        scriptKey: "script-a",
+        documentKey: "document-a",
+      },
+      {
+        runtime: "document mutation",
+      },
+    );
+    await current.set(
+      {
+        kind: "script",
+        scriptKey: "other-script",
+      },
+      "unrelated",
+      "preserved",
+    );
+
+    const next = {
+      properties: {
+        source: "runtime/properties.ts",
+        value: {
+          scriptProperties: {
+            environment: "new",
+          },
+          userProperties: {
+            role: "editor",
+          },
+          documentProperties: {
+            document: "seed",
+          },
+        },
+      },
+      spreadsheets: [],
+    } satisfies RuntimeDataSnapshot;
+
+    const reconciled = await reconcileLocalPropertiesStore(current, scope, previous, next);
+
+    await expect(
+      reconciled.getAll({
+        kind: "script",
+        scriptKey: "script-a",
+      }),
+    ).resolves.toStrictEqual({
+      environment: "new",
+    });
+    await expect(
+      reconciled.getAll({
+        kind: "user",
+        scriptKey: "script-a",
+        userKey: "user-a",
+      }),
+    ).resolves.toStrictEqual({
+      role: "editor",
+    });
+    await expect(
+      reconciled.getAll({
+        kind: "document",
+        scriptKey: "script-a",
+        documentKey: "document-a",
+      }),
+    ).resolves.toStrictEqual({
+      document: "seed",
+    });
+    await expect(
+      reconciled.getAll({
+        kind: "script",
+        scriptKey: "other-script",
+      }),
+    ).resolves.toStrictEqual({
+      unrelated: "preserved",
+    });
+  });
+
+  test("clear current-scope namespaces when the Properties fixture is deleted", async () => {
+    const previous = {
+      properties: {
+        source: "runtime/properties.ts",
+        value: {
+          scriptProperties: {
+            environment: "test",
+          },
+        },
+      },
+      spreadsheets: [],
+    } satisfies RuntimeDataSnapshot;
+    const current = new InMemoryPropertiesStore();
+
+    await current.set(
+      {
+        kind: "script",
+        scriptKey: "script-a",
+      },
+      "runtime",
+      "mutation",
+    );
+    await current.set(
+      {
+        kind: "user",
+        scriptKey: "script-a",
+        userKey: "user-a",
+      },
+      "runtime",
+      "mutation",
+    );
+    await current.set(
+      {
+        kind: "document",
+        scriptKey: "script-a",
+        documentKey: "document-a",
+      },
+      "runtime",
+      "mutation",
+    );
+
+    const reconciled = await reconcileLocalPropertiesStore(current, scope, previous, {
+      spreadsheets: [],
+    });
+
+    await expect(
+      reconciled.getAll({
+        kind: "script",
+        scriptKey: "script-a",
+      }),
+    ).resolves.toStrictEqual({});
+    await expect(
+      reconciled.getAll({
+        kind: "user",
+        scriptKey: "script-a",
+        userKey: "user-a",
+      }),
+    ).resolves.toStrictEqual({});
+    await expect(
+      reconciled.getAll({
+        kind: "document",
+        scriptKey: "script-a",
+        documentKey: "document-a",
+      }),
+    ).resolves.toStrictEqual({});
+
+    await expect(
+      current.getAll({
+        kind: "script",
+        scriptKey: "script-a",
+      }),
+    ).resolves.toStrictEqual({
+      runtime: "mutation",
+    });
+  });
+});
 
 describe("reconcileLocalSpreadsheetStore", () => {
   test("reset changed fixtures while preserving unchanged and runtime-created state", async () => {

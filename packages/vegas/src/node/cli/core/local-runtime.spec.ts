@@ -3,6 +3,7 @@ import { describe, expect, expectTypeOf, test, vi } from "vitest";
 import type { RuntimeDataSnapshot } from "../../../shared/gas";
 import type { ResolvedProject } from "../../project";
 import {
+  InMemoryPropertiesStore,
   InMemorySpreadsheetStore,
   LocalRuntimeSession,
   type ExecutionRequest,
@@ -158,6 +159,60 @@ describe("createLocalRuntime", () => {
         scriptKey: "/project",
         userKey: "local-user",
       },
+    });
+  });
+
+  test("use a provided local Properties store without reapplying snapshot seed data", async () => {
+    const snapshot = {
+      properties: {
+        source: "/project/runtime/properties.ts",
+        value: {
+          scriptProperties: {
+            environment: "snapshot",
+          },
+        },
+      },
+      spreadsheets: [],
+    } satisfies RuntimeDataSnapshot;
+    const propertiesStore = new InMemoryPropertiesStore();
+
+    await propertiesStore.set(
+      {
+        kind: "script",
+        scriptKey: "/project",
+      },
+      "environment",
+      "reconciled",
+    );
+
+    await createLocalRuntime(
+      project,
+      snapshot,
+      () => ({
+        source: "",
+        htmlFiles: {},
+      }),
+      {
+        propertiesStore,
+      },
+      {
+        createExecutor: (options) => {
+          expect(options.propertiesStore).toBe(propertiesStore);
+
+          return {
+            execute: vi.fn(async (_request: ExecutionRequest) => undefined),
+          };
+        },
+      },
+    );
+
+    await expect(
+      propertiesStore.getAll({
+        kind: "script",
+        scriptKey: "/project",
+      }),
+    ).resolves.toStrictEqual({
+      environment: "reconciled",
     });
   });
 
