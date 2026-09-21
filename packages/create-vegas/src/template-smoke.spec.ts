@@ -11,6 +11,12 @@ const CREATE_VEGAS_ROOT = path.resolve(import.meta.dirname, "..");
 
 const templateCases = [
   ["template-vanilla", "src/client/main.ts", "setupCounter", "tsc -b && vegas build"],
+  [
+    "template-apps-script-scriptlet",
+    "src/client/index.html",
+    "<?= message ?>",
+    "tsc -b && vegas build",
+  ],
   ["template-lit", "src/client/main.ts", "from 'lit'", "tsc -b && vegas build"],
   ["template-react", "src/client/main.tsx", "react-dom/client", "tsc -b && vegas build"],
   ["template-preact", "src/client/main.tsx", "from 'preact'", "tsc -b && vegas build"],
@@ -44,6 +50,24 @@ describe("create-vegas templates", () => {
     const registeredTemplates = templates.map((template) => template.directory).sort();
 
     expect(smokeTemplates).toStrictEqual(registeredTemplates);
+  });
+
+  test("Apps Script scriptlet template evaluates physical HTML", () => {
+    const templateDirectory = path.join(CREATE_VEGAS_ROOT, "template-apps-script-scriptlet");
+    const html = fs.readFileSync(
+      path.join(templateDirectory, "src", "client", "index.html"),
+      "utf8",
+    );
+    const server = fs.readFileSync(
+      path.join(templateDirectory, "src", "server", "Code.ts"),
+      "utf8",
+    );
+
+    expect(html).toContain("<? if (message) { ?>");
+    expect(html).toContain("<?= message ?>");
+    expect(html).toContain('data-count="<?= initialCount ?>"');
+    expect(server).toContain('HtmlService.createTemplateFromFile("index")');
+    expect(server).toContain("template.evaluate()");
   });
 
   test.each(templateCases)(

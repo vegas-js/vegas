@@ -1,0 +1,17 @@
+{
+  "name": "vegas-apps-script-scriptlet-typescript-starter",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vegas",
+    "build": "tsc -b && vegas build",
+    "preview": "vegas preview",
+    "login": "vegas auth login",
+    "push": "vegas push"
+  },
+  "devDependencies": {
+    "@vegasjs/vegas": "^0.1.9",
+    "typescript": "~6.0.2"
+  }
+}

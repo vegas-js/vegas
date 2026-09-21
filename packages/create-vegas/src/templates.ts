@@ -13,6 +13,12 @@ export const templates = [
     directory: "template-vanilla",
   },
   {
+    id: "apps-script-scriptlet",
+    label: "Apps Script Scriptlet",
+    color: "yellow",
+    directory: "template-apps-script-scriptlet",
+  },
+  {
     id: "lit",
     label: "Lit",
     color: "red",
