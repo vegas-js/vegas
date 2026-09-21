@@ -13,6 +13,7 @@ function createPlan(
   clientSources: readonly string[],
   serverSources: readonly string[],
   appType: "spa" | "script" = "spa",
+  clientHtmlSources: readonly string[] = [],
 ): BuildPlan {
   return {
     root,
@@ -30,7 +31,13 @@ function createPlan(
               htmlPath: `entry-${index}.html`,
             }))
         : [],
-    clientHtmlTargets: [],
+    clientHtmlTargets:
+      appType === "spa"
+        ? clientHtmlSources.map((source) => ({
+            sourcePath: source,
+            htmlPath: path.basename(source),
+          }))
+        : [],
     clientSources,
     serverSources,
   };
@@ -192,6 +199,40 @@ describe("detectServerEntry", () => {
       fs.writeFileSync(serverSource, `export function doGet() { return "ok"; }`);
 
       const plan = createPlan(tempDirPath, [clientSource], [serverSource]);
+
+      await expect(buildServer(plan)).resolves.toBeDefined();
+    } finally {
+      fs.rmSync(tempDirPath, {
+        recursive: true,
+        force: true,
+      });
+    }
+  });
+
+  test("follow client modules referenced by an HTML entry", async () => {
+    const tempDirPath = fs.mkdtempSync(path.join(os.tmpdir(), "vegas-"));
+
+    try {
+      const clientDir = path.join(tempDirPath, "src", "client");
+      const serverDir = path.join(tempDirPath, "src", "server");
+      const htmlSource = path.join(clientDir, "index.html");
+      const clientSource = path.join(clientDir, "page.ts");
+      const serverA = path.join(serverDir, "a", "Code.ts");
+      const serverB = path.join(serverDir, "b", "Code.ts");
+
+      fs.mkdirSync(clientDir, { recursive: true });
+      fs.mkdirSync(path.dirname(serverA), { recursive: true });
+      fs.mkdirSync(path.dirname(serverB), { recursive: true });
+
+      fs.writeFileSync(
+        htmlSource,
+        `<!doctype html><script type="module" src="./page.ts"></script>`,
+      );
+      fs.writeFileSync(clientSource, `import type * as ServerA from "../server/a/Code";`);
+      fs.writeFileSync(serverA, `export function a() {}`);
+      fs.writeFileSync(serverB, `export function b() {}`);
+
+      const plan = createPlan(tempDirPath, [clientSource], [serverA, serverB], "spa", [htmlSource]);
 
       await expect(buildServer(plan)).resolves.toBeDefined();
     } finally {

@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 
+import { defaultTreeAdapter, parse, type DefaultTreeAdapterTypes } from "parse5";
 import { type Plugin, parseSync, Visitor } from "vite";
 
 import type { BuildPlan } from "../../plan";
@@ -106,6 +107,41 @@ function collectClientModuleReferences(filePath: string): ClientModuleReference[
   return references;
 }
 
+function collectClientHtmlModuleReferences(filePath: string): ClientModuleReference[] {
+  const references: ClientModuleReference[] = [];
+  const document = parse(fs.readFileSync(filePath, "utf8"));
+
+  const visit = (parent: DefaultTreeAdapterTypes.ParentNode): void => {
+    for (const child of defaultTreeAdapter.getChildNodes(parent)) {
+      if (!defaultTreeAdapter.isElementNode(child)) {
+        continue;
+      }
+
+      if (child.tagName === "script") {
+        const attributes = defaultTreeAdapter.getAttrList(child);
+        const type = attributes.find((attribute) => attribute.name === "type")?.value;
+
+        if (type?.toLowerCase() === "module") {
+          const source = attributes.find((attribute) => attribute.name === "src")?.value;
+
+          if (source) {
+            references.push({
+              source,
+              typeOnly: false,
+            });
+          }
+        }
+      }
+
+      visit(child);
+    }
+  };
+
+  visit(document);
+
+  return references;
+}
+
 export function detectServerEntry(plan: BuildPlan): Plugin {
   const clientSourcesById = new Map(
     plan.clientSources.map((source) => [normalizeResolvedFileId(source), source]),
@@ -126,6 +162,30 @@ export function detectServerEntry(plan: BuildPlan): Plugin {
         const serverEntries = new Set<string>();
         const visitedClientSources = new Set<string>();
         const pendingClientSources = plan.clientModuleTargets.map((entry) => entry.sourcePath);
+
+        for (const htmlEntry of plan.clientHtmlTargets) {
+          const references = collectClientHtmlModuleReferences(htmlEntry.sourcePath);
+
+          for (const reference of references) {
+            const resolvedId = await this.resolve(reference.source, htmlEntry.sourcePath, options);
+
+            if (resolvedId === null) {
+              continue;
+            }
+
+            const normalizedId = normalizeResolvedFileId(resolvedId.id);
+
+            if (serverSourcesById.has(normalizedId)) {
+              throw new Error("Server sources may only be referenced from client code as types.");
+            }
+
+            const clientSource = clientSourcesById.get(normalizedId);
+
+            if (clientSource && !visitedClientSources.has(clientSource)) {
+              pendingClientSources.push(clientSource);
+            }
+          }
+        }
 
         while (pendingClientSources.length > 0) {
           const clientSourcePath = pendingClientSources.pop();

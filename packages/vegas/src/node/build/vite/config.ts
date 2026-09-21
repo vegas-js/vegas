@@ -1,9 +1,14 @@
 import type { EnvironmentOptions, InlineConfig } from "vite";
 
 import type { BuildPlan } from "../plan";
-import { createClientEnvironmentName, SERVER_ENVIRONMENT_NAME } from "./environment";
+import {
+  createClientHtmlEnvironmentName,
+  createClientModuleEnvironmentName,
+  SERVER_ENVIRONMENT_NAME,
+} from "./environment";
 import { VIRTUAL_DETECT_SERVER_ENTRY, detectServerEntry } from "./plugin/detect-server-entry";
 import { exportBridge } from "./plugin/exportbridge";
+import { inlineHtmlEntry } from "./plugin/inline-html-entry";
 import { virtualHtml } from "./plugin/virtual-html";
 
 export function createBuilderConfig(plan: BuildPlan): InlineConfig {
@@ -30,7 +35,17 @@ export function createBuilderConfig(plan: BuildPlan): InlineConfig {
     },
   };
   plan.clientModuleTargets.forEach((entry, index) => {
-    environments[createClientEnvironmentName(index)] = {
+    environments[createClientModuleEnvironmentName(index)] = {
+      ...sharedClientOptions,
+      build: {
+        rolldownOptions: {
+          input: entry.sourcePath,
+        },
+      },
+    };
+  });
+  plan.clientHtmlTargets.forEach((entry, index) => {
+    environments[createClientHtmlEnvironmentName(index)] = {
       ...sharedClientOptions,
       build: {
         rolldownOptions: {
@@ -51,6 +66,7 @@ export function createBuilderConfig(plan: BuildPlan): InlineConfig {
     plugins: [
       ...plan.plugins,
       virtualHtml(plan.clientModuleTargets),
+      inlineHtmlEntry(plan.clientHtmlTargets),
       detectServerEntry(plan),
       exportBridge(),
     ],

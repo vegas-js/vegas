@@ -9,7 +9,7 @@ describe("buildDevArtifacts", () => {
     const builder = {} as ViteBuilder;
     const build = vi.fn(
       async (_builder: ViteBuilder, filter?: RegExp): Promise<BuildArtifact[]> => {
-        if (String(filter) === "/^client\\d+$/") {
+        if (String(filter) === "/^client(?:\\d+|Html\\d+)$/") {
           return [{ path: "index.html", content: "client" }];
         }
 
@@ -21,7 +21,7 @@ describe("buildDevArtifacts", () => {
       clientArtifacts: [{ path: "index.html", content: "client" }],
       serverArtifacts: [{ path: "Code.js", content: "server" }],
     });
-    expect(build).toHaveBeenNthCalledWith(1, builder, /^client\d+$/);
+    expect(build).toHaveBeenNthCalledWith(1, builder, /^client(?:\d+|Html\d+)$/);
     expect(build).toHaveBeenNthCalledWith(2, builder, /^server$/);
   });
 });

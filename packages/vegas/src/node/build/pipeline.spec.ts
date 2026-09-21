@@ -191,6 +191,81 @@ describe("build pipeline", () => {
     }
   });
 
+  test("build HTML client entry as a self-contained artifact", async () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), "vegas-"));
+
+    try {
+      const project = createProject(root);
+      const htmlSource = path.join(project.clientDir, "page.html");
+      const clientSource = path.join(project.clientDir, "page.ts");
+      const styleSource = path.join(project.clientDir, "page.css");
+
+      fs.mkdirSync(project.clientDir, { recursive: true });
+      fs.mkdirSync(project.serverDir, { recursive: true });
+
+      fs.writeFileSync(
+        htmlSource,
+        `<!doctype html>
+        <html>
+          <head>
+            <title>HTML Entry</title>
+            <link rel="stylesheet" href="./page.css">
+          </head>
+          <body>
+            <main id="page">html-entry-layout</main>
+            <script type="module" src="./page.ts"></script>
+          </body>
+        </html>`,
+      );
+      fs.writeFileSync(
+        clientSource,
+        `document.querySelector("#page")?.setAttribute("data-ready", "html-client-ready");`,
+      );
+      fs.writeFileSync(styleSource, `#page { color: red; }`);
+      fs.writeFileSync(
+        path.join(project.serverDir, "Code.ts"),
+        `export function doGet() { return "server-ready"; }`,
+      );
+
+      const snapshot = await scanProject(project);
+      const artifacts = await buildProjectArtifacts(project, snapshot);
+      const htmlArtifact = artifacts.find((artifact) => artifact.path === "page.html");
+
+      expect(snapshot.clientModuleEntries).toStrictEqual([]);
+      expect(snapshot.clientHtmlEntries).toStrictEqual([
+        {
+          sourcePath: htmlSource,
+          htmlPath: "page.html",
+        },
+      ]);
+      expect(htmlArtifact).toBeDefined();
+
+      if (!htmlArtifact || typeof htmlArtifact.content !== "string") {
+        throw new Error("Expected page.html text artifact");
+      }
+
+      expect(htmlArtifact.content).toContain("<title>HTML Entry</title>");
+      expect(htmlArtifact.content).toContain("html-entry-layout");
+      expect(htmlArtifact.content).toContain("html-client-ready");
+      expect(htmlArtifact.content).toContain("color:");
+      expect(htmlArtifact.content).not.toMatch(/<script[^>]+\bsrc=/i);
+      expect(htmlArtifact.content).not.toMatch(/<link[^>]+\brel="stylesheet"/i);
+      expect(
+        artifacts.some(
+          (artifact) =>
+            artifact.path !== "Code.js" &&
+            artifact.path !== "page.html" &&
+            artifact.path !== "appsscript.json",
+        ),
+      ).toBe(false);
+    } finally {
+      fs.rmSync(root, {
+        recursive: true,
+        force: true,
+      });
+    }
+  });
+
   test("build script artifacts with explicit server directory", async () => {
     const root = fs.mkdtempSync(path.join(os.tmpdir(), "vegas-"));
 

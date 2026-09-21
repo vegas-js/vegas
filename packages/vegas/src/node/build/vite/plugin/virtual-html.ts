@@ -2,7 +2,7 @@ import type { Plugin, Rolldown } from "vite";
 
 import { HtmlDocument } from "../../../html";
 import type { BuildPlan } from "../../plan";
-import { CLIENT_ENVIRONMENT_PATTERN, getClientEnvironmentIndex } from "../environment";
+import { CLIENT_MODULE_ENVIRONMENT_PATTERN, getClientModuleEnvironmentIndex } from "../environment";
 
 function escapeInlineScript(code: string): string {
   return code.replace(/<\/script/gi, "<\\/script");
@@ -34,11 +34,11 @@ export function virtualHtml(entries: BuildPlan["clientModuleTargets"]): Plugin {
     enforce: "post",
 
     applyToEnvironment(environment) {
-      return CLIENT_ENVIRONMENT_PATTERN.test(environment.name);
+      return CLIENT_MODULE_ENVIRONMENT_PATTERN.test(environment.name);
     },
 
     generateBundle(_outputOptions, bundle) {
-      const entryIndex = getClientEnvironmentIndex(this.environment.name);
+      const entryIndex = getClientModuleEnvironmentIndex(this.environment.name);
 
       if (entryIndex === undefined) {
         return;

@@ -56,7 +56,7 @@ describe("DevBuildManager", () => {
 
     const build = vi.fn(
       async (_builder: ViteBuilder, filter?: RegExp): Promise<BuildArtifact[]> => {
-        if (String(filter) === "/^client\\d+$/") {
+        if (String(filter) === "/^client(?:\\d+|Html\\d+)$/") {
           return [{ path: "index.html", content: "client:new" }];
         }
 
