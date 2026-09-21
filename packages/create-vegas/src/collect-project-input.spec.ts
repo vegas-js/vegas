@@ -30,11 +30,11 @@ const cwd = path.resolve("/workspace");
 const templateOptions = [
   {
     label: "Vanilla",
-    value: "template-vanilla",
+    value: "vanilla",
   },
   {
     label: "React",
-    value: "template-react",
+    value: "react",
   },
 ];
 
@@ -51,7 +51,7 @@ beforeEach(() => {
 
 describe("collectCreateProjectInput", () => {
   test("collect minimal project input", async () => {
-    selectMock.mockResolvedValueOnce("template-react");
+    selectMock.mockResolvedValueOnce("react");
     confirmMock.mockResolvedValueOnce(false).mockResolvedValueOnce(false);
 
     await expect(
@@ -63,7 +63,7 @@ describe("collectCreateProjectInput", () => {
     ).resolves.toStrictEqual({
       projectName: "my-app",
       packageName: "my-app",
-      templateName: "template-react",
+      templateId: "react",
       operation: "create",
       scriptId: undefined,
       installDependencies: false,
@@ -77,7 +77,7 @@ describe("collectCreateProjectInput", () => {
   test("collect full project input", async () => {
     inspectScaffoldDirectoryMock.mockReturnValue("non-empty");
 
-    selectMock.mockResolvedValueOnce("keep").mockResolvedValueOnce("template-vanilla");
+    selectMock.mockResolvedValueOnce("keep").mockResolvedValueOnce("vanilla");
 
     textMock
       .mockResolvedValueOnce("my-app")
@@ -99,7 +99,7 @@ describe("collectCreateProjectInput", () => {
     ).resolves.toStrictEqual({
       projectName: "My App",
       packageName: "my-app",
-      templateName: "template-vanilla",
+      templateId: "vanilla",
       operation: "keep",
       scriptId: "script-id",
       installDependencies: true,

@@ -5,18 +5,15 @@ import util from "node:util";
 import * as prompts from "@clack/prompts";
 import { cac } from "cac";
 
-import { collectCreateProjectInput, type TemplatePromptOption } from "./collect-project-input";
+import { collectCreateProjectInput } from "./collect-project-input";
 import { createProject, type CreateProjectStep } from "./create-project";
 import { formatCreateVegasError } from "./error";
+import { resolveTemplate, templates } from "./templates";
 
-const templateOptions: TemplatePromptOption[] = [
-  { label: util.styleText("yellow", "Vanilla"), value: "template-vanilla" },
-  { label: util.styleText("green", "Vue"), value: "template-vue" },
-  { label: util.styleText("cyan", "React"), value: "template-react" },
-  { label: util.styleText("magenta", "Preact"), value: "template-preact" },
-  { label: util.styleText("red", "Svelte"), value: "template-svelte" },
-  { label: util.styleText("blue", "Solid"), value: "template-solid" },
-];
+const templateOptions = templates.map((template) => ({
+  label: util.styleText(template.color, template.label),
+  value: template.id,
+}));
 
 function logCreateProjectStep(step: CreateProjectStep): void {
   switch (step.kind) {
@@ -48,11 +45,13 @@ async function run(directory?: string) {
     return;
   }
 
+  const template = resolveTemplate(input.templateId);
+
   const target = await createProject({
     cwd,
     projectName: input.projectName,
     packageName: input.packageName,
-    templateDirectory: path.resolve(import.meta.dirname, "..", input.templateName),
+    templateDirectory: path.resolve(import.meta.dirname, "..", template.directory),
     operation: input.operation,
     scriptId: input.scriptId,
     installDependencies: input.installDependencies,
@@ -92,8 +91,8 @@ cli.help((defaultHelpSections: { title?: string; body: string }[]) => {
   return defaultHelpSections
     .concat({
       title: "Available templates (only typescript)",
-      body: templateOptions
-        .map((option) => option.value.padStart(option.value.length + 2))
+      body: templates
+        .map((template) => template.directory.padStart(template.directory.length + 2))
         .join("\n"),
     })
     .filter((section) => section.title?.match(/^(?!(Commands|For more info))/));

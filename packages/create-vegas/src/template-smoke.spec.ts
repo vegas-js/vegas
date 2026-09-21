@@ -5,6 +5,7 @@ import path from "node:path";
 import { afterEach, describe, expect, test } from "vitest";
 
 import { scaffoldProject } from "./scaffold-project";
+import { templates } from "./templates";
 
 const CREATE_VEGAS_ROOT = path.resolve(import.meta.dirname, "..");
 
@@ -37,6 +38,13 @@ afterEach(() => {
 });
 
 describe("create-vegas templates", () => {
+  test("smoke matrix covers registered templates", () => {
+    const smokeTemplates = templateCases.map(([templateName]) => templateName).sort();
+    const registeredTemplates = templates.map((template) => template.directory).sort();
+
+    expect(smokeTemplates).toStrictEqual(registeredTemplates);
+  });
+
   test.each(templateCases)(
     "scaffolds %s",
     (templateName, clientEntry, clientMarker, buildScript) => {

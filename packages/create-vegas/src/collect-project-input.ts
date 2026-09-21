@@ -8,15 +8,10 @@ import { validatePackageName } from "./package-name";
 import { inspectScaffoldDirectory } from "./scaffold-directory";
 import type { ScaffoldDirectoryOperation } from "./scaffold-project";
 
-export interface TemplatePromptOption {
-  readonly label: string;
-  readonly value: string;
-}
-
 export interface CreateProjectInput {
   readonly projectName: string;
   readonly packageName: string;
-  readonly templateName: string;
+  readonly templateId: string;
   readonly operation: ScaffoldDirectoryOperation;
   readonly scriptId?: string;
   readonly installDependencies: boolean;
@@ -27,7 +22,10 @@ export interface CreateProjectInput {
 interface CollectCreateProjectInputOptions {
   readonly cwd: string;
   readonly directory?: string;
-  readonly templateOptions: readonly TemplatePromptOption[];
+  readonly templateOptions: readonly {
+    readonly label: string;
+    readonly value: string;
+  }[];
 }
 
 function isPromptCancel(value: unknown): value is symbol {
@@ -167,12 +165,12 @@ export async function collectCreateProjectInput(
     return undefined;
   }
 
-  const templateName = await prompts.select({
+  const templateId = await prompts.select({
     message: "Select a framework:",
     options: [...options.templateOptions],
   });
 
-  if (isPromptCancel(templateName)) {
+  if (isPromptCancel(templateId)) {
     return undefined;
   }
 
@@ -232,7 +230,7 @@ export async function collectCreateProjectInput(
   return {
     projectName,
     packageName,
-    templateName,
+    templateId,
     operation,
     scriptId,
     installDependencies,
