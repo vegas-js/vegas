@@ -3,6 +3,7 @@ import { describe, expect, expectTypeOf, test, vi } from "vitest";
 import type { RuntimeDataSnapshot } from "../../../shared/gas";
 import type { ResolvedProject } from "../../project";
 import {
+  InMemorySpreadsheetStore,
   LocalRuntimeSession,
   type ExecutionRequest,
   type Program,
@@ -158,5 +159,57 @@ describe("createLocalRuntime", () => {
         userKey: "local-user",
       },
     });
+  });
+
+  test("use a provided local Spreadsheet store as the Runtime resource", async () => {
+    const snapshot = {
+      spreadsheets: [
+        {
+          source: "/project/runtime/budget.ts",
+          value: {
+            id: "budget",
+            name: "Budget",
+            sheets: [],
+          },
+        },
+      ],
+    } satisfies RuntimeDataSnapshot;
+    const spreadsheetStore = new InMemorySpreadsheetStore([
+      {
+        id: "reconciled",
+        name: "Reconciled",
+        sheets: [],
+      },
+    ]);
+    const execute = vi.fn(async (_request: ExecutionRequest) => undefined);
+
+    const localRuntime = await createLocalRuntime(
+      project,
+      snapshot,
+      () => ({
+        source: "",
+        htmlFiles: {},
+      }),
+      {
+        spreadsheetStore,
+      },
+      {
+        createExecutor: (options) => {
+          expect(options.spreadsheetStore).toBe(spreadsheetStore);
+
+          return { execute };
+        },
+      },
+    );
+
+    expect(localRuntime.resources.spreadsheets).toBe(spreadsheetStore);
+    await expect(
+      localRuntime.resources.spreadsheets.getSpreadsheet("reconciled"),
+    ).resolves.toMatchObject({
+      id: "reconciled",
+    });
+    await expect(localRuntime.resources.spreadsheets.getSpreadsheet("budget")).rejects.toThrow(
+      "Unknown local Spreadsheet: budget",
+    );
   });
 });

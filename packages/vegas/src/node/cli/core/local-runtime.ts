@@ -15,6 +15,7 @@ import { createInvocationScope } from "./runtime-scope";
 
 interface LocalRuntimeOptions {
   readonly session?: LocalRuntimeSession;
+  readonly spreadsheetStore?: InMemorySpreadsheetStore;
   readonly spreadsheetUrlCapability?: SpreadsheetUrlCapability;
 }
 
@@ -36,9 +37,9 @@ export async function createLocalRuntime(
     await applyPropertiesRuntimeData(propertiesStore, scope, snapshot.properties.value);
   }
 
-  const spreadsheetStore = new InMemorySpreadsheetStore(
-    snapshot.spreadsheets.map(({ value }) => value),
-  );
+  const spreadsheetStore =
+    options.spreadsheetStore ??
+    new InMemorySpreadsheetStore(snapshot.spreadsheets.map(({ value }) => value));
   const runtimeSession = options.session ?? new LocalRuntimeSession();
   const createExecutor = dependencies.createExecutor ?? createNodeAppsScriptExecutor;
   const executor = createExecutor({
