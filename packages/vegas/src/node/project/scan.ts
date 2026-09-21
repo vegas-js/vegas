@@ -1,8 +1,8 @@
 import type { GlobOptionsWithoutFileTypes } from "node:fs";
 import fsPromises from "node:fs/promises";
-import path from "node:path";
 
 import { createClientEntries } from "./entries";
+import { createSourceGlobPatterns, isDeclarationSource } from "./source";
 import type { ProjectSnapshot, ResolvedProject } from "./type";
 
 async function collectWithGlob(
@@ -17,27 +17,23 @@ async function collectWithGlob(
   return files;
 }
 
-function excludeDeclarationFile(fileName: string) {
-  return fileName.endsWith(".d.ts");
-}
-
 export async function scanRuntimeDataSources(project: ResolvedProject): Promise<string[]> {
-  const sources = await collectWithGlob(path.join(project.runtimeDataDir, "**", "*.ts"), {
-    exclude: excludeDeclarationFile,
-  });
+  const sources = await collectWithGlob(
+    createSourceGlobPatterns(project.runtimeDataDir, "runtimeData"),
+    { exclude: isDeclarationSource },
+  );
 
   return sources.sort();
 }
 
 export async function scanProject(project: ResolvedProject): Promise<ProjectSnapshot> {
   const [clientSources, serverSources, runtimeDataSources] = await Promise.all([
-    collectWithGlob(
-      [path.join(project.clientDir, "**", "*.ts"), path.join(project.clientDir, "**", "*.tsx")],
-      { exclude: excludeDeclarationFile },
-    ),
+    collectWithGlob(createSourceGlobPatterns(project.clientDir, "client"), {
+      exclude: isDeclarationSource,
+    }),
 
-    collectWithGlob(path.join(project.serverDir, "**", "*.ts"), {
-      exclude: excludeDeclarationFile,
+    collectWithGlob(createSourceGlobPatterns(project.serverDir, "server"), {
+      exclude: isDeclarationSource,
     }),
 
     scanRuntimeDataSources(project),
