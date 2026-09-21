@@ -24,7 +24,12 @@ export function parseWebAppPath(pathname: string): WebAppPath | null {
     return null;
   }
 
-  const endpoint = match[1] as WebAppEndpoint;
+  const endpoint = match[1];
+
+  if (endpoint !== "dev" && endpoint !== "exec") {
+    return null;
+  }
+
   const pathInfo = match[2] || undefined;
 
   return {
