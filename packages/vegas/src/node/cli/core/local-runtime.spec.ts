@@ -69,7 +69,7 @@ describe("createLocalRuntime", () => {
       createExecutor: () => ({ execute }),
     });
 
-    expectTypeOf(localRuntime.backend).toEqualTypeOf<RuntimeBackend>();
+    expectTypeOf(localRuntime).toExtend<RuntimeBackend>();
     expectTypeOf(localRuntime.resources.spreadsheets).toEqualTypeOf<SpreadsheetStore>();
     await expect(
       localRuntime.resources.spreadsheets.getSpreadsheet("budget"),
@@ -91,7 +91,7 @@ describe("createLocalRuntime", () => {
       signal: controller.signal,
     };
 
-    await expect(localRuntime.backend.execute(request)).resolves.toBe("result");
+    await expect(localRuntime.execute(request)).resolves.toBe("result");
     expect(execute).toHaveBeenLastCalledWith({
       ...request,
       program,
@@ -113,7 +113,7 @@ describe("createLocalRuntime", () => {
       htmlFiles: {},
     };
 
-    await localRuntime.backend.execute(request);
+    await localRuntime.execute(request);
 
     expect(getProgram).toHaveBeenCalledTimes(2);
     expect(execute).toHaveBeenLastCalledWith({

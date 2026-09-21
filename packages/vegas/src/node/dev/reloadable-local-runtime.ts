@@ -17,7 +17,7 @@ export class ReloadableLocalRuntime implements RuntimeBackend {
   }
 
   execute(request: RuntimeExecutionRequest): Promise<unknown> {
-    return this.#runtime.backend.execute(request);
+    return this.#runtime.execute(request);
   }
 
   replace(runtime: LocalRuntime): void {

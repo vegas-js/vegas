@@ -5,7 +5,6 @@ export interface LocalRuntimeResources {
   readonly spreadsheets: SpreadsheetStore;
 }
 
-export interface LocalRuntime {
-  readonly backend: RuntimeBackend;
+export interface LocalRuntime extends RuntimeBackend {
   readonly resources: LocalRuntimeResources;
 }

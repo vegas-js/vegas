@@ -45,15 +45,13 @@ export async function createLocalRuntime(
   const environment = createInvocationEnvironment(project, runtimeData.session);
 
   return {
-    backend: {
-      execute(request) {
-        return executor.execute({
-          ...request,
-          program: getProgram(),
-          environment,
-          scope,
-        });
-      },
+    execute(request) {
+      return executor.execute({
+        ...request,
+        program: getProgram(),
+        environment,
+        scope,
+      });
     },
     resources: {
       spreadsheets: spreadsheetStore,

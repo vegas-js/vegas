@@ -12,7 +12,7 @@ function createRuntime(label: string): {
   return {
     execute,
     runtime: {
-      backend: { execute },
+      execute,
       resources: {
         spreadsheets: new InMemorySpreadsheetStore([
           {

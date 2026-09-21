@@ -69,9 +69,7 @@ function createProject(): ResolvedProject {
 
 function createRuntime(label: string): LocalRuntime {
   return {
-    backend: {
-      execute: vi.fn(async () => label),
-    },
+    execute: vi.fn(async () => label),
     resources: {
       spreadsheets: new InMemorySpreadsheetStore([
         {
