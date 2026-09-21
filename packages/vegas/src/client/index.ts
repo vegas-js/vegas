@@ -2,6 +2,7 @@ import type {
   ServerFunctionCallRequest,
   ServerFunctionCallResponse,
 } from "../shared/webapp-protocol";
+import { createServerFunctionRun } from "./server-function-run";
 
 const { port1, port2 } = new MessageChannel();
 
@@ -56,66 +57,42 @@ port1.onmessage = (event: MessageEvent<VegasEvent>) => {
       break;
     }
     case "vegas:return": {
-      const gasRun = window.vegas.requestMap.get(event.data.payload.requestId);
-      if (gasRun) {
-        if (event.data.payload.status === "ok") {
-          gasRun.SuccessHandler(event.data.payload.result);
-        } else {
-          gasRun.FailureHandler(event.data.payload.message);
-        }
-
+      const handlers = window.vegas.requestMap.get(event.data.payload.requestId);
+      if (handlers) {
         window.vegas.requestMap.delete(event.data.payload.requestId);
+
+        if (event.data.payload.status === "ok") {
+          handlers.success?.(event.data.payload.result);
+        } else if (handlers.failure) {
+          handlers.failure(event.data.payload.message);
+        } else {
+          console.error(event.data.payload.message);
+        }
       }
       break;
     }
   }
 };
 
-const dummyGASRun = {
-  // oxlint-disable-next-line no-unused-vars
-  withSuccessHandler: (callback: Function) => {},
-  // oxlint-disable-next-line no-unused-vars
-  withFailureHandler: (callback: Function) => {},
-};
+const proxiedGASRun = createServerFunctionRun(({ functionName, args, handlers }) => {
+  let requestId = 0;
+  do {
+    requestId = Math.floor(Math.random() * 99999);
+  } while (window.vegas.requestMap.has(requestId));
 
-const proxyHandler: ProxyHandler<object> = {
-  get: (target, property, receiver) => {
-    if (Reflect.get(target, property, receiver)) {
-      return (callback: Function) => {
-        const objRun: Record<string, Function> = {
-          __proto__: receiver,
-        };
-        const handlerName = (property as string).slice(4);
-        objRun[handlerName] = callback;
-        return objRun;
-      };
-    } else {
-      return (...args: any[]) => {
-        let requestId = 0;
-        do {
-          requestId = Math.floor(Math.random() * 99999);
-        } while (window.vegas.requestMap.has(requestId));
+  window.vegas.requestMap.set(requestId, handlers);
 
-        window.vegas.requestMap.set(requestId, receiver);
+  const request: ServerFunctionCallRequest = {
+    requestId,
+    functionName,
+    args,
+  };
 
-        const request: ServerFunctionCallRequest = {
-          requestId,
-          functionName: String(property),
-          args,
-        };
-
-        port1.postMessage({
-          type: "vegas:server-function-call",
-          payload: request,
-        });
-      };
-    }
-  },
-};
-
-const proxiedGASRun = {
-  __proto__: new Proxy(dummyGASRun, proxyHandler),
-};
+  port1.postMessage({
+    type: "vegas:server-function-call",
+    payload: request,
+  });
+});
 
 function injectUserHtml(userHtml: string) {
   const iframe = document.getElementById("userHtmlFrame") as HTMLIFrameElement | null;
