@@ -8,7 +8,7 @@ import {
 } from "../../runtime";
 import { createNodeAppsScriptExecutor } from "../../runtime/node";
 import type { SpreadsheetUrlCapability } from "../../runtime/spreadsheet-url-capability";
-import { applyPropertiesRuntimeData, loadRuntimeDataSnapshot } from "./runtime-data";
+import { applyPropertiesRuntimeData, type RuntimeDataSnapshot } from "./runtime-data";
 import { createInvocationEnvironment } from "./runtime-environment";
 import { createInvocationScope } from "./runtime-scope";
 
@@ -18,21 +18,18 @@ interface LocalRuntimeOptions {
 }
 
 interface LocalRuntimeDependencies {
-  readonly loadRuntimeDataSnapshot?: typeof loadRuntimeDataSnapshot;
   readonly createExecutor?: typeof createNodeAppsScriptExecutor;
 }
 
 export async function createLocalRuntime(
   project: ResolvedProject,
-  runtimeDataSources: readonly string[],
+  snapshot: RuntimeDataSnapshot,
   getProgram: () => Program,
   options: LocalRuntimeOptions = {},
   dependencies: LocalRuntimeDependencies = {},
 ): Promise<LocalRuntime> {
   const scope = createInvocationScope(project);
   const propertiesStore = new InMemoryPropertiesStore();
-  const loadSnapshot = dependencies.loadRuntimeDataSnapshot ?? loadRuntimeDataSnapshot;
-  const snapshot = await loadSnapshot(project.root, runtimeDataSources);
 
   if (snapshot.properties !== undefined) {
     await applyPropertiesRuntimeData(propertiesStore, scope, snapshot.properties.value);

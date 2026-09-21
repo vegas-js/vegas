@@ -8,6 +8,7 @@ import { LocalSpreadsheetUrlResolver } from "../../dev/webapp/local-spreadsheet-
 import { loadProject, scanRuntimeDataSources } from "../../project";
 import { LocalRuntimeSession } from "../../runtime";
 import { createLocalRuntime } from "./local-runtime";
+import { loadRuntimeDataSnapshot } from "./runtime-data";
 
 type DevApplicationMode = "development" | "production";
 
@@ -25,11 +26,14 @@ export async function runDevApplication(mode: DevApplicationMode, root?: string)
   const getProgram = () => createRuntimeProgram(artifacts);
   const localSpreadsheetUrls = new LocalSpreadsheetUrlResolver();
   const runtimeSession = new LocalRuntimeSession();
-  const createRuntime = (runtimeDataSources: readonly string[]) =>
-    createLocalRuntime(project, runtimeDataSources, getProgram, {
+  const createRuntime = async (runtimeDataSources: readonly string[]) => {
+    const snapshot = await loadRuntimeDataSnapshot(project.root, runtimeDataSources);
+
+    return createLocalRuntime(project, snapshot, getProgram, {
       session: runtimeSession,
       spreadsheetUrlCapability: localSpreadsheetUrls,
     });
+  };
   const initialRuntime = await createRuntime(topology.snapshot.runtimeDataSources);
   const runtime = new ReloadableLocalRuntime(initialRuntime);
   const reloadRuntime = async (): Promise<void> => {

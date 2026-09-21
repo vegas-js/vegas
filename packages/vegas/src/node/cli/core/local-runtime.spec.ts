@@ -11,7 +11,7 @@ import {
   type SpreadsheetStore,
 } from "../../runtime";
 import { createLocalRuntime } from "./local-runtime";
-import { loadRuntimeDataSnapshot } from "./runtime-data";
+import type { RuntimeDataSnapshot } from "./runtime-data";
 
 const project = {
   root: "/project",
@@ -32,45 +32,36 @@ const project = {
 
 describe("createLocalRuntime", () => {
   test("bind the current local Program and invocation context behind the Runtime backend", async () => {
-    const runtimeDataSources = ["/project/runtime/session.ts", "/project/runtime/budget.ts"];
-    let loadedRoot: string | undefined;
-    let loadedSources: readonly string[] | undefined;
     let propertiesStore: PropertiesStore | undefined;
-
-    const loadSnapshot: typeof loadRuntimeDataSnapshot = async (root, sources) => {
-      loadedRoot = root;
-      loadedSources = sources;
-
-      return {
-        properties: {
-          source: "/project/runtime/properties.ts",
-          value: {
-            scriptProperties: {
-              environment: "test",
-            },
+    const snapshot = {
+      properties: {
+        source: "/project/runtime/properties.ts",
+        value: {
+          scriptProperties: {
+            environment: "test",
           },
         },
-        session: {
-          source: "/project/runtime/session.ts",
+      },
+      session: {
+        source: "/project/runtime/session.ts",
+        value: {
+          activeUserEmail: "active@example.com",
+          activeUserLocale: "ja",
+          effectiveUserEmail: "effective@example.com",
+          temporaryActiveUserKey: "temporary-user-key",
+        },
+      },
+      spreadsheets: [
+        {
+          source: "/project/runtime/budget.ts",
           value: {
-            activeUserEmail: "active@example.com",
-            activeUserLocale: "ja",
-            effectiveUserEmail: "effective@example.com",
-            temporaryActiveUserKey: "temporary-user-key",
+            id: "budget",
+            name: "Budget",
+            sheets: [],
           },
         },
-        spreadsheets: [
-          {
-            source: "/project/runtime/budget.ts",
-            value: {
-              id: "budget",
-              name: "Budget",
-              sheets: [],
-            },
-          },
-        ],
-      };
-    };
+      ],
+    } satisfies RuntimeDataSnapshot;
     const execute = vi.fn(async (_request: ExecutionRequest) => "result");
     let program: Program = {
       source: "function main() { return 'first'; }",
@@ -81,13 +72,12 @@ describe("createLocalRuntime", () => {
 
     const localRuntime = await createLocalRuntime(
       project,
-      runtimeDataSources,
+      snapshot,
       getProgram,
       {
         session: runtimeSession,
       },
       {
-        loadRuntimeDataSnapshot: loadSnapshot,
         createExecutor: (options) => {
           expect(options.cacheStore).toBe(runtimeSession.stores.cacheStore);
           expect(options.driveIteratorStore).toBe(runtimeSession.stores.driveIteratorStore);
@@ -107,9 +97,6 @@ describe("createLocalRuntime", () => {
     ).resolves.toMatchObject({
       id: "budget",
     });
-
-    expect(loadedRoot).toBe("/project");
-    expect(loadedSources).toBe(runtimeDataSources);
 
     if (propertiesStore === undefined) {
       throw new Error("expected Properties store");

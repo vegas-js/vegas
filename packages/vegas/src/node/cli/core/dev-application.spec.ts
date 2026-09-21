@@ -16,6 +16,7 @@ import {
 } from "../../runtime";
 import { runDevApplication } from "./dev-application";
 import { createLocalRuntime } from "./local-runtime";
+import { loadRuntimeDataSnapshot } from "./runtime-data";
 
 vi.mock("../../dev/application", () => ({
   startDevApplication: vi.fn(),
@@ -38,12 +39,17 @@ vi.mock("./local-runtime", () => ({
   createLocalRuntime: vi.fn(),
 }));
 
+vi.mock("./runtime-data", () => ({
+  loadRuntimeDataSnapshot: vi.fn(),
+}));
+
 const startDevApplicationMock = vi.mocked(startDevApplication);
 const buildDevTopologyMock = vi.mocked(buildDevTopology);
 const createRuntimeProgramMock = vi.mocked(createRuntimeProgram);
 const loadProjectMock = vi.mocked(loadProject);
 const scanRuntimeDataSourcesMock = vi.mocked(scanRuntimeDataSources);
 const createLocalRuntimeMock = vi.mocked(createLocalRuntime);
+const loadRuntimeDataSnapshotMock = vi.mocked(loadRuntimeDataSnapshot);
 
 function createProject(): ResolvedProject {
   const root = path.resolve("/workspace/project");
@@ -99,6 +105,18 @@ describe("runDevApplication", () => {
         "index.html": "client-program",
       },
     } satisfies Program;
+    const initialSnapshot = {
+      spreadsheets: [],
+    };
+    const reloadedSnapshot = {
+      session: {
+        source: "runtime/reloaded.ts",
+        value: {
+          activeUserEmail: "reloaded@example.com",
+        },
+      },
+      spreadsheets: [],
+    };
 
     loadProjectMock.mockResolvedValueOnce(project);
     buildDevTopologyMock.mockResolvedValueOnce({
@@ -124,6 +142,9 @@ describe("runDevApplication", () => {
       ],
     });
     createRuntimeProgramMock.mockReturnValue(program);
+    loadRuntimeDataSnapshotMock
+      .mockResolvedValueOnce(initialSnapshot)
+      .mockResolvedValueOnce(reloadedSnapshot);
     createLocalRuntimeMock
       .mockResolvedValueOnce(initialRuntime)
       .mockResolvedValueOnce(reloadedRuntime);
@@ -161,10 +182,13 @@ describe("runDevApplication", () => {
     expect(application.runtime).toBeInstanceOf(ReloadableLocalRuntime);
     expect(application.getLocalSpreadsheetStore?.()).toBe(initialRuntime.resources.spreadsheets);
     expect(runtimeSession).toBeInstanceOf(LocalRuntimeSession);
+    expect(loadRuntimeDataSnapshotMock).toHaveBeenNthCalledWith(1, project.root, [
+      "runtime/initial.ts",
+    ]);
     expect(createLocalRuntimeMock).toHaveBeenNthCalledWith(
       1,
       project,
-      ["runtime/initial.ts"],
+      initialSnapshot,
       getProgram,
       {
         session: runtimeSession,
@@ -185,10 +209,13 @@ describe("runDevApplication", () => {
     await application.reloadRuntime();
 
     expect(scanRuntimeDataSourcesMock).toHaveBeenCalledWith(project);
+    expect(loadRuntimeDataSnapshotMock).toHaveBeenNthCalledWith(2, project.root, [
+      "runtime/reloaded.ts",
+    ]);
     expect(createLocalRuntimeMock).toHaveBeenNthCalledWith(
       2,
       project,
-      ["runtime/reloaded.ts"],
+      reloadedSnapshot,
       getProgram,
       {
         session: runtimeSession,
