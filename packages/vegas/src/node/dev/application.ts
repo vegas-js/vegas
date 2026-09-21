@@ -59,6 +59,7 @@ export async function startDevApplication(
     const hostServer = await createViteServer(
       createHostServerConfig({
         root: options.project.root,
+        configFile: options.project.configFile,
         mode: options.mode,
         host: options.project.devServer.host,
         port: options.project.devServer.port,

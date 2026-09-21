@@ -4,6 +4,7 @@ import { createLogger, type InlineConfig } from "vite";
 
 interface HostServerConfigOptions {
   readonly root: string;
+  readonly configFile: string | null;
   readonly mode: "development" | "production";
   readonly host?: string | boolean;
   readonly port?: number;
@@ -21,7 +22,9 @@ export function createHostServerConfig(options: HostServerConfigOptions): Inline
       {
         name: "vite-plugin-configfile",
         configureServer(server) {
-          Object.assign(server.config, { configFile: "vegas.config.ts" });
+          Object.assign(server.config, {
+            configFile: options.configFile ?? undefined,
+          });
         },
       },
     ],

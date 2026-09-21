@@ -20,7 +20,7 @@ async function withTempDir<T>(run: (directory: string) => Promise<T>): Promise<T
 }
 
 describe("loadUserConfig", () => {
-  test("return empty config when vegas.config.ts does not exist", async () => {
+  test("return empty config when no supported config file exists", async () => {
     await withTempDir(async (directory) => {
       await expect(loadUserConfig(directory)).resolves.toStrictEqual({
         config: {},
@@ -39,6 +39,49 @@ describe("loadUserConfig", () => {
         config: { appType: "script" },
         configFile,
       });
+    });
+  });
+
+  test("load vegas.config.js", async () => {
+    await withTempDir(async (directory) => {
+      const configFile = path.join(directory, "vegas.config.js");
+
+      await fs.promises.writeFile(configFile, `export default { appType: "script" };`);
+
+      await expect(loadUserConfig(directory)).resolves.toStrictEqual({
+        config: { appType: "script" },
+        configFile,
+      });
+    });
+  });
+
+  test("load vegas.config.json", async () => {
+    await withTempDir(async (directory) => {
+      const configFile = path.join(directory, "vegas.config.json");
+
+      await fs.promises.writeFile(configFile, JSON.stringify({ appType: "script" }));
+
+      await expect(loadUserConfig(directory)).resolves.toStrictEqual({
+        config: { appType: "script" },
+        configFile,
+      });
+    });
+  });
+
+  test("reject multiple config files", async () => {
+    await withTempDir(async (directory) => {
+      await fs.promises.writeFile(
+        path.join(directory, "vegas.config.ts"),
+        `export default { appType: "spa" };`,
+      );
+      await fs.promises.writeFile(
+        path.join(directory, "vegas.config.js"),
+        `export default { appType: "script" };`,
+      );
+
+      await expect(loadUserConfig(directory)).rejects.toThrow(
+        "Multiple Vegas config files found: vegas.config.ts, vegas.config.js.",
+      );
     });
   });
 

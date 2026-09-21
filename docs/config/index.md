@@ -1,8 +1,14 @@
 # Configuring Vegas
 
-When you run Vegas from the command line, Vegas looks for a configuration file named `vegas.config.ts` in the resolved project root. A configuration file is optional; when it is not present, Vegas uses its default configuration.
+When you run Vegas from the command line, Vegas looks for one of these configuration files in the resolved project root:
 
-The most basic config file looks like this:
+- `vegas.config.ts`
+- `vegas.config.js`
+- `vegas.config.json`
+
+A configuration file is optional; when none is present, Vegas uses its default configuration. Only one supported configuration file may exist in a project at a time.
+
+TypeScript and JavaScript configuration files use a default export. JSON configuration files contain the configuration object directly.
 
 ::: code-group
 
@@ -12,6 +18,18 @@ import { defineConfig } from "@vegasjs/vegas";
 export default defineConfig({
   // config options
 });
+```
+
+```javascript [vegas.config.js]
+export default {
+  // config options
+};
+```
+
+```json [vegas.config.json]
+{
+  "appType": "spa"
+}
 ```
 
 :::
