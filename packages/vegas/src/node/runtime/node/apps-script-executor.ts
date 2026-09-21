@@ -10,6 +10,7 @@ import type { HostCallDispatcher } from "../host-dispatcher";
 import type { LockStore } from "../lock-store";
 import type { PropertiesStore } from "../properties-store";
 import type { SpreadsheetStore } from "../spreadsheet-store";
+import type { SpreadsheetUrlCapability } from "../spreadsheet-url-capability";
 import {
   isAppsScriptWorkerResponse,
   restoreAppsScriptWorkerError,
@@ -215,6 +216,7 @@ export interface NodeAppsScriptExecutorOptions {
   readonly lockStore: LockStore;
   readonly propertiesStore: PropertiesStore;
   readonly spreadsheetStore: SpreadsheetStore;
+  readonly spreadsheetUrlCapability?: SpreadsheetUrlCapability;
   readonly executionTimeoutMs?: number;
 }
 
@@ -231,6 +233,7 @@ export function createNodeAppsScriptExecutor(options: NodeAppsScriptExecutorOpti
     lockStore: options.lockStore,
     propertiesStore: options.propertiesStore,
     spreadsheetStore: options.spreadsheetStore,
+    spreadsheetUrlCapability: options.spreadsheetUrlCapability,
     urlFetchCapability: new NodeUrlFetchCapability(),
     runWorker: (dispatcher, request) =>
       runAppsScriptWorker(dispatcher, request, executionTimeoutMs),

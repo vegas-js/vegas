@@ -10,6 +10,7 @@ import {
   type Program,
 } from "../../runtime";
 import { createNodeAppsScriptExecutor } from "../../runtime/node";
+import type { SpreadsheetUrlCapability } from "../../runtime/spreadsheet-url-capability";
 import { loadRuntimeData } from "./runtime-data";
 import { createInvocationEnvironment } from "./runtime-environment";
 import { createInvocationScope } from "./runtime-scope";
@@ -17,6 +18,7 @@ import { createInvocationScope } from "./runtime-scope";
 interface LocalRuntimeDependencies {
   readonly loadRuntimeData?: typeof loadRuntimeData;
   readonly createExecutor?: typeof createNodeAppsScriptExecutor;
+  readonly spreadsheetUrlCapability?: SpreadsheetUrlCapability;
 }
 
 export async function createLocalRuntime(
@@ -38,6 +40,7 @@ export async function createLocalRuntime(
     lockStore: new InMemoryLockStore(),
     propertiesStore,
     spreadsheetStore,
+    spreadsheetUrlCapability: dependencies.spreadsheetUrlCapability,
   });
   const environment = createInvocationEnvironment(project, runtimeData.session);
 

@@ -15,6 +15,7 @@ import { PropertiesHostHandler } from "./properties-host-handler";
 import type { PropertiesStore } from "./properties-store";
 import { SpreadsheetHostHandler } from "./spreadsheet-host-handler";
 import type { SpreadsheetStore } from "./spreadsheet-store";
+import type { SpreadsheetUrlCapability } from "./spreadsheet-url-capability";
 import type { UrlFetchCapability } from "./url-fetch-capability";
 import { UrlFetchHostHandler } from "./url-fetch-host-handler";
 
@@ -31,6 +32,7 @@ export interface AppsScriptExecutorOptions {
   readonly lockStore: LockStore;
   readonly propertiesStore: PropertiesStore;
   readonly spreadsheetStore: SpreadsheetStore;
+  readonly spreadsheetUrlCapability?: SpreadsheetUrlCapability;
   readonly urlFetchCapability: UrlFetchCapability;
   readonly runWorker: AppsScriptWorkerRunner;
 }
@@ -52,7 +54,10 @@ export function createAppsScriptExecutor(options: AppsScriptExecutorOptions): Ex
         ),
         lock: new LockHostHandler(lockSession, request.scope),
         properties: new PropertiesHostHandler(options.propertiesStore, request.scope),
-        spreadsheet: new SpreadsheetHostHandler(options.spreadsheetStore),
+        spreadsheet: new SpreadsheetHostHandler(
+          options.spreadsheetStore,
+          options.spreadsheetUrlCapability,
+        ),
         urlFetch: new UrlFetchHostHandler(options.urlFetchCapability, request.signal),
       });
 

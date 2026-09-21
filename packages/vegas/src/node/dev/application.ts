@@ -12,6 +12,7 @@ import { createHostHttpHandler } from "./webapp/host-http-handler";
 import { createHostServerConfig } from "./webapp/host-server";
 import { registerHostWebSocketHandlers } from "./webapp/host-websocket";
 import { createLocalSpreadsheetHttpHandler } from "./webapp/local-spreadsheet-http-handler";
+import type { LocalSpreadsheetUrlConfiguration } from "./webapp/local-spreadsheet-url";
 import { getListeningPort } from "./webapp/server-port";
 import { WebAppSessionRegistry } from "./webapp/session-registry";
 import { createUserContentHttpHandler } from "./webapp/user-content-http-handler";
@@ -27,6 +28,7 @@ interface DevApplicationOptions {
   readonly builder: ViteBuilder;
   readonly runtime: DevApplicationRuntime;
   readonly reloadRuntime: () => Promise<void>;
+  readonly localSpreadsheetUrls?: LocalSpreadsheetUrlConfiguration;
   readonly mode: "development" | "production";
 }
 
@@ -90,6 +92,14 @@ export async function startDevApplication(
 
     await hostServer.listen();
     const hostPort = getListeningPort(hostServer);
+
+    if (options.localSpreadsheetUrls !== undefined) {
+      const localUrl = hostServer.resolvedUrls?.local[0];
+      const scheme = hostServer.config.server.https ? "https" : "http";
+      options.localSpreadsheetUrls.setOrigin(
+        localUrl === undefined ? `${scheme}://localhost:${hostPort}` : new URL(localUrl).origin,
+      );
+    }
 
     const userContentServer = await createViteServer(
       createUserContentServerConfig({

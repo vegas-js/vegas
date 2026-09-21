@@ -4,6 +4,7 @@ import { replaceDevBuildArtifacts } from "../../dev/build-artifacts";
 import { buildDevTopology } from "../../dev/build-topology";
 import { ReloadableLocalRuntime } from "../../dev/reloadable-local-runtime";
 import { createRuntimeProgram } from "../../dev/runtime-program";
+import { LocalSpreadsheetUrlResolver } from "../../dev/webapp/local-spreadsheet-url";
 import { loadProject, scanRuntimeDataSources } from "../../project";
 import { createLocalRuntime } from "./local-runtime";
 
@@ -21,8 +22,11 @@ export async function runDevApplication(mode: DevApplicationMode, root?: string)
   replaceDevBuildArtifacts(artifacts, topology);
 
   const getProgram = () => createRuntimeProgram(artifacts);
+  const localSpreadsheetUrls = new LocalSpreadsheetUrlResolver();
   const createRuntime = (runtimeDataSources: readonly string[]) =>
-    createLocalRuntime(project, runtimeDataSources, getProgram);
+    createLocalRuntime(project, runtimeDataSources, getProgram, {
+      spreadsheetUrlCapability: localSpreadsheetUrls,
+    });
   const initialRuntime = await createRuntime(topology.snapshot.runtimeDataSources);
   const runtime = new ReloadableLocalRuntime(initialRuntime);
   const reloadRuntime = async (): Promise<void> => {
@@ -37,6 +41,7 @@ export async function runDevApplication(mode: DevApplicationMode, root?: string)
     builder: topology.builder,
     runtime,
     reloadRuntime,
+    localSpreadsheetUrls,
     mode,
   });
 }

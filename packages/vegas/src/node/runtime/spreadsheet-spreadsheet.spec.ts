@@ -59,6 +59,8 @@ function createFixture() {
     }
 
     switch (call.operation) {
+      case "get-spreadsheet-url":
+        return "http://localhost:62000/__vegas/spreadsheets/spreadsheet-a";
       case "get-spreadsheet-metadata":
         return {
           name: "Budget",
@@ -134,6 +136,7 @@ describe("Spreadsheet", () => {
     const { bridge, hydrator, sheet7, sheet9, spreadsheet } = createFixture();
 
     expect(spreadsheet.getId()).toBe("spreadsheet-a");
+    expect(spreadsheet.getUrl()).toBe("http://localhost:62000/__vegas/spreadsheets/spreadsheet-a");
     expect(spreadsheet.getName()).toBe("Budget");
     expect(spreadsheet.getNumSheets()).toBe(2);
     expect(spreadsheet.getSheets()).toStrictEqual([sheet7, sheet9]);
@@ -143,6 +146,7 @@ describe("Spreadsheet", () => {
     expect(spreadsheet.getSheetByName("Missing")).toBeNull();
 
     expect(bridge.calls.map(({ operation }) => operation)).toStrictEqual([
+      "get-spreadsheet-url",
       "get-spreadsheet-metadata",
       "list-sheets",
       "list-sheets",

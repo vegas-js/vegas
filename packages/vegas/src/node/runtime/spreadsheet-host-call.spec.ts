@@ -41,6 +41,15 @@ describe("Spreadsheet host contract", () => {
       operation: "get-spreadsheet",
       id: "spreadsheet-id",
     } as const;
+    const getUrl = {
+      service: "spreadsheet",
+      operation: "get-spreadsheet-url",
+      spreadsheet: {
+        service: "spreadsheet",
+        kind: "spreadsheet",
+        id: "spreadsheet-id",
+      },
+    } as const;
     const getMetadata = {
       service: "spreadsheet",
       operation: "get-spreadsheet-metadata",
@@ -144,6 +153,7 @@ describe("Spreadsheet host contract", () => {
     expectTypeOf<
       SpreadsheetHostCallResult<typeof getSpreadsheet>
     >().toEqualTypeOf<SpreadsheetReference>();
+    expectTypeOf<SpreadsheetHostCallResult<typeof getUrl>>().toEqualTypeOf<string>();
     expectTypeOf<
       SpreadsheetHostCallResult<typeof getMetadata>
     >().toEqualTypeOf<SpreadsheetMetadata>();

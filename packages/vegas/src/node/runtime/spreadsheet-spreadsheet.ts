@@ -24,6 +24,14 @@ export class Spreadsheet {
     return this.#reference.id;
   }
 
+  getUrl(): string {
+    return this.#bridge.call({
+      service: "spreadsheet",
+      operation: "get-spreadsheet-url",
+      spreadsheet: this.#reference,
+    });
+  }
+
   getName(): string {
     return this.#bridge.call({
       service: "spreadsheet",

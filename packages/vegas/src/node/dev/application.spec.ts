@@ -98,6 +98,7 @@ describe("startDevApplication", () => {
       content: "<main>Hello</main>",
       xFrameOptionsMode: "DEFAULT",
     }));
+    const setLocalSpreadsheetOrigin = vi.fn();
 
     await startDevApplication(
       {
@@ -117,12 +118,18 @@ describe("startDevApplication", () => {
           },
         },
         reloadRuntime: async () => undefined,
+        localSpreadsheetUrls: {
+          setOrigin: setLocalSpreadsheetOrigin,
+        },
         mode: "development",
       },
       {
         createServer: createViteServer as typeof import("vite").createServer,
       },
     );
+
+    expect(setLocalSpreadsheetOrigin).toHaveBeenCalledOnce();
+    expect(setLocalSpreadsheetOrigin).toHaveBeenCalledWith("http://localhost:62000");
 
     const hostConfig = createViteServer.mock.calls[0]?.[0];
     expect(hostConfig?.server).toMatchObject({

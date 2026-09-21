@@ -1,5 +1,6 @@
 import type { SpreadsheetHostCall, SpreadsheetHostCallResult } from "./spreadsheet-host-call";
 import type { SpreadsheetStore } from "./spreadsheet-store";
+import type { SpreadsheetUrlCapability } from "./spreadsheet-url-capability";
 import { unsupportedHostCall } from "./unsupported-host-call";
 
 export interface SpreadsheetHostCallHandler {
@@ -8,9 +9,11 @@ export interface SpreadsheetHostCallHandler {
 
 export class SpreadsheetHostHandler implements SpreadsheetHostCallHandler {
   readonly #store: SpreadsheetStore;
+  readonly #urls: SpreadsheetUrlCapability | undefined;
 
-  constructor(store: SpreadsheetStore) {
+  constructor(store: SpreadsheetStore, urls?: SpreadsheetUrlCapability) {
     this.#store = store;
+    this.#urls = urls;
   }
 
   async handle(call: SpreadsheetHostCall): Promise<SpreadsheetHostCallResult<SpreadsheetHostCall>> {
@@ -22,7 +25,18 @@ export class SpreadsheetHostHandler implements SpreadsheetHostCallHandler {
         return this.#store.getSpreadsheet(call.id);
       }
       case "get-spreadsheet-by-url": {
-        return this.#store.getSpreadsheetByUrl(call.url);
+        const localId = this.#urls?.getSpreadsheetIdByUrl(call.url);
+
+        return localId === undefined
+          ? this.#store.getSpreadsheetByUrl(call.url)
+          : this.#store.getSpreadsheet(localId);
+      }
+      case "get-spreadsheet-url": {
+        if (this.#urls === undefined) {
+          throw new Error("Spreadsheet URL capability is not configured for this invocation.");
+        }
+
+        return this.#urls.getSpreadsheetUrl(call.spreadsheet);
       }
       case "get-spreadsheet-metadata": {
         return this.#store.getSpreadsheetMetadata(call.spreadsheet);
