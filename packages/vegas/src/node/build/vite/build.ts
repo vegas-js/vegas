@@ -1,12 +1,13 @@
 import type { Rolldown, ViteBuilder } from "vite";
 
 import type { BuildArtifact } from "../artifact";
+import { DEFAULT_VITE_ENVIRONMENT_PATTERN } from "./environment";
 
 export async function buildApp(builder: ViteBuilder, envFilter?: RegExp): Promise<BuildArtifact[]> {
   const buildPromises = [];
 
   for (const environment of Object.values(builder.environments)) {
-    if (/^(client|ssr)$/.test(environment.name)) {
+    if (DEFAULT_VITE_ENVIRONMENT_PATTERN.test(environment.name)) {
       continue;
     }
 

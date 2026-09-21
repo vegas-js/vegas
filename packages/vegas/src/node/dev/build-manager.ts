@@ -1,6 +1,6 @@
 import type { ViteBuilder } from "vite";
 
-import { type ArtifactStore, buildApp } from "../build";
+import { SERVER_ENVIRONMENT_PATTERN, type ArtifactStore, buildApp } from "../build";
 import type { ResolvedProject } from "../project";
 import { buildDevArtifacts, replaceDevBuildArtifacts } from "./build-artifacts";
 import { buildDevTopology } from "./build-topology";
@@ -42,7 +42,7 @@ export class DevBuildManager {
       return;
     }
 
-    const artifacts = await this.#buildApp(this.#builder, /^server$/);
+    const artifacts = await this.#buildApp(this.#builder, SERVER_ENVIRONMENT_PATTERN);
     this.#artifacts.replaceScope("server", artifacts);
   }
 

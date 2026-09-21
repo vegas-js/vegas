@@ -1,13 +1,14 @@
 import type { EnvironmentOptions, InlineConfig } from "vite";
 
 import type { BuildPlan } from "../plan";
+import { createClientEnvironmentName, SERVER_ENVIRONMENT_NAME } from "./environment";
 import { VIRTUAL_DETECT_SERVER_ENTRY, detectServerEntry } from "./plugin/detect-server-entry";
 import { exportBridge } from "./plugin/exportbridge";
 import { virtualHtml } from "./plugin/virtual-html";
 
 export function createBuilderConfig(plan: BuildPlan): InlineConfig {
   const environments: Record<string, EnvironmentOptions> = {
-    server: {
+    [SERVER_ENVIRONMENT_NAME]: {
       build: {
         lib: {
           formats: ["iife"],
@@ -29,7 +30,7 @@ export function createBuilderConfig(plan: BuildPlan): InlineConfig {
     },
   };
   plan.clientEntries.forEach((entry, index) => {
-    environments[`client${index}`] = {
+    environments[createClientEnvironmentName(index)] = {
       ...sharedClientOptions,
       build: {
         rolldownOptions: {

@@ -2,6 +2,7 @@ import type { Plugin, Rolldown } from "vite";
 
 import { HtmlDocument } from "../../../html";
 import type { BuildPlan } from "../../plan";
+import { CLIENT_ENVIRONMENT_PATTERN, getClientEnvironmentIndex } from "../environment";
 
 function escapeInlineScript(code: string): string {
   return code.replace(/<\/script/gi, "<\\/script");
@@ -33,17 +34,17 @@ export function virtualHtml(entries: BuildPlan["clientEntries"]): Plugin {
     enforce: "post",
 
     applyToEnvironment(environment) {
-      return /^client\d+$/.test(environment.name);
+      return CLIENT_ENVIRONMENT_PATTERN.test(environment.name);
     },
 
     generateBundle(_outputOptions, bundle) {
-      const match = /^client(\d+)$/.exec(this.environment.name);
+      const entryIndex = getClientEnvironmentIndex(this.environment.name);
 
-      if (!match) {
+      if (entryIndex === undefined) {
         return;
       }
 
-      const entry = entries[Number(match[1])];
+      const entry = entries[entryIndex];
 
       if (!entry) {
         throw new Error(`Client entry not found for environment: ${this.environment.name}`);
