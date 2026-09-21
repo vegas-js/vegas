@@ -64,18 +64,20 @@ describe("loginGoogleAppsScriptUser", () => {
       expect(response.status).toBe(200);
     });
 
-    const tokenFetch = vi.fn(
-      async () =>
-        new Response(
-          JSON.stringify({
-            access_token: "access-token",
-            refresh_token: "refresh-token",
-            expires_in: 3600,
-            scope: "https://www.googleapis.com/auth/script.projects",
-          }),
-          { status: 200 },
-        ),
-    );
+    let requestSignal: AbortSignal | undefined;
+    const tokenFetch = vi.fn(async (_input: string | URL | Request, init?: RequestInit) => {
+      requestSignal = init?.signal ?? undefined;
+      return new Response(
+        JSON.stringify({
+          access_token: "access-token",
+          refresh_token: "refresh-token",
+          expires_in: 3600,
+          scope: "https://www.googleapis.com/auth/script.projects",
+        }),
+        { status: 200 },
+      );
+    });
+    const controller = new AbortController();
 
     await loginGoogleAppsScriptUser({
       clientFilePath,
@@ -86,10 +88,17 @@ describe("loginGoogleAppsScriptUser", () => {
       openAuthorizationUrl,
       fetch: tokenFetch,
       now: () => now,
+      signal: controller.signal,
+      requestTimeoutMs: 30_000,
     });
 
     expect(openAuthorizationUrl).toHaveBeenCalledOnce();
     expect(tokenFetch).toHaveBeenCalledOnce();
+    expect(requestSignal).toBeInstanceOf(AbortSignal);
+
+    controller.abort(new Error("login cancelled"));
+
+    expect(requestSignal?.aborted).toBe(true);
 
     const credentialStore = createAppsScriptUserCredentialStore({
       platform: process.platform,

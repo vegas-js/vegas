@@ -4,6 +4,7 @@ import fs from "node:fs";
 import { DEFAULT_APPS_SCRIPT_AUTH_PROFILE, requireAppsScriptAuthProfile } from "./auth-profile";
 import type { AppsScriptCredentialStore } from "./credential-store";
 import { AppsScriptAuthPrerequisiteError } from "./error";
+import type { GoogleHttpRequestLifetimeOptions } from "./google-http-request";
 import {
   createGoogleOAuthAuthorizationUrl,
   createGoogleOAuthCodeChallenge,
@@ -14,7 +15,7 @@ import { exchangeGoogleOAuthAuthorizationCode } from "./google-oauth-token-excha
 
 export type GoogleOAuthAuthorizationUrlOpener = (url: string) => Promise<void>;
 
-interface LoginGoogleAppsScriptOptions {
+interface LoginGoogleAppsScriptOptions extends GoogleHttpRequestLifetimeOptions {
   readonly clientFilePath: string;
   readonly credentialStore: AppsScriptCredentialStore;
   readonly openAuthorizationUrl: GoogleOAuthAuthorizationUrlOpener;
@@ -100,6 +101,8 @@ export async function loginGoogleAppsScript(
     redirectUri: listener.redirectUri,
     fetch: options.fetch,
     now: options.now,
+    signal: options.signal,
+    requestTimeoutMs: options.requestTimeoutMs,
   });
 
   await options.credentialStore.save(profile, {

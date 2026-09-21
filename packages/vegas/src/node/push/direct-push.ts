@@ -1,8 +1,9 @@
 import { createAppsScriptApiPushTransport } from "./api-transport";
+import type { GoogleHttpRequestLifetimeOptions } from "./google-http-request";
 import { loadAppsScriptPushRequest } from "./load-request";
 import { createAppsScriptUserAccessTokenProvider } from "./user-access-token-provider";
 
-interface PushAppsScriptProjectOptions {
+interface PushAppsScriptProjectOptions extends GoogleHttpRequestLifetimeOptions {
   readonly projectRoot: string;
   readonly outputDir: string;
   readonly projectScriptId?: string;
@@ -29,11 +30,15 @@ export async function pushAppsScriptProject(options: PushAppsScriptProjectOption
     env: options.env,
     fetch: options.fetch,
     now: options.now,
+    signal: options.signal,
+    requestTimeoutMs: options.requestTimeoutMs,
   });
 
   const transport = createAppsScriptApiPushTransport({
     accessTokenProvider,
     fetch: options.fetch,
+    signal: options.signal,
+    requestTimeoutMs: options.requestTimeoutMs,
   });
 
   await transport.push(request);

@@ -83,18 +83,20 @@ describe("createAppsScriptUserAccessTokenProvider", () => {
       expiryDate: now + 30_000,
     });
 
-    const fetch = vi.fn(
-      async () =>
-        new Response(
-          JSON.stringify({
-            access_token: "refreshed-access-token",
-            expires_in: 3600,
-          }),
-          {
-            status: 200,
-          },
-        ),
-    );
+    let requestSignal: AbortSignal | undefined;
+    const fetch = vi.fn(async (_input: string | URL | Request, init?: RequestInit) => {
+      requestSignal = init?.signal ?? undefined;
+      return new Response(
+        JSON.stringify({
+          access_token: "refreshed-access-token",
+          expires_in: 3600,
+        }),
+        {
+          status: 200,
+        },
+      );
+    });
+    const controller = new AbortController();
 
     const provider = createAppsScriptUserAccessTokenProvider({
       platform: process.platform,
@@ -102,11 +104,18 @@ describe("createAppsScriptUserAccessTokenProvider", () => {
       env,
       fetch,
       now: () => now,
+      signal: controller.signal,
+      requestTimeoutMs: 30_000,
     });
 
     await expect(provider.getAccessToken()).resolves.toBe("refreshed-access-token");
 
     expect(fetch).toHaveBeenCalledOnce();
+    expect(requestSignal).toBeInstanceOf(AbortSignal);
+
+    controller.abort(new Error("refresh cancelled"));
+
+    expect(requestSignal?.aborted).toBe(true);
 
     await expect(credentialStore.load("default")).resolves.toStrictEqual({
       clientId: "client-id",

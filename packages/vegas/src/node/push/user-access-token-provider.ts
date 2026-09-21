@@ -1,9 +1,10 @@
 import type { AppsScriptAccessTokenProvider } from "./access-token";
 import { createAppsScriptCredentialAccessTokenProvider } from "./credential-access-token-provider";
 import { createGoogleAppsScriptAccessTokenRefresher } from "./google-access-token-refresher";
+import type { GoogleHttpRequestLifetimeOptions } from "./google-http-request";
 import { createAppsScriptUserCredentialStore } from "./user-credential-store";
 
-interface CreateAppsScriptUserAccessTokenProviderOptions {
+interface CreateAppsScriptUserAccessTokenProviderOptions extends GoogleHttpRequestLifetimeOptions {
   readonly profile?: string;
   readonly platform?: NodeJS.Platform;
   readonly homeDir?: string;
@@ -26,6 +27,8 @@ export function createAppsScriptUserAccessTokenProvider(
   const refresher = createGoogleAppsScriptAccessTokenRefresher({
     fetch: options.fetch,
     now,
+    signal: options.signal,
+    requestTimeoutMs: options.requestTimeoutMs,
   });
 
   return createAppsScriptCredentialAccessTokenProvider({

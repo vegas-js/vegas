@@ -1,3 +1,4 @@
+import type { GoogleHttpRequestLifetimeOptions } from "./google-http-request";
 import { createGoogleOAuthAuthorizationUrlOpener } from "./google-oauth-browser";
 import {
   loginGoogleAppsScript,
@@ -5,7 +6,7 @@ import {
 } from "./google-oauth-login";
 import { createAppsScriptUserCredentialStore } from "./user-credential-store";
 
-interface LoginGoogleAppsScriptUserOptions {
+interface LoginGoogleAppsScriptUserOptions extends GoogleHttpRequestLifetimeOptions {
   readonly clientFilePath: string;
   readonly profile?: string;
   readonly platform?: NodeJS.Platform;
@@ -38,5 +39,7 @@ export async function loginGoogleAppsScriptUser(
     profile: options.profile,
     fetch: options.fetch,
     now: options.now,
+    signal: options.signal,
+    requestTimeoutMs: options.requestTimeoutMs,
   });
 }

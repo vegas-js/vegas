@@ -64,7 +64,12 @@ describe("pushAppsScriptProject", () => {
 
     await credentialStore.save("default", credential);
 
-    const fetch = vi.fn(async () => new Response(null, { status: 200 }));
+    let requestSignal: AbortSignal | undefined;
+    const fetch = vi.fn(async (_input: string | URL | Request, init?: RequestInit) => {
+      requestSignal = init?.signal ?? undefined;
+      return new Response(null, { status: 200 });
+    });
+    const controller = new AbortController();
 
     await pushAppsScriptProject({
       projectRoot,
@@ -75,9 +80,16 @@ describe("pushAppsScriptProject", () => {
       env,
       fetch,
       now: () => now,
+      signal: controller.signal,
+      requestTimeoutMs: 30_000,
     });
 
     expect(fetch).toHaveBeenCalledOnce();
+    expect(requestSignal).toBeInstanceOf(AbortSignal);
+
+    controller.abort(new Error("push cancelled"));
+
+    expect(requestSignal?.aborted).toBe(true);
 
     expect(fetch).toHaveBeenCalledWith(
       "https://script.googleapis.com/v1/projects/environment%2Fid/content",
