@@ -17,9 +17,15 @@ type RuntimeDataModule =
   | (RuntimeDataSpreadsheet & { readonly target: RuntimeDataTarget.Spreadsheet })
   | { readonly target: RuntimeDataTarget.Cache };
 
-export interface LoadedRuntimeData {
-  readonly session?: RuntimeDataSession;
-  readonly spreadsheets: readonly RuntimeDataSpreadsheet[];
+export interface RuntimeDataEntry<T> {
+  readonly source: string;
+  readonly value: T;
+}
+
+export interface RuntimeDataSnapshot {
+  readonly properties?: RuntimeDataEntry<RuntimeDataProperties>;
+  readonly session?: RuntimeDataEntry<RuntimeDataSession>;
+  readonly spreadsheets: readonly RuntimeDataEntry<RuntimeDataSpreadsheet>[];
 }
 
 function requireRuntimeDataModule(value: unknown, source: string): RuntimeDataModule {
@@ -39,15 +45,14 @@ function requireRuntimeDataModule(value: unknown, source: string): RuntimeDataMo
   }
 }
 
-export async function loadRuntimeData(
+export async function loadRuntimeDataSnapshot(
   projectRoot: string,
   runtimeDataSources: readonly string[],
-  propertiesStore: PropertiesStore,
-  scope: InvocationScope,
   load: typeof loadModule = loadModule,
-): Promise<LoadedRuntimeData> {
-  let session: RuntimeDataSession | undefined;
-  const spreadsheets: RuntimeDataSpreadsheet[] = [];
+): Promise<RuntimeDataSnapshot> {
+  let properties: RuntimeDataEntry<RuntimeDataProperties> | undefined;
+  let session: RuntimeDataEntry<RuntimeDataSession> | undefined;
+  const spreadsheets: RuntimeDataEntry<RuntimeDataSpreadsheet>[] = [];
 
   for (const source of runtimeDataSources) {
     const data = requireRuntimeDataModule(
@@ -57,15 +62,15 @@ export async function loadRuntimeData(
 
     switch (data.target) {
       case RuntimeDataTarget.Properties: {
-        await applyPropertiesRuntimeData(propertiesStore, scope, data);
+        properties = { source, value: data };
         break;
       }
       case RuntimeDataTarget.Session: {
-        session = data;
+        session = { source, value: data };
         break;
       }
       case RuntimeDataTarget.Spreadsheet: {
-        spreadsheets.push(data);
+        spreadsheets.push({ source, value: data });
         break;
       }
       case RuntimeDataTarget.Cache: {
@@ -74,7 +79,11 @@ export async function loadRuntimeData(
     }
   }
 
-  return session === undefined ? { spreadsheets } : { session, spreadsheets };
+  return {
+    ...(properties === undefined ? {} : { properties }),
+    ...(session === undefined ? {} : { session }),
+    spreadsheets,
+  };
 }
 
 export async function applyPropertiesRuntimeData(

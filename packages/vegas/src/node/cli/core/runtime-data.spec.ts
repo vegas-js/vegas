@@ -9,40 +9,49 @@ import {
 } from "../../runtime";
 import {
   applyPropertiesRuntimeData,
-  loadRuntimeData,
-  type LoadedRuntimeData,
+  loadRuntimeDataSnapshot,
+  type RuntimeDataSnapshot,
 } from "./runtime-data";
 
 describe("runtime data", () => {
-  test("keep loaded Session and Spreadsheet data explicit", () => {
-    expectTypeOf<LoadedRuntimeData>().toEqualTypeOf<{
+  test("keep snapshot sources and runtime data explicit", () => {
+    expectTypeOf<RuntimeDataSnapshot>().toEqualTypeOf<{
+      readonly properties?: {
+        readonly source: string;
+        readonly value: {
+          documentProperties?: Record<string, string>;
+          scriptProperties?: Record<string, string>;
+          userProperties?: Record<string, string>;
+        };
+      };
       readonly session?: {
-        activeUserEmail?: string;
-        activeUserLocale?: string;
-        effectiveUserEmail?: string;
-        temporaryActiveUserKey?: string;
+        readonly source: string;
+        readonly value: {
+          activeUserEmail?: string;
+          activeUserLocale?: string;
+          effectiveUserEmail?: string;
+          temporaryActiveUserKey?: string;
+        };
       };
       readonly spreadsheets: readonly {
-        readonly id: string;
-        readonly url?: string;
-        readonly name: string;
-        readonly sheets: readonly {
-          readonly id: number;
+        readonly source: string;
+        readonly value: {
+          readonly id: string;
+          readonly url?: string;
           readonly name: string;
-          readonly maxRows: number;
-          readonly maxColumns: number;
-          readonly values?: readonly (readonly (string | number | boolean | Date)[])[];
-        }[];
+          readonly sheets: readonly {
+            readonly id: number;
+            readonly name: string;
+            readonly maxRows: number;
+            readonly maxColumns: number;
+            readonly values?: readonly (readonly (string | number | boolean | Date)[])[];
+          }[];
+        };
       }[];
     }>();
   });
 
-  test("load Properties, Session, and Spreadsheet runtime data", async () => {
-    const propertiesStore = new InMemoryPropertiesStore();
-    const scope: InvocationScope = {
-      scriptKey: "script-a",
-      userKey: "user-a",
-    };
+  test("load Properties, Session, and Spreadsheet runtime data into a snapshot", async () => {
     const sources = [
       "/project/runtime/properties.ts",
       "/project/runtime/session.ts",
@@ -87,30 +96,25 @@ describe("runtime data", () => {
       },
     };
 
-    const runtimeData = await loadRuntimeData(
+    const snapshot = await loadRuntimeDataSnapshot(
       "/project",
       sources,
-      propertiesStore,
-      scope,
       async ({ filePath }) => modules[filePath],
     );
 
-    expect(runtimeData.session).toStrictEqual({
-      target: RuntimeDataTarget.Session,
-      activeUserEmail: "active@example.com",
-      activeUserLocale: "ja",
+    expect(snapshot.properties).toStrictEqual({
+      source: sources[0],
+      value: modules[sources[0]],
     });
-    expect(runtimeData.spreadsheets).toHaveLength(2);
-
-    const script = resolvePropertiesNamespace(scope, "script");
-    if (!script) {
-      throw new Error("expected script properties namespace");
-    }
-    await expect(propertiesStore.getAll(script)).resolves.toStrictEqual({
-      environment: "test",
+    expect(snapshot.session).toStrictEqual({
+      source: sources[1],
+      value: modules[sources[1]],
     });
+    expect(snapshot.spreadsheets.map(({ source }) => source)).toStrictEqual(sources.slice(2));
 
-    const spreadsheetStore = new InMemorySpreadsheetStore(runtimeData.spreadsheets);
+    const spreadsheetStore = new InMemorySpreadsheetStore(
+      snapshot.spreadsheets.map(({ value }) => value),
+    );
     const budget = await spreadsheetStore.getSpreadsheet("budget");
     await expect(
       spreadsheetStore.getSpreadsheetByUrl("http://localhost:5173/spreadsheets/budget"),
@@ -142,19 +146,10 @@ describe("runtime data", () => {
   });
 
   test("reject runtime data without a supported target", async () => {
-    const propertiesStore = new InMemoryPropertiesStore();
-
     await expect(
-      loadRuntimeData(
-        "/project",
-        ["/project/runtime/invalid.ts"],
-        propertiesStore,
-        {
-          scriptKey: "script-a",
-          userKey: "user-a",
-        },
-        async () => ({ target: "Unknown" }),
-      ),
+      loadRuntimeDataSnapshot("/project", ["/project/runtime/invalid.ts"], async () => ({
+        target: "Unknown",
+      })),
     ).rejects.toThrow("Unsupported runtime data target in /project/runtime/invalid.ts: Unknown");
   });
 });

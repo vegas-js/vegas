@@ -15,7 +15,7 @@ import {
 } from "../../runtime";
 import { createNodeAppsScriptExecutor } from "../../runtime/node";
 import type { SpreadsheetUrlCapability } from "../../runtime/spreadsheet-url-capability";
-import { loadRuntimeData } from "./runtime-data";
+import { applyPropertiesRuntimeData, loadRuntimeDataSnapshot } from "./runtime-data";
 import { createInvocationEnvironment } from "./runtime-environment";
 import { createInvocationScope } from "./runtime-scope";
 
@@ -32,7 +32,7 @@ interface LocalRuntimeOptions {
 }
 
 interface LocalRuntimeDependencies {
-  readonly loadRuntimeData?: typeof loadRuntimeData;
+  readonly loadRuntimeDataSnapshot?: typeof loadRuntimeDataSnapshot;
   readonly createExecutor?: typeof createNodeAppsScriptExecutor;
 }
 
@@ -54,9 +54,16 @@ export async function createLocalRuntime(
 ): Promise<LocalRuntime> {
   const scope = createInvocationScope(project);
   const propertiesStore = new InMemoryPropertiesStore();
-  const load = dependencies.loadRuntimeData ?? loadRuntimeData;
-  const runtimeData = await load(project.root, runtimeDataSources, propertiesStore, scope);
-  const spreadsheetStore = new InMemorySpreadsheetStore(runtimeData.spreadsheets);
+  const loadSnapshot = dependencies.loadRuntimeDataSnapshot ?? loadRuntimeDataSnapshot;
+  const snapshot = await loadSnapshot(project.root, runtimeDataSources);
+
+  if (snapshot.properties !== undefined) {
+    await applyPropertiesRuntimeData(propertiesStore, scope, snapshot.properties.value);
+  }
+
+  const spreadsheetStore = new InMemorySpreadsheetStore(
+    snapshot.spreadsheets.map(({ value }) => value),
+  );
   const sharedStores = options.sharedStores ?? createLocalRuntimeSharedStores();
   const createExecutor = dependencies.createExecutor ?? createNodeAppsScriptExecutor;
   const executor = createExecutor({
@@ -65,7 +72,7 @@ export async function createLocalRuntime(
     spreadsheetStore,
     spreadsheetUrlCapability: options.spreadsheetUrlCapability,
   });
-  const environment = createInvocationEnvironment(project, runtimeData.session);
+  const environment = createInvocationEnvironment(project, snapshot.session?.value);
 
   return {
     execute(request) {

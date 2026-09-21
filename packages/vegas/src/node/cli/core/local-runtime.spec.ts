@@ -3,14 +3,14 @@ import { describe, expect, expectTypeOf, test, vi } from "vitest";
 import type { ResolvedProject } from "../../project";
 import type {
   ExecutionRequest,
-  InvocationScope,
   Program,
+  PropertiesStore,
   RuntimeBackend,
   RuntimeExecutionRequest,
   SpreadsheetStore,
 } from "../../runtime";
 import { createLocalRuntime, createLocalRuntimeSharedStores } from "./local-runtime";
-import { loadRuntimeData } from "./runtime-data";
+import { loadRuntimeDataSnapshot } from "./runtime-data";
 
 const project = {
   root: "/project",
@@ -34,25 +34,38 @@ describe("createLocalRuntime", () => {
     const runtimeDataSources = ["/project/runtime/session.ts", "/project/runtime/budget.ts"];
     let loadedRoot: string | undefined;
     let loadedSources: readonly string[] | undefined;
-    let loadedScope: InvocationScope | undefined;
+    let propertiesStore: PropertiesStore | undefined;
 
-    const load: typeof loadRuntimeData = async (root, sources, _propertiesStore, scope) => {
+    const loadSnapshot: typeof loadRuntimeDataSnapshot = async (root, sources) => {
       loadedRoot = root;
       loadedSources = sources;
-      loadedScope = scope;
 
       return {
+        properties: {
+          source: "/project/runtime/properties.ts",
+          value: {
+            scriptProperties: {
+              environment: "test",
+            },
+          },
+        },
         session: {
-          activeUserEmail: "active@example.com",
-          activeUserLocale: "ja",
-          effectiveUserEmail: "effective@example.com",
-          temporaryActiveUserKey: "temporary-user-key",
+          source: "/project/runtime/session.ts",
+          value: {
+            activeUserEmail: "active@example.com",
+            activeUserLocale: "ja",
+            effectiveUserEmail: "effective@example.com",
+            temporaryActiveUserKey: "temporary-user-key",
+          },
         },
         spreadsheets: [
           {
-            id: "budget",
-            name: "Budget",
-            sheets: [],
+            source: "/project/runtime/budget.ts",
+            value: {
+              id: "budget",
+              name: "Budget",
+              sheets: [],
+            },
           },
         ],
       };
@@ -73,12 +86,13 @@ describe("createLocalRuntime", () => {
         sharedStores,
       },
       {
-        loadRuntimeData: load,
+        loadRuntimeDataSnapshot: loadSnapshot,
         createExecutor: (options) => {
           expect(options.cacheStore).toBe(sharedStores.cacheStore);
           expect(options.driveIteratorStore).toBe(sharedStores.driveIteratorStore);
           expect(options.driveStore).toBe(sharedStores.driveStore);
           expect(options.lockStore).toBe(sharedStores.lockStore);
+          propertiesStore = options.propertiesStore;
 
           return { execute };
         },
@@ -95,9 +109,18 @@ describe("createLocalRuntime", () => {
 
     expect(loadedRoot).toBe("/project");
     expect(loadedSources).toBe(runtimeDataSources);
-    expect(loadedScope).toStrictEqual({
-      scriptKey: "/project",
-      userKey: "local-user",
+
+    if (propertiesStore === undefined) {
+      throw new Error("expected Properties store");
+    }
+
+    await expect(
+      propertiesStore.getAll({
+        kind: "script",
+        scriptKey: "/project",
+      }),
+    ).resolves.toStrictEqual({
+      environment: "test",
     });
 
     const controller = new AbortController();
