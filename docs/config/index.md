@@ -8,7 +8,7 @@ When you run Vegas from the command line, Vegas looks for one of these configura
 
 A configuration file is optional; when none is present, Vegas uses its default configuration. Only one supported configuration file may exist in a project at a time.
 
-TypeScript and JavaScript configuration files use a default export. JSON configuration files contain the configuration object directly.
+TypeScript and JavaScript configuration files use a default export. They may export a configuration object, a Promise of a configuration object, or a zero-argument function that returns either form. JSON configuration files contain the configuration object directly.
 
 ::: code-group
 
@@ -17,6 +17,16 @@ import { defineConfig } from "@vegasjs/vegas";
 
 export default defineConfig({
   // config options
+});
+```
+
+```typescript [vegas.config.ts (async)]
+import { defineConfig } from "@vegasjs/vegas";
+
+export default defineConfig(async () => {
+  return {
+    // config options
+  };
 });
 ```
 

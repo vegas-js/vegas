@@ -8,7 +8,7 @@ import {
 } from "./config";
 
 describe("defineConfig", () => {
-  test("returns the user config unchanged", () => {
+  test("return an object config unchanged", () => {
     const manifest: AppsScriptManifest = {
       runtimeVersion: "V8",
       timeZone: "Asia/Tokyo",
@@ -23,6 +23,18 @@ describe("defineConfig", () => {
       appType: "spa",
       appsScript,
     };
+
+    expect(defineConfig(config)).toBe(config);
+  });
+
+  test("return a promise config unchanged", () => {
+    const config = Promise.resolve<UserConfig>({ appType: "script" });
+
+    expect(defineConfig(config)).toBe(config);
+  });
+
+  test("return a config factory unchanged", () => {
+    const config = async (): Promise<UserConfig> => ({ appType: "script" });
 
     expect(defineConfig(config)).toBe(config);
   });

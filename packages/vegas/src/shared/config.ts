@@ -145,3 +145,7 @@ export type UserConfig = BaseConfig & {
    */
   appsScript?: AppsScriptConfig;
 };
+
+export type UserConfigFactory = () => UserConfig | Promise<UserConfig>;
+
+export type UserConfigExport = UserConfig | Promise<UserConfig> | UserConfigFactory;

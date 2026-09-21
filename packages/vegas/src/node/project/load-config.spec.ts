@@ -55,6 +55,51 @@ describe("loadUserConfig", () => {
     });
   });
 
+  test("load a config factory", async () => {
+    await withTempDir(async (directory) => {
+      const configFile = path.join(directory, "vegas.config.ts");
+
+      await fs.promises.writeFile(configFile, `export default () => ({ appType: "script" });`);
+
+      await expect(loadUserConfig(directory)).resolves.toStrictEqual({
+        config: { appType: "script" },
+        configFile,
+      });
+    });
+  });
+
+  test("load an async config factory", async () => {
+    await withTempDir(async (directory) => {
+      const configFile = path.join(directory, "vegas.config.ts");
+
+      await fs.promises.writeFile(
+        configFile,
+        `export default async () => ({ appType: "script" });`,
+      );
+
+      await expect(loadUserConfig(directory)).resolves.toStrictEqual({
+        config: { appType: "script" },
+        configFile,
+      });
+    });
+  });
+
+  test("load a promise config", async () => {
+    await withTempDir(async (directory) => {
+      const configFile = path.join(directory, "vegas.config.ts");
+
+      await fs.promises.writeFile(
+        configFile,
+        `export default Promise.resolve({ appType: "script" });`,
+      );
+
+      await expect(loadUserConfig(directory)).resolves.toStrictEqual({
+        config: { appType: "script" },
+        configFile,
+      });
+    });
+  });
+
   test("load vegas.config.json", async () => {
     await withTempDir(async (directory) => {
       const configFile = path.join(directory, "vegas.config.json");

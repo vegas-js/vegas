@@ -26,6 +26,14 @@ function findConfigFile(directory: string): string | null {
   return configFiles[0] ?? null;
 }
 
+async function resolveConfigExport(config: unknown): Promise<unknown> {
+  if (typeof config === "function") {
+    return Promise.resolve(config());
+  }
+
+  return config;
+}
+
 async function loadConfigFile(directory: string, filePath: string): Promise<unknown> {
   if (path.extname(filePath) === ".json") {
     const content = await fs.promises.readFile(filePath, "utf8");
@@ -34,10 +42,12 @@ async function loadConfigFile(directory: string, filePath: string): Promise<unkn
     return config;
   }
 
-  return loadModule({
+  const config = await loadModule({
     root: directory,
     filePath,
   });
+
+  return resolveConfigExport(config);
 }
 
 export async function loadUserConfig(directory: string): Promise<LoadedUserConfig> {
