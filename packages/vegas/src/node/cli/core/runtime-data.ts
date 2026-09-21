@@ -1,21 +1,16 @@
-import { RuntimeDataTarget } from "../../../shared/gas";
 import type {
   RuntimeDataProperties,
   RuntimeDataSession,
   RuntimeDataSpreadsheet,
 } from "../../../shared/gas";
+import { RuntimeDataTarget } from "../../../shared/gas";
 import { loadModule } from "../../module";
 import {
   resolvePropertiesNamespace,
   type InvocationScope,
   type PropertiesStore,
 } from "../../runtime";
-
-type RuntimeDataModule =
-  | (RuntimeDataProperties & { readonly target: RuntimeDataTarget.Properties })
-  | (RuntimeDataSession & { readonly target: RuntimeDataTarget.Session })
-  | (RuntimeDataSpreadsheet & { readonly target: RuntimeDataTarget.Spreadsheet })
-  | { readonly target: RuntimeDataTarget.Cache };
+import { validateRuntimeDataModule } from "./runtime-data-validation";
 
 export interface RuntimeDataEntry<T> {
   readonly source: string;
@@ -28,23 +23,6 @@ export interface RuntimeDataSnapshot {
   readonly spreadsheets: readonly RuntimeDataEntry<RuntimeDataSpreadsheet>[];
 }
 
-function requireRuntimeDataModule(value: unknown, source: string): RuntimeDataModule {
-  if (typeof value !== "object" || value === null || !("target" in value)) {
-    throw new Error(`Runtime data module must export a target: ${source}`);
-  }
-
-  switch (value.target) {
-    case RuntimeDataTarget.Properties:
-    case RuntimeDataTarget.Session:
-    case RuntimeDataTarget.Spreadsheet:
-    case RuntimeDataTarget.Cache:
-      return value as RuntimeDataModule;
-
-    default:
-      throw new Error(`Unsupported runtime data target in ${source}: ${String(value.target)}`);
-  }
-}
-
 export async function loadRuntimeDataSnapshot(
   projectRoot: string,
   runtimeDataSources: readonly string[],
@@ -53,27 +31,56 @@ export async function loadRuntimeDataSnapshot(
   let properties: RuntimeDataEntry<RuntimeDataProperties> | undefined;
   let session: RuntimeDataEntry<RuntimeDataSession> | undefined;
   const spreadsheets: RuntimeDataEntry<RuntimeDataSpreadsheet>[] = [];
+  const spreadsheetSourcesById = new Map<string, string>();
+  const spreadsheetSourcesByUrl = new Map<string, string>();
 
   for (const source of runtimeDataSources) {
-    const data = requireRuntimeDataModule(
+    const data = validateRuntimeDataModule(
       await load({ root: projectRoot, filePath: source }),
       source,
     );
 
     switch (data.target) {
       case RuntimeDataTarget.Properties: {
+        if (properties !== undefined) {
+          throw new Error(`Duplicate Properties runtime data: ${properties.source}, ${source}`);
+        }
+
         properties = { source, value: data };
         break;
       }
       case RuntimeDataTarget.Session: {
+        if (session !== undefined) {
+          throw new Error(`Duplicate Session runtime data: ${session.source}, ${source}`);
+        }
+
         session = { source, value: data };
         break;
       }
       case RuntimeDataTarget.Spreadsheet: {
+        const existingIdSource = spreadsheetSourcesById.get(data.id);
+
+        if (existingIdSource !== undefined) {
+          throw new Error(
+            `Duplicate Spreadsheet runtime data id "${data.id}": ${existingIdSource}, ${source}`,
+          );
+        }
+
+        spreadsheetSourcesById.set(data.id, source);
+
+        if (data.url !== undefined) {
+          const existingUrlSource = spreadsheetSourcesByUrl.get(data.url);
+
+          if (existingUrlSource !== undefined) {
+            throw new Error(
+              `Duplicate Spreadsheet runtime data URL "${data.url}": ${existingUrlSource}, ${source}`,
+            );
+          }
+
+          spreadsheetSourcesByUrl.set(data.url, source);
+        }
+
         spreadsheets.push({ source, value: data });
-        break;
-      }
-      case RuntimeDataTarget.Cache: {
         break;
       }
     }

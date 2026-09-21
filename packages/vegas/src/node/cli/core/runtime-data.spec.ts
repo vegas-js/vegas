@@ -145,6 +145,95 @@ describe("runtime data", () => {
     });
   });
 
+  test("reject duplicate singleton runtime data", async () => {
+    const cases = [
+      {
+        target: RuntimeDataTarget.Properties,
+        first: "/project/runtime/properties-a.ts",
+        second: "/project/runtime/properties-b.ts",
+        message:
+          "Duplicate Properties runtime data: /project/runtime/properties-a.ts, /project/runtime/properties-b.ts",
+      },
+      {
+        target: RuntimeDataTarget.Session,
+        first: "/project/runtime/session-a.ts",
+        second: "/project/runtime/session-b.ts",
+        message:
+          "Duplicate Session runtime data: /project/runtime/session-a.ts, /project/runtime/session-b.ts",
+      },
+    ] as const;
+
+    for (const { target, first, second, message } of cases) {
+      await expect(
+        loadRuntimeDataSnapshot("/project", [first, second], async () => ({ target })),
+      ).rejects.toThrow(message);
+    }
+  });
+
+  test("reject duplicate Spreadsheet id", async () => {
+    const first = "/project/runtime/budget-a.ts";
+    const second = "/project/runtime/budget-b.ts";
+
+    await expect(
+      loadRuntimeDataSnapshot("/project", [first, second], async () => ({
+        target: RuntimeDataTarget.Spreadsheet,
+        id: "budget",
+        name: "Budget",
+        sheets: [],
+      })),
+    ).rejects.toThrow(`Duplicate Spreadsheet runtime data id "budget": ${first}, ${second}`);
+  });
+
+  test("reject duplicate Spreadsheet URL", async () => {
+    const first = "/project/runtime/budget.ts";
+    const second = "/project/runtime/archive.ts";
+
+    await expect(
+      loadRuntimeDataSnapshot("/project", [first, second], async ({ filePath }) => ({
+        target: RuntimeDataTarget.Spreadsheet,
+        id: filePath === first ? "budget" : "archive",
+        url: "https://docs.google.com/spreadsheets/d/shared",
+        name: filePath === first ? "Budget" : "Archive",
+        sheets: [],
+      })),
+    ).rejects.toThrow(
+      `Duplicate Spreadsheet runtime data URL "https://docs.google.com/spreadsheets/d/shared": ${first}, ${second}`,
+    );
+  });
+
+  test("reject Cache runtime data until it has a defined fixture contract", async () => {
+    await expect(
+      loadRuntimeDataSnapshot("/project", ["/project/runtime/cache.ts"], async () => ({
+        target: RuntimeDataTarget.Cache,
+      })),
+    ).rejects.toThrow("Runtime data target Cache is not implemented: /project/runtime/cache.ts");
+  });
+
+  test("reject invalid runtime data payload", async () => {
+    await expect(
+      loadRuntimeDataSnapshot("/project", ["/project/runtime/session.ts"], async () => ({
+        target: RuntimeDataTarget.Session,
+        activeUserEmail: 42,
+      })),
+    ).rejects.toThrow("Invalid runtime data in /project/runtime/session.ts: activeUserEmail:");
+
+    await expect(
+      loadRuntimeDataSnapshot("/project", ["/project/runtime/budget.ts"], async () => ({
+        target: RuntimeDataTarget.Spreadsheet,
+        id: "budget",
+        name: "Budget",
+        sheets: [
+          {
+            id: 0,
+            name: "Sheet1",
+            maxRows: 0,
+            maxColumns: 10,
+          },
+        ],
+      })),
+    ).rejects.toThrow("Invalid runtime data in /project/runtime/budget.ts: sheets[0].maxRows:");
+  });
+
   test("reject runtime data without a supported target", async () => {
     await expect(
       loadRuntimeDataSnapshot("/project", ["/project/runtime/invalid.ts"], async () => ({
