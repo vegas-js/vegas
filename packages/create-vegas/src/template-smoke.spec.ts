@@ -20,7 +20,7 @@ const templateCases = [
   ["template-lit", "src/client/main.ts", "from 'lit'", "tsc -b && vegas build"],
   ["template-react", "src/client/main.tsx", "react-dom/client", "tsc -b && vegas build"],
   ["template-preact", "src/client/main.tsx", "from 'preact'", "tsc -b && vegas build"],
-  ["template-vue", "src/client/main.tsx", 'from "vue"', "vue-tsc -b && vegas build"],
+  ["template-vue", "src/client/main.tsx", "from 'vue'", "vue-tsc -b && vegas build"],
   ["template-svelte", "src/client/main.ts", "from 'svelte'", "vegas build"],
   ["template-solid", "src/client/main.tsx", "solid-js/web", "tsc -b && vegas build"],
 ] as const;
@@ -30,7 +30,7 @@ const templateEditCases = [
   ["template-apps-script-scriptlet", "src/client/index.html", "src/client/index.html"],
   ["template-lit", "src/client/main.ts", "src/client/main.ts"],
   ["template-react", "src/client/App.tsx", "src/client/App.tsx"],
-  ["template-preact", "src/client/app.tsx", "src/client/app.tsx"],
+  ["template-preact", "src/client/App.tsx", "src/client/App.tsx"],
   ["template-vue", "src/client/components/HelloWorld.vue", "src/client/components/HelloWorld.vue"],
   ["template-svelte", "src/client/App.svelte", "src/client/App.svelte"],
   ["template-solid", "src/client/App.tsx", "src/client/App.tsx"],
@@ -74,6 +74,21 @@ describe("create-vegas templates", () => {
       expect(source).toContain(`<code>${displayedPath}</code>`);
     },
   );
+
+  test("keeps raw HTML void elements in HTML syntax", () => {
+    for (const [templateName, sourcePath] of [
+      ["template-vanilla", "src/client/main.ts"],
+      ["template-lit", "src/client/main.ts"],
+      ["template-apps-script-scriptlet", "src/client/index.html"],
+    ] as const) {
+      const source = fs.readFileSync(
+        path.join(CREATE_VEGAS_ROOT, templateName, sourcePath),
+        "utf8",
+      );
+
+      expect(source).not.toMatch(/<img\b[^>]*\/>/);
+    }
+  });
 
   test("Apps Script scriptlet template evaluates physical HTML", () => {
     const templateDirectory = path.join(CREATE_VEGAS_ROOT, "template-apps-script-scriptlet");

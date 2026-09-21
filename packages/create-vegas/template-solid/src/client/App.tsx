@@ -36,13 +36,13 @@ function App() {
           <ul>
             <li>
               <a href="https://vegasjs.dev/" target="_blank">
-                <img class="logo" src={vegasLogo} alt="" />
+                <img src={vegasLogo} class="logo" alt="" />
                 Explore Vegas
               </a>
             </li>
             <li>
               <a href="https://solidjs.com/" target="_blank">
-                <img class="button-icon" src={solidLogo} alt="" />
+                <img src={solidLogo} class="button-icon" alt="" />
                 Learn more
               </a>
             </li>
@@ -54,7 +54,7 @@ function App() {
           <ul>
             <li>
               <a href="https://github.com/vegas-js/vegas" target="_blank">
-                <img class="button-icon" src={githubIcon} alt="" />
+                <img src={githubIcon} class="button-icon" alt="" />
                 GitHub
               </a>
             </li>

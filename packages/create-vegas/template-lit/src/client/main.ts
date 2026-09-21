@@ -26,8 +26,8 @@ class VegasApp extends LitElement {
       <section id="center">
         <div class="hero">
           <img src=${heroImg} class="base" width="170" height="179" alt="">
-          <img src=${litLogo} class="framework" alt="Lit logo" />
-          <img src=${vegasLogo} class="vegas" alt="Vegas logo" />
+          <img src=${litLogo} class="framework" alt="Lit logo">
+          <img src=${vegasLogo} class="vegas" alt="Vegas logo">
         </div>
         <div>
           <h1>Get started</h1>
@@ -49,13 +49,13 @@ class VegasApp extends LitElement {
           <ul>
             <li>
               <a href="https://vegasjs.dev/" target="_blank">
-                <img class="logo" src=${vegasLogo} alt="" />
+                <img src=${vegasLogo} class="logo" alt="">
                 Explore Vegas
               </a>
             </li>
             <li>
-              <a href="https://lit.dev" target="_blank">
-                <img class="button-icon" src=${litLogo} alt="">
+              <a href="https://lit.dev/" target="_blank">
+                <img src=${litLogo} class="button-icon" alt="">
                 Learn more
               </a>
             </li>
@@ -67,7 +67,7 @@ class VegasApp extends LitElement {
           <ul>
             <li>
               <a href="https://github.com/vegas-js/vegas" target="_blank">
-                <img src=${githubIcon} class="button-icon" alt="" />
+                <img src=${githubIcon} class="button-icon" alt="">
                 GitHub
               </a>
             </li>

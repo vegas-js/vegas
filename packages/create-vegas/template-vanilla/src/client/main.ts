@@ -9,8 +9,8 @@ document.querySelector<HTMLDivElement>('#root')!.innerHTML = `
 <section id="center">
   <div class="hero">
     <img src="${heroImg}" class="base" width="170" height="179">
-    <img src="${typescriptLogo}" class="framework" alt="TypeScript logo"/>
-    <img src=${vegasLogo} class="vegas" alt="Vegas logo" />
+    <img src="${typescriptLogo}" class="framework" alt="TypeScript logo">
+    <img src="${vegasLogo}" class="vegas" alt="Vegas logo">
   </div>
   <div>
     <h1>Get started</h1>
@@ -28,7 +28,7 @@ document.querySelector<HTMLDivElement>('#root')!.innerHTML = `
     <ul>
       <li>
         <a href="https://vegasjs.dev/" target="_blank">
-          <img class="logo" src=${vegasLogo} alt="" />
+          <img src="${vegasLogo}" class="logo" alt="">
           Explore Vegas
         </a>
       </li>
@@ -44,7 +44,12 @@ document.querySelector<HTMLDivElement>('#root')!.innerHTML = `
     <h2>Connect with us</h2>
     <p>Join the Vegas community</p>
     <ul>
-      <li><a href="https://github.com/vegas-js/vegas" target="_blank"><img src=${githubIcon} class="button-icon" alt="" />GitHub</a></li>
+      <li>
+        <a href="https://github.com/vegas-js/vegas" target="_blank">
+          <img src="${githubIcon}" class="button-icon" alt="">
+          GitHub
+        </a>
+      </li>
     </ul>
   </div>
 </section>

@@ -17,7 +17,10 @@ const count = ref(0)
     </div>
     <div>
       <h1>Get started</h1>
-      <p>Edit <code>src/client/components/HelloWorld.vue</code> and save to test fast <code>FBR</code></p>
+      <p>
+      Edit <code>src/client/components/HelloWorld.vue</code> and save to test fast
+      <code>FBR</code>
+    </p>
     </div>
     <button class="counter" @click="count++">Count is {{ count }}</button>
   </section>
@@ -31,13 +34,13 @@ const count = ref(0)
       <ul>
         <li>
           <a href="https://vegasjs.dev/" target="_blank">
-            <img class="logo" :src="vegasLogo" alt="" />
+            <img :src="vegasLogo" class="logo" alt="" />
             Explore Vegas
           </a>
         </li>
         <li>
           <a href="https://vuejs.org/" target="_blank">
-            <img class="button-icon" :src="vueLogo" alt="" />
+            <img :src="vueLogo" class="button-icon" alt="" />
             Learn more
           </a>
         </li>
@@ -49,7 +52,7 @@ const count = ref(0)
       <ul>
         <li>
           <a href="https://github.com/vegas-js/vegas" target="_blank">
-            <img class="button-icon" :src="githubIcon" alt="" />
+            <img :src="githubIcon" class="button-icon" alt="" />
             GitHub
           </a>
         </li>

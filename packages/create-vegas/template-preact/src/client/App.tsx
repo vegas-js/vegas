@@ -3,7 +3,7 @@ import preactLogo from './assets/preact.svg'
 import vegasLogo from './assets/vegas.webp'
 import heroImg from './assets/hero.png'
 import githubIcon from './assets/github.svg'
-import './app.css'
+import './App.css'
 
 export function App() {
   const [count, setCount] = useState(0)
@@ -19,7 +19,7 @@ export function App() {
         <div>
           <h1>Get started</h1>
           <p>
-            Edit <code>src/client/app.tsx</code> and save to test fast <code>FBR</code>
+            Edit <code>src/client/App.tsx</code> and save to test fast <code>FBR</code>
           </p>
         </div>
         <button class="counter" onClick={() => setCount((count) => count + 1)}>
@@ -36,13 +36,13 @@ export function App() {
           <ul>
             <li>
               <a href="https://vegasjs.dev/" target="_blank">
-                <img class="logo" src={vegasLogo} alt="" />
+                <img src={vegasLogo} class="logo" alt="" />
                 Explore Vegas
               </a>
             </li>
             <li>
               <a href="https://preactjs.com/" target="_blank">
-                <img class="button-icon" src={preactLogo} alt="" />
+                <img src={preactLogo} class="button-icon" alt="" />
                 Learn more
               </a>
             </li>

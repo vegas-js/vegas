@@ -14,7 +14,9 @@
   </div>
   <div>
     <h1>Get started</h1>
-    <p>Edit <code>src/client/App.svelte</code> and save to test fast <code>FBR</code></p>
+    <p>
+    Edit <code>src/client/App.svelte</code> and save to test fast <code>FBR</code>
+  </p>
   </div>
   <Counter />
 </section>
@@ -28,13 +30,13 @@
     <ul>
       <li>
         <a href="https://vegasjs.dev/" target="_blank" rel="noreferrer">
-          <img class="logo" src={vegasLogo} alt="" />
+          <img src={vegasLogo} class="logo" alt="" />
           Explore Vegas
         </a>
       </li>
       <li>
         <a href="https://svelte.dev/" target="_blank" rel="noreferrer">
-          <img class="button-icon" src={svelteLogo} alt="" />
+          <img src={svelteLogo} class="button-icon" alt="" />
           Learn more
         </a>
       </li>
@@ -46,7 +48,7 @@
     <ul>
       <li>
         <a href="https://github.com/vegas-js/vegas" target="_blank" rel="noreferrer">
-          <img class="button-icon" src={githubIcon} alt="" />
+          <img src={githubIcon} class="button-icon" alt="" />
           GitHub
         </a>
       </li>
