@@ -10,9 +10,11 @@ describe("ReloadableRuntimeBackend", () => {
     const first: RuntimeBackend = { execute: firstExecute };
     const second: RuntimeBackend = { execute: secondExecute };
     const runtime = new ReloadableRuntimeBackend(first);
+    const controller = new AbortController();
     const request = {
       functionName: "main",
       args: ["value"],
+      signal: controller.signal,
     };
 
     await expect(runtime.execute(request)).resolves.toBe("first");

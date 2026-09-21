@@ -33,6 +33,11 @@ interface AppsScriptWorkerPort {
   close(): void;
 }
 
+interface AppsScriptWorkerSessionOptions {
+  readonly executionTimeoutMs?: number;
+  readonly signal?: AbortSignal;
+}
+
 function requireExecutionTimeout(timeoutMs: number): number {
   if (!Number.isInteger(timeoutMs) || timeoutMs <= 0) {
     throw new RangeError("Apps Script execution timeout must be a positive integer.");
@@ -47,21 +52,27 @@ export function runAppsScriptWorkerSession(
   sharedArray: Int32Array,
   dispatcher: HostCallDispatcher,
   invocation: AppsScriptWorkerRequest,
-  executionTimeoutMs = DEFAULT_APPS_SCRIPT_EXECUTION_TIMEOUT_MS,
+  options: AppsScriptWorkerSessionOptions = {},
 ): Promise<unknown> {
-  const timeoutMs = requireExecutionTimeout(executionTimeoutMs);
+  const timeoutMs = requireExecutionTimeout(
+    options.executionTimeoutMs ?? DEFAULT_APPS_SCRIPT_EXECUTION_TIMEOUT_MS,
+  );
 
   return new Promise((resolve, reject) => {
     let settled = false;
     let timeoutId: ReturnType<typeof setTimeout> | undefined;
+    let abortListener: (() => void) | undefined;
 
-    const clearExecutionTimeout = (): void => {
-      if (timeoutId === undefined) {
-        return;
+    const clearExecutionLifecycle = (): void => {
+      if (timeoutId !== undefined) {
+        clearTimeout(timeoutId);
+        timeoutId = undefined;
       }
 
-      clearTimeout(timeoutId);
-      timeoutId = undefined;
+      if (abortListener !== undefined && options.signal !== undefined) {
+        options.signal.removeEventListener("abort", abortListener);
+        abortListener = undefined;
+      }
     };
 
     const settle = (complete: () => void): void => {
@@ -70,9 +81,28 @@ export function runAppsScriptWorkerSession(
       }
 
       settled = true;
-      clearExecutionTimeout();
+      clearExecutionLifecycle();
       port.close();
       complete();
+    };
+
+    const terminate = (error: unknown): void => {
+      if (settled) {
+        return;
+      }
+
+      settled = true;
+      clearExecutionLifecycle();
+      port.close();
+
+      void gasWorker.terminate().then(
+        () => {
+          reject(error);
+        },
+        () => {
+          reject(error);
+        },
+      );
     };
 
     const fail = (error: unknown): void => {
@@ -122,25 +152,21 @@ export function runAppsScriptWorkerSession(
       void handleMessage(data).catch(fail);
     });
 
-    timeoutId = setTimeout(() => {
-      if (settled) {
+    if (options.signal !== undefined) {
+      abortListener = () => {
+        terminate(options.signal?.reason ?? new Error("Apps Script execution aborted."));
+      };
+
+      options.signal.addEventListener("abort", abortListener, { once: true });
+
+      if (options.signal.aborted) {
+        abortListener();
         return;
       }
+    }
 
-      settled = true;
-      timeoutId = undefined;
-      port.close();
-
-      const timeoutError = new Error(`Apps Script execution timed out after ${timeoutMs} ms.`);
-
-      void gasWorker.terminate().then(
-        () => {
-          reject(timeoutError);
-        },
-        () => {
-          reject(timeoutError);
-        },
-      );
+    timeoutId = setTimeout(() => {
+      terminate(new Error(`Apps Script execution timed out after ${timeoutMs} ms.`));
     }, timeoutMs);
 
     try {
@@ -176,14 +202,10 @@ function runAppsScriptWorker(
     args: request.args,
   };
 
-  return runAppsScriptWorkerSession(
-    gasWorker,
-    port1,
-    sharedArray,
-    dispatcher,
-    invocation,
+  return runAppsScriptWorkerSession(gasWorker, port1, sharedArray, dispatcher, invocation, {
     executionTimeoutMs,
-  );
+    signal: request.signal,
+  });
 }
 
 export interface NodeAppsScriptExecutorOptions {

@@ -6,6 +6,7 @@ export interface RuntimeExecutionRequest {
   readonly functionName: string;
   readonly args: readonly unknown[];
   readonly context?: InvocationContext;
+  readonly signal?: AbortSignal;
 }
 
 export interface RuntimeBackend {

@@ -79,12 +79,14 @@ describe("runAppsScriptWorkerSession", () => {
   test("resolve one result and close the port exactly once", async () => {
     const gasWorker = new TestWorker();
     const port = new TestPort();
+    const controller = new AbortController();
     const result = runAppsScriptWorkerSession(
       gasWorker,
       port,
       new Int32Array(new SharedArrayBuffer(4)),
       createDispatcher(),
       invocation,
+      { signal: controller.signal },
     );
 
     expect(port.posted).toStrictEqual([invocation]);
@@ -97,6 +99,10 @@ describe("runAppsScriptWorkerSession", () => {
 
     await expect(result).resolves.toBe("result");
     expect(port.closeCount).toBe(1);
+    expect(gasWorker.terminateCount).toBe(0);
+
+    controller.abort(new Error("too late"));
+
     expect(gasWorker.terminateCount).toBe(0);
 
     gasWorker.exit(0);
@@ -171,6 +177,50 @@ describe("runAppsScriptWorkerSession", () => {
     expect(gasWorker.terminateCount).toBe(0);
   });
 
+  test("terminate an execution when its signal is aborted", async () => {
+    const gasWorker = new TestWorker();
+    const port = new TestPort();
+    const controller = new AbortController();
+    const result = runAppsScriptWorkerSession(
+      gasWorker,
+      port,
+      new Int32Array(new SharedArrayBuffer(4)),
+      createDispatcher(),
+      invocation,
+      { signal: controller.signal },
+    );
+    const abortReason = new Error("execution cancelled");
+
+    controller.abort(abortReason);
+
+    await expect(result).rejects.toBe(abortReason);
+    expect(gasWorker.terminateCount).toBe(1);
+    expect(port.closeCount).toBe(1);
+  });
+
+  test("do not invoke an execution whose signal is already aborted", async () => {
+    const gasWorker = new TestWorker();
+    const port = new TestPort();
+    const controller = new AbortController();
+    const abortReason = new Error("already cancelled");
+
+    controller.abort(abortReason);
+
+    const result = runAppsScriptWorkerSession(
+      gasWorker,
+      port,
+      new Int32Array(new SharedArrayBuffer(4)),
+      createDispatcher(),
+      invocation,
+      { signal: controller.signal },
+    );
+
+    await expect(result).rejects.toBe(abortReason);
+    expect(port.posted).toHaveLength(0);
+    expect(gasWorker.terminateCount).toBe(1);
+    expect(port.closeCount).toBe(1);
+  });
+
   test("terminate a worker that exceeds the execution deadline", async () => {
     vi.useFakeTimers();
 
@@ -182,7 +232,7 @@ describe("runAppsScriptWorkerSession", () => {
       new Int32Array(new SharedArrayBuffer(4)),
       createDispatcher(),
       invocation,
-      1_000,
+      { executionTimeoutMs: 1_000 },
     );
 
     const rejection = expect(result).rejects.toThrow(
@@ -207,7 +257,7 @@ describe("runAppsScriptWorkerSession", () => {
         new Int32Array(new SharedArrayBuffer(4)),
         createDispatcher(),
         invocation,
-        0,
+        { executionTimeoutMs: 0 },
       ),
     ).toThrow("Apps Script execution timeout must be a positive integer.");
 

@@ -77,9 +77,11 @@ describe("createLocalRuntime", () => {
       userKey: "local-user",
     });
 
+    const controller = new AbortController();
     const request: RuntimeExecutionRequest = {
       functionName: "main",
       args: ["value"],
+      signal: controller.signal,
     };
 
     await expect(runtime.execute(request)).resolves.toBe("result");
