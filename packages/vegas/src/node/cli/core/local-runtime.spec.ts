@@ -9,7 +9,7 @@ import type {
   RuntimeExecutionRequest,
   SpreadsheetStore,
 } from "../../runtime";
-import { createLocalRuntime } from "./local-runtime";
+import { createLocalRuntime, createLocalRuntimeSharedStores } from "./local-runtime";
 import { loadRuntimeData } from "./runtime-data";
 
 const project = {
@@ -63,15 +63,25 @@ describe("createLocalRuntime", () => {
       htmlFiles: {},
     };
     const getProgram = vi.fn(() => program);
+    const sharedStores = createLocalRuntimeSharedStores();
 
     const localRuntime = await createLocalRuntime(
       project,
       runtimeDataSources,
       getProgram,
-      {},
+      {
+        sharedStores,
+      },
       {
         loadRuntimeData: load,
-        createExecutor: () => ({ execute }),
+        createExecutor: (options) => {
+          expect(options.cacheStore).toBe(sharedStores.cacheStore);
+          expect(options.driveIteratorStore).toBe(sharedStores.driveIteratorStore);
+          expect(options.driveStore).toBe(sharedStores.driveStore);
+          expect(options.lockStore).toBe(sharedStores.lockStore);
+
+          return { execute };
+        },
       },
     );
 

@@ -6,7 +6,11 @@ import {
   InMemoryLockStore,
   InMemoryPropertiesStore,
   InMemorySpreadsheetStore,
+  type CacheStore,
+  type DriveIteratorStore,
+  type DriveStore,
   type LocalRuntime,
+  type LockStore,
   type Program,
 } from "../../runtime";
 import { createNodeAppsScriptExecutor } from "../../runtime/node";
@@ -15,13 +19,30 @@ import { loadRuntimeData } from "./runtime-data";
 import { createInvocationEnvironment } from "./runtime-environment";
 import { createInvocationScope } from "./runtime-scope";
 
+export interface LocalRuntimeSharedStores {
+  readonly cacheStore: CacheStore;
+  readonly driveIteratorStore: DriveIteratorStore;
+  readonly driveStore: DriveStore;
+  readonly lockStore: LockStore;
+}
+
 interface LocalRuntimeOptions {
+  readonly sharedStores?: LocalRuntimeSharedStores;
   readonly spreadsheetUrlCapability?: SpreadsheetUrlCapability;
 }
 
 interface LocalRuntimeDependencies {
   readonly loadRuntimeData?: typeof loadRuntimeData;
   readonly createExecutor?: typeof createNodeAppsScriptExecutor;
+}
+
+export function createLocalRuntimeSharedStores(): LocalRuntimeSharedStores {
+  return {
+    cacheStore: new InMemoryCacheStore(),
+    driveIteratorStore: new InMemoryDriveIteratorStore(),
+    driveStore: new InMemoryDriveStore(),
+    lockStore: new InMemoryLockStore(),
+  };
 }
 
 export async function createLocalRuntime(
@@ -36,12 +57,10 @@ export async function createLocalRuntime(
   const load = dependencies.loadRuntimeData ?? loadRuntimeData;
   const runtimeData = await load(project.root, runtimeDataSources, propertiesStore, scope);
   const spreadsheetStore = new InMemorySpreadsheetStore(runtimeData.spreadsheets);
+  const sharedStores = options.sharedStores ?? createLocalRuntimeSharedStores();
   const createExecutor = dependencies.createExecutor ?? createNodeAppsScriptExecutor;
   const executor = createExecutor({
-    cacheStore: new InMemoryCacheStore(),
-    driveIteratorStore: new InMemoryDriveIteratorStore(),
-    driveStore: new InMemoryDriveStore(),
-    lockStore: new InMemoryLockStore(),
+    ...sharedStores,
     propertiesStore,
     spreadsheetStore,
     spreadsheetUrlCapability: options.spreadsheetUrlCapability,

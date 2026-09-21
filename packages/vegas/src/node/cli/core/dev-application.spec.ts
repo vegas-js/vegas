@@ -8,9 +8,17 @@ import { buildDevTopology } from "../../dev/build-topology";
 import { ReloadableLocalRuntime } from "../../dev/reloadable-local-runtime";
 import { createRuntimeProgram } from "../../dev/runtime-program";
 import { loadProject, scanRuntimeDataSources, type ResolvedProject } from "../../project";
-import { InMemorySpreadsheetStore, type LocalRuntime, type Program } from "../../runtime";
+import {
+  InMemoryCacheStore,
+  InMemoryDriveIteratorStore,
+  InMemoryDriveStore,
+  InMemoryLockStore,
+  InMemorySpreadsheetStore,
+  type LocalRuntime,
+  type Program,
+} from "../../runtime";
 import { runDevApplication } from "./dev-application";
-import { createLocalRuntime } from "./local-runtime";
+import { createLocalRuntime, createLocalRuntimeSharedStores } from "./local-runtime";
 
 vi.mock("../../dev/application", () => ({
   startDevApplication: vi.fn(),
@@ -31,6 +39,7 @@ vi.mock("../../project", () => ({
 
 vi.mock("./local-runtime", () => ({
   createLocalRuntime: vi.fn(),
+  createLocalRuntimeSharedStores: vi.fn(),
 }));
 
 const startDevApplicationMock = vi.mocked(startDevApplication);
@@ -39,6 +48,7 @@ const createRuntimeProgramMock = vi.mocked(createRuntimeProgram);
 const loadProjectMock = vi.mocked(loadProject);
 const scanRuntimeDataSourcesMock = vi.mocked(scanRuntimeDataSources);
 const createLocalRuntimeMock = vi.mocked(createLocalRuntime);
+const createLocalRuntimeSharedStoresMock = vi.mocked(createLocalRuntimeSharedStores);
 
 function createProject(): ResolvedProject {
   const root = path.resolve("/workspace/project");
@@ -88,6 +98,12 @@ describe("runDevApplication", () => {
     const builder = {} as ViteBuilder;
     const initialRuntime = createRuntime("initial");
     const reloadedRuntime = createRuntime("reloaded");
+    const sharedStores = {
+      cacheStore: new InMemoryCacheStore(),
+      driveIteratorStore: new InMemoryDriveIteratorStore(),
+      driveStore: new InMemoryDriveStore(),
+      lockStore: new InMemoryLockStore(),
+    };
     const program = {
       source: "server-program",
       htmlFiles: {
@@ -119,6 +135,7 @@ describe("runDevApplication", () => {
       ],
     });
     createRuntimeProgramMock.mockReturnValue(program);
+    createLocalRuntimeSharedStoresMock.mockReturnValue(sharedStores);
     createLocalRuntimeMock
       .mockResolvedValueOnce(initialRuntime)
       .mockResolvedValueOnce(reloadedRuntime);
@@ -144,12 +161,14 @@ describe("runDevApplication", () => {
     expect(application.artifacts.readText("Code.js")).toBe("server-artifact");
     expect(application.runtime).toBeInstanceOf(ReloadableLocalRuntime);
     expect(application.getLocalSpreadsheetStore?.()).toBe(initialRuntime.resources.spreadsheets);
+    expect(createLocalRuntimeSharedStoresMock).toHaveBeenCalledOnce();
     expect(createLocalRuntimeMock).toHaveBeenNthCalledWith(
       1,
       project,
       ["runtime/initial.ts"],
       getProgram,
       {
+        sharedStores,
         spreadsheetUrlCapability: application.localSpreadsheetUrls,
       },
     );
@@ -173,6 +192,7 @@ describe("runDevApplication", () => {
       ["runtime/reloaded.ts"],
       getProgram,
       {
+        sharedStores,
         spreadsheetUrlCapability: application.localSpreadsheetUrls,
       },
     );
