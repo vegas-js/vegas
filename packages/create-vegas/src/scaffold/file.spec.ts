@@ -4,7 +4,7 @@ import path from "node:path";
 
 import { afterEach, describe, expect, test } from "vitest";
 
-import { finalizeScaffoldFile, inspectScaffoldFileState } from "./scaffold-file";
+import { finalizeScaffoldFile, inspectScaffoldFileState } from "./file";
 
 const tempDirs: string[] = [];
 

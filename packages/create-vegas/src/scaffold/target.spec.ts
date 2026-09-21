@@ -2,7 +2,7 @@ import path from "node:path";
 
 import { describe, expect, test } from "vitest";
 
-import { resolveScaffoldTarget } from "./scaffold-target";
+import { resolveScaffoldTarget } from "./target";
 
 const fsRoot = path.parse(process.cwd()).root;
 const cwd = path.join(fsRoot, "home", "user");

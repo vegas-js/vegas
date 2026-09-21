@@ -1,8 +1,8 @@
 import type { SpawnOptions } from "node:child_process";
 
 import { runCommand } from "./run-command";
-import { scaffoldProject, type ScaffoldDirectoryOperation } from "./scaffold-project";
-import { resolveScaffoldTarget, type ScaffoldTarget } from "./scaffold-target";
+import { scaffoldProject, type ScaffoldDirectoryOperation } from "./scaffold/project";
+import { resolveScaffoldTarget, type ScaffoldTarget } from "./scaffold/target";
 
 export type CreateProjectStep =
   | {

@@ -5,7 +5,7 @@ import { beforeEach, describe, expect, test, vi } from "vitest";
 
 import { collectCreateProjectInput } from "./collect-project-input";
 import { CreateVegasUsageError } from "./error";
-import { inspectScaffoldDirectory } from "./scaffold-directory";
+import { inspectScaffoldDirectory } from "./scaffold/directory";
 
 vi.mock("@clack/prompts", () => ({
   confirm: vi.fn(),
@@ -14,7 +14,7 @@ vi.mock("@clack/prompts", () => ({
   text: vi.fn(),
 }));
 
-vi.mock("./scaffold-directory", () => ({
+vi.mock("./scaffold/directory", () => ({
   inspectScaffoldDirectory: vi.fn(),
 }));
 

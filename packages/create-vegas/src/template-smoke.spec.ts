@@ -4,7 +4,7 @@ import path from "node:path";
 
 import { afterEach, describe, expect, test } from "vitest";
 
-import { scaffoldProject } from "./scaffold-project";
+import { scaffoldProject } from "./scaffold/project";
 import { templates } from "./templates";
 
 const CREATE_VEGAS_ROOT = path.resolve(import.meta.dirname, "..");

@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 import { writeAppsScriptScriptId } from "./apps-script-config";
-import { finalizeScaffoldFile, inspectScaffoldFileState } from "./scaffold-file";
+import { finalizeScaffoldFile, inspectScaffoldFileState } from "./file";
 
 export type ScaffoldDirectoryOperation = "create" | "remove" | "keep";
 

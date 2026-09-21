@@ -5,8 +5,8 @@ import * as prompts from "@clack/prompts";
 
 import { CreateVegasUsageError } from "./error";
 import { validatePackageName } from "./package-name";
-import { inspectScaffoldDirectory } from "./scaffold-directory";
-import type { ScaffoldDirectoryOperation } from "./scaffold-project";
+import { inspectScaffoldDirectory } from "./scaffold/directory";
+import type { ScaffoldDirectoryOperation } from "./scaffold/project";
 
 export interface CreateProjectInput {
   readonly projectName: string;

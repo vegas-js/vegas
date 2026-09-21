@@ -4,13 +4,13 @@ import { afterEach, describe, expect, test, vi } from "vitest";
 
 import { createProject, type CreateProjectStep } from "./create-project";
 import { runCommand } from "./run-command";
-import { scaffoldProject } from "./scaffold-project";
+import { scaffoldProject } from "./scaffold/project";
 
 vi.mock("./run-command", () => ({
   runCommand: vi.fn(),
 }));
 
-vi.mock("./scaffold-project", () => ({
+vi.mock("./scaffold/project", () => ({
   scaffoldProject: vi.fn(),
 }));
 

@@ -4,7 +4,7 @@ import path from "node:path";
 
 import { afterEach, describe, expect, test } from "vitest";
 
-import { inspectScaffoldDirectory } from "./scaffold-directory";
+import { inspectScaffoldDirectory } from "./directory";
 
 const tempDirs: string[] = [];
 
