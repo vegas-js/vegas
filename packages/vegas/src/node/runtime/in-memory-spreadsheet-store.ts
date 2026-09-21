@@ -37,9 +37,13 @@ type SheetState = {
   readonly grid: InMemorySpreadsheetGrid;
 };
 
+type SpreadsheetOwnership = "fixture" | "runtime";
+
 type SpreadsheetState = {
   readonly reference: SpreadsheetReference;
   readonly metadata: SpreadsheetMetadata;
+  readonly ownership: SpreadsheetOwnership;
+  readonly url?: string;
   readonly sheets: Map<number, SheetState>;
 };
 
@@ -134,6 +138,40 @@ function createSheetState(spreadsheetId: string, seed: InMemorySheetSeed): Sheet
   };
 }
 
+function createSpreadsheetState(
+  seed: InMemorySpreadsheetSeed,
+  ownership: SpreadsheetOwnership,
+): SpreadsheetState {
+  const sheets = new Map<number, SheetState>();
+  const sheetNames = new Set<string>();
+
+  for (const sheetSeed of seed.sheets) {
+    if (sheets.has(sheetSeed.id)) {
+      throw new Error(`Duplicate local Spreadsheet sheet id: ${seed.id}#${sheetSeed.id}`);
+    }
+    if (sheetNames.has(sheetSeed.name)) {
+      throw new Error(`Duplicate local Spreadsheet sheet name: ${sheetSeed.name}`);
+    }
+
+    sheets.set(sheetSeed.id, createSheetState(seed.id, sheetSeed));
+    sheetNames.add(sheetSeed.name);
+  }
+
+  return {
+    reference: {
+      service: "spreadsheet",
+      kind: "spreadsheet",
+      id: seed.id,
+    },
+    metadata: {
+      name: seed.name,
+    },
+    ownership,
+    url: seed.url,
+    sheets,
+  };
+}
+
 export class InMemorySpreadsheetStore implements SpreadsheetStore {
   readonly #spreadsheets = new Map<string, SpreadsheetState>();
   readonly #spreadsheetIdsByUrl = new Map<string, string>();
@@ -145,40 +183,15 @@ export class InMemorySpreadsheetStore implements SpreadsheetStore {
         throw new Error(`Duplicate local Spreadsheet id: ${seed.id}`);
       }
 
-      if (seed.url !== undefined) {
-        if (this.#spreadsheetIdsByUrl.has(seed.url)) {
-          throw new Error(`Duplicate local Spreadsheet URL: ${seed.url}`);
-        }
+      this.#assertUrlAvailable(seed.url, seed.id);
 
-        this.#spreadsheetIdsByUrl.set(seed.url, seed.id);
+      const state = createSpreadsheetState(seed, "fixture");
+
+      if (state.url !== undefined) {
+        this.#spreadsheetIdsByUrl.set(state.url, seed.id);
       }
 
-      const sheets = new Map<number, SheetState>();
-      const sheetNames = new Set<string>();
-
-      for (const sheetSeed of seed.sheets) {
-        if (sheets.has(sheetSeed.id)) {
-          throw new Error(`Duplicate local Spreadsheet sheet id: ${seed.id}#${sheetSeed.id}`);
-        }
-        if (sheetNames.has(sheetSeed.name)) {
-          throw new Error(`Duplicate local Spreadsheet sheet name: ${sheetSeed.name}`);
-        }
-
-        sheets.set(sheetSeed.id, createSheetState(seed.id, sheetSeed));
-        sheetNames.add(sheetSeed.name);
-      }
-
-      this.#spreadsheets.set(seed.id, {
-        reference: {
-          service: "spreadsheet",
-          kind: "spreadsheet",
-          id: seed.id,
-        },
-        metadata: {
-          name: seed.name,
-        },
-        sheets,
-      });
+      this.#spreadsheets.set(seed.id, state);
     }
   }
 
@@ -189,6 +202,8 @@ export class InMemorySpreadsheetStore implements SpreadsheetStore {
       clone.#spreadsheets.set(id, {
         reference: cloneSpreadsheetReference(state.reference),
         metadata: { ...state.metadata },
+        ownership: state.ownership,
+        url: state.url,
         sheets: new Map(
           [...state.sheets].map(([sheetId, sheet]) => [
             sheetId,
@@ -239,10 +254,47 @@ export class InMemorySpreadsheetStore implements SpreadsheetStore {
       metadata: {
         name,
       },
+      ownership: "runtime",
       sheets: new Map([[sheet.reference.sheetId, sheet]]),
     });
 
     return cloneSpreadsheetReference(reference);
+  }
+
+  replaceFixtureSpreadsheet(seed: InMemorySpreadsheetSeed): void {
+    const existing = this.#spreadsheets.get(seed.id);
+
+    if (existing?.ownership === "runtime") {
+      throw new Error(`Cannot replace runtime-created local Spreadsheet with fixture: ${seed.id}`);
+    }
+
+    this.#assertUrlAvailable(seed.url, seed.id);
+
+    const next = createSpreadsheetState(seed, "fixture");
+
+    if (existing?.url !== undefined && existing.url !== next.url) {
+      this.#spreadsheetIdsByUrl.delete(existing.url);
+    }
+
+    if (next.url !== undefined) {
+      this.#spreadsheetIdsByUrl.set(next.url, seed.id);
+    }
+
+    this.#spreadsheets.set(seed.id, next);
+  }
+
+  removeFixtureSpreadsheet(id: string): void {
+    const state = this.#getSpreadsheetState(id);
+
+    if (state.ownership === "runtime") {
+      throw new Error(`Cannot remove runtime-created local Spreadsheet as fixture: ${id}`);
+    }
+
+    if (state.url !== undefined) {
+      this.#spreadsheetIdsByUrl.delete(state.url);
+    }
+
+    this.#spreadsheets.delete(id);
   }
 
   async getSpreadsheet(id: string): Promise<SpreadsheetReference> {
@@ -516,6 +568,18 @@ export class InMemorySpreadsheetStore implements SpreadsheetStore {
 
   async setRangeValues(range: RangeReference, values: SpreadsheetGrid): Promise<void> {
     this.#getSheetState(range.spreadsheetId, range.sheetId).grid.setValues(range, values);
+  }
+
+  #assertUrlAvailable(url: string | undefined, spreadsheetId: string): void {
+    if (url === undefined) {
+      return;
+    }
+
+    const existingId = this.#spreadsheetIdsByUrl.get(url);
+
+    if (existingId !== undefined && existingId !== spreadsheetId) {
+      throw new Error(`Duplicate local Spreadsheet URL: ${url}`);
+    }
   }
 
   #createSpreadsheetId(): string {

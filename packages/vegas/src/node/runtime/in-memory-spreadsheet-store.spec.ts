@@ -353,6 +353,105 @@ describe("InMemorySpreadsheetStore resources", () => {
     });
   });
 
+  test("replace and remove fixture-owned Spreadsheets without changing runtime-created resources", async () => {
+    const store = createStore();
+    const singleCellRange = {
+      ...RANGE,
+      numRows: 1,
+      numColumns: 1,
+    };
+
+    await store.setRangeValues(singleCellRange, [["runtime mutation"]]);
+    await store.setRangeNotes(singleCellRange, [["runtime note"]]);
+    const runtimeCreated = await store.createSpreadsheet("Runtime created", 2, 2);
+
+    store.replaceFixtureSpreadsheet({
+      id: "spreadsheet-a",
+      url: "http://localhost:5173/spreadsheets/reloaded",
+      name: "Reloaded",
+      sheets: [
+        {
+          id: 7,
+          name: "Reloaded sheet",
+          maxRows: 2,
+          maxColumns: 2,
+          values: [["fixture reload"]],
+        },
+      ],
+    });
+
+    await expect(store.getSpreadsheetMetadata(SPREADSHEET)).resolves.toStrictEqual({
+      name: "Reloaded",
+    });
+    await expect(store.getRangeValues(singleCellRange)).resolves.toStrictEqual([
+      ["fixture reload"],
+    ]);
+    await expect(store.getRangeNotes(singleCellRange)).resolves.toStrictEqual([[""]]);
+    await expect(
+      store.getSpreadsheetByUrl("http://localhost:5173/spreadsheets/spreadsheet-a"),
+    ).rejects.toThrow("Unknown local Spreadsheet URL");
+    await expect(
+      store.getSpreadsheetByUrl("http://localhost:5173/spreadsheets/reloaded"),
+    ).resolves.toStrictEqual(SPREADSHEET);
+    await expect(store.getSpreadsheet(runtimeCreated.id)).resolves.toStrictEqual(runtimeCreated);
+
+    store.removeFixtureSpreadsheet("spreadsheet-a");
+
+    await expect(store.getSpreadsheet("spreadsheet-a")).rejects.toThrow(
+      "Unknown local Spreadsheet: spreadsheet-a",
+    );
+    await expect(
+      store.getSpreadsheetByUrl("http://localhost:5173/spreadsheets/reloaded"),
+    ).rejects.toThrow("Unknown local Spreadsheet URL");
+    await expect(store.getSpreadsheet(runtimeCreated.id)).resolves.toStrictEqual(runtimeCreated);
+  });
+
+  test("reject fixture operations that would take ownership of runtime-created resources", async () => {
+    const store = createStore();
+    const runtimeCreated = await store.createSpreadsheet("Runtime created", 2, 2);
+
+    expect(() =>
+      store.replaceFixtureSpreadsheet({
+        id: runtimeCreated.id,
+        name: "Fixture collision",
+        sheets: [],
+      }),
+    ).toThrow(
+      `Cannot replace runtime-created local Spreadsheet with fixture: ${runtimeCreated.id}`,
+    );
+
+    expect(() => store.removeFixtureSpreadsheet(runtimeCreated.id)).toThrow(
+      `Cannot remove runtime-created local Spreadsheet as fixture: ${runtimeCreated.id}`,
+    );
+
+    expect(() =>
+      store.replaceFixtureSpreadsheet({
+        id: "replacement",
+        url: "http://localhost:5173/spreadsheets/spreadsheet-a",
+        name: "URL collision",
+        sheets: [],
+      }),
+    ).toThrow("Duplicate local Spreadsheet URL: http://localhost:5173/spreadsheets/spreadsheet-a");
+
+    await expect(store.getSpreadsheet(runtimeCreated.id)).resolves.toStrictEqual(runtimeCreated);
+    await expect(store.getSpreadsheet("spreadsheet-a")).resolves.toStrictEqual(SPREADSHEET);
+  });
+
+  test("preserve Spreadsheet ownership when cloning local state", async () => {
+    const store = createStore();
+    const runtimeCreated = await store.createSpreadsheet("Runtime created", 2, 2);
+    const clone = store.clone();
+
+    clone.removeFixtureSpreadsheet("spreadsheet-a");
+
+    expect(() => clone.removeFixtureSpreadsheet(runtimeCreated.id)).toThrow(
+      `Cannot remove runtime-created local Spreadsheet as fixture: ${runtimeCreated.id}`,
+    );
+
+    await expect(store.getSpreadsheet("spreadsheet-a")).resolves.toStrictEqual(SPREADSHEET);
+    await expect(clone.getSpreadsheet(runtimeCreated.id)).resolves.toStrictEqual(runtimeCreated);
+  });
+
   test("resolve explicit local URLs and Google Sheets URLs", async () => {
     const store = createStore();
 
