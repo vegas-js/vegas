@@ -184,6 +184,56 @@ describe("loginGoogleAppsScript", () => {
     await expect(credentialStore.load("default")).resolves.toBeUndefined();
   });
 
+  test("do not persist credentials when authorization times out", async () => {
+    const root = await createTempDir();
+    const clientFilePath = path.join(root, "client.json");
+
+    await fs.promises.writeFile(
+      clientFilePath,
+      JSON.stringify({
+        installed: {
+          client_id: "client-id",
+          client_secret: "client-secret",
+        },
+      }),
+      "utf8",
+    );
+
+    const timeoutError = new Error(
+      "Google OAuth authorization timed out. Run the login command again to retry.",
+    );
+    const close = vi.fn(async () => undefined);
+    const tokenFetch = vi.fn();
+    const save = vi.fn();
+
+    await expect(
+      loginGoogleAppsScript(
+        {
+          clientFilePath,
+          credentialStore: {
+            load: vi.fn(),
+            save,
+          },
+          openAuthorizationUrl: vi.fn(async () => undefined),
+          fetch: tokenFetch,
+        },
+        {
+          startLoopbackListener: vi.fn(async () => ({
+            redirectUri: "http://127.0.0.1:45678",
+            waitForCallback: vi.fn(async () => {
+              throw timeoutError;
+            }),
+            close,
+          })),
+        },
+      ),
+    ).rejects.toBe(timeoutError);
+
+    expect(close).toHaveBeenCalledOnce();
+    expect(tokenFetch).not.toHaveBeenCalled();
+    expect(save).not.toHaveBeenCalled();
+  });
+
   test("preserve authorization error when listener cleanup also fails", async () => {
     const root = await createTempDir();
     const clientFilePath = path.join(root, "client.json");

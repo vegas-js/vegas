@@ -13,6 +13,14 @@ export interface GoogleOAuthLoopbackListener {
   close(): Promise<void>;
 }
 
+interface GoogleOAuthLoopbackListenerOptions {
+  readonly callbackTimeoutMs?: number;
+}
+
+const DEFAULT_CALLBACK_TIMEOUT_MS = 10 * 60 * 1_000;
+const CALLBACK_TIMEOUT_MESSAGE =
+  "Google OAuth authorization timed out. Run the login command again to retry.";
+
 function respond(response: http.ServerResponse, statusCode: number, message: string): void {
   response.writeHead(statusCode, {
     "Content-Type": "text/html; charset=utf-8",
@@ -40,12 +48,20 @@ function closeServer(server: http.Server): Promise<void> {
 
 export async function startGoogleOAuthLoopbackListener(
   state: string,
+  options: GoogleOAuthLoopbackListenerOptions = {},
 ): Promise<GoogleOAuthLoopbackListener> {
   if (state.trim().length === 0) {
     throw new Error("Google OAuth state is required.");
   }
 
+  const callbackTimeoutMs = options.callbackTimeoutMs ?? DEFAULT_CALLBACK_TIMEOUT_MS;
+
+  if (!Number.isFinite(callbackTimeoutMs) || callbackTimeoutMs <= 0) {
+    throw new RangeError("Google OAuth callback timeout must be a positive number.");
+  }
+
   let settled = false;
+  let callbackTimeoutId: ReturnType<typeof setTimeout> | undefined;
 
   let resolveCallback: ((callback: GoogleOAuthLoopbackCallback) => void) | undefined;
   let rejectCallback: ((error: Error) => void) | undefined;
@@ -59,6 +75,27 @@ export async function startGoogleOAuthLoopbackListener(
   // waitForCallback(). Keep the promise rejection handled while
   // preserving the original promise result for the caller.
   void callback.catch(() => {});
+
+  const clearCallbackTimeout = (): void => {
+    if (callbackTimeoutId === undefined) {
+      return;
+    }
+
+    clearTimeout(callbackTimeoutId);
+    callbackTimeoutId = undefined;
+  };
+
+  const settleCallback = (complete: () => void): boolean => {
+    if (settled) {
+      return false;
+    }
+
+    settled = true;
+    clearCallbackTimeout();
+    complete();
+
+    return true;
+  };
 
   const server = http.createServer((request, response) => {
     if (request.method !== "GET" || request.url === undefined) {
@@ -83,10 +120,10 @@ export async function startGoogleOAuthLoopbackListener(
     const callbackState = url.searchParams.get("state");
 
     if (callbackState !== state) {
-      settled = true;
-
-      respond(response, 400, "Authorization could not be completed. Return to the terminal.");
-      rejectCallback?.(new Error("Google OAuth state mismatch."));
+      settleCallback(() => {
+        respond(response, 400, "Authorization could not be completed. Return to the terminal.");
+        rejectCallback?.(new Error("Google OAuth state mismatch."));
+      });
 
       return;
     }
@@ -94,12 +131,12 @@ export async function startGoogleOAuthLoopbackListener(
     const error = url.searchParams.get("error");
 
     if (error !== null) {
-      settled = true;
-
-      respond(response, 200, "Authorization was not completed. Return to the terminal.");
-      rejectCallback?.(
-        new AppsScriptRemoteServiceError(`Google OAuth authorization failed: ${error}`),
-      );
+      settleCallback(() => {
+        respond(response, 200, "Authorization was not completed. Return to the terminal.");
+        rejectCallback?.(
+          new AppsScriptRemoteServiceError(`Google OAuth authorization failed: ${error}`),
+        );
+      });
 
       return;
     }
@@ -107,23 +144,23 @@ export async function startGoogleOAuthLoopbackListener(
     const code = url.searchParams.get("code");
 
     if (code === null || code.trim().length === 0) {
-      settled = true;
-
-      respond(response, 400, "Authorization could not be completed. Return to the terminal.");
-      rejectCallback?.(new Error("Invalid Google OAuth callback."));
+      settleCallback(() => {
+        respond(response, 400, "Authorization could not be completed. Return to the terminal.");
+        rejectCallback?.(new Error("Invalid Google OAuth callback."));
+      });
 
       return;
     }
 
-    settled = true;
+    settleCallback(() => {
+      respond(
+        response,
+        200,
+        "Authorization complete. You can close this window and return to the terminal.",
+      );
 
-    respond(
-      response,
-      200,
-      "Authorization complete. You can close this window and return to the terminal.",
-    );
-
-    resolveCallback?.({ code });
+      resolveCallback?.({ code });
+    });
   });
 
   await new Promise<void>((resolve, reject) => {
@@ -147,6 +184,26 @@ export async function startGoogleOAuthLoopbackListener(
   }
 
   const port = (address as AddressInfo).port;
+  let closePromise: Promise<void> | undefined;
+
+  const close = (): Promise<void> => {
+    clearCallbackTimeout();
+    closePromise ??= closeServer(server);
+
+    return closePromise;
+  };
+
+  callbackTimeoutId = setTimeout(() => {
+    if (
+      !settleCallback(() => {
+        rejectCallback?.(new Error(CALLBACK_TIMEOUT_MESSAGE));
+      })
+    ) {
+      return;
+    }
+
+    void close().catch(() => {});
+  }, callbackTimeoutMs);
 
   return {
     redirectUri: `http://127.0.0.1:${port}`,
@@ -155,8 +212,6 @@ export async function startGoogleOAuthLoopbackListener(
       return callback;
     },
 
-    close(): Promise<void> {
-      return closeServer(server);
-    },
+    close,
   };
 }

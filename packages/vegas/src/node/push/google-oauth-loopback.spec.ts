@@ -1,7 +1,11 @@
-import { describe, expect, test } from "vitest";
+import { afterEach, describe, expect, test, vi } from "vitest";
 
 import { AppsScriptRemoteServiceError } from "./error";
 import { startGoogleOAuthLoopbackListener } from "./google-oauth-loopback";
+
+afterEach(() => {
+  vi.useRealTimers();
+});
 
 describe("startGoogleOAuthLoopbackListener", () => {
   test("listen on an ephemeral IPv4 loopback port", async () => {
@@ -93,6 +97,29 @@ describe("startGoogleOAuthLoopbackListener", () => {
     } finally {
       await listener.close();
     }
+  });
+
+  test("timeout while waiting for the authorization callback", async () => {
+    vi.useFakeTimers();
+
+    const listener = await startGoogleOAuthLoopbackListener("state-value", {
+      callbackTimeoutMs: 1_000,
+    });
+
+    const callback = listener.waitForCallback();
+
+    await vi.advanceTimersByTimeAsync(1_000);
+
+    await expect(callback).rejects.toThrow(
+      "Google OAuth authorization timed out. Run the login command again to retry.",
+    );
+    await expect(listener.close()).resolves.toBeUndefined();
+  });
+
+  test("require a positive callback timeout", async () => {
+    await expect(
+      startGoogleOAuthLoopbackListener("state-value", { callbackTimeoutMs: 0 }),
+    ).rejects.toThrow("Google OAuth callback timeout must be a positive number.");
   });
 
   test("require state", async () => {
