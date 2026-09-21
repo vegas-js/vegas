@@ -6,6 +6,7 @@ import type {
   SpreadsheetReference,
   SpreadsheetStore,
 } from "../../runtime";
+import { readRequestBody } from "./http";
 import {
   createLocalSpreadsheetHtml,
   type LocalSpreadsheetPage,
@@ -20,8 +21,15 @@ interface LocalSpreadsheetHttpHandlerOptions {
 }
 
 interface LocalSpreadsheetRoute {
-  readonly kind: "page" | "api";
+  readonly kind: "page" | "api" | "cell";
   readonly spreadsheetId: string;
+}
+
+interface LocalSpreadsheetCellUpdate {
+  readonly sheetId: number;
+  readonly row: number;
+  readonly column: number;
+  readonly value: string | number | boolean;
 }
 
 function parseSpreadsheetId(pathname: string, prefix: string): string | null {
@@ -43,6 +51,22 @@ function parseSpreadsheetId(pathname: string, prefix: string): string | null {
 }
 
 function parseSpreadsheetRoute(pathname: string): LocalSpreadsheetRoute | null {
+  const cellSuffix = "/cells";
+
+  if (pathname.startsWith(LOCAL_SPREADSHEET_API_PATH_PREFIX) && pathname.endsWith(cellSuffix)) {
+    const spreadsheetId = parseSpreadsheetId(
+      pathname.slice(0, -cellSuffix.length),
+      LOCAL_SPREADSHEET_API_PATH_PREFIX,
+    );
+
+    if (spreadsheetId !== null) {
+      return {
+        kind: "cell",
+        spreadsheetId,
+      };
+    }
+  }
+
   const apiSpreadsheetId = parseSpreadsheetId(pathname, LOCAL_SPREADSHEET_API_PATH_PREFIX);
   if (apiSpreadsheetId !== null) {
     return {
@@ -82,6 +106,44 @@ async function readSpreadsheetSummary(store: SpreadsheetStore, spreadsheet: Spre
     id: spreadsheet.id,
     name: metadata.name,
     sheets: sheetSummaries,
+  };
+}
+
+function parseCellUpdate(body: string): LocalSpreadsheetCellUpdate {
+  let value: unknown;
+
+  try {
+    value = JSON.parse(body);
+  } catch {
+    throw new Error("Invalid local Spreadsheet cell update JSON.");
+  }
+
+  if (typeof value !== "object" || value === null) {
+    throw new Error("Invalid local Spreadsheet cell update.");
+  }
+
+  const update = value as Record<string, unknown>;
+
+  if (
+    !Number.isSafeInteger(update.sheetId) ||
+    !Number.isSafeInteger(update.row) ||
+    !Number.isSafeInteger(update.column) ||
+    typeof update.row !== "number" ||
+    update.row < 1 ||
+    typeof update.column !== "number" ||
+    update.column < 1 ||
+    (typeof update.value !== "string" &&
+      typeof update.value !== "number" &&
+      typeof update.value !== "boolean")
+  ) {
+    throw new Error("Invalid local Spreadsheet cell update.");
+  }
+
+  return {
+    sheetId: update.sheetId as number,
+    row: update.row,
+    column: update.column,
+    value: update.value,
   };
 }
 
@@ -166,7 +228,7 @@ export function createLocalSpreadsheetHttpHandler(
   options: LocalSpreadsheetHttpHandlerOptions,
 ): Connect.NextHandleFunction {
   return async (request, response, next) => {
-    if (request.method !== "GET" || request.url === undefined) {
+    if (request.url === undefined) {
       next();
       return;
     }
@@ -179,9 +241,39 @@ export function createLocalSpreadsheetHttpHandler(
       return;
     }
 
+    if (
+      (route.kind === "cell" && request.method !== "PATCH") ||
+      (route.kind !== "cell" && request.method !== "GET")
+    ) {
+      next();
+      return;
+    }
+
     try {
       const store = options.getSpreadsheetStore();
       const spreadsheet = await store.getSpreadsheet(route.spreadsheetId);
+
+      if (route.kind === "cell") {
+        const update = parseCellUpdate(await readRequestBody(request));
+
+        await store.setRangeValues(
+          {
+            service: "spreadsheet",
+            kind: "range",
+            spreadsheetId: spreadsheet.id,
+            sheetId: update.sheetId,
+            row: update.row,
+            column: update.column,
+            numRows: 1,
+            numColumns: 1,
+          },
+          [[update.value]],
+        );
+
+        response.statusCode = 204;
+        response.end();
+        return;
+      }
 
       response.statusCode = 200;
 

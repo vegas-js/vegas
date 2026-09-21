@@ -3,6 +3,18 @@ import { describe, expect, test, vi } from "vitest";
 import { InMemorySpreadsheetStore } from "../../runtime";
 import { createLocalSpreadsheetHttpHandler } from "./local-spreadsheet-http-handler";
 
+function createRequest(method: string, url: string, body?: string) {
+  return {
+    method,
+    url,
+    async *[Symbol.asyncIterator]() {
+      if (body !== undefined) {
+        yield body;
+      }
+    },
+  };
+}
+
 function createResponse() {
   const headers = new Map<string, string>();
   let body: unknown;
@@ -142,6 +154,62 @@ describe("createLocalSpreadsheetHttpHandler", () => {
         },
       ],
     });
+  });
+
+  test("update one local Spreadsheet cell through the internal API", async () => {
+    const store = new InMemorySpreadsheetStore([
+      {
+        id: "budget",
+        name: "Budget",
+        sheets: [
+          {
+            id: 7,
+            name: "Summary",
+            maxRows: 20,
+            maxColumns: 8,
+            values: [
+              ["Name", "Amount"],
+              ["Vegas", 42],
+            ],
+          },
+        ],
+      },
+    ]);
+    const handler = createLocalSpreadsheetHttpHandler({
+      getSpreadsheetStore: () => store,
+    });
+    const { response } = createResponse();
+
+    await Promise.resolve(
+      handler(
+        createRequest(
+          "PATCH",
+          "/__vegas/api/spreadsheets/budget/cells",
+          JSON.stringify({
+            sheetId: 7,
+            row: 2,
+            column: 2,
+            value: 100,
+          }),
+        ) as any,
+        response as any,
+        vi.fn(),
+      ),
+    );
+
+    expect(response.statusCode).toBe(204);
+    await expect(
+      store.getRangeValues({
+        service: "spreadsheet",
+        kind: "range",
+        spreadsheetId: "budget",
+        sheetId: 7,
+        row: 2,
+        column: 2,
+        numRows: 1,
+        numColumns: 1,
+      }),
+    ).resolves.toStrictEqual([[100]]);
   });
 
   test("decode Spreadsheet ids from page and API routes", async () => {
