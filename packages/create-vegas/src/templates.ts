@@ -13,6 +13,12 @@ export const templates = [
     directory: "template-vanilla",
   },
   {
+    id: "lit",
+    label: "Lit",
+    color: "red",
+    directory: "template-lit",
+  },
+  {
     id: "vue",
     label: "Vue",
     color: "green",

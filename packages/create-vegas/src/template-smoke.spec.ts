@@ -11,6 +11,7 @@ const CREATE_VEGAS_ROOT = path.resolve(import.meta.dirname, "..");
 
 const templateCases = [
   ["template-vanilla", "src/client/main.ts", "setupCounter", "tsc -b && vegas build"],
+  ["template-lit", "src/client/main.ts", "from 'lit'", "tsc -b && vegas build"],
   ["template-react", "src/client/main.tsx", "react-dom/client", "tsc -b && vegas build"],
   ["template-preact", "src/client/main.tsx", "from 'preact'", "tsc -b && vegas build"],
   ["template-vue", "src/client/main.tsx", 'from "vue"', "vue-tsc -b && vegas build"],

@@ -23,6 +23,7 @@
     "create-vegas": "dist/create-vegas.js"
   },
   "files": [
+    "template-lit",
     "template-preact",
     "template-react",
     "template-solid",
