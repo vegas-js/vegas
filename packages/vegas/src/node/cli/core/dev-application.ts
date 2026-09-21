@@ -40,6 +40,7 @@ export async function runDevApplication(mode: DevApplicationMode, root?: string)
     artifacts,
     builder: topology.builder,
     runtime,
+    getLocalSpreadsheetStore: () => runtime.resources.spreadsheets,
     reloadRuntime,
     localSpreadsheetUrls,
     mode,

@@ -99,6 +99,13 @@ describe("startDevApplication", () => {
       xFrameOptionsMode: "DEFAULT",
     }));
     const setLocalSpreadsheetOrigin = vi.fn();
+    const spreadsheetStore = new InMemorySpreadsheetStore([
+      {
+        id: "budget",
+        name: "Budget",
+        sheets: [],
+      },
+    ]);
 
     await startDevApplication(
       {
@@ -107,16 +114,8 @@ describe("startDevApplication", () => {
         builder: {} as ViteBuilder,
         runtime: {
           execute,
-          resources: {
-            spreadsheets: new InMemorySpreadsheetStore([
-              {
-                id: "budget",
-                name: "Budget",
-                sheets: [],
-              },
-            ]),
-          },
         },
+        getLocalSpreadsheetStore: () => spreadsheetStore,
         reloadRuntime: async () => undefined,
         localSpreadsheetUrls: {
           setOrigin: setLocalSpreadsheetOrigin,
@@ -247,9 +246,6 @@ describe("startDevApplication", () => {
           builder: {} as ViteBuilder,
           runtime: {
             execute: async () => undefined,
-            resources: {
-              spreadsheets: new InMemorySpreadsheetStore(),
-            },
           },
           reloadRuntime: async () => undefined,
           mode: "development",

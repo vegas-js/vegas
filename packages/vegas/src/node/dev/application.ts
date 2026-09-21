@@ -4,7 +4,7 @@ import { type ViteBuilder, type ViteDevServer, createServer } from "vite";
 
 import type { ArtifactStore } from "../build";
 import type { ResolvedProject } from "../project";
-import type { LocalRuntimeResources, RuntimeBackend } from "../runtime";
+import type { RuntimeBackend, SpreadsheetStore } from "../runtime";
 import { BuildCoordinator } from "./build-coordinator";
 import { DevBuildManager } from "./build-manager";
 import { registerBuildWatchers } from "./build-watcher";
@@ -18,15 +18,12 @@ import { WebAppSessionRegistry } from "./webapp/session-registry";
 import { createUserContentHttpHandler } from "./webapp/user-content-http-handler";
 import { createUserContentServerConfig } from "./webapp/user-content-server";
 
-interface DevApplicationRuntime extends RuntimeBackend {
-  readonly resources: LocalRuntimeResources;
-}
-
 interface DevApplicationOptions {
   readonly project: ResolvedProject;
   readonly artifacts: ArtifactStore;
   readonly builder: ViteBuilder;
-  readonly runtime: DevApplicationRuntime;
+  readonly runtime: RuntimeBackend;
+  readonly getLocalSpreadsheetStore?: () => SpreadsheetStore;
   readonly reloadRuntime: () => Promise<void>;
   readonly localSpreadsheetUrls?: LocalSpreadsheetUrlConfiguration;
   readonly mode: "development" | "production";
@@ -134,10 +131,12 @@ export async function startDevApplication(
 
     hostServer.middlewares.stack.unshift({ route: "", handle: hostHandler });
 
-    const localSpreadsheetHandler = createLocalSpreadsheetHttpHandler({
-      getSpreadsheetStore: () => options.runtime.resources.spreadsheets,
-    });
-    hostServer.middlewares.stack.unshift({ route: "", handle: localSpreadsheetHandler });
+    if (options.getLocalSpreadsheetStore !== undefined) {
+      const localSpreadsheetHandler = createLocalSpreadsheetHttpHandler({
+        getSpreadsheetStore: options.getLocalSpreadsheetStore,
+      });
+      hostServer.middlewares.stack.unshift({ route: "", handle: localSpreadsheetHandler });
+    }
 
     hostServer.printUrls();
     hostServer.bindCLIShortcuts({ print: true });

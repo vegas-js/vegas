@@ -145,7 +145,7 @@ describe("runDevApplication", () => {
     expect(application.artifacts.readText("index.html")).toBe("client-artifact");
     expect(application.artifacts.readText("Code.js")).toBe("server-artifact");
     expect(application.runtime).toBeInstanceOf(ReloadableLocalRuntime);
-    expect(application.runtime.resources).toBe(initialRuntime.resources);
+    expect(application.getLocalSpreadsheetStore?.()).toBe(initialRuntime.resources.spreadsheets);
     expect(createLocalRuntimeMock).toHaveBeenNthCalledWith(
       1,
       project,
@@ -177,7 +177,7 @@ describe("runDevApplication", () => {
         spreadsheetUrlCapability: application.localSpreadsheetUrls,
       },
     );
-    expect(application.runtime.resources).toBe(reloadedRuntime.resources);
+    expect(application.getLocalSpreadsheetStore?.()).toBe(reloadedRuntime.resources.spreadsheets);
     await expect(
       application.runtime.execute({
         functionName: "main",
