@@ -199,7 +199,7 @@ function createCellEditorScript(): string {
       input.setSelectionRange(input.value.length, input.value.length);
     }
 
-    const finish = async (commit, rowOffset = 0, columnOffset = 0) => {
+    const finish = async (commit, rowOffset = 0, columnOffset = 0, restoreFocus = true) => {
       if (settled) {
         return;
       }
@@ -218,10 +218,10 @@ function createCellEditorScript(): string {
         await saveCell(cell, input.value);
         editingCell = null;
 
-        if (rowOffset === 0 && columnOffset === 0) {
-          cell.focus();
-        } else {
+        if (rowOffset !== 0 || columnOffset !== 0) {
           moveFocus(cell, rowOffset, columnOffset);
+        } else if (restoreFocus) {
+          cell.focus();
         }
       } catch (cause) {
         settled = false;
@@ -244,7 +244,7 @@ function createCellEditorScript(): string {
     });
 
     input.addEventListener("blur", () => {
-      void finish(true);
+      void finish(true, 0, 0, false);
     });
   };
 

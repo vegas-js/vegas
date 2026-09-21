@@ -45,6 +45,7 @@ describe("createLocalSpreadsheetHtml", () => {
     expect(html).toContain('input.className = "cell-input"');
     expect(html).toContain('event.key === "ArrowDown"');
     expect(html).toContain('event.key === "Delete"');
+    expect(html).toContain("void finish(true, 0, 0, false);");
     expect(html).toContain('text.startsWith("\'")');
     expect(html).toContain('method: "PATCH"');
     expect(html).not.toContain('id="cell-editor"');
