@@ -6,10 +6,18 @@ import { ReloadableLocalRuntime } from "../../dev/reloadable-local-runtime";
 import { createRuntimeProgram } from "../../dev/runtime-program";
 import { LocalSpreadsheetUrlResolver } from "../../dev/webapp/local-spreadsheet-url";
 import { loadProject, scanRuntimeDataSources } from "../../project";
-import { InMemorySpreadsheetStore, LocalRuntimeSession } from "../../runtime";
-import { reconcileLocalSpreadsheetStore } from "../../runtime-data-reconcile";
+import {
+  InMemoryPropertiesStore,
+  InMemorySpreadsheetStore,
+  LocalRuntimeSession,
+} from "../../runtime";
+import {
+  reconcileLocalPropertiesStore,
+  reconcileLocalSpreadsheetStore,
+} from "../../runtime-data-reconcile";
 import { createLocalRuntime } from "./local-runtime";
 import { loadRuntimeDataSnapshot } from "./runtime-data";
+import { createInvocationScope } from "./runtime-scope";
 
 type DevApplicationMode = "development" | "production";
 
@@ -27,36 +35,60 @@ export async function runDevApplication(mode: DevApplicationMode, root?: string)
   const getProgram = () => createRuntimeProgram(artifacts);
   const localSpreadsheetUrls = new LocalSpreadsheetUrlResolver();
   const runtimeSession = new LocalRuntimeSession();
+  const runtimeScope = createInvocationScope(project);
   let currentSnapshot = await loadRuntimeDataSnapshot(
     project.root,
     topology.snapshot.runtimeDataSources,
+  );
+  let currentPropertiesStore = await reconcileLocalPropertiesStore(
+    new InMemoryPropertiesStore(),
+    runtimeScope,
+    { spreadsheets: [] },
+    currentSnapshot,
   );
   let currentSpreadsheetStore = new InMemorySpreadsheetStore(
     currentSnapshot.spreadsheets.map(({ value }) => value),
   );
   const createRuntime = (
     snapshot: typeof currentSnapshot,
+    propertiesStore: InMemoryPropertiesStore,
     spreadsheetStore: InMemorySpreadsheetStore,
   ) =>
     createLocalRuntime(project, snapshot, getProgram, {
+      propertiesStore,
       session: runtimeSession,
       spreadsheetStore,
       spreadsheetUrlCapability: localSpreadsheetUrls,
     });
-  const initialRuntime = await createRuntime(currentSnapshot, currentSpreadsheetStore);
+  const initialRuntime = await createRuntime(
+    currentSnapshot,
+    currentPropertiesStore,
+    currentSpreadsheetStore,
+  );
   const runtime = new ReloadableLocalRuntime(initialRuntime);
   const reloadRuntime = async (): Promise<void> => {
     const runtimeDataSources = await scanRuntimeDataSources(project);
     const nextSnapshot = await loadRuntimeDataSnapshot(project.root, runtimeDataSources);
+    const nextPropertiesStore = await reconcileLocalPropertiesStore(
+      currentPropertiesStore,
+      runtimeScope,
+      currentSnapshot,
+      nextSnapshot,
+    );
     const nextSpreadsheetStore = reconcileLocalSpreadsheetStore(
       currentSpreadsheetStore,
       currentSnapshot,
       nextSnapshot,
     );
-    const nextRuntime = await createRuntime(nextSnapshot, nextSpreadsheetStore);
+    const nextRuntime = await createRuntime(
+      nextSnapshot,
+      nextPropertiesStore,
+      nextSpreadsheetStore,
+    );
 
     runtime.replace(nextRuntime);
     currentSnapshot = nextSnapshot;
+    currentPropertiesStore = nextPropertiesStore;
     currentSpreadsheetStore = nextSpreadsheetStore;
   };
 
