@@ -6,23 +6,13 @@ import {
   InMemoryLockStore,
   InMemoryPropertiesStore,
   InMemorySpreadsheetStore,
+  type LocalRuntime,
   type Program,
-  type RuntimeBackend,
-  type SpreadsheetStore,
 } from "../../runtime";
 import { createNodeAppsScriptExecutor } from "../../runtime/node";
 import { loadRuntimeData } from "./runtime-data";
 import { createInvocationEnvironment } from "./runtime-environment";
 import { createInvocationScope } from "./runtime-scope";
-
-export interface LocalRuntimeResources {
-  readonly spreadsheets: SpreadsheetStore;
-}
-
-export interface LocalRuntime {
-  readonly backend: RuntimeBackend;
-  readonly resources: LocalRuntimeResources;
-}
 
 interface LocalRuntimeDependencies {
   readonly loadRuntimeData?: typeof loadRuntimeData;

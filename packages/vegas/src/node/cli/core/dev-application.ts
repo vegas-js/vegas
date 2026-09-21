@@ -2,7 +2,7 @@ import { ArtifactStore } from "../../build";
 import { startDevApplication } from "../../dev/application";
 import { replaceDevBuildArtifacts } from "../../dev/build-artifacts";
 import { buildDevTopology } from "../../dev/build-topology";
-import { ReloadableRuntimeBackend } from "../../dev/reloadable-runtime-backend";
+import { ReloadableLocalRuntime } from "../../dev/reloadable-local-runtime";
 import { createRuntimeProgram } from "../../dev/runtime-program";
 import { loadProject, scanRuntimeDataSources } from "../../project";
 import { createLocalRuntime } from "./local-runtime";
@@ -24,11 +24,11 @@ export async function runDevApplication(mode: DevApplicationMode, root?: string)
   const createRuntime = (runtimeDataSources: readonly string[]) =>
     createLocalRuntime(project, runtimeDataSources, getProgram);
   const initialRuntime = await createRuntime(topology.snapshot.runtimeDataSources);
-  const runtime = new ReloadableRuntimeBackend(initialRuntime.backend);
+  const runtime = new ReloadableLocalRuntime(initialRuntime);
   const reloadRuntime = async (): Promise<void> => {
     const runtimeDataSources = await scanRuntimeDataSources(project);
     const nextRuntime = await createRuntime(runtimeDataSources);
-    runtime.replace(nextRuntime.backend);
+    runtime.replace(nextRuntime);
   };
 
   await startDevApplication({
