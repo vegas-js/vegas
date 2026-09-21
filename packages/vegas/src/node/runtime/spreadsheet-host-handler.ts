@@ -21,6 +21,9 @@ export class SpreadsheetHostHandler implements SpreadsheetHostCallHandler {
       case "get-spreadsheet": {
         return this.#store.getSpreadsheet(call.id);
       }
+      case "get-spreadsheet-by-url": {
+        return this.#store.getSpreadsheetByUrl(call.url);
+      }
       case "get-spreadsheet-metadata": {
         return this.#store.getSpreadsheetMetadata(call.spreadsheet);
       }

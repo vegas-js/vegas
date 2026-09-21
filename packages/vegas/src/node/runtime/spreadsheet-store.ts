@@ -40,6 +40,8 @@ export interface SpreadsheetStore {
 
   getSpreadsheet(id: string): Promise<SpreadsheetReference>;
 
+  getSpreadsheetByUrl(url: string): Promise<SpreadsheetReference>;
+
   getSpreadsheetMetadata(spreadsheet: SpreadsheetReference): Promise<SpreadsheetMetadata>;
 
   renameSpreadsheet(spreadsheet: SpreadsheetReference, name: string): Promise<void>;

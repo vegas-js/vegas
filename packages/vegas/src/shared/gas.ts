@@ -31,6 +31,7 @@ export interface RuntimeDataSpreadsheetSheet {
 
 export interface RuntimeDataSpreadsheet {
   readonly id: string;
+  readonly url?: string;
   readonly name: string;
   readonly sheets: readonly RuntimeDataSpreadsheetSheet[];
 }

@@ -61,6 +61,14 @@ function createFixture() {
       } satisfies SpreadsheetReference;
     }
 
+    if (call.service === "spreadsheet" && call.operation === "get-spreadsheet-by-url") {
+      return {
+        service: "spreadsheet",
+        kind: "spreadsheet",
+        id: "spreadsheet-a",
+      } satisfies SpreadsheetReference;
+    }
+
     throw new Error(`unexpected host call: ${call.service}#${call.operation}`);
   });
   const hydrator = new RecordingSpreadsheetObjectHydrator(spreadsheet);
@@ -130,19 +138,18 @@ describe("SpreadsheetApp", () => {
     ]);
   });
 
-  test("open Spreadsheet resources by URL through the existing id path", () => {
+  test("open Spreadsheet resources by URL through HostBridge resolution", () => {
     const { bridge, hydrator, spreadsheet, spreadsheetApp } = createFixture();
+    const url = "http://localhost:5173/spreadsheets/spreadsheet-a";
 
-    const result = spreadsheetApp.openByUrl(
-      "https://docs.google.com/spreadsheets/d/spreadsheet-a/edit#gid=7",
-    );
+    const result = spreadsheetApp.openByUrl(url);
 
     expect(result).toBe(spreadsheet);
     expect(bridge.calls).toStrictEqual([
       {
         service: "spreadsheet",
-        operation: "get-spreadsheet",
-        id: "spreadsheet-a",
+        operation: "get-spreadsheet-by-url",
+        url,
       },
     ]);
     expect(hydrator.references).toStrictEqual([
@@ -154,13 +161,26 @@ describe("SpreadsheetApp", () => {
     ]);
   });
 
-  test("reject non-Spreadsheets URLs before HostBridge calls", () => {
-    const { bridge, hydrator, spreadsheetApp } = createFixture();
+  test("forward non-Google Spreadsheet URLs to HostBridge resolution", () => {
+    const { bridge, hydrator, spreadsheet, spreadsheetApp } = createFixture();
+    const url = "https://example.com/spreadsheet-a";
 
-    expect(() => spreadsheetApp.openByUrl("https://example.com/spreadsheet-a")).toThrow(
-      "Invalid Spreadsheet URL.",
-    );
-    expect(bridge.calls).toHaveLength(0);
-    expect(hydrator.references).toHaveLength(0);
+    const result = spreadsheetApp.openByUrl(url);
+
+    expect(result).toBe(spreadsheet);
+    expect(bridge.calls).toStrictEqual([
+      {
+        service: "spreadsheet",
+        operation: "get-spreadsheet-by-url",
+        url,
+      },
+    ]);
+    expect(hydrator.references).toStrictEqual([
+      {
+        service: "spreadsheet",
+        kind: "spreadsheet",
+        id: "spreadsheet-a",
+      },
+    ]);
   });
 });

@@ -24,6 +24,7 @@ export interface InMemorySheetSeed {
 
 export interface InMemorySpreadsheetSeed {
   readonly id: string;
+  readonly url?: string;
   readonly name: string;
   readonly sheets: readonly InMemorySheetSeed[];
 }
@@ -48,6 +49,30 @@ function cloneSpreadsheetReference(reference: SpreadsheetReference): Spreadsheet
 
 function cloneSheetReference(reference: SheetReference): SheetReference {
   return { ...reference };
+}
+
+function extractGoogleSpreadsheetId(url: string): string | undefined {
+  let parsed: URL;
+
+  try {
+    parsed = new URL(url);
+  } catch {
+    return undefined;
+  }
+
+  if (parsed.hostname !== "docs.google.com") {
+    return undefined;
+  }
+
+  const segments = parsed.pathname.split("/").filter(Boolean);
+  const spreadsheetsIndex = segments.indexOf("spreadsheets");
+  const idMarkerIndex = segments.indexOf("d", spreadsheetsIndex + 1);
+
+  if (spreadsheetsIndex < 0 || idMarkerIndex < 0) {
+    return undefined;
+  }
+
+  return segments[idMarkerIndex + 1];
 }
 
 // Apps Script documents integer counts and zero-to-unfreeze semantics, but not invalid-count
@@ -111,12 +136,21 @@ function createSheetState(spreadsheetId: string, seed: InMemorySheetSeed): Sheet
 
 export class InMemorySpreadsheetStore implements SpreadsheetStore {
   readonly #spreadsheets = new Map<string, SpreadsheetState>();
+  readonly #spreadsheetIdsByUrl = new Map<string, string>();
   #nextSpreadsheetId = 0;
 
   constructor(spreadsheets: readonly InMemorySpreadsheetSeed[] = []) {
     for (const seed of spreadsheets) {
       if (this.#spreadsheets.has(seed.id)) {
         throw new Error(`Duplicate local Spreadsheet id: ${seed.id}`);
+      }
+
+      if (seed.url !== undefined) {
+        if (this.#spreadsheetIdsByUrl.has(seed.url)) {
+          throw new Error(`Duplicate local Spreadsheet URL: ${seed.url}`);
+        }
+
+        this.#spreadsheetIdsByUrl.set(seed.url, seed.id);
       }
 
       const sheets = new Map<number, SheetState>();
@@ -182,6 +216,21 @@ export class InMemorySpreadsheetStore implements SpreadsheetStore {
 
   async getSpreadsheet(id: string): Promise<SpreadsheetReference> {
     return cloneSpreadsheetReference(this.#getSpreadsheetState(id).reference);
+  }
+
+  async getSpreadsheetByUrl(url: string): Promise<SpreadsheetReference> {
+    const explicitId = this.#spreadsheetIdsByUrl.get(url);
+
+    if (explicitId !== undefined) {
+      return this.getSpreadsheet(explicitId);
+    }
+
+    const googleId = extractGoogleSpreadsheetId(url);
+    if (googleId !== undefined && this.#spreadsheets.has(googleId)) {
+      return this.getSpreadsheet(googleId);
+    }
+
+    throw new Error(`Unknown local Spreadsheet URL: ${url}`);
   }
 
   async getSpreadsheetMetadata(spreadsheet: SpreadsheetReference): Promise<SpreadsheetMetadata> {

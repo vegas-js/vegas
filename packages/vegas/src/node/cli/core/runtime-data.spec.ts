@@ -24,6 +24,7 @@ describe("runtime data", () => {
       };
       readonly spreadsheets: readonly {
         readonly id: string;
+        readonly url?: string;
         readonly name: string;
         readonly sheets: readonly {
           readonly id: number;
@@ -63,6 +64,7 @@ describe("runtime data", () => {
       [sources[2]]: {
         target: RuntimeDataTarget.Spreadsheet,
         id: "budget",
+        url: "http://localhost:5173/spreadsheets/budget",
         name: "Budget",
         sheets: [
           {
@@ -110,6 +112,9 @@ describe("runtime data", () => {
 
     const spreadsheetStore = new InMemorySpreadsheetStore(runtimeData.spreadsheets);
     const budget = await spreadsheetStore.getSpreadsheet("budget");
+    await expect(
+      spreadsheetStore.getSpreadsheetByUrl("http://localhost:5173/spreadsheets/budget"),
+    ).resolves.toStrictEqual(budget);
     const summary = await spreadsheetStore.getSheetByName(budget, "Summary");
 
     if (summary === null) {

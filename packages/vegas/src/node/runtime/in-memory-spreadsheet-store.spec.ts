@@ -31,6 +31,7 @@ function createStore() {
   return new InMemorySpreadsheetStore([
     {
       id: "spreadsheet-a",
+      url: "http://localhost:5173/spreadsheets/spreadsheet-a",
       name: "Budget",
       sheets: [
         {
@@ -296,6 +297,25 @@ describe("InMemorySpreadsheetStore resources", () => {
     ).resolves.toStrictEqual([["Updated"]]);
   });
 
+  test("resolve explicit local URLs and Google Sheets URLs", async () => {
+    const store = createStore();
+
+    await expect(
+      store.getSpreadsheetByUrl("http://localhost:5173/spreadsheets/spreadsheet-a"),
+    ).resolves.toStrictEqual(SPREADSHEET);
+    await expect(
+      store.getSpreadsheetByUrl("https://docs.google.com/spreadsheets/d/spreadsheet-a/edit#gid=7"),
+    ).resolves.toStrictEqual(SPREADSHEET);
+  });
+
+  test("reject unknown Spreadsheet URLs", async () => {
+    const store = createStore();
+
+    await expect(
+      store.getSpreadsheetByUrl("http://localhost:5173/spreadsheets/missing"),
+    ).rejects.toThrow("Unknown local Spreadsheet URL: http://localhost:5173/spreadsheets/missing");
+  });
+
   test("reject unknown resources", async () => {
     const store = createStore();
 
@@ -320,5 +340,23 @@ describe("InMemorySpreadsheetStore resources", () => {
           },
         ]),
     ).toThrow("Duplicate local Spreadsheet id: duplicate");
+
+    expect(
+      () =>
+        new InMemorySpreadsheetStore([
+          {
+            id: "first",
+            url: "http://localhost:5173/spreadsheets/shared",
+            name: "First",
+            sheets: [],
+          },
+          {
+            id: "second",
+            url: "http://localhost:5173/spreadsheets/shared",
+            name: "Second",
+            sheets: [],
+          },
+        ]),
+    ).toThrow("Duplicate local Spreadsheet URL: http://localhost:5173/spreadsheets/shared");
   });
 });

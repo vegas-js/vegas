@@ -22,6 +22,11 @@ export type SpreadsheetHostCall =
     }
   | {
       readonly service: "spreadsheet";
+      readonly operation: "get-spreadsheet-by-url";
+      readonly url: string;
+    }
+  | {
+      readonly service: "spreadsheet";
       readonly operation: "get-spreadsheet-metadata";
       readonly spreadsheet: SpreadsheetReference;
     }
@@ -159,6 +164,7 @@ export type SpreadsheetHostCall =
 type SpreadsheetHostCallResultMap = {
   "create-spreadsheet": SpreadsheetReference;
   "get-spreadsheet": SpreadsheetReference;
+  "get-spreadsheet-by-url": SpreadsheetReference;
   "get-spreadsheet-metadata": SpreadsheetMetadata;
   "rename-spreadsheet": void;
   "list-sheets": readonly SheetReference[];
