@@ -5,6 +5,7 @@ import { describe, expect, test, vi } from "vitest";
 
 import { ArtifactStore } from "../build";
 import type { ResolvedProject } from "../project";
+import { InMemorySpreadsheetStore } from "../runtime";
 import { startDevApplication } from "./application";
 
 const project = {
@@ -103,7 +104,18 @@ describe("startDevApplication", () => {
         project,
         artifacts: new ArtifactStore(),
         builder: {} as ViteBuilder,
-        runtime: { execute },
+        runtime: {
+          execute,
+          resources: {
+            spreadsheets: new InMemorySpreadsheetStore([
+              {
+                id: "budget",
+                name: "Budget",
+                sheets: [],
+              },
+            ]),
+          },
+        },
         reloadRuntime: async () => undefined,
         mode: "development",
       },
@@ -125,7 +137,36 @@ describe("startDevApplication", () => {
       port: 62001,
     });
 
-    const hostHandler = host.server.middlewares.stack[0]?.handle as Connect.NextHandleFunction;
+    const localSpreadsheetHandler = host.server.middlewares.stack[0]
+      ?.handle as Connect.NextHandleFunction;
+    const localSpreadsheetBody: unknown[] = [];
+    await Promise.resolve(
+      localSpreadsheetHandler?.(
+        {
+          url: "/__vegas/spreadsheets/budget",
+          method: "GET",
+          headers: {
+            host: "localhost:62000",
+          },
+        } as any,
+        {
+          statusCode: 0,
+          setHeader() {},
+          end(value?: unknown) {
+            localSpreadsheetBody.push(value);
+          },
+        } as any,
+        (() => undefined) as any,
+      ),
+    );
+
+    expect(JSON.parse(String(localSpreadsheetBody[0]))).toStrictEqual({
+      id: "budget",
+      name: "Budget",
+      sheets: [],
+    });
+
+    const hostHandler = host.server.middlewares.stack[1]?.handle as Connect.NextHandleFunction;
     const hostBody: unknown[] = [];
     await Promise.resolve(
       hostHandler?.(
@@ -200,6 +241,9 @@ describe("startDevApplication", () => {
           builder: {} as ViteBuilder,
           runtime: {
             execute: async () => undefined,
+            resources: {
+              spreadsheets: new InMemorySpreadsheetStore(),
+            },
           },
           reloadRuntime: async () => undefined,
           mode: "development",
