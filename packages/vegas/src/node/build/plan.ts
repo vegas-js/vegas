@@ -1,8 +1,13 @@
 import type { PluginOption } from "vite";
 
-import type { ClientEntry, ProjectSnapshot, ResolvedProject } from "../project";
+import type { ProjectSnapshot, ResolvedProject } from "../project";
 
 type BuildMode = "development" | "production";
+
+export interface ClientModuleBuildTarget {
+  readonly sourcePath: string;
+  readonly htmlPath: string;
+}
 
 export interface BuildPlan {
   readonly root: string;
@@ -13,7 +18,7 @@ export interface BuildPlan {
 
   readonly plugins: readonly PluginOption[];
 
-  readonly clientEntries: readonly ClientEntry[];
+  readonly clientModuleTargets: readonly ClientModuleBuildTarget[];
   readonly clientSources: readonly string[];
   readonly serverSources: readonly string[];
 }
@@ -32,7 +37,10 @@ export function createBuildPlan(
 
     plugins: project.plugins,
 
-    clientEntries: snapshot.clientEntries,
+    clientModuleTargets: snapshot.clientEntries.map((entry) => ({
+      sourcePath: entry.sourcePath,
+      htmlPath: entry.htmlPath,
+    })),
     clientSources: snapshot.clientSources,
     serverSources: snapshot.serverSources,
   };

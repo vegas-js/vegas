@@ -28,7 +28,7 @@ function readCssAsset(asset: Rolldown.OutputAsset): string {
   }
 }
 
-export function virtualHtml(entries: BuildPlan["clientEntries"]): Plugin {
+export function virtualHtml(entries: BuildPlan["clientModuleTargets"]): Plugin {
   return {
     name: "vite-plugin-virtual-html",
     enforce: "post",

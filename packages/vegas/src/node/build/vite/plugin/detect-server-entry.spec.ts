@@ -20,10 +20,10 @@ function createPlan(
     appType,
     mode: "production",
     plugins: [],
-    clientEntries:
+    clientModuleTargets:
       appType === "spa"
         ? clientSources
-            .filter((source) => /^main\.tsx?$/.test(path.basename(source)))
+            .filter((source) => path.parse(source).name === "main")
             .map((source, index) => ({
               id: `entry-${index}`,
               sourcePath: source,

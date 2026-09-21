@@ -15,7 +15,7 @@ function createPlan(mode: "development" | "production"): BuildPlan {
     appType: "spa",
     mode,
     plugins: [],
-    clientEntries: [],
+    clientModuleTargets: [],
     clientSources: [],
     serverSources: [],
   };

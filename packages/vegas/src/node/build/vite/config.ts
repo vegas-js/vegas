@@ -29,7 +29,7 @@ export function createBuilderConfig(plan: BuildPlan): InlineConfig {
       conditions: ["module", "browser", plan.mode],
     },
   };
-  plan.clientEntries.forEach((entry, index) => {
+  plan.clientModuleTargets.forEach((entry, index) => {
     environments[createClientEnvironmentName(index)] = {
       ...sharedClientOptions,
       build: {
@@ -50,7 +50,7 @@ export function createBuilderConfig(plan: BuildPlan): InlineConfig {
     configFile: false,
     plugins: [
       ...plan.plugins,
-      virtualHtml(plan.clientEntries),
+      virtualHtml(plan.clientModuleTargets),
       detectServerEntry(plan),
       exportBridge(),
     ],

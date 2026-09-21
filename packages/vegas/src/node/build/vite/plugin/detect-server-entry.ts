@@ -119,7 +119,7 @@ export function detectServerEntry(plan: BuildPlan): Plugin {
       if (isVirtualServerEntryId(source, plan.root)) {
         const serverEntries = new Set<string>();
         const visitedClientSources = new Set<string>();
-        const pendingClientSources = plan.clientEntries.map((entry) => entry.sourcePath);
+        const pendingClientSources = plan.clientModuleTargets.map((entry) => entry.sourcePath);
 
         while (pendingClientSources.length > 0) {
           const clientSourcePath = pendingClientSources.pop();

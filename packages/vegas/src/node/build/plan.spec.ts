@@ -55,7 +55,12 @@ describe("createBuildPlan", () => {
       appType: "spa",
       mode: "production",
       plugins: project.plugins,
-      clientEntries: snapshot.clientEntries,
+      clientModuleTargets: [
+        {
+          sourcePath: clientEntry.sourcePath,
+          htmlPath: clientEntry.htmlPath,
+        },
+      ],
       clientSources: snapshot.clientSources,
       serverSources: snapshot.serverSources,
     });
