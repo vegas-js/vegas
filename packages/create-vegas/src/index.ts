@@ -6,12 +6,11 @@ import util from "node:util";
 import * as prompts from "@clack/prompts";
 import { cac } from "cac";
 
+import { createProject, type CreateProjectStep } from "./create-project";
 import { CreateVegasUsageError, formatCreateVegasError } from "./error";
 import { validatePackageName } from "./package-name";
-import { runCommand } from "./run-command";
 import { inspectScaffoldDirectory } from "./scaffold-directory";
-import { scaffoldProject, type ScaffoldDirectoryOperation } from "./scaffold-project";
-import { resolveScaffoldTarget } from "./scaffold-target";
+import type { ScaffoldDirectoryOperation } from "./scaffold-project";
 
 const frameworkOptions: { value: string; label: string }[] = [
   { label: util.styleText("yellow", "Vanilla"), value: "template-vanilla" },
@@ -25,6 +24,22 @@ const frameworkOptions: { value: string; label: string }[] = [
 function cancelHandler() {
   prompts.cancel("Operation cancelled");
   process.exit(0);
+}
+
+function logCreateProjectStep(step: CreateProjectStep): void {
+  switch (step.kind) {
+    case "scaffold":
+      prompts.log.step(`Scaffolding project in ${step.directory}...`);
+      return;
+    case "install-dependencies":
+      prompts.log.step("Installing dependencies with npm...");
+      return;
+    case "login-apps-script":
+      prompts.log.step("Signing in to Google for Apps Script...");
+      return;
+    case "start-dev-server":
+      prompts.log.step("Starting dev server...");
+  }
 }
 
 async function run(directory?: string) {
@@ -188,45 +203,20 @@ async function run(directory?: string) {
     }
   }
 
-  const target = resolveScaffoldTarget(process.cwd(), ctx.projectName, ctx.packageName);
-
-  const packagePath = target.directory;
-
-  prompts.log.step(`Scaffolding project in ${packagePath}...`);
-
-  scaffoldProject({
+  const target = await createProject({
+    cwd: process.cwd(),
+    projectName: ctx.projectName,
+    packageName: ctx.packageName,
     templateDirectory: path.resolve(import.meta.dirname, "..", ctx.framework),
-    targetDirectory: packagePath,
-    packageName: target.packageName,
     operation: ctx.directoryOperation,
     scriptId: ctx.configureAppsScript ? ctx.scriptId : undefined,
+    installDependencies: ctx.installDependencies,
+    oauthClientFile: ctx.loginAppsScript ? ctx.oauthClientFile : undefined,
+    startDevServer: ctx.startDevServer,
+    onStep: logCreateProjectStep,
   });
 
-  if (ctx.installDependencies) {
-    prompts.log.step("Installing dependencies with npm...");
-    await runCommand("npm", ["install"], {
-      cwd: packagePath,
-      stdio: "inherit",
-    });
-
-    if (ctx.loginAppsScript) {
-      prompts.log.step("Signing in to Google for Apps Script...");
-
-      await runCommand("npm", ["run", "login", "--", ctx.oauthClientFile], {
-        cwd: packagePath,
-        stdio: "inherit",
-      });
-    }
-
-    if (ctx.startDevServer) {
-      prompts.log.step("Starting dev server...");
-
-      await runCommand("npm", ["run", "dev"], {
-        cwd: packagePath,
-        stdio: "inherit",
-      });
-    }
-  }
+  const packagePath = target.directory;
 
   if (!ctx.installDependencies) {
     const outroText = [
