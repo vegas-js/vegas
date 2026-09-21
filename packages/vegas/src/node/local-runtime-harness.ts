@@ -1,0 +1,61 @@
+import type { RuntimeDataSnapshot } from "../shared/gas";
+import { createLocalRuntime } from "./local-runtime-factory";
+import type { ResolvedProject } from "./project";
+import {
+  InMemoryPropertiesStore,
+  InMemorySpreadsheetStore,
+  LocalRuntimeSession,
+  type LocalRuntime,
+  type Program,
+} from "./runtime";
+import { applyPropertiesRuntimeData } from "./runtime-data-properties";
+import { createInvocationScope } from "./runtime-scope";
+
+export interface LocalRuntimeHarness {
+  readonly runtime: LocalRuntime;
+  readonly session: LocalRuntimeSession;
+  readonly propertiesStore: InMemoryPropertiesStore;
+  readonly spreadsheetStore: InMemorySpreadsheetStore;
+}
+
+export interface LocalRuntimeHarnessOptions {
+  readonly project: ResolvedProject;
+  readonly snapshot: RuntimeDataSnapshot;
+  readonly program: Program;
+}
+
+export async function createLocalRuntimeHarness(
+  options: LocalRuntimeHarnessOptions,
+): Promise<LocalRuntimeHarness> {
+  const session = new LocalRuntimeSession();
+  const propertiesStore = new InMemoryPropertiesStore();
+  const spreadsheetStore = new InMemorySpreadsheetStore(
+    options.snapshot.spreadsheets.map(({ value }) => value),
+  );
+
+  if (options.snapshot.properties !== undefined) {
+    await applyPropertiesRuntimeData(
+      propertiesStore,
+      createInvocationScope(options.project),
+      options.snapshot.properties.value,
+    );
+  }
+
+  const runtime = await createLocalRuntime(
+    options.project,
+    options.snapshot,
+    () => options.program,
+    {
+      propertiesStore,
+      session,
+      spreadsheetStore,
+    },
+  );
+
+  return {
+    runtime,
+    session,
+    propertiesStore,
+    spreadsheetStore,
+  };
+}
