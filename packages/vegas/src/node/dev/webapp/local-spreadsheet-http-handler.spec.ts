@@ -23,7 +23,7 @@ function createResponse() {
 }
 
 describe("createLocalSpreadsheetHttpHandler", () => {
-  test("read Spreadsheet metadata from the current local Runtime store", async () => {
+  test("render the current local Spreadsheet and selected Sheet", async () => {
     let store = new InMemorySpreadsheetStore([
       {
         id: "budget",
@@ -34,6 +34,17 @@ describe("createLocalSpreadsheetHttpHandler", () => {
             name: "Summary",
             maxRows: 20,
             maxColumns: 8,
+            values: [
+              ["Name", "Amount"],
+              ["Vegas", 42],
+            ],
+          },
+          {
+            id: 9,
+            name: "Archive",
+            maxRows: 10,
+            maxColumns: 5,
+            values: [["Archived"]],
           },
         ],
       },
@@ -47,7 +58,7 @@ describe("createLocalSpreadsheetHttpHandler", () => {
       handler(
         {
           method: "GET",
-          url: "/__vegas/spreadsheets/budget",
+          url: "/__vegas/spreadsheets/budget?sheet=7",
         } as any,
         first.response as any,
         vi.fn(),
@@ -55,19 +66,13 @@ describe("createLocalSpreadsheetHttpHandler", () => {
     );
 
     expect(first.response.statusCode).toBe(200);
-    expect(first.headers.get("Content-Type")).toBe("application/json; charset=utf-8");
-    expect(JSON.parse(String(first.getBody()))).toStrictEqual({
-      id: "budget",
-      name: "Budget",
-      sheets: [
-        {
-          id: 7,
-          name: "Summary",
-          maxRows: 20,
-          maxColumns: 8,
-        },
-      ],
-    });
+    expect(first.headers.get("Content-Type")).toBe("text/html; charset=utf-8");
+    expect(String(first.getBody())).toContain("<title>Budget · Vegas Local Spreadsheet</title>");
+    expect(String(first.getBody())).toContain(">Summary<");
+    expect(String(first.getBody())).toContain(">Archive<");
+    expect(String(first.getBody())).toContain(">Vegas<");
+    expect(String(first.getBody())).toContain(">42<");
+    expect(String(first.getBody())).not.toContain(">Archived<");
 
     store = new InMemorySpreadsheetStore([
       {
@@ -89,14 +94,57 @@ describe("createLocalSpreadsheetHttpHandler", () => {
       ),
     );
 
-    expect(JSON.parse(String(second.getBody()))).toStrictEqual({
-      id: "forecast",
-      name: "Forecast",
-      sheets: [],
+    expect(String(second.getBody())).toContain("<title>Forecast · Vegas Local Spreadsheet</title>");
+    expect(String(second.getBody())).toContain("No sheets are available.");
+  });
+
+  test("keep Spreadsheet metadata available through the internal API route", async () => {
+    const store = new InMemorySpreadsheetStore([
+      {
+        id: "budget",
+        name: "Budget",
+        sheets: [
+          {
+            id: 7,
+            name: "Summary",
+            maxRows: 20,
+            maxColumns: 8,
+          },
+        ],
+      },
+    ]);
+    const handler = createLocalSpreadsheetHttpHandler({
+      getSpreadsheetStore: () => store,
+    });
+    const { response, headers, getBody } = createResponse();
+
+    await Promise.resolve(
+      handler(
+        {
+          method: "GET",
+          url: "/__vegas/api/spreadsheets/budget",
+        } as any,
+        response as any,
+        vi.fn(),
+      ),
+    );
+
+    expect(headers.get("Content-Type")).toBe("application/json; charset=utf-8");
+    expect(JSON.parse(String(getBody()))).toStrictEqual({
+      id: "budget",
+      name: "Budget",
+      sheets: [
+        {
+          id: 7,
+          name: "Summary",
+          maxRows: 20,
+          maxColumns: 8,
+        },
+      ],
     });
   });
 
-  test("decode Spreadsheet ids from the route", async () => {
+  test("decode Spreadsheet ids from page and API routes", async () => {
     const store = new InMemorySpreadsheetStore([
       {
         id: "budget:2026",
@@ -107,20 +155,34 @@ describe("createLocalSpreadsheetHttpHandler", () => {
     const handler = createLocalSpreadsheetHttpHandler({
       getSpreadsheetStore: () => store,
     });
-    const { response, getBody } = createResponse();
 
+    const page = createResponse();
     await Promise.resolve(
       handler(
         {
           method: "GET",
           url: "/__vegas/spreadsheets/budget%3A2026",
         } as any,
-        response as any,
+        page.response as any,
         vi.fn(),
       ),
     );
 
-    expect(JSON.parse(String(getBody()))).toMatchObject({
+    expect(String(page.getBody())).toContain("<title>Budget · Vegas Local Spreadsheet</title>");
+
+    const api = createResponse();
+    await Promise.resolve(
+      handler(
+        {
+          method: "GET",
+          url: "/__vegas/api/spreadsheets/budget%3A2026",
+        } as any,
+        api.response as any,
+        vi.fn(),
+      ),
+    );
+
+    expect(JSON.parse(String(api.getBody()))).toMatchObject({
       id: "budget:2026",
     });
   });

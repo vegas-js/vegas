@@ -160,11 +160,10 @@ describe("startDevApplication", () => {
       ),
     );
 
-    expect(JSON.parse(String(localSpreadsheetBody[0]))).toStrictEqual({
-      id: "budget",
-      name: "Budget",
-      sheets: [],
-    });
+    expect(String(localSpreadsheetBody[0])).toContain(
+      "<title>Budget · Vegas Local Spreadsheet</title>",
+    );
+    expect(String(localSpreadsheetBody[0])).toContain("No sheets are available.");
 
     const hostHandler = host.server.middlewares.stack[1]?.handle as Connect.NextHandleFunction;
     const hostBody: unknown[] = [];
