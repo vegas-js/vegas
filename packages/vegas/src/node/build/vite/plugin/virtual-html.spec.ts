@@ -5,7 +5,7 @@ import path from "node:path";
 import { createBuilder, type Rolldown } from "vite";
 import { describe, expect, test } from "vitest";
 
-import type { ClientEntry } from "../../../project";
+import type { ClientModuleBuildTarget } from "../../plan";
 import { virtualHtml } from "./virtual-html";
 
 describe("virtualHtml", () => {
@@ -33,8 +33,7 @@ describe("virtualHtml", () => {
         `,
       );
 
-      const entry: ClientEntry = {
-        id: "admin",
+      const entry: ClientModuleBuildTarget = {
         sourcePath,
         htmlPath: "pages/dashboard.html",
       };
@@ -102,8 +101,7 @@ describe("virtualHtml", () => {
         `,
       );
 
-      const entry: ClientEntry = {
-        id: "index",
+      const entry: ClientModuleBuildTarget = {
         sourcePath,
         htmlPath: "index.html",
       };
@@ -164,8 +162,7 @@ describe("virtualHtml", () => {
 
       fs.writeFileSync(sourcePath, `console.log("hello");`);
 
-      const entry: ClientEntry = {
-        id: "index",
+      const entry: ClientModuleBuildTarget = {
         sourcePath,
         htmlPath: "index.html",
       };
@@ -240,8 +237,7 @@ describe("virtualHtml", () => {
       fs.writeFileSync(sourcePath, `console.log("main");`);
       fs.writeFileSync(extraSourcePath, `console.log("extra");`);
 
-      const entry: ClientEntry = {
-        id: "index",
+      const entry: ClientModuleBuildTarget = {
         sourcePath,
         htmlPath: "index.html",
       };
@@ -302,8 +298,7 @@ describe("virtualHtml", () => {
 
       fs.writeFileSync(sourcePath, `console.log("hello");`);
 
-      const entry: ClientEntry = {
-        id: "index",
+      const entry: ClientModuleBuildTarget = {
         sourcePath,
         htmlPath: "index.html",
       };

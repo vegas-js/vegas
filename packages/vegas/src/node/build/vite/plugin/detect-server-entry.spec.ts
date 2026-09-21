@@ -30,6 +30,7 @@ function createPlan(
               htmlPath: `entry-${index}.html`,
             }))
         : [],
+    clientHtmlTargets: [],
     clientSources,
     serverSources,
   };

@@ -1,17 +1,20 @@
 import path from "node:path";
 
-import type { ClientEntry } from "./type";
+import type { ClientModuleEntry } from "./type";
 
-function isClientEntrySource(source: string): boolean {
+function isClientModuleEntrySource(source: string): boolean {
   return path.parse(source).name === "main";
 }
 
-export function createClientEntries(clientDir: string, sources: readonly string[]): ClientEntry[] {
-  const entries: ClientEntry[] = [];
+export function createClientModuleEntries(
+  clientDir: string,
+  sources: readonly string[],
+): ClientModuleEntry[] {
+  const entries: ClientModuleEntry[] = [];
   const ids = new Set<string>();
 
   for (const source of sources) {
-    if (!isClientEntrySource(source)) {
+    if (!isClientModuleEntrySource(source)) {
       continue;
     }
 
@@ -19,7 +22,7 @@ export function createClientEntries(clientDir: string, sources: readonly string[
     const id = relativeDir === "" ? "index" : relativeDir.split(path.sep).join("/");
 
     if (ids.has(id)) {
-      throw new Error(`Duplicate client entry: ${id}`);
+      throw new Error(`Duplicate client module entry: ${id}`);
     }
 
     ids.add(id);

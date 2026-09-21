@@ -156,7 +156,7 @@ describe("build pipeline", () => {
         path.join(adminDir, "main.jsx"),
         path.join(project.clientDir, "main.js"),
       ]);
-      expect(snapshot.clientEntries).toStrictEqual([
+      expect(snapshot.clientModuleEntries).toStrictEqual([
         {
           id: "admin",
           sourcePath: path.join(adminDir, "main.jsx"),
@@ -168,6 +168,7 @@ describe("build pipeline", () => {
           htmlPath: "index.html",
         },
       ]);
+      expect(snapshot.clientHtmlEntries).toStrictEqual([]);
 
       expect(indexArtifact).toBeDefined();
       expect(adminArtifact).toBeDefined();

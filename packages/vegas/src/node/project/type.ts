@@ -18,8 +18,13 @@ export interface ResolvedProject {
   };
 }
 
-export interface ClientEntry {
+export interface ClientModuleEntry {
   readonly id: string;
+  readonly sourcePath: string;
+  readonly htmlPath: string;
+}
+
+export interface ClientHtmlEntry {
   readonly sourcePath: string;
   readonly htmlPath: string;
 }
@@ -28,5 +33,6 @@ export interface ProjectSnapshot {
   readonly clientSources: readonly string[];
   readonly serverSources: readonly string[];
   readonly runtimeDataSources: readonly string[];
-  readonly clientEntries: readonly ClientEntry[];
+  readonly clientModuleEntries: readonly ClientModuleEntry[];
+  readonly clientHtmlEntries: readonly ClientHtmlEntry[];
 }

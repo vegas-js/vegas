@@ -2,13 +2,13 @@ import path from "node:path";
 
 import { describe, expect, test } from "vitest";
 
-import { createClientEntries } from "./entries";
+import { createClientModuleEntries } from "./entries";
 
 const fsRoot = path.parse(process.cwd()).root;
 const clientDir = path.join(fsRoot, "home", "user", "project", "src", "client");
 
-describe("createClientEntries", () => {
-  test("create client entries", () => {
+describe("createClientModuleEntries", () => {
+  test("create client module entries", () => {
     const sources = [
       path.join(clientDir, "main.tsx"),
       path.join(clientDir, "helper.ts"),
@@ -16,7 +16,7 @@ describe("createClientEntries", () => {
       path.join(clientDir, "admin", "settings", "main.tsx"),
     ];
 
-    const entries = createClientEntries(clientDir, sources);
+    const entries = createClientModuleEntries(clientDir, sources);
 
     expect(entries).toStrictEqual([
       {
@@ -44,7 +44,7 @@ describe("createClientEntries", () => {
       path.join(clientDir, "admin", "main.jsx"),
     ];
 
-    expect(createClientEntries(clientDir, sources)).toStrictEqual([
+    expect(createClientModuleEntries(clientDir, sources)).toStrictEqual([
       {
         id: "admin",
         sourcePath: path.join(clientDir, "admin", "main.jsx"),
@@ -64,6 +64,8 @@ describe("createClientEntries", () => {
       path.join(clientDir, "admin", "main.tsx"),
     ];
 
-    expect(() => createClientEntries(clientDir, sources)).toThrow("Duplicate client entry: admin");
+    expect(() => createClientModuleEntries(clientDir, sources)).toThrow(
+      "Duplicate client module entry: admin",
+    );
   });
 });

@@ -16,6 +16,7 @@ function createPlan(mode: "development" | "production"): BuildPlan {
     mode,
     plugins: [],
     clientModuleTargets: [],
+    clientHtmlTargets: [],
     clientSources: [],
     serverSources: [],
   };

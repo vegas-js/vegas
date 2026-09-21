@@ -1,7 +1,7 @@
 import type { GlobOptionsWithoutFileTypes } from "node:fs";
 import fsPromises from "node:fs/promises";
 
-import { createClientEntries } from "./entries";
+import { createClientModuleEntries } from "./entries";
 import { createSourceGlobPatterns, isDeclarationSource } from "./source";
 import type { ProjectSnapshot, ResolvedProject } from "./type";
 
@@ -52,7 +52,10 @@ export async function scanProject(project: ResolvedProject): Promise<ProjectSnap
     clientSources: sortedClientSources,
     serverSources: sortedServerSources,
     runtimeDataSources,
-    clientEntries:
-      project.appType === "spa" ? createClientEntries(project.clientDir, sortedClientSources) : [],
+    clientModuleEntries:
+      project.appType === "spa"
+        ? createClientModuleEntries(project.clientDir, sortedClientSources)
+        : [],
+    clientHtmlEntries: [],
   };
 }

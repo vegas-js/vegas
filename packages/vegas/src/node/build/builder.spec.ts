@@ -39,7 +39,8 @@ describe("createProjectBuilder", () => {
         clientSources: [],
         serverSources: [sourcePath],
         runtimeDataSources: [],
-        clientEntries: [],
+        clientModuleEntries: [],
+        clientHtmlEntries: [],
       };
 
       fs.mkdirSync(path.dirname(sourcePath), { recursive: true });

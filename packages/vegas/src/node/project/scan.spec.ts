@@ -69,7 +69,7 @@ describe("scanProject", () => {
         ],
         serverSources: [path.join(project.serverDir, "Code.ts")],
         runtimeDataSources: [path.join(project.runtimeDataDir, "properties.ts")],
-        clientEntries: [
+        clientModuleEntries: [
           {
             id: "admin",
             sourcePath: path.join(project.clientDir, "admin", "main.tsx"),
@@ -81,6 +81,7 @@ describe("scanProject", () => {
             htmlPath: "index.html",
           },
         ],
+        clientHtmlEntries: [],
       });
     } finally {
       fs.rmSync(tempDirPath, {
@@ -191,7 +192,8 @@ describe("scanProject", () => {
         clientSources: [],
         serverSources: [],
         runtimeDataSources: [],
-        clientEntries: [],
+        clientModuleEntries: [],
+        clientHtmlEntries: [],
       });
     } finally {
       fs.rmSync(tempDirPath, {
@@ -219,7 +221,8 @@ describe("scanProject", () => {
 
       const snapshot = await scanProject(project);
 
-      expect(snapshot.clientEntries).toStrictEqual([]);
+      expect(snapshot.clientModuleEntries).toStrictEqual([]);
+      expect(snapshot.clientHtmlEntries).toStrictEqual([]);
     } finally {
       fs.rmSync(tempDirPath, {
         recursive: true,
