@@ -94,7 +94,7 @@ function createRuntime(label: string): LocalRuntime {
 }
 
 describe("runDevApplication", () => {
-  test("compose and reload the local dev application", async () => {
+  test("compose and transactionally reload the local dev application", async () => {
     const project = createProject();
     const builder = {} as ViteBuilder;
     const initialRuntime = createRuntime("initial");
@@ -106,7 +106,16 @@ describe("runDevApplication", () => {
       },
     } satisfies Program;
     const initialSnapshot = {
-      spreadsheets: [],
+      spreadsheets: [
+        {
+          source: "runtime/budget.ts",
+          value: {
+            id: "budget",
+            name: "Budget",
+            sheets: [],
+          },
+        },
+      ],
     };
     const reloadedSnapshot = {
       session: {
@@ -115,7 +124,28 @@ describe("runDevApplication", () => {
           activeUserEmail: "reloaded@example.com",
         },
       },
-      spreadsheets: [],
+      spreadsheets: [
+        {
+          source: "runtime/budget.ts",
+          value: {
+            id: "budget",
+            name: "Budget 2027",
+            sheets: [],
+          },
+        },
+      ],
+    };
+    const failedSnapshot = {
+      spreadsheets: [
+        {
+          source: "runtime/budget.ts",
+          value: {
+            id: "budget",
+            name: "Budget 2028",
+            sheets: [],
+          },
+        },
+      ],
     };
 
     loadProjectMock.mockResolvedValueOnce(project);
@@ -144,11 +174,15 @@ describe("runDevApplication", () => {
     createRuntimeProgramMock.mockReturnValue(program);
     loadRuntimeDataSnapshotMock
       .mockResolvedValueOnce(initialSnapshot)
-      .mockResolvedValueOnce(reloadedSnapshot);
+      .mockResolvedValueOnce(reloadedSnapshot)
+      .mockResolvedValueOnce(failedSnapshot);
     createLocalRuntimeMock
       .mockResolvedValueOnce(initialRuntime)
-      .mockResolvedValueOnce(reloadedRuntime);
-    scanRuntimeDataSourcesMock.mockResolvedValueOnce(["runtime/reloaded.ts"]);
+      .mockResolvedValueOnce(reloadedRuntime)
+      .mockRejectedValueOnce(new Error("runtime construction failed"));
+    scanRuntimeDataSourcesMock
+      .mockResolvedValueOnce(["runtime/reloaded.ts"])
+      .mockResolvedValueOnce(["runtime/failed.ts"]);
     startDevApplicationMock.mockResolvedValueOnce(undefined);
 
     await runDevApplication("production", "custom-root");
@@ -169,9 +203,10 @@ describe("runDevApplication", () => {
 
     const getProgram = initialCreateRuntimeCall[2];
     const runtimeSession = initialCreateRuntimeCall[3]?.session;
+    const initialSpreadsheetStore = initialCreateRuntimeCall[3]?.spreadsheetStore;
 
-    if (runtimeSession === undefined) {
-      throw new Error("expected Local Runtime session");
+    if (runtimeSession === undefined || initialSpreadsheetStore === undefined) {
+      throw new Error("expected Local Runtime session and Spreadsheet store");
     }
 
     expect(application.project).toBe(project);
@@ -180,8 +215,17 @@ describe("runDevApplication", () => {
     expect(application.artifacts.readText("index.html")).toBe("client-artifact");
     expect(application.artifacts.readText("Code.js")).toBe("server-artifact");
     expect(application.runtime).toBeInstanceOf(ReloadableLocalRuntime);
-    expect(application.getLocalSpreadsheetStore?.()).toBe(initialRuntime.resources.spreadsheets);
+    expect(application.getLocalSpreadsheetStore?.()).toBe(initialSpreadsheetStore);
     expect(runtimeSession).toBeInstanceOf(LocalRuntimeSession);
+    await expect(
+      initialSpreadsheetStore.getSpreadsheetMetadata({
+        service: "spreadsheet",
+        kind: "spreadsheet",
+        id: "budget",
+      }),
+    ).resolves.toStrictEqual({
+      name: "Budget",
+    });
     expect(loadRuntimeDataSnapshotMock).toHaveBeenNthCalledWith(1, project.root, [
       "runtime/initial.ts",
     ]);
@@ -192,6 +236,7 @@ describe("runDevApplication", () => {
       getProgram,
       {
         session: runtimeSession,
+        spreadsheetStore: initialSpreadsheetStore,
         spreadsheetUrlCapability: application.localSpreadsheetUrls,
       },
     );
@@ -208,10 +253,27 @@ describe("runDevApplication", () => {
 
     await application.reloadRuntime();
 
-    expect(scanRuntimeDataSourcesMock).toHaveBeenCalledWith(project);
+    const reloadedCreateRuntimeCall = createLocalRuntimeMock.mock.calls[1];
+    const reloadedSpreadsheetStore = reloadedCreateRuntimeCall?.[3]?.spreadsheetStore;
+
+    if (reloadedSpreadsheetStore === undefined) {
+      throw new Error("expected reconciled Spreadsheet store");
+    }
+
+    expect(scanRuntimeDataSourcesMock).toHaveBeenNthCalledWith(1, project);
     expect(loadRuntimeDataSnapshotMock).toHaveBeenNthCalledWith(2, project.root, [
       "runtime/reloaded.ts",
     ]);
+    expect(reloadedSpreadsheetStore).not.toBe(initialSpreadsheetStore);
+    await expect(
+      reloadedSpreadsheetStore.getSpreadsheetMetadata({
+        service: "spreadsheet",
+        kind: "spreadsheet",
+        id: "budget",
+      }),
+    ).resolves.toStrictEqual({
+      name: "Budget 2027",
+    });
     expect(createLocalRuntimeMock).toHaveBeenNthCalledWith(
       2,
       project,
@@ -219,11 +281,43 @@ describe("runDevApplication", () => {
       getProgram,
       {
         session: runtimeSession,
+        spreadsheetStore: reloadedSpreadsheetStore,
         spreadsheetUrlCapability: application.localSpreadsheetUrls,
       },
     );
     expect(createLocalRuntimeMock.mock.calls[1]).toHaveLength(4);
-    expect(application.getLocalSpreadsheetStore?.()).toBe(reloadedRuntime.resources.spreadsheets);
+    expect(application.getLocalSpreadsheetStore?.()).toBe(reloadedSpreadsheetStore);
+    await expect(
+      application.runtime.execute({
+        functionName: "main",
+        args: [],
+      }),
+    ).resolves.toBe("reloaded");
+
+    await expect(application.reloadRuntime()).rejects.toThrow("runtime construction failed");
+
+    const failedCreateRuntimeCall = createLocalRuntimeMock.mock.calls[2];
+    const failedSpreadsheetStore = failedCreateRuntimeCall?.[3]?.spreadsheetStore;
+
+    if (failedSpreadsheetStore === undefined) {
+      throw new Error("expected failed reconciled Spreadsheet store");
+    }
+
+    expect(scanRuntimeDataSourcesMock).toHaveBeenNthCalledWith(2, project);
+    expect(loadRuntimeDataSnapshotMock).toHaveBeenNthCalledWith(3, project.root, [
+      "runtime/failed.ts",
+    ]);
+    expect(failedSpreadsheetStore).not.toBe(reloadedSpreadsheetStore);
+    await expect(
+      failedSpreadsheetStore.getSpreadsheetMetadata({
+        service: "spreadsheet",
+        kind: "spreadsheet",
+        id: "budget",
+      }),
+    ).resolves.toStrictEqual({
+      name: "Budget 2028",
+    });
+    expect(application.getLocalSpreadsheetStore?.()).toBe(reloadedSpreadsheetStore);
     await expect(
       application.runtime.execute({
         functionName: "main",
