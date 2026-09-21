@@ -50,6 +50,7 @@ describe("validateUserConfig", () => {
           oauthScopes: ["scope"],
           runtimeVersion: "V8",
           timeZone: "Asia/Tokyo",
+          urlFetchWhitelist: ["https://example.com/api/"],
           webapp: {
             access: "ANYONE",
             executeAs: "USER_DEPLOYING",
@@ -102,11 +103,11 @@ describe("validateUserConfig", () => {
       validateUserConfig({
         appsScript: {
           manifest: {
-            urlFetchWhitelist: [],
+            unsupportedField: true,
           },
         },
       }),
-    ).toThrow('Invalid Vegas config: unknown option "appsScript.manifest.urlFetchWhitelist".');
+    ).toThrow('Invalid Vegas config: unknown option "appsScript.manifest.unsupportedField".');
   });
 
   test("report invalid array item path", () => {
@@ -119,6 +120,18 @@ describe("validateUserConfig", () => {
         },
       }),
     ).toThrow('Invalid Vegas config: "appsScript.manifest.oauthScopes[1]" must be a string.');
+  });
+
+  test("report invalid URL fetch whitelist item path", () => {
+    expect(() =>
+      validateUserConfig({
+        appsScript: {
+          manifest: {
+            urlFetchWhitelist: ["https://example.com/api/", 1],
+          },
+        },
+      }),
+    ).toThrow('Invalid Vegas config: "appsScript.manifest.urlFetchWhitelist[1]" must be a string.');
   });
 
   test("report invalid object array item path", () => {

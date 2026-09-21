@@ -107,6 +107,10 @@ export type AppsScriptManifest = {
   oauthScopes?: string[];
   runtimeVersion?: "STABLE" | "V8" | "DEPRECATED_ES5";
   timeZone?: string;
+  /**
+   * HTTPS URL prefixes allowed for UrlFetch requests.
+   */
+  urlFetchWhitelist?: string[];
   webapp?: AppsScriptWebApp;
 };
 

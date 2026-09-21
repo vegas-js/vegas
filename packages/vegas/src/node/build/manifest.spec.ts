@@ -11,6 +11,7 @@ describe("createAppsScriptManifestArtifact", () => {
       runtimeVersion: "V8",
       oauthScopes: [],
       timeZone: "UTC",
+      urlFetchWhitelist: ["https://example.com/api/"],
       webapp: {
         access: "ANYONE",
         executeAs: "USER_DEPLOYING",

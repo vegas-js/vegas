@@ -96,6 +96,7 @@ export function resolveProject(
         oauthScopes: appsScriptManifest?.oauthScopes,
         runtimeVersion: appsScriptManifest?.runtimeVersion ?? "V8",
         timeZone: appsScriptManifest?.timeZone ?? "UTC",
+        urlFetchWhitelist: appsScriptManifest?.urlFetchWhitelist,
         webapp: {
           access: appsScriptManifest?.webapp?.access ?? "MYSELF",
           executeAs: appsScriptManifest?.webapp?.executeAs ?? "USER_ACCESSING",

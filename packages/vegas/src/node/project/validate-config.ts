@@ -24,6 +24,7 @@ const MANIFEST_KEYS = [
   "oauthScopes",
   "runtimeVersion",
   "timeZone",
+  "urlFetchWhitelist",
   "webapp",
 ] as const;
 const DEPENDENCIES_KEYS = ["enabledAdvancedServices", "libraries"] as const;
@@ -254,6 +255,7 @@ function validateManifest(value: unknown, path: string): void {
       `${manifestPath}.runtimeVersion`,
     );
     assertOptionalString(manifest.timeZone, `${manifestPath}.timeZone`);
+    assertOptionalStringArray(manifest.urlFetchWhitelist, `${manifestPath}.urlFetchWhitelist`);
     validateWebApp(manifest.webapp, `${manifestPath}.webapp`);
   });
 }

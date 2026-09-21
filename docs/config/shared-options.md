@@ -219,6 +219,18 @@ Apps Script runtime used by the generated project manifest.
 
 Time zone written to the Apps Script manifest.
 
+#### appsScript.manifest.urlFetchWhitelist
+
+- **Type:** `string[]`
+
+HTTPS URL prefixes that Apps Script permits `UrlFetch` requests to access.
+
+Vegas validates the configuration shape and preserves the prefixes in the generated `appsscript.json`. Google Apps Script validates the URL prefix requirements when the manifest is used.
+
+The field name follows the Apps Script manifest API. Google now refers to this concept as an allowlist even though the manifest field remains named `urlFetchWhitelist`.
+
+See the [Apps Script allowlist documentation](https://developers.google.com/apps-script/manifest/allowlist-url) for the required URL prefix format.
+
 #### appsScript.manifest.webapp
 
 - **Type:** `object`

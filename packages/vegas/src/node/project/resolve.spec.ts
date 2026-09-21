@@ -51,6 +51,7 @@ describe("resolveProject", () => {
           oauthScopes: undefined,
           runtimeVersion: "V8",
           timeZone: "UTC",
+          urlFetchWhitelist: undefined,
           webapp: {
             access: "MYSELF",
             executeAs: "USER_ACCESSING",
@@ -286,6 +287,7 @@ describe("resolveProject", () => {
             runtimeVersion: "STABLE",
             timeZone: "Asia/Tokyo",
             oauthScopes: ["scope"],
+            urlFetchWhitelist: ["https://example.com/api/"],
             webapp: {
               access: "ANYONE",
               executeAs: "USER_DEPLOYING",
@@ -300,6 +302,7 @@ describe("resolveProject", () => {
         oauthScopes: ["scope"],
         runtimeVersion: "STABLE",
         timeZone: "Asia/Tokyo",
+        urlFetchWhitelist: ["https://example.com/api/"],
         webapp: {
           access: "ANYONE",
           executeAs: "USER_DEPLOYING",
@@ -322,6 +325,7 @@ describe("resolveProject", () => {
         oauthScopes: undefined,
         runtimeVersion: "V8",
         timeZone: "Asia/Tokyo",
+        urlFetchWhitelist: undefined,
         webapp: {
           access: "MYSELF",
           executeAs: "USER_ACCESSING",
