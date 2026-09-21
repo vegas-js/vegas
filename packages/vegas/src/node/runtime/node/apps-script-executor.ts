@@ -19,9 +19,12 @@ import { NodeBlobConversionCapability } from "./blob-conversion-capability";
 import { handleHostRequestMessage } from "./host-request-handler";
 import { NodeUrlFetchCapability } from "./url-fetch-capability";
 
+export const DEFAULT_APPS_SCRIPT_EXECUTION_TIMEOUT_MS = 6 * 60 * 1_000;
+
 interface AppsScriptWorkerProcess {
   on(event: "error", listener: (error: Error) => void): unknown;
   on(event: "exit", listener: (exitCode: number) => void): unknown;
+  terminate(): Promise<number>;
 }
 
 interface AppsScriptWorkerPort {
@@ -30,15 +33,36 @@ interface AppsScriptWorkerPort {
   close(): void;
 }
 
+function requireExecutionTimeout(timeoutMs: number): number {
+  if (!Number.isInteger(timeoutMs) || timeoutMs <= 0) {
+    throw new RangeError("Apps Script execution timeout must be a positive integer.");
+  }
+
+  return timeoutMs;
+}
+
 export function runAppsScriptWorkerSession(
   gasWorker: AppsScriptWorkerProcess,
   port: AppsScriptWorkerPort,
   sharedArray: Int32Array,
   dispatcher: HostCallDispatcher,
   invocation: AppsScriptWorkerRequest,
+  executionTimeoutMs = DEFAULT_APPS_SCRIPT_EXECUTION_TIMEOUT_MS,
 ): Promise<unknown> {
+  const timeoutMs = requireExecutionTimeout(executionTimeoutMs);
+
   return new Promise((resolve, reject) => {
     let settled = false;
+    let timeoutId: ReturnType<typeof setTimeout> | undefined;
+
+    const clearExecutionTimeout = (): void => {
+      if (timeoutId === undefined) {
+        return;
+      }
+
+      clearTimeout(timeoutId);
+      timeoutId = undefined;
+    };
 
     const settle = (complete: () => void): void => {
       if (settled) {
@@ -46,6 +70,7 @@ export function runAppsScriptWorkerSession(
       }
 
       settled = true;
+      clearExecutionTimeout();
       port.close();
       complete();
     };
@@ -97,6 +122,27 @@ export function runAppsScriptWorkerSession(
       void handleMessage(data).catch(fail);
     });
 
+    timeoutId = setTimeout(() => {
+      if (settled) {
+        return;
+      }
+
+      settled = true;
+      timeoutId = undefined;
+      port.close();
+
+      const timeoutError = new Error(`Apps Script execution timed out after ${timeoutMs} ms.`);
+
+      void gasWorker.terminate().then(
+        () => {
+          reject(timeoutError);
+        },
+        () => {
+          reject(timeoutError);
+        },
+      );
+    }, timeoutMs);
+
     try {
       port.postMessage(invocation);
     } catch (error) {
@@ -105,7 +151,11 @@ export function runAppsScriptWorkerSession(
   });
 }
 
-const runAppsScriptWorker: AppsScriptWorkerRunner = (dispatcher, request) => {
+function runAppsScriptWorker(
+  dispatcher: HostCallDispatcher,
+  request: Parameters<AppsScriptWorkerRunner>[1],
+  executionTimeoutMs: number,
+): Promise<unknown> {
   const sharedBuffer = new SharedArrayBuffer(4);
   const sharedArray = new Int32Array(sharedBuffer);
   const { port1, port2 } = new worker.MessageChannel();
@@ -126,8 +176,15 @@ const runAppsScriptWorker: AppsScriptWorkerRunner = (dispatcher, request) => {
     args: request.args,
   };
 
-  return runAppsScriptWorkerSession(gasWorker, port1, sharedArray, dispatcher, invocation);
-};
+  return runAppsScriptWorkerSession(
+    gasWorker,
+    port1,
+    sharedArray,
+    dispatcher,
+    invocation,
+    executionTimeoutMs,
+  );
+}
 
 export interface NodeAppsScriptExecutorOptions {
   readonly cacheStore: CacheStore;
@@ -136,9 +193,14 @@ export interface NodeAppsScriptExecutorOptions {
   readonly lockStore: LockStore;
   readonly propertiesStore: PropertiesStore;
   readonly spreadsheetStore: SpreadsheetStore;
+  readonly executionTimeoutMs?: number;
 }
 
 export function createNodeAppsScriptExecutor(options: NodeAppsScriptExecutorOptions): Executor {
+  const executionTimeoutMs = requireExecutionTimeout(
+    options.executionTimeoutMs ?? DEFAULT_APPS_SCRIPT_EXECUTION_TIMEOUT_MS,
+  );
+
   return createAppsScriptExecutor({
     blobConversionCapability: new NodeBlobConversionCapability(),
     cacheStore: options.cacheStore,
@@ -148,6 +210,7 @@ export function createNodeAppsScriptExecutor(options: NodeAppsScriptExecutorOpti
     propertiesStore: options.propertiesStore,
     spreadsheetStore: options.spreadsheetStore,
     urlFetchCapability: new NodeUrlFetchCapability(),
-    runWorker: runAppsScriptWorker,
+    runWorker: (dispatcher, request) =>
+      runAppsScriptWorker(dispatcher, request, executionTimeoutMs),
   });
 }

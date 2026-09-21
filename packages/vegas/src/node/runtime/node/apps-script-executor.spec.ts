@@ -1,6 +1,6 @@
 import { EventEmitter } from "node:events";
 
-import { describe, expect, expectTypeOf, test, vi } from "vitest";
+import { afterEach, describe, expect, expectTypeOf, test, vi } from "vitest";
 
 import {
   HostDispatcher,
@@ -13,16 +13,29 @@ import {
   PropertiesHostHandler,
   type Executor,
 } from "../index";
-import { createNodeAppsScriptExecutor, runAppsScriptWorkerSession } from "./apps-script-executor";
+import {
+  createNodeAppsScriptExecutor,
+  DEFAULT_APPS_SCRIPT_EXECUTION_TIMEOUT_MS,
+  runAppsScriptWorkerSession,
+} from "./apps-script-executor";
 import type { AppsScriptWorkerRequest } from "./apps-script-worker-protocol";
 
 class TestWorker extends EventEmitter {
+  terminateCount = 0;
+
   exit(exitCode: number): void {
     this.emit("exit", exitCode);
   }
 
   fail(error: Error): void {
     this.emit("error", error);
+  }
+
+  async terminate(): Promise<number> {
+    this.terminateCount += 1;
+    this.exit(1);
+
+    return 1;
   }
 }
 
@@ -58,6 +71,10 @@ function createDispatcher() {
   });
 }
 
+afterEach(() => {
+  vi.useRealTimers();
+});
+
 describe("runAppsScriptWorkerSession", () => {
   test("resolve one result and close the port exactly once", async () => {
     const gasWorker = new TestWorker();
@@ -80,6 +97,7 @@ describe("runAppsScriptWorkerSession", () => {
 
     await expect(result).resolves.toBe("result");
     expect(port.closeCount).toBe(1);
+    expect(gasWorker.terminateCount).toBe(0);
 
     gasWorker.exit(0);
     expect(port.closeCount).toBe(1);
@@ -104,6 +122,7 @@ describe("runAppsScriptWorkerSession", () => {
 
       await expect(result).rejects.toBe(error);
       expect(port.closeCount).toBe(1);
+      expect(gasWorker.terminateCount).toBe(0);
 
       gasWorker.exit(1);
       expect(port.closeCount).toBe(1);
@@ -129,6 +148,7 @@ describe("runAppsScriptWorkerSession", () => {
       "Apps Script worker exited before returning a result (code 1).",
     );
     expect(port.closeCount).toBe(1);
+    expect(gasWorker.terminateCount).toBe(0);
   });
 
   test("reject unexpected worker messages", async () => {
@@ -148,6 +168,51 @@ describe("runAppsScriptWorkerSession", () => {
 
     await expect(result).rejects.toThrow("Unexpected Apps Script worker message.");
     expect(port.closeCount).toBe(1);
+    expect(gasWorker.terminateCount).toBe(0);
+  });
+
+  test("terminate a worker that exceeds the execution deadline", async () => {
+    vi.useFakeTimers();
+
+    const gasWorker = new TestWorker();
+    const port = new TestPort();
+    const result = runAppsScriptWorkerSession(
+      gasWorker,
+      port,
+      new Int32Array(new SharedArrayBuffer(4)),
+      createDispatcher(),
+      invocation,
+      1_000,
+    );
+
+    const rejection = expect(result).rejects.toThrow(
+      "Apps Script execution timed out after 1000 ms.",
+    );
+
+    await vi.advanceTimersByTimeAsync(1_000);
+    await rejection;
+
+    expect(gasWorker.terminateCount).toBe(1);
+    expect(port.closeCount).toBe(1);
+  });
+
+  test("require a positive integer execution timeout", () => {
+    const gasWorker = new TestWorker();
+    const port = new TestPort();
+
+    expect(() =>
+      runAppsScriptWorkerSession(
+        gasWorker,
+        port,
+        new Int32Array(new SharedArrayBuffer(4)),
+        createDispatcher(),
+        invocation,
+        0,
+      ),
+    ).toThrow("Apps Script execution timeout must be a positive integer.");
+
+    expect(port.posted).toHaveLength(0);
+    expect(gasWorker.terminateCount).toBe(0);
   });
 });
 
@@ -162,7 +227,22 @@ describe("createNodeAppsScriptExecutor", () => {
       spreadsheetStore: new InMemorySpreadsheetStore(),
     });
 
+    expect(DEFAULT_APPS_SCRIPT_EXECUTION_TIMEOUT_MS).toBe(360_000);
     expectTypeOf(executor).toEqualTypeOf<Executor>();
     expect(executor).toHaveProperty("execute");
+  });
+
+  test("reject an invalid execution timeout", () => {
+    expect(() =>
+      createNodeAppsScriptExecutor({
+        cacheStore: new InMemoryCacheStore(),
+        driveIteratorStore: new InMemoryDriveIteratorStore(),
+        driveStore: new InMemoryDriveStore(),
+        lockStore: new InMemoryLockStore(),
+        propertiesStore: new InMemoryPropertiesStore(),
+        spreadsheetStore: new InMemorySpreadsheetStore(),
+        executionTimeoutMs: 0,
+      }),
+    ).toThrow("Apps Script execution timeout must be a positive integer.");
   });
 });
