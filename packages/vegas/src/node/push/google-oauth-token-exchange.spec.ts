@@ -58,6 +58,7 @@ describe("exchangeGoogleOAuthAuthorizationCode", () => {
         grant_type: "authorization_code",
         redirect_uri: "http://127.0.0.1:45678",
       }).toString(),
+      signal: expect.any(AbortSignal),
     });
   });
 

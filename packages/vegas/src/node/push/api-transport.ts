@@ -1,11 +1,15 @@
 import type { AppsScriptAccessTokenProvider } from "./access-token";
 import { AppsScriptRemoteServiceError } from "./error";
 import { formatGoogleHttpError } from "./google-error-response";
+import {
+  createGoogleHttpRequestSignal,
+  type GoogleHttpRequestLifetimeOptions,
+} from "./google-http-request";
 import type { AppsScriptPushRequest } from "./request";
 import type { AppsScriptPushTransport } from "./transport";
 import { createAppsScriptUpdateContentHttpRequest } from "./update-content";
 
-interface CreateAppsScriptApiPushTransportOptions {
+interface CreateAppsScriptApiPushTransportOptions extends GoogleHttpRequestLifetimeOptions {
   readonly accessTokenProvider: AppsScriptAccessTokenProvider;
   readonly fetch?: typeof globalThis.fetch;
 }
@@ -37,6 +41,7 @@ export function createAppsScriptApiPushTransport(
           "Content-Type": "application/json",
         },
         body: JSON.stringify(httpRequest.body),
+        signal: createGoogleHttpRequestSignal(options),
       });
 
       if (response.ok) {

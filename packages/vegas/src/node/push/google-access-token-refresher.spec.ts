@@ -52,6 +52,7 @@ describe("createGoogleAppsScriptAccessTokenRefresher", () => {
         refresh_token: "refresh=token",
         grant_type: "refresh_token",
       }).toString(),
+      signal: expect.any(AbortSignal),
     });
   });
 

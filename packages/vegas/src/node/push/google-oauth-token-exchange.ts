@@ -1,5 +1,9 @@
 import { AppsScriptRemoteServiceError } from "./error";
 import { formatGoogleHttpError } from "./google-error-response";
+import {
+  createGoogleHttpRequestSignal,
+  type GoogleHttpRequestLifetimeOptions,
+} from "./google-http-request";
 import { APPS_SCRIPT_PROJECTS_OAUTH_SCOPE } from "./google-oauth-authorization";
 import type { GoogleOAuthDesktopClient } from "./google-oauth-client";
 import {
@@ -15,7 +19,7 @@ export interface GoogleOAuthAuthorizationCodeTokens {
   readonly scopes: readonly string[];
 }
 
-interface ExchangeGoogleOAuthAuthorizationCodeOptions {
+interface ExchangeGoogleOAuthAuthorizationCodeOptions extends GoogleHttpRequestLifetimeOptions {
   readonly client: GoogleOAuthDesktopClient;
   readonly code: string;
   readonly codeVerifier: string;
@@ -86,6 +90,7 @@ export async function exchangeGoogleOAuthAuthorizationCode(
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body: body.toString(),
+    signal: createGoogleHttpRequestSignal(options),
   });
 
   const responseBody = await response.text();

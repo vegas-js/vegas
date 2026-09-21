@@ -52,6 +52,7 @@ describe("createAppsScriptApiPushTransport", () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(request.content),
+        signal: expect.any(AbortSignal),
       },
     );
   });

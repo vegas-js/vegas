@@ -101,6 +101,7 @@ describe("pushAppsScriptProject", () => {
             },
           ],
         }),
+        signal: expect.any(AbortSignal),
       },
     );
   });

@@ -6,12 +6,16 @@ import type { AppsScriptCredential } from "./credential";
 import { AppsScriptRemoteServiceError } from "./error";
 import { formatGoogleHttpError } from "./google-error-response";
 import {
+  createGoogleHttpRequestSignal,
+  type GoogleHttpRequestLifetimeOptions,
+} from "./google-http-request";
+import {
   GOOGLE_OAUTH_TOKEN_URL,
   parseGoogleOAuthAccessToken,
   parseGoogleOAuthTokenResponse,
 } from "./google-oauth-token-response";
 
-interface CreateGoogleAppsScriptAccessTokenRefresherOptions {
+interface CreateGoogleAppsScriptAccessTokenRefresherOptions extends GoogleHttpRequestLifetimeOptions {
   readonly fetch?: typeof globalThis.fetch;
   readonly now?: () => number;
 }
@@ -37,6 +41,7 @@ export function createGoogleAppsScriptAccessTokenRefresher(
           "Content-Type": "application/x-www-form-urlencoded",
         },
         body: body.toString(),
+        signal: createGoogleHttpRequestSignal(options),
       });
 
       const responseBody = await response.text();
