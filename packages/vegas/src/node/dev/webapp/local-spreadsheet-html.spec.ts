@@ -39,6 +39,8 @@ describe("createLocalSpreadsheetHtml", () => {
       '<td class="readonly" title="Date cells are read-only in the local viewer.">2026-09-21T00:00:00.000Z</td>',
     );
     expect(html).toContain('id="cell-status"');
+    expect(html).toContain("width: 112px; min-width: 112px; max-width: 112px;");
+    expect(html).toContain("width: 48px; min-width: 48px; max-width: 48px;");
     expect(html).toContain('input.className = "cell-input"');
     expect(html).toContain('event.key === "ArrowDown"');
     expect(html).toContain('event.key === "Delete"');

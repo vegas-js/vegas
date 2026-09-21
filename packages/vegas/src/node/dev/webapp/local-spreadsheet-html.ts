@@ -336,8 +336,8 @@ export function createLocalSpreadsheetHtml(page: LocalSpreadsheetPage): string {
     .status { min-height: 1.2em; margin: 0 24px 8px; color: #c62828; font-size: 12px; }
     .grid { overflow: auto; margin: 0 24px 24px; border: 1px solid color-mix(in srgb, CanvasText 18%, transparent); }
     table { border-collapse: collapse; min-width: 100%; font-size: 13px; }
-    th, td { min-width: 96px; height: 28px; padding: 4px 8px; border: 1px solid color-mix(in srgb, CanvasText 14%, transparent); text-align: left; white-space: pre-wrap; }
-    thead th, tbody th { min-width: 42px; background: color-mix(in srgb, CanvasText 6%, Canvas); text-align: center; font-weight: 500; }
+    th, td { box-sizing: border-box; width: 112px; min-width: 112px; max-width: 112px; height: 28px; padding: 4px 8px; border: 1px solid color-mix(in srgb, CanvasText 14%, transparent); overflow: hidden; text-align: left; white-space: pre-wrap; overflow-wrap: anywhere; }
+    thead th, tbody th { width: 48px; min-width: 48px; max-width: 48px; background: color-mix(in srgb, CanvasText 6%, Canvas); text-align: center; font-weight: 500; }
     td[data-cell] { cursor: cell; }
     td[data-cell]:focus { outline: 2px solid Highlight; outline-offset: -2px; }
     td.readonly { opacity: .75; }
