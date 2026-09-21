@@ -33,7 +33,7 @@ describe("createRuntimeProgram", () => {
     });
   });
 
-  test("create a snapshot from current client HTML artifacts", () => {
+  test("create a snapshot from current client HTML artifacts including nested paths", () => {
     const artifacts = new ArtifactStore();
 
     artifacts.replaceScopes([
@@ -45,7 +45,7 @@ describe("createRuntimeProgram", () => {
             content: "index:first",
           },
           {
-            path: "admin.html",
+            path: "admin/index.html",
             content: "admin:first",
           },
           {
@@ -80,7 +80,7 @@ describe("createRuntimeProgram", () => {
 
     expect(first.htmlFiles).toStrictEqual({
       "index.html": "index:first",
-      "admin.html": "admin:first",
+      "admin/index.html": "admin:first",
     });
     expect(createRuntimeProgram(artifacts).htmlFiles).toStrictEqual({
       "index.html": "index:second",

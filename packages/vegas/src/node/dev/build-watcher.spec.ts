@@ -78,7 +78,7 @@ describe("registerBuildWatchers", () => {
       project.runtimeDataDir,
     ]);
 
-    await handlers.get("change")?.(path.join(project.clientDir, "main.ts"));
+    await handlers.get("change")?.(path.join(project.clientDir, "page.html"));
 
     expect(rebuild).toHaveBeenCalledWith("client");
     expect(invalidateAll).toHaveBeenCalledOnce();
@@ -124,7 +124,7 @@ describe("registerBuildWatchers", () => {
       reloadRuntime: vi.fn(async () => undefined),
     });
 
-    await handlers.get(event)?.(path.join(project.clientDir, "admin.ts"));
+    await handlers.get(event)?.(path.join(project.clientDir, "admin", "index.html"));
 
     expect(refreshTopology).toHaveBeenCalledOnce();
     expect(invalidateAll).toHaveBeenCalledOnce();
