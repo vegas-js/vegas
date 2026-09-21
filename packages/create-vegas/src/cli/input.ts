@@ -24,6 +24,7 @@ export interface CreateProjectInput {
 interface CollectCreateProjectInputOptions {
   readonly cwd: string;
   readonly directory?: string;
+  readonly templateId?: string;
   readonly templateOptions: readonly {
     readonly label: string;
     readonly value: string;
@@ -167,10 +168,12 @@ export async function collectCreateProjectInput(
     return undefined;
   }
 
-  const templateId = await prompts.select({
-    message: "Select a framework:",
-    options: [...options.templateOptions],
-  });
+  const templateId =
+    options.templateId ??
+    (await prompts.select({
+      message: "Select a framework:",
+      options: [...options.templateOptions],
+    }));
 
   if (isPromptCancel(templateId)) {
     return undefined;

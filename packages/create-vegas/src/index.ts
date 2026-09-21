@@ -17,12 +17,13 @@ import { resolveTemplate } from "./templates";
 
 const templateOptions = createTemplatePromptOptions();
 
-async function run(directory?: string) {
+async function run(directory?: string, templateId?: string) {
   const cwd = process.cwd();
 
   const input = await collectCreateProjectInput({
     cwd,
     directory,
+    templateId,
     templateOptions,
   });
 
@@ -59,7 +60,10 @@ async function run(directory?: string) {
 
 const cli = cac("create-vegas");
 
-cli.command("[directory]").action(run);
+cli
+  .command("[directory]")
+  .option("-t, --template <template>", "Use a template without prompting")
+  .action((directory, options) => run(directory, options.template));
 
 cli.help((defaultHelpSections: { title?: string; body: string }[]) => {
   return defaultHelpSections

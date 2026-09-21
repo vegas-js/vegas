@@ -75,6 +75,41 @@ describe("collectCreateProjectInput", () => {
     expect(inspectScaffoldDirectoryMock).toHaveBeenCalledWith(path.resolve(cwd, "my-app"));
   });
 
+  test("use provided template without framework prompt", async () => {
+    selectMock.mockResolvedValueOnce("bun");
+    confirmMock.mockResolvedValueOnce(false).mockResolvedValueOnce(false);
+
+    await expect(
+      collectCreateProjectInput({
+        cwd,
+        directory: "my-app",
+        templateId: "react",
+        templateOptions,
+      }),
+    ).resolves.toStrictEqual({
+      projectName: "my-app",
+      packageName: "my-app",
+      packageManager: "bun",
+      templateId: "react",
+      operation: "create",
+      scriptId: undefined,
+      installDependencies: false,
+      oauthClientFile: undefined,
+      startDevServer: false,
+    });
+
+    expect(selectMock).toHaveBeenCalledOnce();
+    expect(selectMock).toHaveBeenCalledWith({
+      message: "Select a package manager:",
+      options: [
+        { label: "npm", value: "npm" },
+        { label: "pnpm", value: "pnpm" },
+        { label: "yarn", value: "yarn" },
+        { label: "bun", value: "bun" },
+      ],
+    });
+  });
+
   test("collect full project input", async () => {
     inspectScaffoldDirectoryMock.mockReturnValue("non-empty");
 
