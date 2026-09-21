@@ -4,7 +4,7 @@ export type ProjectSourceKind = "client" | "server" | "runtimeData";
 
 const SOURCE_EXTENSIONS: Record<ProjectSourceKind, readonly string[]> = {
   client: [".ts", ".tsx", ".js", ".jsx"],
-  server: [".ts"],
+  server: [".ts", ".js"],
   runtimeData: [".ts"],
 };
 

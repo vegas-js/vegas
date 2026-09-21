@@ -175,6 +175,32 @@ describe("detectServerEntry", () => {
     }
   });
 
+  test("allow type-only import of JavaScript server entry", async () => {
+    const tempDirPath = fs.mkdtempSync(path.join(os.tmpdir(), "vegas-"));
+
+    try {
+      const clientDir = path.join(tempDirPath, "src", "client");
+      const serverDir = path.join(tempDirPath, "src", "server");
+      const clientSource = path.join(clientDir, "main.ts");
+      const serverSource = path.join(serverDir, "Code.js");
+
+      fs.mkdirSync(clientDir, { recursive: true });
+      fs.mkdirSync(serverDir, { recursive: true });
+
+      fs.writeFileSync(clientSource, `import type * as Server from "../server/Code.js";`);
+      fs.writeFileSync(serverSource, `export function doGet() { return "ok"; }`);
+
+      const plan = createPlan(tempDirPath, [clientSource], [serverSource]);
+
+      await expect(buildServer(plan)).resolves.toBeDefined();
+    } finally {
+      fs.rmSync(tempDirPath, {
+        recursive: true,
+        force: true,
+      });
+    }
+  });
+
   test("reject query-suffixed imports of non-entry server sources", async () => {
     const tempDirPath = fs.mkdtempSync(path.join(os.tmpdir(), "vegas-"));
 
@@ -195,7 +221,7 @@ describe("detectServerEntry", () => {
       const plan = createPlan(tempDirPath, [clientSource], [serverEntry, serverHelper]);
 
       await expect(buildServer(plan)).rejects.toThrow(
-        "The only file that can be imported from the server side is Code.ts",
+        "The only files that can be imported from the server side are Code.ts and Code.js",
       );
     } finally {
       fs.rmSync(tempDirPath, {
@@ -487,7 +513,7 @@ describe("detectServerEntry", () => {
       const clientSource = path.join(clientDir, "main.ts");
 
       const serverA = path.join(serverDir, "a", "Code.ts");
-      const serverB = path.join(serverDir, "b", "Code.ts");
+      const serverB = path.join(serverDir, "b", "Code.js");
 
       fs.mkdirSync(path.dirname(clientSource), { recursive: true });
       fs.mkdirSync(path.dirname(serverA), { recursive: true });
@@ -520,7 +546,7 @@ describe("detectServerEntry", () => {
       const plan = createPlan(tempDirPath, [], [], "script");
 
       await expect(buildServer(plan)).rejects.toThrow(
-        "No server entry found. Place Code.ts under serverDir.",
+        "No server entry found. Place Code.ts or Code.js under serverDir.",
       );
     } finally {
       fs.rmSync(tempDirPath, {

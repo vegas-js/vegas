@@ -17,6 +17,7 @@ describe("createSourceGlobPatterns", () => {
     ]);
     expect(createSourceGlobPatterns(path.join(root, "src", "server"), "server")).toStrictEqual([
       path.join(root, "src", "server", "**", "*.ts"),
+      path.join(root, "src", "server", "**", "*.js"),
     ]);
     expect(createSourceGlobPatterns(path.join(root, "runtime"), "runtimeData")).toStrictEqual([
       path.join(root, "runtime", "**", "*.ts"),

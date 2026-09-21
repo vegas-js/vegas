@@ -7,6 +7,12 @@ import type { BuildPlan } from "../../plan";
 
 export const VIRTUAL_DETECT_SERVER_ENTRY = "virtual:detectserverentry";
 
+const SERVER_ENTRY_FILE_NAMES = new Set(["Code.ts", "Code.js"]);
+
+function isServerEntrySource(source: string): boolean {
+  return SERVER_ENTRY_FILE_NAMES.has(path.basename(source));
+}
+
 interface ClientModuleReference {
   readonly source: string;
   readonly typeOnly: boolean;
@@ -147,9 +153,9 @@ export function detectServerEntry(plan: BuildPlan): Plugin {
                 throw new Error("Server sources may only be referenced from client code as types.");
               }
 
-              if (path.parse(serverSource).base !== "Code.ts") {
+              if (!isServerEntrySource(serverSource)) {
                 throw new Error(
-                  "The only file that can be imported from the server side is Code.ts",
+                  "The only files that can be imported from the server side are Code.ts and Code.js",
                 );
               }
 
@@ -175,9 +181,7 @@ export function detectServerEntry(plan: BuildPlan): Plugin {
           return serverEntry;
         }
 
-        const fallbackEntries = plan.serverSources.filter(
-          (source) => path.parse(source).base === "Code.ts",
-        );
+        const fallbackEntries = plan.serverSources.filter(isServerEntrySource);
         if (fallbackEntries.length > 1) {
           throw new Error("Duplicate server entry.");
         }
@@ -187,7 +191,7 @@ export function detectServerEntry(plan: BuildPlan): Plugin {
           return fallbackEntry;
         }
 
-        throw new Error("No server entry found. Place Code.ts under serverDir.");
+        throw new Error("No server entry found. Place Code.ts or Code.js under serverDir.");
       }
     },
   };

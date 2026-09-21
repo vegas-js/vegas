@@ -221,4 +221,44 @@ describe("build pipeline", () => {
       });
     }
   });
+
+  test("build JavaScript server artifacts", async () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), "vegas-"));
+
+    try {
+      const serverDir = path.join(root, "server");
+      const project = createProject(root, "script", serverDir);
+      const serverSource = path.join(project.serverDir, "Code.js");
+
+      fs.mkdirSync(project.serverDir, { recursive: true });
+
+      fs.writeFileSync(
+        serverSource,
+        `
+          export function main() {
+            return "javascript-server-ready";
+          }
+        `,
+      );
+
+      const snapshot = await scanProject(project);
+      const artifacts = await buildProjectArtifacts(project, snapshot);
+      const serverArtifact = artifacts.find((artifact) => artifact.path === "Code.js");
+
+      expect(snapshot.serverSources).toStrictEqual([serverSource]);
+      expect(serverArtifact).toBeDefined();
+
+      if (!serverArtifact || typeof serverArtifact.content !== "string") {
+        throw new Error("Expected Code.js text artifact");
+      }
+
+      expect(serverArtifact.content).toContain("javascript-server-ready");
+      expect(serverArtifact.content).toContain("Function bridge for GAS Client");
+    } finally {
+      fs.rmSync(root, {
+        recursive: true,
+        force: true,
+      });
+    }
+  });
 });
