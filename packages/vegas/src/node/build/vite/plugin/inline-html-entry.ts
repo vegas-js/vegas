@@ -12,6 +12,59 @@ import { CLIENT_HTML_ENVIRONMENT_PATTERN, getClientHtmlEnvironmentIndex } from "
 
 type ClientOutput = Rolldown.OutputAsset | Rolldown.OutputChunk;
 type ClientOutputBundle = Readonly<Record<string, ClientOutput>>;
+type ScriptletReplacement = readonly [placeholder: string, scriptlet: string];
+
+const APPS_SCRIPT_SCRIPTLET_PATTERN = /<\?[\s\S]*?\?>/g;
+const SCRIPTLET_PLACEHOLDER_PREFIX = "__vegas_apps_script_scriptlet_";
+
+function protectAppsScriptScriptlets(html: string): {
+  readonly html: string;
+  readonly replacements: readonly ScriptletReplacement[];
+} {
+  const replacements: ScriptletReplacement[] = [];
+  let nextIndex = 0;
+
+  const protectedHtml = html.replace(APPS_SCRIPT_SCRIPTLET_PATTERN, (scriptlet) => {
+    let placeholder: string;
+
+    do {
+      placeholder = `${SCRIPTLET_PLACEHOLDER_PREFIX}${nextIndex++}__`;
+    } while (html.includes(placeholder));
+
+    replacements.push([placeholder, scriptlet]);
+    return placeholder;
+  });
+
+  return {
+    html: protectedHtml,
+    replacements,
+  };
+}
+
+function restoreAppsScriptScriptlets(
+  html: string,
+  replacements: readonly ScriptletReplacement[],
+): string {
+  let restoredHtml = html;
+
+  for (const [placeholder, scriptlet] of replacements) {
+    const firstOccurrence = restoredHtml.indexOf(placeholder);
+
+    if (
+      firstOccurrence < 0 ||
+      restoredHtml.indexOf(placeholder, firstOccurrence + placeholder.length) >= 0
+    ) {
+      throw new Error("Apps Script scriptlet was modified during client HTML processing.");
+    }
+
+    restoredHtml =
+      restoredHtml.slice(0, firstOccurrence) +
+      scriptlet +
+      restoredHtml.slice(firstOccurrence + placeholder.length);
+  }
+
+  return restoredHtml;
+}
 
 function escapeInlineScript(code: string): string {
   return code.replace(/<\/script/gi, "<\\/script");
@@ -181,12 +234,25 @@ function inlineHtmlOutputs(
 }
 
 export function inlineHtmlEntry(entries: BuildPlan["clientHtmlTargets"]): Plugin {
+  const scriptletsBySourcePath = new Map<string, readonly ScriptletReplacement[]>();
+
   return {
     name: "vite-plugin-inline-html-entry",
     enforce: "post",
 
     applyToEnvironment(environment) {
       return CLIENT_HTML_ENVIRONMENT_PATTERN.test(environment.name);
+    },
+
+    transformIndexHtml: {
+      order: "pre",
+      handler(html, context) {
+        const protectedHtml = protectAppsScriptScriptlets(html);
+
+        scriptletsBySourcePath.set(context.filename, protectedHtml.replacements);
+
+        return protectedHtml.html;
+      },
     },
 
     generateBundle(_outputOptions, bundle) {
@@ -215,6 +281,8 @@ export function inlineHtmlEntry(entries: BuildPlan["clientHtmlTargets"]): Plugin
 
       const [htmlOutput] = htmlOutputs;
       const result = inlineHtmlOutputs(readTextAsset(htmlOutput, "Client HTML asset"), bundle);
+      const scriptletReplacements = scriptletsBySourcePath.get(entry.sourcePath) ?? [];
+      const html = restoreAppsScriptScriptlets(result.html, scriptletReplacements);
       const unsupportedOutputs = Object.values(bundle).filter(
         (output) => output !== htmlOutput && !result.inlinedOutputs.has(output.fileName),
       );
@@ -236,7 +304,7 @@ export function inlineHtmlEntry(entries: BuildPlan["clientHtmlTargets"]): Plugin
         originalFileName: entry.sourcePath,
         fileName: entry.htmlPath,
         type: "asset",
-        source: result.html,
+        source: html,
       });
     },
   };
