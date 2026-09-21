@@ -15,6 +15,8 @@ import {
 
 const LOCAL_SPREADSHEET_PAGE_PATH_PREFIX = "/__vegas/spreadsheets/";
 const LOCAL_SPREADSHEET_API_PATH_PREFIX = "/__vegas/api/spreadsheets/";
+const LOCAL_SPREADSHEET_MIN_VISIBLE_ROWS = 20;
+const LOCAL_SPREADSHEET_MIN_VISIBLE_COLUMNS = 10;
 
 interface LocalSpreadsheetHttpHandlerOptions {
   readonly getSpreadsheetStore: () => SpreadsheetStore;
@@ -161,12 +163,21 @@ function parseRequestedSheetId(url: URL): number | undefined {
 async function readSheetValues(
   store: SpreadsheetStore,
   sheet: SheetReference,
+  maxRows: number,
+  maxColumns: number,
 ): Promise<SpreadsheetGrid> {
   const bounds = await store.getSheetDataBounds(sheet);
 
-  if (bounds.lastRow === null || bounds.lastColumn === null) {
-    return [];
-  }
+  // The local viewer keeps a small editable viewport for blank Sheets instead of materializing the
+  // entire grid, while still expanding far enough to include every populated cell.
+  const visibleRows = Math.min(
+    maxRows,
+    Math.max(bounds.lastRow ?? 0, LOCAL_SPREADSHEET_MIN_VISIBLE_ROWS),
+  );
+  const visibleColumns = Math.min(
+    maxColumns,
+    Math.max(bounds.lastColumn ?? 0, LOCAL_SPREADSHEET_MIN_VISIBLE_COLUMNS),
+  );
 
   return store.getRangeValues({
     service: "spreadsheet",
@@ -175,8 +186,8 @@ async function readSheetValues(
     sheetId: sheet.sheetId,
     row: 1,
     column: 1,
-    numRows: bounds.lastRow,
-    numColumns: bounds.lastColumn,
+    numRows: visibleRows,
+    numColumns: visibleColumns,
   });
 }
 
@@ -194,6 +205,8 @@ async function readSpreadsheetPage(
       return {
         reference: sheet,
         name: sheetMetadata.name,
+        maxRows: sheetMetadata.maxRows,
+        maxColumns: sheetMetadata.maxColumns,
       };
     }),
   );
@@ -209,7 +222,12 @@ async function readSpreadsheetPage(
     activeSheet = {
       id: selected.reference.sheetId,
       name: selected.name,
-      values: await readSheetValues(store, selected.reference),
+      values: await readSheetValues(
+        store,
+        selected.reference,
+        selected.maxRows,
+        selected.maxColumns,
+      ),
     };
   }
 

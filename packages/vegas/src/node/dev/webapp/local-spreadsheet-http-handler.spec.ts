@@ -110,6 +110,48 @@ describe("createLocalSpreadsheetHttpHandler", () => {
     expect(String(second.getBody())).toContain("No sheets are available.");
   });
 
+  test("render an editable viewport for a blank Sheet", async () => {
+    const store = new InMemorySpreadsheetStore([
+      {
+        id: "blank",
+        name: "Blank",
+        sheets: [
+          {
+            id: 0,
+            name: "Sheet1",
+            maxRows: 1_000,
+            maxColumns: 26,
+          },
+        ],
+      },
+    ]);
+    const handler = createLocalSpreadsheetHttpHandler({
+      getSpreadsheetStore: () => store,
+    });
+    const { response, getBody } = createResponse();
+
+    await Promise.resolve(
+      handler(
+        {
+          method: "GET",
+          url: "/__vegas/spreadsheets/blank",
+        } as any,
+        response as any,
+        vi.fn(),
+      ),
+    );
+
+    const body = String(getBody());
+
+    expect(response.statusCode).toBe(200);
+    expect(body).not.toContain("This sheet has no cell values.");
+    expect(body).toContain('<th scope="col">J</th>');
+    expect(body).not.toContain('<th scope="col">K</th>');
+    expect(body).toContain('<th scope="row">20</th>');
+    expect(body).not.toContain('<th scope="row">21</th>');
+    expect(body).toContain('data-row="20" data-column="10" data-value-type="string"');
+  });
+
   test("keep Spreadsheet metadata available through the internal API route", async () => {
     const store = new InMemorySpreadsheetStore([
       {

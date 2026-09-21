@@ -53,6 +53,14 @@ class RecordingSpreadsheetObjectHydrator implements SpreadsheetObjectHydrator {
 function createFixture() {
   const spreadsheet = {} as Spreadsheet;
   const bridge = new RecordingHostBridge((call) => {
+    if (call.service === "spreadsheet" && call.operation === "create-spreadsheet") {
+      return {
+        service: "spreadsheet",
+        kind: "spreadsheet",
+        id: "spreadsheet-created",
+      } satisfies SpreadsheetReference;
+    }
+
     if (call.service === "spreadsheet" && call.operation === "get-spreadsheet") {
       return {
         service: "spreadsheet",
@@ -93,6 +101,50 @@ describe("SpreadsheetApp", () => {
     expect(JSON.stringify(spreadsheetApp.SheetType.GRID)).toBe('"GRID"');
     expect(bridge.calls).toHaveLength(0);
     expect(hydrator.references).toHaveLength(0);
+  });
+
+  test("create a Spreadsheet with the local default grid size", () => {
+    const { bridge, hydrator, spreadsheet, spreadsheetApp } = createFixture();
+
+    expect(spreadsheetApp.create("Finances")).toBe(spreadsheet);
+    expect(bridge.calls).toStrictEqual([
+      {
+        service: "spreadsheet",
+        operation: "create-spreadsheet",
+        name: "Finances",
+        rows: 1_000,
+        columns: 26,
+      },
+    ]);
+    expect(hydrator.references).toStrictEqual([
+      {
+        service: "spreadsheet",
+        kind: "spreadsheet",
+        id: "spreadsheet-created",
+      },
+    ]);
+  });
+
+  test("create a Spreadsheet with explicit grid dimensions", () => {
+    const { bridge, hydrator, spreadsheet, spreadsheetApp } = createFixture();
+
+    expect(spreadsheetApp.create("Finances", 50, 5)).toBe(spreadsheet);
+    expect(bridge.calls).toStrictEqual([
+      {
+        service: "spreadsheet",
+        operation: "create-spreadsheet",
+        name: "Finances",
+        rows: 50,
+        columns: 5,
+      },
+    ]);
+    expect(hydrator.references).toStrictEqual([
+      {
+        service: "spreadsheet",
+        kind: "spreadsheet",
+        id: "spreadsheet-created",
+      },
+    ]);
   });
 
   test("enable Spreadsheet data source execution without HostBridge calls", () => {

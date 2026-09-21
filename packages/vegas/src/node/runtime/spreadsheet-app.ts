@@ -6,6 +6,9 @@ import { assertPositiveInteger } from "./spreadsheet-validation";
 
 type SpreadsheetFile = Pick<GoogleAppsScript.Drive.File, "getId">;
 
+const DEFAULT_LOCAL_SPREADSHEET_ROWS = 1_000;
+const DEFAULT_LOCAL_SPREADSHEET_COLUMNS = 26;
+
 // https://developers.google.com/apps-script/reference/spreadsheet/spreadsheet-app
 export class SpreadsheetApp {
   readonly #bridge: HostBridge;
@@ -18,17 +21,37 @@ export class SpreadsheetApp {
     this.#hydrator = hydrator;
   }
 
-  create(name: string, rows: number, columns: number): Spreadsheet {
-    assertPositiveInteger(rows, "Spreadsheet rows");
-    assertPositiveInteger(columns, "Spreadsheet columns");
+  create(name: string): Spreadsheet;
+  create(name: string, rows: number, columns: number): Spreadsheet;
+  create(name: string, rows?: number, columns?: number): Spreadsheet {
+    let resolvedRows: number;
+    let resolvedColumns: number;
+
+    if (rows === undefined && columns === undefined) {
+      // Apps Script documents create(name), but not the default grid dimensions. Vegas uses
+      // the standard blank-grid dimensions shown in Google Sheets API examples.
+      resolvedRows = DEFAULT_LOCAL_SPREADSHEET_ROWS;
+      resolvedColumns = DEFAULT_LOCAL_SPREADSHEET_COLUMNS;
+    } else {
+      // Apps Script exposes one- and three-argument overloads, but does not document partial
+      // dimension calls. Vegas rejects them instead of guessing the missing dimension.
+      if (rows === undefined || columns === undefined) {
+        throw new TypeError("Spreadsheet rows and columns must be provided together.");
+      }
+
+      assertPositiveInteger(rows, "Spreadsheet rows");
+      assertPositiveInteger(columns, "Spreadsheet columns");
+      resolvedRows = rows;
+      resolvedColumns = columns;
+    }
 
     return this.#hydrator.hydrate(
       this.#bridge.call({
         service: "spreadsheet",
         operation: "create-spreadsheet",
         name,
-        rows,
-        columns,
+        rows: resolvedRows,
+        columns: resolvedColumns,
       }),
     );
   }
