@@ -23,6 +23,57 @@ interface HostHttpHandlerOptions {
 
 const HTTP_CLIENT_DISCONNECTED_MESSAGE = "Vegas HTTP client disconnected.";
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
+}
+
+function requireAppsScriptDoGetResult(value: unknown): AppsScriptDoGetResult {
+  if (
+    !isRecord(value) ||
+    typeof value.content !== "string" ||
+    typeof value.faviconUrl !== "string" ||
+    typeof value.title !== "string" ||
+    !Array.isArray(value.metaTags) ||
+    (value.xFrameOptionsMode !== "DEFAULT" && value.xFrameOptionsMode !== "ALLOWALL")
+  ) {
+    throw new Error("Invalid doGet result from Runtime.");
+  }
+
+  const metaTags = value.metaTags.map((metaTag) => {
+    if (
+      !isRecord(metaTag) ||
+      typeof metaTag.name !== "string" ||
+      typeof metaTag.content !== "string"
+    ) {
+      throw new Error("Invalid doGet result from Runtime.");
+    }
+
+    return {
+      name: metaTag.name,
+      content: metaTag.content,
+    };
+  });
+
+  return {
+    content: value.content,
+    faviconUrl: value.faviconUrl,
+    metaTags,
+    title: value.title,
+    xFrameOptionsMode: value.xFrameOptionsMode,
+  };
+}
+
+function requireAppsScriptDoPostResult(value: unknown): AppsScriptDoPostResult {
+  if (!isRecord(value) || typeof value.mimeType !== "string" || typeof value.content !== "string") {
+    throw new Error("Invalid doPost result from Runtime.");
+  }
+
+  return {
+    mimeType: value.mimeType,
+    content: value.content,
+  };
+}
+
 export function createHostHttpHandler(options: HostHttpHandlerOptions): Connect.NextHandleFunction {
   const { server, builds, sessions, runtime, userContentPort } = options;
 
@@ -62,12 +113,14 @@ export function createHostHttpHandler(options: HostHttpHandlerOptions): Connect.
           if (request.method === "GET") {
             const doGetEvent = createAppsScriptDoGetEvent(url);
 
-            const result = (await runtime.execute({
-              functionName: "doGet",
-              args: [doGetEvent],
-              context,
-              signal: controller.signal,
-            })) as AppsScriptDoGetResult;
+            const result = requireAppsScriptDoGetResult(
+              await runtime.execute({
+                functionName: "doGet",
+                args: [doGetEvent],
+                context,
+                signal: controller.signal,
+              }),
+            );
 
             if (controller.signal.aborted) {
               return;
@@ -110,12 +163,14 @@ export function createHostHttpHandler(options: HostHttpHandlerOptions): Connect.
               request.headers["content-type"],
             );
 
-            const result = (await runtime.execute({
-              functionName: "doPost",
-              args: [doPostEvent],
-              context,
-              signal: controller.signal,
-            })) as AppsScriptDoPostResult;
+            const result = requireAppsScriptDoPostResult(
+              await runtime.execute({
+                functionName: "doPost",
+                args: [doPostEvent],
+                context,
+                signal: controller.signal,
+              }),
+            );
 
             if (controller.signal.aborted) {
               return;

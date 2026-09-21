@@ -170,6 +170,76 @@ describe("createHostHttpHandler", () => {
     expect(getBody()).toBe("posted");
   });
 
+  test("reject invalid doGet Runtime result", async () => {
+    const { response } = createResponse();
+    const next = vi.fn();
+    const handler = createHostHttpHandler({
+      server: createServer().server,
+      builds: { waitForIdle: async () => undefined },
+      sessions: { issue: () => "session-1" },
+      runtime: {
+        execute: async () => ({
+          content: "<main>Hello</main>",
+        }),
+      },
+      userContentPort: 62000,
+    });
+
+    await Promise.resolve(
+      handler(
+        {
+          url: "/dev",
+          method: "GET",
+          headers: { host: "localhost:5173" },
+        } as any,
+        response as any,
+        next,
+      ),
+    );
+
+    expect(next).toHaveBeenCalledOnce();
+    expect(next).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: "Invalid doGet result from Runtime.",
+      }),
+    );
+    expect(response.end).not.toHaveBeenCalled();
+  });
+
+  test("reject invalid doPost Runtime result", async () => {
+    const { response } = createResponse();
+    const next = vi.fn();
+    const handler = createHostHttpHandler({
+      server: createServer().server,
+      builds: { waitForIdle: async () => undefined },
+      sessions: { issue: () => "session-1" },
+      runtime: {
+        execute: async () => ({
+          mimeType: 1,
+          content: "posted",
+        }),
+      },
+      userContentPort: 62000,
+    });
+    const request = Readable.from(["hello"]) as any;
+    request.url = "/exec";
+    request.method = "POST";
+    request.headers = {
+      host: "localhost:5173",
+      "content-type": "text/plain",
+    };
+
+    await Promise.resolve(handler(request, response as any, next));
+
+    expect(next).toHaveBeenCalledOnce();
+    expect(next).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: "Invalid doPost result from Runtime.",
+      }),
+    );
+    expect(response.end).not.toHaveBeenCalled();
+  });
+
   test("abort doGet execution when the client disconnects", async () => {
     const { response } = createResponse();
     const next = vi.fn();
