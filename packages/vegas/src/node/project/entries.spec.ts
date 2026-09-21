@@ -2,7 +2,11 @@ import path from "node:path";
 
 import { describe, expect, test } from "vitest";
 
-import { createClientModuleEntries } from "./entries";
+import {
+  createClientHtmlEntries,
+  createClientHtmlEntryGlobPattern,
+  createClientModuleEntries,
+} from "./entries";
 
 const fsRoot = path.parse(process.cwd()).root;
 const clientDir = path.join(fsRoot, "home", "user", "project", "src", "client");
@@ -67,5 +71,36 @@ describe("createClientModuleEntries", () => {
     expect(() => createClientModuleEntries(clientDir, sources)).toThrow(
       "Duplicate client module entry: admin",
     );
+  });
+});
+
+describe("createClientHtmlEntryGlobPattern", () => {
+  test("create recursive HTML entry pattern", () => {
+    expect(createClientHtmlEntryGlobPattern(clientDir)).toBe(path.join(clientDir, "**", "*.html"));
+  });
+});
+
+describe("createClientHtmlEntries", () => {
+  test("preserve HTML paths relative to client directory", () => {
+    const sources = [
+      path.join(clientDir, "pages", "help.html"),
+      path.join(clientDir, "index.html"),
+      path.join(clientDir, "admin", "index.html"),
+    ];
+
+    expect(createClientHtmlEntries(clientDir, sources)).toStrictEqual([
+      {
+        sourcePath: path.join(clientDir, "admin", "index.html"),
+        htmlPath: "admin/index.html",
+      },
+      {
+        sourcePath: path.join(clientDir, "index.html"),
+        htmlPath: "index.html",
+      },
+      {
+        sourcePath: path.join(clientDir, "pages", "help.html"),
+        htmlPath: "pages/help.html",
+      },
+    ]);
   });
 });

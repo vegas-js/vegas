@@ -39,9 +39,14 @@ describe("scanProject", () => {
     try {
       const project = createProject(tempDirPath);
 
-      fs.mkdirSync(path.join(project.clientDir, "admin"), { recursive: true });
+      const adminDir = path.join(project.clientDir, "admin");
+
+      fs.mkdirSync(adminDir, { recursive: true });
       fs.mkdirSync(project.serverDir, { recursive: true });
       fs.mkdirSync(project.runtimeDataDir, { recursive: true });
+
+      fs.writeFileSync(path.join(project.clientDir, "about.html"), "");
+      fs.writeFileSync(path.join(adminDir, "index.html"), "");
 
       const files = {
         client: ["main.tsx", "helper.ts", "types.d.ts", path.join("admin", "main.tsx")],
@@ -81,7 +86,16 @@ describe("scanProject", () => {
             htmlPath: "index.html",
           },
         ],
-        clientHtmlEntries: [],
+        clientHtmlEntries: [
+          {
+            sourcePath: path.join(project.clientDir, "about.html"),
+            htmlPath: "about.html",
+          },
+          {
+            sourcePath: path.join(adminDir, "index.html"),
+            htmlPath: "admin/index.html",
+          },
+        ],
       });
     } finally {
       fs.rmSync(tempDirPath, {
@@ -214,10 +228,12 @@ describe("scanProject", () => {
       const files = {
         client: ["main.tsx", "helper.ts", "types.d.ts", path.join("admin", "main.tsx")],
       };
+      const htmlEntry = path.join(project.clientDir, "index.html");
 
       for (const file of files.client) {
         fs.writeFileSync(path.join(project.clientDir, file), "");
       }
+      fs.writeFileSync(htmlEntry, "");
 
       const snapshot = await scanProject(project);
 

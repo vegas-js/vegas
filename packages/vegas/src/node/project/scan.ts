@@ -1,7 +1,11 @@
 import type { GlobOptionsWithoutFileTypes } from "node:fs";
 import fsPromises from "node:fs/promises";
 
-import { createClientModuleEntries } from "./entries";
+import {
+  createClientHtmlEntries,
+  createClientHtmlEntryGlobPattern,
+  createClientModuleEntries,
+} from "./entries";
 import { createSourceGlobPatterns, isDeclarationSource } from "./source";
 import type { ProjectSnapshot, ResolvedProject } from "./type";
 
@@ -27,7 +31,7 @@ export async function scanRuntimeDataSources(project: ResolvedProject): Promise<
 }
 
 export async function scanProject(project: ResolvedProject): Promise<ProjectSnapshot> {
-  const [clientSources, serverSources, runtimeDataSources] = await Promise.all([
+  const [clientSources, serverSources, runtimeDataSources, clientHtmlSources] = await Promise.all([
     collectWithGlob(createSourceGlobPatterns(project.clientDir, "client"), {
       exclude: isDeclarationSource,
     }),
@@ -37,6 +41,10 @@ export async function scanProject(project: ResolvedProject): Promise<ProjectSnap
     }),
 
     scanRuntimeDataSources(project),
+
+    project.appType === "spa"
+      ? collectWithGlob(createClientHtmlEntryGlobPattern(project.clientDir))
+      : [],
   ]);
 
   const runtimeDataSourceSet = new Set(runtimeDataSources);
@@ -56,6 +64,6 @@ export async function scanProject(project: ResolvedProject): Promise<ProjectSnap
       project.appType === "spa"
         ? createClientModuleEntries(project.clientDir, sortedClientSources)
         : [],
-    clientHtmlEntries: [],
+    clientHtmlEntries: createClientHtmlEntries(project.clientDir, clientHtmlSources),
   };
 }

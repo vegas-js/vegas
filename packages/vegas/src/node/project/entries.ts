@@ -1,6 +1,6 @@
 import path from "node:path";
 
-import type { ClientModuleEntry } from "./type";
+import type { ClientHtmlEntry, ClientModuleEntry } from "./type";
 
 function isClientModuleEntrySource(source: string): boolean {
   return path.parse(source).name === "main";
@@ -39,4 +39,24 @@ export function createClientModuleEntries(
     if (a.id > b.id) return 1;
     return 0;
   });
+}
+
+export function createClientHtmlEntryGlobPattern(clientDir: string): string {
+  return path.join(clientDir, "**", "*.html");
+}
+
+export function createClientHtmlEntries(
+  clientDir: string,
+  sources: readonly string[],
+): ClientHtmlEntry[] {
+  return sources
+    .map((source) => ({
+      sourcePath: source,
+      htmlPath: path.relative(clientDir, source).split(path.sep).join("/"),
+    }))
+    .sort((a, b) => {
+      if (a.htmlPath < b.htmlPath) return -1;
+      if (a.htmlPath > b.htmlPath) return 1;
+      return 0;
+    });
 }
