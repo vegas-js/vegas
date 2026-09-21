@@ -3,6 +3,7 @@ import path from "node:path";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
 import { createProject, type CreateProjectStep } from "./create-project";
+import type { PackageManager } from "./package-manager";
 import { runCommand } from "./run-command";
 import { scaffoldProject } from "./scaffold/project";
 
@@ -61,74 +62,82 @@ describe("createProject", () => {
     ]);
   });
 
-  test("run setup commands in order", async () => {
-    runCommandMock.mockResolvedValue(undefined);
+  test.each([
+    ["npm", ["run", "login", "--", "/oauth/client.json"]],
+    ["pnpm", ["run", "login", "/oauth/client.json"]],
+    ["yarn", ["run", "login", "/oauth/client.json"]],
+    ["bun", ["run", "login", "/oauth/client.json"]],
+  ] satisfies readonly [PackageManager, readonly string[]][])(
+    "run setup commands with %s",
+    async (packageManager, loginArgs) => {
+      runCommandMock.mockResolvedValue(undefined);
 
-    const steps: CreateProjectStep[] = [];
+      const steps: CreateProjectStep[] = [];
 
-    const target = await createProject({
-      cwd: "/workspace",
-      projectName: "my-app",
-      packageName: "my-app",
-      packageManager: "pnpm",
-      templateDirectory: "/templates/vanilla",
-      operation: "keep",
-      installDependencies: true,
-      oauthClientFile: "/oauth/client.json",
-      startDevServer: true,
-      onStep: (step) => steps.push(step),
-    });
+      const target = await createProject({
+        cwd: "/workspace",
+        projectName: "my-app",
+        packageName: "my-app",
+        packageManager,
+        templateDirectory: "/templates/vanilla",
+        operation: "keep",
+        installDependencies: true,
+        oauthClientFile: "/oauth/client.json",
+        startDevServer: true,
+        onStep: (step) => steps.push(step),
+      });
 
-    expect(scaffoldProjectMock).toHaveBeenCalledWith({
-      templateDirectory: "/templates/vanilla",
-      targetDirectory: target.directory,
-      packageName: "my-app",
-      operation: "keep",
-      scriptId: undefined,
-    });
+      expect(scaffoldProjectMock).toHaveBeenCalledWith({
+        templateDirectory: "/templates/vanilla",
+        targetDirectory: target.directory,
+        packageName: "my-app",
+        operation: "keep",
+        scriptId: undefined,
+      });
 
-    expect(runCommandMock.mock.calls).toStrictEqual([
-      [
-        "pnpm",
-        ["install"],
+      expect(runCommandMock.mock.calls).toStrictEqual([
+        [
+          packageManager,
+          ["install"],
+          {
+            cwd: target.directory,
+            stdio: "inherit",
+          },
+        ],
+        [
+          packageManager,
+          loginArgs,
+          {
+            cwd: target.directory,
+            stdio: "inherit",
+          },
+        ],
+        [
+          packageManager,
+          ["run", "dev"],
+          {
+            cwd: target.directory,
+            stdio: "inherit",
+          },
+        ],
+      ]);
+
+      expect(steps).toStrictEqual([
         {
-          cwd: target.directory,
-          stdio: "inherit",
+          kind: "scaffold",
+          directory: target.directory,
         },
-      ],
-      [
-        "pnpm",
-        ["run", "login", "/oauth/client.json"],
         {
-          cwd: target.directory,
-          stdio: "inherit",
+          kind: "install-dependencies",
+          packageManager,
         },
-      ],
-      [
-        "pnpm",
-        ["run", "dev"],
         {
-          cwd: target.directory,
-          stdio: "inherit",
+          kind: "login-apps-script",
         },
-      ],
-    ]);
-
-    expect(steps).toStrictEqual([
-      {
-        kind: "scaffold",
-        directory: target.directory,
-      },
-      {
-        kind: "install-dependencies",
-        packageManager: "pnpm",
-      },
-      {
-        kind: "login-apps-script",
-      },
-      {
-        kind: "start-dev-server",
-      },
-    ]);
-  });
+        {
+          kind: "start-dev-server",
+        },
+      ]);
+    },
+  );
 });

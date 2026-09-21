@@ -1,6 +1,7 @@
 import * as prompts from "@clack/prompts";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
+import type { PackageManager } from "../package-manager";
 import { templates } from "../templates";
 import {
   createTemplatePromptOptions,
@@ -56,10 +57,6 @@ describe("CLI presentation", () => {
       { kind: "scaffold", directory: "/workspace/my-app" } as const,
       "Scaffolding project in /workspace/my-app...",
     ],
-    [
-      { kind: "install-dependencies", packageManager: "pnpm" } as const,
-      "Installing dependencies with pnpm...",
-    ],
     [{ kind: "login-apps-script" } as const, "Signing in to Google for Apps Script..."],
     [{ kind: "start-dev-server" } as const, "Starting dev server..."],
   ])("show project step: %j", (step, message) => {
@@ -68,26 +65,46 @@ describe("CLI presentation", () => {
     expect(stepMock).toHaveBeenCalledWith(message);
   });
 
-  test("show manual setup instructions when dependencies are not installed", () => {
-    showCreateProjectResult({
-      cwd: "/workspace",
-      directory: "/workspace/my-app",
-      packageManager: "pnpm",
-      scriptId: "script-id",
-      installDependencies: false,
-      startDevServer: false,
-    });
+  test.each(["npm", "pnpm", "yarn", "bun"] satisfies readonly PackageManager[])(
+    "show install step for %s",
+    (packageManager) => {
+      showCreateProjectStep({
+        kind: "install-dependencies",
+        packageManager,
+      });
 
-    expect(outroMock).toHaveBeenCalledWith(
-      [
-        "Done. Now run:\n",
-        "  cd my-app",
-        "  pnpm install",
-        "  pnpm run login <oauth-client-json>",
-        "  pnpm run dev",
-      ].join("\n"),
-    );
-  });
+      expect(stepMock).toHaveBeenCalledWith(`Installing dependencies with ${packageManager}...`);
+    },
+  );
+
+  test.each([
+    ["npm", "npm run login -- <oauth-client-json>"],
+    ["pnpm", "pnpm run login <oauth-client-json>"],
+    ["yarn", "yarn run login <oauth-client-json>"],
+    ["bun", "bun run login <oauth-client-json>"],
+  ] satisfies readonly [PackageManager, string][])(
+    "show manual setup instructions for %s",
+    (packageManager, loginCommand) => {
+      showCreateProjectResult({
+        cwd: "/workspace",
+        directory: "/workspace/my-app",
+        packageManager,
+        scriptId: "script-id",
+        installDependencies: false,
+        startDevServer: false,
+      });
+
+      expect(outroMock).toHaveBeenCalledWith(
+        [
+          "Done. Now run:\n",
+          "  cd my-app",
+          `  ${packageManager} install`,
+          `  ${loginCommand}`,
+          `  ${packageManager} run dev`,
+        ].join("\n"),
+      );
+    },
+  );
 
   test("show completion after installed setup", () => {
     showCreateProjectResult({
