@@ -297,6 +297,62 @@ describe("InMemorySpreadsheetStore resources", () => {
     ).resolves.toStrictEqual([["Updated"]]);
   });
 
+  test("clone all mutable Spreadsheet state without sharing mutations", async () => {
+    const store = createStore();
+    const singleCellRange = {
+      ...RANGE,
+      numRows: 1,
+      numColumns: 1,
+    };
+
+    await store.renameSpreadsheet(SPREADSHEET, "Forecast");
+    await store.renameSheet(SUMMARY, "Overview");
+    await store.setSheetFrozenColumns(SUMMARY, 2);
+    await store.setSheetFrozenRows(SUMMARY, 3);
+    await store.setSheetHiddenGridlines(SUMMARY, true);
+    await store.setSheetRightToLeft(SUMMARY, true);
+    await store.setSheetTabColor(SUMMARY, "#ff0000");
+    await store.setSheetColumnsHidden(SUMMARY, 2, 1, true);
+    await store.setSheetRowsHidden(SUMMARY, 2, 1, true);
+    await store.setRangeValues(singleCellRange, [["before clone"]]);
+    await store.setRangeNotes(singleCellRange, [["before clone"]]);
+
+    const runtimeCreated = await store.createSpreadsheet("Runtime created", 3, 4);
+    const clone = store.clone();
+
+    await expect(clone.getSpreadsheetMetadata(SPREADSHEET)).resolves.toStrictEqual({
+      name: "Forecast",
+    });
+    await expect(clone.getSheetMetadata(SUMMARY)).resolves.toMatchObject({
+      name: "Overview",
+      frozenColumns: 2,
+      frozenRows: 3,
+      hiddenGridlines: true,
+      rightToLeft: true,
+      tabColor: "#ff0000",
+    });
+    await expect(clone.isSheetColumnHiddenByUser(SUMMARY, 2)).resolves.toBe(true);
+    await expect(clone.isSheetRowHiddenByUser(SUMMARY, 2)).resolves.toBe(true);
+    await expect(clone.getRangeValues(singleCellRange)).resolves.toStrictEqual([["before clone"]]);
+    await expect(clone.getRangeNotes(singleCellRange)).resolves.toStrictEqual([["before clone"]]);
+    await expect(clone.getSpreadsheet(runtimeCreated.id)).resolves.toStrictEqual(runtimeCreated);
+
+    await store.setRangeValues(singleCellRange, [["original update"]]);
+    await clone.setRangeValues(singleCellRange, [["clone update"]]);
+
+    await expect(store.getRangeValues(singleCellRange)).resolves.toStrictEqual([
+      ["original update"],
+    ]);
+    await expect(clone.getRangeValues(singleCellRange)).resolves.toStrictEqual([["clone update"]]);
+
+    await expect(clone.createSpreadsheet("Clone next", 1, 1)).resolves.toMatchObject({
+      id: "spreadsheet:2",
+    });
+    await expect(store.createSpreadsheet("Original next", 1, 1)).resolves.toMatchObject({
+      id: "spreadsheet:2",
+    });
+  });
+
   test("resolve explicit local URLs and Google Sheets URLs", async () => {
     const store = createStore();
 

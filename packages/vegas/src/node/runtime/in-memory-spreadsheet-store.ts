@@ -182,6 +182,37 @@ export class InMemorySpreadsheetStore implements SpreadsheetStore {
     }
   }
 
+  clone(): InMemorySpreadsheetStore {
+    const clone = new InMemorySpreadsheetStore();
+
+    for (const [id, state] of this.#spreadsheets) {
+      clone.#spreadsheets.set(id, {
+        reference: cloneSpreadsheetReference(state.reference),
+        metadata: { ...state.metadata },
+        sheets: new Map(
+          [...state.sheets].map(([sheetId, sheet]) => [
+            sheetId,
+            {
+              reference: cloneSheetReference(sheet.reference),
+              metadata: { ...sheet.metadata },
+              hiddenColumns: new Set(sheet.hiddenColumns),
+              hiddenRows: new Set(sheet.hiddenRows),
+              grid: sheet.grid.clone(),
+            },
+          ]),
+        ),
+      });
+    }
+
+    for (const [url, id] of this.#spreadsheetIdsByUrl) {
+      clone.#spreadsheetIdsByUrl.set(url, id);
+    }
+
+    clone.#nextSpreadsheetId = this.#nextSpreadsheetId;
+
+    return clone;
+  }
+
   async createSpreadsheet(
     name: string,
     rows: number,

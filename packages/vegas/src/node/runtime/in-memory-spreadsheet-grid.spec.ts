@@ -125,6 +125,31 @@ describe("InMemorySpreadsheetGrid", () => {
     expect(() => grid.setNotes(RANGE, [["too short"]])).toThrow("note dimensions must match");
   });
 
+  test("clone values and notes without sharing mutable state", () => {
+    const grid = createGrid();
+    const singleCellRange = {
+      ...RANGE,
+      numRows: 1,
+      numColumns: 1,
+    };
+
+    grid.setNotes(singleCellRange, [["original note"]]);
+
+    const clone = grid.clone();
+
+    grid.setValues(singleCellRange, [["original update"]]);
+    grid.setNotes(singleCellRange, [["original update"]]);
+
+    expect(clone.getValues(singleCellRange)).toStrictEqual([["Name"]]);
+    expect(clone.getNotes(singleCellRange)).toStrictEqual([["original note"]]);
+
+    clone.setValues(singleCellRange, [["clone update"]]);
+    clone.setNotes(singleCellRange, [["clone update"]]);
+
+    expect(grid.getValues(singleCellRange)).toStrictEqual([["original update"]]);
+    expect(grid.getNotes(singleCellRange)).toStrictEqual([["original update"]]);
+  });
+
   test("reject mismatched value dimensions before changing any cells", () => {
     const grid = createGrid();
 

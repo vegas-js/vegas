@@ -49,6 +49,20 @@ export class InMemorySpreadsheetGrid {
     });
   }
 
+  clone(): InMemorySpreadsheetGrid {
+    const clone = new InMemorySpreadsheetGrid(this.#maxRows, this.#maxColumns);
+
+    for (const [key, value] of this.#cells) {
+      clone.#cells.set(key, cloneCellValue(value));
+    }
+
+    for (const [key, note] of this.#notes) {
+      clone.#notes.set(key, note);
+    }
+
+    return clone;
+  }
+
   clearNotes(): void {
     this.#notes.clear();
   }
