@@ -17,6 +17,7 @@ function createProject(tempDirPath: string, appType: "spa" | "script" = "spa"): 
     outputDir: path.join(tempDirPath, "dist"),
     appType,
     plugins: [],
+    devServer: { open: false },
 
     appsScript: {
       manifest: {

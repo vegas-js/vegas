@@ -10,10 +10,12 @@ const CONFIG_KEYS = [
   "runtimeDataDir",
   "plugins",
   "appType",
+  "devServer",
   "output",
   "appsScript",
 ] as const;
 
+const DEV_SERVER_KEYS = ["host", "port", "open"] as const;
 const OUTPUT_KEYS = ["dir", "allowOutsideRoot"] as const;
 const APPS_SCRIPT_KEYS = ["scriptId", "manifest"] as const;
 const MANIFEST_KEYS = [
@@ -107,6 +109,21 @@ function assertOptionalBoolean(value: unknown, path: string): void {
   }
 }
 
+function assertOptionalStringOrBoolean(value: unknown, path: string): void {
+  if (value !== undefined && typeof value !== "string" && typeof value !== "boolean") {
+    throw new ConfigValidationError(`"${path}" must be a string or boolean.`);
+  }
+}
+
+function assertOptionalPort(value: unknown, path: string): void {
+  if (
+    value !== undefined &&
+    (typeof value !== "number" || !Number.isInteger(value) || value < 0 || value > 65535)
+  ) {
+    throw new ConfigValidationError(`"${path}" must be an integer between 0 and 65535.`);
+  }
+}
+
 function assertOptionalStringArray(value: unknown, path: string): void {
   if (value === undefined) {
     return;
@@ -170,6 +187,14 @@ function validateOptionalRecordArray(
     assertRecord(item, itemPath);
     assertNoUnknownKeys(item, allowedKeys, itemPath);
     validateFields(item, itemPath);
+  });
+}
+
+function validateDevServer(value: unknown): void {
+  validateOptionalRecord(value, "devServer", DEV_SERVER_KEYS, (devServer, path) => {
+    assertOptionalStringOrBoolean(devServer.host, `${path}.host`);
+    assertOptionalPort(devServer.port, `${path}.port`);
+    assertOptionalBoolean(devServer.open, `${path}.open`);
   });
 }
 
@@ -254,6 +279,7 @@ export function validateUserConfig(value: unknown): UserConfig {
   }
 
   assertOptionalEnum(value.appType, APP_TYPES, "appType");
+  validateDevServer(value.devServer);
   validateOutput(value.output);
   validateAppsScript(value.appsScript);
 

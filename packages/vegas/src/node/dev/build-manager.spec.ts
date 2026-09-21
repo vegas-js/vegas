@@ -20,6 +20,7 @@ function createProject(): ResolvedProject {
     outputDir: path.join(root, "dist"),
     appType: "spa",
     plugins: [],
+    devServer: { open: false },
     appsScript: {
       manifest: {
         exceptionLogging: "STACKDRIVER",

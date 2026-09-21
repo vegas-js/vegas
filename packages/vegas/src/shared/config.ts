@@ -32,6 +32,25 @@ export type BaseConfig = {
   appType?: "spa" | "script";
 };
 
+export type DevServerConfig = {
+  /**
+   * Host name or IP address used by the local development and preview servers.
+   * Set to true to listen on all addresses.
+   * @default 'localhost'
+   */
+  host?: string | boolean;
+  /**
+   * Preferred local server port. If the port is already in use, Vegas may use the next available port.
+   * @default 5173
+   */
+  port?: number;
+  /**
+   * Open the local web app in the browser when the server starts.
+   * @default false
+   */
+  open?: boolean;
+};
+
 export type OutputConfig = {
   /**
    * Production build output directory.
@@ -92,6 +111,11 @@ export type AppsScriptManifest = {
 };
 
 export type UserConfig = BaseConfig & {
+  /**
+   * Local server configuration used by `serve` and `preview`.
+   */
+  devServer?: DevServerConfig;
+
   output?: OutputConfig;
 
   /**

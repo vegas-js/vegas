@@ -16,6 +16,11 @@ const project = {
   outputDir: path.resolve("project", "dist"),
   appType: "spa",
   plugins: [],
+  devServer: {
+    host: "0.0.0.0",
+    port: 61000,
+    open: true,
+  },
   appsScript: {
     manifest: {
       exceptionLogging: "STACKDRIVER",
@@ -107,8 +112,18 @@ describe("startDevApplication", () => {
       },
     );
 
+    const hostConfig = createViteServer.mock.calls[0]?.[0];
+    expect(hostConfig?.server).toMatchObject({
+      host: "0.0.0.0",
+      port: 61000,
+      open: true,
+    });
+
     const userContentConfig = createViteServer.mock.calls[1]?.[0];
-    expect(userContentConfig?.server?.port).toBe(62001);
+    expect(userContentConfig?.server).toMatchObject({
+      host: "0.0.0.0",
+      port: 62001,
+    });
 
     const hostHandler = host.server.middlewares.stack[0]?.handle as Connect.NextHandleFunction;
     const hostBody: unknown[] = [];

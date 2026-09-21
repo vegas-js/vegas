@@ -5,6 +5,9 @@ import { createLogger, type InlineConfig } from "vite";
 interface HostServerConfigOptions {
   readonly root: string;
   readonly mode: "development" | "production";
+  readonly host?: string | boolean;
+  readonly port?: number;
+  readonly open: boolean;
 }
 
 export function createHostServerConfig(options: HostServerConfigOptions): InlineConfig {
@@ -23,7 +26,9 @@ export function createHostServerConfig(options: HostServerConfigOptions): Inline
       },
     ],
     server: {
-      open: false,
+      host: options.host,
+      port: options.port,
+      open: options.open,
     },
   };
 }

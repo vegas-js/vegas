@@ -5,6 +5,7 @@ import { createLogger, type InlineConfig } from "vite";
 interface UserContentServerConfigOptions {
   readonly root: string;
   readonly mode: "development" | "production";
+  readonly host?: string | boolean;
   readonly port: number;
   readonly bridgeFilePath: string;
 }
@@ -35,7 +36,7 @@ export function createUserContentServerConfig(
         },
       },
     ],
-    server: { port: options.port },
+    server: { host: options.host, port: options.port },
     customLogger: createLogger("info", { prefix: "[vegas]" }),
     cacheDir: path.join(options.root, "node_modules", ".vegas-content"),
   };

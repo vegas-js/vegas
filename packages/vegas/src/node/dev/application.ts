@@ -60,6 +60,9 @@ export async function startDevApplication(
       createHostServerConfig({
         root: options.project.root,
         mode: options.mode,
+        host: options.project.devServer.host,
+        port: options.project.devServer.port,
+        open: options.project.devServer.open,
       }),
     );
     servers.push(hostServer);
@@ -86,6 +89,7 @@ export async function startDevApplication(
       createUserContentServerConfig({
         root: options.project.root,
         mode: options.mode,
+        host: options.project.devServer.host,
         port: hostPort + 1,
         bridgeFilePath: path.join(import.meta.dirname, "webapp-bridge.js"),
       }),

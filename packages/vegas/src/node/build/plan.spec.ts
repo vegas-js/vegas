@@ -18,6 +18,7 @@ const project: ResolvedProject = {
   outputDir: path.join(projectRoot, "dist"),
   appType: "spa",
   plugins: [],
+  devServer: { open: false },
 
   appsScript: {
     manifest: {

@@ -37,6 +37,11 @@ describe("resolveProject", () => {
       outputDir: path.join(cwd, "dist"),
       appType: "spa",
       plugins: [],
+      devServer: {
+        host: undefined,
+        port: undefined,
+        open: false,
+      },
 
       appsScript: {
         scriptId: undefined,
@@ -241,6 +246,22 @@ describe("resolveProject", () => {
       const project = resolve({ plugins: [plugin] });
 
       expect(project.plugins).toEqual([plugin]);
+    });
+
+    test("resolve dev server options", () => {
+      const project = resolve({
+        devServer: {
+          host: true,
+          port: 4173,
+          open: true,
+        },
+      });
+
+      expect(project.devServer).toStrictEqual({
+        host: true,
+        port: 4173,
+        open: true,
+      });
     });
   });
 

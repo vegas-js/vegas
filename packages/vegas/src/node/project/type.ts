@@ -11,6 +11,11 @@ export interface ResolvedProject {
   readonly outputDir: string;
   readonly appType: "spa" | "script";
   readonly plugins: readonly PluginOption[];
+  readonly devServer: {
+    readonly host?: string | boolean;
+    readonly port?: number;
+    readonly open: boolean;
+  };
 
   readonly appsScript: {
     readonly scriptId?: string;

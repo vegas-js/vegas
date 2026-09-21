@@ -12,6 +12,7 @@ describe("createUserContentServerConfig", () => {
     const config = createUserContentServerConfig({
       root,
       mode: "development",
+      host: true,
       port: 5174,
       bridgeFilePath: path.join(root, "dist", "webapp-bridge.js"),
     });
@@ -19,7 +20,10 @@ describe("createUserContentServerConfig", () => {
     expect(config.root).toBe(root);
     expect(config.mode).toBe("development");
     expect(config.configFile).toBe(false);
-    expect(config.server?.port).toBe(5174);
+    expect(config.server).toMatchObject({
+      host: true,
+      port: 5174,
+    });
     expect(config.cacheDir).toBe(path.join(root, "node_modules", ".vegas-content"));
     expect(config.plugins).toHaveLength(1);
   });

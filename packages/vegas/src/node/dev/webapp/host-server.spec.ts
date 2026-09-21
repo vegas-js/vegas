@@ -12,12 +12,19 @@ describe("createHostServerConfig", () => {
     const config = createHostServerConfig({
       root,
       mode: "development",
+      host: true,
+      port: 4173,
+      open: true,
     });
 
     expect(config.root).toBe(root);
     expect(config.mode).toBe("development");
     expect(config.configFile).toBe(false);
-    expect(config.server?.open).toBe(false);
+    expect(config.server).toMatchObject({
+      host: true,
+      port: 4173,
+      open: true,
+    });
     expect(config.cacheDir).toBe(path.join(root, "node_modules", ".vegas-host"));
     expect(config.plugins).toHaveLength(1);
   });

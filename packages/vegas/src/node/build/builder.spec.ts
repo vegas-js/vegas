@@ -23,6 +23,7 @@ describe("createProjectBuilder", () => {
         outputDir: path.join(root, "dist"),
         appType: "script",
         plugins: [],
+        devServer: { open: false },
         appsScript: {
           manifest: {
             exceptionLogging: "STACKDRIVER",

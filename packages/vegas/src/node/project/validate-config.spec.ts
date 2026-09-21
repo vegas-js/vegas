@@ -17,6 +17,11 @@ describe("validateUserConfig", () => {
       runtimeDataDir: "runtime",
       plugins: [{ name: "plugin" }],
       appType: "spa",
+      devServer: {
+        host: true,
+        port: 4173,
+        open: true,
+      },
       output: {
         dir: "dist",
         allowOutsideRoot: true,
@@ -218,6 +223,46 @@ describe("validateUserConfig", () => {
         gasMockDir: "mock",
       }),
     ).toThrow('Invalid Vegas config: unknown option "gasMockDir".');
+  });
+
+  test("reject invalid dev server host", () => {
+    expect(() =>
+      validateUserConfig({
+        devServer: {
+          host: 123,
+        },
+      }),
+    ).toThrow('Invalid Vegas config: "devServer.host" must be a string or boolean.');
+  });
+
+  test.each([-1, 1.5, 65536, "5173"])("reject invalid dev server port: %j", (port) => {
+    expect(() =>
+      validateUserConfig({
+        devServer: {
+          port,
+        },
+      }),
+    ).toThrow('Invalid Vegas config: "devServer.port" must be an integer between 0 and 65535.');
+  });
+
+  test("reject invalid dev server open", () => {
+    expect(() =>
+      validateUserConfig({
+        devServer: {
+          open: "yes",
+        },
+      }),
+    ).toThrow('Invalid Vegas config: "devServer.open" must be a boolean.');
+  });
+
+  test("reject unknown dev server option", () => {
+    expect(() =>
+      validateUserConfig({
+        devServer: {
+          strictPort: true,
+        },
+      }),
+    ).toThrow('Invalid Vegas config: unknown option "devServer.strictPort".');
   });
 
   test("reject invalid output allow outside root", () => {

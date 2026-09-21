@@ -20,6 +20,7 @@ const project = {
   outputDir: "/project/dist",
   appType: "spa",
   plugins: [],
+  devServer: { open: false },
   appsScript: {
     manifest: {
       timeZone: "Asia/Tokyo",

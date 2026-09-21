@@ -82,6 +82,11 @@ export function resolveProject(
     outputDir,
     configFile: options.configFile,
     plugins: config.plugins ?? [],
+    devServer: {
+      host: config.devServer?.host,
+      port: config.devServer?.port,
+      open: config.devServer?.open ?? false,
+    },
 
     appsScript: {
       scriptId: config.appsScript?.scriptId,

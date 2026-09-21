@@ -25,6 +25,7 @@ const project: ResolvedProject = {
   outputDir: "/project/dist",
   appType: "spa",
   plugins: [],
+  devServer: { open: false },
   appsScript: {
     scriptId: "script-id",
     manifest: {},

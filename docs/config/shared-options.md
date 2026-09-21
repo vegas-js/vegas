@@ -49,6 +49,51 @@ Defines the application type.
 
 Use `"spa"` for applications with client entry points and `"script"` for Apps Script projects that do not require a client application.
 
+## devServer
+
+- **Type:** `object`
+
+Local server configuration used by `vegas serve` and `vegas preview`. It does not affect production build output.
+
+### devServer.host
+
+- **Type:** `string | boolean`
+- **Default:** `"localhost"`
+
+Host name or IP address used by both Vegas local servers. Set this to `true` or `"0.0.0.0"` to listen on all addresses.
+
+Exposing a local development server beyond localhost can make the local Apps Script runtime reachable from other devices, so only do this on a network you trust.
+
+### devServer.port
+
+- **Type:** `number`
+- **Default:** `5173`
+
+Preferred port for the main Vegas local server.
+
+If the port is already in use, Vite can select the next available port. Vegas uses the port that the main server actually acquired when starting its paired user-content server.
+
+A value of `0` allows the operating system to choose an available port.
+
+### devServer.open
+
+- **Type:** `boolean`
+- **Default:** `false`
+
+Whether to open the local web app in the browser when the main server starts.
+
+For example:
+
+```typescript
+export default defineConfig({
+  devServer: {
+    host: true,
+    port: 4173,
+    open: true,
+  },
+});
+```
+
 ## output
 
 - **Type:** `object`

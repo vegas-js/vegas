@@ -22,6 +22,7 @@ function createProject(
     outputDir: path.join(root, "dist"),
     appType,
     plugins: [],
+    devServer: { open: false },
 
     appsScript: {
       manifest: {
