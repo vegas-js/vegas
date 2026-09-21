@@ -25,6 +25,17 @@ const templateCases = [
   ["template-solid", "src/client/main.tsx", "solid-js/web", "tsc -b && vegas build"],
 ] as const;
 
+const templateEditCases = [
+  ["template-vanilla", "src/client/main.ts", "src/client/main.ts"],
+  ["template-apps-script-scriptlet", "src/client/index.html", "src/client/index.html"],
+  ["template-lit", "src/client/main.ts", "src/client/main.ts"],
+  ["template-react", "src/client/App.tsx", "src/client/App.tsx"],
+  ["template-preact", "src/client/app.tsx", "src/client/app.tsx"],
+  ["template-vue", "src/client/components/HelloWorld.vue", "src/client/components/HelloWorld.vue"],
+  ["template-svelte", "src/client/App.svelte", "src/client/App.svelte"],
+  ["template-solid", "src/client/App.tsx", "src/client/App.tsx"],
+] as const;
+
 const tempDirs: string[] = [];
 
 function createTempDir(): string {
@@ -51,6 +62,18 @@ describe("create-vegas templates", () => {
 
     expect(smokeTemplates).toStrictEqual(registeredTemplates);
   });
+
+  test.each(templateEditCases)(
+    "shows the correct edit path for %s",
+    (templateName, sourcePath, displayedPath) => {
+      const source = fs.readFileSync(
+        path.join(CREATE_VEGAS_ROOT, templateName, sourcePath),
+        "utf8",
+      );
+
+      expect(source).toContain(`<code>${displayedPath}</code>`);
+    },
+  );
 
   test("Apps Script scriptlet template evaluates physical HTML", () => {
     const templateDirectory = path.join(CREATE_VEGAS_ROOT, "template-apps-script-scriptlet");
@@ -90,14 +113,26 @@ describe("create-vegas templates", () => {
         fs.readFileSync(path.join(targetDirectory, "package.json"), "utf8"),
       ) as {
         name?: string;
+        private?: boolean;
+        type?: string;
         scripts?: {
+          dev?: string;
           build?: string;
+          preview?: string;
           check?: string;
+          login?: string;
+          push?: string;
         };
       };
 
       expect(packageJson.name).toBe("smoke-project");
+      expect(packageJson.private).toBe(true);
+      expect(packageJson.type).toBe("module");
+      expect(packageJson.scripts?.dev).toBe("vegas");
       expect(packageJson.scripts?.build).toBe(buildScript);
+      expect(packageJson.scripts?.preview).toBe("vegas preview");
+      expect(packageJson.scripts?.login).toBe("vegas auth login");
+      expect(packageJson.scripts?.push).toBe("vegas push");
       if (templateName === "template-svelte") {
         expect(packageJson.scripts?.check).toBe(
           "svelte-check --tsconfig ./tsconfig.client.json && tsc -p tsconfig.server.json && tsc -p tsconfig.node.json",

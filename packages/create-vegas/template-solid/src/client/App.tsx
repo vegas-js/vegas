@@ -19,7 +19,7 @@ function App() {
         <div>
           <h1>Get started</h1>
           <p>
-            Edit <code>src/App.tsx</code> and save to test fast <code>FBR</code>
+            Edit <code>src/client/App.tsx</code> and save to test fast <code>FBR</code>
           </p>
         </div>
         <button class="counter" onClick={() => setCount((count) => count + 1)}>

@@ -7,7 +7,7 @@ export function doGet() {
 
   htmlOutput.setFaviconUrl("https://vegasjs.dev/favicon.ico")
   htmlOutput.addMetaTag("viewport", "width=device-width, initial-scale=1.0")
-  htmlOutput.setTitle("Vegas + Apps Script Scriptlets")
+  htmlOutput.setTitle("Vegas + Apps Script Scriptlets + TS")
 
   return htmlOutput
 }

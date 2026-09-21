@@ -17,7 +17,7 @@ const count = ref(0)
     </div>
     <div>
       <h1>Get started</h1>
-      <p>Edit <code>src/App.vue</code> and save to test fast <code>FBR</code></p>
+      <p>Edit <code>src/client/components/HelloWorld.vue</code> and save to test fast <code>FBR</code></p>
     </div>
     <button class="counter" @click="count++">Count is {{ count }}</button>
   </section>

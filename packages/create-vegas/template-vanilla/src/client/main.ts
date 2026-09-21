@@ -14,7 +14,7 @@ document.querySelector<HTMLDivElement>('#root')!.innerHTML = `
   </div>
   <div>
     <h1>Get started</h1>
-    <p>Edit <code>src/main.ts</code> and save to test fast <code>FBR</code></p>
+    <p>Edit <code>src/client/main.ts</code> and save to test fast <code>FBR</code></p>
   </div>
   <button id="counter" type="button" class="counter"></button>
 </section>

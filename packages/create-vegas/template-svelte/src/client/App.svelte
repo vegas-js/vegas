@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import svelteLogo from './assets/svelte.svg'
   import vegasLogo from './assets/vegas.webp'
   import heroImg from './assets/hero.png'
@@ -14,7 +14,7 @@
   </div>
   <div>
     <h1>Get started</h1>
-    <p>Edit <code>src/App.svelte</code> and save to test fast <code>FBR</code></p>
+    <p>Edit <code>src/client/App.svelte</code> and save to test fast <code>FBR</code></p>
   </div>
   <Counter />
 </section>
