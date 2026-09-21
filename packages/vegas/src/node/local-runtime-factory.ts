@@ -1,5 +1,5 @@
 import type { RuntimeDataSnapshot } from "../shared/gas";
-import type { ResolvedProject } from "./project";
+import type { LocalRuntimeProject } from "./local-runtime-project";
 import {
   InMemoryPropertiesStore,
   InMemorySpreadsheetStore,
@@ -25,7 +25,7 @@ interface LocalRuntimeDependencies {
 }
 
 export async function createLocalRuntime(
-  project: ResolvedProject,
+  project: LocalRuntimeProject,
   snapshot: RuntimeDataSnapshot,
   getProgram: () => Program,
   options: LocalRuntimeOptions = {},

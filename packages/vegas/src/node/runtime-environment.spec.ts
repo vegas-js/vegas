@@ -1,24 +1,16 @@
 import { describe, expect, test } from "vitest";
 
-import type { ResolvedProject } from "./project";
+import type { LocalRuntimeProject } from "./local-runtime-project";
 import { createInvocationEnvironment } from "./runtime-environment";
 
 const project = {
   root: "/project",
-  configFile: null,
-  clientDir: "/project/src/client",
-  serverDir: "/project/src/server",
-  runtimeDataDir: "/project/runtime",
-  outputDir: "/project/dist",
-  appType: "spa",
-  plugins: [],
-  devServer: { open: false },
   appsScript: {
     manifest: {
       timeZone: "Asia/Tokyo",
     },
   },
-} satisfies ResolvedProject;
+} satisfies LocalRuntimeProject;
 
 // https://developers.google.com/apps-script/reference/base/session
 describe("createInvocationEnvironment", () => {

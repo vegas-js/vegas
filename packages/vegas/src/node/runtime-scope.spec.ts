@@ -1,22 +1,14 @@
 import { describe, expect, test } from "vitest";
 
-import type { ResolvedProject } from "./project";
+import type { LocalRuntimeProject } from "./local-runtime-project";
 import { createInvocationScope } from "./runtime-scope";
 
 const project = {
   root: "/project",
-  configFile: null,
-  clientDir: "/project/src/client",
-  serverDir: "/project/src/server",
-  runtimeDataDir: "/project/runtime",
-  outputDir: "/project/dist",
-  appType: "spa",
-  plugins: [],
-  devServer: { open: false },
   appsScript: {
     manifest: {},
   },
-} satisfies ResolvedProject;
+} satisfies LocalRuntimeProject;
 
 describe("createInvocationScope", () => {
   test("create local invocation scope", () => {

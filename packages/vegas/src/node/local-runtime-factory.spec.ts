@@ -2,7 +2,7 @@ import { describe, expect, expectTypeOf, test, vi } from "vitest";
 
 import type { RuntimeDataSnapshot } from "../shared/gas";
 import { createLocalRuntime } from "./local-runtime-factory";
-import type { ResolvedProject } from "./project";
+import type { LocalRuntimeProject } from "./local-runtime-project";
 import {
   InMemoryPropertiesStore,
   InMemorySpreadsheetStore,
@@ -17,20 +17,12 @@ import {
 
 const project = {
   root: "/project",
-  configFile: null,
-  clientDir: "/project/src/client",
-  serverDir: "/project/src/server",
-  runtimeDataDir: "/project/runtime",
-  outputDir: "/project/dist",
-  appType: "spa",
-  plugins: [],
-  devServer: { open: false },
   appsScript: {
     manifest: {
       timeZone: "Asia/Tokyo",
     },
   },
-} satisfies ResolvedProject;
+} satisfies LocalRuntimeProject;
 
 describe("createLocalRuntime", () => {
   test("bind the current local Program and invocation context behind the Runtime backend", async () => {

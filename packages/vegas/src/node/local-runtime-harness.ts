@@ -1,6 +1,6 @@
 import type { RuntimeDataSnapshot } from "../shared/gas";
 import { createLocalRuntime } from "./local-runtime-factory";
-import type { ResolvedProject } from "./project";
+import type { LocalRuntimeProject } from "./local-runtime-project";
 import {
   InMemoryPropertiesStore,
   InMemorySpreadsheetStore,
@@ -19,7 +19,7 @@ export interface LocalRuntimeHarness {
 }
 
 export interface LocalRuntimeHarnessOptions {
-  readonly project: ResolvedProject;
+  readonly project: LocalRuntimeProject;
   readonly snapshot: RuntimeDataSnapshot;
   readonly program: Program;
 }

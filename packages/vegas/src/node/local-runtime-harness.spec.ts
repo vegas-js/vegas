@@ -2,25 +2,17 @@ import { describe, expect, test } from "vitest";
 
 import type { RuntimeDataSnapshot } from "../shared/gas";
 import { createLocalRuntimeHarness } from "./local-runtime-harness";
-import type { ResolvedProject } from "./project";
+import type { LocalRuntimeProject } from "./local-runtime-project";
 import type { Program } from "./runtime";
 
 const project = {
   root: "/project",
-  configFile: null,
-  clientDir: "/project/src/client",
-  serverDir: "/project/src/server",
-  runtimeDataDir: "/project/runtime",
-  outputDir: "/project/dist",
-  appType: "spa",
-  plugins: [],
-  devServer: { open: false },
   appsScript: {
     manifest: {
       timeZone: "Asia/Tokyo",
     },
   },
-} satisfies ResolvedProject;
+} satisfies LocalRuntimeProject;
 
 const snapshot = {
   properties: {
