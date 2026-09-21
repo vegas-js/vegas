@@ -116,6 +116,62 @@ describe("validateUserConfig", () => {
     ).toThrow('Invalid Vegas config: "appsScript.manifest.oauthScopes[1]" must be a string.');
   });
 
+  test("report invalid object array item path", () => {
+    expect(() =>
+      validateUserConfig({
+        appsScript: {
+          manifest: {
+            dependencies: {
+              enabledAdvancedServices: [
+                {
+                  serviceId: 1,
+                },
+              ],
+            },
+          },
+        },
+      }),
+    ).toThrow(
+      'Invalid Vegas config: "appsScript.manifest.dependencies.enabledAdvancedServices[0].serviceId" must be a string.',
+    );
+  });
+
+  test("reject unknown option in object array item", () => {
+    expect(() =>
+      validateUserConfig({
+        appsScript: {
+          manifest: {
+            dependencies: {
+              libraries: [
+                {
+                  libraryID: "library-id",
+                },
+              ],
+            },
+          },
+        },
+      }),
+    ).toThrow(
+      'Invalid Vegas config: unknown option "appsScript.manifest.dependencies.libraries[0].libraryID".',
+    );
+  });
+
+  test("reject non-array object collection", () => {
+    expect(() =>
+      validateUserConfig({
+        appsScript: {
+          manifest: {
+            dependencies: {
+              libraries: {},
+            },
+          },
+        },
+      }),
+    ).toThrow(
+      'Invalid Vegas config: "appsScript.manifest.dependencies.libraries" must be an array.',
+    );
+  });
+
   test.each(["clientDir", "serverDir", "runtimeDataDir"])(
     "reject empty source directory: %s",
     (option) => {
