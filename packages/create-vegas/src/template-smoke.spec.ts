@@ -10,14 +10,19 @@ import { templates } from "./templates";
 const CREATE_VEGAS_ROOT = path.resolve(import.meta.dirname, "..");
 
 const templateCases = [
-  ["template-vanilla", "src/client/main.ts", "setupCounter", "tsc -b && vegas build"],
+  ["template-vanilla", "src/client/index.html", 'id="counter"', "tsc -b && vegas build"],
   [
     "template-apps-script-scriptlet",
     "src/client/index.html",
     "<?= message ?>",
     "tsc -b && vegas build",
   ],
-  ["template-lit", "src/client/main.ts", "from 'lit'", "tsc -b && vegas build"],
+  [
+    "template-lit",
+    "src/client/index.html",
+    "<vegas-counter></vegas-counter>",
+    "tsc -b && vegas build",
+  ],
   ["template-react", "src/client/main.tsx", "react-dom/client", "tsc -b && vegas build"],
   ["template-preact", "src/client/main.tsx", "from 'preact'", "tsc -b && vegas build"],
   ["template-vue", "src/client/main.tsx", "from 'vue'", "vue-tsc -b && vegas build"],
@@ -26,9 +31,9 @@ const templateCases = [
 ] as const;
 
 const templateEditCases = [
-  ["template-vanilla", "src/client/main.ts", "src/client/main.ts"],
+  ["template-vanilla", "src/client/index.html", "src/client/index.html"],
   ["template-apps-script-scriptlet", "src/client/index.html", "src/client/index.html"],
-  ["template-lit", "src/client/main.ts", "src/client/main.ts"],
+  ["template-lit", "src/client/index.html", "src/client/index.html"],
   ["template-react", "src/client/App.tsx", "src/client/App.tsx"],
   ["template-preact", "src/client/App.tsx", "src/client/App.tsx"],
   ["template-vue", "src/client/components/HelloWorld.vue", "src/client/components/HelloWorld.vue"],
@@ -96,8 +101,8 @@ describe("create-vegas templates", () => {
 
   test("keeps raw HTML void elements in HTML syntax", () => {
     for (const [templateName, sourcePath] of [
-      ["template-vanilla", "src/client/main.ts"],
-      ["template-lit", "src/client/main.ts"],
+      ["template-vanilla", "src/client/index.html"],
+      ["template-lit", "src/client/index.html"],
       ["template-apps-script-scriptlet", "src/client/index.html"],
     ] as const) {
       const source = fs.readFileSync(
@@ -107,6 +112,28 @@ describe("create-vegas templates", () => {
 
       expect(source).not.toMatch(/<img\b[^>]*\/>/);
     }
+  });
+
+  test.each(["template-vanilla", "template-apps-script-scriptlet", "template-lit"])(
+    "%s uses a physical HTML entry",
+    (templateName) => {
+      const clientDirectory = path.join(CREATE_VEGAS_ROOT, templateName, "src", "client");
+      const html = fs.readFileSync(path.join(clientDirectory, "index.html"), "utf8");
+
+      expect(fs.existsSync(path.join(clientDirectory, "client.ts"))).toBe(true);
+      expect(fs.existsSync(path.join(clientDirectory, "main.ts"))).toBe(false);
+      expect(html).toContain('<script type="module" src="./client.ts"></script>');
+    },
+  );
+
+  test("Lit template keeps interactive behavior in a Lit component", () => {
+    const clientDirectory = path.join(CREATE_VEGAS_ROOT, "template-lit", "src", "client");
+    const html = fs.readFileSync(path.join(clientDirectory, "index.html"), "utf8");
+    const client = fs.readFileSync(path.join(clientDirectory, "client.ts"), "utf8");
+
+    expect(html).toContain("<vegas-counter></vegas-counter>");
+    expect(client).toContain("class VegasCounter extends LitElement");
+    expect(client).toContain("customElements.define('vegas-counter', VegasCounter)");
   });
 
   test("Apps Script scriptlet template evaluates physical HTML", () => {

@@ -10,9 +10,9 @@ const CREATE_VEGAS_ROOT = path.join(ROOT, "packages", "create-vegas");
 const VANILLA_TEMPLATE_ROOT = path.join(CREATE_VEGAS_ROOT, "template-vanilla");
 
 const CREATE_VEGAS_TEMPLATE_CASES = [
-  ["template-vanilla", "src/client/main.ts"],
+  ["template-vanilla", "src/client/index.html"],
   ["template-apps-script-scriptlet", "src/client/index.html"],
-  ["template-lit", "src/client/main.ts"],
+  ["template-lit", "src/client/index.html"],
   ["template-react", "src/client/main.tsx"],
   ["template-preact", "src/client/main.tsx"],
   ["template-vue", "src/client/main.tsx"],

@@ -1,0 +1,66 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <base target="_top">
+    <link rel="stylesheet" href="./style.css">
+  </head>
+  <body>
+    <div id="root">
+      <section id="center">
+        <div class="hero">
+          <img src="./assets/hero.png" class="base" width="170" height="179" alt="">
+          <img src="./assets/lit.svg" class="framework" alt="Lit logo">
+          <img src="./assets/vegas.webp" class="vegas" alt="Vegas logo">
+        </div>
+        <div>
+          <h1>Get started</h1>
+          <p>
+            Edit <code>src/client/index.html</code> and save to test fast <code>FBR</code>
+          </p>
+        </div>
+        <vegas-counter></vegas-counter>
+      </section>
+
+      <div class="ticks"></div>
+
+      <section id="next-steps">
+        <div id="docs">
+          <h2>Documentation</h2>
+          <p>Your questions, answered</p>
+          <ul>
+            <li>
+              <a href="https://vegasjs.dev/" target="_blank">
+                <img src="./assets/vegas.webp" class="logo" alt="">
+                Explore Vegas
+              </a>
+            </li>
+            <li>
+              <a href="https://lit.dev/" target="_blank">
+                <img src="./assets/lit.svg" class="button-icon" alt="">
+                Learn more
+              </a>
+            </li>
+          </ul>
+        </div>
+        <div id="social">
+          <h2>Connect with us</h2>
+          <p>Join the Vegas community</p>
+          <ul>
+            <li>
+              <a href="https://github.com/vegas-js/vegas" target="_blank">
+                <img src="./assets/github.svg" class="button-icon" alt="">
+                GitHub
+              </a>
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <div class="ticks"></div>
+      <section id="spacer"></section>
+    </div>
+
+    <script type="module" src="./client.ts"></script>
+  </body>
+</html>
