@@ -75,6 +75,25 @@ describe("create-vegas templates", () => {
     },
   );
 
+  test.each(templateEditCases)(
+    "ships a Vegas-owned README for %s",
+    (templateName, _sourcePath, displayedPath) => {
+      const readmePath = path.join(CREATE_VEGAS_ROOT, templateName, "README.md");
+
+      expect(fs.existsSync(readmePath)).toBe(true);
+
+      const readme = fs.readFileSync(readmePath, "utf8");
+
+      expect(readme).toContain("created with `create-vegas`");
+      expect(readme).toContain(`Start editing \`${displayedPath}\``);
+      expect(readme).toContain("[Vegas](https://vegasjs.dev/)");
+      expect(readme).toContain("`npm run dev`");
+      expect(readme).toContain("`npm run build`");
+      expect(readme).toContain("`npm run preview`");
+      expect(readme).toContain("`npm run push`");
+    },
+  );
+
   test("keeps raw HTML void elements in HTML syntax", () => {
     for (const [templateName, sourcePath] of [
       ["template-vanilla", "src/client/main.ts"],
