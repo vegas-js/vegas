@@ -37,6 +37,27 @@ describe("createClientEntries", () => {
     ]);
   });
 
+  test("identify client entries independently of source extension", () => {
+    const sources = [
+      path.join(clientDir, "main.js"),
+      path.join(clientDir, "helper.js"),
+      path.join(clientDir, "admin", "main.jsx"),
+    ];
+
+    expect(createClientEntries(clientDir, sources)).toStrictEqual([
+      {
+        id: "admin",
+        sourcePath: path.join(clientDir, "admin", "main.jsx"),
+        htmlPath: "admin.html",
+      },
+      {
+        id: "index",
+        sourcePath: path.join(clientDir, "main.js"),
+        htmlPath: "index.html",
+      },
+    ]);
+  });
+
   test("reject duplicate client entry", () => {
     const sources = [
       path.join(clientDir, "admin", "main.ts"),

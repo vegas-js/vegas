@@ -2,12 +2,16 @@ import path from "node:path";
 
 import type { ClientEntry } from "./type";
 
+function isClientEntrySource(source: string): boolean {
+  return path.parse(source).name === "main";
+}
+
 export function createClientEntries(clientDir: string, sources: readonly string[]): ClientEntry[] {
   const entries: ClientEntry[] = [];
   const ids = new Set<string>();
 
   for (const source of sources) {
-    if (!/^main\.tsx?$/.test(path.basename(source))) {
+    if (!isClientEntrySource(source)) {
       continue;
     }
 
