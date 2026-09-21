@@ -305,6 +305,7 @@ function smokeCreateVegasPackage() {
 
     for (const [templateName, clientEntry] of CREATE_VEGAS_TEMPLATE_CASES) {
       for (const relativePath of [
+        "README.md",
         "package.json",
         "_gitignore",
         "vegas.config.ts",
@@ -315,6 +316,14 @@ function smokeCreateVegasPackage() {
       ]) {
         assertFile(installedRoot, path.join(templateName, relativePath));
       }
+    }
+
+    for (const templateName of [
+      "template-vanilla",
+      "template-apps-script-scriptlet",
+      "template-lit",
+    ]) {
+      assertFile(installedRoot, path.join(templateName, "src/client/client.ts"));
     }
 
     const helpOutput = run(pnpm, ["exec", "create-vegas", "--help"], {

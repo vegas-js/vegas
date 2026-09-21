@@ -9,7 +9,7 @@ npm install
 npm run dev
 ```
 
-Start editing `src/client/index.html`. The Apps Script server entry is `src/server/Code.ts`.
+Start editing `src/client/index.html`. Client behavior is in `src/client/client.ts`, and the Apps Script server entry is `src/server/Code.ts`.
 
 Set `appsScript.scriptId` in `vegas.config.ts` before pushing to Apps Script.
 
