@@ -6,6 +6,23 @@ import { describe, expect, test, vi } from "vitest";
 
 import { createHostHttpHandler } from "./host-http-handler";
 
+type HostHttpHandler = ReturnType<typeof createHostHttpHandler>;
+type HostRequest = Parameters<HostHttpHandler>[0];
+type HostResponse = Parameters<HostHttpHandler>[1];
+
+function createRequest(
+  method: string,
+  url: string,
+  headers: HostRequest["headers"],
+  body?: string,
+): HostRequest {
+  return Object.assign(Readable.from(body === undefined ? [] : [body]), {
+    method,
+    url,
+    headers,
+  }) as unknown as HostRequest;
+}
+
 function createServer(mode: "development" | "production" = "development") {
   const transformIndexHtml = vi.fn(async (_url: string, html: string) => html);
   const server = {
@@ -24,19 +41,21 @@ function createServer(mode: "development" | "production" = "development") {
 function createResponse() {
   const headers = new Map<string, string>();
   let body: unknown;
+  const end = vi.fn((value?: unknown) => {
+    body = value;
+  });
   const response = Object.assign(new EventEmitter(), {
     statusCode: 0,
     setHeader: vi.fn((name: string, value: string) => {
       headers.set(name, value);
     }),
-    end: vi.fn((value?: unknown) => {
-      body = value;
-    }),
-  });
+    end,
+  }) as unknown as HostResponse;
 
   return {
     response,
     headers,
+    end,
     getBody: () => body,
   };
 }
@@ -57,12 +76,10 @@ describe("createHostHttpHandler", () => {
 
     await Promise.resolve(
       handler(
-        {
-          url: "/?name=alice",
-          method: "GET",
-          headers: { host: "localhost:5173" },
-        } as any,
-        response as any,
+        createRequest("GET", "/?name=alice", {
+          host: "localhost:5173",
+        }),
+        response,
         next,
       ),
     );
@@ -104,15 +121,11 @@ describe("createHostHttpHandler", () => {
 
     await Promise.resolve(
       handler(
-        {
-          url: "/dev?name=alice",
-          method: "GET",
-          headers: {
-            host: "localhost:5173",
-            "user-agent": "Vegas Browser",
-          },
-        } as any,
-        response as any,
+        createRequest("GET", "/dev?name=alice", {
+          host: "localhost:5173",
+          "user-agent": "Vegas Browser",
+        }),
+        response,
         vi.fn(),
       ),
     );
@@ -154,16 +167,18 @@ describe("createHostHttpHandler", () => {
       userContentPort: 62000,
     });
 
-    const request = Readable.from(["hello"]) as any;
-    request.url = "/exec";
-    request.method = "POST";
-    request.headers = {
-      host: "localhost:5173",
-      "content-type": "text/plain",
-      "user-agent": "Vegas Browser",
-    };
+    const request = createRequest(
+      "POST",
+      "/exec",
+      {
+        host: "localhost:5173",
+        "content-type": "text/plain",
+        "user-agent": "Vegas Browser",
+      },
+      "hello",
+    );
 
-    await Promise.resolve(handler(request, response as any, vi.fn()));
+    await Promise.resolve(handler(request, response, vi.fn()));
 
     expect(response.statusCode).toBe(200);
     expect(headers.get("Content-Type")).toBe("text/plain; charset=utf-8");
@@ -171,7 +186,7 @@ describe("createHostHttpHandler", () => {
   });
 
   test("reject invalid doGet Runtime result", async () => {
-    const { response } = createResponse();
+    const { response, end } = createResponse();
     const next = vi.fn();
     const handler = createHostHttpHandler({
       server: createServer().server,
@@ -187,12 +202,10 @@ describe("createHostHttpHandler", () => {
 
     await Promise.resolve(
       handler(
-        {
-          url: "/dev",
-          method: "GET",
-          headers: { host: "localhost:5173" },
-        } as any,
-        response as any,
+        createRequest("GET", "/dev", {
+          host: "localhost:5173",
+        }),
+        response,
         next,
       ),
     );
@@ -203,11 +216,11 @@ describe("createHostHttpHandler", () => {
         message: "Invalid doGet result from Runtime.",
       }),
     );
-    expect(response.end).not.toHaveBeenCalled();
+    expect(end).not.toHaveBeenCalled();
   });
 
   test("reject invalid doPost Runtime result", async () => {
-    const { response } = createResponse();
+    const { response, end } = createResponse();
     const next = vi.fn();
     const handler = createHostHttpHandler({
       server: createServer().server,
@@ -221,15 +234,17 @@ describe("createHostHttpHandler", () => {
       },
       userContentPort: 62000,
     });
-    const request = Readable.from(["hello"]) as any;
-    request.url = "/exec";
-    request.method = "POST";
-    request.headers = {
-      host: "localhost:5173",
-      "content-type": "text/plain",
-    };
+    const request = createRequest(
+      "POST",
+      "/exec",
+      {
+        host: "localhost:5173",
+        "content-type": "text/plain",
+      },
+      "hello",
+    );
 
-    await Promise.resolve(handler(request, response as any, next));
+    await Promise.resolve(handler(request, response, next));
 
     expect(next).toHaveBeenCalledOnce();
     expect(next).toHaveBeenCalledWith(
@@ -237,11 +252,11 @@ describe("createHostHttpHandler", () => {
         message: "Invalid doPost result from Runtime.",
       }),
     );
-    expect(response.end).not.toHaveBeenCalled();
+    expect(end).not.toHaveBeenCalled();
   });
 
   test("abort doGet execution when the client disconnects", async () => {
-    const { response } = createResponse();
+    const { response, end } = createResponse();
     const next = vi.fn();
     let executionSignal: AbortSignal | undefined;
 
@@ -270,12 +285,10 @@ describe("createHostHttpHandler", () => {
 
     const handling = Promise.resolve(
       handler(
-        {
-          url: "/dev",
-          method: "GET",
-          headers: { host: "localhost:5173" },
-        } as any,
-        response as any,
+        createRequest("GET", "/dev", {
+          host: "localhost:5173",
+        }),
+        response,
         next,
       ),
     );
@@ -289,12 +302,12 @@ describe("createHostHttpHandler", () => {
 
     expect(executionSignal?.aborted).toBe(true);
     expect(executionSignal?.reason).toEqual(new Error("Vegas HTTP client disconnected."));
-    expect(response.end).not.toHaveBeenCalled();
+    expect(end).not.toHaveBeenCalled();
     expect(next).not.toHaveBeenCalled();
   });
 
   test("do not start Runtime execution after the client disconnects while builds are pending", async () => {
-    const { response } = createResponse();
+    const { response, end } = createResponse();
     const execute = vi.fn();
     let releaseBuild: (() => void) | undefined;
     const waitForIdle = vi.fn(
@@ -314,12 +327,10 @@ describe("createHostHttpHandler", () => {
 
     const handling = Promise.resolve(
       handler(
-        {
-          url: "/dev",
-          method: "GET",
-          headers: { host: "localhost:5173" },
-        } as any,
-        response as any,
+        createRequest("GET", "/dev", {
+          host: "localhost:5173",
+        }),
+        response,
         vi.fn(),
       ),
     );
@@ -333,6 +344,6 @@ describe("createHostHttpHandler", () => {
     await handling;
 
     expect(execute).not.toHaveBeenCalled();
-    expect(response.end).not.toHaveBeenCalled();
+    expect(end).not.toHaveBeenCalled();
   });
 });
