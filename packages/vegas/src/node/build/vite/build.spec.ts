@@ -48,6 +48,48 @@ describe("buildApp", () => {
     }
   });
 
+  test("collect artifacts from multiple rolldown outputs", async () => {
+    const tempDirPath = fs.mkdtempSync(path.join(os.tmpdir(), "vegas-"));
+
+    try {
+      const inputFilePath = path.join(tempDirPath, "main.ts");
+      const outputDir = path.join(tempDirPath, "dist");
+
+      fs.writeFileSync(inputFilePath, `console.log("hello");`);
+
+      const builder = await createBuilder({
+        root: tempDirPath,
+        configFile: false,
+        environments: {
+          client0: {
+            build: {
+              rolldownOptions: {
+                input: inputFilePath,
+                output: [{ entryFileNames: "first.js" }, { entryFileNames: "second.js" }],
+              },
+            },
+          },
+        },
+        build: {
+          outDir: outputDir,
+          write: false,
+        },
+        logLevel: "silent",
+      });
+
+      const artifacts = await buildApp(builder);
+      const artifactPaths = artifacts.map((artifact) => artifact.path);
+
+      expect(artifactPaths).toContain("first.js");
+      expect(artifactPaths).toContain("second.js");
+    } finally {
+      fs.rmSync(tempDirPath, {
+        recursive: true,
+        force: true,
+      });
+    }
+  });
+
   test("preserve binary asset", async () => {
     const tempDirPath = fs.mkdtempSync(path.join(os.tmpdir(), "vegas-"));
 

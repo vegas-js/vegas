@@ -1,4 +1,4 @@
-import type { Rolldown, ViteBuilder } from "vite";
+import type { ViteBuilder } from "vite";
 
 import type { BuildArtifact } from "../artifact";
 import { DEFAULT_VITE_ENVIRONMENT_PATTERN } from "./environment";
@@ -16,7 +16,17 @@ export async function buildApp(builder: ViteBuilder, envFilter?: RegExp): Promis
     }
   }
 
-  const buildResults = (await Promise.all(buildPromises)).flat() as Rolldown.RolldownOutput[];
+  const buildResults = (await Promise.all(buildPromises)).flatMap((result) => {
+    if (Array.isArray(result)) {
+      return result;
+    }
+
+    if ("output" in result) {
+      return [result];
+    }
+
+    throw new Error("Vite watch mode is not supported by buildApp.");
+  });
 
   return buildResults
     .flatMap((result) => result.output)
