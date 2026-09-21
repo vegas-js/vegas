@@ -38,12 +38,8 @@ describe("CLI presentation", () => {
     );
   });
 
-  test("format template help from registry directories", () => {
-    expect(formatTemplateHelp()).toBe(
-      templates
-        .map((template) => template.directory.padStart(template.directory.length + 2))
-        .join("\n"),
-    );
+  test("format template help from stable ids", () => {
+    expect(formatTemplateHelp()).toBe(templates.map((template) => `  ${template.id}`).join("\n"));
   });
 
   test("show cancellation", () => {

@@ -29,9 +29,7 @@ export function createTemplatePromptOptions() {
 }
 
 export function formatTemplateHelp(): string {
-  return templates
-    .map((template) => template.directory.padStart(template.directory.length + 2))
-    .join("\n");
+  return templates.map((template) => `  ${template.id}`).join("\n");
 }
 
 export function showCancelled(): void {

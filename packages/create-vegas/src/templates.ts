@@ -1,3 +1,5 @@
+import { CreateVegasUsageError } from "./error";
+
 export interface TemplateDefinition {
   readonly id: string;
   readonly label: string;
@@ -60,7 +62,11 @@ export function resolveTemplate(id: string): TemplateDefinition {
   const template = templates.find((template) => template.id === id);
 
   if (template === undefined) {
-    throw new Error(`Unknown create-vegas template "${id}".`);
+    throw new CreateVegasUsageError(
+      `Unknown template "${id}". Available templates: ${templates
+        .map((template) => template.id)
+        .join(", ")}.`,
+    );
   }
 
   return template;

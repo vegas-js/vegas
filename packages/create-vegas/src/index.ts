@@ -19,11 +19,12 @@ const templateOptions = createTemplatePromptOptions();
 
 async function run(directory?: string, templateId?: string) {
   const cwd = process.cwd();
+  const requestedTemplate = templateId === undefined ? undefined : resolveTemplate(templateId);
 
   const input = await collectCreateProjectInput({
     cwd,
     directory,
-    templateId,
+    templateId: requestedTemplate?.id,
     templateOptions,
   });
 
@@ -32,7 +33,7 @@ async function run(directory?: string, templateId?: string) {
     return;
   }
 
-  const template = resolveTemplate(input.templateId);
+  const template = requestedTemplate ?? resolveTemplate(input.templateId);
 
   const target = await createProject({
     cwd,

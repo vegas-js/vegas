@@ -1,5 +1,6 @@
 import { describe, expect, test } from "vitest";
 
+import { CreateVegasUsageError } from "./error";
 import { resolveTemplate, templates } from "./templates";
 
 describe("templates", () => {
@@ -18,7 +19,12 @@ describe("templates", () => {
     });
   });
 
-  test("reject unknown template id", () => {
-    expect(() => resolveTemplate("unknown")).toThrow('Unknown create-vegas template "unknown".');
+  test("reject unknown template id as usage error", () => {
+    const resolve = () => resolveTemplate("unknown");
+
+    expect(resolve).toThrow(CreateVegasUsageError);
+    expect(resolve).toThrow(
+      'Unknown template "unknown". Available templates: vanilla, apps-script-scriptlet, lit, vue, react, preact, svelte, solid.',
+    );
   });
 });
