@@ -3,8 +3,8 @@ import util from "node:util";
 
 import * as prompts from "@clack/prompts";
 
-import type { CreateProjectStep } from "./create-project";
-import { templates } from "./templates";
+import type { CreateProjectStep } from "../create-project";
+import { templates } from "../templates";
 
 export interface CreateProjectResultPresentation {
   readonly cwd: string;

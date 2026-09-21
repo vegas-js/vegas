@@ -3,14 +3,14 @@ import path from "node:path";
 
 import { cac } from "cac";
 
+import { collectCreateProjectInput } from "./cli/input";
 import {
   createTemplatePromptOptions,
   formatTemplateHelp,
   showCancelled,
   showCreateProjectResult,
   showCreateProjectStep,
-} from "./cli-presentation";
-import { collectCreateProjectInput } from "./collect-project-input";
+} from "./cli/presentation";
 import { createProject } from "./create-project";
 import { formatCreateVegasError } from "./error";
 import { resolveTemplate } from "./templates";

@@ -1,14 +1,14 @@
 import * as prompts from "@clack/prompts";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
+import { templates } from "../templates";
 import {
   createTemplatePromptOptions,
   formatTemplateHelp,
   showCancelled,
   showCreateProjectResult,
   showCreateProjectStep,
-} from "./cli-presentation";
-import { templates } from "./templates";
+} from "./presentation";
 
 vi.mock("@clack/prompts", () => ({
   cancel: vi.fn(),
