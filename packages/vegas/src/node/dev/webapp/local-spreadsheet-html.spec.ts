@@ -3,7 +3,7 @@ import { describe, expect, test } from "vitest";
 import { createLocalSpreadsheetHtml } from "./local-spreadsheet-html";
 
 describe("createLocalSpreadsheetHtml", () => {
-  test("render sheet tabs, editable cells, and escaped values", () => {
+  test("render sheet tabs, inline-editable cells, and escaped values", () => {
     const html = createLocalSpreadsheetHtml({
       id: "budget:2026",
       name: 'Budget <"2026">',
@@ -31,16 +31,21 @@ describe("createLocalSpreadsheetHtml", () => {
     expect(html).toContain('<th scope="col">A</th>');
     expect(html).toContain('<th scope="col">C</th>');
     expect(html).toContain('<th scope="row">2</th>');
-    expect(html).toContain('data-row="1" data-column="1" data-value-type="string"');
-    expect(html).toContain('data-row="1" data-column="3" data-value-type="boolean"');
-    expect(html).toContain('data-row="2" data-column="2" data-value-type="number"');
+    expect(html).toContain('data-row="1" data-column="1" tabindex="0"');
+    expect(html).toContain('data-row="2" data-column="2" tabindex="0"');
     expect(html).toContain("Vegas &lt;script&gt;");
     expect(html).toContain(">TRUE<");
     expect(html).toContain(
       '<td class="readonly" title="Date cells are read-only in the local viewer.">2026-09-21T00:00:00.000Z</td>',
     );
-    expect(html).toContain('id="cell-editor"');
+    expect(html).toContain('id="cell-status"');
+    expect(html).toContain('input.className = "cell-input"');
+    expect(html).toContain('event.key === "ArrowDown"');
+    expect(html).toContain('event.key === "Delete"');
+    expect(html).toContain('text.startsWith("\'")');
     expect(html).toContain('method: "PATCH"');
+    expect(html).not.toContain('id="cell-editor"');
+    expect(html).not.toContain("window.location.reload()");
   });
 
   test("render empty Spreadsheet and Sheet states", () => {

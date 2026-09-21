@@ -149,7 +149,7 @@ describe("createLocalSpreadsheetHttpHandler", () => {
     expect(body).not.toContain('<th scope="col">K</th>');
     expect(body).toContain('<th scope="row">20</th>');
     expect(body).not.toContain('<th scope="row">21</th>');
-    expect(body).toContain('data-row="20" data-column="10" data-value-type="string"');
+    expect(body).toContain('data-row="20" data-column="10" tabindex="0"');
   });
 
   test("keep Spreadsheet metadata available through the internal API route", async () => {
