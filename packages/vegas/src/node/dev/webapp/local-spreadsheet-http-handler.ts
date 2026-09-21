@@ -34,6 +34,14 @@ interface LocalSpreadsheetCellUpdate {
   readonly value: string | number | boolean;
 }
 
+function isSafeInteger(value: unknown): value is number {
+  return typeof value === "number" && Number.isSafeInteger(value);
+}
+
+function isSpreadsheetCellValue(value: unknown): value is LocalSpreadsheetCellUpdate["value"] {
+  return typeof value === "string" || typeof value === "number" || typeof value === "boolean";
+}
+
 function parseSpreadsheetId(pathname: string, prefix: string): string | null {
   if (!pathname.startsWith(prefix)) {
     return null;
@@ -124,28 +132,26 @@ function parseCellUpdate(body: string): LocalSpreadsheetCellUpdate {
     throw new Error("Invalid local Spreadsheet cell update.");
   }
 
-  const update = value as Record<string, unknown>;
-
   if (
-    !Number.isSafeInteger(update.sheetId) ||
-    !Number.isSafeInteger(update.row) ||
-    !Number.isSafeInteger(update.column) ||
-    typeof update.row !== "number" ||
-    update.row < 1 ||
-    typeof update.column !== "number" ||
-    update.column < 1 ||
-    (typeof update.value !== "string" &&
-      typeof update.value !== "number" &&
-      typeof update.value !== "boolean")
+    !("sheetId" in value) ||
+    !isSafeInteger(value.sheetId) ||
+    !("row" in value) ||
+    !isSafeInteger(value.row) ||
+    value.row < 1 ||
+    !("column" in value) ||
+    !isSafeInteger(value.column) ||
+    value.column < 1 ||
+    !("value" in value) ||
+    !isSpreadsheetCellValue(value.value)
   ) {
     throw new Error("Invalid local Spreadsheet cell update.");
   }
 
   return {
-    sheetId: update.sheetId as number,
-    row: update.row,
-    column: update.column,
-    value: update.value,
+    sheetId: value.sheetId,
+    row: value.row,
+    column: value.column,
+    value: value.value,
   };
 }
 

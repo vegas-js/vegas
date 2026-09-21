@@ -254,6 +254,81 @@ describe("createLocalSpreadsheetHttpHandler", () => {
     ).resolves.toStrictEqual([[100]]);
   });
 
+  test.each([
+    ["invalid JSON", "{"],
+    [
+      "non-integer Sheet id",
+      JSON.stringify({
+        sheetId: "7",
+        row: 2,
+        column: 2,
+        value: 100,
+      }),
+    ],
+    [
+      "non-positive row",
+      JSON.stringify({
+        sheetId: 7,
+        row: 0,
+        column: 2,
+        value: 100,
+      }),
+    ],
+    [
+      "unsupported cell value",
+      JSON.stringify({
+        sheetId: 7,
+        row: 2,
+        column: 2,
+        value: null,
+      }),
+    ],
+  ])("reject %s in a local Spreadsheet cell update", async (_label, body) => {
+    const store = new InMemorySpreadsheetStore([
+      {
+        id: "budget",
+        name: "Budget",
+        sheets: [
+          {
+            id: 7,
+            name: "Summary",
+            maxRows: 20,
+            maxColumns: 8,
+            values: [["unchanged"]],
+          },
+        ],
+      },
+    ]);
+    const handler = createLocalSpreadsheetHttpHandler({
+      getSpreadsheetStore: () => store,
+    });
+    const { response } = createResponse();
+    const next = vi.fn();
+
+    await Promise.resolve(
+      handler(
+        createRequest("PATCH", "/__vegas/api/spreadsheets/budget/cells", body) as any,
+        response as any,
+        next,
+      ),
+    );
+
+    expect(next).toHaveBeenCalledOnce();
+    expect(next.mock.calls[0]?.[0]).toBeInstanceOf(Error);
+    await expect(
+      store.getRangeValues({
+        service: "spreadsheet",
+        kind: "range",
+        spreadsheetId: "budget",
+        sheetId: 7,
+        row: 1,
+        column: 1,
+        numRows: 1,
+        numColumns: 1,
+      }),
+    ).resolves.toStrictEqual([["unchanged"]]);
+  });
+
   test("decode Spreadsheet ids from page and API routes", async () => {
     const store = new InMemorySpreadsheetStore([
       {
