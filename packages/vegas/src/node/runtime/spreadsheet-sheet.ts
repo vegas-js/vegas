@@ -19,6 +19,25 @@ export class Sheet {
     this.#hydrator = hydrator;
   }
 
+  appendRow(rowContents: SpreadsheetCellValue[]): Sheet {
+    if (rowContents.length === 0) {
+      // Apps Script does not document appendRow([]). Vegas rejects an empty row because a
+      // Spreadsheet Range cannot contain zero columns.
+      throw new RangeError("Spreadsheet appended row must contain at least one value.");
+    }
+
+    if (rowContents.some((value) => typeof value === "string" && value.startsWith("="))) {
+      // Apps Script evaluates leading-equals values as formulas. Formula evaluation is not yet
+      // modeled by the local Runtime, so Vegas rejects them instead of silently storing text.
+      throw new Error("Spreadsheet formulas are not supported by local appendRow().");
+    }
+
+    const row = (this.#dataBounds().lastRow ?? 0) + 1;
+    this.getRange(row, 1, 1, rowContents.length).setValues([rowContents]);
+
+    return this;
+  }
+
   asDataSourceSheet(): GoogleAppsScript.Spreadsheet.DataSourceSheet | null {
     // The local Spreadsheet model currently creates only standard grid sheets.
     return null;
