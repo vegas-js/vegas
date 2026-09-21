@@ -153,6 +153,7 @@ describe("runDevApplication", () => {
         spreadsheetUrlCapability: application.localSpreadsheetUrls,
       },
     );
+    expect(createLocalRuntimeMock.mock.calls[0]).toHaveLength(4);
 
     expect(getProgram()).toBe(program);
     expect(createRuntimeProgramMock).toHaveBeenCalledWith(application.artifacts);
@@ -175,6 +176,7 @@ describe("runDevApplication", () => {
         spreadsheetUrlCapability: application.localSpreadsheetUrls,
       },
     );
+    expect(createLocalRuntimeMock.mock.calls[1]).toHaveLength(4);
     expect(application.getLocalSpreadsheetStore?.()).toBe(reloadedRuntime.resources.spreadsheets);
     await expect(
       application.runtime.execute({

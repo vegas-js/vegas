@@ -64,10 +64,16 @@ describe("createLocalRuntime", () => {
     };
     const getProgram = vi.fn(() => program);
 
-    const localRuntime = await createLocalRuntime(project, runtimeDataSources, getProgram, {
-      loadRuntimeData: load,
-      createExecutor: () => ({ execute }),
-    });
+    const localRuntime = await createLocalRuntime(
+      project,
+      runtimeDataSources,
+      getProgram,
+      {},
+      {
+        loadRuntimeData: load,
+        createExecutor: () => ({ execute }),
+      },
+    );
 
     expectTypeOf(localRuntime).toExtend<RuntimeBackend>();
     expectTypeOf(localRuntime.resources.spreadsheets).toEqualTypeOf<SpreadsheetStore>();
