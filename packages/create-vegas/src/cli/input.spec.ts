@@ -51,7 +51,7 @@ beforeEach(() => {
 
 describe("collectCreateProjectInput", () => {
   test("collect minimal project input", async () => {
-    selectMock.mockResolvedValueOnce("react");
+    selectMock.mockResolvedValueOnce("react").mockResolvedValueOnce("npm");
     confirmMock.mockResolvedValueOnce(false).mockResolvedValueOnce(false);
 
     await expect(
@@ -63,6 +63,7 @@ describe("collectCreateProjectInput", () => {
     ).resolves.toStrictEqual({
       projectName: "my-app",
       packageName: "my-app",
+      packageManager: "npm",
       templateId: "react",
       operation: "create",
       scriptId: undefined,
@@ -77,7 +78,10 @@ describe("collectCreateProjectInput", () => {
   test("collect full project input", async () => {
     inspectScaffoldDirectoryMock.mockReturnValue("non-empty");
 
-    selectMock.mockResolvedValueOnce("keep").mockResolvedValueOnce("vanilla");
+    selectMock
+      .mockResolvedValueOnce("keep")
+      .mockResolvedValueOnce("vanilla")
+      .mockResolvedValueOnce("pnpm");
 
     textMock
       .mockResolvedValueOnce("my-app")
@@ -99,6 +103,7 @@ describe("collectCreateProjectInput", () => {
     ).resolves.toStrictEqual({
       projectName: "My App",
       packageName: "my-app",
+      packageManager: "pnpm",
       templateId: "vanilla",
       operation: "keep",
       scriptId: "script-id",

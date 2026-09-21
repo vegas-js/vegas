@@ -1,5 +1,10 @@
 import type { SpawnOptions } from "node:child_process";
 
+import {
+  createInstallCommand,
+  createRunScriptCommand,
+  type PackageManager,
+} from "./package-manager";
 import { runCommand } from "./run-command";
 import { scaffoldProject, type ScaffoldDirectoryOperation } from "./scaffold/project";
 import { resolveScaffoldTarget, type ScaffoldTarget } from "./scaffold/target";
@@ -11,6 +16,7 @@ export type CreateProjectStep =
     }
   | {
       readonly kind: "install-dependencies";
+      readonly packageManager: PackageManager;
     }
   | {
       readonly kind: "login-apps-script";
@@ -23,6 +29,7 @@ export interface CreateProjectOptions {
   readonly cwd: string;
   readonly projectName: string;
   readonly packageName: string;
+  readonly packageManager: PackageManager;
   readonly templateDirectory: string;
   readonly operation: ScaffoldDirectoryOperation;
   readonly scriptId?: string;
@@ -56,9 +63,13 @@ export async function createProject(options: CreateProjectOptions): Promise<Scaf
     return target;
   }
 
-  options.onStep?.({ kind: "install-dependencies" });
+  options.onStep?.({
+    kind: "install-dependencies",
+    packageManager: options.packageManager,
+  });
 
-  await runCommand("npm", ["install"], {
+  const installCommand = createInstallCommand(options.packageManager);
+  await runCommand(installCommand.command, installCommand.args, {
     cwd: target.directory,
     ...inheritedStdio,
   });
@@ -66,7 +77,10 @@ export async function createProject(options: CreateProjectOptions): Promise<Scaf
   if (options.oauthClientFile !== undefined) {
     options.onStep?.({ kind: "login-apps-script" });
 
-    await runCommand("npm", ["run", "login", "--", options.oauthClientFile], {
+    const loginCommand = createRunScriptCommand(options.packageManager, "login", [
+      options.oauthClientFile,
+    ]);
+    await runCommand(loginCommand.command, loginCommand.args, {
       cwd: target.directory,
       ...inheritedStdio,
     });
@@ -75,7 +89,8 @@ export async function createProject(options: CreateProjectOptions): Promise<Scaf
   if (options.startDevServer) {
     options.onStep?.({ kind: "start-dev-server" });
 
-    await runCommand("npm", ["run", "dev"], {
+    const devCommand = createRunScriptCommand(options.packageManager, "dev");
+    await runCommand(devCommand.command, devCommand.args, {
       cwd: target.directory,
       ...inheritedStdio,
     });

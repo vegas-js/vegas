@@ -4,6 +4,7 @@ import path from "node:path";
 import * as prompts from "@clack/prompts";
 
 import { CreateVegasUsageError } from "../error";
+import { packageManagers, type PackageManager } from "../package-manager";
 import { validatePackageName } from "../package-name";
 import { inspectScaffoldDirectory } from "../scaffold/directory";
 import type { ScaffoldDirectoryOperation } from "../scaffold/project";
@@ -11,6 +12,7 @@ import type { ScaffoldDirectoryOperation } from "../scaffold/project";
 export interface CreateProjectInput {
   readonly projectName: string;
   readonly packageName: string;
+  readonly packageManager: PackageManager;
   readonly templateId: string;
   readonly operation: ScaffoldDirectoryOperation;
   readonly scriptId?: string;
@@ -174,6 +176,18 @@ export async function collectCreateProjectInput(
     return undefined;
   }
 
+  const packageManager = await prompts.select<PackageManager>({
+    message: "Select a package manager:",
+    options: packageManagers.map((packageManager) => ({
+      label: packageManager,
+      value: packageManager,
+    })),
+  });
+
+  if (isPromptCancel(packageManager)) {
+    return undefined;
+  }
+
   const scriptId = await collectScriptId();
 
   if (scriptId === null) {
@@ -181,7 +195,7 @@ export async function collectCreateProjectInput(
   }
 
   const installDependencies = await prompts.confirm({
-    message: "Install dependencies with npm now?",
+    message: `Install dependencies with ${packageManager} now?`,
   });
 
   if (isPromptCancel(installDependencies)) {
@@ -230,6 +244,7 @@ export async function collectCreateProjectInput(
   return {
     projectName,
     packageName,
+    packageManager,
     templateId,
     operation,
     scriptId,

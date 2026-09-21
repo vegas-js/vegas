@@ -56,7 +56,10 @@ describe("CLI presentation", () => {
       { kind: "scaffold", directory: "/workspace/my-app" } as const,
       "Scaffolding project in /workspace/my-app...",
     ],
-    [{ kind: "install-dependencies" } as const, "Installing dependencies with npm..."],
+    [
+      { kind: "install-dependencies", packageManager: "pnpm" } as const,
+      "Installing dependencies with pnpm...",
+    ],
     [{ kind: "login-apps-script" } as const, "Signing in to Google for Apps Script..."],
     [{ kind: "start-dev-server" } as const, "Starting dev server..."],
   ])("show project step: %j", (step, message) => {
@@ -69,6 +72,7 @@ describe("CLI presentation", () => {
     showCreateProjectResult({
       cwd: "/workspace",
       directory: "/workspace/my-app",
+      packageManager: "pnpm",
       scriptId: "script-id",
       installDependencies: false,
       startDevServer: false,
@@ -78,9 +82,9 @@ describe("CLI presentation", () => {
       [
         "Done. Now run:\n",
         "  cd my-app",
-        "  npm install",
-        "  npm run login -- <oauth-client-json>",
-        "  npm run dev",
+        "  pnpm install",
+        "  pnpm run login <oauth-client-json>",
+        "  pnpm run dev",
       ].join("\n"),
     );
   });
@@ -89,6 +93,7 @@ describe("CLI presentation", () => {
     showCreateProjectResult({
       cwd: "/workspace",
       directory: "/workspace/my-app",
+      packageManager: "npm",
       installDependencies: true,
       startDevServer: false,
     });
@@ -100,6 +105,7 @@ describe("CLI presentation", () => {
     showCreateProjectResult({
       cwd: "/workspace",
       directory: "/workspace/my-app",
+      packageManager: "npm",
       installDependencies: true,
       startDevServer: true,
     });

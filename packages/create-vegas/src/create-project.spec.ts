@@ -29,6 +29,7 @@ describe("createProject", () => {
       cwd: "/workspace",
       projectName: "my-app",
       packageName: "@example/my-app",
+      packageManager: "npm",
       templateDirectory: "/templates/react",
       operation: "create",
       scriptId: "script-id",
@@ -69,6 +70,7 @@ describe("createProject", () => {
       cwd: "/workspace",
       projectName: "my-app",
       packageName: "my-app",
+      packageManager: "pnpm",
       templateDirectory: "/templates/vanilla",
       operation: "keep",
       installDependencies: true,
@@ -87,7 +89,7 @@ describe("createProject", () => {
 
     expect(runCommandMock.mock.calls).toStrictEqual([
       [
-        "npm",
+        "pnpm",
         ["install"],
         {
           cwd: target.directory,
@@ -95,15 +97,15 @@ describe("createProject", () => {
         },
       ],
       [
-        "npm",
-        ["run", "login", "--", "/oauth/client.json"],
+        "pnpm",
+        ["run", "login", "/oauth/client.json"],
         {
           cwd: target.directory,
           stdio: "inherit",
         },
       ],
       [
-        "npm",
+        "pnpm",
         ["run", "dev"],
         {
           cwd: target.directory,
@@ -119,6 +121,7 @@ describe("createProject", () => {
       },
       {
         kind: "install-dependencies",
+        packageManager: "pnpm",
       },
       {
         kind: "login-apps-script",

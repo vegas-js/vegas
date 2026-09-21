@@ -37,6 +37,7 @@ async function run(directory?: string) {
     cwd,
     projectName: input.projectName,
     packageName: input.packageName,
+    packageManager: input.packageManager,
     templateDirectory: path.resolve(import.meta.dirname, "..", template.directory),
     operation: input.operation,
     scriptId: input.scriptId,
@@ -49,6 +50,7 @@ async function run(directory?: string) {
   showCreateProjectResult({
     cwd,
     directory: target.directory,
+    packageManager: input.packageManager,
     scriptId: input.scriptId,
     installDependencies: input.installDependencies,
     startDevServer: input.startDevServer,
