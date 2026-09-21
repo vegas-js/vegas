@@ -139,6 +139,8 @@ describe("startDevApplication", () => {
         } as any,
         {
           statusCode: 0,
+          once: vi.fn(),
+          off: vi.fn(),
           setHeader() {},
           end(value?: unknown) {
             hostBody.push(value);

@@ -21,12 +21,25 @@ interface HostHttpHandlerOptions {
   readonly userContentPort: number;
 }
 
+const HTTP_CLIENT_DISCONNECTED_MESSAGE = "Vegas HTTP client disconnected.";
+
 export function createHostHttpHandler(options: HostHttpHandlerOptions): Connect.NextHandleFunction {
   const { server, builds, sessions, runtime, userContentPort } = options;
 
   return async (request, response, next) => {
+    const controller = new AbortController();
+    const handleResponseClose = (): void => {
+      controller.abort(new Error(HTTP_CLIENT_DISCONNECTED_MESSAGE));
+    };
+
+    response.once("close", handleResponseClose);
+
     try {
       await builds.waitForIdle();
+
+      if (controller.signal.aborted) {
+        return;
+      }
 
       if (request.url) {
         const scheme = server.config.server.https ? "https" : "http";
@@ -53,13 +66,22 @@ export function createHostHttpHandler(options: HostHttpHandlerOptions): Connect.
               functionName: "doGet",
               args: [doGetEvent],
               context,
+              signal: controller.signal,
             })) as AppsScriptDoGetResult;
+
+            if (controller.signal.aborted) {
+              return;
+            }
 
             const sessionId = sessions.issue();
             const userContentUrl = new URL(url.href);
             userContentUrl.port = String(userContentPort);
             const html = createHostHtml(userContentUrl, result, sessionId);
             const transformedHtml = await server.transformIndexHtml(url.href, html);
+
+            if (controller.signal.aborted) {
+              return;
+            }
 
             response.statusCode = 200;
             response.setHeader("Content-Type", "text/html; charset=utf-8");
@@ -77,6 +99,11 @@ export function createHostHttpHandler(options: HostHttpHandlerOptions): Connect.
 
           if (request.method === "POST") {
             const body = await readRequestBody(request);
+
+            if (controller.signal.aborted) {
+              return;
+            }
+
             const doPostEvent = createAppsScriptDoPostEvent(
               url,
               body,
@@ -87,7 +114,12 @@ export function createHostHttpHandler(options: HostHttpHandlerOptions): Connect.
               functionName: "doPost",
               args: [doPostEvent],
               context,
+              signal: controller.signal,
             })) as AppsScriptDoPostResult;
+
+            if (controller.signal.aborted) {
+              return;
+            }
 
             const httpResponse = createAppsScriptDoPostHttpResponse(result);
 
@@ -101,7 +133,11 @@ export function createHostHttpHandler(options: HostHttpHandlerOptions): Connect.
 
       next();
     } catch (error) {
-      next(error);
+      if (!controller.signal.aborted) {
+        next(error);
+      }
+    } finally {
+      response.off("close", handleResponseClose);
     }
   };
 }

@@ -1,3 +1,4 @@
+import { EventEmitter } from "node:events";
 import { Readable } from "node:stream";
 
 import type { ViteDevServer } from "vite";
@@ -23,17 +24,18 @@ function createServer(mode: "development" | "production" = "development") {
 function createResponse() {
   const headers = new Map<string, string>();
   let body: unknown;
+  const response = Object.assign(new EventEmitter(), {
+    statusCode: 0,
+    setHeader: vi.fn((name: string, value: string) => {
+      headers.set(name, value);
+    }),
+    end: vi.fn((value?: unknown) => {
+      body = value;
+    }),
+  });
 
   return {
-    response: {
-      statusCode: 0,
-      setHeader: vi.fn((name: string, value: string) => {
-        headers.set(name, value);
-      }),
-      end: vi.fn((value?: unknown) => {
-        body = value;
-      }),
-    },
+    response,
     headers,
     getBody: () => body,
   };
@@ -81,6 +83,7 @@ describe("createHostHttpHandler", () => {
         webApp: true,
         userAgent: "Vegas Browser",
       });
+      expect(request.signal).toBeInstanceOf(AbortSignal);
       expect(request).not.toHaveProperty("program");
       return {
         metaTags: [],
@@ -135,6 +138,7 @@ describe("createHostHttpHandler", () => {
         webApp: true,
         userAgent: "Vegas Browser",
       });
+      expect(request.signal).toBeInstanceOf(AbortSignal);
       expect(request).not.toHaveProperty("program");
       return {
         mimeType: "text/plain",
@@ -164,5 +168,101 @@ describe("createHostHttpHandler", () => {
     expect(response.statusCode).toBe(200);
     expect(headers.get("Content-Type")).toBe("text/plain; charset=utf-8");
     expect(getBody()).toBe("posted");
+  });
+
+  test("abort doGet execution when the client disconnects", async () => {
+    const { response } = createResponse();
+    const next = vi.fn();
+    let executionSignal: AbortSignal | undefined;
+
+    const execute = vi.fn(
+      (request) =>
+        new Promise<never>((_resolve, reject) => {
+          executionSignal = request.signal;
+
+          request.signal?.addEventListener(
+            "abort",
+            () => {
+              reject(request.signal?.reason);
+            },
+            { once: true },
+          );
+        }),
+    );
+
+    const handler = createHostHttpHandler({
+      server: createServer().server,
+      builds: { waitForIdle: async () => undefined },
+      sessions: { issue: () => "session-1" },
+      runtime: { execute },
+      userContentPort: 62000,
+    });
+
+    const handling = Promise.resolve(
+      handler(
+        {
+          url: "/dev",
+          method: "GET",
+          headers: { host: "localhost:5173" },
+        } as any,
+        response as any,
+        next,
+      ),
+    );
+
+    await vi.waitFor(() => {
+      expect(execute).toHaveBeenCalledOnce();
+    });
+
+    response.emit("close");
+    await handling;
+
+    expect(executionSignal?.aborted).toBe(true);
+    expect(executionSignal?.reason).toEqual(new Error("Vegas HTTP client disconnected."));
+    expect(response.end).not.toHaveBeenCalled();
+    expect(next).not.toHaveBeenCalled();
+  });
+
+  test("do not start Runtime execution after the client disconnects while builds are pending", async () => {
+    const { response } = createResponse();
+    const execute = vi.fn();
+    let releaseBuild: (() => void) | undefined;
+    const waitForIdle = vi.fn(
+      () =>
+        new Promise<void>((resolve) => {
+          releaseBuild = resolve;
+        }),
+    );
+
+    const handler = createHostHttpHandler({
+      server: createServer().server,
+      builds: { waitForIdle },
+      sessions: { issue: () => "session-1" },
+      runtime: { execute },
+      userContentPort: 62000,
+    });
+
+    const handling = Promise.resolve(
+      handler(
+        {
+          url: "/dev",
+          method: "GET",
+          headers: { host: "localhost:5173" },
+        } as any,
+        response as any,
+        vi.fn(),
+      ),
+    );
+
+    await vi.waitFor(() => {
+      expect(waitForIdle).toHaveBeenCalledOnce();
+    });
+
+    response.emit("close");
+    releaseBuild?.();
+    await handling;
+
+    expect(execute).not.toHaveBeenCalled();
+    expect(response.end).not.toHaveBeenCalled();
   });
 });
