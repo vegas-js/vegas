@@ -313,7 +313,7 @@ export function createLocalSpreadsheetHtml(page: LocalSpreadsheetPage): string {
   const activeSheet =
     page.activeSheet === null
       ? ""
-      : `<section><h2>${escapeHtml(page.activeSheet.name)}</h2><p class="hint">Select a cell and type to replace it. Enter or double-click to edit. Esc cancels.</p><p id="cell-status" class="status" aria-live="polite"></p>${createGrid(page.activeSheet.values)}</section>`;
+      : `<section><p class="hint">Select a cell and type to replace it. Enter or double-click to edit. Esc cancels.</p><p id="cell-status" class="status" aria-live="polite"></p>${createGrid(page.activeSheet.values)}</section>`;
   const spreadsheetApi = `/__vegas/api/spreadsheets/${encodeURIComponent(page.id)}`;
   const sheetId = page.activeSheet?.id ?? "";
 
@@ -328,7 +328,6 @@ export function createLocalSpreadsheetHtml(page: LocalSpreadsheetPage): string {
     body { margin: 0; background: Canvas; color: CanvasText; }
     header { padding: 20px 24px 12px; border-bottom: 1px solid color-mix(in srgb, CanvasText 18%, transparent); }
     h1 { margin: 0; font-size: 20px; }
-    h2 { margin: 18px 24px 6px; font-size: 16px; }
     .tabs { display: flex; gap: 4px; padding: 10px 24px 0; overflow-x: auto; }
     .tabs a { padding: 8px 12px; color: inherit; text-decoration: none; border: 1px solid transparent; border-radius: 6px 6px 0 0; white-space: nowrap; }
     .tabs a[aria-current="page"] { border-color: color-mix(in srgb, CanvasText 24%, transparent); border-bottom-color: Canvas; font-weight: 600; }

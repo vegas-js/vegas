@@ -28,6 +28,7 @@ describe("createLocalSpreadsheetHtml", () => {
     expect(html).toContain('data-spreadsheet-api="/__vegas/api/spreadsheets/budget%3A2026"');
     expect(html).toContain('data-sheet-id="7"');
     expect(html).toContain('aria-current="page"');
+    expect(html.match(/>Summary</g)).toHaveLength(1);
     expect(html).toContain('<th scope="col">A</th>');
     expect(html).toContain('<th scope="col">C</th>');
     expect(html).toContain('<th scope="row">2</th>');
