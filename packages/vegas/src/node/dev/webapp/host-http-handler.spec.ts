@@ -6,15 +6,18 @@ import { describe, expect, test, vi } from "vitest";
 import { createHostHttpHandler } from "./host-http-handler";
 
 function createServer(mode: "development" | "production" = "development") {
-  return {
+  const transformIndexHtml = vi.fn(async (_url: string, html: string) => html);
+  const server = {
     config: {
       mode,
       server: {
         https: false,
       },
     },
-    transformIndexHtml: vi.fn(async (_url: string, html: string) => html),
+    transformIndexHtml,
   } as unknown as ViteDevServer;
+
+  return { server, transformIndexHtml };
 }
 
 function createResponse() {
@@ -43,21 +46,23 @@ describe("createHostHttpHandler", () => {
     const waitForIdle = vi.fn(async () => undefined);
 
     const handler = createHostHttpHandler({
-      server: createServer(),
+      server: createServer().server,
       builds: { waitForIdle },
       sessions: { issue: () => "session-1" },
       runtime: { execute: async () => undefined },
       userContentPort: 62000,
     });
 
-    await handler(
-      {
-        url: "/?name=alice",
-        method: "GET",
-        headers: { host: "localhost:5173" },
-      } as any,
-      response as any,
-      next,
+    await Promise.resolve(
+      handler(
+        {
+          url: "/?name=alice",
+          method: "GET",
+          headers: { host: "localhost:5173" },
+        } as any,
+        response as any,
+        next,
+      ),
     );
 
     expect(waitForIdle).toHaveBeenCalledOnce();
@@ -67,7 +72,7 @@ describe("createHostHttpHandler", () => {
   });
 
   test("execute doGet and return transformed host html", async () => {
-    const server = createServer();
+    const { server, transformIndexHtml } = createServer();
     const { response, headers, getBody } = createResponse();
     const execute = vi.fn(async (request) => {
       expect(request.functionName).toBe("doGet");
@@ -94,17 +99,19 @@ describe("createHostHttpHandler", () => {
       userContentPort: 62000,
     });
 
-    await handler(
-      {
-        url: "/dev?name=alice",
-        method: "GET",
-        headers: {
-          host: "localhost:5173",
-          "user-agent": "Vegas Browser",
-        },
-      } as any,
-      response as any,
-      vi.fn(),
+    await Promise.resolve(
+      handler(
+        {
+          url: "/dev?name=alice",
+          method: "GET",
+          headers: {
+            host: "localhost:5173",
+            "user-agent": "Vegas Browser",
+          },
+        } as any,
+        response as any,
+        vi.fn(),
+      ),
     );
 
     expect(response.statusCode).toBe(200);
@@ -113,7 +120,7 @@ describe("createHostHttpHandler", () => {
     expect(String(getBody())).toContain(
       'src="http://localhost:62000/userCodeAppPanel?sessionId=session-1"',
     );
-    expect(server.transformIndexHtml).toHaveBeenCalledWith(
+    expect(transformIndexHtml).toHaveBeenCalledWith(
       "http://localhost:5173/dev?name=alice",
       expect.any(String),
     );
@@ -136,7 +143,7 @@ describe("createHostHttpHandler", () => {
     });
 
     const handler = createHostHttpHandler({
-      server: createServer(),
+      server: createServer().server,
       builds: { waitForIdle: async () => undefined },
       sessions: { issue: () => "session-1" },
       runtime: { execute },
@@ -152,7 +159,7 @@ describe("createHostHttpHandler", () => {
       "user-agent": "Vegas Browser",
     };
 
-    await handler(request, response as any, vi.fn());
+    await Promise.resolve(handler(request, response as any, vi.fn()));
 
     expect(response.statusCode).toBe(200);
     expect(headers.get("Content-Type")).toBe("text/plain; charset=utf-8");

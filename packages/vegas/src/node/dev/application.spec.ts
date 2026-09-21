@@ -127,23 +127,25 @@ describe("startDevApplication", () => {
 
     const hostHandler = host.server.middlewares.stack[0]?.handle as Connect.NextHandleFunction;
     const hostBody: unknown[] = [];
-    await hostHandler?.(
-      {
-        url: "/dev",
-        method: "GET",
-        headers: {
-          host: "localhost:62000",
-          "user-agent": "Vegas Browser",
-        },
-      } as any,
-      {
-        statusCode: 0,
-        setHeader() {},
-        end(value?: unknown) {
-          hostBody.push(value);
-        },
-      } as any,
-      (() => undefined) as any,
+    await Promise.resolve(
+      hostHandler?.(
+        {
+          url: "/dev",
+          method: "GET",
+          headers: {
+            host: "localhost:62000",
+            "user-agent": "Vegas Browser",
+          },
+        } as any,
+        {
+          statusCode: 0,
+          setHeader() {},
+          end(value?: unknown) {
+            hostBody.push(value);
+          },
+        } as any,
+        (() => undefined) as any,
+      ),
     );
 
     expect(String(hostBody[0])).toContain(
@@ -153,22 +155,24 @@ describe("startDevApplication", () => {
     const userContentHandler = userContent.server.middlewares.stack[0]
       ?.handle as Connect.NextHandleFunction;
     const userContentBody: unknown[] = [];
-    await userContentHandler?.(
-      {
-        url: "/userCodeAppPanel",
-        method: "GET",
-        headers: {
-          host: "localhost:63000",
-        },
-      } as any,
-      {
-        statusCode: 0,
-        setHeader() {},
-        end(value?: unknown) {
-          userContentBody.push(value);
-        },
-      } as any,
-      (() => undefined) as any,
+    await Promise.resolve(
+      userContentHandler?.(
+        {
+          url: "/userCodeAppPanel",
+          method: "GET",
+          headers: {
+            host: "localhost:63000",
+          },
+        } as any,
+        {
+          statusCode: 0,
+          setHeader() {},
+          end(value?: unknown) {
+            userContentBody.push(value);
+          },
+        } as any,
+        (() => undefined) as any,
+      ),
     );
 
     expect(String(userContentBody[0])).toContain('hostOrigin: "http://localhost:62000"');

@@ -136,7 +136,7 @@ function inlineBundleReferences(
   bundle: ClientOutputBundle,
   inlinedOutputs: Set<string>,
 ): void {
-  for (const child of [...defaultTreeAdapter.getChildNodes(parent)]) {
+  for (const child of defaultTreeAdapter.getChildNodes(parent).slice()) {
     if (!defaultTreeAdapter.isElementNode(child)) {
       continue;
     }
@@ -198,7 +198,7 @@ function removeInlinedModulePreloads(
   bundle: ClientOutputBundle,
   inlinedOutputs: ReadonlySet<string>,
 ): void {
-  for (const child of [...defaultTreeAdapter.getChildNodes(parent)]) {
+  for (const child of defaultTreeAdapter.getChildNodes(parent).slice()) {
     if (!defaultTreeAdapter.isElementNode(child)) {
       continue;
     }

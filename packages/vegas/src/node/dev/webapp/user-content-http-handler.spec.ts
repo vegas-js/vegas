@@ -46,14 +46,16 @@ describe("createUserContentHttpHandler", () => {
       hostPort: 5173,
     });
 
-    await handler(
-      {
-        url: "/blank",
-        method: "GET",
-        headers: { host: "localhost:5174" },
-      } as any,
-      response as any,
-      next,
+    await Promise.resolve(
+      handler(
+        {
+          url: "/blank",
+          method: "GET",
+          headers: { host: "localhost:5174" },
+        } as any,
+        response as any,
+        next,
+      ),
     );
 
     expect(waitForIdle).toHaveBeenCalledOnce();
@@ -75,14 +77,16 @@ describe("createUserContentHttpHandler", () => {
       hostPort: 5173,
     });
 
-    await handler(
-      {
-        url: "/userCodeAppPanel?sessionId=session-1",
-        method: "GET",
-        headers: { host: "localhost:5174" },
-      } as any,
-      response as any,
-      vi.fn(),
+    await Promise.resolve(
+      handler(
+        {
+          url: "/userCodeAppPanel?sessionId=session-1",
+          method: "GET",
+          headers: { host: "localhost:5174" },
+        } as any,
+        response as any,
+        vi.fn(),
+      ),
     );
 
     expect(claim).toHaveBeenCalledWith("session-1");
@@ -103,14 +107,16 @@ describe("createUserContentHttpHandler", () => {
       hostPort: 5173,
     });
 
-    await handler(
-      {
-        url: "/userCodeAppPanel?sessionId=session-1",
-        method: "GET",
-        headers: { host: "localhost:5174" },
-      } as any,
-      response as any,
-      vi.fn(),
+    await Promise.resolve(
+      handler(
+        {
+          url: "/userCodeAppPanel?sessionId=session-1",
+          method: "GET",
+          headers: { host: "localhost:5174" },
+        } as any,
+        response as any,
+        vi.fn(),
+      ),
     );
 
     expect(String(getBody())).toContain(
@@ -134,14 +140,16 @@ describe("createUserContentHttpHandler", () => {
       hostPort: 5173,
     });
 
-    await handler(
-      {
-        url: "/blank",
-        method: "GET",
-        headers: { host: "localhost:5174" },
-      } as any,
-      response as any,
-      next,
+    await Promise.resolve(
+      handler(
+        {
+          url: "/blank",
+          method: "GET",
+          headers: { host: "localhost:5174" },
+        } as any,
+        response as any,
+        next,
+      ),
     );
 
     expect(next).toHaveBeenCalledOnce();
@@ -162,14 +170,16 @@ describe("createUserContentHttpHandler", () => {
       hostPort: 5173,
     });
 
-    await handler(
-      {
-        url: "/other",
-        method: "GET",
-        headers: { host: "localhost:5174" },
-      } as any,
-      response as any,
-      next,
+    await Promise.resolve(
+      handler(
+        {
+          url: "/other",
+          method: "GET",
+          headers: { host: "localhost:5174" },
+        } as any,
+        response as any,
+        next,
+      ),
     );
 
     expect(next).toHaveBeenCalledOnce();
