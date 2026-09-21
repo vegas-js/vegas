@@ -135,6 +135,23 @@ describe("runtime data", () => {
       id: "archive",
     });
   });
+
+  test("reject runtime data without a supported target", async () => {
+    const propertiesStore = new InMemoryPropertiesStore();
+
+    await expect(
+      loadRuntimeData(
+        "/project",
+        ["/project/runtime/invalid.ts"],
+        propertiesStore,
+        {
+          scriptKey: "script-a",
+          userKey: "user-a",
+        },
+        async () => ({ target: "Unknown" }),
+      ),
+    ).rejects.toThrow("Unsupported runtime data target in /project/runtime/invalid.ts: Unknown");
+  });
 });
 
 describe("applyPropertiesRuntimeData", () => {

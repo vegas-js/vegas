@@ -2,11 +2,15 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 
-import { describe, expect, test } from "vitest";
+import { describe, expect, expectTypeOf, test } from "vitest";
 
 import { loadModule } from "./load";
 
 describe("loadModule", () => {
+  test("expose loaded module values as unknown", () => {
+    expectTypeOf(loadModule).returns.toEqualTypeOf<Promise<unknown>>();
+  });
+
   test("load module relative to project root", async () => {
     const tempDirPath = fs.mkdtempSync(path.join(os.tmpdir(), "vegas-"));
     const projectDir = path.join(tempDirPath, "project");

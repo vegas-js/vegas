@@ -63,7 +63,7 @@ async function transpileModule(ctx: { root: string; filePath: string; outputDir:
   return path.join(ctx.outputDir, chunks[0].fileName);
 }
 
-export async function loadModule(ctx: { root: string; filePath: string }): Promise<any> {
+export async function loadModule(ctx: { root: string; filePath: string }): Promise<unknown> {
   using tempDir = new DisposableTempDir(".vegas", ctx.root);
 
   const transpiledModulePath = await transpileModule({
@@ -72,11 +72,13 @@ export async function loadModule(ctx: { root: string; filePath: string }): Promi
     outputDir: tempDir.getPath(),
   });
   const moduleUrl = url.pathToFileURL(transpiledModulePath);
-  const rawModule = (await import(moduleUrl.href)) as Record<string, unknown>;
+  const rawModule: unknown = await import(moduleUrl.href);
 
-  if (!Object.hasOwn(rawModule, "default")) {
+  if (typeof rawModule !== "object" || rawModule === null || !Object.hasOwn(rawModule, "default")) {
     throw new Error("module must have a default export.");
   }
 
-  return rawModule.default;
+  const defaultExport: unknown = Reflect.get(rawModule, "default");
+
+  return defaultExport;
 }

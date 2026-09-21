@@ -11,9 +11,32 @@ import {
   type PropertiesStore,
 } from "../../runtime";
 
+type RuntimeDataModule =
+  | (RuntimeDataProperties & { readonly target: RuntimeDataTarget.Properties })
+  | (RuntimeDataSession & { readonly target: RuntimeDataTarget.Session })
+  | (RuntimeDataSpreadsheet & { readonly target: RuntimeDataTarget.Spreadsheet })
+  | { readonly target: RuntimeDataTarget.Cache };
+
 export interface LoadedRuntimeData {
   readonly session?: RuntimeDataSession;
   readonly spreadsheets: readonly RuntimeDataSpreadsheet[];
+}
+
+function requireRuntimeDataModule(value: unknown, source: string): RuntimeDataModule {
+  if (typeof value !== "object" || value === null || !("target" in value)) {
+    throw new Error(`Runtime data module must export a target: ${source}`);
+  }
+
+  switch (value.target) {
+    case RuntimeDataTarget.Properties:
+    case RuntimeDataTarget.Session:
+    case RuntimeDataTarget.Spreadsheet:
+    case RuntimeDataTarget.Cache:
+      return value as RuntimeDataModule;
+
+    default:
+      throw new Error(`Unsupported runtime data target in ${source}: ${String(value.target)}`);
+  }
 }
 
 export async function loadRuntimeData(
@@ -27,7 +50,10 @@ export async function loadRuntimeData(
   const spreadsheets: RuntimeDataSpreadsheet[] = [];
 
   for (const source of runtimeDataSources) {
-    const data = await load({ root: projectRoot, filePath: source });
+    const data = requireRuntimeDataModule(
+      await load({ root: projectRoot, filePath: source }),
+      source,
+    );
 
     switch (data.target) {
       case RuntimeDataTarget.Properties: {
@@ -42,7 +68,9 @@ export async function loadRuntimeData(
         spreadsheets.push(data);
         break;
       }
-      // TODO
+      case RuntimeDataTarget.Cache: {
+        break;
+      }
     }
   }
 
