@@ -1,18 +1,20 @@
+import { Readable } from "node:stream";
+
 import { describe, expect, test, vi } from "vitest";
 
 import { InMemorySpreadsheetStore } from "../../runtime";
 import { createLocalSpreadsheetHttpHandler } from "./local-spreadsheet-http-handler";
 
-function createRequest(method: string, url: string, body?: string) {
-  return {
+type LocalSpreadsheetHttpHandler = ReturnType<typeof createLocalSpreadsheetHttpHandler>;
+type LocalSpreadsheetRequest = Parameters<LocalSpreadsheetHttpHandler>[0];
+type LocalSpreadsheetResponse = Parameters<LocalSpreadsheetHttpHandler>[1];
+
+function createRequest(method: string, url: string, body?: string): LocalSpreadsheetRequest {
+  return Object.assign(Readable.from(body === undefined ? [] : [body]), {
     method,
     url,
-    async *[Symbol.asyncIterator]() {
-      if (body !== undefined) {
-        yield body;
-      }
-    },
-  };
+    headers: {},
+  }) as unknown as LocalSpreadsheetRequest;
 }
 
 function createResponse() {
@@ -28,7 +30,7 @@ function createResponse() {
       end(value?: unknown) {
         body = value;
       },
-    },
+    } as unknown as LocalSpreadsheetResponse,
     headers,
     getBody: () => body,
   };
@@ -68,11 +70,8 @@ describe("createLocalSpreadsheetHttpHandler", () => {
     const first = createResponse();
     await Promise.resolve(
       handler(
-        {
-          method: "GET",
-          url: "/__vegas/spreadsheets/budget?sheet=7",
-        } as any,
-        first.response as any,
+        createRequest("GET", "/__vegas/spreadsheets/budget?sheet=7"),
+        first.response,
         vi.fn(),
       ),
     );
@@ -96,14 +95,7 @@ describe("createLocalSpreadsheetHttpHandler", () => {
 
     const second = createResponse();
     await Promise.resolve(
-      handler(
-        {
-          method: "GET",
-          url: "/__vegas/spreadsheets/forecast",
-        } as any,
-        second.response as any,
-        vi.fn(),
-      ),
+      handler(createRequest("GET", "/__vegas/spreadsheets/forecast"), second.response, vi.fn()),
     );
 
     expect(String(second.getBody())).toContain("<title>Forecast · Vegas Local Spreadsheet</title>");
@@ -131,14 +123,7 @@ describe("createLocalSpreadsheetHttpHandler", () => {
     const { response, getBody } = createResponse();
 
     await Promise.resolve(
-      handler(
-        {
-          method: "GET",
-          url: "/__vegas/spreadsheets/blank",
-        } as any,
-        response as any,
-        vi.fn(),
-      ),
+      handler(createRequest("GET", "/__vegas/spreadsheets/blank"), response, vi.fn()),
     );
 
     const body = String(getBody());
@@ -173,14 +158,7 @@ describe("createLocalSpreadsheetHttpHandler", () => {
     const { response, headers, getBody } = createResponse();
 
     await Promise.resolve(
-      handler(
-        {
-          method: "GET",
-          url: "/__vegas/api/spreadsheets/budget",
-        } as any,
-        response as any,
-        vi.fn(),
-      ),
+      handler(createRequest("GET", "/__vegas/api/spreadsheets/budget"), response, vi.fn()),
     );
 
     expect(headers.get("Content-Type")).toBe("application/json; charset=utf-8");
@@ -233,8 +211,8 @@ describe("createLocalSpreadsheetHttpHandler", () => {
             column: 2,
             value: 100,
           }),
-        ) as any,
-        response as any,
+        ),
+        response,
         vi.fn(),
       ),
     );
@@ -307,8 +285,8 @@ describe("createLocalSpreadsheetHttpHandler", () => {
 
     await Promise.resolve(
       handler(
-        createRequest("PATCH", "/__vegas/api/spreadsheets/budget/cells", body) as any,
-        response as any,
+        createRequest("PATCH", "/__vegas/api/spreadsheets/budget/cells", body),
+        response,
         next,
       ),
     );
@@ -343,14 +321,7 @@ describe("createLocalSpreadsheetHttpHandler", () => {
 
     const page = createResponse();
     await Promise.resolve(
-      handler(
-        {
-          method: "GET",
-          url: "/__vegas/spreadsheets/budget%3A2026",
-        } as any,
-        page.response as any,
-        vi.fn(),
-      ),
+      handler(createRequest("GET", "/__vegas/spreadsheets/budget%3A2026"), page.response, vi.fn()),
     );
 
     expect(String(page.getBody())).toContain("<title>Budget · Vegas Local Spreadsheet</title>");
@@ -358,11 +329,8 @@ describe("createLocalSpreadsheetHttpHandler", () => {
     const api = createResponse();
     await Promise.resolve(
       handler(
-        {
-          method: "GET",
-          url: "/__vegas/api/spreadsheets/budget%3A2026",
-        } as any,
-        api.response as any,
+        createRequest("GET", "/__vegas/api/spreadsheets/budget%3A2026"),
+        api.response,
         vi.fn(),
       ),
     );
@@ -379,16 +347,7 @@ describe("createLocalSpreadsheetHttpHandler", () => {
     const next = vi.fn();
     const { response } = createResponse();
 
-    await Promise.resolve(
-      handler(
-        {
-          method: "GET",
-          url: "/dev",
-        } as any,
-        response as any,
-        next,
-      ),
-    );
+    await Promise.resolve(handler(createRequest("GET", "/dev"), response, next));
 
     expect(next).toHaveBeenCalledOnce();
     expect(response.statusCode).toBe(0);
