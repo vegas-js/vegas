@@ -93,6 +93,7 @@ export function resolveProject(
       manifest: {
         dependencies: appsScriptManifest?.dependencies,
         exceptionLogging: appsScriptManifest?.exceptionLogging ?? "STACKDRIVER",
+        executionApi: appsScriptManifest?.executionApi,
         oauthScopes: appsScriptManifest?.oauthScopes,
         runtimeVersion: appsScriptManifest?.runtimeVersion ?? "V8",
         timeZone: appsScriptManifest?.timeZone ?? "UTC",

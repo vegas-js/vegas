@@ -57,14 +57,21 @@ const dependenciesSchema = strictPlainObject({
   libraries: z.array(librarySchema).optional(),
 });
 
+const appsScriptAccessSchema = z.enum(["MYSELF", "DOMAIN", "ANYONE", "ANYONE_ANONYMOUS"]);
+
+const executionApiSchema = strictPlainObject({
+  access: appsScriptAccessSchema.optional(),
+});
+
 const webAppSchema = strictPlainObject({
-  access: z.enum(["MYSELF", "DOMAIN", "ANYONE", "ANYONE_ANONYMOUS"]).optional(),
+  access: appsScriptAccessSchema.optional(),
   executeAs: z.enum(["USER_ACCESSING", "USER_DEPLOYING"]).optional(),
 });
 
 const manifestSchema = strictPlainObject({
   dependencies: dependenciesSchema.optional(),
   exceptionLogging: z.enum(["NONE", "STACKDRIVER"]).optional(),
+  executionApi: executionApiSchema.optional(),
   oauthScopes: z.array(z.string()).optional(),
   runtimeVersion: z.enum(["STABLE", "V8", "DEPRECATED_ES5"]).optional(),
   timeZone: z.string().optional(),

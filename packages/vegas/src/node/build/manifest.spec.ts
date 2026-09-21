@@ -8,6 +8,9 @@ describe("createAppsScriptManifestArtifact", () => {
     const manifest: AppsScriptManifest = {
       dependencies: {},
       exceptionLogging: "STACKDRIVER",
+      executionApi: {
+        access: "DOMAIN",
+      },
       runtimeVersion: "V8",
       oauthScopes: [],
       timeZone: "UTC",
@@ -32,6 +35,9 @@ describe("createAppsScriptManifestArtifact", () => {
 
   test("remove webapp config for non-web app", () => {
     const manifest: AppsScriptManifest = {
+      executionApi: {
+        access: "ANYONE",
+      },
       runtimeVersion: "V8",
       timeZone: "UTC",
       webapp: {
@@ -43,6 +49,9 @@ describe("createAppsScriptManifestArtifact", () => {
     const artifact = createAppsScriptManifestArtifact(manifest, false);
 
     expect(JSON.parse(artifact.content as string)).toStrictEqual({
+      executionApi: {
+        access: "ANYONE",
+      },
       runtimeVersion: "V8",
       timeZone: "UTC",
     });

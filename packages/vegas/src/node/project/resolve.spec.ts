@@ -48,6 +48,7 @@ describe("resolveProject", () => {
         manifest: {
           dependencies: undefined,
           exceptionLogging: "STACKDRIVER",
+          executionApi: undefined,
           oauthScopes: undefined,
           runtimeVersion: "V8",
           timeZone: "UTC",
@@ -284,6 +285,9 @@ describe("resolveProject", () => {
         appsScript: {
           manifest: {
             exceptionLogging: "NONE",
+            executionApi: {
+              access: "DOMAIN",
+            },
             runtimeVersion: "STABLE",
             timeZone: "Asia/Tokyo",
             oauthScopes: ["scope"],
@@ -299,6 +303,9 @@ describe("resolveProject", () => {
       expect(project.appsScript.manifest).toStrictEqual({
         dependencies: undefined,
         exceptionLogging: "NONE",
+        executionApi: {
+          access: "DOMAIN",
+        },
         oauthScopes: ["scope"],
         runtimeVersion: "STABLE",
         timeZone: "Asia/Tokyo",
@@ -322,6 +329,7 @@ describe("resolveProject", () => {
       expect(project.appsScript.manifest).toStrictEqual({
         dependencies: undefined,
         exceptionLogging: "STACKDRIVER",
+        executionApi: undefined,
         oauthScopes: undefined,
         runtimeVersion: "V8",
         timeZone: "Asia/Tokyo",

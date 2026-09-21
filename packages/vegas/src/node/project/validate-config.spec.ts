@@ -47,6 +47,9 @@ describe("validateUserConfig", () => {
             ],
           },
           exceptionLogging: "STACKDRIVER",
+          executionApi: {
+            access: "DOMAIN",
+          },
           oauthScopes: ["scope"],
           runtimeVersion: "V8",
           timeZone: "Asia/Tokyo",
@@ -108,6 +111,22 @@ describe("validateUserConfig", () => {
         },
       }),
     ).toThrow('Invalid Vegas config: unknown option "appsScript.manifest.unsupportedField".');
+  });
+
+  test("reject invalid execution API access", () => {
+    expect(() =>
+      validateUserConfig({
+        appsScript: {
+          manifest: {
+            executionApi: {
+              access: "PUBLIC",
+            },
+          },
+        },
+      }),
+    ).toThrow(
+      'Invalid Vegas config: "appsScript.manifest.executionApi.access" must be one of "MYSELF", "DOMAIN", "ANYONE", "ANYONE_ANONYMOUS".',
+    );
   });
 
   test("report invalid array item path", () => {

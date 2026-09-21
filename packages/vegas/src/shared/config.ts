@@ -96,14 +96,21 @@ type AppsScriptDependencies = {
   libraries?: AppsScriptLibrary[];
 };
 
+type AppsScriptAccess = "MYSELF" | "DOMAIN" | "ANYONE" | "ANYONE_ANONYMOUS";
+
+type AppsScriptExecutionApi = {
+  access?: AppsScriptAccess;
+};
+
 type AppsScriptWebApp = {
-  access?: "MYSELF" | "DOMAIN" | "ANYONE" | "ANYONE_ANONYMOUS";
+  access?: AppsScriptAccess;
   executeAs?: "USER_ACCESSING" | "USER_DEPLOYING";
 };
 
 export type AppsScriptManifest = {
   dependencies?: AppsScriptDependencies;
   exceptionLogging?: "NONE" | "STACKDRIVER";
+  executionApi?: AppsScriptExecutionApi;
   oauthScopes?: string[];
   runtimeVersion?: "STABLE" | "V8" | "DEPRECATED_ES5";
   timeZone?: string;

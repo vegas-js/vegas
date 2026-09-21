@@ -192,6 +192,20 @@ Each entry can contain:
 - `userSymbol`: `string`
 - `version`: `string`
 
+#### appsScript.manifest.executionApi
+
+- **Type:** `object`
+
+API executable deployment configuration. This field is used when the Apps Script project is deployed for API execution.
+
+##### appsScript.manifest.executionApi.access
+
+- **Type:** `"MYSELF" | "DOMAIN" | "ANYONE" | "ANYONE_ANONYMOUS"`
+
+Controls who can run the script through the Apps Script API. Vegas preserves this value in the generated `appsscript.json` and does not add a default when `executionApi` is omitted.
+
+See the [Apps Script web apps and API executables manifest documentation](https://developers.google.com/apps-script/manifest/web-app-api-executable) for the access levels.
+
 #### appsScript.manifest.exceptionLogging
 
 - **Type:** `"NONE" | "STACKDRIVER"`
