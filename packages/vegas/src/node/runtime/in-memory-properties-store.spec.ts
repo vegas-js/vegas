@@ -89,6 +89,45 @@ describe("InMemoryPropertiesStore values", () => {
     });
   });
 
+  test("clone all namespaces without sharing mutations", async () => {
+    const store = new InMemoryPropertiesStore();
+    const documentProperties: PropertiesNamespace = {
+      kind: "document",
+      scriptKey: "script-a",
+      documentKey: "document-a",
+    };
+
+    await store.setAll(scriptProperties, {
+      script: "before clone",
+    });
+    await store.setAll(userProperties, {
+      user: "before clone",
+    });
+    await store.setAll(documentProperties, {
+      document: "before clone",
+    });
+
+    const clone = store.clone();
+
+    await store.set(scriptProperties, "script", "original update");
+    await clone.set(userProperties, "user", "clone update");
+    await clone.clear(documentProperties);
+
+    expect(await clone.getAll(scriptProperties)).toStrictEqual({
+      script: "before clone",
+    });
+    expect(await store.getAll(userProperties)).toStrictEqual({
+      user: "before clone",
+    });
+    expect(await store.getAll(documentProperties)).toStrictEqual({
+      document: "before clone",
+    });
+    expect(await clone.getAll(userProperties)).toStrictEqual({
+      user: "clone update",
+    });
+    expect(await clone.getAll(documentProperties)).toStrictEqual({});
+  });
+
   test("merge and replace property values", async () => {
     const store = new InMemoryPropertiesStore();
 

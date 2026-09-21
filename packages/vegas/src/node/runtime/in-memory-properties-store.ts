@@ -18,6 +18,16 @@ function createNamespaceKey(namespace: PropertiesNamespace): string {
 export class InMemoryPropertiesStore implements PropertiesStore {
   readonly #stores = new Map<string, Map<string, string>>();
 
+  clone(): InMemoryPropertiesStore {
+    const clone = new InMemoryPropertiesStore();
+
+    for (const [namespace, values] of this.#stores) {
+      clone.#stores.set(namespace, new Map(values));
+    }
+
+    return clone;
+  }
+
   #getStore(namespace: PropertiesNamespace): Map<string, string> | undefined {
     return this.#stores.get(createNamespaceKey(namespace));
   }
