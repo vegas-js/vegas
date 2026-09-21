@@ -8,18 +8,20 @@ export interface UrlFetchHostCallHandler {
 
 export class UrlFetchHostHandler implements UrlFetchHostCallHandler {
   readonly #capability: UrlFetchCapability;
+  readonly #signal: AbortSignal | undefined;
 
-  constructor(capability: UrlFetchCapability) {
+  constructor(capability: UrlFetchCapability, signal?: AbortSignal) {
     this.#capability = capability;
+    this.#signal = signal;
   }
 
   async handle(call: UrlFetchHostCall): Promise<UrlFetchHostCallResult<UrlFetchHostCall>> {
     switch (call.operation) {
       case "fetch": {
-        return this.#capability.fetch(call.request);
+        return this.#capability.fetch(call.request, this.#signal);
       }
       case "fetch-all": {
-        return this.#capability.fetchAll(call.requests);
+        return this.#capability.fetchAll(call.requests, this.#signal);
       }
     }
 

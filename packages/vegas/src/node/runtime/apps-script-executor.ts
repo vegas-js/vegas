@@ -37,7 +37,6 @@ export interface AppsScriptExecutorOptions {
 
 export function createAppsScriptExecutor(options: AppsScriptExecutorOptions): Executor {
   const blob = new BlobHostHandler(options.blobConversionCapability);
-  const urlFetch = new UrlFetchHostHandler(options.urlFetchCapability);
 
   return {
     execute(request) {
@@ -54,7 +53,7 @@ export function createAppsScriptExecutor(options: AppsScriptExecutorOptions): Ex
         lock: new LockHostHandler(lockSession, request.scope),
         properties: new PropertiesHostHandler(options.propertiesStore, request.scope),
         spreadsheet: new SpreadsheetHostHandler(options.spreadsheetStore),
-        urlFetch,
+        urlFetch: new UrlFetchHostHandler(options.urlFetchCapability, request.signal),
       });
 
       return options.runWorker(dispatcher, request).finally(() => lockSession.releaseAll());

@@ -27,38 +27,44 @@ type RecordedUrlFetchCall =
   | {
       readonly operation: "fetch";
       readonly request: UrlFetchRequestValue;
+      readonly signal?: AbortSignal;
     }
   | {
       readonly operation: "fetch-all";
       readonly requests: readonly UrlFetchRequestValue[];
+      readonly signal?: AbortSignal;
     };
 
 class RecordingUrlFetchCapability implements UrlFetchCapability {
   readonly calls: RecordedUrlFetchCall[] = [];
 
-  async fetch(request: UrlFetchRequestValue): Promise<UrlFetchResponseValue> {
+  async fetch(request: UrlFetchRequestValue, signal?: AbortSignal): Promise<UrlFetchResponseValue> {
     this.calls.push({
       operation: "fetch",
       request,
+      ...(signal === undefined ? {} : { signal }),
     });
     return RESPONSE_A;
   }
 
   async fetchAll(
     requests: readonly UrlFetchRequestValue[],
+    signal?: AbortSignal,
   ): Promise<readonly UrlFetchResponseValue[]> {
     this.calls.push({
       operation: "fetch-all",
       requests,
+      ...(signal === undefined ? {} : { signal }),
     });
     return [RESPONSE_A, RESPONSE_B];
   }
 }
 
 describe("UrlFetchHostHandler", () => {
-  test("delegate a single fetch to the injected capability", async () => {
+  test("delegate a single fetch with the invocation signal", async () => {
     const capability = new RecordingUrlFetchCapability();
-    const handler = new UrlFetchHostHandler(capability);
+    const controller = new AbortController();
+    const handler = new UrlFetchHostHandler(capability, controller.signal);
     const request = {
       url: "https://example.com",
       method: "post",
@@ -76,12 +82,15 @@ describe("UrlFetchHostHandler", () => {
       }),
     ).resolves.toStrictEqual(RESPONSE_A);
 
-    expect(capability.calls).toStrictEqual([{ operation: "fetch", request }]);
+    expect(capability.calls).toStrictEqual([
+      { operation: "fetch", request, signal: controller.signal },
+    ]);
   });
 
-  test("preserve batch fetch as one capability operation", async () => {
+  test("preserve batch fetch and its invocation signal as one capability operation", async () => {
     const capability = new RecordingUrlFetchCapability();
-    const handler = new UrlFetchHostHandler(capability);
+    const controller = new AbortController();
+    const handler = new UrlFetchHostHandler(capability, controller.signal);
     const requests = [
       { url: "https://example.com/a" },
       { url: "https://example.com/b", method: "delete" },
@@ -95,6 +104,8 @@ describe("UrlFetchHostHandler", () => {
       }),
     ).resolves.toStrictEqual([RESPONSE_A, RESPONSE_B]);
 
-    expect(capability.calls).toStrictEqual([{ operation: "fetch-all", requests }]);
+    expect(capability.calls).toStrictEqual([
+      { operation: "fetch-all", requests, signal: controller.signal },
+    ]);
   });
 });

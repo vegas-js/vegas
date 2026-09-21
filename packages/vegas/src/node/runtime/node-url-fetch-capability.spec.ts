@@ -42,6 +42,42 @@ describe("NodeUrlFetchCapability", () => {
     expect(headers.get("accept")).toBe("application/octet-stream");
   });
 
+  test("abort an in-flight fetch when the invocation is cancelled", async () => {
+    let requestSignal: AbortSignal | undefined;
+    const capability = new NodeUrlFetchCapability(
+      async (_url, init) =>
+        new Promise<Response>((_resolve, reject) => {
+          requestSignal = init.signal ?? undefined;
+
+          requestSignal?.addEventListener(
+            "abort",
+            () => {
+              reject(requestSignal?.reason);
+            },
+            { once: true },
+          );
+        }),
+    );
+    const controller = new AbortController();
+    const reason = new Error("execution cancelled");
+
+    const pending = capability.fetch(
+      {
+        url: "https://example.com/slow",
+        timeoutSeconds: 30,
+      },
+      controller.signal,
+    );
+
+    expect(requestSignal).toBeInstanceOf(AbortSignal);
+    expect(requestSignal?.aborted).toBe(false);
+
+    controller.abort(reason);
+
+    await expect(pending).rejects.toBe(reason);
+    expect(requestSignal?.aborted).toBe(true);
+  });
+
   test("map text payload, content type, redirect mode, and muted HTTP failures", async () => {
     const calls: RequestInit[] = [];
     const capability = new NodeUrlFetchCapability(async (_url, init) => {

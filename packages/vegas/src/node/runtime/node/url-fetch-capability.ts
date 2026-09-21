@@ -94,7 +94,7 @@ function createBody(payload: UrlFetchPayloadValue | undefined): BodyInit | undef
   }
 }
 
-function createRequestInit(request: UrlFetchRequestValue): RequestInit {
+function createRequestInit(request: UrlFetchRequestValue, signal?: AbortSignal): RequestInit {
   validateRequest(request);
 
   const headers = new Headers(request.headers);
@@ -118,12 +118,16 @@ function createRequestInit(request: UrlFetchRequestValue): RequestInit {
     headers.set("content-type", "application/x-www-form-urlencoded");
   }
 
+  const timeoutSignal = AbortSignal.timeout(
+    (request.timeoutSeconds ?? DEFAULT_TIMEOUT_SECONDS) * 1_000,
+  );
+
   return {
     method: request.method ?? "get",
     headers,
     body: createBody(request.payload),
     redirect: request.followRedirects === false ? "manual" : "follow",
-    signal: AbortSignal.timeout((request.timeoutSeconds ?? DEFAULT_TIMEOUT_SECONDS) * 1_000),
+    signal: signal === undefined ? timeoutSignal : AbortSignal.any([signal, timeoutSignal]),
   };
 }
 
@@ -161,8 +165,8 @@ export class NodeUrlFetchCapability implements UrlFetchCapability {
     this.#fetch = fetchFunction;
   }
 
-  async fetch(request: UrlFetchRequestValue): Promise<UrlFetchResponseValue> {
-    const response = await this.#fetch(request.url, createRequestInit(request));
+  async fetch(request: UrlFetchRequestValue, signal?: AbortSignal): Promise<UrlFetchResponseValue> {
+    const response = await this.#fetch(request.url, createRequestInit(request, signal));
 
     if (response.status >= 400 && request.muteHttpExceptions !== true) {
       throw new Error(`UrlFetch request failed with HTTP status ${response.status}.`);
@@ -173,7 +177,8 @@ export class NodeUrlFetchCapability implements UrlFetchCapability {
 
   async fetchAll(
     requests: readonly UrlFetchRequestValue[],
+    signal?: AbortSignal,
   ): Promise<readonly UrlFetchResponseValue[]> {
-    return Promise.all(requests.map((request) => this.fetch(request)));
+    return Promise.all(requests.map((request) => this.fetch(request, signal)));
   }
 }
