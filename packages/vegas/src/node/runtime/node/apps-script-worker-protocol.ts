@@ -46,7 +46,7 @@ export function isAppsScriptWorkerResponse(value: unknown): value is AppsScriptW
 export function serializeAppsScriptWorkerError(error: unknown): AppsScriptWorkerError {
   if (isRecord(error)) {
     const name = typeof error.name === "string" && error.name.length > 0 ? error.name : "Error";
-    const message = typeof error.message === "string" ? error.message : String(error);
+    const message = getAppsScriptWorkerErrorMessage(error);
 
     return {
       name,
@@ -70,6 +70,18 @@ export function restoreAppsScriptWorkerError(error: AppsScriptWorkerError): Erro
   }
 
   return restored;
+}
+
+function getAppsScriptWorkerErrorMessage(error: Record<string, unknown>): string {
+  if (typeof error.message === "string") {
+    return error.message;
+  }
+
+  try {
+    return JSON.stringify(error) ?? "Unknown error.";
+  } catch {
+    return "Unknown error.";
+  }
 }
 
 function isAppsScriptWorkerError(value: unknown): value is AppsScriptWorkerError {

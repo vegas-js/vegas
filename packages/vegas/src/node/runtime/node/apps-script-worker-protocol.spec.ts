@@ -78,6 +78,10 @@ describe("Apps Script worker protocol", () => {
       name: "Error",
       message: "failed",
     });
+    expect(serializeAppsScriptWorkerError({ code: "E_FAILED" })).toStrictEqual({
+      name: "Error",
+      message: '{"code":"E_FAILED"}',
+    });
   });
 
   test("restore serialized worker errors", () => {

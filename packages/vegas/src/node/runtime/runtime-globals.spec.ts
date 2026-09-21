@@ -43,20 +43,27 @@ const utilitiesCapability = new Proxy(
   },
 ) as UtilitiesCapability;
 
-function createLoggingTarget(): LoggingTarget {
+function createLoggingTargetFixture() {
+  const info = vi.fn();
+  const warn = vi.fn();
+
   return {
-    error: vi.fn(),
-    info: vi.fn(),
-    log: vi.fn(),
-    time: vi.fn(),
-    timeEnd: vi.fn(),
-    warn: vi.fn(),
+    target: {
+      error: vi.fn(),
+      info,
+      log: vi.fn(),
+      time: vi.fn(),
+      timeEnd: vi.fn(),
+      warn,
+    } satisfies LoggingTarget,
+    info,
+    warn,
   };
 }
 
 describe("createRuntimeGlobals", () => {
   test("compose the Apps Script global surface from explicit Runtime dependencies", () => {
-    const loggingTarget = createLoggingTarget();
+    const logging = createLoggingTargetFixture();
     const utilities = new Utilities(utilitiesCapability);
     const globals = createRuntimeGlobals({
       hostBridge,
@@ -64,7 +71,7 @@ describe("createRuntimeGlobals", () => {
       htmlFiles: {
         "index.html": "<main>Vegas</main>",
       },
-      loggingTarget,
+      loggingTarget: logging.target,
       utilities,
     });
 
@@ -88,8 +95,8 @@ describe("createRuntimeGlobals", () => {
     globals.Logger.log("runtime log");
     globals.console.warn("runtime warning");
 
-    expect(loggingTarget.info).toHaveBeenCalledWith("runtime log");
-    expect(loggingTarget.warn).toHaveBeenCalledWith("runtime warning");
+    expect(logging.info).toHaveBeenCalledWith("runtime log");
+    expect(logging.warn).toHaveBeenCalledWith("runtime warning");
   });
 
   test("preserve unsupported services as explicit undefined globals", () => {
@@ -97,7 +104,7 @@ describe("createRuntimeGlobals", () => {
       hostBridge,
       environment,
       htmlFiles: {},
-      loggingTarget: createLoggingTarget(),
+      loggingTarget: createLoggingTargetFixture().target,
       utilities: new Utilities(utilitiesCapability),
     });
 

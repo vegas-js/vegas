@@ -307,12 +307,26 @@ function assertSafeAttributeContext(
   }
 
   const candidate = `${context.valuePrefix}${addedContent}`;
-  const normalized = candidate.replace(/[\u0000-\u0020\u007f]+/g, "");
+  const normalized = removeAsciiControlAndSpace(candidate);
   const scheme = /^([A-Za-z][A-Za-z0-9+.-]*):/.exec(normalized)?.[1].toLowerCase();
 
   if (scheme !== undefined && !SAFE_URL_SCHEMES.has(scheme)) {
     throw new Error(`Cannot append an unsafe URL scheme inside the ${context.name} attribute.`);
   }
+}
+
+function removeAsciiControlAndSpace(value: string): string {
+  let normalized = "";
+
+  for (const character of value) {
+    const code = character.charCodeAt(0);
+
+    if (code > 0x20 && code !== 0x7f) {
+      normalized += character;
+    }
+  }
+
+  return normalized;
 }
 
 function escapeHtmlText(value: string): string {

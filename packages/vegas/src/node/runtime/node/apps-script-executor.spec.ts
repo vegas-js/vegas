@@ -163,6 +163,6 @@ describe("createNodeAppsScriptExecutor", () => {
     });
 
     expectTypeOf(executor).toEqualTypeOf<Executor>();
-    expect(executor.execute).toBeTypeOf("function");
+    expect(executor).toHaveProperty("execute");
   });
 });

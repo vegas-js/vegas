@@ -29,6 +29,9 @@ describe("escapeHtmlContextually", () => {
     expect(() => escapeHtmlContextually('<a href="', "java\nscript:alert(1)")).toThrow(
       "Cannot append an unsafe URL scheme inside the href attribute.",
     );
+    expect(() => escapeHtmlContextually('<a href="', "java\u007fscript:alert(1)")).toThrow(
+      "Cannot append an unsafe URL scheme inside the href attribute.",
+    );
   });
 
   test("reject nested executable attribute contexts", () => {

@@ -76,7 +76,11 @@ describe("loginGoogleAppsScript", () => {
     let tokenRequestBody: string | undefined;
 
     const tokenFetch = vi.fn(async (_input: string | URL | Request, init?: RequestInit) => {
-      tokenRequestBody = String(init?.body);
+      if (typeof init?.body !== "string") {
+        throw new Error("Expected URL-encoded OAuth token request body.");
+      }
+
+      tokenRequestBody = init.body;
 
       return new Response(
         JSON.stringify({

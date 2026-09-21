@@ -97,8 +97,15 @@ describe("NodeUrlFetchCapability", () => {
     });
 
     expect(calls).toHaveLength(1);
-    expect(calls[0]?.body).toBeInstanceOf(URLSearchParams);
-    expect(String(calls[0]?.body)).toBe("name=Vegas&message=Hello+World");
+
+    const body = calls[0]?.body;
+    expect(body).toBeInstanceOf(URLSearchParams);
+
+    if (!(body instanceof URLSearchParams)) {
+      throw new Error("expected URLSearchParams body");
+    }
+
+    expect(body.toString()).toBe("name=Vegas&message=Hello+World");
     expect(new Headers(calls[0]?.headers).get("content-type")).toBe(
       "application/x-www-form-urlencoded",
     );
