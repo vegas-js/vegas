@@ -1,16 +1,9 @@
 import type { ResolvedProject } from "../../project";
 import {
-  InMemoryCacheStore,
-  InMemoryDriveIteratorStore,
-  InMemoryDriveStore,
-  InMemoryLockStore,
   InMemoryPropertiesStore,
   InMemorySpreadsheetStore,
-  type CacheStore,
-  type DriveIteratorStore,
-  type DriveStore,
+  LocalRuntimeSession,
   type LocalRuntime,
-  type LockStore,
   type Program,
 } from "../../runtime";
 import { createNodeAppsScriptExecutor } from "../../runtime/node";
@@ -19,30 +12,14 @@ import { applyPropertiesRuntimeData, loadRuntimeDataSnapshot } from "./runtime-d
 import { createInvocationEnvironment } from "./runtime-environment";
 import { createInvocationScope } from "./runtime-scope";
 
-export interface LocalRuntimeSharedStores {
-  readonly cacheStore: CacheStore;
-  readonly driveIteratorStore: DriveIteratorStore;
-  readonly driveStore: DriveStore;
-  readonly lockStore: LockStore;
-}
-
 interface LocalRuntimeOptions {
-  readonly sharedStores?: LocalRuntimeSharedStores;
+  readonly session?: LocalRuntimeSession;
   readonly spreadsheetUrlCapability?: SpreadsheetUrlCapability;
 }
 
 interface LocalRuntimeDependencies {
   readonly loadRuntimeDataSnapshot?: typeof loadRuntimeDataSnapshot;
   readonly createExecutor?: typeof createNodeAppsScriptExecutor;
-}
-
-export function createLocalRuntimeSharedStores(): LocalRuntimeSharedStores {
-  return {
-    cacheStore: new InMemoryCacheStore(),
-    driveIteratorStore: new InMemoryDriveIteratorStore(),
-    driveStore: new InMemoryDriveStore(),
-    lockStore: new InMemoryLockStore(),
-  };
 }
 
 export async function createLocalRuntime(
@@ -64,10 +41,10 @@ export async function createLocalRuntime(
   const spreadsheetStore = new InMemorySpreadsheetStore(
     snapshot.spreadsheets.map(({ value }) => value),
   );
-  const sharedStores = options.sharedStores ?? createLocalRuntimeSharedStores();
+  const runtimeSession = options.session ?? new LocalRuntimeSession();
   const createExecutor = dependencies.createExecutor ?? createNodeAppsScriptExecutor;
   const executor = createExecutor({
-    ...sharedStores,
+    ...runtimeSession.stores,
     propertiesStore,
     spreadsheetStore,
     spreadsheetUrlCapability: options.spreadsheetUrlCapability,

@@ -1,15 +1,16 @@
 import { describe, expect, expectTypeOf, test, vi } from "vitest";
 
 import type { ResolvedProject } from "../../project";
-import type {
-  ExecutionRequest,
-  Program,
-  PropertiesStore,
-  RuntimeBackend,
-  RuntimeExecutionRequest,
-  SpreadsheetStore,
+import {
+  LocalRuntimeSession,
+  type ExecutionRequest,
+  type Program,
+  type PropertiesStore,
+  type RuntimeBackend,
+  type RuntimeExecutionRequest,
+  type SpreadsheetStore,
 } from "../../runtime";
-import { createLocalRuntime, createLocalRuntimeSharedStores } from "./local-runtime";
+import { createLocalRuntime } from "./local-runtime";
 import { loadRuntimeDataSnapshot } from "./runtime-data";
 
 const project = {
@@ -76,22 +77,22 @@ describe("createLocalRuntime", () => {
       htmlFiles: {},
     };
     const getProgram = vi.fn(() => program);
-    const sharedStores = createLocalRuntimeSharedStores();
+    const runtimeSession = new LocalRuntimeSession();
 
     const localRuntime = await createLocalRuntime(
       project,
       runtimeDataSources,
       getProgram,
       {
-        sharedStores,
+        session: runtimeSession,
       },
       {
         loadRuntimeDataSnapshot: loadSnapshot,
         createExecutor: (options) => {
-          expect(options.cacheStore).toBe(sharedStores.cacheStore);
-          expect(options.driveIteratorStore).toBe(sharedStores.driveIteratorStore);
-          expect(options.driveStore).toBe(sharedStores.driveStore);
-          expect(options.lockStore).toBe(sharedStores.lockStore);
+          expect(options.cacheStore).toBe(runtimeSession.stores.cacheStore);
+          expect(options.driveIteratorStore).toBe(runtimeSession.stores.driveIteratorStore);
+          expect(options.driveStore).toBe(runtimeSession.stores.driveStore);
+          expect(options.lockStore).toBe(runtimeSession.stores.lockStore);
           propertiesStore = options.propertiesStore;
 
           return { execute };
