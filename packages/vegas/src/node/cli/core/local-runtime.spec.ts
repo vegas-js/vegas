@@ -7,6 +7,7 @@ import type {
   Program,
   RuntimeBackend,
   RuntimeExecutionRequest,
+  SpreadsheetStore,
 } from "../../runtime";
 import { createLocalRuntime } from "./local-runtime";
 import { loadRuntimeData } from "./runtime-data";
@@ -63,12 +64,18 @@ describe("createLocalRuntime", () => {
     };
     const getProgram = vi.fn(() => program);
 
-    const runtime = await createLocalRuntime(project, runtimeDataSources, getProgram, {
+    const localRuntime = await createLocalRuntime(project, runtimeDataSources, getProgram, {
       loadRuntimeData: load,
       createExecutor: () => ({ execute }),
     });
 
-    expectTypeOf(runtime).toEqualTypeOf<RuntimeBackend>();
+    expectTypeOf(localRuntime.backend).toEqualTypeOf<RuntimeBackend>();
+    expectTypeOf(localRuntime.resources.spreadsheets).toEqualTypeOf<SpreadsheetStore>();
+    await expect(
+      localRuntime.resources.spreadsheets.getSpreadsheet("budget"),
+    ).resolves.toMatchObject({
+      id: "budget",
+    });
 
     expect(loadedRoot).toBe("/project");
     expect(loadedSources).toBe(runtimeDataSources);
@@ -84,7 +91,7 @@ describe("createLocalRuntime", () => {
       signal: controller.signal,
     };
 
-    await expect(runtime.execute(request)).resolves.toBe("result");
+    await expect(localRuntime.backend.execute(request)).resolves.toBe("result");
     expect(execute).toHaveBeenLastCalledWith({
       ...request,
       program,
@@ -106,7 +113,7 @@ describe("createLocalRuntime", () => {
       htmlFiles: {},
     };
 
-    await runtime.execute(request);
+    await localRuntime.backend.execute(request);
 
     expect(getProgram).toHaveBeenCalledTimes(2);
     expect(execute).toHaveBeenLastCalledWith({

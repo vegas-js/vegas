@@ -23,12 +23,12 @@ export async function runDevApplication(mode: DevApplicationMode, root?: string)
   const getProgram = () => createRuntimeProgram(artifacts);
   const createRuntime = (runtimeDataSources: readonly string[]) =>
     createLocalRuntime(project, runtimeDataSources, getProgram);
-  const runtime = new ReloadableRuntimeBackend(
-    await createRuntime(topology.snapshot.runtimeDataSources),
-  );
+  const initialRuntime = await createRuntime(topology.snapshot.runtimeDataSources);
+  const runtime = new ReloadableRuntimeBackend(initialRuntime.backend);
   const reloadRuntime = async (): Promise<void> => {
     const runtimeDataSources = await scanRuntimeDataSources(project);
-    runtime.replace(await createRuntime(runtimeDataSources));
+    const nextRuntime = await createRuntime(runtimeDataSources);
+    runtime.replace(nextRuntime.backend);
   };
 
   await startDevApplication({

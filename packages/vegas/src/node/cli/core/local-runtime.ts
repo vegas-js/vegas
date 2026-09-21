@@ -8,11 +8,21 @@ import {
   InMemorySpreadsheetStore,
   type Program,
   type RuntimeBackend,
+  type SpreadsheetStore,
 } from "../../runtime";
 import { createNodeAppsScriptExecutor } from "../../runtime/node";
 import { loadRuntimeData } from "./runtime-data";
 import { createInvocationEnvironment } from "./runtime-environment";
 import { createInvocationScope } from "./runtime-scope";
+
+export interface LocalRuntimeResources {
+  readonly spreadsheets: SpreadsheetStore;
+}
+
+export interface LocalRuntime {
+  readonly backend: RuntimeBackend;
+  readonly resources: LocalRuntimeResources;
+}
 
 interface LocalRuntimeDependencies {
   readonly loadRuntimeData?: typeof loadRuntimeData;
@@ -24,11 +34,12 @@ export async function createLocalRuntime(
   runtimeDataSources: readonly string[],
   getProgram: () => Program,
   dependencies: LocalRuntimeDependencies = {},
-): Promise<RuntimeBackend> {
+): Promise<LocalRuntime> {
   const scope = createInvocationScope(project);
   const propertiesStore = new InMemoryPropertiesStore();
   const load = dependencies.loadRuntimeData ?? loadRuntimeData;
   const runtimeData = await load(project.root, runtimeDataSources, propertiesStore, scope);
+  const spreadsheetStore = new InMemorySpreadsheetStore(runtimeData.spreadsheets);
   const createExecutor = dependencies.createExecutor ?? createNodeAppsScriptExecutor;
   const executor = createExecutor({
     cacheStore: new InMemoryCacheStore(),
@@ -36,18 +47,23 @@ export async function createLocalRuntime(
     driveStore: new InMemoryDriveStore(),
     lockStore: new InMemoryLockStore(),
     propertiesStore,
-    spreadsheetStore: new InMemorySpreadsheetStore(runtimeData.spreadsheets),
+    spreadsheetStore,
   });
   const environment = createInvocationEnvironment(project, runtimeData.session);
 
   return {
-    execute(request) {
-      return executor.execute({
-        ...request,
-        program: getProgram(),
-        environment,
-        scope,
-      });
+    backend: {
+      execute(request) {
+        return executor.execute({
+          ...request,
+          program: getProgram(),
+          environment,
+          scope,
+        });
+      },
+    },
+    resources: {
+      spreadsheets: spreadsheetStore,
     },
   };
 }
