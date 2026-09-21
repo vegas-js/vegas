@@ -1,17 +1,17 @@
-import type { RuntimeDataSnapshot } from "../../../shared/gas";
-import type { ResolvedProject } from "../../project";
+import type { RuntimeDataSnapshot } from "../shared/gas";
+import type { ResolvedProject } from "./project";
 import {
   InMemoryPropertiesStore,
   InMemorySpreadsheetStore,
   LocalRuntimeSession,
   type LocalRuntime,
   type Program,
-} from "../../runtime";
-import { applyPropertiesRuntimeData } from "../../runtime-data-properties";
-import { createInvocationEnvironment } from "../../runtime-environment";
-import { createInvocationScope } from "../../runtime-scope";
-import { createNodeAppsScriptExecutor } from "../../runtime/node";
-import type { SpreadsheetUrlCapability } from "../../runtime/spreadsheet-url-capability";
+} from "./runtime";
+import { applyPropertiesRuntimeData } from "./runtime-data-properties";
+import { createInvocationEnvironment } from "./runtime-environment";
+import { createInvocationScope } from "./runtime-scope";
+import { createNodeAppsScriptExecutor } from "./runtime/node";
+import type { SpreadsheetUrlCapability } from "./runtime/spreadsheet-url-capability";
 
 interface LocalRuntimeOptions {
   readonly propertiesStore?: InMemoryPropertiesStore;

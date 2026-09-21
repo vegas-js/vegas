@@ -5,6 +5,7 @@ import { buildDevTopology } from "../../dev/build-topology";
 import { ReloadableLocalRuntime } from "../../dev/reloadable-local-runtime";
 import { createRuntimeProgram } from "../../dev/runtime-program";
 import { LocalSpreadsheetUrlResolver } from "../../dev/webapp/local-spreadsheet-url";
+import { createLocalRuntime } from "../../local-runtime-factory";
 import { loadProject, scanRuntimeDataSources } from "../../project";
 import {
   InMemoryPropertiesStore,
@@ -16,7 +17,6 @@ import {
   reconcileLocalSpreadsheetStore,
 } from "../../runtime-data-reconcile";
 import { createInvocationScope } from "../../runtime-scope";
-import { createLocalRuntime } from "./local-runtime";
 import { loadRuntimeDataSnapshot } from "./runtime-data";
 
 type DevApplicationMode = "development" | "production";

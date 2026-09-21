@@ -7,6 +7,7 @@ import { startDevApplication } from "../../dev/application";
 import { buildDevTopology } from "../../dev/build-topology";
 import { ReloadableLocalRuntime } from "../../dev/reloadable-local-runtime";
 import { createRuntimeProgram } from "../../dev/runtime-program";
+import { createLocalRuntime } from "../../local-runtime-factory";
 import { loadProject, scanRuntimeDataSources, type ResolvedProject } from "../../project";
 import {
   InMemoryPropertiesStore,
@@ -16,7 +17,6 @@ import {
   type Program,
 } from "../../runtime";
 import { runDevApplication } from "./dev-application";
-import { createLocalRuntime } from "./local-runtime";
 import { loadRuntimeDataSnapshot } from "./runtime-data";
 
 vi.mock("../../dev/application", () => ({
@@ -36,7 +36,7 @@ vi.mock("../../project", () => ({
   scanRuntimeDataSources: vi.fn(),
 }));
 
-vi.mock("./local-runtime", () => ({
+vi.mock("../../local-runtime-factory", () => ({
   createLocalRuntime: vi.fn(),
 }));
 
