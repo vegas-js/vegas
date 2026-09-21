@@ -1,5 +1,6 @@
 import { describe, expect, expectTypeOf, test, vi } from "vitest";
 
+import type { RuntimeDataSnapshot } from "../../../shared/gas";
 import type { ResolvedProject } from "../../project";
 import {
   LocalRuntimeSession,
@@ -11,7 +12,6 @@ import {
   type SpreadsheetStore,
 } from "../../runtime";
 import { createLocalRuntime } from "./local-runtime";
-import type { RuntimeDataSnapshot } from "./runtime-data";
 
 const project = {
   root: "/project",

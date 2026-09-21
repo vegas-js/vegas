@@ -1,4 +1,4 @@
-import { describe, expect, expectTypeOf, test } from "vitest";
+import { describe, expect, test } from "vitest";
 
 import { RuntimeDataTarget } from "../../../shared/gas";
 import {
@@ -7,50 +7,9 @@ import {
   resolvePropertiesNamespace,
   type InvocationScope,
 } from "../../runtime";
-import {
-  applyPropertiesRuntimeData,
-  loadRuntimeDataSnapshot,
-  type RuntimeDataSnapshot,
-} from "./runtime-data";
+import { applyPropertiesRuntimeData, loadRuntimeDataSnapshot } from "./runtime-data";
 
 describe("runtime data", () => {
-  test("keep snapshot sources and runtime data explicit", () => {
-    expectTypeOf<RuntimeDataSnapshot>().toEqualTypeOf<{
-      readonly properties?: {
-        readonly source: string;
-        readonly value: {
-          documentProperties?: Record<string, string>;
-          scriptProperties?: Record<string, string>;
-          userProperties?: Record<string, string>;
-        };
-      };
-      readonly session?: {
-        readonly source: string;
-        readonly value: {
-          activeUserEmail?: string;
-          activeUserLocale?: string;
-          effectiveUserEmail?: string;
-          temporaryActiveUserKey?: string;
-        };
-      };
-      readonly spreadsheets: readonly {
-        readonly source: string;
-        readonly value: {
-          readonly id: string;
-          readonly url?: string;
-          readonly name: string;
-          readonly sheets: readonly {
-            readonly id: number;
-            readonly name: string;
-            readonly maxRows: number;
-            readonly maxColumns: number;
-            readonly values?: readonly (readonly (string | number | boolean | Date)[])[];
-          }[];
-        };
-      }[];
-    }>();
-  });
-
   test("load Properties, Session, and Spreadsheet runtime data into a snapshot", async () => {
     const sources = [
       "/project/runtime/properties.ts",

@@ -1,3 +1,4 @@
+import type { RuntimeDataSnapshot } from "../../../shared/gas";
 import type { ResolvedProject } from "../../project";
 import {
   InMemoryPropertiesStore,
@@ -8,7 +9,7 @@ import {
 } from "../../runtime";
 import { createNodeAppsScriptExecutor } from "../../runtime/node";
 import type { SpreadsheetUrlCapability } from "../../runtime/spreadsheet-url-capability";
-import { applyPropertiesRuntimeData, type RuntimeDataSnapshot } from "./runtime-data";
+import { applyPropertiesRuntimeData } from "./runtime-data";
 import { createInvocationEnvironment } from "./runtime-environment";
 import { createInvocationScope } from "./runtime-scope";
 

@@ -1,7 +1,7 @@
 import type {
+  RuntimeDataEntry,
   RuntimeDataProperties,
-  RuntimeDataSession,
-  RuntimeDataSpreadsheet,
+  RuntimeDataSnapshot,
 } from "../../../shared/gas";
 import { RuntimeDataTarget } from "../../../shared/gas";
 import { loadModule } from "../../module";
@@ -12,25 +12,14 @@ import {
 } from "../../runtime";
 import { validateRuntimeDataModule } from "./runtime-data-validation";
 
-export interface RuntimeDataEntry<T> {
-  readonly source: string;
-  readonly value: T;
-}
-
-export interface RuntimeDataSnapshot {
-  readonly properties?: RuntimeDataEntry<RuntimeDataProperties>;
-  readonly session?: RuntimeDataEntry<RuntimeDataSession>;
-  readonly spreadsheets: readonly RuntimeDataEntry<RuntimeDataSpreadsheet>[];
-}
-
 export async function loadRuntimeDataSnapshot(
   projectRoot: string,
   runtimeDataSources: readonly string[],
   load: typeof loadModule = loadModule,
 ): Promise<RuntimeDataSnapshot> {
   let properties: RuntimeDataEntry<RuntimeDataProperties> | undefined;
-  let session: RuntimeDataEntry<RuntimeDataSession> | undefined;
-  const spreadsheets: RuntimeDataEntry<RuntimeDataSpreadsheet>[] = [];
+  let session: RuntimeDataSnapshot["session"];
+  const spreadsheets: RuntimeDataSnapshot["spreadsheets"][number][] = [];
   const spreadsheetSourcesById = new Map<string, string>();
   const spreadsheetSourcesByUrl = new Map<string, string>();
 
