@@ -2,9 +2,13 @@ import type {
   ServerFunctionCallRequest,
   ServerFunctionCallResponse,
 } from "../shared/webapp-protocol";
+import { ServerFunctionRequestRegistry } from "./server-function-requests";
 import { createServerFunctionRun } from "./server-function-run";
 
+const RPC_DISCONNECTED_MESSAGE = "Vegas RPC transport is disconnected.";
+
 const { port1, port2 } = new MessageChannel();
+const requests = new ServerFunctionRequestRegistry();
 
 interface VegasInitEvent {
   type: "vegas:init";
@@ -20,9 +24,17 @@ interface VegasReturnEvent {
   payload: ServerFunctionCallResponse;
 }
 
-type VegasEvent = VegasInitEvent | VegasReturnEvent;
+interface VegasTransportEvent {
+  type: "vegas:transport";
+  payload: {
+    connected: boolean;
+  };
+}
+
+type VegasEvent = VegasInitEvent | VegasReturnEvent | VegasTransportEvent;
 
 let retryPreInitTimer: number | null = null;
+let rpcConnected = false;
 
 function vegasLoadListener() {
   retryPreInitTimer = setInterval(
@@ -51,23 +63,21 @@ window.addEventListener("message", (event) => {
 port1.onmessage = (event: MessageEvent<VegasEvent>) => {
   switch (event.data.type) {
     case "vegas:init": {
+      rpcConnected = true;
       delete window.vegas.id;
       delete window.vegas.hostOrigin;
       injectUserHtml(event.data.payload.serverData.userHtml);
       break;
     }
     case "vegas:return": {
-      const handlers = window.vegas.requestMap.get(event.data.payload.requestId);
-      if (handlers) {
-        window.vegas.requestMap.delete(event.data.payload.requestId);
+      requests.complete(event.data.payload);
+      break;
+    }
+    case "vegas:transport": {
+      rpcConnected = event.data.payload.connected;
 
-        if (event.data.payload.status === "ok") {
-          handlers.success?.(event.data.payload.result);
-        } else if (handlers.failure) {
-          handlers.failure(event.data.payload.message);
-        } else {
-          console.error(event.data.payload.message);
-        }
+      if (!rpcConnected) {
+        requests.failAll(RPC_DISCONNECTED_MESSAGE);
       }
       break;
     }
@@ -75,12 +85,12 @@ port1.onmessage = (event: MessageEvent<VegasEvent>) => {
 };
 
 const proxiedGASRun = createServerFunctionRun(({ functionName, args, handlers }) => {
-  let requestId = 0;
-  do {
-    requestId = Math.floor(Math.random() * 99999);
-  } while (window.vegas.requestMap.has(requestId));
+  const requestId = requests.create(handlers);
 
-  window.vegas.requestMap.set(requestId, handlers);
+  if (!rpcConnected) {
+    requests.fail(requestId, RPC_DISCONNECTED_MESSAGE);
+    return;
+  }
 
   const request: ServerFunctionCallRequest = {
     requestId,

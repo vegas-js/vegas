@@ -25,7 +25,7 @@ describe("user content html", () => {
     const html = createUserContentPanelHtml("http://localhost:5173", "session-1");
 
     expect(html).toContain(
-      'window.vegas = { id: "session-1", hostOrigin: "http://localhost:5173", requestMap: new Map() }',
+      'window.vegas = { id: "session-1", hostOrigin: "http://localhost:5173" }',
     );
     expect(html).toContain('<script type="module" src="/@vegas/client"></script>');
     expect(html).toContain('<iframe id="userHtmlFrame"');

@@ -71,6 +71,16 @@ if (import.meta.hot) {
       port.postMessage({ type: "vegas:return", payload: data });
     }
   });
+  import.meta.hot.on("vite:ws:disconnect", () => {
+    if (port) {
+      port.postMessage({ type: "vegas:transport", payload: { connected: false } });
+    }
+  });
+  import.meta.hot.on("vite:ws:connect", () => {
+    if (port) {
+      port.postMessage({ type: "vegas:transport", payload: { connected: true } });
+    }
+  });
 }
 window.addEventListener("message", (event) => {
   const sandboxFrame = document.getElementById("sandboxFrame");

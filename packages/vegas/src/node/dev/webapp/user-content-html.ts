@@ -25,7 +25,7 @@ export function createUserContentPanelHtml(hostOrigin: string, sessionId: string
   const serializedHostOrigin = serializeInlineScriptValue(hostOrigin);
 
   html.appendToHead("script", {
-    text: `window.vegas = { id: ${serializedSessionId}, hostOrigin: ${serializedHostOrigin}, requestMap: new Map() }`,
+    text: `window.vegas = { id: ${serializedSessionId}, hostOrigin: ${serializedHostOrigin} }`,
   });
   html.appendToHead("script", {
     attributes: {

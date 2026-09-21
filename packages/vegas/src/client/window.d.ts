@@ -1,4 +1,4 @@
-import type { ServerFunctionHandlers, ServerFunctionRun } from "./server-function-run";
+import type { ServerFunctionRun } from "./server-function-run";
 
 export declare global {
   interface Window {
@@ -10,7 +10,6 @@ export declare global {
     vegas: {
       id?: string;
       hostOrigin?: string;
-      requestMap: Map<number, ServerFunctionHandlers>;
     };
   }
 }

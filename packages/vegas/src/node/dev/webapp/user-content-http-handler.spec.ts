@@ -89,7 +89,7 @@ describe("createUserContentHttpHandler", () => {
     expect(response.statusCode).toBe(200);
     expect(headers.get("Content-Type")).toBe("text/html; charset=utf-8");
     expect(String(getBody())).toContain(
-      'window.vegas = { id: "session-1", hostOrigin: "http://localhost:5173", requestMap: new Map() }',
+      'window.vegas = { id: "session-1", hostOrigin: "http://localhost:5173" }',
     );
   });
 
@@ -114,7 +114,7 @@ describe("createUserContentHttpHandler", () => {
     );
 
     expect(String(getBody())).toContain(
-      'window.vegas = { id: "", hostOrigin: "http://localhost:5173", requestMap: new Map() }',
+      'window.vegas = { id: "", hostOrigin: "http://localhost:5173" }',
     );
   });
 
