@@ -191,10 +191,9 @@ describe("registerHostWebSocketHandlers", () => {
     const { server, handlers } = createServer();
     const send = vi.fn();
     const execute = vi.fn(async (request) => {
-      expect(request).toStrictEqual({
-        functionName: "hello",
-        args: [],
-      });
+      expect(request.functionName).toBe("hello");
+      expect(request.args).toStrictEqual([]);
+      expect(request.signal).toBeInstanceOf(AbortSignal);
       return "result";
     });
 
@@ -211,7 +210,7 @@ describe("registerHostWebSocketHandlers", () => {
         functionName: "hello",
         args: [],
       },
-      { send },
+      { send, close: vi.fn() },
     );
 
     expect(send).toHaveBeenCalledWith("vegas:return", {
@@ -219,5 +218,106 @@ describe("registerHostWebSocketHandlers", () => {
       status: "ok",
       result: "result",
     });
+  });
+
+  test("abort active server function calls when their client disconnects", async () => {
+    const { server, handlers } = createServer();
+    const send = vi.fn();
+    const close = vi.fn();
+    const client = { send, close };
+    let executionSignal: AbortSignal | undefined;
+
+    const execute = vi.fn(
+      (request) =>
+        new Promise<never>((_resolve, reject) => {
+          executionSignal = request.signal;
+
+          request.signal?.addEventListener(
+            "abort",
+            () => {
+              reject(request.signal?.reason);
+            },
+            { once: true },
+          );
+        }),
+    );
+
+    registerHostWebSocketHandlers({
+      server,
+      builds: { waitForIdle: async () => undefined },
+      sessions: { consume: () => true },
+      runtime: { execute },
+    });
+
+    const call = handlers.get("vegas:server-function-call")?.(
+      {
+        requestId: 1,
+        functionName: "hello",
+        args: [],
+      },
+      client,
+    );
+
+    await vi.waitFor(() => {
+      expect(execute).toHaveBeenCalledOnce();
+    });
+
+    await handlers.get("vite:client:disconnect")?.(undefined, client);
+    await call;
+
+    expect(executionSignal?.aborted).toBe(true);
+    expect(executionSignal?.reason).toEqual(new Error("Vegas RPC client disconnected."));
+    expect(send).not.toHaveBeenCalled();
+    expect(close).not.toHaveBeenCalled();
+  });
+
+  test("disconnect only aborts executions owned by that client", async () => {
+    const { server, handlers } = createServer();
+    const firstClient = { send: vi.fn(), close: vi.fn() };
+    const secondClient = { send: vi.fn(), close: vi.fn() };
+    const signals: AbortSignal[] = [];
+
+    const execute = vi.fn((request) => {
+      signals.push(request.signal);
+
+      return new Promise<never>((_resolve, reject) => {
+        request.signal?.addEventListener(
+          "abort",
+          () => {
+            reject(request.signal?.reason);
+          },
+          { once: true },
+        );
+      });
+    });
+
+    registerHostWebSocketHandlers({
+      server,
+      builds: { waitForIdle: async () => undefined },
+      sessions: { consume: () => true },
+      runtime: { execute },
+    });
+
+    const firstCall = handlers.get("vegas:server-function-call")?.(
+      { requestId: 1, functionName: "first", args: [] },
+      firstClient,
+    );
+    const secondCall = handlers.get("vegas:server-function-call")?.(
+      { requestId: 2, functionName: "second", args: [] },
+      secondClient,
+    );
+
+    await vi.waitFor(() => {
+      expect(execute).toHaveBeenCalledTimes(2);
+    });
+
+    await handlers.get("vite:client:disconnect")?.(undefined, firstClient);
+    await firstCall;
+
+    expect(signals[0]?.aborted).toBe(true);
+    expect(signals[1]?.aborted).toBe(false);
+
+    await handlers.get("vite:client:disconnect")?.(undefined, secondClient);
+    await secondCall;
   });
 });

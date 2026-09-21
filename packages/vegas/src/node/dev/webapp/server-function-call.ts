@@ -7,11 +7,13 @@ import type { RuntimeBackend } from "../../runtime";
 export async function executeServerFunctionCall(
   runtime: RuntimeBackend,
   request: ServerFunctionCallRequest,
+  signal?: AbortSignal,
 ): Promise<ServerFunctionCallResponse> {
   try {
     const result = await runtime.execute({
       functionName: request.functionName,
       args: request.args,
+      ...(signal === undefined ? {} : { signal }),
     });
 
     return {

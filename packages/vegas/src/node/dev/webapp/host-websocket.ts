@@ -13,6 +13,8 @@ interface HostWebSocketOptions {
   readonly runtime: RuntimeBackend;
 }
 
+const RPC_CLIENT_DISCONNECTED_MESSAGE = "Vegas RPC client disconnected.";
+
 function formatWebSocketError(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
 }
@@ -49,6 +51,40 @@ async function runWebSocketTask(
 
 export function registerHostWebSocketHandlers(options: HostWebSocketOptions): void {
   const { server, builds, sessions, runtime } = options;
+  const activeExecutions = new WeakMap<object, Set<AbortController>>();
+
+  const trackExecution = (client: object, controller: AbortController): (() => void) => {
+    let controllers = activeExecutions.get(client);
+
+    if (controllers === undefined) {
+      controllers = new Set();
+      activeExecutions.set(client, controllers);
+    }
+
+    controllers.add(controller);
+
+    return () => {
+      controllers.delete(controller);
+
+      if (controllers.size === 0) {
+        activeExecutions.delete(client);
+      }
+    };
+  };
+
+  server.ws.on("vite:client:disconnect", (_data, client) => {
+    const controllers = activeExecutions.get(client);
+
+    if (controllers === undefined) {
+      return;
+    }
+
+    activeExecutions.delete(client);
+
+    for (const controller of controllers) {
+      controller.abort(new Error(RPC_CLIENT_DISCONNECTED_MESSAGE));
+    }
+  });
 
   server.ws.on("vegas:init", (data, client) =>
     runWebSocketTask(
@@ -67,22 +103,37 @@ export function registerHostWebSocketHandlers(options: HostWebSocketOptions): vo
     ),
   );
 
-  server.ws.on("vegas:server-function-call", (data: ServerFunctionCallRequest, client) =>
-    runWebSocketTask(
+  server.ws.on("vegas:server-function-call", (data: ServerFunctionCallRequest, client) => {
+    const controller = new AbortController();
+    const untrackExecution = trackExecution(client, controller);
+
+    return runWebSocketTask(
       async () => {
-        await builds.waitForIdle();
+        try {
+          await builds.waitForIdle();
 
-        const response = await executeServerFunctionCall(runtime, data);
+          if (controller.signal.aborted) {
+            return;
+          }
 
-        sendServerFunctionResponse(client, response);
+          const response = await executeServerFunctionCall(runtime, data, controller.signal);
+
+          if (!controller.signal.aborted) {
+            sendServerFunctionResponse(client, response);
+          }
+        } finally {
+          untrackExecution();
+        }
       },
       (error) => {
-        sendServerFunctionResponse(client, {
-          requestId: data.requestId,
-          status: "err",
-          message: formatWebSocketError(error),
-        });
+        if (!controller.signal.aborted) {
+          sendServerFunctionResponse(client, {
+            requestId: data.requestId,
+            status: "err",
+            message: formatWebSocketError(error),
+          });
+        }
       },
-    ),
-  );
+    );
+  });
 }
