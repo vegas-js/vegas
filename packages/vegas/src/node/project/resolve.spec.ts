@@ -51,6 +51,7 @@ describe("resolveProject", () => {
           executionApi: undefined,
           oauthScopes: undefined,
           runtimeVersion: "V8",
+          sheets: undefined,
           timeZone: "UTC",
           urlFetchWhitelist: undefined,
           webapp: {
@@ -291,6 +292,15 @@ describe("resolveProject", () => {
             runtimeVersion: "STABLE",
             timeZone: "Asia/Tokyo",
             oauthScopes: ["scope"],
+            sheets: {
+              macros: [
+                {
+                  defaultShortcut: "Ctrl+Alt+Shift+1",
+                  functionName: "runMacro",
+                  menuName: "Run macro",
+                },
+              ],
+            },
             urlFetchWhitelist: ["https://example.com/api/"],
             webapp: {
               access: "ANYONE",
@@ -308,6 +318,15 @@ describe("resolveProject", () => {
         },
         oauthScopes: ["scope"],
         runtimeVersion: "STABLE",
+        sheets: {
+          macros: [
+            {
+              defaultShortcut: "Ctrl+Alt+Shift+1",
+              functionName: "runMacro",
+              menuName: "Run macro",
+            },
+          ],
+        },
         timeZone: "Asia/Tokyo",
         urlFetchWhitelist: ["https://example.com/api/"],
         webapp: {
@@ -332,6 +351,7 @@ describe("resolveProject", () => {
         executionApi: undefined,
         oauthScopes: undefined,
         runtimeVersion: "V8",
+        sheets: undefined,
         timeZone: "Asia/Tokyo",
         urlFetchWhitelist: undefined,
         webapp: {

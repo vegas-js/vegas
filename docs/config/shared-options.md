@@ -226,6 +226,30 @@ OAuth scopes explicitly requested by the Apps Script project.
 
 Apps Script runtime used by the generated project manifest.
 
+#### appsScript.manifest.sheets
+
+- **Type:** `object`
+
+Google Sheets macro configuration.
+
+##### appsScript.manifest.sheets.macros
+
+- **Type:** `object[]`
+- **Required when `sheets` is configured**
+
+Each macro requires:
+
+- `functionName`: `string`
+- `menuName`: `string`
+
+Each macro can optionally contain:
+
+- `defaultShortcut`: `string`
+
+Vegas validates the manifest structure and preserves macro definitions in the generated `appsscript.json`. Google Apps Script validates shortcut semantics such as the `Ctrl+Alt+Shift+Number` format.
+
+See the [Apps Script Sheets macro manifest documentation](https://developers.google.com/apps-script/manifest/sheets) for macro requirements.
+
 #### appsScript.manifest.timeZone
 
 - **Type:** `string`

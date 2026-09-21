@@ -96,6 +96,7 @@ export function resolveProject(
         executionApi: appsScriptManifest?.executionApi,
         oauthScopes: appsScriptManifest?.oauthScopes,
         runtimeVersion: appsScriptManifest?.runtimeVersion ?? "V8",
+        sheets: appsScriptManifest?.sheets,
         timeZone: appsScriptManifest?.timeZone ?? "UTC",
         urlFetchWhitelist: appsScriptManifest?.urlFetchWhitelist,
         webapp: {

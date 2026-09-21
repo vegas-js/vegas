@@ -63,6 +63,16 @@ const executionApiSchema = strictPlainObject({
   access: appsScriptAccessSchema.optional(),
 });
 
+const macroSchema = strictPlainObject({
+  defaultShortcut: z.string().optional(),
+  functionName: z.string(),
+  menuName: z.string(),
+});
+
+const sheetsSchema = strictPlainObject({
+  macros: z.array(macroSchema),
+});
+
 const webAppSchema = strictPlainObject({
   access: appsScriptAccessSchema.optional(),
   executeAs: z.enum(["USER_ACCESSING", "USER_DEPLOYING"]).optional(),
@@ -74,6 +84,7 @@ const manifestSchema = strictPlainObject({
   executionApi: executionApiSchema.optional(),
   oauthScopes: z.array(z.string()).optional(),
   runtimeVersion: z.enum(["STABLE", "V8", "DEPRECATED_ES5"]).optional(),
+  sheets: sheetsSchema.optional(),
   timeZone: z.string().optional(),
   urlFetchWhitelist: z.array(z.string()).optional(),
   webapp: webAppSchema.optional(),

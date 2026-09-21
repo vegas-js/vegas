@@ -102,6 +102,16 @@ type AppsScriptExecutionApi = {
   access?: AppsScriptAccess;
 };
 
+type AppsScriptMacro = {
+  defaultShortcut?: string;
+  functionName: string;
+  menuName: string;
+};
+
+type AppsScriptSheets = {
+  macros: AppsScriptMacro[];
+};
+
 type AppsScriptWebApp = {
   access?: AppsScriptAccess;
   executeAs?: "USER_ACCESSING" | "USER_DEPLOYING";
@@ -113,6 +123,7 @@ export type AppsScriptManifest = {
   executionApi?: AppsScriptExecutionApi;
   oauthScopes?: string[];
   runtimeVersion?: "STABLE" | "V8" | "DEPRECATED_ES5";
+  sheets?: AppsScriptSheets;
   timeZone?: string;
   /**
    * HTTPS URL prefixes allowed for UrlFetch requests.

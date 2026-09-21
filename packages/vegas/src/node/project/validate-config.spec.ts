@@ -52,6 +52,15 @@ describe("validateUserConfig", () => {
           },
           oauthScopes: ["scope"],
           runtimeVersion: "V8",
+          sheets: {
+            macros: [
+              {
+                defaultShortcut: "Ctrl+Alt+Shift+1",
+                functionName: "runMacro",
+                menuName: "Run macro",
+              },
+            ],
+          },
           timeZone: "Asia/Tokyo",
           urlFetchWhitelist: ["https://example.com/api/"],
           webapp: {
@@ -126,6 +135,26 @@ describe("validateUserConfig", () => {
       }),
     ).toThrow(
       'Invalid Vegas config: "appsScript.manifest.executionApi.access" must be one of "MYSELF", "DOMAIN", "ANYONE", "ANYONE_ANONYMOUS".',
+    );
+  });
+
+  test("reject Sheets macro without required menu name", () => {
+    expect(() =>
+      validateUserConfig({
+        appsScript: {
+          manifest: {
+            sheets: {
+              macros: [
+                {
+                  functionName: "runMacro",
+                },
+              ],
+            },
+          },
+        },
+      }),
+    ).toThrow(
+      'Invalid Vegas config: "appsScript.manifest.sheets.macros[0].menuName" must be a string.',
     );
   });
 

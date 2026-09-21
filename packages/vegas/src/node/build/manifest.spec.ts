@@ -13,6 +13,14 @@ describe("createAppsScriptManifestArtifact", () => {
       },
       runtimeVersion: "V8",
       oauthScopes: [],
+      sheets: {
+        macros: [
+          {
+            functionName: "runMacro",
+            menuName: "Run macro",
+          },
+        ],
+      },
       timeZone: "UTC",
       urlFetchWhitelist: ["https://example.com/api/"],
       webapp: {
@@ -39,6 +47,15 @@ describe("createAppsScriptManifestArtifact", () => {
         access: "ANYONE",
       },
       runtimeVersion: "V8",
+      sheets: {
+        macros: [
+          {
+            defaultShortcut: "Ctrl+Alt+Shift+1",
+            functionName: "runMacro",
+            menuName: "Run macro",
+          },
+        ],
+      },
       timeZone: "UTC",
       webapp: {
         access: "ANYONE",
@@ -53,6 +70,15 @@ describe("createAppsScriptManifestArtifact", () => {
         access: "ANYONE",
       },
       runtimeVersion: "V8",
+      sheets: {
+        macros: [
+          {
+            defaultShortcut: "Ctrl+Alt+Shift+1",
+            functionName: "runMacro",
+            menuName: "Run macro",
+          },
+        ],
+      },
       timeZone: "UTC",
     });
   });
