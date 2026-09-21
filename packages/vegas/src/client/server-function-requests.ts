@@ -2,59 +2,102 @@ import type { ServerFunctionCallResponse } from "../shared/webapp-protocol";
 import type { ServerFunctionHandlers } from "./server-function-run";
 
 type UnhandledFailureReporter = (message: string) => void;
+type TimeoutId = ReturnType<typeof globalThis.setTimeout>;
+
+interface ServerFunctionRequestRegistryOptions {
+  readonly reportUnhandledFailure?: UnhandledFailureReporter;
+  readonly timeoutMs?: number;
+  readonly timeoutMessage?: string;
+}
+
+interface PendingServerFunctionRequest {
+  readonly handlers: ServerFunctionHandlers;
+  readonly timeoutId?: TimeoutId;
+}
 
 export class ServerFunctionRequestRegistry {
-  readonly #requests = new Map<number, ServerFunctionHandlers>();
+  readonly #requests = new Map<number, PendingServerFunctionRequest>();
   readonly #reportUnhandledFailure: UnhandledFailureReporter;
+  readonly #timeoutMs: number | undefined;
+  readonly #timeoutMessage: string;
 
   #nextRequestId = 1;
 
-  constructor(reportUnhandledFailure: UnhandledFailureReporter = console.error) {
-    this.#reportUnhandledFailure = reportUnhandledFailure;
+  constructor(options: ServerFunctionRequestRegistryOptions = {}) {
+    this.#reportUnhandledFailure = options.reportUnhandledFailure ?? console.error;
+    this.#timeoutMs = options.timeoutMs;
+    this.#timeoutMessage = options.timeoutMessage ?? "Vegas RPC request timed out.";
   }
 
   create(handlers: ServerFunctionHandlers): number {
     const requestId = this.#nextRequestId++;
-    this.#requests.set(requestId, handlers);
+    const timeoutId =
+      this.#timeoutMs === undefined
+        ? undefined
+        : globalThis.setTimeout(() => {
+            this.fail(requestId, this.#timeoutMessage);
+          }, this.#timeoutMs);
+
+    this.#requests.set(requestId, {
+      handlers,
+      timeoutId,
+    });
 
     return requestId;
   }
 
   complete(response: ServerFunctionCallResponse): void {
-    const handlers = this.#requests.get(response.requestId);
+    const request = this.#take(response.requestId);
 
-    if (!handlers) {
+    if (!request) {
       return;
     }
-
-    this.#requests.delete(response.requestId);
 
     if (response.status === "ok") {
-      handlers.success?.(response.result);
+      request.handlers.success?.(response.result);
       return;
     }
 
-    this.#reportFailure(handlers, response.message);
+    this.#reportFailure(request.handlers, response.message);
   }
 
   fail(requestId: number, message: string): void {
-    const handlers = this.#requests.get(requestId);
+    const request = this.#take(requestId);
 
-    if (!handlers) {
+    if (!request) {
       return;
     }
 
-    this.#requests.delete(requestId);
-    this.#reportFailure(handlers, message);
+    this.#reportFailure(request.handlers, message);
   }
 
   failAll(message: string): void {
     const requests = [...this.#requests.values()];
     this.#requests.clear();
 
-    for (const handlers of requests) {
-      this.#reportFailure(handlers, message);
+    for (const request of requests) {
+      if (request.timeoutId !== undefined) {
+        globalThis.clearTimeout(request.timeoutId);
+      }
+
+      this.#reportFailure(request.handlers, message);
     }
+  }
+
+  #take(requestId: number): PendingServerFunctionRequest | undefined {
+    const request = this.#requests.get(requestId);
+
+    if (!request) {
+      return undefined;
+    }
+
+    this.#requests.delete(requestId);
+
+    if (request.timeoutId !== undefined) {
+      globalThis.clearTimeout(request.timeoutId);
+    }
+
+    return request;
   }
 
   #reportFailure(handlers: ServerFunctionHandlers, message: string): void {

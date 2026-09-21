@@ -1,6 +1,10 @@
-import { describe, expect, test, vi } from "vitest";
+import { afterEach, describe, expect, test, vi } from "vitest";
 
 import { ServerFunctionRequestRegistry } from "./server-function-requests";
+
+afterEach(() => {
+  vi.useRealTimers();
+});
 
 describe("ServerFunctionRequestRegistry", () => {
   test("complete a pending request once", () => {
@@ -37,7 +41,7 @@ describe("ServerFunctionRequestRegistry", () => {
 
   test("report an unhandled failure", () => {
     const reportUnhandledFailure = vi.fn();
-    const requests = new ServerFunctionRequestRegistry(reportUnhandledFailure);
+    const requests = new ServerFunctionRequestRegistry({ reportUnhandledFailure });
     const requestId = requests.create({});
 
     requests.complete({
@@ -71,5 +75,69 @@ describe("ServerFunctionRequestRegistry", () => {
 
     expect(firstFailure).toHaveBeenCalledWith("transport disconnected");
     expect(secondFailure).toHaveBeenCalledWith("transport disconnected");
+  });
+
+  test("fail a request when its transport timeout expires", () => {
+    vi.useFakeTimers();
+
+    const failure = vi.fn();
+    const requests = new ServerFunctionRequestRegistry({
+      timeoutMs: 1_000,
+      timeoutMessage: "transport timed out",
+    });
+    const requestId = requests.create({ failure });
+
+    vi.advanceTimersByTime(1_000);
+
+    expect(failure).toHaveBeenCalledOnce();
+    expect(failure).toHaveBeenCalledWith("transport timed out");
+
+    requests.complete({
+      requestId,
+      status: "ok",
+      result: "late response",
+    });
+
+    expect(failure).toHaveBeenCalledOnce();
+  });
+
+  test("cancel the transport timeout when a request completes", () => {
+    vi.useFakeTimers();
+
+    const success = vi.fn();
+    const failure = vi.fn();
+    const requests = new ServerFunctionRequestRegistry({
+      timeoutMs: 1_000,
+      timeoutMessage: "transport timed out",
+    });
+    const requestId = requests.create({ success, failure });
+
+    requests.complete({
+      requestId,
+      status: "ok",
+      result: "result",
+    });
+    vi.advanceTimersByTime(1_000);
+
+    expect(success).toHaveBeenCalledOnce();
+    expect(success).toHaveBeenCalledWith("result");
+    expect(failure).not.toHaveBeenCalled();
+  });
+
+  test("cancel transport timeouts when every pending request fails", () => {
+    vi.useFakeTimers();
+
+    const failure = vi.fn();
+    const requests = new ServerFunctionRequestRegistry({
+      timeoutMs: 1_000,
+      timeoutMessage: "transport timed out",
+    });
+
+    requests.create({ failure });
+    requests.failAll("transport disconnected");
+    vi.advanceTimersByTime(1_000);
+
+    expect(failure).toHaveBeenCalledOnce();
+    expect(failure).toHaveBeenCalledWith("transport disconnected");
   });
 });

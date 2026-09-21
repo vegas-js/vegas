@@ -6,9 +6,14 @@ import { ServerFunctionRequestRegistry } from "./server-function-requests";
 import { createServerFunctionRun } from "./server-function-run";
 
 const RPC_DISCONNECTED_MESSAGE = "Vegas RPC transport is disconnected.";
+const RPC_TIMEOUT_MESSAGE = "Vegas RPC transport timed out while waiting for a response.";
+const RPC_TRANSPORT_TIMEOUT_MS = 7 * 60 * 1_000;
 
 const { port1, port2 } = new MessageChannel();
-const requests = new ServerFunctionRequestRegistry();
+const requests = new ServerFunctionRequestRegistry({
+  timeoutMs: RPC_TRANSPORT_TIMEOUT_MS,
+  timeoutMessage: RPC_TIMEOUT_MESSAGE,
+});
 
 interface VegasInitEvent {
   type: "vegas:init";
