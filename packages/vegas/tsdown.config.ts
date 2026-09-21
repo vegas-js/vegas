@@ -10,7 +10,7 @@ export default defineConfig([
       "webapp-bridge": "./src/client",
     },
     deps: {
-      onlyBundle: ["cac", "entities", "json5", "parse5"],
+      onlyBundle: ["cac", "entities", "json5", "parse5", "zod"],
     },
     fixedExtension: false,
     dts: false,
