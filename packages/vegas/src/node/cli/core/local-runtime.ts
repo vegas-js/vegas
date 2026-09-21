@@ -7,11 +7,11 @@ import {
   type LocalRuntime,
   type Program,
 } from "../../runtime";
+import { createInvocationEnvironment } from "../../runtime-environment";
+import { createInvocationScope } from "../../runtime-scope";
 import { createNodeAppsScriptExecutor } from "../../runtime/node";
 import type { SpreadsheetUrlCapability } from "../../runtime/spreadsheet-url-capability";
 import { applyPropertiesRuntimeData } from "./runtime-data";
-import { createInvocationEnvironment } from "./runtime-environment";
-import { createInvocationScope } from "./runtime-scope";
 
 interface LocalRuntimeOptions {
   readonly propertiesStore?: InMemoryPropertiesStore;

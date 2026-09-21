@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import type { ResolvedProject } from "../../project";
+import type { ResolvedProject } from "./project";
 import { createInvocationScope } from "./runtime-scope";
 
 const project = {

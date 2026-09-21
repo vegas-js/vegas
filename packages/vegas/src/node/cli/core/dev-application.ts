@@ -15,9 +15,9 @@ import {
   reconcileLocalPropertiesStore,
   reconcileLocalSpreadsheetStore,
 } from "../../runtime-data-reconcile";
+import { createInvocationScope } from "../../runtime-scope";
 import { createLocalRuntime } from "./local-runtime";
 import { loadRuntimeDataSnapshot } from "./runtime-data";
-import { createInvocationScope } from "./runtime-scope";
 
 type DevApplicationMode = "development" | "production";
 

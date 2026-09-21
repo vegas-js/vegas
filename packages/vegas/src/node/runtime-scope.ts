@@ -1,5 +1,5 @@
-import type { ResolvedProject } from "../../project";
-import type { InvocationScope } from "../../runtime";
+import type { ResolvedProject } from "./project";
+import type { InvocationScope } from "./runtime";
 
 export function createInvocationScope(project: ResolvedProject): InvocationScope {
   return {
