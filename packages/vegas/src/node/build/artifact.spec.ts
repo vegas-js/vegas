@@ -374,6 +374,67 @@ describe("writeArtifacts", () => {
 });
 
 describe("replaceOutputArtifacts", () => {
+  test("replace output without previous output", async () => {
+    const tempDirPath = fs.mkdtempSync(path.join(os.tmpdir(), "vegas-"));
+    const outputDir = path.join(tempDirPath, "dist");
+
+    try {
+      await replaceOutputArtifacts(outputDir, [
+        {
+          path: "Code.js",
+          content: "next",
+        },
+      ]);
+
+      expect(fs.readFileSync(path.join(outputDir, "Code.js"), "utf8")).toBe("next");
+      expect(
+        fs
+          .readdirSync(tempDirPath)
+          .some((entry) => entry.startsWith(".dist.staging-") || entry.startsWith(".dist.backup-")),
+      ).toBe(false);
+    } finally {
+      fs.rmSync(tempDirPath, {
+        recursive: true,
+        force: true,
+      });
+    }
+  });
+
+  test("propagate unexpected error while checking previous output", async () => {
+    const tempDirPath = fs.mkdtempSync(path.join(os.tmpdir(), "vegas-"));
+    const outputDir = path.join(tempDirPath, "dist");
+    const error = Object.assign(new Error("rename failed"), {
+      code: "EACCES",
+    });
+
+    try {
+      fs.mkdirSync(outputDir);
+      fs.writeFileSync(path.join(outputDir, "Code.js"), "previous");
+
+      using renameMock = vi.spyOn(fs.promises, "rename").mockRejectedValue(error);
+
+      await expect(
+        replaceOutputArtifacts(outputDir, [
+          {
+            path: "Code.js",
+            content: "next",
+          },
+        ]),
+      ).rejects.toBe(error);
+
+      expect(renameMock).toHaveBeenCalledOnce();
+      expect(fs.readFileSync(path.join(outputDir, "Code.js"), "utf8")).toBe("previous");
+      expect(fs.readdirSync(tempDirPath).some((entry) => entry.startsWith(".dist.staging-"))).toBe(
+        false,
+      );
+    } finally {
+      fs.rmSync(tempDirPath, {
+        recursive: true,
+        force: true,
+      });
+    }
+  });
+
   test("preserve existing output when preparing replacement fails", async () => {
     const tempDirPath = fs.mkdtempSync(path.join(os.tmpdir(), "vegas-"));
     const outputDir = path.join(tempDirPath, "dist");

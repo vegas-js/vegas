@@ -195,12 +195,16 @@ function createOutputReplacementPath(outputDir: string, kind: "staging" | "backu
   return path.join(path.dirname(outputDir), `.${name}.${kind}-${crypto.randomUUID()}`);
 }
 
+function hasErrorCode(error: unknown, code: string): boolean {
+  return typeof error === "object" && error !== null && "code" in error && error.code === code;
+}
+
 async function renameIfExists(source: string, destination: string): Promise<boolean> {
   try {
     await fs.promises.rename(source, destination);
     return true;
   } catch (error) {
-    if ((error as NodeJS.ErrnoException).code === "ENOENT") {
+    if (hasErrorCode(error, "ENOENT")) {
       return false;
     }
 
