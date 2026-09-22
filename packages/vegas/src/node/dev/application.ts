@@ -1,6 +1,6 @@
 import path from "node:path";
 
-import { type ViteBuilder, type ViteDevServer, createServer } from "vite";
+import type { ViteBuilder } from "vite";
 
 import type { ArtifactStore } from "../build";
 import type { ResolvedProject } from "../project";
@@ -13,6 +13,7 @@ import { createHostServerConfig } from "./webapp/host-server";
 import { registerHostWebSocketHandlers } from "./webapp/host-websocket";
 import { createLocalSpreadsheetHttpHandler } from "./webapp/local-spreadsheet-http-handler";
 import type { LocalSpreadsheetUrlConfiguration } from "./webapp/local-spreadsheet-url";
+import { WebAppServerLifecycle } from "./webapp/server-lifecycle";
 import { getListeningPort } from "./webapp/server-port";
 import { WebAppSessionRegistry } from "./webapp/session-registry";
 import { createUserContentHttpHandler } from "./webapp/user-content-http-handler";
@@ -30,25 +31,14 @@ interface DevApplicationOptions {
 }
 
 interface DevApplicationDependencies {
-  readonly createServer?: typeof createServer;
-}
-
-async function closeServers(servers: readonly ViteDevServer[]): Promise<void> {
-  for (const server of [...servers].reverse()) {
-    try {
-      await server.close();
-    } catch {
-      // Preserve the startup error that triggered cleanup.
-    }
-  }
+  readonly createServer?: typeof import("vite").createServer;
 }
 
 export async function startDevApplication(
   options: DevApplicationOptions,
   dependencies: DevApplicationDependencies = {},
 ): Promise<void> {
-  const createViteServer = dependencies.createServer ?? createServer;
-  const servers: ViteDevServer[] = [];
+  const servers = new WebAppServerLifecycle(dependencies.createServer);
 
   const buildManager = new DevBuildManager({
     project: options.project,
@@ -60,7 +50,7 @@ export async function startDevApplication(
   const builds = new BuildCoordinator();
 
   try {
-    const hostServer = await createViteServer(
+    const hostServer = await servers.create(
       createHostServerConfig({
         root: options.project.root,
         configFile: options.project.configFile,
@@ -70,7 +60,6 @@ export async function startDevApplication(
         open: options.project.devServer.open,
       }),
     );
-    servers.push(hostServer);
 
     registerBuildWatchers({
       server: hostServer,
@@ -98,7 +87,7 @@ export async function startDevApplication(
       );
     }
 
-    const userContentServer = await createViteServer(
+    const userContentServer = await servers.create(
       createUserContentServerConfig({
         root: options.project.root,
         mode: options.mode,
@@ -107,7 +96,6 @@ export async function startDevApplication(
         bridgeFilePath: path.join(import.meta.dirname, "webapp-bridge.js"),
       }),
     );
-    servers.push(userContentServer);
 
     const userContentHandler = createUserContentHttpHandler({
       server: userContentServer,
@@ -141,7 +129,12 @@ export async function startDevApplication(
     hostServer.printUrls();
     hostServer.bindCLIShortcuts({ print: true });
   } catch (error) {
-    await closeServers(servers);
+    try {
+      await servers.dispose();
+    } catch {
+      // Preserve the startup error that triggered cleanup.
+    }
+
     throw error;
   }
 }
