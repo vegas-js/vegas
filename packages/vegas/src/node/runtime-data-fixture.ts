@@ -1,40 +1,33 @@
-import type {
-  RuntimeDataProperties,
-  RuntimeDataSession,
-  RuntimeDataSnapshot,
-  RuntimeDataSpreadsheet,
-} from "../shared/gas";
+import type { RuntimeDataSnapshot } from "../shared/gas";
 import { RuntimeDataTarget } from "../shared/gas";
 import { createRuntimeDataSnapshot, type RuntimeDataSnapshotInput } from "./runtime-data-snapshot";
+import { validateRuntimeDataFixture, type RuntimeDataFixture } from "./runtime-data-validation";
 
-export interface RuntimeDataFixture {
-  readonly properties?: RuntimeDataProperties;
-  readonly session?: RuntimeDataSession;
-  readonly spreadsheets?: readonly RuntimeDataSpreadsheet[];
-}
+export type { RuntimeDataFixture } from "./runtime-data-validation";
 
 export function createRuntimeDataSnapshotFromFixture(
   fixture: RuntimeDataFixture = {},
 ): RuntimeDataSnapshot {
+  const validated = validateRuntimeDataFixture(fixture);
   const inputs: RuntimeDataSnapshotInput[] = [];
 
-  if (fixture.properties !== undefined) {
+  if (validated.properties !== undefined) {
     inputs.push({
       source: "inline:properties",
       target: RuntimeDataTarget.Properties,
-      value: fixture.properties,
+      value: validated.properties,
     });
   }
 
-  if (fixture.session !== undefined) {
+  if (validated.session !== undefined) {
     inputs.push({
       source: "inline:session",
       target: RuntimeDataTarget.Session,
-      value: fixture.session,
+      value: validated.session,
     });
   }
 
-  fixture.spreadsheets?.forEach((value, index) => {
+  validated.spreadsheets?.forEach((value, index) => {
     inputs.push({
       source: `inline:spreadsheets[${index}]`,
       target: RuntimeDataTarget.Spreadsheet,

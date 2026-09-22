@@ -76,4 +76,48 @@ describe("createRuntimeDataSnapshotFromFixture", () => {
       'Duplicate Spreadsheet runtime data id "budget": inline:spreadsheets[0], inline:spreadsheets[1]',
     );
   });
+
+  test("reject invalid inline Runtime data payloads", () => {
+    expect(() =>
+      createRuntimeDataSnapshotFromFixture({
+        session: {
+          // @ts-expect-error Runtime validation also protects JavaScript consumers.
+          activeUserEmail: 42,
+        },
+      }),
+    ).toThrow("Invalid runtime data in inline:session: activeUserEmail:");
+
+    expect(() =>
+      createRuntimeDataSnapshotFromFixture({
+        spreadsheets: [
+          {
+            id: "budget",
+            name: "Budget",
+            sheets: [
+              {
+                id: 1,
+                name: "Sheet1",
+                maxRows: 0,
+                maxColumns: 10,
+              },
+            ],
+          },
+        ],
+      }),
+    ).toThrow("Invalid runtime data in inline:spreadsheets[0]: sheets[0].maxRows:");
+  });
+
+  test("reject unknown inline fixture fields", () => {
+    expect(() =>
+      createRuntimeDataSnapshotFromFixture({
+        properties: {
+          scriptProperties: {
+            environment: "test",
+          },
+        },
+        // @ts-expect-error Runtime validation rejects unknown fields from JavaScript consumers.
+        unknown: true,
+      }),
+    ).toThrow("Invalid runtime data in inline fixture: fixture:");
+  });
 });

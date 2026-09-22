@@ -4,7 +4,7 @@ import {
   createRuntimeDataSnapshot,
   type RuntimeDataSnapshotInput,
 } from "../../runtime-data-snapshot";
-import { validateRuntimeDataModule } from "./runtime-data-validation";
+import { validateRuntimeDataModule } from "../../runtime-data-validation";
 
 export async function loadRuntimeDataSnapshot(
   projectRoot: string,
