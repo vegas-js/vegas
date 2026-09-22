@@ -568,13 +568,31 @@ function smokeVegasPackage() {
         <html>
           <body>
             <p id="result">pending</p>
+            <button id="mutate" type="button">Mutate Runtime state</button>
             <script>
-              window.addEventListener("load", () => {
+              const renderResult = (value) => {
+                document.getElementById("result").textContent = value;
+              };
+              const reportFailure = (error) => {
+                renderResult("error: " + (error?.message ?? String(error)));
+              };
+              const serverRun = () =>
                 google.script.run
-                  .withSuccessHandler((value) => {
-                    document.getElementById("result").textContent = value;
-                  })
-                  .greet("browser");
+                  .withSuccessHandler(renderResult)
+                  .withFailureHandler(reportFailure);
+
+              window.addEventListener(
+                "error",
+                (event) => {
+                  renderResult("error: " + event.message);
+                },
+                { once: true },
+              );
+
+              serverRun().greet("browser");
+
+              document.getElementById("mutate").addEventListener("click", () => {
+                serverRun().setPrefix("Changed");
               });
             </script>
           </body>
@@ -591,6 +609,11 @@ function smokeVegasPackage() {
 
         export function greet(value) {
           return PropertiesService.getScriptProperties().getProperty("prefix") + " " + value;
+        }
+
+        export function setPrefix(prefix) {
+          PropertiesService.getScriptProperties().setProperty("prefix", prefix);
+          return prefix + " browser";
         }
       `,
     );
@@ -618,6 +641,14 @@ function smokeVegasPackage() {
         test("executes the packed browser bridge and Local Runtime", async ({ vegas }) => {
           await expect(vegas.page.locator("#sandboxFrame")).toBeVisible();
           await expect(vegas.sandbox.locator("#userHtmlFrame")).toBeVisible();
+          await expect(vegas.app.locator("#result")).toHaveText("Vegas browser");
+
+          await vegas.app.locator("#mutate").click();
+
+          await expect(vegas.app.locator("#result")).toHaveText("Changed browser");
+        });
+
+        test("starts the next browser test with fresh Runtime state", async ({ vegas }) => {
           await expect(vegas.app.locator("#result")).toHaveText("Vegas browser");
         });
       `,

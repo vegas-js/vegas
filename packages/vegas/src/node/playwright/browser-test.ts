@@ -14,6 +14,20 @@ export interface BrowserTestFixture {
   readonly app: FrameLocator;
 }
 
+export async function createReadyBrowserTestFixture(page: Page): Promise<BrowserTestFixture> {
+  const sandbox = page.frameLocator("#sandboxFrame");
+
+  await sandbox.locator('#userHtmlFrame[data-vegas-ready="true"]').waitFor({
+    state: "attached",
+  });
+
+  return {
+    page,
+    sandbox,
+    app: sandbox.frameLocator("#userHtmlFrame"),
+  };
+}
+
 export function createBrowserTest(options: BrowserTestOptions = {}) {
   return baseTest.extend<{ vegas: BrowserTestFixture }>({
     vegas: async ({ page }, use) => {
@@ -21,15 +35,7 @@ export function createBrowserTest(options: BrowserTestOptions = {}) {
 
       try {
         await page.goto(harness.urls.host);
-
-        const sandbox = page.frameLocator("#sandboxFrame");
-        const app = sandbox.frameLocator("#userHtmlFrame");
-
-        await use({
-          page,
-          sandbox,
-          app,
-        });
+        await use(await createReadyBrowserTestFixture(page));
       } finally {
         await harness.dispose();
       }

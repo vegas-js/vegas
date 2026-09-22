@@ -111,19 +111,27 @@ const proxiedGASRun = createServerFunctionRun(({ functionName, args, handlers })
 
 function injectUserHtml(userHtml: string) {
   const iframe = document.getElementById("userHtmlFrame") as HTMLIFrameElement | null;
-  if (iframe && iframe.contentWindow) {
-    iframe.contentWindow.document.open();
-    iframe.contentWindow.document.write(userHtml);
 
-    if (!iframe.contentWindow.google) {
-      iframe.contentWindow.google = {
-        script: {
-          run: proxiedGASRun,
-        },
-      };
-    }
-    iframe.contentWindow.document.close();
+  if (!iframe?.contentWindow) {
+    return;
   }
+
+  const contentWindow = iframe.contentWindow;
+
+  delete iframe.dataset.vegasReady;
+  contentWindow.document.open();
+
+  if (!contentWindow.google) {
+    contentWindow.google = {
+      script: {
+        run: proxiedGASRun,
+      },
+    };
+  }
+
+  contentWindow.document.write(userHtml);
+  contentWindow.document.close();
+  iframe.dataset.vegasReady = "true";
 }
 
 window.addEventListener("load", vegasLoadListener);
