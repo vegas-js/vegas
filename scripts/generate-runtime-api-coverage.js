@@ -401,6 +401,7 @@ export function validateRuntimeApiStatus(status) {
     }
 
     const surfaceFields = new Set([
+      "auditedMethods",
       "defaultBehavior",
       "behaviorOverrides",
       "conformanceTestedMethods",
@@ -411,6 +412,19 @@ export function validateRuntimeApiStatus(status) {
         throw new Error(`Unknown Runtime API status field for ${surfaceName}: ${field}.`);
       }
     }
+
+    if (
+      !Array.isArray(surface.auditedMethods) ||
+      surface.auditedMethods.some((methodName) => !isMethodName(methodName))
+    ) {
+      throw new Error(`Invalid Runtime API audited methods for ${surfaceName}.`);
+    }
+
+    if (new Set(surface.auditedMethods).size !== surface.auditedMethods.length) {
+      throw new Error(`Duplicate Runtime API audited methods for ${surfaceName}.`);
+    }
+
+    const auditedMethods = new Set(surface.auditedMethods);
 
     if (surface.defaultBehavior !== undefined) {
       validateRuntimeApiBehavior(surface.defaultBehavior, `${surfaceName}.defaultBehavior`);
@@ -425,6 +439,12 @@ export function validateRuntimeApiStatus(status) {
     for (const [methodName, behavior] of Object.entries(behaviorOverrides)) {
       if (!isMethodName(methodName)) {
         throw new Error(`Invalid Runtime API method name for ${surfaceName}: ${methodName}.`);
+      }
+
+      if (!auditedMethods.has(methodName)) {
+        throw new Error(
+          `Runtime API behavior override for ${surfaceName}.${methodName} is not audited.`,
+        );
       }
 
       validateRuntimeApiBehavior(behavior, `${surfaceName}.${methodName}`);
@@ -442,14 +462,84 @@ export function validateRuntimeApiStatus(status) {
     if (new Set(conformanceTestedMethods).size !== conformanceTestedMethods.length) {
       throw new Error(`Duplicate Runtime API conformance methods for ${surfaceName}.`);
     }
+
+    for (const methodName of conformanceTestedMethods) {
+      if (!auditedMethods.has(methodName)) {
+        throw new Error(
+          `Runtime API conformance method for ${surfaceName}.${methodName} is not audited.`,
+        );
+      }
+    }
+
+    for (const methodName of surface.auditedMethods) {
+      if (resolveRuntimeApiMethodStatus(surface, methodName).behavior === null) {
+        throw new Error(`Runtime API behavior is not classified for ${surfaceName}.${methodName}.`);
+      }
+    }
   }
 }
 
 export function resolveRuntimeApiMethodStatus(surface, methodName) {
+  if (!surface?.auditedMethods?.includes(methodName)) {
+    return {
+      behavior: null,
+      conformanceTested: false,
+    };
+  }
+
   return {
     behavior: surface?.behaviorOverrides?.[methodName] ?? surface?.defaultBehavior ?? null,
     conformanceTested: surface?.conformanceTestedMethods?.includes(methodName) ?? false,
   };
+}
+
+export function runtimeApiSurfaceName(globalName, interfaceName) {
+  return globalName === interfaceName ? globalName : `${globalName}.${interfaceName}`;
+}
+
+export function validateRuntimeApiStatusAgainstInventory(status, inventory) {
+  for (const [surfaceName, surface] of Object.entries(status.surfaces)) {
+    const runtimeMethods = inventory[surfaceName];
+
+    if (!runtimeMethods) {
+      throw new Error(`Unknown Runtime API status surface: ${surfaceName}.`);
+    }
+
+    const runtimeMethodSet = new Set(runtimeMethods);
+
+    for (const methodName of surface.auditedMethods) {
+      if (!runtimeMethodSet.has(methodName)) {
+        throw new Error(
+          `Runtime API status method ${surfaceName}.${methodName} is not implemented by the Runtime.`,
+        );
+      }
+    }
+
+    const auditedMethods = new Set(surface.auditedMethods);
+    const unauditedMethods = runtimeMethods.filter((methodName) => !auditedMethods.has(methodName));
+
+    if (unauditedMethods.length > 0) {
+      throw new Error(
+        `Runtime API status for ${surfaceName} is missing implemented methods: ${unauditedMethods.join(", ")}.`,
+      );
+    }
+  }
+}
+
+function loadRuntimeApiSurfaceInventory() {
+  const inventory = {};
+
+  for (const [globalName, surfaces] of Object.entries(API_SURFACES)) {
+    for (const [interfaceName, relativePath, className] of surfaces) {
+      const source = fs.readFileSync(path.join(RUNTIME_ROOT, relativePath), "utf8");
+      inventory[runtimeApiSurfaceName(globalName, interfaceName)] = extractClassMethodNames(
+        source,
+        className,
+      );
+    }
+  }
+
+  return inventory;
 }
 
 export function mergeMethodSurface(methods, supplementalMethods = []) {
@@ -885,6 +975,7 @@ function generate() {
 
   validateRuntimeApiSupplement(supplement);
   validateRuntimeApiStatus(status);
+  validateRuntimeApiStatusAgainstInventory(status, loadRuntimeApiSurfaceInventory());
 
   const markdown = renderCoverageMarkdown({
     version: packageJson.version,

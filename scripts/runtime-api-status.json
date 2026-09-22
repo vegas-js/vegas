@@ -1,4 +1,21 @@
 {
   "schemaVersion": 1,
-  "surfaces": {}
+  "surfaces": {
+    "PropertiesService": {
+      "auditedMethods": ["getDocumentProperties", "getScriptProperties", "getUserProperties"],
+      "defaultBehavior": "local-emulation"
+    },
+    "PropertiesService.Properties": {
+      "auditedMethods": [
+        "deleteAllProperties",
+        "deleteProperty",
+        "getKeys",
+        "getProperties",
+        "getProperty",
+        "setProperties",
+        "setProperty"
+      ],
+      "defaultBehavior": "local-emulation"
+    }
+  }
 }

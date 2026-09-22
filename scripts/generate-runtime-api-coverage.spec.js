@@ -12,7 +12,9 @@ import {
   isStandaloneGlobalEnum,
   mergeMethodSurface,
   resolveRuntimeApiMethodStatus,
+  runtimeApiSurfaceName,
   validateRuntimeApiStatus,
+  validateRuntimeApiStatusAgainstInventory,
   validateRuntimeApiSupplement,
 } from "./generate-runtime-api-coverage.js";
 
@@ -147,6 +149,7 @@ declare namespace GoogleAppsScript {
         schemaVersion: 1,
         surfaces: {
           "SpreadsheetApp.Range": {
+            auditedMethods: ["getValue", "canEdit", "flush", "getAs"],
             defaultBehavior: "implemented",
             behaviorOverrides: {
               canEdit: "local-emulation",
@@ -164,6 +167,7 @@ declare namespace GoogleAppsScript {
         schemaVersion: 1,
         surfaces: {
           "SpreadsheetApp.Range": {
+            auditedMethods: ["getValue"],
             defaultBehavior: "best-effort",
           },
         },
@@ -175,6 +179,7 @@ declare namespace GoogleAppsScript {
         schemaVersion: 1,
         surfaces: {
           "SpreadsheetApp.Range": {
+            auditedMethods: ["getValue"],
             conformanceTestedMethods: ["getValue", "getValue"],
           },
         },
@@ -184,6 +189,7 @@ declare namespace GoogleAppsScript {
 
   test("resolve method behavior and conformance as separate dimensions", () => {
     const surface = {
+      auditedMethods: ["getValue", "canEdit", "getAs"],
       defaultBehavior: "implemented",
       behaviorOverrides: {
         canEdit: "local-emulation",
@@ -208,6 +214,62 @@ declare namespace GoogleAppsScript {
       behavior: null,
       conformanceTested: false,
     });
+  });
+
+  test("reject status entries that reference methods outside the audited surface", () => {
+    expect(() =>
+      validateRuntimeApiStatus({
+        schemaVersion: 1,
+        surfaces: {
+          PropertiesService: {
+            auditedMethods: ["getScriptProperties"],
+            defaultBehavior: "local-emulation",
+            behaviorOverrides: {
+              getUserProperties: "local-emulation",
+            },
+          },
+        },
+      }),
+    ).toThrow("is not audited");
+  });
+
+  test("name top-level and nested Runtime API surfaces consistently", () => {
+    expect(runtimeApiSurfaceName("PropertiesService", "PropertiesService")).toBe(
+      "PropertiesService",
+    );
+    expect(runtimeApiSurfaceName("PropertiesService", "Properties")).toBe(
+      "PropertiesService.Properties",
+    );
+  });
+
+  test("reject Runtime implementation drift from an audited status surface", () => {
+    const status = {
+      schemaVersion: 1,
+      surfaces: {
+        PropertiesService: {
+          auditedMethods: ["getScriptProperties", "getUserProperties"],
+          defaultBehavior: "local-emulation",
+        },
+      },
+    };
+
+    expect(() =>
+      validateRuntimeApiStatusAgainstInventory(status, {
+        PropertiesService: ["getScriptProperties", "getUserProperties"],
+      }),
+    ).not.toThrow();
+
+    expect(() =>
+      validateRuntimeApiStatusAgainstInventory(status, {
+        PropertiesService: ["getDocumentProperties", "getScriptProperties", "getUserProperties"],
+      }),
+    ).toThrow("missing implemented methods: getDocumentProperties");
+
+    expect(() =>
+      validateRuntimeApiStatusAgainstInventory(status, {
+        "PropertiesService.Properties": ["getScriptProperties", "getUserProperties"],
+      }),
+    ).toThrow("Unknown Runtime API status surface");
   });
 
   test("track HtmlTemplate as a modeled HtmlService Runtime object", () => {
