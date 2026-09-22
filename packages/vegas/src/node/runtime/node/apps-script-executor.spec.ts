@@ -51,6 +51,10 @@ class TestPort extends EventEmitter {
     this.closeCount += 1;
   }
 
+  disconnect(): void {
+    this.emit("close");
+  }
+
   receive(value: unknown): void {
     this.emit("message", value);
   }
@@ -137,7 +141,31 @@ describe("runAppsScriptWorkerSession", () => {
     }
   });
 
-  test("reject an exit before the worker returns a result", async () => {
+  test("allow a queued result to arrive after the worker exit event", async () => {
+    const gasWorker = new TestWorker();
+    const port = new TestPort();
+    const result = runAppsScriptWorkerSession(
+      gasWorker,
+      port,
+      new Int32Array(new SharedArrayBuffer(4)),
+      createDispatcher(),
+      invocation,
+    );
+
+    gasWorker.exit(0);
+    port.receive({
+      type: "result",
+      ok: true,
+      value: "result",
+    });
+    port.disconnect();
+
+    await expect(result).resolves.toBe("result");
+    expect(port.closeCount).toBe(1);
+    expect(gasWorker.terminateCount).toBe(0);
+  });
+
+  test("reject an exit when the worker channel closes without a result", async () => {
     const gasWorker = new TestWorker();
     const port = new TestPort();
     const result = runAppsScriptWorkerSession(
@@ -149,6 +177,7 @@ describe("runAppsScriptWorkerSession", () => {
     );
 
     gasWorker.exit(1);
+    port.disconnect();
 
     await expect(result).rejects.toThrow(
       "Apps Script worker exited before returning a result (code 1).",

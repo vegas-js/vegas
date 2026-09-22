@@ -30,6 +30,7 @@ interface AppsScriptWorkerProcess {
 
 interface AppsScriptWorkerPort {
   on(event: "message", listener: (data: unknown) => void): unknown;
+  on(event: "close", listener: () => void): unknown;
   postMessage(value: unknown): void;
   close(): void;
 }
@@ -63,6 +64,9 @@ export function runAppsScriptWorkerSession(
     let settled = false;
     let timeoutId: ReturnType<typeof setTimeout> | undefined;
     let abortListener: (() => void) | undefined;
+    let workerExitCode: number | undefined;
+    let workerPortClosed = false;
+    let pendingMessageCount = 0;
 
     const clearExecutionLifecycle = (): void => {
       if (timeoutId !== undefined) {
@@ -112,6 +116,16 @@ export function runAppsScriptWorkerSession(
       });
     };
 
+    const failExitedWorker = (): void => {
+      if (settled || workerExitCode === undefined || !workerPortClosed || pendingMessageCount > 0) {
+        return;
+      }
+
+      fail(
+        new Error(`Apps Script worker exited before returning a result (code ${workerExitCode}).`),
+      );
+    };
+
     const handleMessage = async (data: unknown): Promise<void> => {
       if (await handleHostRequestMessage(port, sharedArray, dispatcher, data)) {
         return;
@@ -142,7 +156,13 @@ export function runAppsScriptWorkerSession(
     });
 
     gasWorker.on("exit", (exitCode) => {
-      fail(new Error(`Apps Script worker exited before returning a result (code ${exitCode}).`));
+      workerExitCode = exitCode;
+      failExitedWorker();
+    });
+
+    port.on("close", () => {
+      workerPortClosed = true;
+      failExitedWorker();
     });
 
     port.on("message", (data) => {
@@ -150,7 +170,14 @@ export function runAppsScriptWorkerSession(
         return;
       }
 
-      void handleMessage(data).catch(fail);
+      pendingMessageCount += 1;
+
+      void handleMessage(data)
+        .catch(fail)
+        .finally(() => {
+          pendingMessageCount -= 1;
+          failExitedWorker();
+        });
     });
 
     if (options.signal !== undefined) {
