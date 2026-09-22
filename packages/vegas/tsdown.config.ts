@@ -27,4 +27,13 @@ export default defineConfig([
     },
     attw: true,
   },
+  {
+    entry: {
+      vitest: "./src/lib/vitest",
+    },
+    tsconfig: "./tsconfig.node.json",
+    fixedExtension: false,
+    dts: true,
+    attw: true,
+  },
 ]);
