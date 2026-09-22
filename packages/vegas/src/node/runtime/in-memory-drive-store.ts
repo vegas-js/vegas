@@ -1,6 +1,12 @@
+import { MIME_TYPE } from "./base-mime-type";
 import type { BlobValue } from "./blob-value";
 import type { DriveFileReference, DriveFolderReference } from "./drive-reference";
-import type { DriveFileMetadata, DriveNamespace, DriveStore } from "./drive-store";
+import type {
+  DriveFileMetadata,
+  DriveNamespace,
+  DriveShortcutTarget,
+  DriveStore,
+} from "./drive-store";
 
 type DriveFileContent = {
   readonly bytes: readonly number[];
@@ -12,6 +18,7 @@ type DriveFileState = {
   content: DriveFileContent;
   metadata: DriveFileMetadata;
   parentIds: string[];
+  shortcutTarget: DriveShortcutTarget | null;
   trashed: boolean;
 };
 
@@ -38,6 +45,10 @@ function cloneFileMetadata(metadata: DriveFileMetadata): DriveFileMetadata {
 
 function cloneFile(reference: DriveFileReference): DriveFileReference {
   return { ...reference };
+}
+
+function cloneShortcutTarget(target: DriveShortcutTarget | null): DriveShortcutTarget | null {
+  return target === null ? null : { ...target };
 }
 
 function cloneFolder(reference: DriveFolderReference): DriveFolderReference {
@@ -82,6 +93,7 @@ export class InMemoryDriveStore implements DriveStore {
         mimeType: blob.contentType,
       },
       parentIds: [parentState.reference.id],
+      shortcutTarget: null,
       trashed: false,
     });
 
@@ -112,6 +124,40 @@ export class InMemoryDriveStore implements DriveStore {
     return cloneFolder(reference);
   }
 
+  async createShortcut(
+    namespace: DriveNamespace,
+    parent: DriveFolderReference,
+    targetId: string,
+    targetResourceKey?: string,
+  ): Promise<DriveFileReference> {
+    const drive = this.#getOrCreateDrive(namespace);
+    const parentState = this.#getFolderState(drive, parent.id, parent.resourceKey);
+    const { name, target } = this.#resolveShortcutTarget(drive, targetId, targetResourceKey);
+
+    this.#nextFileId += 1;
+    const reference: DriveFileReference = {
+      service: "drive",
+      kind: "file",
+      id: `drive-file:${this.#nextFileId}`,
+    };
+    drive.files.set(reference.id, {
+      reference,
+      content: {
+        bytes: [],
+        googleType: true,
+      },
+      metadata: {
+        name,
+        mimeType: MIME_TYPE.SHORTCUT,
+      },
+      parentIds: [parentState.reference.id],
+      shortcutTarget: target,
+      trashed: false,
+    });
+
+    return cloneFile(reference);
+  }
+
   async getFile(
     namespace: DriveNamespace,
     id: string,
@@ -140,6 +186,14 @@ export class InMemoryDriveStore implements DriveStore {
     return cloneFileMetadata(
       this.#getFileState(this.#getOrCreateDrive(namespace), file.id, file.resourceKey).metadata,
     );
+  }
+
+  async getFileShortcutTarget(
+    namespace: DriveNamespace,
+    file: DriveFileReference,
+  ): Promise<DriveShortcutTarget | null> {
+    const state = this.#getFileState(this.#getOrCreateDrive(namespace), file.id, file.resourceKey);
+    return cloneShortcutTarget(state.shortcutTarget);
   }
 
   async isFileTrashed(namespace: DriveNamespace, file: DriveFileReference): Promise<boolean> {
@@ -320,6 +374,54 @@ export class InMemoryDriveStore implements DriveStore {
     return state.parentIds.map((parentId) =>
       cloneFolder(this.#getFolderState(drive, parentId).reference),
     );
+  }
+
+  #resolveShortcutTarget(
+    drive: DriveState,
+    targetId: string,
+    targetResourceKey: string | undefined,
+  ): { readonly name: string; readonly target: DriveShortcutTarget } {
+    const file = drive.files.get(targetId);
+
+    if (file) {
+      const { name, mimeType } = file.metadata;
+
+      if (name === null) {
+        throw new Error(`Local Drive shortcut target name is unavailable: ${targetId}`);
+      }
+
+      if (mimeType === null) {
+        throw new Error(`Local Drive shortcut target MIME type is unavailable: ${targetId}`);
+      }
+
+      return {
+        name,
+        target: {
+          id: targetId,
+          mimeType,
+          resourceKey: targetResourceKey ?? file.reference.resourceKey ?? null,
+        },
+      };
+    }
+
+    const folder = drive.root.reference.id === targetId ? drive.root : drive.folders.get(targetId);
+
+    if (folder) {
+      if (folder.name === null) {
+        throw new Error(`Local Drive shortcut target name is unavailable: ${targetId}`);
+      }
+
+      return {
+        name: folder.name,
+        target: {
+          id: targetId,
+          mimeType: MIME_TYPE.FOLDER,
+          resourceKey: targetResourceKey ?? folder.reference.resourceKey ?? null,
+        },
+      };
+    }
+
+    throw new Error(`Unknown local Drive shortcut target: ${targetId}`);
   }
 
   #isFileTrashed(drive: DriveState, state: DriveFileState): boolean {

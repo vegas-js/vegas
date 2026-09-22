@@ -48,6 +48,29 @@ export class DriveFolder {
     );
   }
 
+  createShortcut(targetId: string): DriveFile {
+    return this.#hydrator.hydrate(
+      this.#bridge.call({
+        service: "drive",
+        operation: "create-shortcut",
+        parent: this.#reference,
+        targetId,
+      }),
+    );
+  }
+
+  createShortcutForTargetIdAndResourceKey(targetId: string, targetResourceKey: string): DriveFile {
+    return this.#hydrator.hydrate(
+      this.#bridge.call({
+        service: "drive",
+        operation: "create-shortcut",
+        parent: this.#reference,
+        targetId,
+        targetResourceKey,
+      }),
+    );
+  }
+
   getFiles(): DriveFileIterator {
     return this.#hydrator.hydrate(
       this.#bridge.call({

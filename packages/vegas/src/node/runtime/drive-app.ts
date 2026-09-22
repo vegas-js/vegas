@@ -32,6 +32,17 @@ export class DriveApp {
     return this.getRootFolder().createFolder(name);
   }
 
+  createShortcut(targetId: string): DriveFile {
+    return this.getRootFolder().createShortcut(targetId);
+  }
+
+  createShortcutForTargetIdAndResourceKey(targetId: string, targetResourceKey: string): DriveFile {
+    return this.getRootFolder().createShortcutForTargetIdAndResourceKey(
+      targetId,
+      targetResourceKey,
+    );
+  }
+
   continueFileIterator(continuationToken: string): DriveFileIterator {
     return this.#hydrator.hydrate(
       this.#bridge.call({

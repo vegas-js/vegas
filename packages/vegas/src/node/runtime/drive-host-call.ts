@@ -6,6 +6,7 @@ import type {
   DriveFolderReference,
   DriveIteratorReference,
 } from "./drive-reference";
+import type { DriveShortcutTarget } from "./drive-store";
 
 export type DriveHostCall =
   | {
@@ -22,6 +23,13 @@ export type DriveHostCall =
     }
   | {
       readonly service: "drive";
+      readonly operation: "create-shortcut";
+      readonly parent: DriveFolderReference;
+      readonly targetId: string;
+      readonly targetResourceKey?: string;
+    }
+  | {
+      readonly service: "drive";
       readonly operation: "get-file-blob";
       readonly file: DriveFileReference;
     }
@@ -33,6 +41,11 @@ export type DriveHostCall =
   | {
       readonly service: "drive";
       readonly operation: "get-file-mime-type";
+      readonly file: DriveFileReference;
+    }
+  | {
+      readonly service: "drive";
+      readonly operation: "get-file-shortcut-target";
       readonly file: DriveFileReference;
     }
   | {
@@ -182,7 +195,7 @@ export type DriveHostCall =
     };
 
 export type DriveHostCallResult<C extends DriveHostCall> = C extends {
-  readonly operation: "get-file" | "create-file" | "file-iterator-next";
+  readonly operation: "get-file" | "create-file" | "create-shortcut" | "file-iterator-next";
 }
   ? DriveFileReference
   : C extends {
@@ -215,28 +228,35 @@ export type DriveHostCallResult<C extends DriveHostCall> = C extends {
           }
         ? DriveFolderIteratorReference
         : C extends {
-              readonly operation: "get-file-blob";
+              readonly operation: "get-file-shortcut-target";
             }
-          ? BlobValue
+          ? DriveShortcutTarget | null
           : C extends {
-                readonly operation: "iterator-has-next" | "get-file-trashed" | "get-folder-trashed";
+                readonly operation: "get-file-blob";
               }
-            ? boolean
+            ? BlobValue
             : C extends {
                   readonly operation:
-                    | "set-file-content"
-                    | "set-file-name"
-                    | "set-file-trashed"
-                    | "set-folder-trashed"
-                    | "move-file";
+                    | "iterator-has-next"
+                    | "get-file-trashed"
+                    | "get-folder-trashed";
                 }
-              ? void
+              ? boolean
               : C extends {
                     readonly operation:
-                      | "get-file-name"
-                      | "get-file-mime-type"
-                      | "get-folder-name"
-                      | "iterator-continuation-token";
+                      | "set-file-content"
+                      | "set-file-name"
+                      | "set-file-trashed"
+                      | "set-folder-trashed"
+                      | "move-file";
                   }
-                ? string
-                : never;
+                ? void
+                : C extends {
+                      readonly operation:
+                        | "get-file-name"
+                        | "get-file-mime-type"
+                        | "get-folder-name"
+                        | "iterator-continuation-token";
+                    }
+                  ? string
+                  : never;

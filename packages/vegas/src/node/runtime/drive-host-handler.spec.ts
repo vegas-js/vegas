@@ -8,6 +8,7 @@ import {
   type DriveFileReference,
   type DriveFolderReference,
   type DriveNamespace,
+  type DriveShortcutTarget,
   type DriveStore,
 } from "./index";
 
@@ -38,6 +39,18 @@ class RecordingDriveStore implements DriveStore {
     return { service: "drive", kind: "folder", id: `created:${name}` };
   }
 
+  async createShortcut(
+    namespace: DriveNamespace,
+    parent: DriveFolderReference,
+    targetId: string,
+    targetResourceKey?: string,
+  ): Promise<DriveFileReference> {
+    this.calls.push(
+      `createShortcut:${namespace.userKey}:${parent.id}:${targetId}:${targetResourceKey ?? ""}`,
+    );
+    return FILE_A;
+  }
+
   async getFile(
     namespace: DriveNamespace,
     id: string,
@@ -66,6 +79,14 @@ class RecordingDriveStore implements DriveStore {
       name: "a.txt",
       mimeType: "text/plain",
     };
+  }
+
+  async getFileShortcutTarget(
+    namespace: DriveNamespace,
+    file: DriveFileReference,
+  ): Promise<DriveShortcutTarget | null> {
+    this.calls.push(`getFileShortcutTarget:${namespace.userKey}:${file.id}`);
+    return null;
   }
 
   async isFileTrashed(namespace: DriveNamespace, file: DriveFileReference): Promise<boolean> {

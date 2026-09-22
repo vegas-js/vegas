@@ -88,6 +88,14 @@ export class LocalDriveHostHandler implements DriveHostCallHandler {
       case "create-file": {
         return this.#store.createFile(this.#namespace, call.parent, call.blob);
       }
+      case "create-shortcut": {
+        return this.#store.createShortcut(
+          this.#namespace,
+          call.parent,
+          call.targetId,
+          call.targetResourceKey,
+        );
+      }
       case "get-file-blob": {
         return this.#store.getFileBlob(this.#namespace, call.file);
       }
@@ -108,6 +116,9 @@ export class LocalDriveHostHandler implements DriveHostCallHandler {
         }
 
         return mimeType;
+      }
+      case "get-file-shortcut-target": {
+        return this.#store.getFileShortcutTarget(this.#namespace, call.file);
       }
       case "get-file-trashed": {
         return this.#store.isFileTrashed(this.#namespace, call.file);

@@ -10,6 +10,12 @@ export interface DriveFileMetadata {
   readonly mimeType: string | null;
 }
 
+export interface DriveShortcutTarget {
+  readonly id: string;
+  readonly mimeType: string;
+  readonly resourceKey: string | null;
+}
+
 /**
  * Persistent resource state for the local virtual Drive.
  *
@@ -28,9 +34,19 @@ export interface DriveStore {
     parent: DriveFolderReference,
     name: string,
   ): Promise<DriveFolderReference>;
+  createShortcut(
+    namespace: DriveNamespace,
+    parent: DriveFolderReference,
+    targetId: string,
+    targetResourceKey?: string,
+  ): Promise<DriveFileReference>;
   getFile(namespace: DriveNamespace, id: string, resourceKey?: string): Promise<DriveFileReference>;
   getFileBlob(namespace: DriveNamespace, file: DriveFileReference): Promise<BlobValue>;
   getFileMetadata(namespace: DriveNamespace, file: DriveFileReference): Promise<DriveFileMetadata>;
+  getFileShortcutTarget(
+    namespace: DriveNamespace,
+    file: DriveFileReference,
+  ): Promise<DriveShortcutTarget | null>;
   isFileTrashed(namespace: DriveNamespace, file: DriveFileReference): Promise<boolean>;
   setFileContent(
     namespace: DriveNamespace,

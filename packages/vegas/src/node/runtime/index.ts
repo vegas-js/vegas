@@ -42,7 +42,12 @@ export type {
   DriveObjectReference,
   DriveResourceReference,
 } from "./drive-reference";
-export type { DriveFileMetadata, DriveNamespace, DriveStore } from "./drive-store";
+export type {
+  DriveFileMetadata,
+  DriveNamespace,
+  DriveShortcutTarget,
+  DriveStore,
+} from "./drive-store";
 export type {
   ExecutionRequest,
   Executor,

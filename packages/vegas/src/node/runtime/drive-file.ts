@@ -4,6 +4,7 @@ import { resolveDriveFolderReference } from "./drive-folder-identity";
 import type { DriveFolderIterator } from "./drive-folder-iterator";
 import type { DriveObjectHydrator } from "./drive-hydrator";
 import type { DriveFileReference } from "./drive-reference";
+import type { DriveShortcutTarget } from "./drive-store";
 import type { HostBridge } from "./host-bridge";
 
 // https://developers.google.com/apps-script/reference/drive/file
@@ -50,6 +51,18 @@ export class DriveFile {
 
   getResourceKey(): string | null {
     return this.#reference.resourceKey ?? null;
+  }
+
+  getTargetId(): string | null {
+    return this.#getShortcutTarget()?.id ?? null;
+  }
+
+  getTargetMimeType(): string | null {
+    return this.#getShortcutTarget()?.mimeType ?? null;
+  }
+
+  getTargetResourceKey(): string | null {
+    return this.#getShortcutTarget()?.resourceKey ?? null;
   }
 
   getParents(): DriveFolderIterator {
@@ -108,5 +121,13 @@ export class DriveFile {
       trashed,
     });
     return this;
+  }
+
+  #getShortcutTarget(): DriveShortcutTarget | null {
+    return this.#bridge.call({
+      service: "drive",
+      operation: "get-file-shortcut-target",
+      file: this.#reference,
+    });
   }
 }
