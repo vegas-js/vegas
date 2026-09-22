@@ -1,5 +1,6 @@
 import type { RuntimeBlob } from "./blob";
 import { createDriveFileBlob } from "./drive-create-file";
+import { DRIVE_ACCESS, DRIVE_PERMISSION } from "./drive-enum";
 import type { DriveFile } from "./drive-file";
 import type { DriveFileIterator } from "./drive-file-iterator";
 import type { DriveFolder } from "./drive-folder";
@@ -11,6 +12,9 @@ import type { HostBridge } from "./host-bridge";
 export class DriveApp {
   readonly #bridge: HostBridge;
   readonly #hydrator: DriveObjectHydrator;
+
+  readonly Access = DRIVE_ACCESS;
+  readonly Permission = DRIVE_PERMISSION;
 
   constructor(bridge: HostBridge, hydrator: DriveObjectHydrator) {
     this.#bridge = bridge;

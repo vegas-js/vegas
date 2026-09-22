@@ -18,6 +18,8 @@ export { resolveCacheNamespace } from "./cache-namespace";
 export { Cache } from "./cache";
 export { CacheService, createCacheService } from "./cache-service";
 export type { CacheNamespace, CacheStore } from "./cache-store";
+export { DRIVE_ACCESS, DRIVE_PERMISSION } from "./drive-enum";
+export type { DriveAccess, DrivePermission } from "./drive-enum";
 export type { DriveHostCall, DriveHostCallResult } from "./drive-host-call";
 export { LocalDriveHostHandler } from "./drive-host-handler";
 export { resolveDriveNamespace } from "./drive-namespace";
