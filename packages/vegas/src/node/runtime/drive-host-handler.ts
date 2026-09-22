@@ -126,8 +126,15 @@ export class LocalDriveHostHandler implements DriveHostCallHandler {
       case "get-file-shortcut-target": {
         return this.#store.getFileShortcutTarget(this.#namespace, call.file);
       }
+      case "get-file-starred": {
+        return this.#store.isFileStarred(this.#namespace, call.file);
+      }
       case "get-file-trashed": {
         return this.#store.isFileTrashed(this.#namespace, call.file);
+      }
+      case "set-file-starred": {
+        await this.#store.setFileStarred(this.#namespace, call.file, call.starred);
+        return;
       }
       case "set-file-trashed": {
         await this.#store.setFileTrashed(this.#namespace, call.file, call.trashed);
@@ -185,8 +192,15 @@ export class LocalDriveHostHandler implements DriveHostCallHandler {
         await this.#store.setFolderName(this.#namespace, call.folder, call.name);
         return;
       }
+      case "get-folder-starred": {
+        return this.#store.isFolderStarred(this.#namespace, call.folder);
+      }
       case "get-folder-trashed": {
         return this.#store.isFolderTrashed(this.#namespace, call.folder);
+      }
+      case "set-folder-starred": {
+        await this.#store.setFolderStarred(this.#namespace, call.folder, call.starred);
+        return;
       }
       case "set-folder-trashed": {
         await this.#store.setFolderTrashed(this.#namespace, call.folder, call.trashed);

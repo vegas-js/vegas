@@ -60,8 +60,19 @@ export type DriveHostCall =
     }
   | {
       readonly service: "drive";
+      readonly operation: "get-file-starred";
+      readonly file: DriveFileReference;
+    }
+  | {
+      readonly service: "drive";
       readonly operation: "get-file-trashed";
       readonly file: DriveFileReference;
+    }
+  | {
+      readonly service: "drive";
+      readonly operation: "set-file-starred";
+      readonly file: DriveFileReference;
+      readonly starred: boolean;
     }
   | {
       readonly service: "drive";
@@ -135,8 +146,19 @@ export type DriveHostCall =
     }
   | {
       readonly service: "drive";
+      readonly operation: "get-folder-starred";
+      readonly folder: DriveFolderReference;
+    }
+  | {
+      readonly service: "drive";
       readonly operation: "get-folder-trashed";
       readonly folder: DriveFolderReference;
+    }
+  | {
+      readonly service: "drive";
+      readonly operation: "set-folder-starred";
+      readonly folder: DriveFolderReference;
+      readonly starred: boolean;
     }
   | {
       readonly service: "drive";
@@ -281,7 +303,9 @@ export type DriveHostCallResult<C extends DriveHostCall> = C extends {
               : C extends {
                     readonly operation:
                       | "iterator-has-next"
+                      | "get-file-starred"
                       | "get-file-trashed"
+                      | "get-folder-starred"
                       | "get-folder-trashed";
                   }
                 ? boolean
@@ -290,9 +314,11 @@ export type DriveHostCallResult<C extends DriveHostCall> = C extends {
                         | "set-file-content"
                         | "set-file-description"
                         | "set-file-name"
+                        | "set-file-starred"
                         | "set-file-trashed"
                         | "set-folder-description"
                         | "set-folder-name"
+                        | "set-folder-starred"
                         | "set-folder-trashed"
                         | "move-file"
                         | "move-folder";

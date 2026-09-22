@@ -49,6 +49,7 @@ export interface DriveStore {
     namespace: DriveNamespace,
     file: DriveFileReference,
   ): Promise<DriveShortcutTarget | null>;
+  isFileStarred(namespace: DriveNamespace, file: DriveFileReference): Promise<boolean>;
   isFileTrashed(namespace: DriveNamespace, file: DriveFileReference): Promise<boolean>;
   setFileContent(
     namespace: DriveNamespace,
@@ -61,6 +62,11 @@ export interface DriveStore {
     description: string,
   ): Promise<void>;
   setFileName(namespace: DriveNamespace, file: DriveFileReference, name: string): Promise<void>;
+  setFileStarred(
+    namespace: DriveNamespace,
+    file: DriveFileReference,
+    starred: boolean,
+  ): Promise<void>;
   setFileTrashed(
     namespace: DriveNamespace,
     file: DriveFileReference,
@@ -96,7 +102,13 @@ export interface DriveStore {
     folder: DriveFolderReference,
     name: string,
   ): Promise<void>;
+  isFolderStarred(namespace: DriveNamespace, folder: DriveFolderReference): Promise<boolean>;
   isFolderTrashed(namespace: DriveNamespace, folder: DriveFolderReference): Promise<boolean>;
+  setFolderStarred(
+    namespace: DriveNamespace,
+    folder: DriveFolderReference,
+    starred: boolean,
+  ): Promise<void>;
   setFolderTrashed(
     namespace: DriveNamespace,
     folder: DriveFolderReference,

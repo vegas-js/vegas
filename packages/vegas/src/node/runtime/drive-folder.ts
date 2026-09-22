@@ -148,6 +148,14 @@ export class DriveFolder {
     return this.#reference.resourceKey ?? null;
   }
 
+  isStarred(): boolean {
+    return this.#bridge.call({
+      service: "drive",
+      operation: "get-folder-starred",
+      folder: this.#reference,
+    });
+  }
+
   isTrashed(): boolean {
     return this.#bridge.call({
       service: "drive",
@@ -192,6 +200,16 @@ export class DriveFolder {
       operation: "set-folder-name",
       folder: this.#reference,
       name,
+    });
+    return this;
+  }
+
+  setStarred(starred: boolean): DriveFolder {
+    this.#bridge.call({
+      service: "drive",
+      operation: "set-folder-starred",
+      folder: this.#reference,
+      starred,
     });
     return this;
   }

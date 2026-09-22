@@ -91,6 +91,14 @@ export class DriveFile {
     );
   }
 
+  isStarred(): boolean {
+    return this.#bridge.call({
+      service: "drive",
+      operation: "get-file-starred",
+      file: this.#reference,
+    });
+  }
+
   isTrashed(): boolean {
     return this.#bridge.call({
       service: "drive",
@@ -135,6 +143,16 @@ export class DriveFile {
       operation: "set-file-name",
       file: this.#reference,
       name,
+    });
+    return this;
+  }
+
+  setStarred(starred: boolean): DriveFile {
+    this.#bridge.call({
+      service: "drive",
+      operation: "set-file-starred",
+      file: this.#reference,
+      starred,
     });
     return this;
   }

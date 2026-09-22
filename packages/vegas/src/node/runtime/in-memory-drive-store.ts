@@ -20,6 +20,7 @@ type DriveFileState = {
   metadata: DriveFileMetadata;
   parentIds: string[];
   shortcutTarget: DriveShortcutTarget | null;
+  starred: boolean;
   trashed: boolean;
 };
 
@@ -28,6 +29,7 @@ type DriveFolderState = {
   description: string | null;
   name: string | null;
   parentIds: string[];
+  starred: boolean;
   trashed: boolean;
 };
 
@@ -97,6 +99,7 @@ export class InMemoryDriveStore implements DriveStore {
       },
       parentIds: [parentState.reference.id],
       shortcutTarget: null,
+      starred: false,
       trashed: false,
     });
 
@@ -122,6 +125,7 @@ export class InMemoryDriveStore implements DriveStore {
       description: null,
       name,
       parentIds: [parentState.reference.id],
+      starred: false,
       trashed: false,
     });
 
@@ -157,6 +161,7 @@ export class InMemoryDriveStore implements DriveStore {
       },
       parentIds: [parentState.reference.id],
       shortcutTarget: target,
+      starred: false,
       trashed: false,
     });
 
@@ -214,6 +219,10 @@ export class InMemoryDriveStore implements DriveStore {
     return cloneShortcutTarget(state.shortcutTarget);
   }
 
+  async isFileStarred(namespace: DriveNamespace, file: DriveFileReference): Promise<boolean> {
+    return this.#getFileState(this.#getOrCreateDrive(namespace), file.id, file.resourceKey).starred;
+  }
+
   async isFileTrashed(namespace: DriveNamespace, file: DriveFileReference): Promise<boolean> {
     const drive = this.#getOrCreateDrive(namespace);
     const state = this.#getFileState(drive, file.id, file.resourceKey);
@@ -252,6 +261,15 @@ export class InMemoryDriveStore implements DriveStore {
       ...state.metadata,
       name,
     };
+  }
+
+  async setFileStarred(
+    namespace: DriveNamespace,
+    file: DriveFileReference,
+    starred: boolean,
+  ): Promise<void> {
+    const state = this.#getFileState(this.#getOrCreateDrive(namespace), file.id, file.resourceKey);
+    state.starred = starred;
   }
 
   async setFileTrashed(
@@ -350,11 +368,29 @@ export class InMemoryDriveStore implements DriveStore {
     state.name = name;
   }
 
+  async isFolderStarred(namespace: DriveNamespace, folder: DriveFolderReference): Promise<boolean> {
+    return this.#getFolderState(this.#getOrCreateDrive(namespace), folder.id, folder.resourceKey)
+      .starred;
+  }
+
   async isFolderTrashed(namespace: DriveNamespace, folder: DriveFolderReference): Promise<boolean> {
     const drive = this.#getOrCreateDrive(namespace);
     const state = this.#getFolderState(drive, folder.id, folder.resourceKey);
 
     return this.#isFolderTrashed(drive, state);
+  }
+
+  async setFolderStarred(
+    namespace: DriveNamespace,
+    folder: DriveFolderReference,
+    starred: boolean,
+  ): Promise<void> {
+    const state = this.#getFolderState(
+      this.#getOrCreateDrive(namespace),
+      folder.id,
+      folder.resourceKey,
+    );
+    state.starred = starred;
   }
 
   async setFolderTrashed(
@@ -604,6 +640,7 @@ export class InMemoryDriveStore implements DriveStore {
         description: null,
         name: null,
         parentIds: [],
+        starred: false,
         trashed: false,
       },
       files: new Map(),

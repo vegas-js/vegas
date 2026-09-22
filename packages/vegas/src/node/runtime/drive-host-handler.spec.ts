@@ -102,6 +102,11 @@ class RecordingDriveStore implements DriveStore {
     return null;
   }
 
+  async isFileStarred(namespace: DriveNamespace, file: DriveFileReference): Promise<boolean> {
+    this.calls.push(`isFileStarred:${namespace.userKey}:${file.id}`);
+    return false;
+  }
+
   async isFileTrashed(namespace: DriveNamespace, file: DriveFileReference): Promise<boolean> {
     this.calls.push(`isFileTrashed:${namespace.userKey}:${file.id}`);
     return false;
@@ -129,6 +134,14 @@ class RecordingDriveStore implements DriveStore {
     name: string,
   ): Promise<void> {
     this.calls.push(`setFileName:${namespace.userKey}:${file.id}:${name}`);
+  }
+
+  async setFileStarred(
+    namespace: DriveNamespace,
+    file: DriveFileReference,
+    starred: boolean,
+  ): Promise<void> {
+    this.calls.push(`setFileStarred:${namespace.userKey}:${file.id}:${starred}`);
   }
 
   async setFileTrashed(
@@ -193,9 +206,22 @@ class RecordingDriveStore implements DriveStore {
     this.calls.push(`setFolderName:${namespace.userKey}:${folder.id}:${name}`);
   }
 
+  async isFolderStarred(namespace: DriveNamespace, folder: DriveFolderReference): Promise<boolean> {
+    this.calls.push(`isFolderStarred:${namespace.userKey}:${folder.id}`);
+    return false;
+  }
+
   async isFolderTrashed(namespace: DriveNamespace, folder: DriveFolderReference): Promise<boolean> {
     this.calls.push(`isFolderTrashed:${namespace.userKey}:${folder.id}`);
     return false;
+  }
+
+  async setFolderStarred(
+    namespace: DriveNamespace,
+    folder: DriveFolderReference,
+    starred: boolean,
+  ): Promise<void> {
+    this.calls.push(`setFolderStarred:${namespace.userKey}:${folder.id}:${starred}`);
   }
 
   async setFolderTrashed(
