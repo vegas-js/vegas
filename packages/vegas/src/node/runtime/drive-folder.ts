@@ -2,7 +2,7 @@ import { serializeBlob, type RuntimeBlob } from "./blob";
 import { createDriveFileBlob } from "./drive-create-file";
 import type { DriveFile } from "./drive-file";
 import type { DriveFileIterator } from "./drive-file-iterator";
-import { registerDriveFolderIdentity } from "./drive-folder-identity";
+import { registerDriveFolderIdentity, resolveDriveFolderReference } from "./drive-folder-identity";
 import type { DriveFolderIterator } from "./drive-folder-iterator";
 import type { DriveObjectHydrator } from "./drive-hydrator";
 import type { DriveFolderReference } from "./drive-reference";
@@ -156,6 +156,26 @@ export class DriveFolder {
         folder: this.#reference,
       }),
     );
+  }
+
+  moveTo(destination: DriveFolder): DriveFolder {
+    this.#bridge.call({
+      service: "drive",
+      operation: "move-folder",
+      folder: this.#reference,
+      destination: resolveDriveFolderReference(this.#bridge, destination),
+    });
+    return this;
+  }
+
+  setName(name: string): DriveFolder {
+    this.#bridge.call({
+      service: "drive",
+      operation: "set-folder-name",
+      folder: this.#reference,
+      name,
+    });
+    return this;
   }
 
   setTrashed(trashed: boolean): DriveFolder {

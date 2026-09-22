@@ -140,6 +140,22 @@ class RecordingDriveStore implements DriveStore {
     return `name:${folder.id}`;
   }
 
+  async moveFolder(
+    namespace: DriveNamespace,
+    folder: DriveFolderReference,
+    destination: DriveFolderReference,
+  ): Promise<void> {
+    this.calls.push(`moveFolder:${namespace.userKey}:${folder.id}:${destination.id}`);
+  }
+
+  async setFolderName(
+    namespace: DriveNamespace,
+    folder: DriveFolderReference,
+    name: string,
+  ): Promise<void> {
+    this.calls.push(`setFolderName:${namespace.userKey}:${folder.id}:${name}`);
+  }
+
   async isFolderTrashed(namespace: DriveNamespace, folder: DriveFolderReference): Promise<boolean> {
     this.calls.push(`isFolderTrashed:${namespace.userKey}:${folder.id}`);
     return false;

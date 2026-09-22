@@ -266,6 +266,42 @@ export class InMemoryDriveStore implements DriveStore {
       .name;
   }
 
+  async moveFolder(
+    namespace: DriveNamespace,
+    folder: DriveFolderReference,
+    destination: DriveFolderReference,
+  ): Promise<void> {
+    const drive = this.#getOrCreateDrive(namespace);
+    const state = this.#getFolderState(drive, folder.id, folder.resourceKey);
+    const destinationState = this.#getFolderState(drive, destination.id, destination.resourceKey);
+
+    if (state.reference.id === drive.root.reference.id) {
+      throw new Error("Cannot move the local Drive root folder.");
+    }
+
+    if (
+      state.reference.id === destinationState.reference.id ||
+      this.#hasFolderAncestor(drive, destinationState, state.reference.id)
+    ) {
+      throw new Error(`Cannot move local Drive folder into itself or its descendant: ${folder.id}`);
+    }
+
+    state.parentIds = [destinationState.reference.id];
+  }
+
+  async setFolderName(
+    namespace: DriveNamespace,
+    folder: DriveFolderReference,
+    name: string,
+  ): Promise<void> {
+    const state = this.#getFolderState(
+      this.#getOrCreateDrive(namespace),
+      folder.id,
+      folder.resourceKey,
+    );
+    state.name = name;
+  }
+
   async isFolderTrashed(namespace: DriveNamespace, folder: DriveFolderReference): Promise<boolean> {
     const drive = this.#getOrCreateDrive(namespace);
     const state = this.#getFolderState(drive, folder.id, folder.resourceKey);
@@ -422,6 +458,33 @@ export class InMemoryDriveStore implements DriveStore {
     }
 
     throw new Error(`Unknown local Drive shortcut target: ${targetId}`);
+  }
+
+  #hasFolderAncestor(
+    drive: DriveState,
+    state: DriveFolderState,
+    ancestorId: string,
+    visited: ReadonlySet<string> = new Set(),
+  ): boolean {
+    if (state.parentIds.includes(ancestorId)) {
+      return true;
+    }
+
+    if (visited.has(state.reference.id)) {
+      return false;
+    }
+
+    const nextVisited = new Set(visited);
+    nextVisited.add(state.reference.id);
+
+    return state.parentIds.some((parentId) =>
+      this.#hasFolderAncestor(
+        drive,
+        this.#getFolderState(drive, parentId),
+        ancestorId,
+        nextVisited,
+      ),
+    );
   }
 
   #isFileTrashed(drive: DriveState, state: DriveFileState): boolean {

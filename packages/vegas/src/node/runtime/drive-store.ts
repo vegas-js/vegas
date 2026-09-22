@@ -70,6 +70,16 @@ export interface DriveStore {
     resourceKey?: string,
   ): Promise<DriveFolderReference>;
   getFolderName(namespace: DriveNamespace, folder: DriveFolderReference): Promise<string | null>;
+  moveFolder(
+    namespace: DriveNamespace,
+    folder: DriveFolderReference,
+    destination: DriveFolderReference,
+  ): Promise<void>;
+  setFolderName(
+    namespace: DriveNamespace,
+    folder: DriveFolderReference,
+    name: string,
+  ): Promise<void>;
   isFolderTrashed(namespace: DriveNamespace, folder: DriveFolderReference): Promise<boolean>;
   setFolderTrashed(
     namespace: DriveNamespace,
