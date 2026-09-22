@@ -1,9 +1,9 @@
 import { afterAll, describe, expect, expectTypeOf } from "vitest";
 
-import type { RuntimeDataSnapshot } from "../../shared/gas";
 import type { LocalRuntimeHarness } from "../local-runtime-harness";
 import type { LocalRuntimeProject } from "../local-runtime-project";
 import type { Program } from "../runtime";
+import type { RuntimeDataFixture } from "../runtime-data-fixture";
 import { createLocalRuntimeTest } from "./local-runtime-test";
 
 const project = {
@@ -15,26 +15,20 @@ const project = {
   },
 } satisfies LocalRuntimeProject;
 
-const snapshot = {
+const runtimeData = {
   properties: {
-    source: "/project/runtime/properties.ts",
-    value: {
-      scriptProperties: {
-        environment: "test",
-      },
+    scriptProperties: {
+      environment: "test",
     },
   },
   spreadsheets: [
     {
-      source: "/project/runtime/budget.ts",
-      value: {
-        id: "budget",
-        name: "Budget",
-        sheets: [],
-      },
+      id: "budget",
+      name: "Budget",
+      sheets: [],
     },
   ],
-} satisfies RuntimeDataSnapshot;
+} satisfies RuntimeDataFixture;
 
 const program = {
   source: "function main() { return 'ok'; }",
@@ -44,7 +38,7 @@ const program = {
 const harnesses = new Set<LocalRuntimeHarness>();
 const test = createLocalRuntimeTest({
   project,
-  snapshot,
+  runtimeData,
   program,
 });
 

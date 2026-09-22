@@ -496,11 +496,15 @@ function smokeVegasPackage() {
               },
             },
           },
-          snapshot: {
-            spreadsheets: [],
+          runtimeData: {
+            properties: {
+              scriptProperties: {
+                prefix: "Vegas",
+              },
+            },
           },
           program: {
-            source: "function main(value) { return 'Vegas ' + value; }",
+            source: "function main(value) { return PropertiesService.getScriptProperties().getProperty('prefix') + ' ' + value; }",
             htmlFiles: {},
           },
         });
