@@ -603,8 +603,20 @@ function smokeVegasPackage() {
     fs.writeFileSync(
       path.join(browserServerRoot, "Code.ts"),
       `
-        export function doGet() {
+        export function doGet(event) {
+          if (event.parameter.format === "json") {
+            return ContentService.createTextOutput('{"ok":true}').setMimeType(
+              ContentService.MimeType.JSON,
+            );
+          }
+
           return HtmlService.createHtmlOutputFromFile("index").setTitle("Vegas browser smoke");
+        }
+
+        export function doPost(event) {
+          return ContentService.createTextOutput(event.postData.contents)
+            .setMimeType(ContentService.MimeType.JSON)
+            .downloadAsFile("vegas response.json");
         }
 
         export function greet(value) {
@@ -660,6 +672,14 @@ function smokeVegasPackage() {
           },
         });
 
+        function readRedirectLocation(response) {
+          const location = response.headers()["location"];
+
+          expect(location).toBeTruthy();
+
+          return location;
+        }
+
         test("executes the packed browser bridge and Local Runtime", async ({ vegas }) => {
           await expect(vegas.app.locator("#result")).toHaveText("Vegas browser");
 
@@ -672,6 +692,73 @@ function smokeVegasPackage() {
 
         test("starts the next browser test with fresh Runtime state", async ({ vegas }) => {
           await expect(vegas.app.locator("#result")).toHaveText("Vegas browser");
+        });
+
+        test("serves packed ContentService GET output through a one-time redirect", async ({
+          page,
+          vegas,
+        }) => {
+          await expect(vegas.app.locator("#result")).toHaveText("Vegas browser");
+
+          const requestUrl = new URL(page.url());
+          requestUrl.searchParams.set("format", "json");
+
+          const redirectResponse = await page.request.get(requestUrl.href, {
+            maxRedirects: 0,
+          });
+          const contentUrl = new URL(readRedirectLocation(redirectResponse));
+
+          expect(redirectResponse.status()).toBe(302);
+          expect(contentUrl.origin).not.toBe(requestUrl.origin);
+
+          const contentResponse = await page.request.get(contentUrl.href, {
+            maxRedirects: 0,
+          });
+
+          expect(contentResponse.status()).toBe(200);
+          expect(contentResponse.headers()["content-type"]).toBe(
+            "application/json; charset=utf-8",
+          );
+          await expect(contentResponse.text()).resolves.toBe('{"ok":true}');
+
+          const consumedResponse = await page.request.get(contentUrl.href, {
+            maxRedirects: 0,
+          });
+
+          expect(consumedResponse.status()).toBe(404);
+        });
+
+        test("serves packed ContentService POST output with download metadata", async ({
+          page,
+          vegas,
+        }) => {
+          await expect(vegas.app.locator("#result")).toHaveText("Vegas browser");
+
+          const requestUrl = new URL(page.url());
+          const redirectResponse = await page.request.post(requestUrl.href, {
+            data: '{"posted":true}',
+            headers: {
+              "Content-Type": "application/json",
+            },
+            maxRedirects: 0,
+          });
+          const contentUrl = new URL(readRedirectLocation(redirectResponse));
+
+          expect(redirectResponse.status()).toBe(302);
+          expect(contentUrl.origin).not.toBe(requestUrl.origin);
+
+          const contentResponse = await page.request.get(contentUrl.href, {
+            maxRedirects: 0,
+          });
+
+          expect(contentResponse.status()).toBe(200);
+          expect(contentResponse.headers()["content-type"]).toBe(
+            "application/json; charset=utf-8",
+          );
+          expect(contentResponse.headers()["content-disposition"]).toBe(
+            "attachment; filename*=UTF-8''vegas%20response.json",
+          );
+          await expect(contentResponse.text()).resolves.toBe('{"posted":true}');
         });
       `,
     );
