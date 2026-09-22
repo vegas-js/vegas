@@ -203,7 +203,7 @@ describe("startDevApplication", () => {
       'src="http://localhost:63000/userCodeAppPanel?sessionId=',
     );
 
-    const userContentHandler = userContent.server.middlewares.stack[0]
+    const userContentHandler = userContent.server.middlewares.stack[1]
       ?.handle as Connect.NextHandleFunction;
     const userContentBody: unknown[] = [];
     await Promise.resolve(

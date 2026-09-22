@@ -1,5 +1,7 @@
 import type { RuntimeBackend, SpreadsheetStore } from "../../runtime";
 import { BuildCoordinator } from "../build-coordinator";
+import { createContentResponseHttpHandler } from "./content-response-http-handler";
+import { ContentResponseRegistry } from "./content-response-registry";
 import { createHostHttpHandler } from "./host-http-handler";
 import { registerHostWebSocketHandlers } from "./host-websocket";
 import { createLocalSpreadsheetHttpHandler } from "./local-spreadsheet-http-handler";
@@ -34,6 +36,7 @@ export async function startEphemeralWebAppApplication(
   });
   const builds = new BuildCoordinator();
   const sessions = new WebAppSessionRegistry();
+  const contentResponses = new ContentResponseRegistry();
 
   try {
     options.localSpreadsheetUrls?.setOrigin(pair.host.origin);
@@ -54,6 +57,14 @@ export async function startEphemeralWebAppApplication(
     pair.userContent.server.middlewares.stack.unshift({
       route: "",
       handle: userContentHandler,
+    });
+
+    const contentResponseHandler = createContentResponseHttpHandler({
+      responses: contentResponses,
+    });
+    pair.userContent.server.middlewares.stack.unshift({
+      route: "",
+      handle: contentResponseHandler,
     });
 
     const hostHandler = createHostHttpHandler({

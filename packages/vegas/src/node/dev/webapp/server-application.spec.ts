@@ -100,7 +100,7 @@ describe("startEphemeralWebAppApplication", () => {
 
     expect(host.wsOn).toHaveBeenCalledTimes(3);
     expect(host.middlewareStack).toHaveLength(2);
-    expect(userContent.middlewareStack).toHaveLength(1);
+    expect(userContent.middlewareStack).toHaveLength(2);
   });
 
   test("dispose the server pair when protocol wiring fails", async () => {

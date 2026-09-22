@@ -8,6 +8,8 @@ import type { RuntimeBackend, SpreadsheetStore } from "../runtime";
 import { BuildCoordinator } from "./build-coordinator";
 import { DevBuildManager } from "./build-manager";
 import { registerBuildWatchers } from "./build-watcher";
+import { createContentResponseHttpHandler } from "./webapp/content-response-http-handler";
+import { ContentResponseRegistry } from "./webapp/content-response-registry";
 import { createHostHttpHandler } from "./webapp/host-http-handler";
 import { createHostServerConfig } from "./webapp/host-server";
 import { registerHostWebSocketHandlers } from "./webapp/host-websocket";
@@ -47,6 +49,7 @@ export async function startDevApplication(
     mode: options.mode,
   });
   const sessions = new WebAppSessionRegistry();
+  const contentResponses = new ContentResponseRegistry();
   const builds = new BuildCoordinator();
 
   try {
@@ -105,6 +108,11 @@ export async function startDevApplication(
     });
 
     userContentServer.middlewares.stack.unshift({ route: "", handle: userContentHandler });
+
+    const contentResponseHandler = createContentResponseHttpHandler({
+      responses: contentResponses,
+    });
+    userContentServer.middlewares.stack.unshift({ route: "", handle: contentResponseHandler });
 
     await userContentServer.listen();
     const userContentPort = getListeningPort(userContentServer);
