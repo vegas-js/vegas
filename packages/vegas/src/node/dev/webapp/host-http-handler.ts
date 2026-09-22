@@ -115,6 +115,8 @@ export function createHostHttpHandler(options: HostHttpHandlerOptions): Connect.
         const url = new URL(request.url, `${scheme}://${request.headers.host}`);
 
         if (url.pathname === "/") {
+          // Apps Script does not define this deployment-root redirect.
+          // Vegas maps local "/" requests to the active web-app route as a convenience.
           const basePath = server.config.mode === "production" ? "/exec" : "/dev";
           response.statusCode = 307;
           response.setHeader("Location", `${basePath}${url.search}`);
@@ -165,6 +167,8 @@ export function createHostHttpHandler(options: HostHttpHandlerOptions): Connect.
             contentUrl.port = String(userContentPort);
             contentUrl.pathname = createContentResponsePath(responseId);
 
+            // Apps Script documents the one-time ContentService redirect but not its exact status.
+            // Vegas uses 302 for the Local Runtime transport.
             response.statusCode = 302;
             response.setHeader("Location", contentUrl.href);
             response.end();

@@ -23,6 +23,8 @@ export class ContentResponseRegistry {
   constructor(options: ContentResponseRegistryOptions = {}) {
     this.#createId = options.createId ?? crypto.randomUUID;
     this.#now = options.now ?? Date.now;
+    // Apps Script documents one-time ContentService URLs but not their lifetime.
+    // Vegas uses 30 seconds only to bound Local Runtime resources.
     this.#ttlMs = options.ttlMs ?? 30_000;
   }
 

@@ -22,6 +22,8 @@ interface ContentResponseHttpHandlerOptions {
 }
 
 function setContentResponseHeaders(response: Parameters<Connect.NextHandleFunction>[1]): void {
+  // Apps Script does not define these exact ContentService response headers as a public contract.
+  // Vegas uses local defaults that preserve the intended browser behavior without claiming parity.
   response.setHeader("Access-Control-Allow-Origin", "*");
   response.setHeader("Cache-Control", "no-cache, no-store, max-age=0, must-revalidate");
   response.setHeader("Pragma", "no-cache");

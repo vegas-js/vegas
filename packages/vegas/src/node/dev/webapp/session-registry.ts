@@ -23,6 +23,8 @@ export class WebAppSessionRegistry {
   constructor(options: WebAppSessionRegistryOptions = {}) {
     this.#createId = options.createId ?? crypto.randomUUID;
     this.#now = options.now ?? Date.now;
+    // Apps Script does not publish a web-app session lifetime for this local protocol.
+    // Vegas uses 30 seconds only to bound Local Runtime resources.
     this.#ttlMs = options.ttlMs ?? 30_000;
   }
 

@@ -13,6 +13,8 @@ type DriveFileContent = {
   readonly googleType: boolean;
 };
 
+// Drive exposes creation and modification timestamps, but not Vegas's in-memory mutation model.
+// Vegas advances lastUpdated only for direct item mutations, not starred state or child creation.
 type DriveTimestamps = {
   readonly createdAtMillis: number;
   lastUpdatedAtMillis: number;
@@ -379,6 +381,7 @@ export class InMemoryDriveStore implements DriveStore {
 
   async getFolderSize(namespace: DriveNamespace, folder: DriveFolderReference): Promise<number> {
     this.#getFolderState(this.#getOrCreateDrive(namespace), folder.id, folder.resourceKey);
+    // Vegas models local folders as metadata-only resources and therefore reports zero bytes.
     return 0;
   }
 
@@ -391,6 +394,7 @@ export class InMemoryDriveStore implements DriveStore {
     const state = this.#getFolderState(drive, folder.id, folder.resourceKey);
     const destinationState = this.#getFolderState(drive, destination.id, destination.resourceKey);
 
+    // Vegas keeps the local parent graph acyclic so ancestor-derived state remains well-defined.
     if (state.reference.id === drive.root.reference.id) {
       throw new Error("Cannot move the local Drive root folder.");
     }
@@ -639,6 +643,7 @@ export class InMemoryDriveStore implements DriveStore {
   }
 
   #isFileTrashed(drive: DriveState, state: DriveFileState): boolean {
+    // Vegas reports effective trash state, including trash inherited from an ancestor folder.
     return (
       state.trashed ||
       state.parentIds.some((parentId) =>
