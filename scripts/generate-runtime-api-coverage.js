@@ -493,6 +493,27 @@ export function resolveRuntimeApiMethodStatus(surface, methodName) {
   };
 }
 
+export function buildRuntimeApiStatusRows(status) {
+  return Object.entries(status.surfaces).map(([name, surface]) => {
+    const behaviors = new Map();
+
+    for (const methodName of surface.auditedMethods) {
+      const { behavior } = resolveRuntimeApiMethodStatus(surface, methodName);
+      behaviors.set(behavior, (behaviors.get(behavior) ?? 0) + 1);
+    }
+
+    return {
+      name,
+      audited: surface.auditedMethods.length,
+      behavior: [...RUNTIME_API_BEHAVIORS]
+        .filter((behavior) => behaviors.has(behavior))
+        .map((behavior) => `\`${behavior}\`: ${behaviors.get(behavior)}`)
+        .join("<br>"),
+      conformanceTested: surface.conformanceTestedMethods?.length ?? 0,
+    };
+  });
+}
+
 export function runtimeApiSurfaceName(globalName, interfaceName) {
   return globalName === interfaceName ? globalName : `${globalName}.${interfaceName}`;
 }
@@ -777,7 +798,14 @@ function buildStandaloneEnumRows(runtimeGlobals, declarations) {
   return rows;
 }
 
-export function renderCoverageMarkdown({ version, runtimeGlobals, declarations, supplement }) {
+export function renderCoverageMarkdown({
+  version,
+  runtimeGlobals,
+  declarations,
+  supplement,
+  status,
+}) {
+  const statusRows = buildRuntimeApiStatusRows(status);
   const standaloneEnums = buildStandaloneEnumRows(runtimeGlobals, declarations);
   const standaloneEnumNames = new Set(standaloneEnums.map(({ name }) => name));
   const rows = runtimeGlobals
@@ -814,6 +842,7 @@ export function renderCoverageMarkdown({ version, runtimeGlobals, declarations, 
     `- Google API declarations: \`@types/google-apps-script@${version}\``,
     "- Global implementation inventory: `packages/vegas/src/node/runtime/runtime-globals.ts`",
     "- Supplemental API declarations: `scripts/runtime-api-supplement.json`, sourced from Google official documentation.",
+    "- Runtime behavior inventory: `scripts/runtime-api-status.json`; behavior classification is separate from structural method coverage.",
     "- Coverage unit: unique method names (overloads count once); properties and enum values are not counted.",
     "- Enum surface coverage is measured separately by enum properties exposed on Global Objects; enum members are not counted individually.",
     "- Standalone Global enums are measured separately from methods and service enum properties.",
@@ -824,6 +853,19 @@ export function renderCoverageMarkdown({ version, runtimeGlobals, declarations, 
     "- Returned Runtime objects such as `Spreadsheet`, `Sheet`, and `Range` are shown separately below when Vegas has an explicit implementation mapping.",
     "",
     `Measured Global Object method coverage: **${implemented} / ${total} (${percentage(implemented, total)})**`,
+    "",
+    "## Audited Runtime behavior",
+    "",
+    "Structural coverage records whether a Runtime method exists; it does not imply Google Apps Script behavioral fidelity. This table summarizes only surfaces explicitly audited in `scripts/runtime-api-status.json`. Unaudited surfaces are omitted.",
+    "",
+    "`implemented` follows the documented public contract with no known local-only semantic difference. `local-emulation` substitutes a local model for Apps Script state or services. `no-op` intentionally performs no side effect. `fail-closed` rejects behavior Vegas cannot faithfully reproduce. Conformance status is tracked independently and requires an explicit test grounded in the documented Apps Script contract.",
+    "",
+    "| Runtime surface | Audited methods | Behavior classification | Conformance-tested |",
+    "| --- | ---: | --- | ---: |",
+    ...statusRows.map(
+      (row) =>
+        `| \`${row.name}\` | ${row.audited} | ${row.behavior} | ${row.conformanceTested} / ${row.audited} |`,
+    ),
     "",
     "## Global Object methods",
     "",
@@ -982,6 +1024,7 @@ function generate() {
     runtimeGlobals,
     declarations,
     supplement,
+    status,
   });
 
   return formatGeneratedMarkdown(markdown);

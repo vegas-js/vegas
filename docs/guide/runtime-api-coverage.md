@@ -7,6 +7,7 @@ This page is generated from the installed `@types/google-apps-script` declaratio
 - Google API declarations: `@types/google-apps-script@2.0.13`
 - Global implementation inventory: `packages/vegas/src/node/runtime/runtime-globals.ts`
 - Supplemental API declarations: `scripts/runtime-api-supplement.json`, sourced from Google official documentation.
+- Runtime behavior inventory: `scripts/runtime-api-status.json`; behavior classification is separate from structural method coverage.
 - Coverage unit: unique method names (overloads count once); properties and enum values are not counted.
 - Enum surface coverage is measured separately by enum properties exposed on Global Objects; enum members are not counted individually.
 - Standalone Global enums are measured separately from methods and service enum properties.
@@ -17,6 +18,21 @@ This page is generated from the installed `@types/google-apps-script` declaratio
 - Returned Runtime objects such as `Spreadsheet`, `Sheet`, and `Range` are shown separately below when Vegas has an explicit implementation mapping.
 
 Measured Global Object method coverage: **83 / 658 (12.6%)**
+
+## Audited Runtime behavior
+
+Structural coverage records whether a Runtime method exists; it does not imply Google Apps Script behavioral fidelity. This table summarizes only surfaces explicitly audited in `scripts/runtime-api-status.json`. Unaudited surfaces are omitted.
+
+`implemented` follows the documented public contract with no known local-only semantic difference. `local-emulation` substitutes a local model for Apps Script state or services. `no-op` intentionally performs no side effect. `fail-closed` rejects behavior Vegas cannot faithfully reproduce. Conformance status is tracked independently and requires an explicit test grounded in the documented Apps Script contract.
+
+| Runtime surface                | Audited methods | Behavior classification | Conformance-tested |
+| ------------------------------ | --------------: | ----------------------- | -----------------: |
+| `CacheService`                 |               3 | `local-emulation`: 3    |              0 / 3 |
+| `CacheService.Cache`           |               6 | `local-emulation`: 6    |              0 / 6 |
+| `LockService`                  |               3 | `local-emulation`: 3    |              0 / 3 |
+| `LockService.Lock`             |               4 | `local-emulation`: 4    |              0 / 4 |
+| `PropertiesService`            |               3 | `local-emulation`: 3    |              0 / 3 |
+| `PropertiesService.Properties` |               7 | `local-emulation`: 7    |              0 / 7 |
 
 ## Global Object methods
 

@@ -2,6 +2,7 @@ import { describe, expect, test } from "vitest";
 
 import {
   API_SURFACES,
+  buildRuntimeApiStatusRows,
   extractClassMethodNames,
   extractClassPropertyNames,
   extractInterfaceName,
@@ -214,6 +215,33 @@ declare namespace GoogleAppsScript {
       behavior: null,
       conformanceTested: false,
     });
+  });
+
+  test("summarize audited Runtime behavior separately from conformance", () => {
+    expect(
+      buildRuntimeApiStatusRows({
+        schemaVersion: 1,
+        surfaces: {
+          "SpreadsheetApp.Range": {
+            auditedMethods: ["getValue", "canEdit", "flush", "getAs"],
+            defaultBehavior: "implemented",
+            behaviorOverrides: {
+              canEdit: "local-emulation",
+              flush: "no-op",
+              getAs: "fail-closed",
+            },
+            conformanceTestedMethods: ["getAs"],
+          },
+        },
+      }),
+    ).toStrictEqual([
+      {
+        name: "SpreadsheetApp.Range",
+        audited: 4,
+        behavior: "`implemented`: 1<br>`local-emulation`: 1<br>`no-op`: 1<br>`fail-closed`: 1",
+        conformanceTested: 1,
+      },
+    ]);
   });
 
   test("reject status entries that reference methods outside the audited surface", () => {
