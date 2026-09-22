@@ -1,6 +1,22 @@
 {
   "schemaVersion": 1,
   "surfaces": {
+    "CacheService": {
+      "auditedMethods": ["getDocumentCache", "getScriptCache", "getUserCache"],
+      "defaultBehavior": "local-emulation"
+    },
+    "CacheService.Cache": {
+      "auditedMethods": ["get", "getAll", "put", "putAll", "remove", "removeAll"],
+      "defaultBehavior": "local-emulation"
+    },
+    "LockService": {
+      "auditedMethods": ["getDocumentLock", "getScriptLock", "getUserLock"],
+      "defaultBehavior": "local-emulation"
+    },
+    "LockService.Lock": {
+      "auditedMethods": ["hasLock", "releaseLock", "tryLock", "waitLock"],
+      "defaultBehavior": "local-emulation"
+    },
     "PropertiesService": {
       "auditedMethods": ["getDocumentProperties", "getScriptProperties", "getUserProperties"],
       "defaultBehavior": "local-emulation"
