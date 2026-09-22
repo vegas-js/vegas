@@ -28,6 +28,7 @@
   },
   "devDependencies": {
     "@arethetypeswrong/core": "^0.18.5",
+    "@playwright/test": "^1.63.0",
     "@vegasjs/vegas": "workspace:*",
     "@vitest/coverage-v8": "^5.0.0",
     "oxfmt": "^0.67.0",

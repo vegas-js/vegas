@@ -40,6 +40,10 @@
       "types": "./client.d.ts",
       "import": "./dist/client.js"
     },
+    "./playwright": {
+      "types": "./dist/playwright.d.ts",
+      "import": "./dist/playwright.js"
+    },
     "./server": {
       "types": "./server.d.ts"
     },
@@ -64,9 +68,13 @@
     "zod": "^4.6.5"
   },
   "peerDependencies": {
+    "@playwright/test": "^1.63.0",
     "vitest": "^5.0.0"
   },
   "peerDependenciesMeta": {
+    "@playwright/test": {
+      "optional": true
+    },
     "vitest": {
       "optional": true
     }

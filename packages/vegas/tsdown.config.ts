@@ -29,6 +29,7 @@ export default defineConfig([
   },
   {
     entry: {
+      playwright: "./src/lib/playwright",
       vitest: "./src/lib/vitest",
     },
     deps: {

@@ -377,6 +377,7 @@ function smokeVegasPackage() {
           private: true,
           type: "module",
           devDependencies: {
+            "@playwright/test": "^1.63.0",
             vitest: "^5.0.0",
           },
         },
@@ -401,6 +402,8 @@ function smokeVegasPackage() {
       "dist/config.d.ts",
       "dist/client.js",
       "dist/client.d.ts",
+      "dist/playwright.js",
+      "dist/playwright.d.ts",
       "dist/vitest.js",
       "dist/vitest.d.ts",
       "dist/vegas.js",
@@ -431,6 +434,11 @@ function smokeVegasPackage() {
       import: "./dist/client.js",
     });
 
+    assert.deepEqual(packageJson.exports["./playwright"], {
+      types: "./dist/playwright.d.ts",
+      import: "./dist/playwright.js",
+    });
+
     assert.deepEqual(packageJson.exports["./server"], {
       types: "./server.d.ts",
     });
@@ -438,6 +446,11 @@ function smokeVegasPackage() {
     assert.deepEqual(packageJson.exports["./vitest"], {
       types: "./dist/vitest.d.ts",
       import: "./dist/vitest.js",
+    });
+
+    assert.equal(packageJson.peerDependencies["@playwright/test"], "^1.63.0");
+    assert.deepEqual(packageJson.peerDependenciesMeta["@playwright/test"], {
+      optional: true,
     });
 
     assert.equal(packageJson.peerDependencies.vitest, "^5.0.0");
@@ -457,8 +470,11 @@ function smokeVegasPackage() {
         import assert from "node:assert/strict";
         import * as vegas from "@vegasjs/vegas";
         import * as client from "@vegasjs/vegas/client";
+        import * as playwright from "@vegasjs/vegas/playwright";
 
         assert.equal(typeof vegas.defineConfig, "function");
+        assert.equal(typeof playwright.createBrowserTest, "function");
+        assert.equal(typeof playwright.expect, "function");
 
         const config = { appType: "script" };
         assert.equal(vegas.defineConfig(config), config);
