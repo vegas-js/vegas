@@ -99,8 +99,14 @@ export class LocalDriveHostHandler implements DriveHostCallHandler {
       case "get-file-blob": {
         return this.#store.getFileBlob(this.#namespace, call.file);
       }
+      case "get-file-date-created": {
+        return this.#store.getFileDateCreated(this.#namespace, call.file);
+      }
       case "get-file-description": {
         return this.#store.getFileDescription(this.#namespace, call.file);
+      }
+      case "get-file-last-updated": {
+        return this.#store.getFileLastUpdated(this.#namespace, call.file);
       }
       case "get-file-name": {
         const { name } = await this.#store.getFileMetadata(this.#namespace, call.file);
@@ -168,8 +174,14 @@ export class LocalDriveHostHandler implements DriveHostCallHandler {
       case "create-folder": {
         return this.#store.createFolder(this.#namespace, call.parent, call.name);
       }
+      case "get-folder-date-created": {
+        return this.#store.getFolderDateCreated(this.#namespace, call.folder);
+      }
       case "get-folder-description": {
         return this.#store.getFolderDescription(this.#namespace, call.folder);
+      }
+      case "get-folder-last-updated": {
+        return this.#store.getFolderLastUpdated(this.#namespace, call.folder);
       }
       case "get-folder-name": {
         const name = await this.#store.getFolderName(this.#namespace, call.folder);

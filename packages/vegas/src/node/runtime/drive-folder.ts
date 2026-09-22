@@ -124,6 +124,16 @@ export class DriveFolder {
     );
   }
 
+  getDateCreated(): Date {
+    return new Date(
+      this.#bridge.call({
+        service: "drive",
+        operation: "get-folder-date-created",
+        folder: this.#reference,
+      }),
+    );
+  }
+
   getDescription(): string | null {
     return this.#bridge.call({
       service: "drive",
@@ -134,6 +144,16 @@ export class DriveFolder {
 
   getId(): string {
     return this.#reference.id;
+  }
+
+  getLastUpdated(): Date {
+    return new Date(
+      this.#bridge.call({
+        service: "drive",
+        operation: "get-folder-last-updated",
+        folder: this.#reference,
+      }),
+    );
   }
 
   getName(): string {

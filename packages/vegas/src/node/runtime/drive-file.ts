@@ -29,6 +29,16 @@ export class DriveFile {
     );
   }
 
+  getDateCreated(): Date {
+    return new Date(
+      this.#bridge.call({
+        service: "drive",
+        operation: "get-file-date-created",
+        file: this.#reference,
+      }),
+    );
+  }
+
   getDescription(): string | null {
     return this.#bridge.call({
       service: "drive",
@@ -39,6 +49,16 @@ export class DriveFile {
 
   getId(): string {
     return this.#reference.id;
+  }
+
+  getLastUpdated(): Date {
+    return new Date(
+      this.#bridge.call({
+        service: "drive",
+        operation: "get-file-last-updated",
+        file: this.#reference,
+      }),
+    );
   }
 
   getMimeType(): string {

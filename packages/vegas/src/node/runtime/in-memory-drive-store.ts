@@ -13,6 +13,11 @@ type DriveFileContent = {
   readonly googleType: boolean;
 };
 
+type DriveTimestamps = {
+  readonly createdAtMillis: number;
+  lastUpdatedAtMillis: number;
+};
+
 type DriveFileState = {
   readonly reference: DriveFileReference;
   content: DriveFileContent;
@@ -21,6 +26,7 @@ type DriveFileState = {
   parentIds: string[];
   shortcutTarget: DriveShortcutTarget | null;
   starred: boolean;
+  timestamps: DriveTimestamps;
   trashed: boolean;
 };
 
@@ -30,6 +36,7 @@ type DriveFolderState = {
   name: string | null;
   parentIds: string[];
   starred: boolean;
+  timestamps: DriveTimestamps;
   trashed: boolean;
 };
 
@@ -68,9 +75,14 @@ function matchesResourceKey(
 
 export class InMemoryDriveStore implements DriveStore {
   readonly #drives = new Map<string, DriveState>();
+  readonly #now: () => number;
   #nextRootId = 0;
   #nextFileId = 0;
   #nextFolderId = 0;
+
+  constructor(now: () => number = Date.now) {
+    this.#now = now;
+  }
 
   async createFile(
     namespace: DriveNamespace,
@@ -79,6 +91,7 @@ export class InMemoryDriveStore implements DriveStore {
   ): Promise<DriveFileReference> {
     const drive = this.#getOrCreateDrive(namespace);
     const parentState = this.#getFolderState(drive, parent.id, parent.resourceKey);
+    const now = this.#now();
 
     this.#nextFileId += 1;
     const reference: DriveFileReference = {
@@ -100,6 +113,10 @@ export class InMemoryDriveStore implements DriveStore {
       parentIds: [parentState.reference.id],
       shortcutTarget: null,
       starred: false,
+      timestamps: {
+        createdAtMillis: now,
+        lastUpdatedAtMillis: now,
+      },
       trashed: false,
     });
 
@@ -113,6 +130,7 @@ export class InMemoryDriveStore implements DriveStore {
   ): Promise<DriveFolderReference> {
     const drive = this.#getOrCreateDrive(namespace);
     const parentState = this.#getFolderState(drive, parent.id, parent.resourceKey);
+    const now = this.#now();
 
     this.#nextFolderId += 1;
     const reference: DriveFolderReference = {
@@ -126,6 +144,10 @@ export class InMemoryDriveStore implements DriveStore {
       name,
       parentIds: [parentState.reference.id],
       starred: false,
+      timestamps: {
+        createdAtMillis: now,
+        lastUpdatedAtMillis: now,
+      },
       trashed: false,
     });
 
@@ -141,6 +163,7 @@ export class InMemoryDriveStore implements DriveStore {
     const drive = this.#getOrCreateDrive(namespace);
     const parentState = this.#getFolderState(drive, parent.id, parent.resourceKey);
     const { name, target } = this.#resolveShortcutTarget(drive, targetId, targetResourceKey);
+    const now = this.#now();
 
     this.#nextFileId += 1;
     const reference: DriveFileReference = {
@@ -162,6 +185,10 @@ export class InMemoryDriveStore implements DriveStore {
       parentIds: [parentState.reference.id],
       shortcutTarget: target,
       starred: false,
+      timestamps: {
+        createdAtMillis: now,
+        lastUpdatedAtMillis: now,
+      },
       trashed: false,
     });
 
@@ -189,12 +216,22 @@ export class InMemoryDriveStore implements DriveStore {
     };
   }
 
+  async getFileDateCreated(namespace: DriveNamespace, file: DriveFileReference): Promise<number> {
+    return this.#getFileState(this.#getOrCreateDrive(namespace), file.id, file.resourceKey)
+      .timestamps.createdAtMillis;
+  }
+
   async getFileDescription(
     namespace: DriveNamespace,
     file: DriveFileReference,
   ): Promise<string | null> {
     return this.#getFileState(this.#getOrCreateDrive(namespace), file.id, file.resourceKey)
       .description;
+  }
+
+  async getFileLastUpdated(namespace: DriveNamespace, file: DriveFileReference): Promise<number> {
+    return this.#getFileState(this.#getOrCreateDrive(namespace), file.id, file.resourceKey)
+      .timestamps.lastUpdatedAtMillis;
   }
 
   async getFileMetadata(
@@ -240,6 +277,7 @@ export class InMemoryDriveStore implements DriveStore {
       ...state.content,
       bytes: [...bytes],
     };
+    state.timestamps.lastUpdatedAtMillis = this.#now();
   }
 
   async setFileDescription(
@@ -249,6 +287,7 @@ export class InMemoryDriveStore implements DriveStore {
   ): Promise<void> {
     const state = this.#getFileState(this.#getOrCreateDrive(namespace), file.id, file.resourceKey);
     state.description = description;
+    state.timestamps.lastUpdatedAtMillis = this.#now();
   }
 
   async setFileName(
@@ -261,6 +300,7 @@ export class InMemoryDriveStore implements DriveStore {
       ...state.metadata,
       name,
     };
+    state.timestamps.lastUpdatedAtMillis = this.#now();
   }
 
   async setFileStarred(
@@ -279,6 +319,7 @@ export class InMemoryDriveStore implements DriveStore {
   ): Promise<void> {
     const state = this.#getFileState(this.#getOrCreateDrive(namespace), file.id, file.resourceKey);
     state.trashed = trashed;
+    state.timestamps.lastUpdatedAtMillis = this.#now();
   }
 
   async moveFile(
@@ -291,6 +332,7 @@ export class InMemoryDriveStore implements DriveStore {
     const destinationState = this.#getFolderState(drive, destination.id, destination.resourceKey);
 
     state.parentIds = [destinationState.reference.id];
+    state.timestamps.lastUpdatedAtMillis = this.#now();
   }
 
   async getFolder(
@@ -303,12 +345,28 @@ export class InMemoryDriveStore implements DriveStore {
     );
   }
 
+  async getFolderDateCreated(
+    namespace: DriveNamespace,
+    folder: DriveFolderReference,
+  ): Promise<number> {
+    return this.#getFolderState(this.#getOrCreateDrive(namespace), folder.id, folder.resourceKey)
+      .timestamps.createdAtMillis;
+  }
+
   async getFolderDescription(
     namespace: DriveNamespace,
     folder: DriveFolderReference,
   ): Promise<string | null> {
     return this.#getFolderState(this.#getOrCreateDrive(namespace), folder.id, folder.resourceKey)
       .description;
+  }
+
+  async getFolderLastUpdated(
+    namespace: DriveNamespace,
+    folder: DriveFolderReference,
+  ): Promise<number> {
+    return this.#getFolderState(this.#getOrCreateDrive(namespace), folder.id, folder.resourceKey)
+      .timestamps.lastUpdatedAtMillis;
   }
 
   async getFolderName(
@@ -340,6 +398,7 @@ export class InMemoryDriveStore implements DriveStore {
     }
 
     state.parentIds = [destinationState.reference.id];
+    state.timestamps.lastUpdatedAtMillis = this.#now();
   }
 
   async setFolderDescription(
@@ -353,6 +412,7 @@ export class InMemoryDriveStore implements DriveStore {
       folder.resourceKey,
     );
     state.description = description;
+    state.timestamps.lastUpdatedAtMillis = this.#now();
   }
 
   async setFolderName(
@@ -366,6 +426,7 @@ export class InMemoryDriveStore implements DriveStore {
       folder.resourceKey,
     );
     state.name = name;
+    state.timestamps.lastUpdatedAtMillis = this.#now();
   }
 
   async isFolderStarred(namespace: DriveNamespace, folder: DriveFolderReference): Promise<boolean> {
@@ -404,6 +465,7 @@ export class InMemoryDriveStore implements DriveStore {
       folder.resourceKey,
     );
     state.trashed = trashed;
+    state.timestamps.lastUpdatedAtMillis = this.#now();
   }
 
   async getRootFolder(namespace: DriveNamespace): Promise<DriveFolderReference> {
@@ -630,6 +692,7 @@ export class InMemoryDriveStore implements DriveStore {
     }
 
     this.#nextRootId += 1;
+    const now = this.#now();
     const created: DriveState = {
       root: {
         reference: {
@@ -641,6 +704,10 @@ export class InMemoryDriveStore implements DriveStore {
         name: null,
         parentIds: [],
         starred: false,
+        timestamps: {
+          createdAtMillis: now,
+          lastUpdatedAtMillis: now,
+        },
         trashed: false,
       },
       files: new Map(),

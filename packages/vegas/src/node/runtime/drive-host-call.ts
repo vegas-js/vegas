@@ -35,7 +35,17 @@ export type DriveHostCall =
     }
   | {
       readonly service: "drive";
+      readonly operation: "get-file-date-created";
+      readonly file: DriveFileReference;
+    }
+  | {
+      readonly service: "drive";
       readonly operation: "get-file-description";
+      readonly file: DriveFileReference;
+    }
+  | {
+      readonly service: "drive";
+      readonly operation: "get-file-last-updated";
       readonly file: DriveFileReference;
     }
   | {
@@ -118,7 +128,17 @@ export type DriveHostCall =
     }
   | {
       readonly service: "drive";
+      readonly operation: "get-folder-date-created";
+      readonly folder: DriveFolderReference;
+    }
+  | {
+      readonly service: "drive";
       readonly operation: "get-folder-description";
+      readonly folder: DriveFolderReference;
+    }
+  | {
+      readonly service: "drive";
+      readonly operation: "get-folder-last-updated";
       readonly folder: DriveFolderReference;
     }
   | {
@@ -289,7 +309,12 @@ export type DriveHostCallResult<C extends DriveHostCall> = C extends {
           }
         ? DriveFolderIteratorReference
         : C extends {
-              readonly operation: "get-file-size";
+              readonly operation:
+                | "get-file-date-created"
+                | "get-file-last-updated"
+                | "get-file-size"
+                | "get-folder-date-created"
+                | "get-folder-last-updated";
             }
           ? number
           : C extends {

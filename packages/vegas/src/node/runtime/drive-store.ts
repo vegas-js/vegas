@@ -42,7 +42,9 @@ export interface DriveStore {
   ): Promise<DriveFileReference>;
   getFile(namespace: DriveNamespace, id: string, resourceKey?: string): Promise<DriveFileReference>;
   getFileBlob(namespace: DriveNamespace, file: DriveFileReference): Promise<BlobValue>;
+  getFileDateCreated(namespace: DriveNamespace, file: DriveFileReference): Promise<number>;
   getFileDescription(namespace: DriveNamespace, file: DriveFileReference): Promise<string | null>;
+  getFileLastUpdated(namespace: DriveNamespace, file: DriveFileReference): Promise<number>;
   getFileMetadata(namespace: DriveNamespace, file: DriveFileReference): Promise<DriveFileMetadata>;
   getFileSize(namespace: DriveNamespace, file: DriveFileReference): Promise<number>;
   getFileShortcutTarget(
@@ -82,10 +84,12 @@ export interface DriveStore {
     id: string,
     resourceKey?: string,
   ): Promise<DriveFolderReference>;
+  getFolderDateCreated(namespace: DriveNamespace, folder: DriveFolderReference): Promise<number>;
   getFolderDescription(
     namespace: DriveNamespace,
     folder: DriveFolderReference,
   ): Promise<string | null>;
+  getFolderLastUpdated(namespace: DriveNamespace, folder: DriveFolderReference): Promise<number>;
   getFolderName(namespace: DriveNamespace, folder: DriveFolderReference): Promise<string | null>;
   moveFolder(
     namespace: DriveNamespace,

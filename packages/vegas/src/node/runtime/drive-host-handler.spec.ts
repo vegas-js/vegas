@@ -70,12 +70,22 @@ class RecordingDriveStore implements DriveStore {
     };
   }
 
+  async getFileDateCreated(namespace: DriveNamespace, file: DriveFileReference): Promise<number> {
+    this.calls.push(`getFileDateCreated:${namespace.userKey}:${file.id}`);
+    return 1;
+  }
+
   async getFileDescription(
     namespace: DriveNamespace,
     file: DriveFileReference,
   ): Promise<string | null> {
     this.calls.push(`getFileDescription:${namespace.userKey}:${file.id}`);
     return null;
+  }
+
+  async getFileLastUpdated(namespace: DriveNamespace, file: DriveFileReference): Promise<number> {
+    this.calls.push(`getFileLastUpdated:${namespace.userKey}:${file.id}`);
+    return 2;
   }
 
   async getFileMetadata(
@@ -169,12 +179,28 @@ class RecordingDriveStore implements DriveStore {
     return { service: "drive", kind: "folder", id, ...(resourceKey ? { resourceKey } : {}) };
   }
 
+  async getFolderDateCreated(
+    namespace: DriveNamespace,
+    folder: DriveFolderReference,
+  ): Promise<number> {
+    this.calls.push(`getFolderDateCreated:${namespace.userKey}:${folder.id}`);
+    return 3;
+  }
+
   async getFolderDescription(
     namespace: DriveNamespace,
     folder: DriveFolderReference,
   ): Promise<string | null> {
     this.calls.push(`getFolderDescription:${namespace.userKey}:${folder.id}`);
     return null;
+  }
+
+  async getFolderLastUpdated(
+    namespace: DriveNamespace,
+    folder: DriveFolderReference,
+  ): Promise<number> {
+    this.calls.push(`getFolderLastUpdated:${namespace.userKey}:${folder.id}`);
+    return 4;
   }
 
   async getFolderName(namespace: DriveNamespace, folder: DriveFolderReference): Promise<string> {
