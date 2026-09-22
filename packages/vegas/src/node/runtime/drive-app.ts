@@ -1,4 +1,5 @@
 import type { RuntimeBlob } from "./blob";
+import { createDriveFileBlob } from "./drive-create-file";
 import type { DriveFile } from "./drive-file";
 import type { DriveFileIterator } from "./drive-file-iterator";
 import type { DriveFolder } from "./drive-folder";
@@ -16,8 +17,11 @@ export class DriveApp {
     this.#hydrator = hydrator;
   }
 
-  createFile(blob: RuntimeBlob): DriveFile {
-    return this.getRootFolder().createFile(blob);
+  createFile(blob: RuntimeBlob): DriveFile;
+  createFile(name: string, content: string): DriveFile;
+  createFile(name: string, content: string, mimeType: string): DriveFile;
+  createFile(blobOrName: RuntimeBlob | string, content?: string, mimeType?: string): DriveFile {
+    return this.getRootFolder().createFile(createDriveFileBlob(blobOrName, content, mimeType));
   }
 
   createFolder(name: string): DriveFolder {

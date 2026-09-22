@@ -213,6 +213,89 @@ describe("DriveApp Runtime object", () => {
     ]);
   });
 
+  test("create root files from Apps Script string overloads", () => {
+    const bridge = createBridge();
+    const drive = createDriveApp(bridge);
+
+    const textFile = drive.createFile("notes.txt", "Vegas");
+    const htmlFile = drive.createFile("index.html", "<main>Vegas</main>", MIME_TYPE.HTML);
+
+    expect(textFile).toBeInstanceOf(DriveFile);
+    expect(htmlFile).toBeInstanceOf(DriveFile);
+    expect(bridge.calls).toStrictEqual([
+      {
+        service: "drive",
+        operation: "get-root-folder",
+      },
+      {
+        service: "drive",
+        operation: "create-file",
+        parent: {
+          service: "drive",
+          kind: "folder",
+          id: "root",
+        },
+        blob: {
+          bytes: [86, 101, 103, 97, 115],
+          contentType: "text/plain",
+          name: "notes.txt",
+          googleType: false,
+        },
+      },
+      {
+        service: "drive",
+        operation: "get-root-folder",
+      },
+      {
+        service: "drive",
+        operation: "create-file",
+        parent: {
+          service: "drive",
+          kind: "folder",
+          id: "root",
+        },
+        blob: {
+          bytes: [60, 109, 97, 105, 110, 62, 86, 101, 103, 97, 115, 60, 47, 109, 97, 105, 110, 62],
+          contentType: "text/html",
+          name: "index.html",
+          googleType: false,
+        },
+      },
+    ]);
+  });
+
+  test("create nested folder files from Apps Script string overloads", () => {
+    const bridge = createBridge();
+    const drive = createDriveApp(bridge);
+    const folder = drive.getFolderById("folder-id");
+
+    const file = folder.createFile("notes.txt", "Vegas");
+
+    expect(file).toBeInstanceOf(DriveFile);
+    expect(bridge.calls).toStrictEqual([
+      {
+        service: "drive",
+        operation: "get-folder",
+        id: "folder-id",
+      },
+      {
+        service: "drive",
+        operation: "create-file",
+        parent: {
+          service: "drive",
+          kind: "folder",
+          id: "folder-id",
+        },
+        blob: {
+          bytes: [86, 101, 103, 97, 115],
+          contentType: "text/plain",
+          name: "notes.txt",
+          googleType: false,
+        },
+      },
+    ]);
+  });
+
   test("create root resources through the existing root Folder path", () => {
     const bridge = createBridge();
     const drive = createDriveApp(bridge);

@@ -1,4 +1,5 @@
 import { serializeBlob, type RuntimeBlob } from "./blob";
+import { createDriveFileBlob } from "./drive-create-file";
 import type { DriveFile } from "./drive-file";
 import type { DriveFileIterator } from "./drive-file-iterator";
 import { registerDriveFolderIdentity } from "./drive-folder-identity";
@@ -20,7 +21,12 @@ export class DriveFolder {
     registerDriveFolderIdentity(this, bridge, reference);
   }
 
-  createFile(blob: RuntimeBlob): DriveFile {
+  createFile(blob: RuntimeBlob): DriveFile;
+  createFile(name: string, content: string): DriveFile;
+  createFile(name: string, content: string, mimeType: string): DriveFile;
+  createFile(blobOrName: RuntimeBlob | string, content?: string, mimeType?: string): DriveFile {
+    const blob = createDriveFileBlob(blobOrName, content, mimeType);
+
     return this.#hydrator.hydrate(
       this.#bridge.call({
         service: "drive",
