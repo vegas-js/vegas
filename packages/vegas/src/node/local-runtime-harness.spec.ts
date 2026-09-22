@@ -67,6 +67,9 @@ describe("createLocalRuntimeHarness", () => {
     await expect(harness.spreadsheetStore.getSpreadsheet("budget")).resolves.toMatchObject({
       id: "budget",
     });
+    expect(Object.getOwnPropertyDescriptor(harness.appsScript, "execute")?.value).toBeTypeOf(
+      "function",
+    );
     expect(harness.runtime.resources.spreadsheets).toBe(harness.spreadsheetStore);
   });
 

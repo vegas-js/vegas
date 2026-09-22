@@ -520,10 +520,7 @@ function smokeVegasPackage() {
 
         test("executes the packed Local Runtime worker", async ({ vegas }) => {
           await expect(
-            vegas.runtime.execute({
-              functionName: "main",
-              args: ["runtime"],
-            }),
+            vegas.appsScript.execute("main", ["runtime"]),
           ).resolves.toBe("Vegas runtime");
         });
       `,

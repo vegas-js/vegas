@@ -12,6 +12,9 @@ import { applyPropertiesRuntimeData } from "./runtime-data-properties";
 import { createInvocationScope } from "./runtime-scope";
 
 export interface LocalRuntimeHarness {
+  readonly appsScript: {
+    execute(functionName: string, args?: readonly unknown[]): Promise<unknown>;
+  };
   readonly runtime: LocalRuntime;
   readonly session: LocalRuntimeSession;
   readonly propertiesStore: InMemoryPropertiesStore;
@@ -53,6 +56,11 @@ export async function createLocalRuntimeHarness(
   );
 
   return {
+    appsScript: {
+      execute(functionName: string, args: readonly unknown[] = []) {
+        return runtime.execute({ functionName, args });
+      },
+    },
     runtime,
     session,
     propertiesStore,
