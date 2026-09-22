@@ -3,6 +3,7 @@ import { describe, expect, test, vi } from "vitest";
 import {
   AppsScriptConsole,
   CacheService,
+  ContentService,
   createRuntimeGlobals,
   DriveApp,
   HtmlService,
@@ -78,6 +79,7 @@ describe("createRuntimeGlobals", () => {
     expect(globals.DriveApp).toBeInstanceOf(DriveApp);
     expect(globals.SpreadsheetApp).toBeInstanceOf(SpreadsheetApp);
     expect(globals.UrlFetchApp).toBeInstanceOf(UrlFetchApp);
+    expect(globals.ContentService).toBeInstanceOf(ContentService);
     expect(globals.HtmlService).toBeInstanceOf(HtmlService);
     expect(globals.Logger).toBeInstanceOf(Logger);
     expect(globals.Session).toBeInstanceOf(Session);

@@ -31,6 +31,10 @@ export const API_SURFACES = {
     ["HTTPResponse", "url-fetch-http-response.ts", "HTTPResponse"],
   ],
   Utilities: [["Utilities", "utilities.ts", "Utilities"]],
+  ContentService: [
+    ["ContentService", "content-service.ts", "ContentService"],
+    ["TextOutput", "text-output.ts", "TextOutput"],
+  ],
   HtmlService: [
     ["HtmlService", "html-service.ts", "HtmlService"],
     ["HtmlOutput", "html-output.ts", "HtmlOutput"],

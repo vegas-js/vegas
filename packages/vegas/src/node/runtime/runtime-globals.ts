@@ -1,6 +1,7 @@
 import { createBlobConverter } from "./blob-converter";
 import { createCacheService } from "./cache-service";
 import { createConsole } from "./console";
+import { createContentService } from "./content-service";
 import { createDriveApp } from "./drive-object-hydrator";
 import type { HostBridge } from "./host-bridge";
 import { createHtmlService } from "./html-service";
@@ -117,7 +118,7 @@ export function createRuntimeGlobals(options: RuntimeGlobalsOptions) {
     /* Charts */
     Charts: undefined,
     /* Content */
-    ContentService: undefined,
+    ContentService: createContentService(),
     /* HTML */
     HtmlService: createHtmlService(htmlFiles, context, htmlTemplateEvaluator, blobConverter),
     /* Mail */

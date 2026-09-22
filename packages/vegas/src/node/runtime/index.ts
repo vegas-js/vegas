@@ -7,6 +7,9 @@ export type { BlobHostCall, BlobHostCallResult } from "./blob-host-call";
 export type { BlobValue } from "./blob-value";
 export { createAppsScriptExecutor } from "./apps-script-executor";
 export type { AppsScriptExecutorOptions, AppsScriptWorkerRunner } from "./apps-script-executor";
+export { CONTENT_MIME_TYPE } from "./content-enum";
+export type { ContentMimeType } from "./content-enum";
+export { ContentService, createContentService } from "./content-service";
 export type { CacheHostCall, CacheHostCallResult, CacheHostScope } from "./cache-host-call";
 export { CacheHostHandler } from "./cache-host-handler";
 export type { CacheHostCallHandler } from "./cache-host-handler";
@@ -117,6 +120,7 @@ export type {
   SpreadsheetStore,
 } from "./spreadsheet-store";
 export { createSession, Session } from "./session";
+export { TextOutput } from "./text-output";
 export { User } from "./user";
 export { createUrlFetchApp, UrlFetchApp } from "./url-fetch-app";
 export { HTTPResponse, hydrateHttpResponse } from "./url-fetch-http-response";
