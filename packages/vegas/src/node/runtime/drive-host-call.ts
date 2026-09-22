@@ -45,6 +45,11 @@ export type DriveHostCall =
     }
   | {
       readonly service: "drive";
+      readonly operation: "get-file-size";
+      readonly file: DriveFileReference;
+    }
+  | {
+      readonly service: "drive";
       readonly operation: "get-file-shortcut-target";
       readonly file: DriveFileReference;
     }
@@ -240,37 +245,41 @@ export type DriveHostCallResult<C extends DriveHostCall> = C extends {
           }
         ? DriveFolderIteratorReference
         : C extends {
-              readonly operation: "get-file-shortcut-target";
+              readonly operation: "get-file-size";
             }
-          ? DriveShortcutTarget | null
+          ? number
           : C extends {
-                readonly operation: "get-file-blob";
+                readonly operation: "get-file-shortcut-target";
               }
-            ? BlobValue
+            ? DriveShortcutTarget | null
             : C extends {
-                  readonly operation:
-                    | "iterator-has-next"
-                    | "get-file-trashed"
-                    | "get-folder-trashed";
+                  readonly operation: "get-file-blob";
                 }
-              ? boolean
+              ? BlobValue
               : C extends {
                     readonly operation:
-                      | "set-file-content"
-                      | "set-file-name"
-                      | "set-file-trashed"
-                      | "set-folder-name"
-                      | "set-folder-trashed"
-                      | "move-file"
-                      | "move-folder";
+                      | "iterator-has-next"
+                      | "get-file-trashed"
+                      | "get-folder-trashed";
                   }
-                ? void
+                ? boolean
                 : C extends {
                       readonly operation:
-                        | "get-file-name"
-                        | "get-file-mime-type"
-                        | "get-folder-name"
-                        | "iterator-continuation-token";
+                        | "set-file-content"
+                        | "set-file-name"
+                        | "set-file-trashed"
+                        | "set-folder-name"
+                        | "set-folder-trashed"
+                        | "move-file"
+                        | "move-folder";
                     }
-                  ? string
-                  : never;
+                  ? void
+                  : C extends {
+                        readonly operation:
+                          | "get-file-name"
+                          | "get-file-mime-type"
+                          | "get-folder-name"
+                          | "iterator-continuation-token";
+                      }
+                    ? string
+                    : never;

@@ -117,6 +117,9 @@ export class LocalDriveHostHandler implements DriveHostCallHandler {
 
         return mimeType;
       }
+      case "get-file-size": {
+        return this.#store.getFileSize(this.#namespace, call.file);
+      }
       case "get-file-shortcut-target": {
         return this.#store.getFileShortcutTarget(this.#namespace, call.file);
       }

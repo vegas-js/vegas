@@ -81,6 +81,11 @@ class RecordingDriveStore implements DriveStore {
     };
   }
 
+  async getFileSize(namespace: DriveNamespace, file: DriveFileReference): Promise<number> {
+    this.calls.push(`getFileSize:${namespace.userKey}:${file.id}`);
+    return 1;
+  }
+
   async getFileShortcutTarget(
     namespace: DriveNamespace,
     file: DriveFileReference,

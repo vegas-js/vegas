@@ -43,6 +43,7 @@ export interface DriveStore {
   getFile(namespace: DriveNamespace, id: string, resourceKey?: string): Promise<DriveFileReference>;
   getFileBlob(namespace: DriveNamespace, file: DriveFileReference): Promise<BlobValue>;
   getFileMetadata(namespace: DriveNamespace, file: DriveFileReference): Promise<DriveFileMetadata>;
+  getFileSize(namespace: DriveNamespace, file: DriveFileReference): Promise<number>;
   getFileShortcutTarget(
     namespace: DriveNamespace,
     file: DriveFileReference,

@@ -53,6 +53,14 @@ export class DriveFile {
     return this.#reference.resourceKey ?? null;
   }
 
+  getSize(): number {
+    return this.#bridge.call({
+      service: "drive",
+      operation: "get-file-size",
+      file: this.#reference,
+    });
+  }
+
   getTargetId(): string | null {
     return this.#getShortcutTarget()?.id ?? null;
   }

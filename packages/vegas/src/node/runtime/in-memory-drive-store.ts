@@ -188,6 +188,11 @@ export class InMemoryDriveStore implements DriveStore {
     );
   }
 
+  async getFileSize(namespace: DriveNamespace, file: DriveFileReference): Promise<number> {
+    const state = this.#getFileState(this.#getOrCreateDrive(namespace), file.id, file.resourceKey);
+    return state.content.googleType ? 0 : state.content.bytes.length;
+  }
+
   async getFileShortcutTarget(
     namespace: DriveNamespace,
     file: DriveFileReference,
