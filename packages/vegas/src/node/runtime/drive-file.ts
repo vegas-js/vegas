@@ -48,6 +48,10 @@ export class DriveFile {
     });
   }
 
+  getResourceKey(): string | null {
+    return this.#reference.resourceKey ?? null;
+  }
+
   getParents(): DriveFolderIterator {
     return this.#hydrator.hydrate(
       this.#bridge.call({

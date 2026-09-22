@@ -113,6 +113,10 @@ export class DriveFolder {
     });
   }
 
+  getResourceKey(): string | null {
+    return this.#reference.resourceKey ?? null;
+  }
+
   isTrashed(): boolean {
     return this.#bridge.call({
       service: "drive",

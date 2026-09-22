@@ -52,6 +52,41 @@ class RecordingHostBridge implements HostBridge {
 }
 
 describe("DriveFile Runtime object", () => {
+  test("expose resource keys from Drive references without a host call", () => {
+    const bridge = new RecordingHostBridge();
+    const file = new DriveFile(
+      bridge,
+      {
+        service: "drive",
+        kind: "file",
+        id: "file-1",
+        resourceKey: "resource-key",
+      },
+      {
+        hydrate() {
+          throw new Error("unexpected Drive object hydration");
+        },
+      },
+    );
+    const fileWithoutResourceKey = new DriveFile(
+      bridge,
+      {
+        service: "drive",
+        kind: "file",
+        id: "file-2",
+      },
+      {
+        hydrate() {
+          throw new Error("unexpected Drive object hydration");
+        },
+      },
+    );
+
+    expect(file.getResourceKey()).toBe("resource-key");
+    expect(fileWithoutResourceKey.getResourceKey()).toBeNull();
+    expect(bridge.calls).toStrictEqual([]);
+  });
+
   test("map file Blob calls to operation-specific result types", () => {
     const createCall = {
       service: "drive",
