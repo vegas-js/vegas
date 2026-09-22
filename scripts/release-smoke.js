@@ -338,10 +338,12 @@ function smokeCreateVegasPackage() {
     );
 
     for (const [templateName] of CREATE_VEGAS_TEMPLATE_CASES) {
+      const templateId = templateName.replace(/^template-/, "");
+
       assert.equal(
-        helpOutput.includes(templateName),
+        helpOutput.includes(templateId),
         true,
-        `Expected create-vegas help to list ${templateName}`,
+        `Expected create-vegas help to list ${templateId}`,
       );
     }
 
@@ -374,6 +376,9 @@ function smokeVegasPackage() {
           name: "vegas-release-smoke",
           private: true,
           type: "module",
+          devDependencies: {
+            vitest: "^5.0.0",
+          },
         },
         null,
         2,
@@ -396,6 +401,8 @@ function smokeVegasPackage() {
       "dist/config.d.ts",
       "dist/client.js",
       "dist/client.d.ts",
+      "dist/vitest.js",
+      "dist/vitest.d.ts",
       "dist/vegas.js",
       "dist/worker.js",
       "dist/webapp-bridge.js",
@@ -426,6 +433,16 @@ function smokeVegasPackage() {
 
     assert.deepEqual(packageJson.exports["./server"], {
       types: "./server.d.ts",
+    });
+
+    assert.deepEqual(packageJson.exports["./vitest"], {
+      types: "./dist/vitest.d.ts",
+      import: "./dist/vitest.js",
+    });
+
+    assert.equal(packageJson.peerDependencies.vitest, "^5.0.0");
+    assert.deepEqual(packageJson.peerDependenciesMeta.vitest, {
+      optional: true,
     });
 
     assert.deepEqual(packageJson.bin, {
@@ -459,6 +476,47 @@ function smokeVegasPackage() {
     );
 
     run(process.execPath, [runtimeSmokePath], {
+      cwd: consumerRoot,
+    });
+
+    const vitestRuntimeSmokePath = path.join(consumerRoot, "vitest-runtime-smoke.spec.js");
+
+    fs.writeFileSync(
+      vitestRuntimeSmokePath,
+      `
+        import { expect } from "vitest";
+        import { createLocalRuntimeTest } from "@vegasjs/vegas/vitest";
+
+        const test = createLocalRuntimeTest({
+          project: {
+            root: "/release-smoke",
+            appsScript: {
+              manifest: {
+                timeZone: "UTC",
+              },
+            },
+          },
+          snapshot: {
+            spreadsheets: [],
+          },
+          program: {
+            source: "function main(value) { return 'Vegas ' + value; }",
+            htmlFiles: {},
+          },
+        });
+
+        test("executes the packed Local Runtime worker", async ({ vegas }) => {
+          await expect(
+            vegas.runtime.execute({
+              functionName: "main",
+              args: ["runtime"],
+            }),
+          ).resolves.toBe("Vegas runtime");
+        });
+      `,
+    );
+
+    run(pnpm, ["exec", "vitest", "run", "vitest-runtime-smoke.spec.js"], {
       cwd: consumerRoot,
     });
 
