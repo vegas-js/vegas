@@ -8,7 +8,7 @@ import { startEphemeralWebAppServerPair, type WebAppServerPair } from "./server-
 import { WebAppSessionRegistry } from "./session-registry";
 import { createUserContentHttpHandler } from "./user-content-http-handler";
 
-interface EphemeralWebAppApplicationOptions {
+export interface EphemeralWebAppApplicationOptions {
   readonly root: string;
   readonly configFile: string | null;
   readonly runtime: RuntimeBackend;

@@ -10,6 +10,7 @@ import {
 } from "./runtime";
 import { applyPropertiesRuntimeData } from "./runtime-data-properties";
 import { createInvocationScope } from "./runtime-scope";
+import type { SpreadsheetUrlCapability } from "./runtime/spreadsheet-url-capability";
 
 export interface LocalRuntimeHarness {
   readonly appsScript: {
@@ -25,6 +26,7 @@ export interface LocalRuntimeHarnessOptions {
   readonly project: LocalRuntimeProject;
   readonly snapshot: RuntimeDataSnapshot;
   readonly program: Program;
+  readonly spreadsheetUrlCapability?: SpreadsheetUrlCapability;
 }
 
 export async function createLocalRuntimeHarness(
@@ -52,6 +54,7 @@ export async function createLocalRuntimeHarness(
       propertiesStore,
       session,
       spreadsheetStore,
+      spreadsheetUrlCapability: options.spreadsheetUrlCapability,
     },
   );
 
