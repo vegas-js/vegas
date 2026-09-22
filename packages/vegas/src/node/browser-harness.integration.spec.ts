@@ -51,23 +51,25 @@ function createProject(root: string): ResolvedProject {
   };
 }
 
-function createRuntimeHarness(): LocalRuntimeHarness {
+function createRuntimeHarness(
+  result: unknown = {
+    kind: "html",
+    output: {
+      metaTags: [],
+      title: "Browser Harness",
+      faviconUrl: "",
+      content: '<main id="app">Hello from BrowserHarness</main>',
+      xFrameOptionsMode: "DEFAULT",
+    },
+  },
+): LocalRuntimeHarness {
   const spreadsheetStore = new InMemorySpreadsheetStore([]);
   const execute = vi.fn(async (request) => {
     if (request.functionName !== "doGet") {
       throw new Error(`Unexpected Runtime function: ${request.functionName}`);
     }
 
-    return {
-      kind: "html",
-      output: {
-        metaTags: [],
-        title: "Browser Harness",
-        faviconUrl: "",
-        content: '<main id="app">Hello from BrowserHarness</main>',
-        xFrameOptionsMode: "DEFAULT",
-      },
-    };
+    return result;
   });
   const runtime = {
     execute,
@@ -101,6 +103,67 @@ function readSandboxFrameUrl(html: string): string {
 }
 
 describe("BrowserHarness integration", () => {
+  test("redirect TextOutput through a one-time cross-origin content URL", async () => {
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "vegas-browser-harness-content-"));
+    const project = createProject(root);
+    const runtimeHarness = createRuntimeHarness({
+      kind: "text",
+      output: {
+        content: '{"ok":true}',
+        fileName: null,
+        mimeType: "JSON",
+      },
+    });
+    const loadProject = vi.fn(async () => project);
+    const buildRuntimeProgram = vi.fn(async () => program);
+    const createLocalRuntimeHarness = vi.fn(
+      async (_options: LocalRuntimeHarnessOptions) => runtimeHarness,
+    );
+    let harness: Awaited<ReturnType<typeof createBrowserHarnessWithDependencies>> | undefined;
+
+    try {
+      harness = await createBrowserHarnessWithDependencies({} satisfies BrowserHarnessOptions, {
+        cwd: root,
+        loadProject,
+        buildRuntimeProgram,
+        createLocalRuntimeHarness,
+        startWebAppApplication: startEphemeralWebAppApplication,
+      });
+
+      const hostUrl = new URL(harness.urls.host);
+      const userContentOrigin = new URL(harness.urls.userContent).origin;
+      const redirectResponse = await fetch(hostUrl, {
+        redirect: "manual",
+      });
+      const location = redirectResponse.headers.get("Location");
+
+      expect(redirectResponse.status).toBe(302);
+      expect(location).not.toBeNull();
+
+      const contentUrl = new URL(location!);
+
+      expect(contentUrl.origin).toBe(userContentOrigin);
+      expect(contentUrl.pathname).toMatch(/^\/__vegas\/content\/.+/);
+
+      const contentResponse = await fetch(contentUrl, {
+        redirect: "manual",
+      });
+
+      expect(contentResponse.status).toBe(200);
+      expect(contentResponse.headers.get("Content-Type")).toBe("application/json; charset=utf-8");
+      await expect(contentResponse.text()).resolves.toBe('{"ok":true}');
+
+      const consumedResponse = await fetch(contentUrl, {
+        redirect: "manual",
+      });
+
+      expect(consumedResponse.status).toBe(404);
+    } finally {
+      await harness?.dispose();
+      await fs.rm(root, { recursive: true, force: true });
+    }
+  });
+
   test("serve a cross-origin user-content session through real ephemeral servers", async () => {
     const root = await fs.mkdtemp(path.join(os.tmpdir(), "vegas-browser-harness-"));
     const project = createProject(root);

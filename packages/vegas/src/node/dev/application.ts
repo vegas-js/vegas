@@ -120,6 +120,7 @@ export async function startDevApplication(
     const hostHandler = createHostHttpHandler({
       server: hostServer,
       builds,
+      contentResponses,
       sessions,
       runtime: options.runtime,
       userContentPort,

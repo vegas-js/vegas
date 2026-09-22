@@ -1,7 +1,15 @@
 import type { Connect, ViteDevServer } from "vite";
 
-import type { InvocationContext, RuntimeBackend } from "../../runtime";
+import {
+  CONTENT_MIME_TYPE,
+  type ContentMimeType,
+  type InvocationContext,
+  type RuntimeBackend,
+  type TextOutputSnapshot,
+} from "../../runtime";
 import type { BuildCoordinator } from "../build-coordinator";
+import { createContentResponsePath } from "./content-response-http-handler";
+import type { ContentResponseRegistry } from "./content-response-registry";
 import { createAppsScriptDoGetEvent, createAppsScriptDoPostEvent } from "./event";
 import { createHostHtml, type AppsScriptDoGetResult } from "./host-html";
 import { parseWebAppPath, readRequestBody, resolveAppsScriptXFrameOptionsHeader } from "./http";
@@ -10,15 +18,21 @@ import type { WebAppSessionRegistry } from "./session-registry";
 interface HostHttpHandlerOptions {
   readonly server: ViteDevServer;
   readonly builds: Pick<BuildCoordinator, "waitForIdle">;
+  readonly contentResponses: Pick<ContentResponseRegistry, "issue">;
   readonly sessions: Pick<WebAppSessionRegistry, "issue">;
   readonly runtime: RuntimeBackend;
   readonly userContentPort: number;
 }
 
 const HTTP_CLIENT_DISCONNECTED_MESSAGE = "Vegas HTTP client disconnected.";
+const CONTENT_MIME_TYPES = new Set<string>(Object.values(CONTENT_MIME_TYPE));
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
+}
+
+function isContentMimeType(value: unknown): value is ContentMimeType {
+  return typeof value === "string" && CONTENT_MIME_TYPES.has(value);
 }
 
 function requireAppsScriptHtmlOutput(value: unknown, functionName: string): AppsScriptDoGetResult {
@@ -32,10 +46,6 @@ function requireAppsScriptHtmlOutput(value: unknown, functionName: string): Apps
     !Array.isArray(value.output.metaTags) ||
     (value.output.xFrameOptionsMode !== "DEFAULT" && value.output.xFrameOptionsMode !== "ALLOWALL")
   ) {
-    if (isRecord(value) && value.kind === "text") {
-      throw new Error("ContentService TextOutput redirect is not implemented yet.");
-    }
-
     throw new Error(`Invalid ${functionName} result from Runtime.`);
   }
 
@@ -63,8 +73,27 @@ function requireAppsScriptHtmlOutput(value: unknown, functionName: string): Apps
   };
 }
 
+function requireAppsScriptTextOutput(value: unknown, functionName: string): TextOutputSnapshot {
+  if (
+    !isRecord(value) ||
+    value.kind !== "text" ||
+    !isRecord(value.output) ||
+    typeof value.output.content !== "string" ||
+    (value.output.fileName !== null && typeof value.output.fileName !== "string") ||
+    !isContentMimeType(value.output.mimeType)
+  ) {
+    throw new Error(`Invalid ${functionName} result from Runtime.`);
+  }
+
+  return {
+    content: value.output.content,
+    fileName: value.output.fileName,
+    mimeType: value.output.mimeType,
+  };
+}
+
 export function createHostHttpHandler(options: HostHttpHandlerOptions): Connect.NextHandleFunction {
-  const { server, builds, sessions, runtime, userContentPort } = options;
+  const { server, builds, contentResponses, sessions, runtime, userContentPort } = options;
 
   return async (request, response, next) => {
     const controller = new AbortController();
@@ -118,20 +147,31 @@ export function createHostHttpHandler(options: HostHttpHandlerOptions): Connect.
             return;
           }
 
-          const result = requireAppsScriptHtmlOutput(
-            await runtime.execute({
-              functionName,
-              args,
-              context,
-              signal: controller.signal,
-            }),
+          const runtimeResult = await runtime.execute({
             functionName,
-          );
+            args,
+            context,
+            signal: controller.signal,
+          });
 
           if (controller.signal.aborted) {
             return;
           }
 
+          if (isRecord(runtimeResult) && runtimeResult.kind === "text") {
+            const output = requireAppsScriptTextOutput(runtimeResult, functionName);
+            const responseId = contentResponses.issue(output);
+            const contentUrl = new URL(url.origin);
+            contentUrl.port = String(userContentPort);
+            contentUrl.pathname = createContentResponsePath(responseId);
+
+            response.statusCode = 302;
+            response.setHeader("Location", contentUrl.href);
+            response.end();
+            return;
+          }
+
+          const result = requireAppsScriptHtmlOutput(runtimeResult, functionName);
           const sessionId = sessions.issue();
           const userContentUrl = new URL(url.href);
           userContentUrl.port = String(userContentPort);

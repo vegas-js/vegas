@@ -69,6 +69,7 @@ describe("createHostHttpHandler", () => {
     const handler = createHostHttpHandler({
       server: createServer().server,
       builds: { waitForIdle },
+      contentResponses: { issue: () => "content-1" },
       sessions: { issue: () => "session-1" },
       runtime: { execute: async () => undefined },
       userContentPort: 62000,
@@ -117,6 +118,7 @@ describe("createHostHttpHandler", () => {
     const handler = createHostHttpHandler({
       server,
       builds: { waitForIdle: async () => undefined },
+      contentResponses: { issue: () => "content-1" },
       sessions: { issue: () => "session-1" },
       runtime: { execute },
       userContentPort: 62000,
@@ -172,6 +174,7 @@ describe("createHostHttpHandler", () => {
     const handler = createHostHttpHandler({
       server,
       builds: { waitForIdle: async () => undefined },
+      contentResponses: { issue: () => "content-1" },
       sessions: { issue: () => "session-1" },
       runtime: { execute },
       userContentPort: 62000,
@@ -207,6 +210,7 @@ describe("createHostHttpHandler", () => {
     const handler = createHostHttpHandler({
       server: createServer().server,
       builds: { waitForIdle: async () => undefined },
+      contentResponses: { issue: () => "content-1" },
       sessions: { issue: () => "session-1" },
       runtime: {
         execute: async () => ({
@@ -244,6 +248,7 @@ describe("createHostHttpHandler", () => {
     const handler = createHostHttpHandler({
       server: createServer().server,
       builds: { waitForIdle: async () => undefined },
+      contentResponses: { issue: () => "content-1" },
       sessions: { issue: () => "session-1" },
       runtime: {
         execute: async () => ({
@@ -276,12 +281,55 @@ describe("createHostHttpHandler", () => {
     expect(end).not.toHaveBeenCalled();
   });
 
-  test("reject TextOutput until the content redirect endpoint is available", async () => {
-    const { response, end } = createResponse();
+  test("redirect TextOutput to a one-time user-content URL", async () => {
+    const { response, headers, end } = createResponse();
     const next = vi.fn();
+    const issue = vi.fn(() => "content-1");
+    const output = {
+      content: "Vegas",
+      fileName: null,
+      mimeType: "TEXT",
+    } as const;
     const handler = createHostHttpHandler({
       server: createServer().server,
       builds: { waitForIdle: async () => undefined },
+      contentResponses: { issue },
+      sessions: { issue: () => "session-1" },
+      runtime: {
+        execute: async () => ({
+          kind: "text",
+          output,
+        }),
+      },
+      userContentPort: 62000,
+    });
+
+    await Promise.resolve(
+      handler(
+        createRequest("GET", "/dev", {
+          host: "localhost:5173",
+        }),
+        response,
+        next,
+      ),
+    );
+
+    expect(issue).toHaveBeenCalledOnce();
+    expect(issue).toHaveBeenCalledWith(output);
+    expect(response.statusCode).toBe(302);
+    expect(headers.get("Location")).toBe("http://localhost:62000/__vegas/content/content-1");
+    expect(end).toHaveBeenCalledOnce();
+    expect(next).not.toHaveBeenCalled();
+  });
+
+  test("reject invalid TextOutput Runtime result", async () => {
+    const { response, end } = createResponse();
+    const next = vi.fn();
+    const issue = vi.fn();
+    const handler = createHostHttpHandler({
+      server: createServer().server,
+      builds: { waitForIdle: async () => undefined },
+      contentResponses: { issue },
       sessions: { issue: () => "session-1" },
       runtime: {
         execute: async () => ({
@@ -289,7 +337,7 @@ describe("createHostHttpHandler", () => {
           output: {
             content: "Vegas",
             fileName: null,
-            mimeType: "TEXT",
+            mimeType: "UNKNOWN",
           },
         }),
       },
@@ -306,10 +354,11 @@ describe("createHostHttpHandler", () => {
       ),
     );
 
+    expect(issue).not.toHaveBeenCalled();
     expect(next).toHaveBeenCalledOnce();
     expect(next).toHaveBeenCalledWith(
       expect.objectContaining({
-        message: "ContentService TextOutput redirect is not implemented yet.",
+        message: "Invalid doGet result from Runtime.",
       }),
     );
     expect(end).not.toHaveBeenCalled();
@@ -338,6 +387,7 @@ describe("createHostHttpHandler", () => {
     const handler = createHostHttpHandler({
       server: createServer().server,
       builds: { waitForIdle: async () => undefined },
+      contentResponses: { issue: () => "content-1" },
       sessions: { issue: () => "session-1" },
       runtime: { execute },
       userContentPort: 62000,
@@ -380,6 +430,7 @@ describe("createHostHttpHandler", () => {
     const handler = createHostHttpHandler({
       server: createServer().server,
       builds: { waitForIdle },
+      contentResponses: { issue: () => "content-1" },
       sessions: { issue: () => "session-1" },
       runtime: { execute },
       userContentPort: 62000,

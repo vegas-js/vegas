@@ -70,6 +70,7 @@ export async function startEphemeralWebAppApplication(
     const hostHandler = createHostHttpHandler({
       server: pair.host.server,
       builds,
+      contentResponses,
       sessions,
       runtime: options.runtime,
       userContentPort: pair.userContent.port,
