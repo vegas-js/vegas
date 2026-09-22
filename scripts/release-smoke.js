@@ -618,6 +618,28 @@ function smokeVegasPackage() {
       `,
     );
 
+    const playwrightBrowserNames =
+      process.env.VEGAS_PLAYWRIGHT_BROWSER_MATRIX === "1"
+        ? ["chromium", "firefox", "webkit"]
+        : ["chromium"];
+    const playwrightProjects = playwrightBrowserNames.map((browserName) => ({
+      name: browserName,
+      use: {
+        browserName,
+      },
+    }));
+
+    fs.writeFileSync(
+      path.join(consumerRoot, "playwright.config.js"),
+      `
+        import { defineConfig } from "@playwright/test";
+
+        export default defineConfig({
+          projects: ${JSON.stringify(playwrightProjects, null, 2)},
+        });
+      `,
+    );
+
     const playwrightRuntimeSmokePath = path.join(consumerRoot, "playwright-runtime-smoke.spec.js");
 
     fs.writeFileSync(
