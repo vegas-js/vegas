@@ -20,4 +20,5 @@ jobs:
         with:
           runtime: "node@22.18.0"
           cache: true
+      - run: pnpm exec playwright install --with-deps --only-shell chromium
       - run: pnpm release:check

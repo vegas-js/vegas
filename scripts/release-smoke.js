@@ -546,6 +546,98 @@ function smokeVegasPackage() {
       cwd: consumerRoot,
     });
 
+    fs.writeFileSync(
+      path.join(consumerRoot, "vegas.config.js"),
+      `
+        export default {
+          appType: "spa",
+        };
+      `,
+    );
+
+    const browserClientRoot = path.join(consumerRoot, "src", "client");
+    const browserServerRoot = path.join(consumerRoot, "src", "server");
+
+    fs.mkdirSync(browserClientRoot, { recursive: true });
+    fs.mkdirSync(browserServerRoot, { recursive: true });
+
+    fs.writeFileSync(
+      path.join(browserClientRoot, "index.html"),
+      `
+        <!doctype html>
+        <html>
+          <body>
+            <p id="result">pending</p>
+            <script>
+              window.addEventListener("load", () => {
+                google.script.run
+                  .withSuccessHandler((value) => {
+                    document.getElementById("result").textContent = value;
+                  })
+                  .greet("browser");
+              });
+            </script>
+          </body>
+        </html>
+      `,
+    );
+
+    fs.writeFileSync(
+      path.join(browserServerRoot, "Code.ts"),
+      `
+        export function doGet() {
+          return HtmlService.createHtmlOutputFromFile("index").setTitle("Vegas browser smoke");
+        }
+
+        export function greet(value) {
+          return PropertiesService.getScriptProperties().getProperty("prefix") + " " + value;
+        }
+      `,
+    );
+
+    const playwrightRuntimeSmokePath = path.join(consumerRoot, "playwright-runtime-smoke.spec.js");
+
+    fs.writeFileSync(
+      playwrightRuntimeSmokePath,
+      `
+        import {
+          createBrowserTest,
+          expect,
+        } from "@vegasjs/vegas/playwright";
+
+        const test = createBrowserTest({
+          runtimeData: {
+            properties: {
+              scriptProperties: {
+                prefix: "Vegas",
+              },
+            },
+          },
+        });
+
+        test("executes the packed browser bridge and Local Runtime", async ({ vegas }) => {
+          await expect(vegas.page.locator("#sandboxFrame")).toBeVisible();
+          await expect(vegas.sandbox.locator("#userHtmlFrame")).toBeVisible();
+          await expect(vegas.app.locator("#result")).toHaveText("Vegas browser");
+        });
+      `,
+    );
+
+    run(
+      pnpm,
+      [
+        "exec",
+        "playwright",
+        "test",
+        "playwright-runtime-smoke.spec.js",
+        "--workers=1",
+        "--reporter=line",
+      ],
+      {
+        cwd: consumerRoot,
+      },
+    );
+
     const versionOutput = run(pnpm, ["exec", "vegas", "--version"], {
       cwd: consumerRoot,
       capture: true,
