@@ -58,13 +58,21 @@ describe("runtime data", () => {
 
     expect(snapshot.properties).toStrictEqual({
       source: sources[0],
-      value: modules[sources[0]],
+      value: {
+        scriptProperties: {
+          environment: "test",
+        },
+      },
     });
     expect(snapshot.session).toStrictEqual({
       source: sources[1],
-      value: modules[sources[1]],
+      value: {
+        activeUserEmail: "active@example.com",
+        activeUserLocale: "ja",
+      },
     });
     expect(snapshot.spreadsheets.map(({ source }) => source)).toStrictEqual(sources.slice(2));
+    expect(snapshot.spreadsheets[0]?.value).not.toHaveProperty("target");
 
     const spreadsheetStore = new InMemorySpreadsheetStore(
       snapshot.spreadsheets.map(({ value }) => value),

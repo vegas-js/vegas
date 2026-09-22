@@ -1,5 +1,10 @@
 import * as z from "zod";
 
+import type {
+  RuntimeDataProperties,
+  RuntimeDataSession,
+  RuntimeDataSpreadsheet,
+} from "../../../shared/gas";
 import { RuntimeDataTarget } from "../../../shared/gas";
 
 const propertiesSchema = z.strictObject({
@@ -35,10 +40,19 @@ const spreadsheetSchema = z.strictObject({
   sheets: z.array(spreadsheetSheetSchema),
 });
 
-export type RuntimeDataModule =
-  | z.output<typeof propertiesSchema>
-  | z.output<typeof sessionSchema>
-  | z.output<typeof spreadsheetSchema>;
+export type ValidatedRuntimeDataModule =
+  | {
+      readonly target: RuntimeDataTarget.Properties;
+      readonly value: RuntimeDataProperties;
+    }
+  | {
+      readonly target: RuntimeDataTarget.Session;
+      readonly value: RuntimeDataSession;
+    }
+  | {
+      readonly target: RuntimeDataTarget.Spreadsheet;
+      readonly value: RuntimeDataSpreadsheet;
+    };
 
 function formatPath(path: PropertyKey[]): string {
   let formatted = "";
@@ -68,18 +82,27 @@ function parseRuntimeData<T>(schema: z.ZodType<T>, value: unknown, source: strin
   throw new Error(`Invalid runtime data in ${source}: ${location}: ${issue.message}`);
 }
 
-export function validateRuntimeDataModule(value: unknown, source: string): RuntimeDataModule {
+export function validateRuntimeDataModule(
+  value: unknown,
+  source: string,
+): ValidatedRuntimeDataModule {
   if (typeof value !== "object" || value === null || Array.isArray(value) || !("target" in value)) {
     throw new Error(`Runtime data module must export a target: ${source}`);
   }
 
   switch (value.target) {
-    case RuntimeDataTarget.Properties:
-      return parseRuntimeData(propertiesSchema, value, source);
-    case RuntimeDataTarget.Session:
-      return parseRuntimeData(sessionSchema, value, source);
-    case RuntimeDataTarget.Spreadsheet:
-      return parseRuntimeData(spreadsheetSchema, value, source);
+    case RuntimeDataTarget.Properties: {
+      const { target, ...data } = parseRuntimeData(propertiesSchema, value, source);
+      return { target, value: data };
+    }
+    case RuntimeDataTarget.Session: {
+      const { target, ...data } = parseRuntimeData(sessionSchema, value, source);
+      return { target, value: data };
+    }
+    case RuntimeDataTarget.Spreadsheet: {
+      const { target, ...data } = parseRuntimeData(spreadsheetSchema, value, source);
+      return { target, value: data };
+    }
     case RuntimeDataTarget.Cache:
       throw new Error(`Runtime data target Cache is not implemented: ${source}`);
     default:
