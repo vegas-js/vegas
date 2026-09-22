@@ -1,11 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import {
-  createAppsScriptDoPostHttpResponse,
-  parseWebAppPath,
-  readRequestBody,
-  resolveAppsScriptXFrameOptionsHeader,
-} from "./http";
+import { parseWebAppPath, readRequestBody, resolveAppsScriptXFrameOptionsHeader } from "./http";
 
 describe("parseWebAppPath", () => {
   test("parse webapp endpoint", () => {
@@ -43,19 +38,5 @@ describe("readRequestBody", () => {
     }
 
     await expect(readRequestBody(body())).resolves.toBe("AあB");
-  });
-});
-
-describe("createAppsScriptDoPostHttpResponse", () => {
-  test("create response from gas result", () => {
-    expect(
-      createAppsScriptDoPostHttpResponse({
-        mimeType: "application/json",
-        content: '{"ok":true}',
-      }),
-    ).toStrictEqual({
-      contentType: "application/json; charset=utf-8",
-      body: '{"ok":true}',
-    });
   });
 });

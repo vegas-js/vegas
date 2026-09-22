@@ -92,11 +92,14 @@ describe("startDevApplication", () => {
       .mockResolvedValueOnce(host.server)
       .mockResolvedValueOnce(userContent.server);
     const execute = vi.fn(async () => ({
-      metaTags: [],
-      title: "",
-      faviconUrl: "",
-      content: "<main>Hello</main>",
-      xFrameOptionsMode: "DEFAULT",
+      kind: "html",
+      output: {
+        metaTags: [],
+        title: "",
+        faviconUrl: "",
+        content: "<main>Hello</main>",
+        xFrameOptionsMode: "DEFAULT",
+      },
     }));
     const setLocalSpreadsheetOrigin = vi.fn();
     const spreadsheetStore = new InMemorySpreadsheetStore([

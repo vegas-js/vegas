@@ -103,11 +103,14 @@ describe("createHostHttpHandler", () => {
       expect(request.signal).toBeInstanceOf(AbortSignal);
       expect(request).not.toHaveProperty("program");
       return {
-        metaTags: [],
-        title: "",
-        faviconUrl: "",
-        content: "<main>Hello</main>",
-        xFrameOptionsMode: "DEFAULT",
+        kind: "html",
+        output: {
+          metaTags: [],
+          title: "",
+          faviconUrl: "",
+          content: "<main>Hello</main>",
+          xFrameOptionsMode: "DEFAULT",
+        },
       };
     });
 
@@ -142,7 +145,8 @@ describe("createHostHttpHandler", () => {
     );
   });
 
-  test("execute doPost and return the Apps Script response", async () => {
+  test("execute doPost HtmlOutput through the web app host", async () => {
+    const { server, transformIndexHtml } = createServer();
     const { response, headers, getBody } = createResponse();
     const execute = vi.fn(async (request) => {
       expect(request.functionName).toBe("doPost");
@@ -154,13 +158,19 @@ describe("createHostHttpHandler", () => {
       expect(request.signal).toBeInstanceOf(AbortSignal);
       expect(request).not.toHaveProperty("program");
       return {
-        mimeType: "text/plain",
-        content: "posted",
+        kind: "html",
+        output: {
+          metaTags: [],
+          title: "",
+          faviconUrl: "",
+          content: "<main>posted</main>",
+          xFrameOptionsMode: "DEFAULT",
+        },
       };
     });
 
     const handler = createHostHttpHandler({
-      server: createServer().server,
+      server,
       builds: { waitForIdle: async () => undefined },
       sessions: { issue: () => "session-1" },
       runtime: { execute },
@@ -181,8 +191,14 @@ describe("createHostHttpHandler", () => {
     await Promise.resolve(handler(request, response, vi.fn()));
 
     expect(response.statusCode).toBe(200);
-    expect(headers.get("Content-Type")).toBe("text/plain; charset=utf-8");
-    expect(getBody()).toBe("posted");
+    expect(headers.get("Content-Type")).toBe("text/html; charset=utf-8");
+    expect(String(getBody())).toContain(
+      'src="http://localhost:62000/userCodeAppPanel?sessionId=session-1"',
+    );
+    expect(transformIndexHtml).toHaveBeenCalledWith(
+      "http://localhost:5173/exec",
+      expect.any(String),
+    );
   });
 
   test("reject invalid doGet Runtime result", async () => {
@@ -194,7 +210,10 @@ describe("createHostHttpHandler", () => {
       sessions: { issue: () => "session-1" },
       runtime: {
         execute: async () => ({
-          content: "<main>Hello</main>",
+          kind: "html",
+          output: {
+            content: "<main>Hello</main>",
+          },
         }),
       },
       userContentPort: 62000,
@@ -228,8 +247,10 @@ describe("createHostHttpHandler", () => {
       sessions: { issue: () => "session-1" },
       runtime: {
         execute: async () => ({
-          mimeType: 1,
-          content: "posted",
+          kind: "html",
+          output: {
+            content: "<main>posted</main>",
+          },
         }),
       },
       userContentPort: 62000,
@@ -250,6 +271,45 @@ describe("createHostHttpHandler", () => {
     expect(next).toHaveBeenCalledWith(
       expect.objectContaining({
         message: "Invalid doPost result from Runtime.",
+      }),
+    );
+    expect(end).not.toHaveBeenCalled();
+  });
+
+  test("reject TextOutput until the content redirect endpoint is available", async () => {
+    const { response, end } = createResponse();
+    const next = vi.fn();
+    const handler = createHostHttpHandler({
+      server: createServer().server,
+      builds: { waitForIdle: async () => undefined },
+      sessions: { issue: () => "session-1" },
+      runtime: {
+        execute: async () => ({
+          kind: "text",
+          output: {
+            content: "Vegas",
+            fileName: null,
+            mimeType: "TEXT",
+          },
+        }),
+      },
+      userContentPort: 62000,
+    });
+
+    await Promise.resolve(
+      handler(
+        createRequest("GET", "/dev", {
+          host: "localhost:5173",
+        }),
+        response,
+        next,
+      ),
+    );
+
+    expect(next).toHaveBeenCalledOnce();
+    expect(next).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: "ContentService TextOutput redirect is not implemented yet.",
       }),
     );
     expect(end).not.toHaveBeenCalled();

@@ -1,4 +1,4 @@
-import { type HtmlOutput, serializeHtmlOutput } from "./html-output";
+import { serializeWebAppOutput } from "./web-app-output";
 
 export async function executeRuntimeFunction(
   globals: Readonly<Record<string, unknown>>,
@@ -13,20 +13,8 @@ export async function executeRuntimeFunction(
 
   const result = await target(...args);
 
-  if (target.name === "doGet") {
-    return serializeHtmlOutput(result as HtmlOutput);
-  }
-
-  if (target.name === "doPost") {
-    const output = result as {
-      getContent(): string;
-      getMimeType?: () => unknown;
-    };
-
-    return {
-      mimeType: typeof output.getMimeType === "function" ? output.getMimeType() : "text/html",
-      content: output.getContent(),
-    };
+  if (functionName === "doGet" || functionName === "doPost") {
+    return serializeWebAppOutput(result);
   }
 
   return result;

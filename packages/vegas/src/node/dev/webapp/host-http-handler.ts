@@ -4,13 +4,7 @@ import type { InvocationContext, RuntimeBackend } from "../../runtime";
 import type { BuildCoordinator } from "../build-coordinator";
 import { createAppsScriptDoGetEvent, createAppsScriptDoPostEvent } from "./event";
 import { createHostHtml, type AppsScriptDoGetResult } from "./host-html";
-import {
-  createAppsScriptDoPostHttpResponse,
-  parseWebAppPath,
-  readRequestBody,
-  resolveAppsScriptXFrameOptionsHeader,
-  type AppsScriptDoPostResult,
-} from "./http";
+import { parseWebAppPath, readRequestBody, resolveAppsScriptXFrameOptionsHeader } from "./http";
 import type { WebAppSessionRegistry } from "./session-registry";
 
 interface HostHttpHandlerOptions {
@@ -27,25 +21,31 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
 }
 
-function requireAppsScriptDoGetResult(value: unknown): AppsScriptDoGetResult {
+function requireAppsScriptHtmlOutput(value: unknown, functionName: string): AppsScriptDoGetResult {
   if (
     !isRecord(value) ||
-    typeof value.content !== "string" ||
-    typeof value.faviconUrl !== "string" ||
-    typeof value.title !== "string" ||
-    !Array.isArray(value.metaTags) ||
-    (value.xFrameOptionsMode !== "DEFAULT" && value.xFrameOptionsMode !== "ALLOWALL")
+    value.kind !== "html" ||
+    !isRecord(value.output) ||
+    typeof value.output.content !== "string" ||
+    typeof value.output.faviconUrl !== "string" ||
+    typeof value.output.title !== "string" ||
+    !Array.isArray(value.output.metaTags) ||
+    (value.output.xFrameOptionsMode !== "DEFAULT" && value.output.xFrameOptionsMode !== "ALLOWALL")
   ) {
-    throw new Error("Invalid doGet result from Runtime.");
+    if (isRecord(value) && value.kind === "text") {
+      throw new Error("ContentService TextOutput redirect is not implemented yet.");
+    }
+
+    throw new Error(`Invalid ${functionName} result from Runtime.`);
   }
 
-  const metaTags = value.metaTags.map((metaTag) => {
+  const metaTags = value.output.metaTags.map((metaTag) => {
     if (
       !isRecord(metaTag) ||
       typeof metaTag.name !== "string" ||
       typeof metaTag.content !== "string"
     ) {
-      throw new Error("Invalid doGet result from Runtime.");
+      throw new Error(`Invalid ${functionName} result from Runtime.`);
     }
 
     return {
@@ -55,22 +55,11 @@ function requireAppsScriptDoGetResult(value: unknown): AppsScriptDoGetResult {
   });
 
   return {
-    content: value.content,
-    faviconUrl: value.faviconUrl,
+    content: value.output.content,
+    faviconUrl: value.output.faviconUrl,
     metaTags,
-    title: value.title,
-    xFrameOptionsMode: value.xFrameOptionsMode,
-  };
-}
-
-function requireAppsScriptDoPostResult(value: unknown): AppsScriptDoPostResult {
-  if (!isRecord(value) || typeof value.mimeType !== "string" || typeof value.content !== "string") {
-    throw new Error("Invalid doPost result from Runtime.");
-  }
-
-  return {
-    mimeType: value.mimeType,
-    content: value.content,
+    title: value.output.title,
+    xFrameOptionsMode: value.output.xFrameOptionsMode,
   };
 }
 
@@ -109,80 +98,62 @@ export function createHostHttpHandler(options: HostHttpHandlerOptions): Connect.
             webApp: true,
             userAgent: request.headers["user-agent"] ?? null,
           };
+          let functionName: "doGet" | "doPost";
+          let args: readonly unknown[];
 
           if (request.method === "GET") {
-            const doGetEvent = createAppsScriptDoGetEvent(url);
-
-            const result = requireAppsScriptDoGetResult(
-              await runtime.execute({
-                functionName: "doGet",
-                args: [doGetEvent],
-                context,
-                signal: controller.signal,
-              }),
-            );
-
-            if (controller.signal.aborted) {
-              return;
-            }
-
-            const sessionId = sessions.issue();
-            const userContentUrl = new URL(url.href);
-            userContentUrl.port = String(userContentPort);
-            const html = createHostHtml(userContentUrl, result, sessionId);
-            const transformedHtml = await server.transformIndexHtml(url.href, html);
-
-            if (controller.signal.aborted) {
-              return;
-            }
-
-            response.statusCode = 200;
-            response.setHeader("Content-Type", "text/html; charset=utf-8");
-
-            const xFrameOptionsHeader = resolveAppsScriptXFrameOptionsHeader(
-              result.xFrameOptionsMode,
-            );
-            if (xFrameOptionsHeader !== undefined) {
-              response.setHeader("X-Frame-Options", xFrameOptionsHeader);
-            }
-
-            response.end(transformedHtml);
-            return;
-          }
-
-          if (request.method === "POST") {
+            functionName = "doGet";
+            args = [createAppsScriptDoGetEvent(url)];
+          } else if (request.method === "POST") {
             const body = await readRequestBody(request);
 
             if (controller.signal.aborted) {
               return;
             }
 
-            const doPostEvent = createAppsScriptDoPostEvent(
-              url,
-              body,
-              request.headers["content-type"],
-            );
-
-            const result = requireAppsScriptDoPostResult(
-              await runtime.execute({
-                functionName: "doPost",
-                args: [doPostEvent],
-                context,
-                signal: controller.signal,
-              }),
-            );
-
-            if (controller.signal.aborted) {
-              return;
-            }
-
-            const httpResponse = createAppsScriptDoPostHttpResponse(result);
-
-            response.statusCode = 200;
-            response.setHeader("Content-Type", httpResponse.contentType);
-            response.end(httpResponse.body);
+            functionName = "doPost";
+            args = [createAppsScriptDoPostEvent(url, body, request.headers["content-type"])];
+          } else {
+            next();
             return;
           }
+
+          const result = requireAppsScriptHtmlOutput(
+            await runtime.execute({
+              functionName,
+              args,
+              context,
+              signal: controller.signal,
+            }),
+            functionName,
+          );
+
+          if (controller.signal.aborted) {
+            return;
+          }
+
+          const sessionId = sessions.issue();
+          const userContentUrl = new URL(url.href);
+          userContentUrl.port = String(userContentPort);
+          const html = createHostHtml(userContentUrl, result, sessionId);
+          const transformedHtml = await server.transformIndexHtml(url.href, html);
+
+          if (controller.signal.aborted) {
+            return;
+          }
+
+          response.statusCode = 200;
+          response.setHeader("Content-Type", "text/html; charset=utf-8");
+
+          const xFrameOptionsHeader = resolveAppsScriptXFrameOptionsHeader(
+            result.xFrameOptionsMode,
+          );
+          if (xFrameOptionsHeader !== undefined) {
+            response.setHeader("X-Frame-Options", xFrameOptionsHeader);
+          }
+
+          response.end(transformedHtml);
+          return;
         }
       }
 

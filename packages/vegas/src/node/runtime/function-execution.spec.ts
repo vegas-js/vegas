@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import { executeRuntimeFunction, HtmlOutput } from "./index";
+import { executeRuntimeFunction, HtmlOutput, TextOutput } from "./index";
 
 describe("executeRuntimeFunction", () => {
   test("resolve and await a named Runtime function", async () => {
@@ -27,38 +27,73 @@ describe("executeRuntimeFunction", () => {
     }
 
     await expect(executeRuntimeFunction({ doGet }, "doGet", [])).resolves.toStrictEqual({
-      content: "<main>Vegas</main>",
-      faviconUrl: "",
-      metaTags: [],
-      title: "Vegas",
-      xFrameOptionsMode: "ALLOWALL",
+      kind: "html",
+      output: {
+        content: "<main>Vegas</main>",
+        faviconUrl: "",
+        metaTags: [],
+        title: "Vegas",
+        xFrameOptionsMode: "ALLOWALL",
+      },
     });
   });
 
-  test("serialize doPost content and MIME type", async () => {
-    function doPost() {
-      return {
-        getContent: () => "posted",
-        getMimeType: () => "text/plain",
-      };
+  test("serialize doGet TextOutput results", async () => {
+    function doGet() {
+      return new TextOutput('{"ok":true}').setMimeType("JSON");
     }
 
-    await expect(executeRuntimeFunction({ doPost }, "doPost", [])).resolves.toStrictEqual({
-      mimeType: "text/plain",
-      content: "posted",
+    await expect(executeRuntimeFunction({ doGet }, "doGet", [])).resolves.toStrictEqual({
+      kind: "text",
+      output: {
+        content: '{"ok":true}',
+        fileName: null,
+        mimeType: "JSON",
+      },
     });
   });
 
-  test("preserve the existing doPost HTML MIME type fallback", async () => {
+  test("serialize doPost HtmlOutput results", async () => {
     function doPost() {
-      return {
-        getContent: () => "<main>posted</main>",
-      };
+      return new HtmlOutput("<main>posted</main>");
     }
 
     await expect(executeRuntimeFunction({ doPost }, "doPost", [])).resolves.toStrictEqual({
-      mimeType: "text/html",
-      content: "<main>posted</main>",
+      kind: "html",
+      output: {
+        content: "<main>posted</main>",
+        faviconUrl: "",
+        metaTags: [],
+        title: "",
+        xFrameOptionsMode: "DEFAULT",
+      },
     });
+  });
+
+  test("serialize doPost TextOutput results", async () => {
+    function doPost() {
+      return new TextOutput("posted").downloadAsFile("response.txt");
+    }
+
+    await expect(executeRuntimeFunction({ doPost }, "doPost", [])).resolves.toStrictEqual({
+      kind: "text",
+      output: {
+        content: "posted",
+        fileName: "response.txt",
+        mimeType: "TEXT",
+      },
+    });
+  });
+
+  test("reject invalid web app output values", async () => {
+    function doGet() {
+      return {
+        getContent: () => "Vegas",
+      };
+    }
+
+    await expect(executeRuntimeFunction({ doGet }, "doGet", [])).rejects.toThrow(
+      "Web app functions must return an HtmlOutput or TextOutput.",
+    );
   });
 });

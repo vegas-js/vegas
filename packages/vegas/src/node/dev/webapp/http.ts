@@ -7,16 +7,6 @@ export interface WebAppPath {
   readonly pathInfo?: string;
 }
 
-export interface AppsScriptDoPostResult {
-  readonly mimeType: string;
-  readonly content: string;
-}
-
-export interface WebAppHttpResponse {
-  readonly contentType: string;
-  readonly body: string;
-}
-
 export function parseWebAppPath(pathname: string): WebAppPath | null {
   const match = /^\/(dev|exec)(?:\/(.*))?$/.exec(pathname);
 
@@ -57,13 +47,4 @@ export async function readRequestBody(source: AsyncIterable<Uint8Array | string>
   }
 
   return Buffer.concat(chunks).toString("utf8");
-}
-
-export function createAppsScriptDoPostHttpResponse(
-  result: AppsScriptDoPostResult,
-): WebAppHttpResponse {
-  return {
-    contentType: `${result.mimeType}; charset=utf-8`,
-    body: result.content,
-  };
 }

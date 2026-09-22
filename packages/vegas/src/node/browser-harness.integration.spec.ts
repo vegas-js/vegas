@@ -59,11 +59,14 @@ function createRuntimeHarness(): LocalRuntimeHarness {
     }
 
     return {
-      metaTags: [],
-      title: "Browser Harness",
-      faviconUrl: "",
-      content: '<main id="app">Hello from BrowserHarness</main>',
-      xFrameOptionsMode: "DEFAULT",
+      kind: "html",
+      output: {
+        metaTags: [],
+        title: "Browser Harness",
+        faviconUrl: "",
+        content: '<main id="app">Hello from BrowserHarness</main>',
+        xFrameOptionsMode: "DEFAULT",
+      },
     };
   });
   const runtime = {
