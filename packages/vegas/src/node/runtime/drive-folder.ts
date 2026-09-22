@@ -124,6 +124,14 @@ export class DriveFolder {
     );
   }
 
+  getDescription(): string | null {
+    return this.#bridge.call({
+      service: "drive",
+      operation: "get-folder-description",
+      folder: this.#reference,
+    });
+  }
+
   getId(): string {
     return this.#reference.id;
   }
@@ -164,6 +172,16 @@ export class DriveFolder {
       operation: "move-folder",
       folder: this.#reference,
       destination: resolveDriveFolderReference(this.#bridge, destination),
+    });
+    return this;
+  }
+
+  setDescription(description: string): DriveFolder {
+    this.#bridge.call({
+      service: "drive",
+      operation: "set-folder-description",
+      folder: this.#reference,
+      description,
     });
     return this;
   }

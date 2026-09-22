@@ -99,6 +99,9 @@ export class LocalDriveHostHandler implements DriveHostCallHandler {
       case "get-file-blob": {
         return this.#store.getFileBlob(this.#namespace, call.file);
       }
+      case "get-file-description": {
+        return this.#store.getFileDescription(this.#namespace, call.file);
+      }
       case "get-file-name": {
         const { name } = await this.#store.getFileMetadata(this.#namespace, call.file);
 
@@ -140,6 +143,10 @@ export class LocalDriveHostHandler implements DriveHostCallHandler {
         await this.#store.setFileContent(this.#namespace, call.file, Array.from(encoded));
         return;
       }
+      case "set-file-description": {
+        await this.#store.setFileDescription(this.#namespace, call.file, call.description);
+        return;
+      }
       case "set-file-name": {
         await this.#store.setFileName(this.#namespace, call.file, call.name);
         return;
@@ -154,6 +161,9 @@ export class LocalDriveHostHandler implements DriveHostCallHandler {
       case "create-folder": {
         return this.#store.createFolder(this.#namespace, call.parent, call.name);
       }
+      case "get-folder-description": {
+        return this.#store.getFolderDescription(this.#namespace, call.folder);
+      }
       case "get-folder-name": {
         const name = await this.#store.getFolderName(this.#namespace, call.folder);
 
@@ -165,6 +175,10 @@ export class LocalDriveHostHandler implements DriveHostCallHandler {
       }
       case "move-folder": {
         await this.#store.moveFolder(this.#namespace, call.folder, call.destination);
+        return;
+      }
+      case "set-folder-description": {
+        await this.#store.setFolderDescription(this.#namespace, call.folder, call.description);
         return;
       }
       case "set-folder-name": {

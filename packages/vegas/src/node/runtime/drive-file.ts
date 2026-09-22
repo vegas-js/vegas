@@ -29,6 +29,14 @@ export class DriveFile {
     );
   }
 
+  getDescription(): string | null {
+    return this.#bridge.call({
+      service: "drive",
+      operation: "get-file-description",
+      file: this.#reference,
+    });
+  }
+
   getId(): string {
     return this.#reference.id;
   }
@@ -107,6 +115,16 @@ export class DriveFile {
       operation: "set-file-content",
       file: this.#reference,
       content,
+    });
+    return this;
+  }
+
+  setDescription(description: string): DriveFile {
+    this.#bridge.call({
+      service: "drive",
+      operation: "set-file-description",
+      file: this.#reference,
+      description,
     });
     return this;
   }

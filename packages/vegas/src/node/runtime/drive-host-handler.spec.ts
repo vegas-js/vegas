@@ -70,6 +70,14 @@ class RecordingDriveStore implements DriveStore {
     };
   }
 
+  async getFileDescription(
+    namespace: DriveNamespace,
+    file: DriveFileReference,
+  ): Promise<string | null> {
+    this.calls.push(`getFileDescription:${namespace.userKey}:${file.id}`);
+    return null;
+  }
+
   async getFileMetadata(
     namespace: DriveNamespace,
     file: DriveFileReference,
@@ -107,6 +115,14 @@ class RecordingDriveStore implements DriveStore {
     this.calls.push(`setFileContent:${namespace.userKey}:${file.id}:${bytes.length}`);
   }
 
+  async setFileDescription(
+    namespace: DriveNamespace,
+    file: DriveFileReference,
+    description: string,
+  ): Promise<void> {
+    this.calls.push(`setFileDescription:${namespace.userKey}:${file.id}:${description}`);
+  }
+
   async setFileName(
     namespace: DriveNamespace,
     file: DriveFileReference,
@@ -140,6 +156,14 @@ class RecordingDriveStore implements DriveStore {
     return { service: "drive", kind: "folder", id, ...(resourceKey ? { resourceKey } : {}) };
   }
 
+  async getFolderDescription(
+    namespace: DriveNamespace,
+    folder: DriveFolderReference,
+  ): Promise<string | null> {
+    this.calls.push(`getFolderDescription:${namespace.userKey}:${folder.id}`);
+    return null;
+  }
+
   async getFolderName(namespace: DriveNamespace, folder: DriveFolderReference): Promise<string> {
     this.calls.push(`getFolderName:${namespace.userKey}:${folder.id}`);
     return `name:${folder.id}`;
@@ -151,6 +175,14 @@ class RecordingDriveStore implements DriveStore {
     destination: DriveFolderReference,
   ): Promise<void> {
     this.calls.push(`moveFolder:${namespace.userKey}:${folder.id}:${destination.id}`);
+  }
+
+  async setFolderDescription(
+    namespace: DriveNamespace,
+    folder: DriveFolderReference,
+    description: string,
+  ): Promise<void> {
+    this.calls.push(`setFolderDescription:${namespace.userKey}:${folder.id}:${description}`);
   }
 
   async setFolderName(

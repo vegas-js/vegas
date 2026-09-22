@@ -42,6 +42,7 @@ export interface DriveStore {
   ): Promise<DriveFileReference>;
   getFile(namespace: DriveNamespace, id: string, resourceKey?: string): Promise<DriveFileReference>;
   getFileBlob(namespace: DriveNamespace, file: DriveFileReference): Promise<BlobValue>;
+  getFileDescription(namespace: DriveNamespace, file: DriveFileReference): Promise<string | null>;
   getFileMetadata(namespace: DriveNamespace, file: DriveFileReference): Promise<DriveFileMetadata>;
   getFileSize(namespace: DriveNamespace, file: DriveFileReference): Promise<number>;
   getFileShortcutTarget(
@@ -53,6 +54,11 @@ export interface DriveStore {
     namespace: DriveNamespace,
     file: DriveFileReference,
     bytes: readonly number[],
+  ): Promise<void>;
+  setFileDescription(
+    namespace: DriveNamespace,
+    file: DriveFileReference,
+    description: string,
   ): Promise<void>;
   setFileName(namespace: DriveNamespace, file: DriveFileReference, name: string): Promise<void>;
   setFileTrashed(
@@ -70,11 +76,20 @@ export interface DriveStore {
     id: string,
     resourceKey?: string,
   ): Promise<DriveFolderReference>;
+  getFolderDescription(
+    namespace: DriveNamespace,
+    folder: DriveFolderReference,
+  ): Promise<string | null>;
   getFolderName(namespace: DriveNamespace, folder: DriveFolderReference): Promise<string | null>;
   moveFolder(
     namespace: DriveNamespace,
     folder: DriveFolderReference,
     destination: DriveFolderReference,
+  ): Promise<void>;
+  setFolderDescription(
+    namespace: DriveNamespace,
+    folder: DriveFolderReference,
+    description: string,
   ): Promise<void>;
   setFolderName(
     namespace: DriveNamespace,

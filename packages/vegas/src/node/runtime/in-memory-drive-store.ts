@@ -16,6 +16,7 @@ type DriveFileContent = {
 type DriveFileState = {
   readonly reference: DriveFileReference;
   content: DriveFileContent;
+  description: string | null;
   metadata: DriveFileMetadata;
   parentIds: string[];
   shortcutTarget: DriveShortcutTarget | null;
@@ -24,6 +25,7 @@ type DriveFileState = {
 
 type DriveFolderState = {
   readonly reference: DriveFolderReference;
+  description: string | null;
   name: string | null;
   parentIds: string[];
   trashed: boolean;
@@ -88,6 +90,7 @@ export class InMemoryDriveStore implements DriveStore {
         bytes: [...blob.bytes],
         googleType: blob.googleType,
       },
+      description: null,
       metadata: {
         name: blob.name,
         mimeType: blob.contentType,
@@ -116,6 +119,7 @@ export class InMemoryDriveStore implements DriveStore {
     };
     drive.folders.set(reference.id, {
       reference,
+      description: null,
       name,
       parentIds: [parentState.reference.id],
       trashed: false,
@@ -146,6 +150,7 @@ export class InMemoryDriveStore implements DriveStore {
         bytes: [],
         googleType: true,
       },
+      description: null,
       metadata: {
         name,
         mimeType: MIME_TYPE.SHORTCUT,
@@ -177,6 +182,14 @@ export class InMemoryDriveStore implements DriveStore {
       name: state.metadata.name,
       googleType: state.content.googleType,
     };
+  }
+
+  async getFileDescription(
+    namespace: DriveNamespace,
+    file: DriveFileReference,
+  ): Promise<string | null> {
+    return this.#getFileState(this.#getOrCreateDrive(namespace), file.id, file.resourceKey)
+      .description;
   }
 
   async getFileMetadata(
@@ -218,6 +231,15 @@ export class InMemoryDriveStore implements DriveStore {
       ...state.content,
       bytes: [...bytes],
     };
+  }
+
+  async setFileDescription(
+    namespace: DriveNamespace,
+    file: DriveFileReference,
+    description: string,
+  ): Promise<void> {
+    const state = this.#getFileState(this.#getOrCreateDrive(namespace), file.id, file.resourceKey);
+    state.description = description;
   }
 
   async setFileName(
@@ -263,6 +285,14 @@ export class InMemoryDriveStore implements DriveStore {
     );
   }
 
+  async getFolderDescription(
+    namespace: DriveNamespace,
+    folder: DriveFolderReference,
+  ): Promise<string | null> {
+    return this.#getFolderState(this.#getOrCreateDrive(namespace), folder.id, folder.resourceKey)
+      .description;
+  }
+
   async getFolderName(
     namespace: DriveNamespace,
     folder: DriveFolderReference,
@@ -292,6 +322,19 @@ export class InMemoryDriveStore implements DriveStore {
     }
 
     state.parentIds = [destinationState.reference.id];
+  }
+
+  async setFolderDescription(
+    namespace: DriveNamespace,
+    folder: DriveFolderReference,
+    description: string,
+  ): Promise<void> {
+    const state = this.#getFolderState(
+      this.#getOrCreateDrive(namespace),
+      folder.id,
+      folder.resourceKey,
+    );
+    state.description = description;
   }
 
   async setFolderName(
@@ -558,6 +601,7 @@ export class InMemoryDriveStore implements DriveStore {
           kind: "folder",
           id: `drive-root:${this.#nextRootId}`,
         },
+        description: null,
         name: null,
         parentIds: [],
         trashed: false,

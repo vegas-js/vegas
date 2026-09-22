@@ -35,6 +35,11 @@ export type DriveHostCall =
     }
   | {
       readonly service: "drive";
+      readonly operation: "get-file-description";
+      readonly file: DriveFileReference;
+    }
+  | {
+      readonly service: "drive";
       readonly operation: "get-file-name";
       readonly file: DriveFileReference;
     }
@@ -72,6 +77,12 @@ export type DriveHostCall =
     }
   | {
       readonly service: "drive";
+      readonly operation: "set-file-description";
+      readonly file: DriveFileReference;
+      readonly description: string;
+    }
+  | {
+      readonly service: "drive";
       readonly operation: "set-file-name";
       readonly file: DriveFileReference;
       readonly name: string;
@@ -96,6 +107,11 @@ export type DriveHostCall =
     }
   | {
       readonly service: "drive";
+      readonly operation: "get-folder-description";
+      readonly folder: DriveFolderReference;
+    }
+  | {
+      readonly service: "drive";
       readonly operation: "get-folder-name";
       readonly folder: DriveFolderReference;
     }
@@ -104,6 +120,12 @@ export type DriveHostCall =
       readonly operation: "move-folder";
       readonly folder: DriveFolderReference;
       readonly destination: DriveFolderReference;
+    }
+  | {
+      readonly service: "drive";
+      readonly operation: "set-folder-description";
+      readonly folder: DriveFolderReference;
+      readonly description: string;
     }
   | {
       readonly service: "drive";
@@ -266,8 +288,10 @@ export type DriveHostCallResult<C extends DriveHostCall> = C extends {
                 : C extends {
                       readonly operation:
                         | "set-file-content"
+                        | "set-file-description"
                         | "set-file-name"
                         | "set-file-trashed"
+                        | "set-folder-description"
                         | "set-folder-name"
                         | "set-folder-trashed"
                         | "move-file"
@@ -275,11 +299,15 @@ export type DriveHostCallResult<C extends DriveHostCall> = C extends {
                     }
                   ? void
                   : C extends {
-                        readonly operation:
-                          | "get-file-name"
-                          | "get-file-mime-type"
-                          | "get-folder-name"
-                          | "iterator-continuation-token";
+                        readonly operation: "get-file-description" | "get-folder-description";
                       }
-                    ? string
-                    : never;
+                    ? string | null
+                    : C extends {
+                          readonly operation:
+                            | "get-file-name"
+                            | "get-file-mime-type"
+                            | "get-folder-name"
+                            | "iterator-continuation-token";
+                        }
+                      ? string
+                      : never;
