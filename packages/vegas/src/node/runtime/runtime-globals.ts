@@ -1,3 +1,4 @@
+import { MIME_TYPE } from "./base-mime-type";
 import { createBlobConverter } from "./blob-converter";
 import { createCacheService } from "./cache-service";
 import { createConsole } from "./console";
@@ -126,7 +127,7 @@ export function createRuntimeGlobals(options: RuntimeGlobalsOptions) {
     /* Base */
     Browser: undefined,
     Logger: createLogger(loggingTarget),
-    MimeType: undefined,
+    MimeType: MIME_TYPE,
     Session: createSession(environment),
     console: createConsole(loggingTarget),
     /* Cache */

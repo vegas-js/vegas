@@ -8,6 +8,7 @@ import {
   DriveFileIterator,
   DriveFolder,
   DriveFolderIterator,
+  MIME_TYPE,
   type DriveFileReference,
   type DriveFolderReference,
   type HostBridge,
@@ -140,7 +141,7 @@ describe("DriveApp Runtime object", () => {
     const root = drive.getRootFolder();
     const files = drive.getFiles();
     const namedFiles = drive.getFilesByName("report.txt");
-    const typedFiles = drive.getFilesByType("text/plain");
+    const typedFiles = drive.getFilesByType(MIME_TYPE.PLAIN_TEXT);
     const folders = drive.getFolders();
     const namedFolders = drive.getFoldersByName("Reports");
     const continuedFiles = drive.continueFileIterator("file-token");

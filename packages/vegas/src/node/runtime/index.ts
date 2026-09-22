@@ -1,3 +1,4 @@
+export { MIME_TYPE } from "./base-mime-type";
 export { createBlob, hydrateBlob, RuntimeBlob, serializeBlob } from "./blob";
 export type { RuntimeBlobSource } from "./blob";
 export type { BlobConversionCapability } from "./blob-conversion-capability";

@@ -84,13 +84,13 @@ Measured Global Object enum surface coverage: **8 / 100 (8.0%)**
 | `Browser`                   |    0 / 1 |         0.0% | `Buttons`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | `ScriptApp`                 |    0 / 5 |         0.0% | `AuthMode`<br>`AuthorizationStatus`<br>`EventType`<br>`InstallationSource`<br>`TriggerSource`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 
-Measured standalone Global enum coverage: **0 / 1 (0.0%)**
+Measured standalone Global enum coverage: **1 / 1 (100.0%)**
 
 ## Standalone Global enums
 
 | Global enum | Coverage | Coverage (%) |
 | ----------- | -------: | -----------: |
-| `MimeType`  |    0 / 1 |         0.0% |
+| `MimeType`  |    1 / 1 |       100.0% |
 
 ## Supplemental API declarations
 
