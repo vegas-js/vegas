@@ -82,6 +82,15 @@ export class DriveApp {
     );
   }
 
+  getTrashedFiles(): DriveFileIterator {
+    return this.#hydrator.hydrate(
+      this.#bridge.call({
+        service: "drive",
+        operation: "get-trashed-files",
+      }),
+    );
+  }
+
   getFilesByName(name: string): DriveFileIterator {
     return this.#hydrator.hydrate(
       this.#bridge.call({
@@ -128,6 +137,15 @@ export class DriveApp {
       this.#bridge.call({
         service: "drive",
         operation: "get-folders",
+      }),
+    );
+  }
+
+  getTrashedFolders(): DriveFolderIterator {
+    return this.#hydrator.hydrate(
+      this.#bridge.call({
+        service: "drive",
+        operation: "get-trashed-folders",
       }),
     );
   }

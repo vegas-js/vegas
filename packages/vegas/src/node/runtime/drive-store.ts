@@ -31,12 +31,18 @@ export interface DriveStore {
   getFile(namespace: DriveNamespace, id: string, resourceKey?: string): Promise<DriveFileReference>;
   getFileBlob(namespace: DriveNamespace, file: DriveFileReference): Promise<BlobValue>;
   getFileMetadata(namespace: DriveNamespace, file: DriveFileReference): Promise<DriveFileMetadata>;
+  isFileTrashed(namespace: DriveNamespace, file: DriveFileReference): Promise<boolean>;
   setFileContent(
     namespace: DriveNamespace,
     file: DriveFileReference,
     bytes: readonly number[],
   ): Promise<void>;
   setFileName(namespace: DriveNamespace, file: DriveFileReference, name: string): Promise<void>;
+  setFileTrashed(
+    namespace: DriveNamespace,
+    file: DriveFileReference,
+    trashed: boolean,
+  ): Promise<void>;
   moveFile(
     namespace: DriveNamespace,
     file: DriveFileReference,
@@ -48,9 +54,17 @@ export interface DriveStore {
     resourceKey?: string,
   ): Promise<DriveFolderReference>;
   getFolderName(namespace: DriveNamespace, folder: DriveFolderReference): Promise<string | null>;
+  isFolderTrashed(namespace: DriveNamespace, folder: DriveFolderReference): Promise<boolean>;
+  setFolderTrashed(
+    namespace: DriveNamespace,
+    folder: DriveFolderReference,
+    trashed: boolean,
+  ): Promise<void>;
   getRootFolder(namespace: DriveNamespace): Promise<DriveFolderReference>;
   listFiles(namespace: DriveNamespace): Promise<readonly DriveFileReference[]>;
+  listTrashedFiles(namespace: DriveNamespace): Promise<readonly DriveFileReference[]>;
   listFolders(namespace: DriveNamespace): Promise<readonly DriveFolderReference[]>;
+  listTrashedFolders(namespace: DriveNamespace): Promise<readonly DriveFolderReference[]>;
   listFileParents(
     namespace: DriveNamespace,
     file: DriveFileReference,

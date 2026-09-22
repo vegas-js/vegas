@@ -68,6 +68,11 @@ class RecordingDriveStore implements DriveStore {
     };
   }
 
+  async isFileTrashed(namespace: DriveNamespace, file: DriveFileReference): Promise<boolean> {
+    this.calls.push(`isFileTrashed:${namespace.userKey}:${file.id}`);
+    return false;
+  }
+
   async setFileContent(
     namespace: DriveNamespace,
     file: DriveFileReference,
@@ -82,6 +87,14 @@ class RecordingDriveStore implements DriveStore {
     name: string,
   ): Promise<void> {
     this.calls.push(`setFileName:${namespace.userKey}:${file.id}:${name}`);
+  }
+
+  async setFileTrashed(
+    namespace: DriveNamespace,
+    file: DriveFileReference,
+    trashed: boolean,
+  ): Promise<void> {
+    this.calls.push(`setFileTrashed:${namespace.userKey}:${file.id}:${trashed}`);
   }
 
   async moveFile(
@@ -106,6 +119,19 @@ class RecordingDriveStore implements DriveStore {
     return `name:${folder.id}`;
   }
 
+  async isFolderTrashed(namespace: DriveNamespace, folder: DriveFolderReference): Promise<boolean> {
+    this.calls.push(`isFolderTrashed:${namespace.userKey}:${folder.id}`);
+    return false;
+  }
+
+  async setFolderTrashed(
+    namespace: DriveNamespace,
+    folder: DriveFolderReference,
+    trashed: boolean,
+  ): Promise<void> {
+    this.calls.push(`setFolderTrashed:${namespace.userKey}:${folder.id}:${trashed}`);
+  }
+
   async getRootFolder(namespace: DriveNamespace): Promise<DriveFolderReference> {
     this.calls.push(`getRootFolder:${namespace.userKey}`);
     return ROOT;
@@ -116,9 +142,19 @@ class RecordingDriveStore implements DriveStore {
     return [FILE_A, FILE_B];
   }
 
+  async listTrashedFiles(namespace: DriveNamespace): Promise<readonly DriveFileReference[]> {
+    this.calls.push(`listTrashedFiles:${namespace.userKey}`);
+    return [];
+  }
+
   async listFolders(namespace: DriveNamespace): Promise<readonly DriveFolderReference[]> {
     this.calls.push(`listFolders:${namespace.userKey}`);
     return [FOLDER_A];
+  }
+
+  async listTrashedFolders(namespace: DriveNamespace): Promise<readonly DriveFolderReference[]> {
+    this.calls.push(`listTrashedFolders:${namespace.userKey}`);
+    return [];
   }
 
   async listFileParents(

@@ -12,12 +12,14 @@ type DriveFileState = {
   content: DriveFileContent;
   metadata: DriveFileMetadata;
   parentIds: string[];
+  trashed: boolean;
 };
 
 type DriveFolderState = {
   readonly reference: DriveFolderReference;
   name: string | null;
   parentIds: string[];
+  trashed: boolean;
 };
 
 type DriveState = {
@@ -80,6 +82,7 @@ export class InMemoryDriveStore implements DriveStore {
         mimeType: blob.contentType,
       },
       parentIds: [parentState.reference.id],
+      trashed: false,
     });
 
     return cloneFile(reference);
@@ -103,6 +106,7 @@ export class InMemoryDriveStore implements DriveStore {
       reference,
       name,
       parentIds: [parentState.reference.id],
+      trashed: false,
     });
 
     return cloneFolder(reference);
@@ -138,6 +142,13 @@ export class InMemoryDriveStore implements DriveStore {
     );
   }
 
+  async isFileTrashed(namespace: DriveNamespace, file: DriveFileReference): Promise<boolean> {
+    const drive = this.#getOrCreateDrive(namespace);
+    const state = this.#getFileState(drive, file.id, file.resourceKey);
+
+    return this.#isFileTrashed(drive, state);
+  }
+
   async setFileContent(
     namespace: DriveNamespace,
     file: DriveFileReference,
@@ -160,6 +171,15 @@ export class InMemoryDriveStore implements DriveStore {
       ...state.metadata,
       name,
     };
+  }
+
+  async setFileTrashed(
+    namespace: DriveNamespace,
+    file: DriveFileReference,
+    trashed: boolean,
+  ): Promise<void> {
+    const state = this.#getFileState(this.#getOrCreateDrive(namespace), file.id, file.resourceKey);
+    state.trashed = trashed;
   }
 
   async moveFile(
@@ -192,20 +212,60 @@ export class InMemoryDriveStore implements DriveStore {
       .name;
   }
 
+  async isFolderTrashed(namespace: DriveNamespace, folder: DriveFolderReference): Promise<boolean> {
+    const drive = this.#getOrCreateDrive(namespace);
+    const state = this.#getFolderState(drive, folder.id, folder.resourceKey);
+
+    return this.#isFolderTrashed(drive, state);
+  }
+
+  async setFolderTrashed(
+    namespace: DriveNamespace,
+    folder: DriveFolderReference,
+    trashed: boolean,
+  ): Promise<void> {
+    const state = this.#getFolderState(
+      this.#getOrCreateDrive(namespace),
+      folder.id,
+      folder.resourceKey,
+    );
+    state.trashed = trashed;
+  }
+
   async getRootFolder(namespace: DriveNamespace): Promise<DriveFolderReference> {
     return cloneFolder(this.#getOrCreateDrive(namespace).root.reference);
   }
 
   async listFiles(namespace: DriveNamespace): Promise<readonly DriveFileReference[]> {
-    return [...this.#getOrCreateDrive(namespace).files.values()].map(({ reference }) =>
-      cloneFile(reference),
-    );
+    const drive = this.#getOrCreateDrive(namespace);
+
+    return [...drive.files.values()]
+      .filter((state) => !this.#isFileTrashed(drive, state))
+      .map(({ reference }) => cloneFile(reference));
+  }
+
+  async listTrashedFiles(namespace: DriveNamespace): Promise<readonly DriveFileReference[]> {
+    const drive = this.#getOrCreateDrive(namespace);
+
+    return [...drive.files.values()]
+      .filter((state) => this.#isFileTrashed(drive, state))
+      .map(({ reference }) => cloneFile(reference));
   }
 
   async listFolders(namespace: DriveNamespace): Promise<readonly DriveFolderReference[]> {
-    return [...this.#getOrCreateDrive(namespace).folders.values()].map(({ reference }) =>
-      cloneFolder(reference),
-    );
+    const drive = this.#getOrCreateDrive(namespace);
+
+    return [...drive.folders.values()]
+      .filter((state) => !this.#isFolderTrashed(drive, state))
+      .map(({ reference }) => cloneFolder(reference));
+  }
+
+  async listTrashedFolders(namespace: DriveNamespace): Promise<readonly DriveFolderReference[]> {
+    const drive = this.#getOrCreateDrive(namespace);
+
+    return [...drive.folders.values()]
+      .filter((state) => this.#isFolderTrashed(drive, state))
+      .map(({ reference }) => cloneFolder(reference));
   }
 
   async listFileParents(
@@ -228,7 +288,10 @@ export class InMemoryDriveStore implements DriveStore {
     const parent = this.#getFolderState(drive, folder.id, folder.resourceKey);
 
     return [...drive.files.values()]
-      .filter(({ parentIds }) => parentIds.includes(parent.reference.id))
+      .filter(
+        (state) =>
+          state.parentIds.includes(parent.reference.id) && !this.#isFileTrashed(drive, state),
+      )
       .map(({ reference }) => cloneFile(reference));
   }
 
@@ -240,7 +303,10 @@ export class InMemoryDriveStore implements DriveStore {
     const parent = this.#getFolderState(drive, folder.id, folder.resourceKey);
 
     return [...drive.folders.values()]
-      .filter(({ parentIds }) => parentIds.includes(parent.reference.id))
+      .filter(
+        (state) =>
+          state.parentIds.includes(parent.reference.id) && !this.#isFolderTrashed(drive, state),
+      )
       .map(({ reference }) => cloneFolder(reference));
   }
 
@@ -253,6 +319,36 @@ export class InMemoryDriveStore implements DriveStore {
 
     return state.parentIds.map((parentId) =>
       cloneFolder(this.#getFolderState(drive, parentId).reference),
+    );
+  }
+
+  #isFileTrashed(drive: DriveState, state: DriveFileState): boolean {
+    return (
+      state.trashed ||
+      state.parentIds.some((parentId) =>
+        this.#isFolderTrashed(drive, this.#getFolderState(drive, parentId)),
+      )
+    );
+  }
+
+  #isFolderTrashed(
+    drive: DriveState,
+    state: DriveFolderState,
+    visited: ReadonlySet<string> = new Set(),
+  ): boolean {
+    if (state.trashed) {
+      return true;
+    }
+
+    if (visited.has(state.reference.id)) {
+      return false;
+    }
+
+    const nextVisited = new Set(visited);
+    nextVisited.add(state.reference.id);
+
+    return state.parentIds.some((parentId) =>
+      this.#isFolderTrashed(drive, this.#getFolderState(drive, parentId), nextVisited),
     );
   }
 
@@ -294,6 +390,7 @@ export class InMemoryDriveStore implements DriveStore {
         },
         name: null,
         parentIds: [],
+        trashed: false,
       },
       files: new Map(),
       folders: new Map(),

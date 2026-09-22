@@ -37,6 +37,17 @@ export type DriveHostCall =
     }
   | {
       readonly service: "drive";
+      readonly operation: "get-file-trashed";
+      readonly file: DriveFileReference;
+    }
+  | {
+      readonly service: "drive";
+      readonly operation: "set-file-trashed";
+      readonly file: DriveFileReference;
+      readonly trashed: boolean;
+    }
+  | {
+      readonly service: "drive";
       readonly operation: "set-file-content";
       readonly file: DriveFileReference;
       readonly content: string;
@@ -72,11 +83,26 @@ export type DriveHostCall =
     }
   | {
       readonly service: "drive";
+      readonly operation: "get-folder-trashed";
+      readonly folder: DriveFolderReference;
+    }
+  | {
+      readonly service: "drive";
+      readonly operation: "set-folder-trashed";
+      readonly folder: DriveFolderReference;
+      readonly trashed: boolean;
+    }
+  | {
+      readonly service: "drive";
       readonly operation: "get-root-folder";
     }
   | {
       readonly service: "drive";
       readonly operation: "get-files";
+    }
+  | {
+      readonly service: "drive";
+      readonly operation: "get-trashed-files";
     }
   | {
       readonly service: "drive";
@@ -93,6 +119,10 @@ export type DriveHostCall =
   | {
       readonly service: "drive";
       readonly operation: "get-folders";
+    }
+  | {
+      readonly service: "drive";
+      readonly operation: "get-trashed-folders";
     }
   | {
       readonly service: "drive";
@@ -168,6 +198,7 @@ export type DriveHostCallResult<C extends DriveHostCall> = C extends {
             | "get-files"
             | "get-files-by-name"
             | "get-files-by-type"
+            | "get-trashed-files"
             | "continue-file-iterator"
             | "get-folder-files";
         }
@@ -176,6 +207,7 @@ export type DriveHostCallResult<C extends DriveHostCall> = C extends {
             readonly operation:
               | "get-folders"
               | "get-folders-by-name"
+              | "get-trashed-folders"
               | "continue-folder-iterator"
               | "get-file-parents"
               | "get-folder-folders"
@@ -187,11 +219,16 @@ export type DriveHostCallResult<C extends DriveHostCall> = C extends {
             }
           ? BlobValue
           : C extends {
-                readonly operation: "iterator-has-next";
+                readonly operation: "iterator-has-next" | "get-file-trashed" | "get-folder-trashed";
               }
             ? boolean
             : C extends {
-                  readonly operation: "set-file-content" | "set-file-name" | "move-file";
+                  readonly operation:
+                    | "set-file-content"
+                    | "set-file-name"
+                    | "set-file-trashed"
+                    | "set-folder-trashed"
+                    | "move-file";
                 }
               ? void
               : C extends {

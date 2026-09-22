@@ -113,6 +113,14 @@ export class DriveFolder {
     });
   }
 
+  isTrashed(): boolean {
+    return this.#bridge.call({
+      service: "drive",
+      operation: "get-folder-trashed",
+      folder: this.#reference,
+    });
+  }
+
   getParents(): DriveFolderIterator {
     return this.#hydrator.hydrate(
       this.#bridge.call({
@@ -121,5 +129,15 @@ export class DriveFolder {
         folder: this.#reference,
       }),
     );
+  }
+
+  setTrashed(trashed: boolean): DriveFolder {
+    this.#bridge.call({
+      service: "drive",
+      operation: "set-folder-trashed",
+      folder: this.#reference,
+      trashed,
+    });
+    return this;
   }
 }

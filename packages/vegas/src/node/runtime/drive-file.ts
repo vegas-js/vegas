@@ -58,6 +58,14 @@ export class DriveFile {
     );
   }
 
+  isTrashed(): boolean {
+    return this.#bridge.call({
+      service: "drive",
+      operation: "get-file-trashed",
+      file: this.#reference,
+    });
+  }
+
   moveTo(destination: DriveFolder): DriveFile {
     this.#bridge.call({
       service: "drive",
@@ -84,6 +92,16 @@ export class DriveFile {
       operation: "set-file-name",
       file: this.#reference,
       name,
+    });
+    return this;
+  }
+
+  setTrashed(trashed: boolean): DriveFile {
+    this.#bridge.call({
+      service: "drive",
+      operation: "set-file-trashed",
+      file: this.#reference,
+      trashed,
     });
     return this;
   }

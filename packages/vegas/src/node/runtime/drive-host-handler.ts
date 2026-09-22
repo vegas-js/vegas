@@ -109,6 +109,13 @@ export class LocalDriveHostHandler implements DriveHostCallHandler {
 
         return mimeType;
       }
+      case "get-file-trashed": {
+        return this.#store.isFileTrashed(this.#namespace, call.file);
+      }
+      case "set-file-trashed": {
+        await this.#store.setFileTrashed(this.#namespace, call.file, call.trashed);
+        return;
+      }
       case "set-file-content": {
         const encoded = new TextEncoder().encode(call.content);
 
@@ -142,11 +149,23 @@ export class LocalDriveHostHandler implements DriveHostCallHandler {
 
         return name;
       }
+      case "get-folder-trashed": {
+        return this.#store.isFolderTrashed(this.#namespace, call.folder);
+      }
+      case "set-folder-trashed": {
+        await this.#store.setFolderTrashed(this.#namespace, call.folder, call.trashed);
+        return;
+      }
       case "get-root-folder": {
         return this.#store.getRootFolder(this.#namespace);
       }
       case "get-files": {
         return this.#iterators.createFileIterator(await this.#store.listFiles(this.#namespace));
+      }
+      case "get-trashed-files": {
+        return this.#iterators.createFileIterator(
+          await this.#store.listTrashedFiles(this.#namespace),
+        );
       }
       case "get-files-by-name": {
         const files =
@@ -170,6 +189,11 @@ export class LocalDriveHostHandler implements DriveHostCallHandler {
       }
       case "get-folders": {
         return this.#iterators.createFolderIterator(await this.#store.listFolders(this.#namespace));
+      }
+      case "get-trashed-folders": {
+        return this.#iterators.createFolderIterator(
+          await this.#store.listTrashedFolders(this.#namespace),
+        );
       }
       case "get-folders-by-name": {
         const folders =
