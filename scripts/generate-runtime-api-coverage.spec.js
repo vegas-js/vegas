@@ -11,6 +11,8 @@ import {
   hasEnumDeclaration,
   isStandaloneGlobalEnum,
   mergeMethodSurface,
+  resolveRuntimeApiMethodStatus,
+  validateRuntimeApiStatus,
   validateRuntimeApiSupplement,
 } from "./generate-runtime-api-coverage.js";
 
@@ -137,6 +139,75 @@ declare namespace GoogleAppsScript {
         },
       }),
     ).toThrow("must use Google official docs");
+  });
+
+  test("validate Runtime API behavior status independently from conformance", () => {
+    expect(() =>
+      validateRuntimeApiStatus({
+        schemaVersion: 1,
+        surfaces: {
+          "SpreadsheetApp.Range": {
+            defaultBehavior: "implemented",
+            behaviorOverrides: {
+              canEdit: "local-emulation",
+              flush: "no-op",
+              getAs: "fail-closed",
+            },
+            conformanceTestedMethods: ["getAs"],
+          },
+        },
+      }),
+    ).not.toThrow();
+
+    expect(() =>
+      validateRuntimeApiStatus({
+        schemaVersion: 1,
+        surfaces: {
+          "SpreadsheetApp.Range": {
+            defaultBehavior: "best-effort",
+          },
+        },
+      }),
+    ).toThrow("Invalid Runtime API behavior");
+
+    expect(() =>
+      validateRuntimeApiStatus({
+        schemaVersion: 1,
+        surfaces: {
+          "SpreadsheetApp.Range": {
+            conformanceTestedMethods: ["getValue", "getValue"],
+          },
+        },
+      }),
+    ).toThrow("Duplicate Runtime API conformance methods");
+  });
+
+  test("resolve method behavior and conformance as separate dimensions", () => {
+    const surface = {
+      defaultBehavior: "implemented",
+      behaviorOverrides: {
+        canEdit: "local-emulation",
+        getAs: "fail-closed",
+      },
+      conformanceTestedMethods: ["getAs"],
+    };
+
+    expect(resolveRuntimeApiMethodStatus(surface, "getValue")).toStrictEqual({
+      behavior: "implemented",
+      conformanceTested: false,
+    });
+    expect(resolveRuntimeApiMethodStatus(surface, "canEdit")).toStrictEqual({
+      behavior: "local-emulation",
+      conformanceTested: false,
+    });
+    expect(resolveRuntimeApiMethodStatus(surface, "getAs")).toStrictEqual({
+      behavior: "fail-closed",
+      conformanceTested: true,
+    });
+    expect(resolveRuntimeApiMethodStatus(undefined, "missing")).toStrictEqual({
+      behavior: null,
+      conformanceTested: false,
+    });
   });
 
   test("track HtmlTemplate as a modeled HtmlService Runtime object", () => {

@@ -8,6 +8,7 @@
   "editor.tabSize": 2,
   "explorer.fileNesting.enabled": true,
   "explorer.fileNesting.patterns": {
+    "*.js": "${capture}.spec.js",
     "*.ts": "${capture}.spec.ts, ${capture}.test.ts",
     "package.json": "pnpm-*"
   },

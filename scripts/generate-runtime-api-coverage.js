@@ -9,6 +9,7 @@ const RUNTIME_ROOT = path.join(VEGAS_ROOT, "src", "node", "runtime");
 const RUNTIME_GLOBALS_PATH = path.join(RUNTIME_ROOT, "runtime-globals.ts");
 const OUTPUT_PATH = path.join(ROOT, "docs", "guide", "runtime-api-coverage.md");
 const SUPPLEMENT_PATH = path.join(ROOT, "scripts", "runtime-api-supplement.json");
+const STATUS_PATH = path.join(ROOT, "scripts", "runtime-api-status.json");
 const PNPM = process.platform === "win32" ? "pnpm.cmd" : "pnpm";
 const STANDALONE_GLOBAL_ENUMS = new Set(["MimeType"]);
 
@@ -363,6 +364,92 @@ export function validateRuntimeApiSupplement(supplement) {
       throw new Error(`Runtime API supplement source for ${name} must use Google official docs.`);
     }
   }
+}
+
+const RUNTIME_API_BEHAVIORS = new Set(["implemented", "local-emulation", "no-op", "fail-closed"]);
+
+function isRecord(value) {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function isMethodName(value) {
+  return typeof value === "string" && /^[A-Za-z_$][\w$]*$/.test(value);
+}
+
+function validateRuntimeApiBehavior(value, label) {
+  if (typeof value !== "string" || !RUNTIME_API_BEHAVIORS.has(value)) {
+    throw new Error(`Invalid Runtime API behavior for ${label}.`);
+  }
+}
+
+export function validateRuntimeApiStatus(status) {
+  if (!isRecord(status) || status.schemaVersion !== 1 || !isRecord(status.surfaces)) {
+    throw new Error("Invalid Runtime API status schema.");
+  }
+
+  const rootFields = new Set(["schemaVersion", "surfaces"]);
+
+  for (const field of Object.keys(status)) {
+    if (!rootFields.has(field)) {
+      throw new Error(`Unknown Runtime API status field: ${field}.`);
+    }
+  }
+
+  for (const [surfaceName, surface] of Object.entries(status.surfaces)) {
+    if (surfaceName.length === 0 || !isRecord(surface)) {
+      throw new Error(`Invalid Runtime API status surface: ${surfaceName}.`);
+    }
+
+    const surfaceFields = new Set([
+      "defaultBehavior",
+      "behaviorOverrides",
+      "conformanceTestedMethods",
+    ]);
+
+    for (const field of Object.keys(surface)) {
+      if (!surfaceFields.has(field)) {
+        throw new Error(`Unknown Runtime API status field for ${surfaceName}: ${field}.`);
+      }
+    }
+
+    if (surface.defaultBehavior !== undefined) {
+      validateRuntimeApiBehavior(surface.defaultBehavior, `${surfaceName}.defaultBehavior`);
+    }
+
+    const behaviorOverrides = surface.behaviorOverrides ?? {};
+
+    if (!isRecord(behaviorOverrides)) {
+      throw new Error(`Invalid Runtime API behavior overrides for ${surfaceName}.`);
+    }
+
+    for (const [methodName, behavior] of Object.entries(behaviorOverrides)) {
+      if (!isMethodName(methodName)) {
+        throw new Error(`Invalid Runtime API method name for ${surfaceName}: ${methodName}.`);
+      }
+
+      validateRuntimeApiBehavior(behavior, `${surfaceName}.${methodName}`);
+    }
+
+    const conformanceTestedMethods = surface.conformanceTestedMethods ?? [];
+
+    if (
+      !Array.isArray(conformanceTestedMethods) ||
+      conformanceTestedMethods.some((methodName) => !isMethodName(methodName))
+    ) {
+      throw new Error(`Invalid Runtime API conformance methods for ${surfaceName}.`);
+    }
+
+    if (new Set(conformanceTestedMethods).size !== conformanceTestedMethods.length) {
+      throw new Error(`Duplicate Runtime API conformance methods for ${surfaceName}.`);
+    }
+  }
+}
+
+export function resolveRuntimeApiMethodStatus(surface, methodName) {
+  return {
+    behavior: surface?.behaviorOverrides?.[methodName] ?? surface?.defaultBehavior ?? null,
+    conformanceTested: surface?.conformanceTestedMethods?.includes(methodName) ?? false,
+  };
 }
 
 export function mergeMethodSurface(methods, supplementalMethods = []) {
@@ -794,8 +881,10 @@ function generate() {
   const declarations = collectGlobalDeclarations(typeSources);
   const runtimeGlobals = extractRuntimeGlobals(fs.readFileSync(RUNTIME_GLOBALS_PATH, "utf8"));
   const supplement = JSON.parse(fs.readFileSync(SUPPLEMENT_PATH, "utf8"));
+  const status = JSON.parse(fs.readFileSync(STATUS_PATH, "utf8"));
 
   validateRuntimeApiSupplement(supplement);
+  validateRuntimeApiStatus(status);
 
   const markdown = renderCoverageMarkdown({
     version: packageJson.version,
