@@ -1,4 +1,4 @@
-import { test as baseTest, type FrameLocator, type Page } from "@playwright/test";
+import { test as baseTest, type Locator, type Page } from "@playwright/test";
 
 import { createBrowserHarness } from "../browser-harness";
 import type { RuntimeDataFixture } from "../runtime-data-fixture";
@@ -9,22 +9,19 @@ export interface BrowserTestOptions {
 }
 
 export interface BrowserTestFixture {
-  readonly page: Page;
-  readonly sandbox: FrameLocator;
-  readonly app: FrameLocator;
+  readonly app: Locator;
 }
 
 export async function createReadyBrowserTestFixture(page: Page): Promise<BrowserTestFixture> {
   const sandbox = page.frameLocator("#sandboxFrame");
+  const userHtmlFrame = sandbox.locator('#userHtmlFrame[data-vegas-ready="true"]');
 
-  await sandbox.locator('#userHtmlFrame[data-vegas-ready="true"]').waitFor({
+  await userHtmlFrame.waitFor({
     state: "attached",
   });
 
   return {
-    page,
-    sandbox,
-    app: sandbox.frameLocator("#userHtmlFrame"),
+    app: userHtmlFrame.contentFrame().locator("body"),
   };
 }
 

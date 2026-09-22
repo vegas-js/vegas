@@ -639,11 +639,11 @@ function smokeVegasPackage() {
         });
 
         test("executes the packed browser bridge and Local Runtime", async ({ vegas }) => {
-          await expect(vegas.page.locator("#sandboxFrame")).toBeVisible();
-          await expect(vegas.sandbox.locator("#userHtmlFrame")).toBeVisible();
           await expect(vegas.app.locator("#result")).toHaveText("Vegas browser");
 
-          await vegas.app.locator("#mutate").click();
+          await vegas.app
+            .getByRole("button", { name: "Mutate Runtime state" })
+            .click();
 
           await expect(vegas.app.locator("#result")).toHaveText("Changed browser");
         });

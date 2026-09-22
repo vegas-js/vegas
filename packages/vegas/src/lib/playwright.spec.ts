@@ -1,4 +1,4 @@
-import type { FrameLocator, Page } from "@playwright/test";
+import type { Locator } from "@playwright/test";
 import { expect, expectTypeOf, test } from "vitest";
 
 import {
@@ -13,7 +13,6 @@ test("expose the Playwright browser test surface", () => {
 
   expectTypeOf<BrowserTestOptions["root"]>().toEqualTypeOf<string | undefined>();
   expectTypeOf<BrowserTestOptions["runtimeData"]>().toEqualTypeOf<RuntimeDataFixture | undefined>();
-  expectTypeOf<BrowserTestFixture["page"]>().toEqualTypeOf<Page>();
-  expectTypeOf<BrowserTestFixture["sandbox"]>().toEqualTypeOf<FrameLocator>();
-  expectTypeOf<BrowserTestFixture["app"]>().toEqualTypeOf<FrameLocator>();
+  expectTypeOf<keyof BrowserTestFixture>().toEqualTypeOf<"app">();
+  expectTypeOf<BrowserTestFixture["app"]>().toEqualTypeOf<Locator>();
 });
