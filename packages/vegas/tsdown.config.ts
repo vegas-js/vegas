@@ -31,6 +31,9 @@ export default defineConfig([
     entry: {
       vitest: "./src/lib/vitest",
     },
+    deps: {
+      onlyBundle: ["entities", "parse5", "zod"],
+    },
     tsconfig: "./tsconfig.node.json",
     fixedExtension: false,
     dts: true,

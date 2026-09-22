@@ -479,6 +479,27 @@ function smokeVegasPackage() {
       cwd: consumerRoot,
     });
 
+    fs.writeFileSync(
+      path.join(consumerRoot, "vegas.config.js"),
+      `
+        export default {
+          appType: "script",
+        };
+      `,
+    );
+
+    const serverRoot = path.join(consumerRoot, "src");
+
+    fs.mkdirSync(serverRoot, { recursive: true });
+    fs.writeFileSync(
+      path.join(serverRoot, "Code.ts"),
+      `
+        export function main(value) {
+          return PropertiesService.getScriptProperties().getProperty("prefix") + " " + value;
+        }
+      `,
+    );
+
     const vitestRuntimeSmokePath = path.join(consumerRoot, "vitest-runtime-smoke.spec.js");
 
     fs.writeFileSync(
@@ -488,24 +509,12 @@ function smokeVegasPackage() {
         import { createLocalRuntimeTest } from "@vegasjs/vegas/vitest";
 
         const test = createLocalRuntimeTest({
-          project: {
-            root: "/release-smoke",
-            appsScript: {
-              manifest: {
-                timeZone: "UTC",
-              },
-            },
-          },
           runtimeData: {
             properties: {
               scriptProperties: {
                 prefix: "Vegas",
               },
             },
-          },
-          program: {
-            source: "function main(value) { return PropertiesService.getScriptProperties().getProperty('prefix') + ' ' + value; }",
-            htmlFiles: {},
           },
         });
 

@@ -1,19 +1,33 @@
 import { afterAll, describe, expect, expectTypeOf } from "vitest";
 
 import type { LocalRuntimeHarness } from "../local-runtime-harness";
-import type { LocalRuntimeProject } from "../local-runtime-project";
+import type { ResolvedProject } from "../project";
 import type { Program } from "../runtime";
 import type { RuntimeDataFixture } from "../runtime-data-fixture";
-import { createLocalRuntimeTest } from "./local-runtime-test";
+import { createLocalRuntimeTestWithDependencies } from "./local-runtime-test";
 
 const project = {
   root: "/project",
+  configFile: null,
+  clientDir: "/project/src/client",
+  serverDir: "/project/src/server",
+  runtimeDataDir: "/project/runtime",
+  outputDir: "/project/dist",
+  appType: "script",
+  plugins: [],
+  devServer: { open: false },
   appsScript: {
     manifest: {
+      exceptionLogging: "STACKDRIVER",
+      runtimeVersion: "V8",
       timeZone: "Asia/Tokyo",
+      webapp: {
+        access: "MYSELF",
+        executeAs: "USER_ACCESSING",
+      },
     },
   },
-} satisfies LocalRuntimeProject;
+} satisfies ResolvedProject;
 
 const runtimeData = {
   properties: {
@@ -36,17 +50,52 @@ const program = {
 } satisfies Program;
 
 const harnesses = new Set<LocalRuntimeHarness>();
-const test = createLocalRuntimeTest({
-  project,
-  runtimeData,
-  program,
-});
+const loadProjectCalls: Array<{ readonly cwd: string; readonly root?: string }> = [];
+const buildRuntimeProgramCalls: Array<{
+  readonly project: ResolvedProject;
+  readonly mode: "development" | "production";
+}> = [];
+const test = createLocalRuntimeTestWithDependencies(
+  {
+    root: "project",
+    runtimeData,
+  },
+  {
+    cwd: "/workspace",
+    loadProject: async (options) => {
+      loadProjectCalls.push(options);
+      return project;
+    },
+    buildRuntimeProgram: async (receivedProject, mode) => {
+      buildRuntimeProgramCalls.push({
+        project: receivedProject,
+        mode,
+      });
+      return program;
+    },
+  },
+);
 
 describe("createLocalRuntimeTest", () => {
-  test("provide a typed Vegas fixture with seeded state", async ({ vegas }) => {
+  test("load the Vegas project and provide a typed fixture with seeded state", async ({
+    vegas,
+  }) => {
     expectTypeOf(vegas).toEqualTypeOf<LocalRuntimeHarness>();
     expect(harnesses.has(vegas)).toBe(false);
     harnesses.add(vegas);
+
+    expect(loadProjectCalls).toStrictEqual([
+      {
+        cwd: "/workspace",
+        root: "project",
+      },
+    ]);
+    expect(buildRuntimeProgramCalls).toStrictEqual([
+      {
+        project,
+        mode: "development",
+      },
+    ]);
 
     await expect(
       vegas.propertiesStore.getAll({
@@ -95,4 +144,6 @@ describe("createLocalRuntimeTest", () => {
 
 afterAll(() => {
   expect(harnesses.size).toBe(2);
+  expect(loadProjectCalls).toHaveLength(1);
+  expect(buildRuntimeProgramCalls).toHaveLength(1);
 });
