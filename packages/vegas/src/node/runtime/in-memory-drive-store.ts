@@ -377,6 +377,11 @@ export class InMemoryDriveStore implements DriveStore {
       .name;
   }
 
+  async getFolderSize(namespace: DriveNamespace, folder: DriveFolderReference): Promise<number> {
+    this.#getFolderState(this.#getOrCreateDrive(namespace), folder.id, folder.resourceKey);
+    return 0;
+  }
+
   async moveFolder(
     namespace: DriveNamespace,
     folder: DriveFolderReference,

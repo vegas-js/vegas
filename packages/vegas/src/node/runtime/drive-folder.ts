@@ -168,6 +168,14 @@ export class DriveFolder {
     return this.#reference.resourceKey ?? null;
   }
 
+  getSize(): number {
+    return this.#bridge.call({
+      service: "drive",
+      operation: "get-folder-size",
+      folder: this.#reference,
+    });
+  }
+
   isStarred(): boolean {
     return this.#bridge.call({
       service: "drive",

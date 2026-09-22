@@ -91,6 +91,7 @@ export interface DriveStore {
   ): Promise<string | null>;
   getFolderLastUpdated(namespace: DriveNamespace, folder: DriveFolderReference): Promise<number>;
   getFolderName(namespace: DriveNamespace, folder: DriveFolderReference): Promise<string | null>;
+  getFolderSize(namespace: DriveNamespace, folder: DriveFolderReference): Promise<number>;
   moveFolder(
     namespace: DriveNamespace,
     folder: DriveFolderReference,

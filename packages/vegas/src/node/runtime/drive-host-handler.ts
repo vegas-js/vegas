@@ -192,6 +192,9 @@ export class LocalDriveHostHandler implements DriveHostCallHandler {
 
         return name;
       }
+      case "get-folder-size": {
+        return this.#store.getFolderSize(this.#namespace, call.folder);
+      }
       case "move-folder": {
         await this.#store.moveFolder(this.#namespace, call.folder, call.destination);
         return;

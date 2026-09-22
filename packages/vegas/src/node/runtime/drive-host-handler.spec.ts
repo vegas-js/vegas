@@ -208,6 +208,11 @@ class RecordingDriveStore implements DriveStore {
     return `name:${folder.id}`;
   }
 
+  async getFolderSize(namespace: DriveNamespace, folder: DriveFolderReference): Promise<number> {
+    this.calls.push(`getFolderSize:${namespace.userKey}:${folder.id}`);
+    return 0;
+  }
+
   async moveFolder(
     namespace: DriveNamespace,
     folder: DriveFolderReference,

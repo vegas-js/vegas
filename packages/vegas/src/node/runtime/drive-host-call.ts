@@ -148,6 +148,11 @@ export type DriveHostCall =
     }
   | {
       readonly service: "drive";
+      readonly operation: "get-folder-size";
+      readonly folder: DriveFolderReference;
+    }
+  | {
+      readonly service: "drive";
       readonly operation: "move-folder";
       readonly folder: DriveFolderReference;
       readonly destination: DriveFolderReference;
@@ -314,7 +319,8 @@ export type DriveHostCallResult<C extends DriveHostCall> = C extends {
                 | "get-file-last-updated"
                 | "get-file-size"
                 | "get-folder-date-created"
-                | "get-folder-last-updated";
+                | "get-folder-last-updated"
+                | "get-folder-size";
             }
           ? number
           : C extends {
