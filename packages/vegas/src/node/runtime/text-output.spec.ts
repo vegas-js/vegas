@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import { TextOutput } from "./index";
+import { serializeTextOutput, TextOutput } from "./index";
 
 describe("TextOutput", () => {
   test("hold and mutate text content with chaining", () => {
@@ -35,5 +35,15 @@ describe("TextOutput", () => {
 
     expect(output.downloadAsFile(null)).toBe(output);
     expect(output.getFileName()).toBeNull();
+  });
+
+  test("expose a transport-safe snapshot", () => {
+    const output = new TextOutput('{"ok":true}').setMimeType("JSON").downloadAsFile("vegas.json");
+
+    expect(serializeTextOutput(output)).toStrictEqual({
+      content: '{"ok":true}',
+      fileName: "vegas.json",
+      mimeType: "JSON",
+    });
   });
 });

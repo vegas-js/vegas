@@ -1,5 +1,13 @@
 import { CONTENT_MIME_TYPE, type ContentMimeType } from "./content-enum";
 
+export interface TextOutputSnapshot {
+  readonly content: string;
+  readonly fileName: string | null;
+  readonly mimeType: ContentMimeType;
+}
+
+const SERIALIZE_TEXT_OUTPUT = Symbol("serializeTextOutput");
+
 // https://developers.google.com/apps-script/reference/content/text-output
 export class TextOutput {
   #content: string;
@@ -49,4 +57,16 @@ export class TextOutput {
     this.#mimeType = mimeType;
     return this;
   }
+
+  [SERIALIZE_TEXT_OUTPUT](): TextOutputSnapshot {
+    return {
+      content: this.#content,
+      fileName: this.#fileName,
+      mimeType: this.#mimeType,
+    };
+  }
+}
+
+export function serializeTextOutput(output: TextOutput): TextOutputSnapshot {
+  return output[SERIALIZE_TEXT_OUTPUT]();
 }
