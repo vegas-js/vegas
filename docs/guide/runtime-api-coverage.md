@@ -40,6 +40,10 @@ Structural coverage records whether a Runtime method exists; it does not imply G
 | `HtmlService`                  |               5 | `local-emulation`: 5                                                        |           0 / 5 |
 | `HtmlService.HtmlOutput`       |              20 | `implemented`: 13<br>`local-emulation`: 5<br>`no-op`: 1<br>`fail-closed`: 1 |          0 / 20 |
 | `HtmlService.HtmlTemplate`     |               4 | `implemented`: 1<br>`local-emulation`: 3                                    |           0 / 4 |
+| `Logger`                       |               3 | `local-emulation`: 3                                                        |           0 / 3 |
+| `Session`                      |               7 | `local-emulation`: 7                                                        |           0 / 7 |
+| `Session.User`                 |               2 | `local-emulation`: 2                                                        |           0 / 2 |
+| `console.Console`              |               6 | `local-emulation`: 6                                                        |           0 / 6 |
 | `PropertiesService`            |               3 | `local-emulation`: 3                                                        |           0 / 3 |
 | `PropertiesService.Properties` |               7 | `local-emulation`: 7                                                        |           0 / 7 |
 | `Utilities`                    |              23 | `implemented`: 14<br>`local-emulation`: 9                                   |          0 / 23 |

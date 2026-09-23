@@ -88,6 +88,30 @@
         "getRawContent": "implemented"
       }
     },
+    "Logger": {
+      "auditedMethods": ["clear", "getLog", "log"],
+      "defaultBehavior": "local-emulation"
+    },
+    "Session": {
+      "auditedMethods": [
+        "getActiveUser",
+        "getActiveUserLocale",
+        "getEffectiveUser",
+        "getScriptTimeZone",
+        "getTemporaryActiveUserKey",
+        "getTimeZone",
+        "getUser"
+      ],
+      "defaultBehavior": "local-emulation"
+    },
+    "Session.User": {
+      "auditedMethods": ["getEmail", "getUserLoginId"],
+      "defaultBehavior": "local-emulation"
+    },
+    "console.Console": {
+      "auditedMethods": ["error", "info", "log", "time", "timeEnd", "warn"],
+      "defaultBehavior": "local-emulation"
+    },
     "PropertiesService": {
       "auditedMethods": ["getDocumentProperties", "getScriptProperties", "getUserProperties"],
       "defaultBehavior": "local-emulation"
