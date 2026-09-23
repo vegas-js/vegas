@@ -2,6 +2,8 @@
 // scriptlets, but does not define the escaping implementation. Vegas models HTML text, ordinary
 // attribute values, and URL attributes here. Nested executable contexts remain unsupported until
 // they can be represented faithfully instead of guessing at Google-internal escaping behavior.
+import { UnsupportedRuntimeOperationError } from "./unsupported-runtime-operation-error";
+
 type HtmlEscapeContext =
   | {
       readonly type: "text";
@@ -11,6 +13,10 @@ type HtmlEscapeContext =
       readonly name: string;
       readonly quote: '"' | "'" | null;
       readonly valuePrefix: string;
+    }
+  | {
+      readonly type: "nested-executable";
+      readonly description: string;
     }
   | {
       readonly type: "unsupported";
@@ -40,6 +46,11 @@ export function escapeHtmlContextually(currentContent: string, addedContent: str
     case "attribute":
       assertSafeAttributeContext(context, addedContent);
       return escapeHtmlAttribute(addedContent, context.quote);
+    case "nested-executable":
+      throw new UnsupportedRuntimeOperationError(
+        "HtmlOutput.appendUntrusted()",
+        `contextual escaping inside ${context.description} is not implemented.`,
+      );
     case "unsupported":
       throw new Error(`Cannot append untrusted content inside ${context.description}.`);
   }
@@ -108,7 +119,7 @@ function resolveHtmlEscapeContext(source: string): HtmlEscapeContext {
 
       if (closing < 0) {
         return {
-          type: "unsupported",
+          type: "nested-executable",
           description: `<${parsed.tagName}> content`,
         };
       }
@@ -299,7 +310,10 @@ function assertSafeAttributeContext(
     context.name === "srcdoc" ||
     context.name === "srcset"
   ) {
-    throw new Error(`Cannot append untrusted content inside the ${context.name} attribute.`);
+    throw new UnsupportedRuntimeOperationError(
+      "HtmlOutput.appendUntrusted()",
+      `contextual escaping inside the ${context.name} attribute is not implemented.`,
+    );
   }
 
   if (!URL_ATTRIBUTES.has(context.name)) {

@@ -1,6 +1,7 @@
 import { describe, expect, test } from "vitest";
 
 import { escapeHtmlContextually } from "./html-contextual-escape";
+import { UnsupportedRuntimeOperationError } from "./unsupported-runtime-operation-error";
 
 describe("escapeHtmlContextually", () => {
   test("escape markup in HTML text", () => {
@@ -34,24 +35,30 @@ describe("escapeHtmlContextually", () => {
     );
   });
 
-  test("reject nested executable attribute contexts", () => {
+  test("fail closed for nested executable attribute contexts", () => {
     expect(() => escapeHtmlContextually('<button onclick="', "alert(1)")).toThrow(
-      "Cannot append untrusted content inside the onclick attribute.",
+      UnsupportedRuntimeOperationError,
     );
     expect(() => escapeHtmlContextually('<div style="', "color:red")).toThrow(
-      "Cannot append untrusted content inside the style attribute.",
+      UnsupportedRuntimeOperationError,
     );
     expect(() => escapeHtmlContextually('<iframe srcdoc="', "<script></script>")).toThrow(
-      "Cannot append untrusted content inside the srcdoc attribute.",
+      UnsupportedRuntimeOperationError,
+    );
+    expect(() => escapeHtmlContextually('<button onclick="', "alert(1)")).toThrow(
+      "Local Runtime does not support HtmlOutput.appendUntrusted(): contextual escaping inside the onclick attribute is not implemented.",
     );
   });
 
-  test("reject script and style content until their nested languages are modeled", () => {
+  test("fail closed for script and style content until their nested languages are modeled", () => {
     expect(() => escapeHtmlContextually("<script>const value = ", "user")).toThrow(
-      "Cannot append untrusted content inside <script> content.",
+      UnsupportedRuntimeOperationError,
     );
     expect(() => escapeHtmlContextually("<style>.value { color: ", "red")).toThrow(
-      "Cannot append untrusted content inside <style> content.",
+      UnsupportedRuntimeOperationError,
+    );
+    expect(() => escapeHtmlContextually("<script>const value = ", "user")).toThrow(
+      "Local Runtime does not support HtmlOutput.appendUntrusted(): contextual escaping inside <script> content is not implemented.",
     );
   });
 
