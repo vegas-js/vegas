@@ -3,6 +3,7 @@ import { convertBlob, type BlobConverter } from "./blob-converter";
 import { escapeHtmlContextually } from "./html-contextual-escape";
 import type { HtmlSandboxMode, HtmlXFrameOptionsMode } from "./html-enum";
 import { HtmlTemplate, type HtmlTemplateEvaluator } from "./html-template";
+import { UnsupportedRuntimeOperationError } from "./unsupported-runtime-operation-error";
 
 export interface HtmlOutputSnapshot {
   readonly content: string;
@@ -87,7 +88,10 @@ export class HtmlOutput {
 
   getAs(contentType: string): RuntimeBlob {
     if (this.#blobConverter === undefined) {
-      throw new Error("HtmlOutput Blob conversion is not available in this Runtime context.");
+      throw new UnsupportedRuntimeOperationError(
+        "HtmlOutput.getAs()",
+        "Blob conversion is not available in this Runtime context.",
+      );
     }
 
     return convertBlob(this.getBlob(), contentType, this.#blobConverter);

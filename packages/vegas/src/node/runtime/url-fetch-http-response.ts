@@ -1,5 +1,6 @@
 import { createBlob, type RuntimeBlob } from "./blob";
 import { convertBlob, type BlobConverter } from "./blob-converter";
+import { UnsupportedRuntimeOperationError } from "./unsupported-runtime-operation-error";
 import type { UrlFetchResponseHeaderValue, UrlFetchResponseValue } from "./url-fetch-value";
 
 function cloneHeaderValue(value: UrlFetchResponseHeaderValue): UrlFetchResponseHeaderValue {
@@ -59,7 +60,10 @@ export class HTTPResponse {
 
   getAs(contentType: string): RuntimeBlob {
     if (this.#blobConverter === undefined) {
-      throw new Error("HTTPResponse Blob conversion is not available in this Runtime context.");
+      throw new UnsupportedRuntimeOperationError(
+        "HTTPResponse.getAs()",
+        "Blob conversion is not available in this Runtime context.",
+      );
     }
 
     return convertBlob(this.getBlob(), contentType, this.#blobConverter);

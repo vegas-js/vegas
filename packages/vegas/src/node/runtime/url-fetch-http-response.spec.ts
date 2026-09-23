@@ -7,6 +7,7 @@ import {
   hydrateHttpResponse,
   type UrlFetchResponseValue,
 } from "./index";
+import { UnsupportedRuntimeOperationError } from "./unsupported-runtime-operation-error";
 
 function createResponseValue(): UrlFetchResponseValue {
   return {
@@ -105,8 +106,9 @@ describe("HTTPResponse", () => {
   test("reject conversion without a bound Runtime conversion context", () => {
     const response = hydrateHttpResponse(createResponseValue());
 
+    expect(() => response.getAs("application/pdf")).toThrow(UnsupportedRuntimeOperationError);
     expect(() => response.getAs("application/pdf")).toThrow(
-      "HTTPResponse Blob conversion is not available in this Runtime context.",
+      "Local Runtime does not support HTTPResponse.getAs(): Blob conversion is not available in this Runtime context.",
     );
   });
 

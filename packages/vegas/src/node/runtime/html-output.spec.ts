@@ -8,6 +8,7 @@ import {
   RuntimeBlob,
   serializeHtmlOutput,
 } from "./index";
+import { UnsupportedRuntimeOperationError } from "./unsupported-runtime-operation-error";
 
 describe("HtmlOutput", () => {
   test("hold and mutate trusted HTML content with chaining", () => {
@@ -82,8 +83,9 @@ describe("HtmlOutput", () => {
   test("reject conversion without a bound Runtime conversion context", () => {
     const output = new HtmlOutput("<main>Vegas</main>");
 
+    expect(() => output.getAs("application/pdf")).toThrow(UnsupportedRuntimeOperationError);
     expect(() => output.getAs("application/pdf")).toThrow(
-      "HtmlOutput Blob conversion is not available in this Runtime context.",
+      "Local Runtime does not support HtmlOutput.getAs(): Blob conversion is not available in this Runtime context.",
     );
   });
 
