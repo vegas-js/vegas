@@ -104,6 +104,45 @@
       ],
       "defaultBehavior": "local-emulation"
     },
+    "Utilities": {
+      "auditedMethods": [
+        "base64Decode",
+        "base64DecodeWebSafe",
+        "base64Encode",
+        "base64EncodeWebSafe",
+        "computeDigest",
+        "computeHmacSha256Signature",
+        "computeHmacSignature",
+        "computeRsaSha1Signature",
+        "computeRsaSha256Signature",
+        "computeRsaSignature",
+        "formatDate",
+        "formatString",
+        "getUuid",
+        "gzip",
+        "jsonParse",
+        "jsonStringify",
+        "newBlob",
+        "parseCsv",
+        "parseDate",
+        "sleep",
+        "ungzip",
+        "unzip",
+        "zip"
+      ],
+      "defaultBehavior": "implemented",
+      "behaviorOverrides": {
+        "computeRsaSha1Signature": "local-emulation",
+        "computeRsaSha256Signature": "local-emulation",
+        "computeRsaSignature": "local-emulation",
+        "formatDate": "local-emulation",
+        "formatString": "local-emulation",
+        "parseCsv": "local-emulation",
+        "parseDate": "local-emulation",
+        "unzip": "local-emulation",
+        "zip": "local-emulation"
+      }
+    },
     "UrlFetchApp": {
       "auditedMethods": ["fetch", "fetchAll", "getRequest"],
       "defaultBehavior": "local-emulation",
