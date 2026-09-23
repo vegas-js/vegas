@@ -1,6 +1,26 @@
 {
   "schemaVersion": 1,
   "surfaces": {
+    "ContentService": {
+      "auditedMethods": ["createTextOutput"],
+      "defaultBehavior": "implemented"
+    },
+    "ContentService.TextOutput": {
+      "auditedMethods": [
+        "append",
+        "clear",
+        "downloadAsFile",
+        "getContent",
+        "getFileName",
+        "getMimeType",
+        "setContent",
+        "setMimeType"
+      ],
+      "defaultBehavior": "implemented",
+      "behaviorOverrides": {
+        "downloadAsFile": "local-emulation"
+      }
+    },
     "CacheService": {
       "auditedMethods": ["getDocumentCache", "getScriptCache", "getUserCache"],
       "defaultBehavior": "local-emulation"
@@ -16,6 +36,57 @@
     "LockService.Lock": {
       "auditedMethods": ["hasLock", "releaseLock", "tryLock", "waitLock"],
       "defaultBehavior": "local-emulation"
+    },
+    "HtmlService": {
+      "auditedMethods": [
+        "createHtmlOutput",
+        "createHtmlOutputFromFile",
+        "createTemplate",
+        "createTemplateFromFile",
+        "getUserAgent"
+      ],
+      "defaultBehavior": "local-emulation"
+    },
+    "HtmlService.HtmlOutput": {
+      "auditedMethods": [
+        "addMetaTag",
+        "append",
+        "appendUntrusted",
+        "asTemplate",
+        "clear",
+        "getAs",
+        "getBlob",
+        "getContent",
+        "getFaviconUrl",
+        "getHeight",
+        "getMetaTags",
+        "getTitle",
+        "getWidth",
+        "setContent",
+        "setFaviconUrl",
+        "setHeight",
+        "setSandboxMode",
+        "setTitle",
+        "setWidth",
+        "setXFrameOptionsMode"
+      ],
+      "defaultBehavior": "implemented",
+      "behaviorOverrides": {
+        "addMetaTag": "local-emulation",
+        "append": "local-emulation",
+        "appendUntrusted": "local-emulation",
+        "getAs": "fail-closed",
+        "getBlob": "local-emulation",
+        "setContent": "local-emulation",
+        "setSandboxMode": "no-op"
+      }
+    },
+    "HtmlService.HtmlTemplate": {
+      "auditedMethods": ["evaluate", "getCode", "getCodeWithComments", "getRawContent"],
+      "defaultBehavior": "local-emulation",
+      "behaviorOverrides": {
+        "getRawContent": "implemented"
+      }
     },
     "PropertiesService": {
       "auditedMethods": ["getDocumentProperties", "getScriptProperties", "getUserProperties"],
