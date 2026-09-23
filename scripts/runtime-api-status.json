@@ -203,6 +203,27 @@
       ],
       "defaultBehavior": "local-emulation"
     },
+    "Blob": {
+      "auditedMethods": [
+        "copyBlob",
+        "getBlob",
+        "getBytes",
+        "getContentType",
+        "getDataAsString",
+        "getName",
+        "isGoogleType",
+        "setBytes",
+        "setContentType",
+        "setDataFromString",
+        "setName"
+      ],
+      "defaultBehavior": "implemented",
+      "behaviorOverrides": {
+        "getDataAsString": "local-emulation",
+        "isGoogleType": "local-emulation",
+        "setDataFromString": "local-emulation"
+      }
+    },
     "ContentService": {
       "auditedMethods": ["createTextOutput"],
       "defaultBehavior": "implemented"

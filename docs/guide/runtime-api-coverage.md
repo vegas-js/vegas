@@ -16,7 +16,7 @@ This generated page reports structural API coverage and audited Runtime behavior
 - Declared Global Objects with no direct methods are excluded from method coverage until nested collection/resource APIs are measured recursively.
 - Deprecated methods remain in the denominator while they are present in the installed type declarations.
 - The global summary measures methods declared directly on each Global Object interface.
-- Returned Runtime objects such as `Spreadsheet`, `Sheet`, and `Range` are shown separately below when Vegas has an explicit implementation mapping.
+- Modeled Runtime objects are shown separately below when Vegas has an explicit implementation mapping, including shared returned types such as `Blob`.
 
 :::
 
@@ -37,6 +37,7 @@ Structural coverage records whether a Runtime method exists; it does not imply G
 | `SpreadsheetApp.Spreadsheet`    |               8 | `local-emulation`: 8                                                        |           0 / 8 |
 | `SpreadsheetApp.Sheet`          |              41 | `local-emulation`: 41                                                       |          0 / 41 |
 | `SpreadsheetApp.Range`          |              33 | `local-emulation`: 33                                                       |          0 / 33 |
+| `Blob`                          |              11 | `implemented`: 8<br>`local-emulation`: 3                                    |          0 / 11 |
 | `ContentService`                |               1 | `implemented`: 1                                                            |           0 / 1 |
 | `ContentService.TextOutput`     |               8 | `implemented`: 7<br>`local-emulation`: 1                                    |           0 / 8 |
 | `CacheService`                  |               3 | `local-emulation`: 3                                                        |           0 / 3 |
@@ -284,5 +285,13 @@ These tables cover returned object types that already have a Vegas Runtime class
 | ------------------- | -------: | -----------: | --------------------------- |
 | `PropertiesService` |    3 / 3 |       100.0% | —                           |
 | `Properties`        |    7 / 7 |       100.0% | —                           |
+
+:::
+
+::: details Shared
+
+| Object type | Coverage | Coverage (%) | Unimplemented API (methods)                                     |
+| ----------- | -------: | -----------: | --------------------------------------------------------------- |
+| `Blob`      |  11 / 14 |        78.6% | `getAs()`<br>`setContentTypeFromExtension()`<br>`getAllBlobs()` |
 
 :::

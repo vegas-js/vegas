@@ -2,6 +2,7 @@ import { describe, expect, test } from "vitest";
 
 import {
   API_SURFACES,
+  SHARED_API_SURFACES,
   buildRuntimeApiStatusRows,
   extractClassMethodNames,
   extractClassPropertyNames,
@@ -11,6 +12,7 @@ import {
   extractRuntimeGlobals,
   hasEnumDeclaration,
   isStandaloneGlobalEnum,
+  mergeInterfaceMethodSurfaces,
   mergeMethodSurface,
   renderCoverageMarkdown,
   resolveRuntimeApiMethodStatus,
@@ -177,6 +179,51 @@ declare namespace GoogleAppsScript {
     expect(mergeMethodSurface(["open", "flush"], ["flush", "enableLookerExecution"])).toStrictEqual(
       ["open", "flush", "enableLookerExecution"],
     );
+  });
+
+  test("merge shared Runtime object interface methods without duplicates", () => {
+    expect(
+      mergeInterfaceMethodSurfaces(
+        `
+interface Blob extends BlobSource {
+  copyBlob(): Blob;
+  getAs(contentType: string): Blob;
+}
+interface BlobSource {
+  getAs(contentType: string): Blob;
+  getBlob(): Blob;
+}
+`,
+        ["Blob", "BlobSource"],
+      ),
+    ).toStrictEqual(["copyBlob", "getAs", "getBlob"]);
+  });
+
+  test("render shared Runtime object coverage", () => {
+    const output = renderCoverageMarkdown({
+      version: "0.0.0",
+      runtimeGlobals: [],
+      declarations: new Map(),
+      supplement: { schemaVersion: 1, globals: {} },
+      status: { schemaVersion: 1, surfaces: {} },
+      typeSources: new Map([
+        [
+          "google-apps-script.base.d.ts",
+          `
+interface Blob extends BlobSource {
+  copyBlob(): Blob;
+}
+interface BlobSource {
+  getAs(contentType: string): Blob;
+  getBlob(): Blob;
+}
+`,
+        ],
+      ]),
+    });
+
+    expect(output).toContain("::: details Shared");
+    expect(output).toContain("| `Blob` | 2 / 3 | 66.7% | `getAs()` |");
   });
 
   test("validate supplemental Runtime API declarations", () => {
@@ -382,6 +429,16 @@ declare namespace GoogleAppsScript {
       "html-output.ts",
       "HtmlOutputMetaTag",
     ]);
+  });
+
+  test("track shared Runtime objects independently from Global Objects", () => {
+    expect(SHARED_API_SURFACES).toContainEqual({
+      name: "Blob",
+      declarationPath: "google-apps-script.base.d.ts",
+      interfaceNames: ["Blob", "BlobSource"],
+      relativePath: "blob.ts",
+      className: "RuntimeBlob",
+    });
   });
 
   test("read unique public Runtime class methods", () => {
