@@ -371,11 +371,16 @@ declare namespace GoogleAppsScript {
     ).toThrow("missing modeled surface: PropertiesService.Properties");
   });
 
-  test("track HtmlTemplate as a modeled HtmlService Runtime object", () => {
+  test("track modeled HtmlService Runtime objects", () => {
     expect(API_SURFACES.HtmlService).toContainEqual([
       "HtmlTemplate",
       "html-template.ts",
       "HtmlTemplate",
+    ]);
+    expect(API_SURFACES.HtmlService).toContainEqual([
+      "HtmlOutputMetaTag",
+      "html-output.ts",
+      "HtmlOutputMetaTag",
     ]);
   });
 

@@ -283,6 +283,10 @@
         "setSandboxMode": "no-op"
       }
     },
+    "HtmlService.HtmlOutputMetaTag": {
+      "auditedMethods": ["getContent", "getName"],
+      "defaultBehavior": "implemented"
+    },
     "HtmlService.HtmlTemplate": {
       "auditedMethods": ["evaluate", "getCode", "getCodeWithComments", "getRawContent"],
       "defaultBehavior": "local-emulation",

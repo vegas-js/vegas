@@ -26,35 +26,36 @@ Structural coverage records whether a Runtime method exists; it does not imply G
 
 `implemented` follows the documented public contract with no known local-only semantic difference. `local-emulation` substitutes a local model for Apps Script state or services. `no-op` intentionally performs no side effect. `fail-closed` rejects behavior Vegas cannot faithfully reproduce. Contract-tested status is tracked independently and requires an explicit automated test grounded in a public contract. Vegas does not use the production Google Apps Script runtime as a behavioral oracle.
 
-| Runtime surface                | Audited methods | Behavior classification                                                     | Contract-tested |
-| ------------------------------ | --------------: | --------------------------------------------------------------------------- | --------------: |
-| `DriveApp`                     |              18 | `local-emulation`: 18                                                       |          0 / 18 |
-| `DriveApp.File`                |              21 | `local-emulation`: 21                                                       |          0 / 21 |
-| `DriveApp.Folder`              |              24 | `local-emulation`: 24                                                       |          0 / 24 |
-| `DriveApp.FileIterator`        |               3 | `local-emulation`: 3                                                        |           0 / 3 |
-| `DriveApp.FolderIterator`      |               3 | `local-emulation`: 3                                                        |           0 / 3 |
-| `SpreadsheetApp`               |               8 | `local-emulation`: 4<br>`no-op`: 4                                          |           0 / 8 |
-| `SpreadsheetApp.Spreadsheet`   |               8 | `local-emulation`: 8                                                        |           0 / 8 |
-| `SpreadsheetApp.Sheet`         |              41 | `local-emulation`: 41                                                       |          0 / 41 |
-| `SpreadsheetApp.Range`         |              33 | `local-emulation`: 33                                                       |          0 / 33 |
-| `ContentService`               |               1 | `implemented`: 1                                                            |           0 / 1 |
-| `ContentService.TextOutput`    |               8 | `implemented`: 7<br>`local-emulation`: 1                                    |           0 / 8 |
-| `CacheService`                 |               3 | `local-emulation`: 3                                                        |           0 / 3 |
-| `CacheService.Cache`           |               6 | `local-emulation`: 6                                                        |           0 / 6 |
-| `LockService`                  |               3 | `local-emulation`: 3                                                        |           0 / 3 |
-| `LockService.Lock`             |               4 | `local-emulation`: 4                                                        |           0 / 4 |
-| `HtmlService`                  |               5 | `local-emulation`: 5                                                        |           0 / 5 |
-| `HtmlService.HtmlOutput`       |              20 | `implemented`: 13<br>`local-emulation`: 5<br>`no-op`: 1<br>`fail-closed`: 1 |          0 / 20 |
-| `HtmlService.HtmlTemplate`     |               4 | `implemented`: 1<br>`local-emulation`: 3                                    |           0 / 4 |
-| `Logger`                       |               3 | `local-emulation`: 3                                                        |           0 / 3 |
-| `Session`                      |               7 | `local-emulation`: 7                                                        |           0 / 7 |
-| `Session.User`                 |               2 | `local-emulation`: 2                                                        |           0 / 2 |
-| `console.Console`              |               6 | `local-emulation`: 6                                                        |           0 / 6 |
-| `PropertiesService`            |               3 | `local-emulation`: 3                                                        |           0 / 3 |
-| `PropertiesService.Properties` |               7 | `local-emulation`: 7                                                        |           0 / 7 |
-| `Utilities`                    |              23 | `implemented`: 14<br>`local-emulation`: 9                                   |          0 / 23 |
-| `UrlFetchApp`                  |               3 | `implemented`: 1<br>`local-emulation`: 2                                    |           0 / 3 |
-| `UrlFetchApp.HTTPResponse`     |               7 | `implemented`: 4<br>`local-emulation`: 2<br>`fail-closed`: 1                |           0 / 7 |
+| Runtime surface                 | Audited methods | Behavior classification                                                     | Contract-tested |
+| ------------------------------- | --------------: | --------------------------------------------------------------------------- | --------------: |
+| `DriveApp`                      |              18 | `local-emulation`: 18                                                       |          0 / 18 |
+| `DriveApp.File`                 |              21 | `local-emulation`: 21                                                       |          0 / 21 |
+| `DriveApp.Folder`               |              24 | `local-emulation`: 24                                                       |          0 / 24 |
+| `DriveApp.FileIterator`         |               3 | `local-emulation`: 3                                                        |           0 / 3 |
+| `DriveApp.FolderIterator`       |               3 | `local-emulation`: 3                                                        |           0 / 3 |
+| `SpreadsheetApp`                |               8 | `local-emulation`: 4<br>`no-op`: 4                                          |           0 / 8 |
+| `SpreadsheetApp.Spreadsheet`    |               8 | `local-emulation`: 8                                                        |           0 / 8 |
+| `SpreadsheetApp.Sheet`          |              41 | `local-emulation`: 41                                                       |          0 / 41 |
+| `SpreadsheetApp.Range`          |              33 | `local-emulation`: 33                                                       |          0 / 33 |
+| `ContentService`                |               1 | `implemented`: 1                                                            |           0 / 1 |
+| `ContentService.TextOutput`     |               8 | `implemented`: 7<br>`local-emulation`: 1                                    |           0 / 8 |
+| `CacheService`                  |               3 | `local-emulation`: 3                                                        |           0 / 3 |
+| `CacheService.Cache`            |               6 | `local-emulation`: 6                                                        |           0 / 6 |
+| `LockService`                   |               3 | `local-emulation`: 3                                                        |           0 / 3 |
+| `LockService.Lock`              |               4 | `local-emulation`: 4                                                        |           0 / 4 |
+| `HtmlService`                   |               5 | `local-emulation`: 5                                                        |           0 / 5 |
+| `HtmlService.HtmlOutput`        |              20 | `implemented`: 13<br>`local-emulation`: 5<br>`no-op`: 1<br>`fail-closed`: 1 |          0 / 20 |
+| `HtmlService.HtmlOutputMetaTag` |               2 | `implemented`: 2                                                            |           0 / 2 |
+| `HtmlService.HtmlTemplate`      |               4 | `implemented`: 1<br>`local-emulation`: 3                                    |           0 / 4 |
+| `Logger`                        |               3 | `local-emulation`: 3                                                        |           0 / 3 |
+| `Session`                       |               7 | `local-emulation`: 7                                                        |           0 / 7 |
+| `Session.User`                  |               2 | `local-emulation`: 2                                                        |           0 / 2 |
+| `console.Console`               |               6 | `local-emulation`: 6                                                        |           0 / 6 |
+| `PropertiesService`             |               3 | `local-emulation`: 3                                                        |           0 / 3 |
+| `PropertiesService.Properties`  |               7 | `local-emulation`: 7                                                        |           0 / 7 |
+| `Utilities`                     |              23 | `implemented`: 14<br>`local-emulation`: 9                                   |          0 / 23 |
+| `UrlFetchApp`                   |               3 | `implemented`: 1<br>`local-emulation`: 2                                    |           0 / 3 |
+| `UrlFetchApp.HTTPResponse`      |               7 | `implemented`: 4<br>`local-emulation`: 2<br>`fail-closed`: 1                |           0 / 7 |
 
 ## Global Object methods
 
@@ -225,11 +226,12 @@ These tables cover returned object types that already have a Vegas Runtime class
 
 ::: details HtmlService
 
-| Object type    | Coverage | Coverage (%) | Unimplemented API (methods) |
-| -------------- | -------: | -----------: | --------------------------- |
-| `HtmlService`  |    5 / 5 |       100.0% | —                           |
-| `HtmlOutput`   |  20 / 20 |       100.0% | —                           |
-| `HtmlTemplate` |    4 / 4 |       100.0% | —                           |
+| Object type         | Coverage | Coverage (%) | Unimplemented API (methods) |
+| ------------------- | -------: | -----------: | --------------------------- |
+| `HtmlService`       |    5 / 5 |       100.0% | —                           |
+| `HtmlOutput`        |  20 / 20 |       100.0% | —                           |
+| `HtmlOutputMetaTag` |    2 / 2 |       100.0% | —                           |
+| `HtmlTemplate`      |    4 / 4 |       100.0% | —                           |
 
 :::
 

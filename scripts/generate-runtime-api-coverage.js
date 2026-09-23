@@ -39,6 +39,7 @@ export const API_SURFACES = {
   HtmlService: [
     ["HtmlService", "html-service.ts", "HtmlService"],
     ["HtmlOutput", "html-output.ts", "HtmlOutput"],
+    ["HtmlOutputMetaTag", "html-output.ts", "HtmlOutputMetaTag"],
     ["HtmlTemplate", "html-template.ts", "HtmlTemplate"],
   ],
   Logger: [["Logger", "logger.ts", "Logger"]],
