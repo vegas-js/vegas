@@ -2,6 +2,7 @@ import { describe, expect, test } from "vitest";
 
 import type { UrlFetchRequestValue } from "./index";
 import { NodeUrlFetchCapability } from "./node";
+import { UnsupportedRuntimeOperationError } from "./unsupported-runtime-operation-error";
 
 describe("NodeUrlFetchCapability", () => {
   test("map a request through fetch and serialize the response", async () => {
@@ -214,6 +215,16 @@ describe("NodeUrlFetchCapability", () => {
           value: "body",
         },
       }),
+    ).rejects.toThrow(TypeError);
+
+    await expect(
+      capability.fetch({
+        url: "https://example.com",
+        payload: {
+          kind: "text",
+          value: "body",
+        },
+      }),
     ).rejects.toThrow("GET requests cannot include a payload");
 
     expect(calls).toBe(0);
@@ -265,19 +276,28 @@ describe("NodeUrlFetchCapability", () => {
         url: "https://example.com",
         validateHttpsCertificates: false,
       }),
-    ).rejects.toThrow("validateHttpsCertificates=false");
+    ).rejects.toThrow(UnsupportedRuntimeOperationError);
     await expect(
       capability.fetch({
         url: "https://example.com",
         escaping: false,
       }),
-    ).rejects.toThrow("escaping=false");
+    ).rejects.toThrow(UnsupportedRuntimeOperationError);
     await expect(
       capability.fetch({
         url: "https://example.com",
         useIntranet: true,
       }),
-    ).rejects.toThrow("useIntranet=true");
+    ).rejects.toThrow(UnsupportedRuntimeOperationError);
+
+    await expect(
+      capability.fetch({
+        url: "https://example.com",
+        escaping: false,
+      }),
+    ).rejects.toThrow(
+      "Local Runtime does not support UrlFetchApp.fetch()/fetchAll(): escaping=false cannot be represented by the Node Local Runtime.",
+    );
 
     expect(calls).toBe(0);
   });

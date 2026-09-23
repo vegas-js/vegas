@@ -1,3 +1,4 @@
+import { UnsupportedRuntimeOperationError } from "../unsupported-runtime-operation-error";
 import type { UrlFetchCapability } from "../url-fetch-capability";
 import type {
   UrlFetchFormFieldValue,
@@ -17,15 +18,24 @@ function toSignedByte(value: number): number {
 
 function validateRequest(request: UrlFetchRequestValue): void {
   if (request.validateHttpsCertificates === false) {
-    throw new Error("Node UrlFetch cannot faithfully represent validateHttpsCertificates=false.");
+    throw new UnsupportedRuntimeOperationError(
+      "UrlFetchApp.fetch()/fetchAll()",
+      "validateHttpsCertificates=false cannot be represented by the Node Local Runtime.",
+    );
   }
 
   if (request.escaping === false) {
-    throw new Error("Node UrlFetch cannot faithfully represent escaping=false.");
+    throw new UnsupportedRuntimeOperationError(
+      "UrlFetchApp.fetch()/fetchAll()",
+      "escaping=false cannot be represented by the Node Local Runtime.",
+    );
   }
 
   if (request.useIntranet === true) {
-    throw new Error("Node UrlFetch cannot faithfully represent useIntranet=true.");
+    throw new UnsupportedRuntimeOperationError(
+      "UrlFetchApp.fetch()/fetchAll()",
+      "useIntranet=true is not available in the Node Local Runtime.",
+    );
   }
 
   if (
@@ -36,7 +46,7 @@ function validateRequest(request: UrlFetchRequestValue): void {
   }
 
   if ((request.method ?? "get") === "get" && request.payload !== undefined) {
-    throw new Error("UrlFetch GET requests cannot include a payload.");
+    throw new TypeError("UrlFetch GET requests cannot include a payload.");
   }
 }
 
