@@ -1,6 +1,92 @@
 {
   "schemaVersion": 1,
   "surfaces": {
+    "DriveApp": {
+      "auditedMethods": [
+        "createFile",
+        "createFolder",
+        "createShortcut",
+        "createShortcutForTargetIdAndResourceKey",
+        "continueFileIterator",
+        "continueFolderIterator",
+        "getFileById",
+        "getFileByIdAndResourceKey",
+        "getFiles",
+        "getTrashedFiles",
+        "getFilesByName",
+        "getFilesByType",
+        "getFolderById",
+        "getFolderByIdAndResourceKey",
+        "getFolders",
+        "getTrashedFolders",
+        "getFoldersByName",
+        "getRootFolder"
+      ],
+      "defaultBehavior": "local-emulation"
+    },
+    "DriveApp.File": {
+      "auditedMethods": [
+        "getBlob",
+        "getDateCreated",
+        "getDescription",
+        "getId",
+        "getLastUpdated",
+        "getMimeType",
+        "getName",
+        "getResourceKey",
+        "getSize",
+        "getTargetId",
+        "getTargetMimeType",
+        "getTargetResourceKey",
+        "getParents",
+        "isStarred",
+        "isTrashed",
+        "moveTo",
+        "setContent",
+        "setDescription",
+        "setName",
+        "setStarred",
+        "setTrashed"
+      ],
+      "defaultBehavior": "local-emulation"
+    },
+    "DriveApp.Folder": {
+      "auditedMethods": [
+        "createFile",
+        "createFolder",
+        "createShortcut",
+        "createShortcutForTargetIdAndResourceKey",
+        "getFiles",
+        "getFilesByName",
+        "getFilesByType",
+        "getFolders",
+        "getFoldersByName",
+        "getDateCreated",
+        "getDescription",
+        "getId",
+        "getLastUpdated",
+        "getName",
+        "getResourceKey",
+        "getSize",
+        "isStarred",
+        "isTrashed",
+        "getParents",
+        "moveTo",
+        "setDescription",
+        "setName",
+        "setStarred",
+        "setTrashed"
+      ],
+      "defaultBehavior": "local-emulation"
+    },
+    "DriveApp.FileIterator": {
+      "auditedMethods": ["getContinuationToken", "hasNext", "next"],
+      "defaultBehavior": "local-emulation"
+    },
+    "DriveApp.FolderIterator": {
+      "auditedMethods": ["getContinuationToken", "hasNext", "next"],
+      "defaultBehavior": "local-emulation"
+    },
     "ContentService": {
       "auditedMethods": ["createTextOutput"],
       "defaultBehavior": "implemented"
