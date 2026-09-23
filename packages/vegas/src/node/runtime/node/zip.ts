@@ -1,5 +1,6 @@
 import zlib from "node:zlib";
 
+import { UnsupportedRuntimeOperationError } from "../unsupported-runtime-operation-error";
 import type { UtilitiesArchiveEntry } from "../utilities-capability";
 
 const LOCAL_FILE_HEADER_SIGNATURE = 0x04034b50;
@@ -33,14 +34,20 @@ function crc32(data: Uint8Array): number {
 
 function assertClassicZipValue(value: number, label: string): void {
   if (!Number.isSafeInteger(value) || value < 0 || value > MAX_UINT32) {
-    throw new RangeError(`${label} requires ZIP64, which is not supported by Vegas.`);
+    throw new UnsupportedRuntimeOperationError(
+      "Utilities.zip()",
+      `${label} requires ZIP64 support.`,
+    );
   }
 }
 
 function encodeEntryName(name: string): Buffer {
   if (name.length === 0) throw new RangeError("ZIP entries must have a non-empty name.");
   if (name.endsWith("/")) {
-    throw new RangeError("Directory entries are not supported by Utilities.zip().");
+    throw new UnsupportedRuntimeOperationError(
+      "Utilities.zip()",
+      "directory entries are not implemented.",
+    );
   }
 
   const encoded = Buffer.from(name, "utf8");
@@ -122,8 +129,9 @@ function createCentralDirectoryRecord(entry: EncodedEntry): Buffer {
 
 export function createZip(entries: readonly UtilitiesArchiveEntry[]): Uint8Array {
   if (entries.length > MAX_UINT16) {
-    throw new RangeError(
-      "ZIP archive entry count requires ZIP64, which is not supported by Vegas.",
+    throw new UnsupportedRuntimeOperationError(
+      "Utilities.zip()",
+      "the archive entry count requires ZIP64 support.",
     );
   }
 
@@ -170,8 +178,9 @@ function findEndOfCentralDirectory(archive: Buffer): number {
 function decodeEntryName(data: Buffer, flags: number): string {
   if ((flags & UTF8_FLAG) !== 0) return data.toString("utf8");
   if (data.some((value) => value > 0x7f)) {
-    throw new RangeError(
-      "Non-ASCII ZIP entry names without the UTF-8 flag are not supported by Vegas.",
+    throw new UnsupportedRuntimeOperationError(
+      "Utilities.unzip()",
+      "non-UTF-8 entry-name decoding is not implemented.",
     );
   }
   return data.toString("ascii");
@@ -196,8 +205,17 @@ function extractEntryData(
 
   const compressed = archive.subarray(dataOffset, dataEnd);
   if (method === STORED_METHOD) return Buffer.from(compressed);
-  if (method === DEFLATE_METHOD) return zlib.inflateRawSync(compressed);
-  throw new RangeError(`ZIP compression method ${method} is not supported by Vegas.`);
+  if (method === DEFLATE_METHOD) {
+    try {
+      return zlib.inflateRawSync(compressed);
+    } catch (cause) {
+      throw new SyntaxError("Invalid deflated ZIP entry data.", { cause });
+    }
+  }
+  throw new UnsupportedRuntimeOperationError(
+    "Utilities.unzip()",
+    `ZIP compression method ${method} is not implemented.`,
+  );
 }
 
 export function extractZip(data: Uint8Array): UtilitiesArchiveEntry[] {
@@ -213,10 +231,16 @@ export function extractZip(data: Uint8Array): UtilitiesArchiveEntry[] {
   const centralOffset = archive.readUInt32LE(endOffset + 16);
 
   if (disk !== 0 || centralDisk !== 0 || entriesOnDisk !== entryCount) {
-    throw new RangeError("Multi-disk ZIP archives are not supported by Vegas.");
+    throw new UnsupportedRuntimeOperationError(
+      "Utilities.unzip()",
+      "multi-disk ZIP archives are not implemented.",
+    );
   }
   if (entryCount === MAX_UINT16 || centralSize === MAX_UINT32 || centralOffset === MAX_UINT32) {
-    throw new RangeError("ZIP64 archives are not supported by Vegas.");
+    throw new UnsupportedRuntimeOperationError(
+      "Utilities.unzip()",
+      "ZIP64 archives are not implemented.",
+    );
   }
   if (centralOffset + centralSize > endOffset) {
     throw new SyntaxError("Invalid ZIP central-directory bounds.");
@@ -232,7 +256,10 @@ export function extractZip(data: Uint8Array): UtilitiesArchiveEntry[] {
 
     const flags = archive.readUInt16LE(offset + 8);
     if ((flags & ENCRYPTED_FLAG) !== 0) {
-      throw new RangeError("Encrypted ZIP entries are not supported by Vegas.");
+      throw new UnsupportedRuntimeOperationError(
+        "Utilities.unzip()",
+        "encrypted ZIP entries are not implemented.",
+      );
     }
     const method = archive.readUInt16LE(offset + 10);
     const expectedCrc = archive.readUInt32LE(offset + 16);
@@ -250,10 +277,17 @@ export function extractZip(data: Uint8Array): UtilitiesArchiveEntry[] {
       localOffset === MAX_UINT32 ||
       diskStart === MAX_UINT16
     ) {
-      throw new RangeError("ZIP64 entries are not supported by Vegas.");
+      throw new UnsupportedRuntimeOperationError(
+        "Utilities.unzip()",
+        "ZIP64 entries are not implemented.",
+      );
     }
-    if (diskStart !== 0)
-      throw new RangeError("Multi-disk ZIP archives are not supported by Vegas.");
+    if (diskStart !== 0) {
+      throw new UnsupportedRuntimeOperationError(
+        "Utilities.unzip()",
+        "multi-disk ZIP archives are not implemented.",
+      );
+    }
 
     const nameStart = offset + 46;
     const nextOffset = nameStart + nameLength + extraLength + commentLength;
