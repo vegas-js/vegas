@@ -162,6 +162,12 @@ declare namespace GoogleAppsScript {
 
     expect(output).toContain("Measured enum surface coverage: **3 / 3 (100.0%)**");
     expect(output).toContain("## Enums");
+    expect(output.indexOf("Measured enum surface coverage")).toBeGreaterThan(
+      output.indexOf("## Enums"),
+    );
+    expect(output.indexOf("Measured Global Object method coverage")).toBeGreaterThan(
+      output.indexOf("## Global Object methods"),
+    );
     expect(output).toContain("| `DriveApp` | 2 / 2 | 100.0% | — |");
     expect(output).toContain("| `MimeType` | 1 / 1 | 100.0% | — |");
     expect(output).not.toContain("Standalone Global enums");

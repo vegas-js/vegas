@@ -20,8 +20,6 @@ This generated page reports structural API coverage and audited Runtime behavior
 
 :::
 
-Measured Global Object method coverage: **83 / 658 (12.6%)**
-
 ## Audited Runtime behavior
 
 Structural coverage records whether a Runtime method exists; it does not imply Google Apps Script behavioral fidelity. Every explicitly mapped Runtime surface is required to appear in `scripts/runtime-api-status.json`, and CI rejects missing surfaces or methods.
@@ -59,6 +57,8 @@ Structural coverage records whether a Runtime method exists; it does not imply G
 | `UrlFetchApp.HTTPResponse`     |               7 | `implemented`: 4<br>`local-emulation`: 2<br>`fail-closed`: 1                |           0 / 7 |
 
 ## Global Object methods
+
+Measured Global Object method coverage: **83 / 658 (12.6%)**
 
 ::: details Show detailed Global Object method coverage
 
@@ -106,9 +106,9 @@ Structural coverage records whether a Runtime method exists; it does not imply G
 
 :::
 
-Measured enum surface coverage: **11 / 101 (10.9%)**
-
 ## Enums
+
+Measured enum surface coverage: **11 / 101 (10.9%)**
 
 ::: details Show detailed enum coverage
 
