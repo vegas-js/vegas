@@ -404,7 +404,7 @@ export function validateRuntimeApiStatus(status) {
       "auditedMethods",
       "defaultBehavior",
       "behaviorOverrides",
-      "conformanceTestedMethods",
+      "contractTestedMethods",
     ]);
 
     for (const field of Object.keys(surface)) {
@@ -450,23 +450,23 @@ export function validateRuntimeApiStatus(status) {
       validateRuntimeApiBehavior(behavior, `${surfaceName}.${methodName}`);
     }
 
-    const conformanceTestedMethods = surface.conformanceTestedMethods ?? [];
+    const contractTestedMethods = surface.contractTestedMethods ?? [];
 
     if (
-      !Array.isArray(conformanceTestedMethods) ||
-      conformanceTestedMethods.some((methodName) => !isMethodName(methodName))
+      !Array.isArray(contractTestedMethods) ||
+      contractTestedMethods.some((methodName) => !isMethodName(methodName))
     ) {
-      throw new Error(`Invalid Runtime API conformance methods for ${surfaceName}.`);
+      throw new Error(`Invalid Runtime API contract-tested methods for ${surfaceName}.`);
     }
 
-    if (new Set(conformanceTestedMethods).size !== conformanceTestedMethods.length) {
-      throw new Error(`Duplicate Runtime API conformance methods for ${surfaceName}.`);
+    if (new Set(contractTestedMethods).size !== contractTestedMethods.length) {
+      throw new Error(`Duplicate Runtime API contract-tested methods for ${surfaceName}.`);
     }
 
-    for (const methodName of conformanceTestedMethods) {
+    for (const methodName of contractTestedMethods) {
       if (!auditedMethods.has(methodName)) {
         throw new Error(
-          `Runtime API conformance method for ${surfaceName}.${methodName} is not audited.`,
+          `Runtime API contract-tested method for ${surfaceName}.${methodName} is not audited.`,
         );
       }
     }
@@ -483,13 +483,13 @@ export function resolveRuntimeApiMethodStatus(surface, methodName) {
   if (!surface?.auditedMethods?.includes(methodName)) {
     return {
       behavior: null,
-      conformanceTested: false,
+      contractTested: false,
     };
   }
 
   return {
     behavior: surface?.behaviorOverrides?.[methodName] ?? surface?.defaultBehavior ?? null,
-    conformanceTested: surface?.conformanceTestedMethods?.includes(methodName) ?? false,
+    contractTested: surface?.contractTestedMethods?.includes(methodName) ?? false,
   };
 }
 
@@ -509,7 +509,7 @@ export function buildRuntimeApiStatusRows(status) {
         .filter((behavior) => behaviors.has(behavior))
         .map((behavior) => `\`${behavior}\`: ${behaviors.get(behavior)}`)
         .join("<br>"),
-      conformanceTested: surface.conformanceTestedMethods?.length ?? 0,
+      contractTested: surface.contractTestedMethods?.length ?? 0,
     };
   });
 }
@@ -837,7 +837,10 @@ export function renderCoverageMarkdown({
     "",
     "# Runtime API coverage",
     "",
-    "This page is generated from the installed `@types/google-apps-script` declarations and the Vegas Runtime source.",
+    "This generated page reports structural API coverage and audited Runtime behavior. For the behavior model, limitations, and verification policy, start with [Local Runtime](./local-runtime).",
+    "",
+    "::: details Coverage measurement rules",
+    "",
     "",
     `- Google API declarations: \`@types/google-apps-script@${version}\``,
     "- Global implementation inventory: `packages/vegas/src/node/runtime/runtime-globals.ts`",
@@ -852,22 +855,26 @@ export function renderCoverageMarkdown({
     "- The global summary measures methods declared directly on each Global Object interface.",
     "- Returned Runtime objects such as `Spreadsheet`, `Sheet`, and `Range` are shown separately below when Vegas has an explicit implementation mapping.",
     "",
+    ":::",
+    "",
     `Measured Global Object method coverage: **${implemented} / ${total} (${percentage(implemented, total)})**`,
     "",
     "## Audited Runtime behavior",
     "",
     "Structural coverage records whether a Runtime method exists; it does not imply Google Apps Script behavioral fidelity. This table summarizes only surfaces explicitly audited in `scripts/runtime-api-status.json`. Unaudited surfaces are omitted.",
     "",
-    "`implemented` follows the documented public contract with no known local-only semantic difference. `local-emulation` substitutes a local model for Apps Script state or services. `no-op` intentionally performs no side effect. `fail-closed` rejects behavior Vegas cannot faithfully reproduce. Conformance status is tracked independently and requires an explicit test grounded in the documented Apps Script contract.",
+    "`implemented` follows the documented public contract with no known local-only semantic difference. `local-emulation` substitutes a local model for Apps Script state or services. `no-op` intentionally performs no side effect. `fail-closed` rejects behavior Vegas cannot faithfully reproduce. Contract-tested status is tracked independently and requires an explicit automated test grounded in a public contract. Vegas does not use the production Google Apps Script runtime as a behavioral oracle.",
     "",
-    "| Runtime surface | Audited methods | Behavior classification | Conformance-tested |",
+    "| Runtime surface | Audited methods | Behavior classification | Contract-tested |",
     "| --- | ---: | --- | ---: |",
     ...statusRows.map(
       (row) =>
-        `| \`${row.name}\` | ${row.audited} | ${row.behavior} | ${row.conformanceTested} / ${row.audited} |`,
+        `| \`${row.name}\` | ${row.audited} | ${row.behavior} | ${row.contractTested} / ${row.audited} |`,
     ),
     "",
     "## Global Object methods",
+    "",
+    "::: details Show detailed Global Object method coverage",
     "",
     "| API (Global Object) | Coverage | Coverage (%) | Unimplemented API (methods) |",
     "| --- | ---: | ---: | --- |",
@@ -879,11 +886,15 @@ export function renderCoverageMarkdown({
     );
   }
 
+  lines.push("", ":::");
+
   lines.push(
     "",
     `Measured Global Object enum surface coverage: **${implementedEnums} / ${totalEnums} (${percentage(implementedEnums, totalEnums)})**`,
     "",
     "## Global Object enums",
+    "",
+    "::: details Show detailed Global Object enum coverage",
     "",
     "| API (Global Object) | Coverage | Coverage (%) | Unimplemented API (enums) |",
     "| --- | ---: | ---: | --- |",
@@ -894,6 +905,8 @@ export function renderCoverageMarkdown({
       `| \`${row.name}\` | ${row.implemented} / ${row.total} | ${row.percentage} | ${row.missing} |`,
     );
   }
+
+  lines.push("", ":::");
 
   lines.push(
     "",
@@ -958,12 +971,12 @@ export function renderCoverageMarkdown({
 
   lines.push("", "## Modeled Runtime objects", "");
   lines.push(
-    "These detail tables cover returned object types that already have a Vegas Runtime class. They are intentionally separate from the Global Object summary so the meaning of the headline coverage remains stable.",
+    "These tables cover returned object types that already have a Vegas Runtime class. They are intentionally separate from the Global Object summary so the meaning of the headline coverage remains stable.",
     "",
   );
 
   for (const section of details) {
-    lines.push(`### ${section.name}`, "");
+    lines.push(`::: details ${section.name}`, "");
     lines.push("| Object type | Coverage | Coverage (%) | Unimplemented API (methods) |");
     lines.push("| --- | ---: | ---: | --- |");
 
@@ -973,7 +986,7 @@ export function renderCoverageMarkdown({
       );
     }
 
-    lines.push("");
+    lines.push("", ":::", "");
   }
 
   return `${lines.join("\n")}\n`;

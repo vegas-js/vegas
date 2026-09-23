@@ -16,6 +16,14 @@ hero:
     - theme: alt
       text: View on GitHub
       link: https://github.com/vegas-js/vegas
+
+features:
+  - title: Fast local development
+    details: Use Vite-powered development workflows for Apps Script projects without making remote execution the center of every edit cycle.
+  - title: Apps Script-aware builds
+    details: Build client and server code around Apps Script constraints, including multiple independent frontend entries.
+  - title: Explicit Local Runtime
+    details: Exercise supported Apps Script APIs locally with documented behavior categories, limitations, and contract-based verification.
 ---
 
 ::: warning NOTICE

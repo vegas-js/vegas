@@ -144,7 +144,7 @@ declare namespace GoogleAppsScript {
     ).toThrow("must use Google official docs");
   });
 
-  test("validate Runtime API behavior status independently from conformance", () => {
+  test("validate Runtime API behavior status independently from contract verification", () => {
     expect(() =>
       validateRuntimeApiStatus({
         schemaVersion: 1,
@@ -157,7 +157,7 @@ declare namespace GoogleAppsScript {
               flush: "no-op",
               getAs: "fail-closed",
             },
-            conformanceTestedMethods: ["getAs"],
+            contractTestedMethods: ["getAs"],
           },
         },
       }),
@@ -181,14 +181,14 @@ declare namespace GoogleAppsScript {
         surfaces: {
           "SpreadsheetApp.Range": {
             auditedMethods: ["getValue"],
-            conformanceTestedMethods: ["getValue", "getValue"],
+            contractTestedMethods: ["getValue", "getValue"],
           },
         },
       }),
-    ).toThrow("Duplicate Runtime API conformance methods");
+    ).toThrow("Duplicate Runtime API contract-tested methods");
   });
 
-  test("resolve method behavior and conformance as separate dimensions", () => {
+  test("resolve method behavior and contract verification as separate dimensions", () => {
     const surface = {
       auditedMethods: ["getValue", "canEdit", "getAs"],
       defaultBehavior: "implemented",
@@ -196,28 +196,28 @@ declare namespace GoogleAppsScript {
         canEdit: "local-emulation",
         getAs: "fail-closed",
       },
-      conformanceTestedMethods: ["getAs"],
+      contractTestedMethods: ["getAs"],
     };
 
     expect(resolveRuntimeApiMethodStatus(surface, "getValue")).toStrictEqual({
       behavior: "implemented",
-      conformanceTested: false,
+      contractTested: false,
     });
     expect(resolveRuntimeApiMethodStatus(surface, "canEdit")).toStrictEqual({
       behavior: "local-emulation",
-      conformanceTested: false,
+      contractTested: false,
     });
     expect(resolveRuntimeApiMethodStatus(surface, "getAs")).toStrictEqual({
       behavior: "fail-closed",
-      conformanceTested: true,
+      contractTested: true,
     });
     expect(resolveRuntimeApiMethodStatus(undefined, "missing")).toStrictEqual({
       behavior: null,
-      conformanceTested: false,
+      contractTested: false,
     });
   });
 
-  test("summarize audited Runtime behavior separately from conformance", () => {
+  test("summarize audited Runtime behavior separately from contract verification", () => {
     expect(
       buildRuntimeApiStatusRows({
         schemaVersion: 1,
@@ -230,7 +230,7 @@ declare namespace GoogleAppsScript {
               flush: "no-op",
               getAs: "fail-closed",
             },
-            conformanceTestedMethods: ["getAs"],
+            contractTestedMethods: ["getAs"],
           },
         },
       }),
@@ -239,7 +239,7 @@ declare namespace GoogleAppsScript {
         name: "SpreadsheetApp.Range",
         audited: 4,
         behavior: "`implemented`: 1<br>`local-emulation`: 1<br>`no-op`: 1<br>`fail-closed`: 1",
-        conformanceTested: 1,
+        contractTested: 1,
       },
     ]);
   });

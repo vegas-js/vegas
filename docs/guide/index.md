@@ -20,6 +20,16 @@ Vite plugins can be supplied through Vegas configuration, allowing framework int
 
 The reasoning behind the project is explained in detail in the [Why Vegas](./why) section.
 
+## Choose Your Next Step
+
+| Goal                                                       | Read                                                                                              |
+| ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| Start a new project                                        | Continue with [Scaffolding Your First Vegas Project](#scaffolding-your-first-vegas-project) below |
+| Understand local server-side execution                     | [Local Runtime](./local-runtime)                                                                  |
+| Check which Apps Script APIs are modeled                   | [Runtime API coverage](./runtime-api-coverage)                                                    |
+| Configure project layout, Apps Script metadata, or plugins | [Configuring Vegas](../config/)                                                                   |
+| Understand the design rationale                            | [Why Vegas](./why) and [Project Philosophy](./philosophy)                                         |
+
 ## Scaffolding Your First Vegas Project
 
 ::: code-group

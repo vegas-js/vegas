@@ -3,7 +3,7 @@ import { defineConfig } from "vitepress";
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
   title: "Vegas",
-  description: "SPA build tool for GAS platform",
+  description: "Vite-powered development and build tool for Google Apps Script",
   head: [["link", { rel: "icon", href: "/favicon.ico" }]],
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
@@ -11,6 +11,7 @@ export default defineConfig({
 
     nav: [
       { text: "Guide", link: "/guide" },
+      { text: "Local Runtime", link: "/guide/local-runtime/" },
       { text: "Config", link: "/config" },
     ],
 
@@ -20,16 +21,19 @@ export default defineConfig({
           text: "Introduction",
           items: [
             { text: "Getting Started", link: "/guide/" },
-            { text: "Philosophy", link: "/guide/philosophy/" },
             { text: "Why Vegas", link: "/guide/why/" },
+            { text: "Philosophy", link: "/guide/philosophy/" },
           ],
         },
         {
-          text: "APIs",
+          text: "Development",
+          items: [{ text: "Local Runtime", link: "/guide/local-runtime/" }],
+        },
+        {
+          text: "Reference",
           items: [
             { text: "JavaScript API", link: "/guide/api-javascript/" },
             { text: "Runtime API coverage", link: "/guide/runtime-api-coverage/" },
-            { text: "Config reference", link: "/config/" },
           ],
         },
       ],
@@ -43,6 +47,8 @@ export default defineConfig({
         },
       ],
     },
+
+    search: { provider: "local" },
 
     socialLinks: [{ icon: "github", link: "https://github.com/vegas-js/vegas" }],
 

@@ -46,9 +46,6 @@ Building a professional GAS application usually means managing multiple roles (e
 
 3. Local Apps Script Runtime
 
-Vegas doesn't just build your code; it also provides a local runtime for development and preview workflows.
+Vegas also provides a local runtime for development and preview workflows. It models selected Apps Script APIs so supported server-side behavior can participate in the local feedback loop without pretending to be the Google production runtime.
 
-- **Apps Script-Oriented Execution:**
-  The runtime provides local behavior for selected Apps Script APIs so server-side code can participate in the development feedback loop.
-- **Partial API Coverage:**
-  Support varies by service and method. The local runtime is useful for development feedback, but it is not a complete or exact reproduction of the Google Apps Script execution environment.
+Support and behavior vary by service and method. See [Local Runtime](./local-runtime) for the runtime model and verification policy, and [Runtime API coverage](./runtime-api-coverage) for the generated implementation inventory.

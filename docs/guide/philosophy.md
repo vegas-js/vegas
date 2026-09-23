@@ -15,12 +15,16 @@ GAS development is often hindered by the latency between writing code and seeing
 
 ## Local Runtime: Faster Development Feedback
 
-Relying exclusively on remote execution makes iteration slower. Vegas provides a local runtime that lets supported Apps Script behavior participate in the development and preview feedback loop.
+Relying exclusively on remote execution makes iteration slower. Vegas therefore provides a local runtime that lets supported Apps Script behavior participate in the development and preview feedback loop.
 
-- **Selected API Support:**
-  The runtime partially implements selected Apps Script services and methods, allowing supported server-side behavior to be exercised locally.
-- **Explicit Limitations:**
-  API coverage varies by service and method. Local execution does not guarantee identical behavior after deployment and should not be treated as a complete replacement for testing against Google Apps Script when exact platform behavior matters.
+- **Contract-First Behavior:**
+  Runtime behavior is implemented from public contracts such as Google Apps Script documentation, public standards, and documented upstream specifications.
+- **Explicit Behavior Categories:**
+  Audited methods distinguish documented implementations, local emulation, intentional no-ops, and fail-closed behavior instead of presenting all structurally available methods as equivalent.
+- **No Behavioral Oracle:**
+  Vegas does not probe the production Google Apps Script runtime to discover undocumented behavior for the Local Runtime.
+
+See [Local Runtime](./local-runtime) for the complete runtime and verification model.
 
 ## Architectural Scalability: Multi-Frontend Strategy
 
