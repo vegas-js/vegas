@@ -32,6 +32,30 @@
         "setProperty"
       ],
       "defaultBehavior": "local-emulation"
+    },
+    "UrlFetchApp": {
+      "auditedMethods": ["fetch", "fetchAll", "getRequest"],
+      "defaultBehavior": "local-emulation",
+      "behaviorOverrides": {
+        "getRequest": "implemented"
+      }
+    },
+    "UrlFetchApp.HTTPResponse": {
+      "auditedMethods": [
+        "getAllHeaders",
+        "getAs",
+        "getBlob",
+        "getContent",
+        "getContentText",
+        "getHeaders",
+        "getResponseCode"
+      ],
+      "defaultBehavior": "implemented",
+      "behaviorOverrides": {
+        "getAs": "fail-closed",
+        "getContentText": "local-emulation",
+        "getHeaders": "local-emulation"
+      }
     }
   }
 }

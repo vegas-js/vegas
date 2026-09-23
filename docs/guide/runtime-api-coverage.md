@@ -25,14 +25,16 @@ Structural coverage records whether a Runtime method exists; it does not imply G
 
 `implemented` follows the documented public contract with no known local-only semantic difference. `local-emulation` substitutes a local model for Apps Script state or services. `no-op` intentionally performs no side effect. `fail-closed` rejects behavior Vegas cannot faithfully reproduce. Conformance status is tracked independently and requires an explicit test grounded in the documented Apps Script contract.
 
-| Runtime surface                | Audited methods | Behavior classification | Conformance-tested |
-| ------------------------------ | --------------: | ----------------------- | -----------------: |
-| `CacheService`                 |               3 | `local-emulation`: 3    |              0 / 3 |
-| `CacheService.Cache`           |               6 | `local-emulation`: 6    |              0 / 6 |
-| `LockService`                  |               3 | `local-emulation`: 3    |              0 / 3 |
-| `LockService.Lock`             |               4 | `local-emulation`: 4    |              0 / 4 |
-| `PropertiesService`            |               3 | `local-emulation`: 3    |              0 / 3 |
-| `PropertiesService.Properties` |               7 | `local-emulation`: 7    |              0 / 7 |
+| Runtime surface                | Audited methods | Behavior classification                                      | Conformance-tested |
+| ------------------------------ | --------------: | ------------------------------------------------------------ | -----------------: |
+| `CacheService`                 |               3 | `local-emulation`: 3                                         |              0 / 3 |
+| `CacheService.Cache`           |               6 | `local-emulation`: 6                                         |              0 / 6 |
+| `LockService`                  |               3 | `local-emulation`: 3                                         |              0 / 3 |
+| `LockService.Lock`             |               4 | `local-emulation`: 4                                         |              0 / 4 |
+| `PropertiesService`            |               3 | `local-emulation`: 3                                         |              0 / 3 |
+| `PropertiesService.Properties` |               7 | `local-emulation`: 7                                         |              0 / 7 |
+| `UrlFetchApp`                  |               3 | `implemented`: 1<br>`local-emulation`: 2                     |              0 / 3 |
+| `UrlFetchApp.HTTPResponse`     |               7 | `implemented`: 4<br>`local-emulation`: 2<br>`fail-closed`: 1 |              0 / 7 |
 
 ## Global Object methods
 
