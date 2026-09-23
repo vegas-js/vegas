@@ -1,6 +1,10 @@
-// Google Apps Script Utilities.formatDate/parseDate use Java SimpleDateFormat patterns.
+import { UnsupportedRuntimeOperationError } from "./unsupported-runtime-operation-error";
+
+// Google Apps Script Utilities.formatDate/parseDate explicitly use Java SE 7 SimpleDateFormat patterns.
 // Vegas implements the locale-independent numeric/time-zone subset from the public Java contract.
 // Locale/calendar-dependent patterns remain explicit unsupported behavior until Runtime locale semantics exist.
+
+type UtilitiesDateOperation = "Utilities.formatDate()" | "Utilities.parseDate()";
 
 type PatternToken =
   | { readonly kind: "literal"; readonly value: string }
@@ -37,7 +41,7 @@ function isAsciiLetter(character: string): boolean {
   return /^[A-Za-z]$/.test(character);
 }
 
-function tokenizePattern(pattern: string): PatternToken[] {
+function tokenizePattern(pattern: string, operation: UtilitiesDateOperation): PatternToken[] {
   const tokens: PatternToken[] = [];
   let literal = "";
 
@@ -92,16 +96,18 @@ function tokenizePattern(pattern: string): PatternToken[] {
     while (pattern[index + count] === character) count += 1;
 
     if (LOCALE_OR_CALENDAR_DEPENDENT_PATTERN_LETTERS.has(character)) {
-      throw new RangeError(
-        `SimpleDateFormat pattern '${character}' depends on locale or calendar settings and is not supported by Vegas yet.`,
+      throw new UnsupportedRuntimeOperationError(
+        operation,
+        `SimpleDateFormat pattern '${character}' requires locale or calendar semantics.`,
       );
     }
     if (!SUPPORTED_PATTERN_LETTERS.has(character)) {
       throw new RangeError(`Unsupported SimpleDateFormat pattern letter '${character}'.`);
     }
     if (character === "M" && count >= 3) {
-      throw new RangeError(
-        "Textual month patterns require locale support and are not supported by Vegas yet.",
+      throw new UnsupportedRuntimeOperationError(
+        operation,
+        "SimpleDateFormat textual month patterns require locale semantics.",
       );
     }
     if (character === "X" && count > 3) {
@@ -291,7 +297,7 @@ function formatField(token: Extract<PatternToken, { kind: "field" }>, fields: Zo
 }
 
 export function formatSimpleDate(date: Date, timeZone: string, pattern: string): string {
-  const tokens = tokenizePattern(pattern);
+  const tokens = tokenizePattern(pattern, "Utilities.formatDate()");
   const fields = getZonedFields(date, timeZone);
   return tokens
     .map((token) => (token.kind === "literal" ? token.value : formatField(token, fields)))
@@ -345,7 +351,10 @@ function fieldRegex(
     case "S":
       return numericPattern(count, adjacentNumericField);
     case "u":
-      throw new RangeError("Parsing SimpleDateFormat pattern 'u' is not supported by Vegas yet.");
+      throw new UnsupportedRuntimeOperationError(
+        "Utilities.parseDate()",
+        "SimpleDateFormat pattern 'u' parsing is not implemented.",
+      );
     case "Z":
       return "(?:[+-]\\d{4}|GMT[+-]\\d{1,2}:\\d{2})";
     case "X":
@@ -477,7 +486,7 @@ function resolveLocalTime(localEpoch: number, timeZone: string): number {
 }
 
 export function parseSimpleDate(value: string, timeZone: string, pattern: string): Date {
-  const tokens = tokenizePattern(pattern);
+  const tokens = tokenizePattern(pattern, "Utilities.parseDate()");
   const fields: ParsedFields = {};
   const fieldsInOrder: Extract<PatternToken, { kind: "field" }>[] = [];
   let regex = "^";

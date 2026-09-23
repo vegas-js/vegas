@@ -1,6 +1,7 @@
 import { describe, expect, test } from "vitest";
 
 import { createNodeUtilities } from "./node";
+import { UnsupportedRuntimeOperationError } from "./unsupported-runtime-operation-error";
 
 type DateContract = Pick<GoogleAppsScript.Utilities.Utilities, "formatDate" | "parseDate">;
 
@@ -76,15 +77,40 @@ describe("Utilities date formatting", () => {
     ).toBe(date.getTime());
   });
 
-  test("reject locale or calendar dependent patterns until Runtime locale semantics exist", () => {
+  test("fail closed for documented patterns that require unsupported Runtime semantics", () => {
     const utilities = createNodeUtilities();
 
-    expect(() => utilities.formatDate(new Date(0), "GMT", "MMM d, yyyy")).toThrow();
-    expect(() => utilities.formatDate(new Date(0), "GMT", "EEE")).toThrow();
-    expect(() => utilities.formatDate(new Date(0), "GMT", "h:mm a")).toThrow();
-    expect(() => utilities.formatDate(new Date(0), "GMT", "yyyy z")).toThrow();
-    expect(() => utilities.formatDate(new Date(0), "GMT", "YYYY-'W'ww-u")).toThrow();
-    expect(() => utilities.formatDate(new Date(0), "GMT", "XXXX")).toThrow();
-    expect(() => utilities.parseDate("2024-12-31 2", "GMT", "yyyy-MM-dd u")).toThrow();
+    expect(() => utilities.formatDate(new Date(0), "GMT", "MMM d, yyyy")).toThrow(
+      UnsupportedRuntimeOperationError,
+    );
+    expect(() => utilities.formatDate(new Date(0), "GMT", "EEE")).toThrow(
+      UnsupportedRuntimeOperationError,
+    );
+    expect(() => utilities.formatDate(new Date(0), "GMT", "h:mm a")).toThrow(
+      UnsupportedRuntimeOperationError,
+    );
+    expect(() => utilities.formatDate(new Date(0), "GMT", "yyyy z")).toThrow(
+      UnsupportedRuntimeOperationError,
+    );
+    expect(() => utilities.formatDate(new Date(0), "GMT", "YYYY-'W'ww-u")).toThrow(
+      UnsupportedRuntimeOperationError,
+    );
+    expect(() => utilities.parseDate("2024-12-31 2", "GMT", "yyyy-MM-dd u")).toThrow(
+      UnsupportedRuntimeOperationError,
+    );
+    expect(() => utilities.formatDate(new Date(0), "GMT", "MMM")).toThrow(
+      "Local Runtime does not support Utilities.formatDate(): SimpleDateFormat textual month patterns require locale semantics.",
+    );
+    expect(() => utilities.parseDate("2024-12-31 2", "GMT", "yyyy-MM-dd u")).toThrow(
+      "Local Runtime does not support Utilities.parseDate(): SimpleDateFormat pattern 'u' parsing is not implemented.",
+    );
+  });
+
+  test("reject invalid Java SE 7 SimpleDateFormat patterns as range errors", () => {
+    const utilities = createNodeUtilities();
+
+    expect(() => utilities.formatDate(new Date(0), "GMT", "XXXX")).toThrow(RangeError);
+    expect(() => utilities.formatDate(new Date(0), "GMT", "L")).toThrow(RangeError);
+    expect(() => utilities.formatDate(new Date(0), "GMT", "'unterminated")).toThrow(RangeError);
   });
 });
