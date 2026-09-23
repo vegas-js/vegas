@@ -11,8 +11,7 @@ This generated page reports structural API coverage and audited Runtime behavior
 - Supplemental API declarations: `scripts/runtime-api-supplement.json`, sourced from Google official documentation.
 - Runtime behavior inventory: `scripts/runtime-api-status.json`; behavior classification is separate from structural method coverage.
 - Coverage unit: unique method names (overloads count once); properties and enum values are not counted.
-- Enum surface coverage is measured separately by enum properties exposed on Global Objects; enum members are not counted individually.
-- Standalone Global enums are measured separately from methods and service enum properties.
+- Enum surface coverage combines enum properties exposed on Global Objects and standalone Global enums; each enum surface counts once and enum members are not counted individually.
 - Global Objects absent from the installed `@types/google-apps-script` are excluded from numeric coverage and listed as untracked.
 - Declared Global Objects with no direct methods are excluded from method coverage until nested collection/resource APIs are measured recursively.
 - Deprecated methods remain in the denominator while they are present in the installed type declarations.
@@ -25,7 +24,7 @@ Measured Global Object method coverage: **83 / 658 (12.6%)**
 
 ## Audited Runtime behavior
 
-Structural coverage records whether a Runtime method exists; it does not imply Google Apps Script behavioral fidelity. This table summarizes only surfaces explicitly audited in `scripts/runtime-api-status.json`. Unaudited surfaces are omitted.
+Structural coverage records whether a Runtime method exists; it does not imply Google Apps Script behavioral fidelity. Every explicitly mapped Runtime surface is required to appear in `scripts/runtime-api-status.json`, and CI rejects missing surfaces or methods.
 
 `implemented` follows the documented public contract with no known local-only semantic difference. `local-emulation` substitutes a local model for Apps Script state or services. `no-op` intentionally performs no side effect. `fail-closed` rejects behavior Vegas cannot faithfully reproduce. Contract-tested status is tracked independently and requires an explicit automated test grounded in a public contract. Vegas does not use the production Google Apps Script runtime as a behavioral oracle.
 
@@ -107,13 +106,13 @@ Structural coverage records whether a Runtime method exists; it does not imply G
 
 :::
 
-Measured Global Object enum surface coverage: **10 / 100 (10.0%)**
+Measured enum surface coverage: **11 / 101 (10.9%)**
 
-## Global Object enums
+## Enums
 
-::: details Show detailed Global Object enum coverage
+::: details Show detailed enum coverage
 
-| API (Global Object)         | Coverage | Coverage (%) | Unimplemented API (enums)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| API                         | Coverage | Coverage (%) | Unimplemented enum surfaces                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
 | --------------------------- | -------: | -----------: | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `CalendarApp`               |    0 / 6 |         0.0% | `Color`<br>`EventColor`<br>`EventTransparency`<br>`EventType`<br>`GuestStatus`<br>`Visibility`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
 | `DocumentApp`               |    0 / 8 |         0.0% | `Attribute`<br>`ElementType`<br>`GlyphType`<br>`HorizontalAlignment`<br>`ParagraphHeading`<br>`PositionedLayout`<br>`TextAlignment`<br>`VerticalAlignment`                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
@@ -130,16 +129,9 @@ Measured Global Object enum surface coverage: **10 / 100 (10.0%)**
 | `HtmlService`               |    2 / 2 |       100.0% | —                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | `Browser`                   |    0 / 1 |         0.0% | `Buttons`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | `ScriptApp`                 |    0 / 5 |         0.0% | `AuthMode`<br>`AuthorizationStatus`<br>`EventType`<br>`InstallationSource`<br>`TriggerSource`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| `MimeType`                  |    1 / 1 |       100.0% | —                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 
 :::
-
-Measured standalone Global enum coverage: **1 / 1 (100.0%)**
-
-## Standalone Global enums
-
-| Global enum | Coverage | Coverage (%) |
-| ----------- | -------: | -----------: |
-| `MimeType`  |    1 / 1 |       100.0% |
 
 ## Supplemental API declarations
 

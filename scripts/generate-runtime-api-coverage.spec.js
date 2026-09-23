@@ -12,6 +12,7 @@ import {
   hasEnumDeclaration,
   isStandaloneGlobalEnum,
   mergeMethodSurface,
+  renderCoverageMarkdown,
   resolveRuntimeApiMethodStatus,
   runtimeApiSurfaceName,
   validateRuntimeApiStatus,
@@ -107,6 +108,63 @@ declare namespace GoogleAppsScript {
 
     expect(isStandaloneGlobalEnum("MimeType", declaration)).toBe(true);
     expect(isStandaloneGlobalEnum("Example", declaration)).toBe(false);
+  });
+
+  test("render service and standalone enums in one coverage section", () => {
+    const output = renderCoverageMarkdown({
+      version: "0.0.0",
+      runtimeGlobals: [
+        { name: "DriveApp", implemented: true },
+        { name: "MimeType", implemented: true },
+      ],
+      declarations: new Map([
+        [
+          "DriveApp",
+          {
+            typeReference: "GoogleAppsScript.Drive.DriveApp",
+            source: `
+declare namespace GoogleAppsScript {
+  namespace Drive {
+    enum Access {
+      ANYONE,
+    }
+    enum Permission {
+      VIEW,
+    }
+    interface DriveApp {
+      Access: typeof Access;
+      Permission: typeof Permission;
+    }
+  }
+}
+`,
+          },
+        ],
+        [
+          "MimeType",
+          {
+            typeReference: "GoogleAppsScript.Base.MimeType",
+            source: `
+declare namespace GoogleAppsScript {
+  namespace Base {
+    interface MimeType {
+      PDF: string;
+    }
+  }
+}
+`,
+          },
+        ],
+      ]),
+      supplement: { schemaVersion: 1, globals: {} },
+      status: { schemaVersion: 1, surfaces: {} },
+    });
+
+    expect(output).toContain("Measured enum surface coverage: **3 / 3 (100.0%)**");
+    expect(output).toContain("## Enums");
+    expect(output).toContain("| `DriveApp` | 2 / 2 | 100.0% | — |");
+    expect(output).toContain("| `MimeType` | 1 / 1 | 100.0% | — |");
+    expect(output).not.toContain("Standalone Global enums");
   });
 
   test("merge supplemental methods without duplicating declared methods", () => {
@@ -298,6 +356,13 @@ declare namespace GoogleAppsScript {
         "PropertiesService.Properties": ["getScriptProperties", "getUserProperties"],
       }),
     ).toThrow("Unknown Runtime API status surface");
+
+    expect(() =>
+      validateRuntimeApiStatusAgainstInventory(status, {
+        PropertiesService: ["getScriptProperties", "getUserProperties"],
+        "PropertiesService.Properties": ["get", "set"],
+      }),
+    ).toThrow("missing modeled surface: PropertiesService.Properties");
   });
 
   test("track HtmlTemplate as a modeled HtmlService Runtime object", () => {

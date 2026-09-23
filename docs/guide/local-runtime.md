@@ -54,7 +54,7 @@ Running an application on Google Apps Script for normal application testing is s
 The generated coverage page reports several independent measurements:
 
 1. **Structural method coverage** — how many declared methods have a Vegas Runtime implementation.
-2. **Enum surface coverage** — which enum properties exposed by Global Objects are present.
+2. **Enum surface coverage** — which enum surfaces are present, combining enum properties exposed by Global Objects and standalone Global enums.
 3. **Audited behavior** — how reviewed methods are classified as `implemented`, `local-emulation`, `no-op`, or `fail-closed`.
 4. **Contract-tested methods** — how many audited methods have explicit tests grounded in public contracts.
 
@@ -82,4 +82,4 @@ The generated human-readable view is:
 docs/guide/runtime-api-coverage.md
 ```
 
-Both structural coverage and behavior metadata are checked in CI so implementation drift cannot silently change an already audited surface.
+Both structural coverage and behavior metadata are checked in CI. Every explicitly mapped Runtime surface must have a status entry, and every public method on that surface must be audited, so new surfaces or methods cannot silently bypass behavior classification.
