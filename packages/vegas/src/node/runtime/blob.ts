@@ -1,3 +1,4 @@
+import { MIME_TYPE } from "./base-mime-type";
 import type { BlobConverter } from "./blob-converter";
 import type { BlobValue } from "./blob-value";
 import { UnsupportedRuntimeOperationError } from "./unsupported-runtime-operation-error";
@@ -13,6 +14,47 @@ function encodeUtf8(value: string): number[] {
 
 function decodeUtf8(bytes: readonly number[]): string {
   return new TextDecoder("utf-8").decode(Uint8Array.from(bytes, (value) => value & 0xff));
+}
+
+const CONTENT_TYPE_BY_EXTENSION: Readonly<Record<string, string>> = {
+  bmp: MIME_TYPE.BMP,
+  gif: MIME_TYPE.GIF,
+  jpg: MIME_TYPE.JPEG,
+  png: MIME_TYPE.PNG,
+  svg: MIME_TYPE.SVG,
+  pdf: MIME_TYPE.PDF,
+  css: MIME_TYPE.CSS,
+  csv: MIME_TYPE.CSV,
+  html: MIME_TYPE.HTML,
+  js: MIME_TYPE.JAVASCRIPT,
+  txt: MIME_TYPE.PLAIN_TEXT,
+  rtf: MIME_TYPE.RTF,
+  odg: MIME_TYPE.OPENDOCUMENT_GRAPHICS,
+  odp: MIME_TYPE.OPENDOCUMENT_PRESENTATION,
+  ods: MIME_TYPE.OPENDOCUMENT_SPREADSHEET,
+  odt: MIME_TYPE.OPENDOCUMENT_TEXT,
+  xlsx: MIME_TYPE.MICROSOFT_EXCEL,
+  xls: MIME_TYPE.MICROSOFT_EXCEL_LEGACY,
+  pptx: MIME_TYPE.MICROSOFT_POWERPOINT,
+  ppt: MIME_TYPE.MICROSOFT_POWERPOINT_LEGACY,
+  docx: MIME_TYPE.MICROSOFT_WORD,
+  doc: MIME_TYPE.MICROSOFT_WORD_LEGACY,
+  zip: MIME_TYPE.ZIP,
+};
+
+function inferContentTypeFromName(name: string | null): string | null {
+  if (name === null) {
+    return null;
+  }
+
+  const separator = name.lastIndexOf(".");
+  if (separator < 0 || separator === name.length - 1) {
+    return null;
+  }
+
+  // Google documents typical extensions for MimeType values, but not a complete inference table
+  // or case handling. Vegas limits inference to those extensions and matches them case-insensitively.
+  return CONTENT_TYPE_BY_EXTENSION[name.slice(separator + 1).toLowerCase()] ?? null;
 }
 
 function cloneValue(value: BlobValue): BlobValue {
@@ -95,6 +137,11 @@ export class RuntimeBlob implements RuntimeBlobSource {
 
   setContentType(contentType: string): this {
     this.#contentType = contentType;
+    return this;
+  }
+
+  setContentTypeFromExtension(): this {
+    this.#contentType = inferContentTypeFromName(this.#name);
     return this;
   }
 

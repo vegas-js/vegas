@@ -37,7 +37,7 @@ Structural coverage records whether a Runtime method exists; it does not imply G
 | `SpreadsheetApp.Spreadsheet`    |               8 | `local-emulation`: 8                                                        |           0 / 8 |
 | `SpreadsheetApp.Sheet`          |              41 | `local-emulation`: 41                                                       |          0 / 41 |
 | `SpreadsheetApp.Range`          |              33 | `local-emulation`: 33                                                       |          0 / 33 |
-| `Blob`                          |              12 | `implemented`: 8<br>`local-emulation`: 3<br>`fail-closed`: 1                |          0 / 12 |
+| `Blob`                          |              13 | `implemented`: 8<br>`local-emulation`: 4<br>`fail-closed`: 1                |          1 / 13 |
 | `ContentService`                |               1 | `implemented`: 1                                                            |           0 / 1 |
 | `ContentService.TextOutput`     |               8 | `implemented`: 7<br>`local-emulation`: 1                                    |           0 / 8 |
 | `CacheService`                  |               3 | `local-emulation`: 3                                                        |           0 / 3 |
@@ -290,8 +290,8 @@ These tables cover returned object types that already have a Vegas Runtime class
 
 ::: details Shared
 
-| Object type | Coverage | Coverage (%) | Unimplemented API (methods)                        |
-| ----------- | -------: | -----------: | -------------------------------------------------- |
-| `Blob`      |  12 / 14 |        85.7% | `setContentTypeFromExtension()`<br>`getAllBlobs()` |
+| Object type | Coverage | Coverage (%) | Unimplemented API (methods) |
+| ----------- | -------: | -----------: | --------------------------- |
+| `Blob`      |  13 / 14 |        92.9% | `getAllBlobs()`             |
 
 :::

@@ -72,6 +72,55 @@ describe("RuntimeBlob", () => {
     });
   });
 
+  test("infer content types from file extensions documented by Apps Script MimeType", () => {
+    const cases = [
+      ["image.bmp", "image/bmp"],
+      ["image.gif", "image/gif"],
+      ["image.jpg", "image/jpeg"],
+      ["image.png", "image/png"],
+      ["image.svg", "image/svg+xml"],
+      ["document.pdf", "application/pdf"],
+      ["style.css", "text/css"],
+      ["data.csv", "text/csv"],
+      ["page.html", "text/html"],
+      ["script.js", "application/javascript"],
+      ["notes.txt", "text/plain"],
+      ["document.rtf", "application/rtf"],
+      ["drawing.odg", "application/vnd.oasis.opendocument.graphics"],
+      ["slides.odp", "application/vnd.oasis.opendocument.presentation"],
+      ["sheet.ods", "application/vnd.oasis.opendocument.spreadsheet"],
+      ["document.odt", "application/vnd.oasis.opendocument.text"],
+      ["sheet.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"],
+      ["sheet.xls", "application/vnd.ms-excel"],
+      ["slides.pptx", "application/vnd.openxmlformats-officedocument.presentationml.presentation"],
+      ["slides.ppt", "application/vnd.ms-powerpoint"],
+      ["document.docx", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"],
+      ["document.doc", "application/msword"],
+      ["archive.ZIP", "application/zip"],
+    ] as const;
+
+    for (const [name, contentType] of cases) {
+      const blob = createBlob("content", "application/octet-stream", name);
+
+      expect(blob.setContentTypeFromExtension()).toBe(blob);
+      expect(blob.getContentType()).toBe(contentType);
+    }
+  });
+
+  test("clear content type when a file extension cannot be inferred", () => {
+    const blobs = [
+      createBlob("content", "text/plain"),
+      createBlob("content", "text/plain", "README"),
+      createBlob("content", "text/plain", "archive.unknown"),
+      createBlob("content", "text/plain", "trailing."),
+    ];
+
+    for (const blob of blobs) {
+      expect(blob.setContentTypeFromExtension()).toBe(blob);
+      expect(blob.getContentType()).toBeNull();
+    }
+  });
+
   test("mutate raw blob data and metadata with chaining", () => {
     const blob = createBlob([65], "text/plain", "a.txt");
 

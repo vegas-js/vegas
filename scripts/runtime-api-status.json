@@ -219,6 +219,7 @@
         "isGoogleType",
         "setBytes",
         "setContentType",
+        "setContentTypeFromExtension",
         "setDataFromString",
         "setName"
       ],
@@ -227,8 +228,10 @@
         "getAs": "fail-closed",
         "getDataAsString": "local-emulation",
         "isGoogleType": "local-emulation",
+        "setContentTypeFromExtension": "local-emulation",
         "setDataFromString": "local-emulation"
-      }
+      },
+      "contractTestedMethods": ["setContentTypeFromExtension"]
     },
     "ContentService": {
       "auditedMethods": ["createTextOutput"],
