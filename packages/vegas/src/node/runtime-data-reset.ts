@@ -7,24 +7,38 @@ import {
 } from "./runtime";
 import { applyPropertiesRuntimeData } from "./runtime-data-properties";
 
-// Google does not define local fixture reset semantics. Vegas rebuilds session-owned state from
-// fresh stores and reapplies only the declared Properties and Spreadsheet fixtures.
-export async function resetLocalRuntimeSession(
+// Google does not define local fixture initialization or reset semantics. Vegas builds session-owned
+// state from fresh stores and applies only the declared Properties and Spreadsheet fixtures.
+export async function createSeededLocalRuntimeSession(
   scope: InvocationScope,
   snapshot: RuntimeDataSnapshot,
-): Promise<LocalRuntimeSession> {
+) {
   const propertiesStore = new InMemoryPropertiesStore();
 
   if (snapshot.properties !== undefined) {
     await applyPropertiesRuntimeData(propertiesStore, scope, snapshot.properties.value);
   }
 
-  return new LocalRuntimeSession({
+  const spreadsheetStore = new InMemorySpreadsheetStore(
+    snapshot.spreadsheets.map(({ value }) => value),
+  );
+  const session = new LocalRuntimeSession({
     stores: {
       propertiesStore,
-      spreadsheetStore: new InMemorySpreadsheetStore(
-        snapshot.spreadsheets.map(({ value }) => value),
-      ),
+      spreadsheetStore,
     },
   });
+
+  return {
+    session,
+    propertiesStore,
+    spreadsheetStore,
+  };
+}
+
+export async function resetLocalRuntimeSession(
+  scope: InvocationScope,
+  snapshot: RuntimeDataSnapshot,
+): Promise<LocalRuntimeSession> {
+  return (await createSeededLocalRuntimeSession(scope, snapshot)).session;
 }

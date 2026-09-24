@@ -2,7 +2,7 @@ import { describe, expect, test } from "vitest";
 
 import type { RuntimeDataSnapshot } from "../shared/gas";
 import type { InvocationScope } from "./runtime";
-import { resetLocalRuntimeSession } from "./runtime-data-reset";
+import { createSeededLocalRuntimeSession, resetLocalRuntimeSession } from "./runtime-data-reset";
 
 const scope = {
   scriptKey: "script-a",
@@ -36,6 +36,15 @@ const snapshot = {
     },
   ],
 } satisfies RuntimeDataSnapshot;
+
+describe("createSeededLocalRuntimeSession", () => {
+  test("expose the seeded stores installed in the session", async () => {
+    const seeded = await createSeededLocalRuntimeSession(scope, snapshot);
+
+    expect(seeded.session.stores.propertiesStore).toBe(seeded.propertiesStore);
+    expect(seeded.session.stores.spreadsheetStore).toBe(seeded.spreadsheetStore);
+  });
+});
 
 describe("resetLocalRuntimeSession", () => {
   test("create fresh session-owned stores seeded from Runtime data", async () => {
