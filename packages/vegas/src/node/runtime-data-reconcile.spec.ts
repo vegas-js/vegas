@@ -7,10 +7,12 @@ import type {
 } from "../shared/gas";
 import {
   reconcileLocalPropertiesStore,
+  reconcileLocalRuntimeSession,
   reconcileLocalSpreadsheetStore,
 } from "./runtime-data-reconcile";
 import { InMemoryPropertiesStore } from "./runtime/in-memory-properties-store";
 import { InMemorySpreadsheetStore } from "./runtime/in-memory-spreadsheet-store";
+import { LocalRuntimeSession } from "./runtime/local-runtime-session";
 import type { InvocationScope } from "./runtime/scope";
 import type { RangeReference } from "./runtime/spreadsheet-reference";
 
@@ -432,5 +434,102 @@ describe("reconcileLocalSpreadsheetStore", () => {
 
     await expect(current.getSpreadsheet(runtimeCreated.id)).resolves.toStrictEqual(runtimeCreated);
     await expect(current.getRangeValues(range("budget"))).resolves.toStrictEqual([["budget seed"]]);
+  });
+});
+
+describe("reconcileLocalRuntimeSession", () => {
+  test("preserve session-owned stores while replacing reconciled fixture stores", async () => {
+    const scope: InvocationScope = {
+      scriptKey: "script-a",
+      userKey: "user-a",
+    };
+    const previous = {
+      properties: {
+        source: "runtime/properties.ts",
+        value: {
+          scriptProperties: {
+            environment: "old",
+          },
+        },
+      },
+      spreadsheets: [
+        {
+          source: "runtime/budget.ts",
+          value: spreadsheet("budget", {
+            sheets: [sheet(1, [["old"]])],
+          }),
+        },
+      ],
+    } satisfies RuntimeDataSnapshot;
+    const propertiesStore = new InMemoryPropertiesStore();
+
+    await propertiesStore.set(
+      {
+        kind: "script",
+        scriptKey: "script-a",
+      },
+      "runtime",
+      "mutation",
+    );
+
+    const spreadsheetStore = new InMemorySpreadsheetStore(
+      previous.spreadsheets.map(({ value }) => value),
+    );
+    const current = new LocalRuntimeSession({
+      stores: {
+        propertiesStore,
+        spreadsheetStore,
+      },
+    });
+    const next = {
+      properties: {
+        source: "runtime/properties.ts",
+        value: {
+          scriptProperties: {
+            environment: "new",
+          },
+        },
+      },
+      spreadsheets: [
+        {
+          source: "runtime/budget.ts",
+          value: spreadsheet("budget", {
+            sheets: [sheet(1, [["new"]])],
+          }),
+        },
+      ],
+    } satisfies RuntimeDataSnapshot;
+
+    const reconciled = await reconcileLocalRuntimeSession(current, scope, previous, next);
+
+    expect(reconciled).not.toBe(current);
+    expect(reconciled.stores.cacheStore).toBe(current.stores.cacheStore);
+    expect(reconciled.stores.driveIteratorStore).toBe(current.stores.driveIteratorStore);
+    expect(reconciled.stores.driveStore).toBe(current.stores.driveStore);
+    expect(reconciled.stores.lockStore).toBe(current.stores.lockStore);
+    expect(reconciled.stores.propertiesStore).not.toBe(current.stores.propertiesStore);
+    expect(reconciled.stores.spreadsheetStore).not.toBe(current.stores.spreadsheetStore);
+    await expect(
+      reconciled.stores.propertiesStore.getAll({
+        kind: "script",
+        scriptKey: "script-a",
+      }),
+    ).resolves.toStrictEqual({
+      environment: "new",
+    });
+    await expect(
+      reconciled.stores.spreadsheetStore.getRangeValues(range("budget")),
+    ).resolves.toStrictEqual([["new"]]);
+    await expect(
+      current.stores.propertiesStore.getAll({
+        kind: "script",
+        scriptKey: "script-a",
+      }),
+    ).resolves.toStrictEqual({
+      runtime: "mutation",
+    });
+    await expect(
+      current.stores.spreadsheetStore.getRangeValues(range("budget")),
+    ).resolves.toStrictEqual([["old"]]);
   });
 });

@@ -14,9 +14,7 @@ import { createNodeAppsScriptExecutor } from "./runtime/node";
 import type { SpreadsheetUrlCapability } from "./runtime/spreadsheet-url-capability";
 
 interface LocalRuntimeOptions {
-  readonly propertiesStore?: InMemoryPropertiesStore;
   readonly session?: LocalRuntimeSession;
-  readonly spreadsheetStore?: InMemorySpreadsheetStore;
   readonly spreadsheetUrlCapability?: SpreadsheetUrlCapability;
 }
 
@@ -32,21 +30,28 @@ export async function createLocalRuntime(
   dependencies: LocalRuntimeDependencies = {},
 ): Promise<LocalRuntime> {
   const scope = createInvocationScope(project);
-  const propertiesStore = options.propertiesStore ?? new InMemoryPropertiesStore();
+  let runtimeSession = options.session;
 
-  if (options.propertiesStore === undefined && snapshot.properties !== undefined) {
-    await applyPropertiesRuntimeData(propertiesStore, scope, snapshot.properties.value);
+  if (runtimeSession === undefined) {
+    const propertiesStore = new InMemoryPropertiesStore();
+
+    if (snapshot.properties !== undefined) {
+      await applyPropertiesRuntimeData(propertiesStore, scope, snapshot.properties.value);
+    }
+
+    runtimeSession = new LocalRuntimeSession({
+      stores: {
+        propertiesStore,
+        spreadsheetStore: new InMemorySpreadsheetStore(
+          snapshot.spreadsheets.map(({ value }) => value),
+        ),
+      },
+    });
   }
 
-  const spreadsheetStore =
-    options.spreadsheetStore ??
-    new InMemorySpreadsheetStore(snapshot.spreadsheets.map(({ value }) => value));
-  const runtimeSession = options.session ?? new LocalRuntimeSession();
   const createExecutor = dependencies.createExecutor ?? createNodeAppsScriptExecutor;
   const executor = createExecutor({
     ...runtimeSession.stores,
-    propertiesStore,
-    spreadsheetStore,
     spreadsheetUrlCapability: options.spreadsheetUrlCapability,
   });
   const environment = createInvocationEnvironment(project, snapshot.session?.value);
@@ -61,7 +66,7 @@ export async function createLocalRuntime(
       });
     },
     resources: {
-      spreadsheets: spreadsheetStore,
+      spreadsheets: runtimeSession.stores.spreadsheetStore,
     },
   };
 }

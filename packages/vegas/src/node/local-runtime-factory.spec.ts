@@ -62,21 +62,14 @@ describe("createLocalRuntime", () => {
       htmlFiles: {},
     };
     const getProgram = vi.fn(() => program);
-    const runtimeSession = new LocalRuntimeSession();
 
     const localRuntime = await createLocalRuntime(
       project,
       snapshot,
       getProgram,
-      {
-        session: runtimeSession,
-      },
+      {},
       {
         createExecutor: (options) => {
-          expect(options.cacheStore).toBe(runtimeSession.stores.cacheStore);
-          expect(options.driveIteratorStore).toBe(runtimeSession.stores.driveIteratorStore);
-          expect(options.driveStore).toBe(runtimeSession.stores.driveStore);
-          expect(options.lockStore).toBe(runtimeSession.stores.lockStore);
           propertiesStore = options.propertiesStore;
 
           return { execute };
@@ -176,6 +169,11 @@ describe("createLocalRuntime", () => {
       "environment",
       "reconciled",
     );
+    const runtimeSession = new LocalRuntimeSession({
+      stores: {
+        propertiesStore,
+      },
+    });
 
     await createLocalRuntime(
       project,
@@ -185,7 +183,7 @@ describe("createLocalRuntime", () => {
         htmlFiles: {},
       }),
       {
-        propertiesStore,
+        session: runtimeSession,
       },
       {
         createExecutor: (options) => {
@@ -228,6 +226,11 @@ describe("createLocalRuntime", () => {
         sheets: [],
       },
     ]);
+    const runtimeSession = new LocalRuntimeSession({
+      stores: {
+        spreadsheetStore,
+      },
+    });
     const execute = vi.fn(async (_request: ExecutionRequest) => undefined);
 
     const localRuntime = await createLocalRuntime(
@@ -238,7 +241,7 @@ describe("createLocalRuntime", () => {
         htmlFiles: {},
       }),
       {
-        spreadsheetStore,
+        session: runtimeSession,
       },
       {
         createExecutor: (options) => {

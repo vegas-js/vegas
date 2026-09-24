@@ -6,8 +6,11 @@ import type {
 import { diffRuntimeDataSnapshots } from "./runtime-data-diff";
 import { InMemoryPropertiesStore } from "./runtime/in-memory-properties-store";
 import { InMemorySpreadsheetStore } from "./runtime/in-memory-spreadsheet-store";
+import { LocalRuntimeSession } from "./runtime/local-runtime-session";
 import { resolvePropertiesNamespace } from "./runtime/properties-namespace";
+import type { PropertiesStore } from "./runtime/properties-store";
 import type { InvocationScope } from "./runtime/scope";
+import type { SpreadsheetStore } from "./runtime/spreadsheet-store";
 
 const SPREADSHEET_CHANGE_PREFIX = "spreadsheet:";
 
@@ -76,4 +79,49 @@ export function reconcileLocalSpreadsheetStore(
   }
 
   return reconciled;
+}
+
+function requireInMemoryPropertiesStore(store: PropertiesStore): InMemoryPropertiesStore {
+  if (!(store instanceof InMemoryPropertiesStore)) {
+    throw new TypeError("Local Runtime reconciliation requires an in-memory Properties store.");
+  }
+
+  return store;
+}
+
+function requireInMemorySpreadsheetStore(store: SpreadsheetStore): InMemorySpreadsheetStore {
+  if (!(store instanceof InMemorySpreadsheetStore)) {
+    throw new TypeError("Local Runtime reconciliation requires an in-memory Spreadsheet store.");
+  }
+
+  return store;
+}
+
+// Google does not define local fixture reload semantics. Vegas keeps session-owned stores across
+// reloads while reconciling fixture-backed Properties and Spreadsheet stores on clones.
+export async function reconcileLocalRuntimeSession(
+  current: LocalRuntimeSession,
+  scope: InvocationScope,
+  previous: RuntimeDataSnapshot,
+  next: RuntimeDataSnapshot,
+): Promise<LocalRuntimeSession> {
+  const propertiesStore = await reconcileLocalPropertiesStore(
+    requireInMemoryPropertiesStore(current.stores.propertiesStore),
+    scope,
+    previous,
+    next,
+  );
+  const spreadsheetStore = reconcileLocalSpreadsheetStore(
+    requireInMemorySpreadsheetStore(current.stores.spreadsheetStore),
+    previous,
+    next,
+  );
+
+  return new LocalRuntimeSession({
+    stores: {
+      ...current.stores,
+      propertiesStore,
+      spreadsheetStore,
+    },
+  });
 }

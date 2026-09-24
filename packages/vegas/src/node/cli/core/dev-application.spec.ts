@@ -231,17 +231,14 @@ describe("runDevApplication", () => {
     }
 
     const getProgram = initialCreateRuntimeCall[2];
-    const initialPropertiesStore = initialCreateRuntimeCall[3]?.propertiesStore;
-    const runtimeSession = initialCreateRuntimeCall[3]?.session;
-    const initialSpreadsheetStore = initialCreateRuntimeCall[3]?.spreadsheetStore;
+    const initialSession = initialCreateRuntimeCall[3]?.session;
 
-    if (
-      initialPropertiesStore === undefined ||
-      runtimeSession === undefined ||
-      initialSpreadsheetStore === undefined
-    ) {
-      throw new Error("expected Local Runtime stores and session");
+    if (initialSession === undefined) {
+      throw new Error("expected Local Runtime session");
     }
+
+    const initialPropertiesStore = initialSession.stores.propertiesStore;
+    const initialSpreadsheetStore = initialSession.stores.spreadsheetStore;
 
     expect(application.project).toBe(project);
     expect(application.builder).toBe(builder);
@@ -251,7 +248,7 @@ describe("runDevApplication", () => {
     expect(application.runtime).toBeInstanceOf(ReloadableLocalRuntime);
     expect(application.getLocalSpreadsheetStore?.()).toBe(initialSpreadsheetStore);
     expect(initialPropertiesStore).toBeInstanceOf(InMemoryPropertiesStore);
-    expect(runtimeSession).toBeInstanceOf(LocalRuntimeSession);
+    expect(initialSession).toBeInstanceOf(LocalRuntimeSession);
     await expect(
       initialPropertiesStore.getAll({
         kind: "script",
@@ -278,9 +275,7 @@ describe("runDevApplication", () => {
       initialSnapshot,
       getProgram,
       {
-        propertiesStore: initialPropertiesStore,
-        session: runtimeSession,
-        spreadsheetStore: initialSpreadsheetStore,
+        session: initialSession,
         spreadsheetUrlCapability: application.localSpreadsheetUrls,
       },
     );
@@ -298,17 +293,26 @@ describe("runDevApplication", () => {
     await application.reloadRuntime();
 
     const reloadedCreateRuntimeCall = createLocalRuntimeMock.mock.calls[1];
-    const reloadedPropertiesStore = reloadedCreateRuntimeCall?.[3]?.propertiesStore;
-    const reloadedSpreadsheetStore = reloadedCreateRuntimeCall?.[3]?.spreadsheetStore;
+    const reloadedSession = reloadedCreateRuntimeCall?.[3]?.session;
 
-    if (reloadedPropertiesStore === undefined || reloadedSpreadsheetStore === undefined) {
-      throw new Error("expected reconciled Runtime stores");
+    if (reloadedSession === undefined) {
+      throw new Error("expected reconciled Runtime session");
     }
+
+    const reloadedPropertiesStore = reloadedSession.stores.propertiesStore;
+    const reloadedSpreadsheetStore = reloadedSession.stores.spreadsheetStore;
 
     expect(scanRuntimeDataSourcesMock).toHaveBeenNthCalledWith(1, project);
     expect(loadRuntimeDataSnapshotMock).toHaveBeenNthCalledWith(2, project.root, [
       "runtime/reloaded.ts",
     ]);
+    expect(reloadedSession).not.toBe(initialSession);
+    expect(reloadedSession.stores.cacheStore).toBe(initialSession.stores.cacheStore);
+    expect(reloadedSession.stores.driveIteratorStore).toBe(
+      initialSession.stores.driveIteratorStore,
+    );
+    expect(reloadedSession.stores.driveStore).toBe(initialSession.stores.driveStore);
+    expect(reloadedSession.stores.lockStore).toBe(initialSession.stores.lockStore);
     expect(reloadedPropertiesStore).not.toBe(initialPropertiesStore);
     expect(reloadedSpreadsheetStore).not.toBe(initialSpreadsheetStore);
     await expect(
@@ -334,9 +338,7 @@ describe("runDevApplication", () => {
       reloadedSnapshot,
       getProgram,
       {
-        propertiesStore: reloadedPropertiesStore,
-        session: runtimeSession,
-        spreadsheetStore: reloadedSpreadsheetStore,
+        session: reloadedSession,
         spreadsheetUrlCapability: application.localSpreadsheetUrls,
       },
     );
@@ -352,17 +354,24 @@ describe("runDevApplication", () => {
     await expect(application.reloadRuntime()).rejects.toThrow("runtime construction failed");
 
     const failedCreateRuntimeCall = createLocalRuntimeMock.mock.calls[2];
-    const failedPropertiesStore = failedCreateRuntimeCall?.[3]?.propertiesStore;
-    const failedSpreadsheetStore = failedCreateRuntimeCall?.[3]?.spreadsheetStore;
+    const failedSession = failedCreateRuntimeCall?.[3]?.session;
 
-    if (failedPropertiesStore === undefined || failedSpreadsheetStore === undefined) {
-      throw new Error("expected failed reconciled Runtime stores");
+    if (failedSession === undefined) {
+      throw new Error("expected failed reconciled Runtime session");
     }
+
+    const failedPropertiesStore = failedSession.stores.propertiesStore;
+    const failedSpreadsheetStore = failedSession.stores.spreadsheetStore;
 
     expect(scanRuntimeDataSourcesMock).toHaveBeenNthCalledWith(2, project);
     expect(loadRuntimeDataSnapshotMock).toHaveBeenNthCalledWith(3, project.root, [
       "runtime/failed.ts",
     ]);
+    expect(failedSession).not.toBe(reloadedSession);
+    expect(failedSession.stores.cacheStore).toBe(reloadedSession.stores.cacheStore);
+    expect(failedSession.stores.driveIteratorStore).toBe(reloadedSession.stores.driveIteratorStore);
+    expect(failedSession.stores.driveStore).toBe(reloadedSession.stores.driveStore);
+    expect(failedSession.stores.lockStore).toBe(reloadedSession.stores.lockStore);
     expect(failedPropertiesStore).not.toBe(reloadedPropertiesStore);
     expect(failedSpreadsheetStore).not.toBe(reloadedSpreadsheetStore);
     await expect(
@@ -393,17 +402,26 @@ describe("runDevApplication", () => {
     await application.reloadRuntime();
 
     const retriedCreateRuntimeCall = createLocalRuntimeMock.mock.calls[3];
-    const retriedPropertiesStore = retriedCreateRuntimeCall?.[3]?.propertiesStore;
-    const retriedSpreadsheetStore = retriedCreateRuntimeCall?.[3]?.spreadsheetStore;
+    const retriedSession = retriedCreateRuntimeCall?.[3]?.session;
 
-    if (retriedPropertiesStore === undefined || retriedSpreadsheetStore === undefined) {
-      throw new Error("expected retried reconciled Runtime stores");
+    if (retriedSession === undefined) {
+      throw new Error("expected retried reconciled Runtime session");
     }
+
+    const retriedPropertiesStore = retriedSession.stores.propertiesStore;
+    const retriedSpreadsheetStore = retriedSession.stores.spreadsheetStore;
 
     expect(scanRuntimeDataSourcesMock).toHaveBeenNthCalledWith(3, project);
     expect(loadRuntimeDataSnapshotMock).toHaveBeenNthCalledWith(4, project.root, [
       "runtime/failed.ts",
     ]);
+    expect(retriedSession).not.toBe(failedSession);
+    expect(retriedSession.stores.cacheStore).toBe(reloadedSession.stores.cacheStore);
+    expect(retriedSession.stores.driveIteratorStore).toBe(
+      reloadedSession.stores.driveIteratorStore,
+    );
+    expect(retriedSession.stores.driveStore).toBe(reloadedSession.stores.driveStore);
+    expect(retriedSession.stores.lockStore).toBe(reloadedSession.stores.lockStore);
     await expect(
       retriedPropertiesStore.getAll({
         kind: "script",

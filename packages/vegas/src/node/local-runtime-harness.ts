@@ -56,9 +56,7 @@ export async function createLocalRuntimeHarness(
     options.snapshot,
     () => options.program,
     {
-      propertiesStore,
       session,
-      spreadsheetStore,
       spreadsheetUrlCapability: options.spreadsheetUrlCapability,
     },
   );
