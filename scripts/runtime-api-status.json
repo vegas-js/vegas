@@ -334,7 +334,8 @@
     },
     "HtmlService.HtmlOutputMetaTag": {
       "auditedMethods": ["getContent", "getName"],
-      "defaultBehavior": "implemented"
+      "defaultBehavior": "implemented",
+      "contractTestedMethods": ["getContent", "getName"]
     },
     "HtmlService.HtmlTemplate": {
       "auditedMethods": ["evaluate", "getCode", "getCodeWithComments", "getRawContent"],
