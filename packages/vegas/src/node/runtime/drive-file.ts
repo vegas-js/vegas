@@ -20,6 +20,10 @@ export class DriveFile {
     this.#hydrator = hydrator;
   }
 
+  getAs(contentType: string): RuntimeBlob {
+    return this.getBlob().getAs(contentType);
+  }
+
   getBlob(): RuntimeBlob {
     return hydrateBlob(
       this.#bridge.call({

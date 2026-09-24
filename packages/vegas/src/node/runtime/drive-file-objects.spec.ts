@@ -136,6 +136,51 @@ describe("DriveFile Runtime object", () => {
     expectTypeOf<HostCallResult<typeof getBlobCall>>().toEqualTypeOf<BlobValue>();
   });
 
+  test("convert File data through the bound Blob conversion backend", () => {
+    const bridge = new RecordingHostBridge();
+    const file = new DriveFile(
+      bridge,
+      {
+        service: "drive",
+        kind: "file",
+        id: "file-1",
+      },
+      {
+        hydrate() {
+          throw new Error("unexpected Drive object hydration");
+        },
+      },
+    );
+
+    const converted = file.getAs("application/pdf");
+
+    expect(converted).toBeInstanceOf(RuntimeBlob);
+    expect(converted.getBytes()).toStrictEqual([80, 68, 70]);
+    expect(converted.getContentType()).toBe("application/pdf");
+    expect(bridge.calls).toStrictEqual([
+      {
+        service: "drive",
+        operation: "get-file-blob",
+        file: {
+          service: "drive",
+          kind: "file",
+          id: "file-1",
+        },
+      },
+      {
+        service: "blob",
+        operation: "convert",
+        value: {
+          bytes: [104, 101, 108, 108, 111],
+          contentType: "text/plain",
+          name: "hello.txt",
+          googleType: false,
+        },
+        contentType: "application/pdf",
+      },
+    ]);
+  });
+
   test("serialize RuntimeBlob across the host boundary and hydrate File.getBlob()", () => {
     const bridge = new RecordingHostBridge();
     const source = createBlob("hello", "text/plain", "hello.txt");

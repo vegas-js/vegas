@@ -26,6 +26,7 @@
     },
     "DriveApp.File": {
       "auditedMethods": [
+        "getAs",
         "getBlob",
         "getDateCreated",
         "getDescription",
@@ -48,7 +49,10 @@
         "setStarred",
         "setTrashed"
       ],
-      "defaultBehavior": "local-emulation"
+      "defaultBehavior": "local-emulation",
+      "behaviorOverrides": {
+        "getAs": "fail-closed"
+      }
     },
     "DriveApp.Folder": {
       "auditedMethods": [
