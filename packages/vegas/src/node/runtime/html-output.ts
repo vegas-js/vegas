@@ -16,6 +16,12 @@ export interface HtmlOutputSnapshot {
   readonly xFrameOptionsMode: HtmlXFrameOptionsMode;
 }
 
+const ALLOWED_HTML_META_TAG_NAMES = new Set([
+  "apple-mobile-web-app-capable",
+  "google-site-verification",
+  "mobile-web-app-capable",
+  "viewport",
+]);
 const SERIALIZE_HTML_OUTPUT = Symbol("serializeHtmlOutput");
 
 // https://developers.google.com/apps-script/reference/html/html-output-meta-tag
@@ -63,11 +69,22 @@ export class HtmlOutput {
   }
 
   addMetaTag(name: string, content: string): this {
+    if (!ALLOWED_HTML_META_TAG_NAMES.has(name)) {
+      // Apps Script documents the allowed meta tag names but not what happens for unsupported
+      // names. Vegas fails closed instead of guessing whether production ignores or rejects them.
+      throw new UnsupportedRuntimeOperationError(
+        "HtmlOutput.addMetaTag()",
+        `meta tag "${name}" is not one of the documented supported names.`,
+      );
+    }
+
     this.#metaTags.push(new HtmlOutputMetaTag(name, content));
     return this;
   }
 
   append(addedContent: string): this {
+    // Apps Script documents an error for malformed HTML but does not define its validation
+    // boundary. Vegas appends documented valid content without guessing at production parsing.
     this.#content += addedContent;
     return this;
   }
@@ -129,6 +146,8 @@ export class HtmlOutput {
   }
 
   setContent(content: string): this {
+    // Apps Script documents the same unspecified malformed-HTML validation boundary as append().
+    // Vegas accepts documented valid content without inferring a Google-internal parser contract.
     this.#content = content;
     return this;
   }

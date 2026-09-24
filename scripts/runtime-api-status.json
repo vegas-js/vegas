@@ -323,14 +323,36 @@
       ],
       "defaultBehavior": "implemented",
       "behaviorOverrides": {
-        "addMetaTag": "local-emulation",
+        "addMetaTag": "fail-closed",
         "append": "local-emulation",
         "appendUntrusted": "local-emulation",
         "getAs": "fail-closed",
         "getBlob": "local-emulation",
         "setContent": "local-emulation",
         "setSandboxMode": "no-op"
-      }
+      },
+      "contractTestedMethods": [
+        "addMetaTag",
+        "append",
+        "appendUntrusted",
+        "asTemplate",
+        "clear",
+        "getAs",
+        "getBlob",
+        "getContent",
+        "getFaviconUrl",
+        "getHeight",
+        "getMetaTags",
+        "getTitle",
+        "getWidth",
+        "setContent",
+        "setFaviconUrl",
+        "setHeight",
+        "setSandboxMode",
+        "setTitle",
+        "setWidth",
+        "setXFrameOptionsMode"
+      ]
     },
     "HtmlService.HtmlOutputMetaTag": {
       "auditedMethods": ["getContent", "getName"],
