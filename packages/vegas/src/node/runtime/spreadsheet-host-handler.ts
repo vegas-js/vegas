@@ -2,6 +2,7 @@ import type { SpreadsheetHostCall, SpreadsheetHostCallResult } from "./spreadshe
 import type { SpreadsheetStore } from "./spreadsheet-store";
 import type { SpreadsheetUrlCapability } from "./spreadsheet-url-capability";
 import { unsupportedHostCall } from "./unsupported-host-call";
+import { UnsupportedRuntimeOperationError } from "./unsupported-runtime-operation-error";
 
 export interface SpreadsheetHostCallHandler {
   handle(call: SpreadsheetHostCall): Promise<SpreadsheetHostCallResult<SpreadsheetHostCall>>;
@@ -33,7 +34,12 @@ export class SpreadsheetHostHandler implements SpreadsheetHostCallHandler {
       }
       case "get-spreadsheet-url": {
         if (this.#urls === undefined) {
-          throw new Error("Spreadsheet URL capability is not configured for this invocation.");
+          // Google defines Spreadsheet.getUrl(), but not Vegas local URL mapping. Vegas requires
+          // an explicit URL capability instead of inventing a production-like Spreadsheet URL.
+          throw new UnsupportedRuntimeOperationError(
+            "Spreadsheet.getUrl()",
+            "local Spreadsheet URLs require a URL capability.",
+          );
         }
 
         return this.#urls.getSpreadsheetUrl(call.spreadsheet);

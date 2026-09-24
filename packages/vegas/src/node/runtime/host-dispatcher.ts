@@ -4,6 +4,7 @@ import type { DriveHostCallHandler } from "./drive-host-handler";
 import type { HostCall, HostCallResult } from "./host-call";
 import type { LockHostCallHandler } from "./lock-host-handler";
 import type { PropertiesHostCallHandler } from "./properties-host-handler";
+import { RuntimeInfrastructureError } from "./runtime-infrastructure-error";
 import type { SpreadsheetHostCallHandler } from "./spreadsheet-host-handler";
 import type { UrlFetchHostCallHandler } from "./url-fetch-host-handler";
 
@@ -34,7 +35,10 @@ export class HostDispatcher implements HostCallDispatcher {
         const handler = this.#handlers.blob;
 
         if (!handler) {
-          throw new Error("Blob host handler is not configured for this invocation.");
+          throw new RuntimeInfrastructureError(
+            "backend",
+            "Blob host handler is not configured for this invocation.",
+          );
         }
 
         return (await handler.handle(call)) as HostCallResult<C>;
@@ -43,7 +47,10 @@ export class HostDispatcher implements HostCallDispatcher {
         const handler = this.#handlers.cache;
 
         if (!handler) {
-          throw new Error("Cache host handler is not configured for this invocation.");
+          throw new RuntimeInfrastructureError(
+            "backend",
+            "Cache host handler is not configured for this invocation.",
+          );
         }
 
         return (await handler.handle(call)) as HostCallResult<C>;
@@ -52,7 +59,10 @@ export class HostDispatcher implements HostCallDispatcher {
         const handler = this.#handlers.drive;
 
         if (!handler) {
-          throw new Error("Drive host handler is not configured for this invocation.");
+          throw new RuntimeInfrastructureError(
+            "backend",
+            "Drive host handler is not configured for this invocation.",
+          );
         }
 
         return (await handler.handle(call)) as HostCallResult<C>;
@@ -61,7 +71,10 @@ export class HostDispatcher implements HostCallDispatcher {
         const handler = this.#handlers.lock;
 
         if (!handler) {
-          throw new Error("Lock host handler is not configured for this invocation.");
+          throw new RuntimeInfrastructureError(
+            "backend",
+            "Lock host handler is not configured for this invocation.",
+          );
         }
 
         return (await handler.handle(call)) as HostCallResult<C>;
@@ -73,7 +86,10 @@ export class HostDispatcher implements HostCallDispatcher {
         const handler = this.#handlers.spreadsheet;
 
         if (!handler) {
-          throw new Error("Spreadsheet host handler is not configured for this invocation.");
+          throw new RuntimeInfrastructureError(
+            "backend",
+            "Spreadsheet host handler is not configured for this invocation.",
+          );
         }
 
         return (await handler.handle(call)) as HostCallResult<C>;
@@ -82,7 +98,10 @@ export class HostDispatcher implements HostCallDispatcher {
         const handler = this.#handlers.urlFetch;
 
         if (!handler) {
-          throw new Error("UrlFetch host handler is not configured for this invocation.");
+          throw new RuntimeInfrastructureError(
+            "backend",
+            "UrlFetch host handler is not configured for this invocation.",
+          );
         }
 
         return (await handler.handle(call)) as HostCallResult<C>;

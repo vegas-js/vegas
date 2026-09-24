@@ -1,10 +1,8 @@
 import { isHostService, type HostCall, type HostService } from "./host-call";
+import type { RuntimeErrorSnapshot } from "./runtime-error";
 
-export interface HostError {
-  readonly name: string;
+export interface HostError extends RuntimeErrorSnapshot {
   readonly type: string;
-  readonly message: string;
-  readonly stack?: string;
 }
 
 export interface HostCallEnvelope {

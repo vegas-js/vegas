@@ -63,8 +63,8 @@ describe("createHostResponse", () => {
       id: 18,
       ok: false,
       error: {
-        name: "Error",
-        type: "Error",
+        name: "RuntimeInfrastructureError",
+        type: "RuntimeInfrastructureError",
         message: "Drive host handler is not configured for this invocation.",
       },
     });
@@ -85,8 +85,8 @@ describe("createHostResponse", () => {
       id: 19,
       ok: false,
       error: {
-        name: "Error",
-        type: "Error",
+        name: "RuntimeInfrastructureError",
+        type: "RuntimeInfrastructureError",
         message: "Unsupported host call: properties#unknown",
       },
     });
