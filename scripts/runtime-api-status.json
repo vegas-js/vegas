@@ -354,7 +354,8 @@
     },
     "PropertiesService": {
       "auditedMethods": ["getDocumentProperties", "getScriptProperties", "getUserProperties"],
-      "defaultBehavior": "local-emulation"
+      "defaultBehavior": "local-emulation",
+      "contractTestedMethods": ["getDocumentProperties", "getScriptProperties", "getUserProperties"]
     },
     "PropertiesService.Properties": {
       "auditedMethods": [
@@ -366,7 +367,16 @@
         "setProperties",
         "setProperty"
       ],
-      "defaultBehavior": "local-emulation"
+      "defaultBehavior": "local-emulation",
+      "contractTestedMethods": [
+        "deleteAllProperties",
+        "deleteProperty",
+        "getKeys",
+        "getProperties",
+        "getProperty",
+        "setProperties",
+        "setProperty"
+      ]
     },
     "Utilities": {
       "auditedMethods": [
