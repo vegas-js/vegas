@@ -6,6 +6,7 @@ import {
   type HostResponseMessage,
 } from "../host-protocol";
 import { serializeRuntimeError } from "../runtime-error";
+import { RuntimeInfrastructureError } from "../runtime-infrastructure-error";
 
 interface HostResponsePort {
   postMessage(value: HostResponseMessage): void;
@@ -53,7 +54,17 @@ export async function handleHostRequestMessage(
   const request = value as HostRequestMessage;
 
   try {
-    port.postMessage(await createHostResponse(dispatcher, request));
+    const response = await createHostResponse(dispatcher, request);
+
+    try {
+      port.postMessage(response);
+    } catch (error) {
+      throw new RuntimeInfrastructureError(
+        "serialization",
+        `Host response ${request.id} could not be serialized.`,
+        { cause: error },
+      );
+    }
   } finally {
     Atomics.store(sharedArray, 0, 0);
     Atomics.notify(sharedArray, 0);

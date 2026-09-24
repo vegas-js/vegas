@@ -4,6 +4,7 @@ import type { HostBridge } from "../host-bridge";
 import type { HostCall, HostCallResult } from "../host-call";
 import type { HostError, HostRequestMessage, HostResponseMessage } from "../host-protocol";
 import { isRuntimeErrorSnapshot, restoreRuntimeError } from "../runtime-error";
+import { RuntimeInfrastructureError } from "../runtime-infrastructure-error";
 
 class WorkerHostBridge implements HostBridge {
   readonly #port: worker.MessagePort;
@@ -24,7 +25,18 @@ class WorkerHostBridge implements HostBridge {
     };
 
     Atomics.store(this.#sharedArray, 0, 1);
-    this.#port.postMessage(request);
+
+    try {
+      this.#port.postMessage(request);
+    } catch (error) {
+      Atomics.store(this.#sharedArray, 0, 0);
+      throw new RuntimeInfrastructureError(
+        "serialization",
+        `Apps Script host request ${request.id} could not be serialized.`,
+        { cause: error },
+      );
+    }
+
     Atomics.wait(this.#sharedArray, 0, 1);
 
     const received = worker.receiveMessageOnPort(this.#port);
@@ -45,11 +57,17 @@ export function readHostResponse<C extends HostCall>(
   response: unknown,
 ): HostCallResult<C> {
   if (!isHostResponseMessage(response)) {
-    throw new Error(`Host response ${request.id} is missing or invalid.`);
+    throw new RuntimeInfrastructureError(
+      "protocol",
+      `Host response ${request.id} is missing or invalid.`,
+    );
   }
 
   if (response.id !== request.id) {
-    throw new Error(`Host response id ${response.id} does not match request ${request.id}.`);
+    throw new RuntimeInfrastructureError(
+      "protocol",
+      `Host response id ${response.id} does not match request ${request.id}.`,
+    );
   }
 
   if (!response.ok) {

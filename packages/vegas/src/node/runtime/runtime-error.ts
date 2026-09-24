@@ -1,15 +1,30 @@
+import {
+  isRuntimeInfrastructureErrorKind,
+  RuntimeInfrastructureError,
+  type RuntimeInfrastructureErrorKind,
+} from "./runtime-infrastructure-error";
+
 export interface RuntimeErrorSnapshot {
   readonly name: string;
   readonly message: string;
   readonly stack?: string;
+  readonly infrastructureKind?: RuntimeInfrastructureErrorKind;
 }
 
 export function isRuntimeErrorSnapshot(value: unknown): value is RuntimeErrorSnapshot {
+  if (
+    !isRecord(value) ||
+    typeof value.name !== "string" ||
+    typeof value.message !== "string" ||
+    (value.stack !== undefined && typeof value.stack !== "string")
+  ) {
+    return false;
+  }
+
   return (
-    isRecord(value) &&
-    typeof value.name === "string" &&
-    typeof value.message === "string" &&
-    (value.stack === undefined || typeof value.stack === "string")
+    value.infrastructureKind === undefined ||
+    (value.name === "RuntimeInfrastructureError" &&
+      isRuntimeInfrastructureErrorKind(value.infrastructureKind))
   );
 }
 
@@ -21,6 +36,7 @@ export function serializeRuntimeError(error: unknown): RuntimeErrorSnapshot {
       name,
       message: getRuntimeErrorMessage(error),
       ...(typeof error.stack === "string" ? { stack: error.stack } : {}),
+      ...(error instanceof RuntimeInfrastructureError ? { infrastructureKind: error.kind } : {}),
     };
   }
 
@@ -31,7 +47,10 @@ export function serializeRuntimeError(error: unknown): RuntimeErrorSnapshot {
 }
 
 export function restoreRuntimeError(error: RuntimeErrorSnapshot): Error {
-  const restored = createRuntimeError(error.name, error.message);
+  const restored =
+    error.infrastructureKind === undefined
+      ? createRuntimeError(error.name, error.message)
+      : new RuntimeInfrastructureError(error.infrastructureKind, error.message);
   restored.name = error.name;
 
   if (error.stack !== undefined) {
@@ -62,8 +81,8 @@ function createRuntimeError(name: string, message: string): Error {
       return new URIError(message);
     }
     default: {
-      // The transport only carries name/message/stack. Custom subclasses and AggregateError
-      // therefore fall back to Error while retaining the serialized name.
+      // RuntimeInfrastructureError has explicit transport metadata above. Other custom subclasses
+      // and AggregateError fall back to Error while retaining the serialized name.
       return new Error(message);
     }
   }

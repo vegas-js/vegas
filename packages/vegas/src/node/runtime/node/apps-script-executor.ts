@@ -209,7 +209,13 @@ export function runAppsScriptWorkerSession(
     try {
       port.postMessage(invocation);
     } catch (error) {
-      fail(error);
+      terminate(
+        new RuntimeInfrastructureError(
+          "serialization",
+          "Apps Script invocation could not be serialized.",
+          { cause: error },
+        ),
+      );
     }
   });
 }

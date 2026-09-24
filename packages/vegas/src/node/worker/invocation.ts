@@ -1,4 +1,4 @@
-import { executeRuntimeFunction } from "../runtime";
+import { executeRuntimeFunction, RuntimeInfrastructureError } from "../runtime";
 import {
   isAppsScriptWorkerRequest,
   serializeAppsScriptWorkerError,
@@ -57,7 +57,25 @@ function postAppsScriptWorkerResponse(
   response: AppsScriptWorkerResponse,
 ): void {
   try {
-    port.postMessage(response);
+    try {
+      port.postMessage(response);
+    } catch (error) {
+      if (!response.ok) {
+        throw error;
+      }
+
+      port.postMessage({
+        type: "result",
+        ok: false,
+        error: serializeAppsScriptWorkerError(
+          new RuntimeInfrastructureError(
+            "serialization",
+            "Apps Script worker result could not be serialized.",
+            { cause: error },
+          ),
+        ),
+      });
+    }
   } finally {
     port.close();
   }
