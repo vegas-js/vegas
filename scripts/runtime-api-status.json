@@ -239,7 +239,8 @@
     },
     "ContentService": {
       "auditedMethods": ["createTextOutput"],
-      "defaultBehavior": "implemented"
+      "defaultBehavior": "implemented",
+      "contractTestedMethods": ["createTextOutput"]
     },
     "ContentService.TextOutput": {
       "auditedMethods": [
@@ -255,7 +256,17 @@
       "defaultBehavior": "implemented",
       "behaviorOverrides": {
         "downloadAsFile": "local-emulation"
-      }
+      },
+      "contractTestedMethods": [
+        "append",
+        "clear",
+        "downloadAsFile",
+        "getContent",
+        "getFileName",
+        "getMimeType",
+        "setContent",
+        "setMimeType"
+      ]
     },
     "CacheService": {
       "auditedMethods": ["getDocumentCache", "getScriptCache", "getUserCache"],

@@ -38,8 +38,8 @@ Structural coverage records whether a Runtime method exists; it does not imply G
 | `SpreadsheetApp.Sheet`          |              41 | `local-emulation`: 41                                                       |          0 / 41 |
 | `SpreadsheetApp.Range`          |              33 | `local-emulation`: 33                                                       |          0 / 33 |
 | `Blob`                          |              14 | `implemented`: 8<br>`local-emulation`: 4<br>`fail-closed`: 2                |          1 / 14 |
-| `ContentService`                |               1 | `implemented`: 1                                                            |           0 / 1 |
-| `ContentService.TextOutput`     |               8 | `implemented`: 7<br>`local-emulation`: 1                                    |           0 / 8 |
+| `ContentService`                |               1 | `implemented`: 1                                                            |           1 / 1 |
+| `ContentService.TextOutput`     |               8 | `implemented`: 7<br>`local-emulation`: 1                                    |           8 / 8 |
 | `CacheService`                  |               3 | `local-emulation`: 3                                                        |           3 / 3 |
 | `CacheService.Cache`            |               6 | `local-emulation`: 6                                                        |           6 / 6 |
 | `LockService`                   |               3 | `local-emulation`: 3                                                        |           3 / 3 |
