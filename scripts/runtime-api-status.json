@@ -371,7 +371,8 @@
       "defaultBehavior": "local-emulation",
       "behaviorOverrides": {
         "getRawContent": "implemented"
-      }
+      },
+      "contractTestedMethods": ["evaluate", "getCode", "getCodeWithComments", "getRawContent"]
     },
     "Logger": {
       "auditedMethods": ["clear", "getLog", "log"],
