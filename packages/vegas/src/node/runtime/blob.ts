@@ -1,4 +1,6 @@
+import type { BlobConverter } from "./blob-converter";
 import type { BlobValue } from "./blob-value";
+import { UnsupportedRuntimeOperationError } from "./unsupported-runtime-operation-error";
 
 function toSignedByte(value: number): number {
   const unsigned = value & 0xff;
@@ -28,13 +30,15 @@ export interface RuntimeBlobSource {
 
 // https://developers.google.com/apps-script/reference/base/blob
 export class RuntimeBlob implements RuntimeBlobSource {
+  readonly #blobConverter: BlobConverter | undefined;
   #bytes: number[];
   #contentType: string | null;
   #name: string | null;
   readonly #googleType: boolean;
 
-  constructor(value: BlobValue) {
+  constructor(value: BlobValue, blobConverter?: BlobConverter) {
     const cloned = cloneValue(value);
+    this.#blobConverter = blobConverter;
     this.#bytes = [...cloned.bytes];
     this.#contentType = cloned.contentType;
     this.#name = cloned.name;
@@ -42,7 +46,22 @@ export class RuntimeBlob implements RuntimeBlobSource {
   }
 
   copyBlob(): RuntimeBlob {
-    return new RuntimeBlob(serializeBlob(this));
+    return new RuntimeBlob(serializeBlob(this), this.#blobConverter);
+  }
+
+  getAs(contentType: string): RuntimeBlob {
+    if (this.#blobConverter === undefined) {
+      // Vegas only enables conversion when the current Runtime supplies a conversion backend.
+      throw new UnsupportedRuntimeOperationError(
+        "Blob.getAs()",
+        "Blob conversion is not available in this Runtime context.",
+      );
+    }
+
+    return new RuntimeBlob(
+      this.#blobConverter(serializeBlob(this), contentType),
+      this.#blobConverter,
+    );
   }
 
   getBlob(): RuntimeBlob {
@@ -94,17 +113,21 @@ export function createBlob(
   data: string | readonly number[],
   contentType: string | null = null,
   name: string | null = null,
+  blobConverter?: BlobConverter,
 ): RuntimeBlob {
-  return new RuntimeBlob({
-    bytes: typeof data === "string" ? encodeUtf8(data) : data.map(toSignedByte),
-    contentType,
-    name,
-    googleType: false,
-  });
+  return new RuntimeBlob(
+    {
+      bytes: typeof data === "string" ? encodeUtf8(data) : data.map(toSignedByte),
+      contentType,
+      name,
+      googleType: false,
+    },
+    blobConverter,
+  );
 }
 
-export function hydrateBlob(value: BlobValue): RuntimeBlob {
-  return new RuntimeBlob(value);
+export function hydrateBlob(value: BlobValue, blobConverter?: BlobConverter): RuntimeBlob {
+  return new RuntimeBlob(value, blobConverter);
 }
 
 export function serializeBlob(blob: RuntimeBlob): BlobValue {

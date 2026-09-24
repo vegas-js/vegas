@@ -1,4 +1,5 @@
 import { createBlob, type RuntimeBlob, type RuntimeBlobSource } from "./blob";
+import type { BlobConverter } from "./blob-converter";
 import { parseCsv as parseCsvString } from "./csv";
 import { formatPrintf } from "./printf";
 import { formatSimpleDate, parseSimpleDate } from "./simple-date-format";
@@ -70,9 +71,11 @@ export class Utilities {
     UTILITIES_MAC_ALGORITHM as unknown as typeof GoogleAppsScript.Utilities.MacAlgorithm;
   readonly RsaAlgorithm =
     UTILITIES_RSA_ALGORITHM as unknown as typeof GoogleAppsScript.Utilities.RsaAlgorithm;
+  readonly #blobConverter: BlobConverter | undefined;
   readonly #capability: UtilitiesCapability;
 
-  constructor(capability: UtilitiesCapability) {
+  constructor(capability: UtilitiesCapability, blobConverter?: BlobConverter) {
+    this.#blobConverter = blobConverter;
     this.#capability = capability;
   }
 
@@ -314,7 +317,12 @@ export class Utilities {
   gzip(blob: RuntimeBlobSource, name: string): RuntimeBlob;
   gzip(blob: RuntimeBlobSource, name?: string): RuntimeBlob {
     const compressed = this.#capability.gzip(encodeBytes(blob.getBlob().getBytes()));
-    return createBlob(Array.from(compressed, toSignedByte), null, name ?? null);
+    return createBlob(
+      Array.from(compressed, toSignedByte),
+      null,
+      name ?? null,
+      this.#blobConverter,
+    );
   }
 
   newBlob(data: GoogleAppsScript.Byte[]): RuntimeBlob;
@@ -332,7 +340,7 @@ export class Utilities {
     contentType: string | null = null,
     name: string | null = null,
   ): RuntimeBlob {
-    return createBlob(data, contentType, name);
+    return createBlob(data, contentType, name, this.#blobConverter);
   }
 
   parseCsv(csv: string): string[][];
@@ -355,13 +363,15 @@ export class Utilities {
 
   ungzip(blob: RuntimeBlobSource): RuntimeBlob {
     const uncompressed = this.#capability.gunzip(encodeBytes(blob.getBlob().getBytes()));
-    return createBlob(Array.from(uncompressed, toSignedByte));
+    return createBlob(Array.from(uncompressed, toSignedByte), null, null, this.#blobConverter);
   }
 
   unzip(blob: RuntimeBlobSource): RuntimeBlob[] {
     return this.#capability
       .unzip(encodeBytes(blob.getBlob().getBytes()))
-      .map((entry) => createBlob(Array.from(entry.data, toSignedByte), null, entry.name));
+      .map((entry) =>
+        createBlob(Array.from(entry.data, toSignedByte), null, entry.name, this.#blobConverter),
+      );
   }
 
   zip(blobs: RuntimeBlobSource[]): RuntimeBlob;
@@ -379,10 +389,18 @@ export class Utilities {
       };
     });
 
-    return createBlob(Array.from(this.#capability.zip(entries), toSignedByte), null, name ?? null);
+    return createBlob(
+      Array.from(this.#capability.zip(entries), toSignedByte),
+      null,
+      name ?? null,
+      this.#blobConverter,
+    );
   }
 }
 
-export function createUtilities(capability: UtilitiesCapability): Utilities {
-  return new Utilities(capability);
+export function createUtilities(
+  capability: UtilitiesCapability,
+  blobConverter?: BlobConverter,
+): Utilities {
+  return new Utilities(capability, blobConverter);
 }

@@ -1,6 +1,7 @@
 import crypto from "node:crypto";
 import zlib from "node:zlib";
 
+import type { BlobConverter } from "../blob-converter";
 import { createUtilities } from "../utilities";
 import type { UtilitiesArchiveEntry, UtilitiesCapability } from "../utilities-capability";
 import { createZip, extractZip } from "./zip";
@@ -69,6 +70,6 @@ export class NodeUtilitiesCapability implements UtilitiesCapability {
   }
 }
 
-export function createNodeUtilities() {
-  return createUtilities(new NodeUtilitiesCapability());
+export function createNodeUtilities(blobConverter?: BlobConverter) {
+  return createUtilities(new NodeUtilitiesCapability(), blobConverter);
 }

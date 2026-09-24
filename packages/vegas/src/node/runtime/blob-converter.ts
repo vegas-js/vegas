@@ -19,5 +19,5 @@ export function convertBlob(
   contentType: string,
   convert: BlobConverter,
 ): RuntimeBlob {
-  return hydrateBlob(convert(serializeBlob(blob), contentType));
+  return hydrateBlob(convert(serializeBlob(blob), contentType), convert);
 }

@@ -1,6 +1,8 @@
 import { describe, expect, test } from "vitest";
 
+import type { BlobConverter } from "./blob-converter";
 import { createBlob, hydrateBlob, RuntimeBlob, serializeBlob } from "./index";
+import { UnsupportedRuntimeOperationError } from "./unsupported-runtime-operation-error";
 
 describe("RuntimeBlob", () => {
   test("create raw blobs from UTF-8 data with Apps Script signed bytes", () => {
@@ -12,6 +14,49 @@ describe("RuntimeBlob", () => {
     expect(blob.getContentType()).toBeNull();
     expect(blob.getName()).toBeNull();
     expect(blob.isGoogleType()).toBe(false);
+  });
+
+  test("convert blobs through the bound Runtime conversion backend", () => {
+    const calls: unknown[] = [];
+    const convert: BlobConverter = (value, contentType) => {
+      calls.push({ value, contentType });
+
+      return {
+        ...value,
+        bytes: [80, 68, 70],
+        contentType,
+        name: "vegas.pdf",
+      };
+    };
+    const blob = createBlob("Vegas", "text/plain", "vegas.txt", convert);
+    const converted = blob.getAs("application/pdf");
+
+    expect(converted).toBeInstanceOf(RuntimeBlob);
+    expect(converted.getBytes()).toStrictEqual([80, 68, 70]);
+    expect(converted.getContentType()).toBe("application/pdf");
+    expect(converted.getName()).toBe("vegas.pdf");
+    expect(calls).toStrictEqual([
+      {
+        value: {
+          bytes: [86, 101, 103, 97, 115],
+          contentType: "text/plain",
+          name: "vegas.txt",
+          googleType: false,
+        },
+        contentType: "application/pdf",
+      },
+    ]);
+
+    expect(converted.copyBlob().getAs("image/png").getContentType()).toBe("image/png");
+  });
+
+  test("reject conversion when a blob has no Runtime conversion backend", () => {
+    const blob = createBlob("Vegas", "text/plain", "vegas.txt");
+
+    expect(() => blob.getAs("application/pdf")).toThrow(UnsupportedRuntimeOperationError);
+    expect(() => blob.getAs("application/pdf")).toThrow(
+      "Local Runtime does not support Blob.getAs(): Blob conversion is not available in this Runtime context.",
+    );
   });
 
   test("return blob data through BlobSource contract", () => {

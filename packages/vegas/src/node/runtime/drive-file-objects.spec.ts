@@ -19,6 +19,14 @@ class RecordingHostBridge implements HostBridge {
   call<C extends HostCall>(call: C): HostCallResult<C> {
     this.calls.push(call);
 
+    if (call.service === "blob") {
+      return {
+        ...call.value,
+        bytes: [80, 68, 70],
+        contentType: call.contentType,
+      } as unknown as HostCallResult<C>;
+    }
+
     if (call.service !== "drive") {
       throw new Error("unexpected host service");
     }
@@ -144,6 +152,9 @@ describe("DriveFile Runtime object", () => {
     expect(blob.getDataAsString()).toBe("hello");
     expect(blob.getContentType()).toBe("text/plain");
     expect(blob.getName()).toBe("hello.txt");
+    const convertedBlob = blob.getAs("application/pdf");
+    expect(convertedBlob.getBytes()).toStrictEqual([80, 68, 70]);
+    expect(convertedBlob.getContentType()).toBe("application/pdf");
     expect(file.setContent("updated")).toBe(file);
 
     expect(bridge.calls).toStrictEqual([
@@ -174,6 +185,17 @@ describe("DriveFile Runtime object", () => {
           kind: "file",
           id: "file-1",
         },
+      },
+      {
+        service: "blob",
+        operation: "convert",
+        value: {
+          bytes: [104, 101, 108, 108, 111],
+          contentType: "text/plain",
+          name: "hello.txt",
+          googleType: false,
+        },
+        contentType: "application/pdf",
       },
       {
         service: "drive",

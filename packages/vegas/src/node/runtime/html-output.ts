@@ -101,7 +101,7 @@ export class HtmlOutput {
     // Apps Script documents that HtmlOutput.getBlob() returns the output data, but does not define
     // the returned Blob metadata. Vegas represents the local Runtime value as UTF-8 text/html with
     // no filename; Google-specific undocumented metadata remains intentionally unspecified.
-    return createBlob(this.#content, "text/html");
+    return createBlob(this.#content, "text/html", null, this.#blobConverter);
   }
 
   getContent(): string {

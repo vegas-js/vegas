@@ -70,7 +70,7 @@ export class HTTPResponse {
   }
 
   getBlob(): RuntimeBlob {
-    return createBlob(this.#value.content);
+    return createBlob(this.#value.content, null, null, this.#blobConverter);
   }
 
   getContent(): number[] {

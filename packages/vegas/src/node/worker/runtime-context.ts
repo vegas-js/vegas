@@ -57,7 +57,7 @@ export function createWorkerRuntimeContext(data: RuntimeWorkerData): Context {
     htmlFiles: data.program.htmlFiles,
     htmlTemplateEvaluator: evaluateHtmlTemplate,
     loggingTarget: console,
-    utilities: createNodeUtilities(),
+    utilities: createNodeUtilities(blobConverter),
   });
 
   Object.defineProperty(globals, HTML_TEMPLATE_OUTPUT_FACTORY, {

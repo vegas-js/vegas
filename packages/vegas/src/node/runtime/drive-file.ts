@@ -1,4 +1,5 @@
 import { hydrateBlob, type RuntimeBlob } from "./blob";
+import { createBlobConverter } from "./blob-converter";
 import type { DriveFolder } from "./drive-folder";
 import { resolveDriveFolderReference } from "./drive-folder-identity";
 import type { DriveFolderIterator } from "./drive-folder-iterator";
@@ -26,6 +27,7 @@ export class DriveFile {
         operation: "get-file-blob",
         file: this.#reference,
       }),
+      createBlobConverter(this.#bridge),
     );
   }
 

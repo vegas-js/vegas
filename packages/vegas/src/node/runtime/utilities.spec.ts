@@ -2,6 +2,7 @@ import crypto from "node:crypto";
 
 import { describe, expect, test } from "vitest";
 
+import type { BlobConverter } from "./blob-converter";
 import { createNodeUtilities } from "./node";
 import { Utilities } from "./utilities";
 
@@ -62,6 +63,33 @@ describe("Utilities", () => {
     expect(JSON.stringify(utilities.DigestAlgorithm.SHA_256)).toBe('"SHA_256"');
     expect(JSON.stringify(utilities.MacAlgorithm.HMAC_SHA_256)).toBe('"HMAC_SHA_256"');
     expect(JSON.stringify(utilities.RsaAlgorithm.RSA_SHA_256)).toBe('"RSA_SHA_256"');
+  });
+
+  test("bind generated blobs to the Runtime conversion backend", () => {
+    const calls: unknown[] = [];
+    const convert: BlobConverter = (value, contentType) => {
+      calls.push({ value, contentType });
+
+      return {
+        ...value,
+        contentType,
+      };
+    };
+    const utilities = createNodeUtilities(convert);
+    const blob = utilities.newBlob("Vegas", "text/plain", "vegas.txt");
+
+    expect(blob.getAs("application/pdf").getContentType()).toBe("application/pdf");
+    expect(calls).toStrictEqual([
+      {
+        value: {
+          bytes: [86, 101, 103, 97, 115],
+          contentType: "text/plain",
+          name: "vegas.txt",
+          googleType: false,
+        },
+        contentType: "application/pdf",
+      },
+    ]);
   });
 
   test("decode standard and web-safe Base64 into signed bytes", () => {

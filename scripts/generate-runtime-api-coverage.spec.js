@@ -223,7 +223,7 @@ interface BlobSource {
     });
 
     expect(output).toContain("::: details Shared");
-    expect(output).toContain("| `Blob` | 2 / 3 | 66.7% | `getAs()` |");
+    expect(output).toContain("| `Blob` | 3 / 3 | 100.0% | — |");
   });
 
   test("validate supplemental Runtime API declarations", () => {

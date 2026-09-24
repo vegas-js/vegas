@@ -78,6 +78,7 @@ describe("HtmlOutput", () => {
     expect(converted).toBeInstanceOf(RuntimeBlob);
     expect(converted.getBytes()).toStrictEqual([80, 68, 70]);
     expect(converted.getContentType()).toBe("application/pdf");
+    expect(output.getBlob().getAs("application/pdf").getBytes()).toStrictEqual([80, 68, 70]);
   });
 
   test("reject conversion without a bound Runtime conversion context", () => {
