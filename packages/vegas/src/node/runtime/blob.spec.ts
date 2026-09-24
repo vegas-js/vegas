@@ -59,6 +59,15 @@ describe("RuntimeBlob", () => {
     );
   });
 
+  test("reject deprecated composite Blob access that the Local Runtime cannot model", () => {
+    const blob = createBlob("Vegas", "text/plain", "vegas.txt");
+
+    expect(() => blob.getAllBlobs()).toThrow(UnsupportedRuntimeOperationError);
+    expect(() => blob.getAllBlobs()).toThrow(
+      "Local Runtime does not support Blob.getAllBlobs(): composite Blob contents are not modeled.",
+    );
+  });
+
   test("return blob data through BlobSource contract", () => {
     const blob = createBlob("content", "text/plain", "content.txt");
     const returned = blob.getBlob();

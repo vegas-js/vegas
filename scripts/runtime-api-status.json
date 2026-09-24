@@ -211,6 +211,7 @@
       "auditedMethods": [
         "copyBlob",
         "getAs",
+        "getAllBlobs",
         "getBlob",
         "getBytes",
         "getContentType",
@@ -225,6 +226,7 @@
       ],
       "defaultBehavior": "implemented",
       "behaviorOverrides": {
+        "getAllBlobs": "fail-closed",
         "getAs": "fail-closed",
         "getDataAsString": "local-emulation",
         "isGoogleType": "local-emulation",

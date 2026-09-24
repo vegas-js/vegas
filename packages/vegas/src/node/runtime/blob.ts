@@ -106,6 +106,15 @@ export class RuntimeBlob implements RuntimeBlobSource {
     );
   }
 
+  getAllBlobs(): RuntimeBlob[] {
+    // Google deprecated getAllBlobs() and documents it for possibly composite Blobs. Vegas does not
+    // model composite Blob contents, so the Local Runtime fails closed instead of inventing them.
+    throw new UnsupportedRuntimeOperationError(
+      "Blob.getAllBlobs()",
+      "composite Blob contents are not modeled.",
+    );
+  }
+
   getBlob(): RuntimeBlob {
     return this;
   }
