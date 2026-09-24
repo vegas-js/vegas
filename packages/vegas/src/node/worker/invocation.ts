@@ -10,6 +10,14 @@ interface AppsScriptWorkerPort {
   close(): void;
 }
 
+export function postAppsScriptWorkerError(port: AppsScriptWorkerPort, error: unknown): void {
+  postAppsScriptWorkerResponse(port, {
+    type: "result",
+    ok: false,
+    error: serializeAppsScriptWorkerError(error),
+  });
+}
+
 export async function handleAppsScriptWorkerInvocation(
   port: AppsScriptWorkerPort,
   scriptContext: Readonly<Record<string, unknown>>,
@@ -41,6 +49,13 @@ export async function handleAppsScriptWorkerInvocation(
     }
   }
 
+  postAppsScriptWorkerResponse(port, response);
+}
+
+function postAppsScriptWorkerResponse(
+  port: AppsScriptWorkerPort,
+  response: AppsScriptWorkerResponse,
+): void {
   try {
     port.postMessage(response);
   } finally {

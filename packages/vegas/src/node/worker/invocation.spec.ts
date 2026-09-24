@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 
 import type { AppsScriptWorkerResponse } from "../runtime/node/apps-script-worker-protocol";
-import { handleAppsScriptWorkerInvocation } from "./invocation";
+import { handleAppsScriptWorkerInvocation, postAppsScriptWorkerError } from "./invocation";
 
 class TestPort {
   readonly messages: AppsScriptWorkerResponse[] = [];
@@ -87,6 +87,29 @@ describe("handleAppsScriptWorkerInvocation", () => {
         message: "Invalid Apps Script worker invocation request.",
       },
     });
+    expect(port.closeCount).toBe(1);
+  });
+
+  test("post program initialization errors through the worker protocol", () => {
+    const port = new TestPort();
+
+    postAppsScriptWorkerError(port, {
+      name: "SyntaxError",
+      message: "Unexpected token",
+      stack: "program stack",
+    });
+
+    expect(port.messages).toStrictEqual([
+      {
+        type: "result",
+        ok: false,
+        error: {
+          name: "SyntaxError",
+          message: "Unexpected token",
+          stack: "program stack",
+        },
+      },
+    ]);
     expect(port.closeCount).toBe(1);
   });
 

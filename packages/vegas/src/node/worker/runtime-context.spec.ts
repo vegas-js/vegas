@@ -6,7 +6,7 @@ import type { InvocationEnvironment } from "../runtime/invocation";
 import type { Program } from "../runtime/program";
 import { SpreadsheetApp } from "../runtime/spreadsheet-app";
 import { Utilities } from "../runtime/utilities";
-import { createWorkerRuntimeContext } from "./runtime-context";
+import { createWorkerRuntimeContext, evaluateWorkerProgram } from "./runtime-context";
 
 const environment = {
   activeUserEmail: "active@example.com",
@@ -82,10 +82,38 @@ describe("createWorkerRuntimeContext", () => {
 
       expect(context.SpreadsheetApp).toBeInstanceOf(SpreadsheetApp);
       expect(context.Utilities).toBeInstanceOf(Utilities);
+      expect(context.run).toBeUndefined();
+
+      evaluateWorkerProgram(context, program.source);
+
       expect(context.run()).toBe("ja:<main>Vegas</main>:Vegas Browser");
       expect(context.renderTemplate()).toBe("<main>&lt;Hello&gt; JA <b>Trusted</b></main>");
       expect(context.evaluateTemplateCode()).toBe("<p>&lt;Vegas&gt;</p>");
       expect(context.renderTemplateFactories()).toBe("<p>JA</p>:<main>&lt;Hello&gt; JA</main>");
+    } finally {
+      port1.close();
+      port2.close();
+    }
+  });
+
+  test("keep program evaluation separate from runtime context construction", () => {
+    const { port1, port2 } = new worker.MessageChannel();
+
+    try {
+      const failingProgram = {
+        source: 'throw new TypeError("program initialization failed");',
+        htmlFiles: {},
+      } satisfies Program;
+      const context = createWorkerRuntimeContext({
+        program: failingProgram,
+        environment,
+        port: port1,
+        sharedArray: new Int32Array(new SharedArrayBuffer(4)),
+      });
+
+      expect(() => evaluateWorkerProgram(context, failingProgram.source)).toThrow(
+        "program initialization failed",
+      );
     } finally {
       port1.close();
       port2.close();

@@ -68,7 +68,9 @@ export function createWorkerRuntimeContext(data: RuntimeWorkerData): Context {
 
   context = vm.createContext(globals);
 
-  new vm.Script(data.program.source).runInContext(context);
-
   return context;
+}
+
+export function evaluateWorkerProgram(context: Context, source: string): void {
+  new vm.Script(source).runInContext(context);
 }
