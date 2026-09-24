@@ -296,7 +296,14 @@
         "createTemplateFromFile",
         "getUserAgent"
       ],
-      "defaultBehavior": "local-emulation"
+      "defaultBehavior": "local-emulation",
+      "contractTestedMethods": [
+        "createHtmlOutput",
+        "createHtmlOutputFromFile",
+        "createTemplate",
+        "createTemplateFromFile",
+        "getUserAgent"
+      ]
     },
     "HtmlService.HtmlOutput": {
       "auditedMethods": [

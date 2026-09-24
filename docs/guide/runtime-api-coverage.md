@@ -44,7 +44,7 @@ Structural coverage records whether a Runtime method exists; it does not imply G
 | `CacheService.Cache`            |               6 | `local-emulation`: 6                                                        |           6 / 6 |
 | `LockService`                   |               3 | `local-emulation`: 3                                                        |           3 / 3 |
 | `LockService.Lock`              |               4 | `local-emulation`: 4                                                        |           4 / 4 |
-| `HtmlService`                   |               5 | `local-emulation`: 5                                                        |           0 / 5 |
+| `HtmlService`                   |               5 | `local-emulation`: 5                                                        |           5 / 5 |
 | `HtmlService.HtmlOutput`        |              20 | `implemented`: 13<br>`local-emulation`: 4<br>`no-op`: 1<br>`fail-closed`: 2 |         20 / 20 |
 | `HtmlService.HtmlOutputMetaTag` |               2 | `implemented`: 2                                                            |           2 / 2 |
 | `HtmlService.HtmlTemplate`      |               4 | `implemented`: 1<br>`local-emulation`: 3                                    |           0 / 4 |
