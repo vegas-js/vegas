@@ -40,8 +40,8 @@ Structural coverage records whether a Runtime method exists; it does not imply G
 | `Blob`                          |              14 | `implemented`: 8<br>`local-emulation`: 4<br>`fail-closed`: 2                |          1 / 14 |
 | `ContentService`                |               1 | `implemented`: 1                                                            |           0 / 1 |
 | `ContentService.TextOutput`     |               8 | `implemented`: 7<br>`local-emulation`: 1                                    |           0 / 8 |
-| `CacheService`                  |               3 | `local-emulation`: 3                                                        |           0 / 3 |
-| `CacheService.Cache`            |               6 | `local-emulation`: 6                                                        |           0 / 6 |
+| `CacheService`                  |               3 | `local-emulation`: 3                                                        |           3 / 3 |
+| `CacheService.Cache`            |               6 | `local-emulation`: 6                                                        |           6 / 6 |
 | `LockService`                   |               3 | `local-emulation`: 3                                                        |           0 / 3 |
 | `LockService.Lock`              |               4 | `local-emulation`: 4                                                        |           0 / 4 |
 | `HtmlService`                   |               5 | `local-emulation`: 5                                                        |           0 / 5 |

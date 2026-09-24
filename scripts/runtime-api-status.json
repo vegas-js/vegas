@@ -259,11 +259,13 @@
     },
     "CacheService": {
       "auditedMethods": ["getDocumentCache", "getScriptCache", "getUserCache"],
-      "defaultBehavior": "local-emulation"
+      "defaultBehavior": "local-emulation",
+      "contractTestedMethods": ["getDocumentCache", "getScriptCache", "getUserCache"]
     },
     "CacheService.Cache": {
       "auditedMethods": ["get", "getAll", "put", "putAll", "remove", "removeAll"],
-      "defaultBehavior": "local-emulation"
+      "defaultBehavior": "local-emulation",
+      "contractTestedMethods": ["get", "getAll", "put", "putAll", "remove", "removeAll"]
     },
     "LockService": {
       "auditedMethods": ["getDocumentLock", "getScriptLock", "getUserLock"],
