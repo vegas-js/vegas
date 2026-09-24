@@ -13,6 +13,7 @@ import type {
 import { Sheet } from "./spreadsheet-sheet";
 import type { Spreadsheet } from "./spreadsheet-spreadsheet";
 import type { SpreadsheetGrid } from "./spreadsheet-store";
+import { UnsupportedRuntimeOperationError } from "./unsupported-runtime-operation-error";
 
 class RecordingHostBridge implements HostBridge {
   readonly calls: HostCall[] = [];
@@ -145,12 +146,23 @@ describe("Sheet.appendRow", () => {
     expect(setValues).not.toHaveBeenCalled();
   });
 
-  test("reject formula input until local formula evaluation is modeled", () => {
+  test("reject formula input as an unsupported Local Runtime operation", () => {
     const { bridge, hydrator, setValues, sheet } = createFixture(3);
+    let caught: unknown;
 
-    expect(() => sheet.appendRow(["=SUM(A1:A3)"])).toThrow(
-      "Spreadsheet formulas are not supported by local appendRow().",
-    );
+    try {
+      sheet.appendRow(["=SUM(A1:A3)"]);
+    } catch (error) {
+      caught = error;
+    }
+
+    expect(caught).toBeInstanceOf(UnsupportedRuntimeOperationError);
+    expect(caught).toMatchObject({
+      operation: "Sheet.appendRow() with formula values",
+      reason: "formula evaluation is not modeled.",
+      message:
+        "Local Runtime does not support Sheet.appendRow() with formula values: formula evaluation is not modeled.",
+    });
     expect(bridge.calls).toHaveLength(0);
     expect(hydrator.references).toHaveLength(0);
     expect(setValues).not.toHaveBeenCalled();

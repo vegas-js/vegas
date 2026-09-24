@@ -6,6 +6,7 @@ import type { SheetReference } from "./spreadsheet-reference";
 import type { Spreadsheet } from "./spreadsheet-spreadsheet";
 import type { SpreadsheetCellValue } from "./spreadsheet-store";
 import { assertInteger, assertPositiveInteger } from "./spreadsheet-validation";
+import { UnsupportedRuntimeOperationError } from "./unsupported-runtime-operation-error";
 
 // https://developers.google.com/apps-script/reference/spreadsheet/sheet
 export class Sheet {
@@ -29,7 +30,10 @@ export class Sheet {
     if (rowContents.some((value) => typeof value === "string" && value.startsWith("="))) {
       // Apps Script evaluates leading-equals values as formulas. Formula evaluation is not yet
       // modeled by the local Runtime, so Vegas rejects them instead of silently storing text.
-      throw new Error("Spreadsheet formulas are not supported by local appendRow().");
+      throw new UnsupportedRuntimeOperationError(
+        "Sheet.appendRow() with formula values",
+        "formula evaluation is not modeled.",
+      );
     }
 
     const row = (this.#dataBounds().lastRow ?? 0) + 1;

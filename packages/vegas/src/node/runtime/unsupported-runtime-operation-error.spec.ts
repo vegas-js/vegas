@@ -11,6 +11,8 @@ describe("UnsupportedRuntimeOperationError", () => {
 
     expect(error).toBeInstanceOf(Error);
     expect(error.name).toBe("UnsupportedRuntimeOperationError");
+    expect(error.operation).toBe("Example.operation()");
+    expect(error.reason).toBe("the required host capability is unavailable.");
     expect(error.message).toBe(
       "Local Runtime does not support Example.operation(): the required host capability is unavailable.",
     );

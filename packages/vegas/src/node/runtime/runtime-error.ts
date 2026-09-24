@@ -3,12 +3,19 @@ import {
   RuntimeInfrastructureError,
   type RuntimeInfrastructureErrorKind,
 } from "./runtime-infrastructure-error";
+import { UnsupportedRuntimeOperationError } from "./unsupported-runtime-operation-error";
+
+interface UnsupportedRuntimeOperationSnapshot {
+  readonly operation: string;
+  readonly reason: string;
+}
 
 export interface RuntimeErrorSnapshot {
   readonly name: string;
   readonly message: string;
   readonly stack?: string;
   readonly infrastructureKind?: RuntimeInfrastructureErrorKind;
+  readonly unsupportedOperation?: UnsupportedRuntimeOperationSnapshot;
 }
 
 export function isRuntimeErrorSnapshot(value: unknown): value is RuntimeErrorSnapshot {
@@ -21,11 +28,22 @@ export function isRuntimeErrorSnapshot(value: unknown): value is RuntimeErrorSna
     return false;
   }
 
-  return (
-    value.infrastructureKind === undefined ||
-    (value.name === "RuntimeInfrastructureError" &&
-      isRuntimeInfrastructureErrorKind(value.infrastructureKind))
-  );
+  if (value.infrastructureKind !== undefined) {
+    return (
+      value.unsupportedOperation === undefined &&
+      value.name === "RuntimeInfrastructureError" &&
+      isRuntimeInfrastructureErrorKind(value.infrastructureKind)
+    );
+  }
+
+  if (value.unsupportedOperation !== undefined) {
+    return (
+      value.name === "UnsupportedRuntimeOperationError" &&
+      isUnsupportedRuntimeOperationSnapshot(value.unsupportedOperation)
+    );
+  }
+
+  return true;
 }
 
 export function serializeRuntimeError(error: unknown): RuntimeErrorSnapshot {
@@ -37,6 +55,14 @@ export function serializeRuntimeError(error: unknown): RuntimeErrorSnapshot {
       message: getRuntimeErrorMessage(error),
       ...(typeof error.stack === "string" ? { stack: error.stack } : {}),
       ...(error instanceof RuntimeInfrastructureError ? { infrastructureKind: error.kind } : {}),
+      ...(error instanceof UnsupportedRuntimeOperationError
+        ? {
+            unsupportedOperation: {
+              operation: error.operation,
+              reason: error.reason,
+            },
+          }
+        : {}),
     };
   }
 
@@ -47,10 +73,19 @@ export function serializeRuntimeError(error: unknown): RuntimeErrorSnapshot {
 }
 
 export function restoreRuntimeError(error: RuntimeErrorSnapshot): Error {
-  const restored =
-    error.infrastructureKind === undefined
-      ? createRuntimeError(error.name, error.message)
-      : new RuntimeInfrastructureError(error.infrastructureKind, error.message);
+  let restored: Error;
+
+  if (error.infrastructureKind !== undefined) {
+    restored = new RuntimeInfrastructureError(error.infrastructureKind, error.message);
+  } else if (error.unsupportedOperation !== undefined) {
+    restored = new UnsupportedRuntimeOperationError(
+      error.unsupportedOperation.operation,
+      error.unsupportedOperation.reason,
+    );
+  } else {
+    restored = createRuntimeError(error.name, error.message);
+  }
+
   restored.name = error.name;
 
   if (error.stack !== undefined) {
@@ -81,8 +116,8 @@ function createRuntimeError(name: string, message: string): Error {
       return new URIError(message);
     }
     default: {
-      // RuntimeInfrastructureError has explicit transport metadata above. Other custom subclasses
-      // and AggregateError fall back to Error while retaining the serialized name.
+      // Vegas runtime errors with semantic transport metadata are restored above. Other custom
+      // subclasses and AggregateError fall back to Error while retaining the serialized name.
       return new Error(message);
     }
   }
@@ -98,6 +133,12 @@ function getRuntimeErrorMessage(error: Record<string, unknown>): string {
   } catch {
     return "Unknown error.";
   }
+}
+
+function isUnsupportedRuntimeOperationSnapshot(
+  value: unknown,
+): value is UnsupportedRuntimeOperationSnapshot {
+  return isRecord(value) && typeof value.operation === "string" && typeof value.reason === "string";
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
