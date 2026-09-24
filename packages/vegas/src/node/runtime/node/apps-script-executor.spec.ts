@@ -11,6 +11,7 @@ import {
   InMemoryPropertiesStore,
   InMemorySpreadsheetStore,
   PropertiesHostHandler,
+  RuntimeInfrastructureError,
   type Executor,
 } from "../index";
 import {
@@ -179,9 +180,11 @@ describe("runAppsScriptWorkerSession", () => {
     gasWorker.exit(1);
     port.disconnect();
 
-    await expect(result).rejects.toThrow(
-      "Apps Script worker exited before returning a result (code 1).",
-    );
+    await expect(result).rejects.toBeInstanceOf(RuntimeInfrastructureError);
+    await expect(result).rejects.toMatchObject({
+      kind: "backend",
+      message: "Apps Script worker exited before returning a result (code 1).",
+    });
     expect(port.closeCount).toBe(1);
     expect(gasWorker.terminateCount).toBe(0);
   });
@@ -201,9 +204,37 @@ describe("runAppsScriptWorkerSession", () => {
       type: "unknown",
     });
 
-    await expect(result).rejects.toThrow("Unexpected Apps Script worker message.");
+    await expect(result).rejects.toBeInstanceOf(RuntimeInfrastructureError);
+    await expect(result).rejects.toMatchObject({
+      kind: "protocol",
+      message: "Unexpected Apps Script worker message.",
+    });
     expect(port.closeCount).toBe(1);
     expect(gasWorker.terminateCount).toBe(0);
+  });
+
+  test("keep executed code errors outside the infrastructure error model", async () => {
+    const gasWorker = new TestWorker();
+    const port = new TestPort();
+    const result = runAppsScriptWorkerSession(
+      gasWorker,
+      port,
+      new Int32Array(new SharedArrayBuffer(4)),
+      createDispatcher(),
+      invocation,
+    );
+
+    port.receive({
+      type: "result",
+      ok: false,
+      error: {
+        name: "TypeError",
+        message: "user failure",
+      },
+    });
+
+    await expect(result).rejects.toBeInstanceOf(TypeError);
+    await expect(result).rejects.not.toBeInstanceOf(RuntimeInfrastructureError);
   });
 
   test("terminate an execution when its signal is aborted", async () => {
@@ -264,12 +295,14 @@ describe("runAppsScriptWorkerSession", () => {
       { executionTimeoutMs: 1_000 },
     );
 
-    const rejection = expect(result).rejects.toThrow(
-      "Apps Script execution timed out after 1000 ms.",
-    );
+    const rejection = expect(result).rejects.toMatchObject({
+      kind: "timeout",
+      message: "Apps Script execution timed out after 1000 ms.",
+    });
 
     await vi.advanceTimersByTimeAsync(1_000);
     await rejection;
+    await expect(result).rejects.toBeInstanceOf(RuntimeInfrastructureError);
 
     expect(gasWorker.terminateCount).toBe(1);
     expect(port.closeCount).toBe(1);

@@ -54,6 +54,8 @@ export type {
   RuntimeBackend,
   RuntimeExecutionRequest,
 } from "./executor";
+export { RuntimeInfrastructureError } from "./runtime-infrastructure-error";
+export type { RuntimeInfrastructureErrorKind } from "./runtime-infrastructure-error";
 export { executeRuntimeFunction } from "./function-execution";
 export { HostDispatcher } from "./host-dispatcher";
 export type { HtmlSandboxMode, HtmlXFrameOptionsMode } from "./html-enum";

@@ -9,6 +9,7 @@ import type { Executor } from "../executor";
 import type { HostCallDispatcher } from "../host-dispatcher";
 import type { LockStore } from "../lock-store";
 import type { PropertiesStore } from "../properties-store";
+import { RuntimeInfrastructureError } from "../runtime-infrastructure-error";
 import type { SpreadsheetStore } from "../spreadsheet-store";
 import type { SpreadsheetUrlCapability } from "../spreadsheet-url-capability";
 import {
@@ -122,7 +123,10 @@ export function runAppsScriptWorkerSession(
       }
 
       fail(
-        new Error(`Apps Script worker exited before returning a result (code ${workerExitCode}).`),
+        new RuntimeInfrastructureError(
+          "backend",
+          `Apps Script worker exited before returning a result (code ${workerExitCode}).`,
+        ),
       );
     };
 
@@ -132,7 +136,7 @@ export function runAppsScriptWorkerSession(
       }
 
       if (!isAppsScriptWorkerResponse(data)) {
-        fail(new Error("Unexpected Apps Script worker message."));
+        fail(new RuntimeInfrastructureError("protocol", "Unexpected Apps Script worker message."));
         return;
       }
 
@@ -194,7 +198,12 @@ export function runAppsScriptWorkerSession(
     }
 
     timeoutId = setTimeout(() => {
-      terminate(new Error(`Apps Script execution timed out after ${timeoutMs} ms.`));
+      terminate(
+        new RuntimeInfrastructureError(
+          "timeout",
+          `Apps Script execution timed out after ${timeoutMs} ms.`,
+        ),
+      );
     }, timeoutMs);
 
     try {
