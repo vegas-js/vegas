@@ -42,6 +42,7 @@
         "getParents",
         "isStarred",
         "isTrashed",
+        "makeCopy",
         "moveTo",
         "setContent",
         "setDescription",
@@ -52,7 +53,8 @@
       "defaultBehavior": "local-emulation",
       "behaviorOverrides": {
         "getAs": "fail-closed"
-      }
+      },
+      "contractTestedMethods": ["makeCopy"]
     },
     "DriveApp.Folder": {
       "auditedMethods": [

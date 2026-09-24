@@ -125,6 +125,53 @@ export class InMemoryDriveStore implements DriveStore {
     return cloneFile(reference);
   }
 
+  async copyFile(
+    namespace: DriveNamespace,
+    file: DriveFileReference,
+    name?: string,
+    destination?: DriveFolderReference,
+  ): Promise<DriveFileReference> {
+    const drive = this.#getOrCreateDrive(namespace);
+    const source = this.#getFileState(drive, file.id, file.resourceKey);
+    const parentIds =
+      destination === undefined
+        ? [...source.parentIds]
+        : [this.#getFolderState(drive, destination.id, destination.resourceKey).reference.id];
+    const now = this.#now();
+
+    this.#nextFileId += 1;
+    const reference: DriveFileReference = {
+      service: "drive",
+      kind: "file",
+      id: `drive-file:${this.#nextFileId}`,
+    };
+
+    // Google Drive copy uses patch semantics. Vegas mirrors that for state modeled by the
+    // local Drive while issuing fresh local identity and timestamps.
+    drive.files.set(reference.id, {
+      reference,
+      content: {
+        bytes: [...source.content.bytes],
+        googleType: source.content.googleType,
+      },
+      description: source.description,
+      metadata: {
+        ...source.metadata,
+        name: name ?? source.metadata.name,
+      },
+      parentIds,
+      shortcutTarget: cloneShortcutTarget(source.shortcutTarget),
+      starred: source.starred,
+      timestamps: {
+        createdAtMillis: now,
+        lastUpdatedAtMillis: now,
+      },
+      trashed: source.trashed,
+    });
+
+    return cloneFile(reference);
+  }
+
   async createFolder(
     namespace: DriveNamespace,
     parent: DriveFolderReference,

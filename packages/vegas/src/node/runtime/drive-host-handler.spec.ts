@@ -30,6 +30,11 @@ class RecordingDriveStore implements DriveStore {
     return FILE_A;
   }
 
+  async copyFile(namespace: DriveNamespace, file: DriveFileReference): Promise<DriveFileReference> {
+    this.calls.push(`copyFile:${namespace.userKey}:${file.id}`);
+    return FILE_B;
+  }
+
   async createFolder(
     namespace: DriveNamespace,
     parent: DriveFolderReference,

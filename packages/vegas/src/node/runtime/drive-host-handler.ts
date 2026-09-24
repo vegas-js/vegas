@@ -88,6 +88,9 @@ export class LocalDriveHostHandler implements DriveHostCallHandler {
       case "create-file": {
         return this.#store.createFile(this.#namespace, call.parent, call.blob);
       }
+      case "copy-file": {
+        return this.#store.copyFile(this.#namespace, call.file, call.name, call.destination);
+      }
       case "create-shortcut": {
         return this.#store.createShortcut(
           this.#namespace,

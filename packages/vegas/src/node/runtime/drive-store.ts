@@ -29,6 +29,12 @@ export interface DriveStore {
     parent: DriveFolderReference,
     blob: BlobValue,
   ): Promise<DriveFileReference>;
+  copyFile(
+    namespace: DriveNamespace,
+    file: DriveFileReference,
+    name?: string,
+    destination?: DriveFolderReference,
+  ): Promise<DriveFileReference>;
   createFolder(
     namespace: DriveNamespace,
     parent: DriveFolderReference,

@@ -23,6 +23,13 @@ export type DriveHostCall =
     }
   | {
       readonly service: "drive";
+      readonly operation: "copy-file";
+      readonly file: DriveFileReference;
+      readonly name?: string;
+      readonly destination?: DriveFolderReference;
+    }
+  | {
+      readonly service: "drive";
       readonly operation: "create-shortcut";
       readonly parent: DriveFolderReference;
       readonly targetId: string;
@@ -281,7 +288,12 @@ export type DriveHostCall =
     };
 
 export type DriveHostCallResult<C extends DriveHostCall> = C extends {
-  readonly operation: "get-file" | "create-file" | "create-shortcut" | "file-iterator-next";
+  readonly operation:
+    | "get-file"
+    | "create-file"
+    | "copy-file"
+    | "create-shortcut"
+    | "file-iterator-next";
 }
   ? DriveFileReference
   : C extends {

@@ -133,6 +133,27 @@ export class DriveFile {
     });
   }
 
+  makeCopy(): DriveFile;
+  makeCopy(destination: DriveFolder): DriveFile;
+  makeCopy(name: string): DriveFile;
+  makeCopy(name: string, destination: DriveFolder): DriveFile;
+  makeCopy(nameOrDestination?: string | DriveFolder, destination?: DriveFolder): DriveFile {
+    const name = typeof nameOrDestination === "string" ? nameOrDestination : undefined;
+    const target = typeof nameOrDestination === "string" ? destination : nameOrDestination;
+
+    return this.#hydrator.hydrate(
+      this.#bridge.call({
+        service: "drive",
+        operation: "copy-file",
+        file: this.#reference,
+        ...(name === undefined ? {} : { name }),
+        ...(target === undefined
+          ? {}
+          : { destination: resolveDriveFolderReference(this.#bridge, target) }),
+      }),
+    );
+  }
+
   moveTo(destination: DriveFolder): DriveFile {
     this.#bridge.call({
       service: "drive",
