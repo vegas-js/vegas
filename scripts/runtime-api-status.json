@@ -269,11 +269,13 @@
     },
     "LockService": {
       "auditedMethods": ["getDocumentLock", "getScriptLock", "getUserLock"],
-      "defaultBehavior": "local-emulation"
+      "defaultBehavior": "local-emulation",
+      "contractTestedMethods": ["getDocumentLock", "getScriptLock", "getUserLock"]
     },
     "LockService.Lock": {
       "auditedMethods": ["hasLock", "releaseLock", "tryLock", "waitLock"],
-      "defaultBehavior": "local-emulation"
+      "defaultBehavior": "local-emulation",
+      "contractTestedMethods": ["hasLock", "releaseLock", "tryLock", "waitLock"]
     },
     "HtmlService": {
       "auditedMethods": [
