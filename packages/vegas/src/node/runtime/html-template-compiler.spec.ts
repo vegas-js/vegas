@@ -1,6 +1,10 @@
 import { describe, expect, test } from "vitest";
 
-import { compileHtmlTemplate, parseHtmlTemplate } from "./html-template-compiler";
+import {
+  compileHtmlTemplate,
+  compileHtmlTemplateWithComments,
+  parseHtmlTemplate,
+} from "./html-template-compiler";
 
 describe("HTML template compiler", () => {
   test("parse text and all scriptlet forms", () => {
@@ -36,6 +40,18 @@ describe("HTML template compiler", () => {
     expect(code).toContain("__vegasHtmlTemplateOutput.escaped =  value ;");
     expect(code).toContain('__vegasHtmlTemplateOutput.raw = "</b>";');
     expect(code).toContain("__vegasHtmlTemplateOutput.raw =  trusted ;");
+  });
+
+  test("place template source comments beside every generated line", () => {
+    const code = compileHtmlTemplateWithComments("<main>\n<?= value ?>\n</main>");
+    const lines = code.split("\n");
+
+    expect(lines).toHaveLength(4);
+    expect(lines[0]).toMatch(/ \/\/ 1: <main>$/);
+    expect(lines[1]).toMatch(/ \/\/ 2: <\?= value \?>$/);
+    expect(lines[2]).toMatch(/ \/\/ 3: <\/main>$/);
+    expect(lines[3]).toContain("return __vegasHtmlTemplateOutput.finish();");
+    expect(lines[3]).toMatch(/ \/\/ 3: <\/main>$/);
   });
 
   test("reject an unclosed scriptlet", () => {

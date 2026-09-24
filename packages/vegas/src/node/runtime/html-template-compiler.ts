@@ -81,12 +81,19 @@ export function compileHtmlTemplate(source: string): string {
 }
 
 export function compileHtmlTemplateWithComments(source: string): string {
-  const comments = source
-    .split(/\r?\n/)
-    .map((line, index) => `// ${index + 1}: ${line}`)
-    .join("\n");
+  const codeLines = compileHtmlTemplate(source).split(/\r?\n/);
+  const sourceLines = source.split(/\r?\n/);
+  const finalSourceIndex = Math.max(0, sourceLines.length - 1);
 
-  return `${compileHtmlTemplate(source)}\n// Template source\n${comments}`;
+  // Apps Script documents source-line comments for getCodeWithComments() but does not define the
+  // generated JavaScript representation. Vegas annotates its private wrapper-only lines with the
+  // final template line so every generated line still carries template source context.
+  return codeLines
+    .map((line, index) => {
+      const sourceIndex = Math.min(index, finalSourceIndex);
+      return `${line} // ${sourceIndex + 1}: ${sourceLines[sourceIndex] ?? ""}`;
+    })
+    .join("\n");
 }
 
 function pushTextSegment(segments: HtmlTemplateSegment[], value: string): void {

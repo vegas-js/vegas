@@ -49,6 +49,13 @@ function evaluateTemplateCode() {
   return eval(template.getCode()).getContent();
 }
 
+function evaluateTemplateCodeWithComments() {
+  const value = "<Vegas>";
+  const template = HtmlService.createHtmlOutput("<p>\\n<?= value ?>\\n</p>").asTemplate();
+
+  return eval(template.getCodeWithComments()).getContent();
+}
+
 function renderTemplateFactories() {
   const inline = HtmlService.createTemplate("<p><?= formatLocale() ?></p>").evaluate();
 
@@ -89,6 +96,7 @@ describe("createWorkerRuntimeContext", () => {
       expect(context.run()).toBe("ja:<main>Vegas</main>:Vegas Browser");
       expect(context.renderTemplate()).toBe("<main>&lt;Hello&gt; JA <b>Trusted</b></main>");
       expect(context.evaluateTemplateCode()).toBe("<p>&lt;Vegas&gt;</p>");
+      expect(context.evaluateTemplateCodeWithComments()).toBe("<p>\n&lt;Vegas&gt;\n</p>");
       expect(context.renderTemplateFactories()).toBe("<p>JA</p>:<main>&lt;Hello&gt; JA</main>");
     } finally {
       port1.close();
