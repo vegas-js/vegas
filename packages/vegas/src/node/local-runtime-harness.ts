@@ -32,7 +32,6 @@ export interface LocalRuntimeHarnessOptions {
 export async function createLocalRuntimeHarness(
   options: LocalRuntimeHarnessOptions,
 ): Promise<LocalRuntimeHarness> {
-  const session = new LocalRuntimeSession();
   const propertiesStore = new InMemoryPropertiesStore();
   const spreadsheetStore = new InMemorySpreadsheetStore(
     options.snapshot.spreadsheets.map(({ value }) => value),
@@ -46,6 +45,12 @@ export async function createLocalRuntimeHarness(
     );
   }
 
+  const session = new LocalRuntimeSession({
+    stores: {
+      propertiesStore,
+      spreadsheetStore,
+    },
+  });
   const runtime = await createLocalRuntime(
     options.project,
     options.snapshot,

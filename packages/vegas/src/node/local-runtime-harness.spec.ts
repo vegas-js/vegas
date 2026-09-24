@@ -70,6 +70,8 @@ describe("createLocalRuntimeHarness", () => {
     expect(Object.getOwnPropertyDescriptor(harness.appsScript, "execute")?.value).toBeTypeOf(
       "function",
     );
+    expect(harness.session.stores.propertiesStore).toBe(harness.propertiesStore);
+    expect(harness.session.stores.spreadsheetStore).toBe(harness.spreadsheetStore);
     expect(harness.runtime.resources.spreadsheets).toBe(harness.spreadsheetStore);
   });
 

@@ -21,16 +21,21 @@ describe("LocalRuntimeSession", () => {
     expect(first.stores.spreadsheetStore).not.toBe(second.stores.spreadsheetStore);
   });
 
-  test("use provided stores", () => {
-    const stores = {
-      cacheStore: new InMemoryCacheStore(),
-      driveIteratorStore: new InMemoryDriveIteratorStore(),
-      driveStore: new InMemoryDriveStore(),
-      lockStore: new InMemoryLockStore(),
-      propertiesStore: new InMemoryPropertiesStore(),
-      spreadsheetStore: new InMemorySpreadsheetStore(),
-    };
+  test("use provided stores with defaults for omitted stores", () => {
+    const propertiesStore = new InMemoryPropertiesStore();
+    const spreadsheetStore = new InMemorySpreadsheetStore();
+    const session = new LocalRuntimeSession({
+      stores: {
+        propertiesStore,
+        spreadsheetStore,
+      },
+    });
 
-    expect(new LocalRuntimeSession({ stores }).stores).toBe(stores);
+    expect(session.stores.cacheStore).toBeInstanceOf(InMemoryCacheStore);
+    expect(session.stores.driveIteratorStore).toBeInstanceOf(InMemoryDriveIteratorStore);
+    expect(session.stores.driveStore).toBeInstanceOf(InMemoryDriveStore);
+    expect(session.stores.lockStore).toBeInstanceOf(InMemoryLockStore);
+    expect(session.stores.propertiesStore).toBe(propertiesStore);
+    expect(session.stores.spreadsheetStore).toBe(spreadsheetStore);
   });
 });

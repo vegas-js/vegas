@@ -21,17 +21,17 @@ export interface LocalRuntimeSessionStores {
 }
 
 interface LocalRuntimeSessionOptions {
-  readonly stores?: LocalRuntimeSessionStores;
+  readonly stores?: Partial<LocalRuntimeSessionStores>;
 }
 
-function createDefaultStores(): LocalRuntimeSessionStores {
+function createStores(stores: Partial<LocalRuntimeSessionStores> = {}): LocalRuntimeSessionStores {
   return {
-    cacheStore: new InMemoryCacheStore(),
-    driveIteratorStore: new InMemoryDriveIteratorStore(),
-    driveStore: new InMemoryDriveStore(),
-    lockStore: new InMemoryLockStore(),
-    propertiesStore: new InMemoryPropertiesStore(),
-    spreadsheetStore: new InMemorySpreadsheetStore(),
+    cacheStore: stores.cacheStore ?? new InMemoryCacheStore(),
+    driveIteratorStore: stores.driveIteratorStore ?? new InMemoryDriveIteratorStore(),
+    driveStore: stores.driveStore ?? new InMemoryDriveStore(),
+    lockStore: stores.lockStore ?? new InMemoryLockStore(),
+    propertiesStore: stores.propertiesStore ?? new InMemoryPropertiesStore(),
+    spreadsheetStore: stores.spreadsheetStore ?? new InMemorySpreadsheetStore(),
   };
 }
 
@@ -39,6 +39,6 @@ export class LocalRuntimeSession {
   readonly stores: LocalRuntimeSessionStores;
 
   constructor(options: LocalRuntimeSessionOptions = {}) {
-    this.stores = options.stores ?? createDefaultStores();
+    this.stores = createStores(options.stores);
   }
 }
