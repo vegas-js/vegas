@@ -5,6 +5,7 @@ import {
   type HostRequestMessage,
   type HostResponseMessage,
 } from "../host-protocol";
+import { serializeRuntimeError } from "../runtime-error";
 
 interface HostResponsePort {
   postMessage(value: HostResponseMessage): void;
@@ -30,19 +31,11 @@ export async function createHostResponse(
 }
 
 function serializeHostError(error: unknown): HostError {
-  if (error instanceof Error) {
-    return {
-      name: error.name || "Error",
-      type: error.constructor.name || error.name || "Error",
-      message: error.message,
-      ...(error.stack === undefined ? {} : { stack: error.stack }),
-    };
-  }
+  const serialized = serializeRuntimeError(error);
 
   return {
-    name: "Error",
-    type: "Error",
-    message: String(error),
+    ...serialized,
+    type: error instanceof Error ? error.constructor.name || serialized.name : "Error",
   };
 }
 

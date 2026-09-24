@@ -91,7 +91,7 @@ describe("Apps Script worker protocol", () => {
       stack: "worker stack",
     });
 
-    expect(error).toBeInstanceOf(Error);
+    expect(error).toBeInstanceOf(TypeError);
     expect(error.name).toBe("TypeError");
     expect(error.message).toBe("failed");
     expect(error.stack).toBe("worker stack");

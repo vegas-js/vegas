@@ -3,6 +3,7 @@ import worker from "node:worker_threads";
 import type { HostBridge } from "../host-bridge";
 import type { HostCall, HostCallResult } from "../host-call";
 import type { HostError, HostRequestMessage, HostResponseMessage } from "../host-protocol";
+import { isRuntimeErrorSnapshot, restoreRuntimeError } from "../runtime-error";
 
 class WorkerHostBridge implements HostBridge {
   readonly #port: worker.MessagePort;
@@ -71,13 +72,7 @@ function isHostResponseMessage(value: unknown): value is HostResponseMessage {
 }
 
 function isHostError(value: unknown): value is HostError {
-  return (
-    isRecord(value) &&
-    typeof value.name === "string" &&
-    typeof value.type === "string" &&
-    typeof value.message === "string" &&
-    (value.stack === undefined || typeof value.stack === "string")
-  );
+  return isRecord(value) && typeof value.type === "string" && isRuntimeErrorSnapshot(value);
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -85,14 +80,8 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 }
 
 function throwHostError(error: HostError): never {
-  const hostError = new Error(error.message) as Error & { type: string };
-
-  hostError.name = error.name;
+  const hostError = restoreRuntimeError(error) as Error & { type: string };
   hostError.type = error.type;
-
-  if (error.stack !== undefined) {
-    hostError.stack = error.stack;
-  }
 
   throw hostError;
 }
