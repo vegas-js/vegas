@@ -396,6 +396,42 @@ describe("reconcileLocalSpreadsheetStore", () => {
     });
   });
 
+  test("reconcile fixture URL swaps without depending on change order", async () => {
+    const alphaUrl = "https://docs.google.com/spreadsheets/d/alpha/edit";
+    const zuluUrl = "https://docs.google.com/spreadsheets/d/zulu/edit";
+    const alpha = spreadsheet("alpha", {
+      url: alphaUrl,
+    });
+    const zulu = spreadsheet("zulu", {
+      url: zuluUrl,
+    });
+    const previous = snapshot([alpha, zulu]);
+    const current = new InMemorySpreadsheetStore(previous.spreadsheets.map(({ value }) => value));
+    const next = snapshot([
+      spreadsheet("alpha", {
+        url: zuluUrl,
+      }),
+      spreadsheet("zulu", {
+        url: alphaUrl,
+      }),
+    ]);
+
+    const reconciled = reconcileLocalSpreadsheetStore(current, previous, next);
+
+    await expect(reconciled.getSpreadsheetByUrl(alphaUrl)).resolves.toMatchObject({
+      id: "zulu",
+    });
+    await expect(reconciled.getSpreadsheetByUrl(zuluUrl)).resolves.toMatchObject({
+      id: "alpha",
+    });
+    await expect(current.getSpreadsheetByUrl(alphaUrl)).resolves.toMatchObject({
+      id: "alpha",
+    });
+    await expect(current.getSpreadsheetByUrl(zuluUrl)).resolves.toMatchObject({
+      id: "zulu",
+    });
+  });
+
   test("ignore source-only fixture changes", async () => {
     const budget = spreadsheet("budget", {
       sheets: [sheet(1, [["budget seed"]])],

@@ -61,19 +61,24 @@ export function reconcileLocalSpreadsheetStore(
   next: RuntimeDataSnapshot,
 ): InMemorySpreadsheetStore {
   const reconciled = current.clone();
+  const previousSpreadsheets = indexSpreadsheets(previous);
   const nextSpreadsheets = indexSpreadsheets(next);
+  const changedSpreadsheetIds = diffRuntimeDataSnapshots(previous, next)
+    .filter((change) => change.startsWith(SPREADSHEET_CHANGE_PREFIX))
+    .map((change) => change.slice(SPREADSHEET_CHANGE_PREFIX.length));
 
-  for (const change of diffRuntimeDataSnapshots(previous, next)) {
-    if (!change.startsWith(SPREADSHEET_CHANGE_PREFIX)) {
-      continue;
+  // Vegas releases changed fixture identities before applying the next snapshot so valid URL
+  // transfers and swaps are reconciled against the final fixture set instead of mutation order.
+  for (const id of changedSpreadsheetIds) {
+    if (previousSpreadsheets.has(id)) {
+      reconciled.removeFixtureSpreadsheet(id);
     }
+  }
 
-    const id = change.slice(SPREADSHEET_CHANGE_PREFIX.length);
+  for (const id of changedSpreadsheetIds) {
     const nextSpreadsheet = nextSpreadsheets.get(id);
 
-    if (nextSpreadsheet === undefined) {
-      reconciled.removeFixtureSpreadsheet(id);
-    } else {
+    if (nextSpreadsheet !== undefined) {
       reconciled.replaceFixtureSpreadsheet(nextSpreadsheet);
     }
   }
