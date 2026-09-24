@@ -7,15 +7,9 @@ import { createRuntimeProgram } from "../../dev/runtime-program";
 import { LocalSpreadsheetUrlResolver } from "../../dev/webapp/local-spreadsheet-url";
 import { createLocalRuntime } from "../../local-runtime-factory";
 import { loadProject, scanRuntimeDataSources } from "../../project";
-import {
-  InMemoryPropertiesStore,
-  InMemorySpreadsheetStore,
-  LocalRuntimeSession,
-} from "../../runtime";
-import {
-  reconcileLocalPropertiesStore,
-  reconcileLocalRuntimeSession,
-} from "../../runtime-data-reconcile";
+import type { LocalRuntimeSession } from "../../runtime";
+import { reconcileLocalRuntimeSession } from "../../runtime-data-reconcile";
+import { resetLocalRuntimeSession } from "../../runtime-data-reset";
 import { createInvocationScope } from "../../runtime-scope";
 import { loadRuntimeDataSnapshot } from "./runtime-data";
 
@@ -39,20 +33,7 @@ export async function runDevApplication(mode: DevApplicationMode, root?: string)
     project.root,
     topology.snapshot.runtimeDataSources,
   );
-  const propertiesStore = await reconcileLocalPropertiesStore(
-    new InMemoryPropertiesStore(),
-    runtimeScope,
-    { spreadsheets: [] },
-    currentSnapshot,
-  );
-  let currentSession = new LocalRuntimeSession({
-    stores: {
-      propertiesStore,
-      spreadsheetStore: new InMemorySpreadsheetStore(
-        currentSnapshot.spreadsheets.map(({ value }) => value),
-      ),
-    },
-  });
+  let currentSession = await resetLocalRuntimeSession(runtimeScope, currentSnapshot);
   const createRuntime = (snapshot: typeof currentSnapshot, session: LocalRuntimeSession) =>
     createLocalRuntime(project, snapshot, getProgram, {
       session,
