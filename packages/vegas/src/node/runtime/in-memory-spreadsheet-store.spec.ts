@@ -224,6 +224,64 @@ describe("InMemorySpreadsheetStore resources", () => {
     );
   });
 
+  test("insert Sheet columns while shifting grid and hidden-column state", async () => {
+    const store = createStore();
+    const noteRange = {
+      ...RANGE,
+      row: 1,
+      column: 2,
+      numRows: 1,
+      numColumns: 1,
+    };
+
+    await store.setRangeNotes(noteRange, [["shifted note"]]);
+    await store.setSheetColumnsHidden(SUMMARY, 2, 1, true);
+    await store.insertSheetColumns(SUMMARY, 2, 2);
+
+    await expect(store.getSheetMetadata(SUMMARY)).resolves.toMatchObject({
+      maxColumns: 10,
+      frozenColumns: 0,
+    });
+    await expect(
+      store.getRangeValues({
+        ...RANGE,
+        row: 1,
+        column: 1,
+        numRows: 2,
+        numColumns: 5,
+      }),
+    ).resolves.toStrictEqual([
+      ["Name", "", "", "Amount", 100],
+      ["Vegas", "", "", 42, true],
+    ]);
+    await expect(
+      store.getRangeNotes({
+        ...noteRange,
+        column: 4,
+      }),
+    ).resolves.toStrictEqual([["shifted note"]]);
+    await expect(store.isSheetColumnHiddenByUser(SUMMARY, 2)).resolves.toBe(false);
+    await expect(store.isSheetColumnHiddenByUser(SUMMARY, 4)).resolves.toBe(true);
+
+    await store.insertSheetColumns(SUMMARY, 11, 1);
+    await expect(store.getSheetMetadata(SUMMARY)).resolves.toMatchObject({
+      maxColumns: 11,
+    });
+    await expect(
+      store.getRangeValues({
+        ...noteRange,
+        column: 11,
+      }),
+    ).resolves.toStrictEqual([[""]]);
+
+    await expect(store.insertSheetColumns(SUMMARY, 13, 1)).rejects.toThrow(
+      "column insertion must start between 1 and 12",
+    );
+    await expect(store.insertSheetColumns(SUMMARY, 1, 0)).rejects.toThrow(
+      "column count must be a positive integer",
+    );
+  });
+
   test("insert Sheet rows while shifting grid and hidden-row state", async () => {
     const store = createStore();
     const noteRange = {

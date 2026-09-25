@@ -64,6 +64,8 @@ export interface SpreadsheetStore {
 
   getSheetMetadata(sheet: SheetReference): Promise<SheetMetadata>;
 
+  insertSheetColumns(sheet: SheetReference, startColumn: number, numColumns: number): Promise<void>;
+
   insertSheetRows(sheet: SheetReference, startRow: number, numRows: number): Promise<void>;
 
   isSheetColumnHiddenByUser(sheet: SheetReference, column: number): Promise<boolean>;

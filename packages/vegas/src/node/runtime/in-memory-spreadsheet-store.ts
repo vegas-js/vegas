@@ -107,6 +107,19 @@ function assertColumnSpan(startColumn: number, numColumns: number, maximum: numb
   }
 }
 
+// Apps Script documents 1-based insertion positions but not out-of-bounds behavior. Vegas
+// accepts maxColumns + 1 as an append position and rejects positions that would leave a gap.
+function assertColumnInsertion(startColumn: number, numColumns: number, maximum: number): void {
+  assertPositiveInteger(startColumn, "Spreadsheet sheet column start");
+  assertPositiveInteger(numColumns, "Spreadsheet sheet column count");
+
+  if (startColumn > maximum + 1) {
+    throw new RangeError(
+      `Spreadsheet sheet column insertion must start between 1 and ${maximum + 1}.`,
+    );
+  }
+}
+
 // Apps Script documents 1-based row positions, but not invalid-span behavior.
 // Vegas constrains local row visibility spans to the current Sheet grid.
 function assertRowSpan(startRow: number, numRows: number, maximum: number): void {
@@ -426,6 +439,35 @@ export class InMemorySpreadsheetStore implements SpreadsheetStore {
 
   async getSheetMetadata(sheet: SheetReference): Promise<SheetMetadata> {
     return { ...this.#getSheetState(sheet.spreadsheetId, sheet.sheetId).metadata };
+  }
+
+  async insertSheetColumns(
+    sheet: SheetReference,
+    startColumn: number,
+    numColumns: number,
+  ): Promise<void> {
+    const spreadsheet = this.#getSpreadsheetState(sheet.spreadsheetId);
+    const state = this.#getSheetState(sheet.spreadsheetId, sheet.sheetId);
+    assertColumnInsertion(startColumn, numColumns, state.metadata.maxColumns);
+
+    state.grid.insertColumns(startColumn, numColumns);
+
+    const hiddenColumns = new Set<number>();
+    for (const column of state.hiddenColumns) {
+      hiddenColumns.add(column >= startColumn ? column + numColumns : column);
+    }
+
+    // Apps Script documents that insertion shifts existing columns right, but not how hidden and
+    // frozen column state is remapped. Vegas moves hidden-column markers with shifted columns and
+    // preserves the frozen-column count.
+    spreadsheet.sheets.set(sheet.sheetId, {
+      ...state,
+      metadata: {
+        ...state.metadata,
+        maxColumns: state.metadata.maxColumns + numColumns,
+      },
+      hiddenColumns,
+    });
   }
 
   async insertSheetRows(sheet: SheetReference, startRow: number, numRows: number): Promise<void> {

@@ -415,6 +415,71 @@ describe("Sheet", () => {
 
   // Public contract:
   // https://developers.google.com/apps-script/reference/spreadsheet/sheet
+  test("insert blank Sheet columns through the HostBridge with documented return values", () => {
+    const bridge = new RecordingHostBridge((call) => {
+      if (call.service === "spreadsheet" && call.operation === "insert-sheet-columns") {
+        return undefined;
+      }
+
+      throw new Error(`unexpected host call: ${call.service}#${call.operation}`);
+    });
+    const { hydrator, sheet } = createFixture({ bridge });
+
+    expect(sheet.insertColumns(2)).toBeUndefined();
+    expect(sheet.insertColumns(3, 2)).toBeUndefined();
+    expect(sheet.insertColumnBefore(4)).toBe(sheet);
+    expect(sheet.insertColumnsBefore(5, 2)).toBe(sheet);
+    expect(sheet.insertColumnAfter(6)).toBe(sheet);
+    expect(sheet.insertColumnsAfter(7, 3)).toBe(sheet);
+    expect(bridge.calls).toStrictEqual([
+      {
+        service: "spreadsheet",
+        operation: "insert-sheet-columns",
+        sheet: defaultSheetReference,
+        startColumn: 2,
+        numColumns: 1,
+      },
+      {
+        service: "spreadsheet",
+        operation: "insert-sheet-columns",
+        sheet: defaultSheetReference,
+        startColumn: 3,
+        numColumns: 2,
+      },
+      {
+        service: "spreadsheet",
+        operation: "insert-sheet-columns",
+        sheet: defaultSheetReference,
+        startColumn: 4,
+        numColumns: 1,
+      },
+      {
+        service: "spreadsheet",
+        operation: "insert-sheet-columns",
+        sheet: defaultSheetReference,
+        startColumn: 5,
+        numColumns: 2,
+      },
+      {
+        service: "spreadsheet",
+        operation: "insert-sheet-columns",
+        sheet: defaultSheetReference,
+        startColumn: 7,
+        numColumns: 1,
+      },
+      {
+        service: "spreadsheet",
+        operation: "insert-sheet-columns",
+        sheet: defaultSheetReference,
+        startColumn: 8,
+        numColumns: 3,
+      },
+    ]);
+    expect(hydrator.references).toHaveLength(0);
+  });
+
+  // Public contract:
+  // https://developers.google.com/apps-script/reference/spreadsheet/sheet
   test("insert blank Sheet rows through the HostBridge with documented return values", () => {
     const bridge = new RecordingHostBridge((call) => {
       if (call.service === "spreadsheet" && call.operation === "insert-sheet-rows") {

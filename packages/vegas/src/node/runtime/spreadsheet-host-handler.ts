@@ -88,6 +88,10 @@ export class SpreadsheetHostHandler implements SpreadsheetHostCallHandler {
       case "get-sheet-metadata": {
         return this.#store.getSheetMetadata(call.sheet);
       }
+      case "insert-sheet-columns": {
+        await this.#store.insertSheetColumns(call.sheet, call.startColumn, call.numColumns);
+        return;
+      }
       case "insert-sheet-rows": {
         await this.#store.insertSheetRows(call.sheet, call.startRow, call.numRows);
         return;

@@ -186,6 +186,33 @@ export class Sheet {
     return this;
   }
 
+  insertColumnAfter(afterPosition: number): Sheet {
+    return this.insertColumnsAfter(afterPosition, 1);
+  }
+
+  insertColumnBefore(beforePosition: number): Sheet {
+    return this.insertColumnsBefore(beforePosition, 1);
+  }
+
+  insertColumns(columnIndex: number): void;
+  insertColumns(columnIndex: number, numColumns: number): void;
+  insertColumns(columnIndex: number, numColumns = 1): void {
+    this.#insertColumns(columnIndex, numColumns);
+  }
+
+  insertColumnsAfter(afterPosition: number, howMany: number): Sheet {
+    assertPositiveInteger(afterPosition, "Spreadsheet sheet afterPosition");
+    this.#insertColumns(afterPosition + 1, howMany);
+
+    return this;
+  }
+
+  insertColumnsBefore(beforePosition: number, howMany: number): Sheet {
+    this.#insertColumns(beforePosition, howMany);
+
+    return this;
+  }
+
   insertRowAfter(afterPosition: number): Sheet {
     return this.insertRowsAfter(afterPosition, 1);
   }
@@ -487,6 +514,19 @@ export class Sheet {
       // Vegas rejects foreign Ranges instead of applying their coordinates to this Sheet.
       throw new RangeError("Spreadsheet visibility Range must belong to this Sheet.");
     }
+  }
+
+  #insertColumns(startColumn: number, numColumns: number): void {
+    assertPositiveInteger(startColumn, "Spreadsheet sheet column start");
+    assertPositiveInteger(numColumns, "Spreadsheet sheet column count");
+
+    this.#bridge.call({
+      service: "spreadsheet",
+      operation: "insert-sheet-columns",
+      sheet: this.#reference,
+      startColumn,
+      numColumns,
+    });
   }
 
   #insertRows(startRow: number, numRows: number): void {
