@@ -1,4 +1,5 @@
 import type { HostBridge } from "./host-bridge";
+import type { SpreadsheetDimension } from "./spreadsheet-enum";
 import type { SpreadsheetObjectHydrator } from "./spreadsheet-hydrator";
 import type { RangeReference } from "./spreadsheet-reference";
 import type { Sheet } from "./spreadsheet-sheet";
@@ -163,6 +164,93 @@ export class Range {
     // This copies already-resolved cell content. Bypass public setValues() formula handling so
     // formula-looking text already stored by the local Runtime remains text while being copied.
     sheet.getRange(row, column, numRows, numColumns).#writeValues(values);
+  }
+
+  getDataRegion(): Range;
+  getDataRegion(dimension: SpreadsheetDimension): Range;
+  getDataRegion(dimension?: unknown): Range {
+    if (dimension !== undefined && dimension !== "ROWS" && dimension !== "COLUMNS") {
+      // Apps Script accepts Dimension enum values but does not document arbitrary runtime values.
+      // Vegas rejects unknown values instead of silently choosing an expansion mode.
+      throw new TypeError("Spreadsheet data region dimension must be ROWS or COLUMNS.");
+    }
+
+    const sheet = {
+      service: "spreadsheet",
+      kind: "sheet",
+      spreadsheetId: this.#reference.spreadsheetId,
+      sheetId: this.#reference.sheetId,
+    } as const;
+    const metadata = this.#bridge.call({
+      service: "spreadsheet",
+      operation: "get-sheet-metadata",
+      sheet,
+    });
+    const hasData = (row: number, column: number, numRows: number, numColumns: number) =>
+      this.#bridge
+        .call({
+          service: "spreadsheet",
+          operation: "get-range-values",
+          range: {
+            service: "spreadsheet",
+            kind: "range",
+            spreadsheetId: this.#reference.spreadsheetId,
+            sheetId: this.#reference.sheetId,
+            row,
+            column,
+            numRows,
+            numColumns,
+          },
+        })
+        .some((values) => values.some((value) => value !== ""));
+
+    let row = this.#reference.row;
+    let column = this.#reference.column;
+    let endRow = row + this.#reference.numRows - 1;
+    let endColumn = column + this.#reference.numColumns - 1;
+    const expandRows = dimension === undefined || dimension === "ROWS";
+    const expandColumns = dimension === undefined || dimension === "COLUMNS";
+
+    let expanded: boolean;
+    do {
+      expanded = false;
+
+      if (expandRows && row > 1 && hasData(row - 1, column, 1, endColumn - column + 1)) {
+        row -= 1;
+        expanded = true;
+      }
+      if (
+        expandRows &&
+        endRow < metadata.maxRows &&
+        hasData(endRow + 1, column, 1, endColumn - column + 1)
+      ) {
+        endRow += 1;
+        expanded = true;
+      }
+      if (expandColumns && column > 1 && hasData(row, column - 1, endRow - row + 1, 1)) {
+        column -= 1;
+        expanded = true;
+      }
+      if (
+        expandColumns &&
+        endColumn < metadata.maxColumns &&
+        hasData(row, endColumn + 1, endRow - row + 1, 1)
+      ) {
+        endColumn += 1;
+        expanded = true;
+      }
+    } while (expanded);
+
+    return this.#hydrator.hydrate({
+      service: "spreadsheet",
+      kind: "range",
+      spreadsheetId: this.#reference.spreadsheetId,
+      sheetId: this.#reference.sheetId,
+      row,
+      column,
+      numRows: endRow - row + 1,
+      numColumns: endColumn - column + 1,
+    });
   }
 
   getA1Notation(): string {

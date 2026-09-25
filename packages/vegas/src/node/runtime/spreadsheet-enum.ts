@@ -1,5 +1,10 @@
 import { createRuntimeEnum } from "./runtime-enum";
 
+export const SPREADSHEET_DIMENSION = createRuntimeEnum("COLUMNS", "ROWS");
+
+export type SpreadsheetDimension =
+  (typeof SPREADSHEET_DIMENSION)[keyof typeof SPREADSHEET_DIMENSION];
+
 export const SPREADSHEET_SHEET_TYPE = createRuntimeEnum("GRID", "OBJECT", "DATASOURCE");
 
 export type SpreadsheetSheetType =
