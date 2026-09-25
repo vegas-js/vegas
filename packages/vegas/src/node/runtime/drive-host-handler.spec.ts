@@ -1,4 +1,4 @@
-import { describe, expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 
 import {
   InMemoryDriveIteratorStore,
@@ -492,5 +492,31 @@ describe("LocalDriveHostHandler", () => {
         iterator: resumed,
       }),
     ).resolves.toStrictEqual(FILE_B);
+  });
+
+  // Drive File.setContent() documents a 10 MB content limit.
+  // https://developers.google.com/apps-script/reference/drive/file#setContent(String)
+  test("reject file content above the documented 10 MB limit", async () => {
+    const store = new RecordingDriveStore();
+    const iteratorStore = new InMemoryDriveIteratorStore();
+    const handler = new LocalDriveHostHandler(store, USER, iteratorStore.createSession(USER));
+    const encode = vi.spyOn(TextEncoder.prototype, "encode").mockReturnValue({
+      byteLength: 10_000_001,
+    } as ReturnType<TextEncoder["encode"]>);
+
+    try {
+      await expect(
+        handler.handle({
+          service: "drive",
+          operation: "set-file-content",
+          file: FILE_A,
+          content: "oversized",
+        }),
+      ).rejects.toThrow("Local Drive file content exceeds the 10 MB limit.");
+
+      expect(store.calls).toStrictEqual([]);
+    } finally {
+      encode.mockRestore();
+    }
   });
 });

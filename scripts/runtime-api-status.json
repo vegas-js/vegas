@@ -74,7 +74,31 @@
       "behaviorOverrides": {
         "getAs": "fail-closed"
       },
-      "contractTestedMethods": ["makeCopy"]
+      "contractTestedMethods": [
+        "getAs",
+        "getBlob",
+        "getDateCreated",
+        "getDescription",
+        "getId",
+        "getLastUpdated",
+        "getMimeType",
+        "getName",
+        "getResourceKey",
+        "getSize",
+        "getTargetId",
+        "getTargetMimeType",
+        "getTargetResourceKey",
+        "getParents",
+        "isStarred",
+        "isTrashed",
+        "makeCopy",
+        "moveTo",
+        "setContent",
+        "setDescription",
+        "setName",
+        "setStarred",
+        "setTrashed"
+      ]
     },
     "DriveApp.Folder": {
       "auditedMethods": [

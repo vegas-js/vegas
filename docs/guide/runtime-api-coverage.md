@@ -29,7 +29,7 @@ Structural coverage records whether a Runtime method exists; it does not imply G
 | Runtime surface                 | Audited methods | Behavior classification                                                     | Contract-tested |
 | ------------------------------- | --------------: | --------------------------------------------------------------------------- | --------------: |
 | `DriveApp`                      |              18 | `local-emulation`: 18                                                       |         18 / 18 |
-| `DriveApp.File`                 |              23 | `local-emulation`: 22<br>`fail-closed`: 1                                   |          1 / 23 |
+| `DriveApp.File`                 |              23 | `local-emulation`: 22<br>`fail-closed`: 1                                   |         23 / 23 |
 | `DriveApp.Folder`               |              24 | `local-emulation`: 24                                                       |          0 / 24 |
 | `DriveApp.FileIterator`         |               3 | `local-emulation`: 3                                                        |           3 / 3 |
 | `DriveApp.FolderIterator`       |               3 | `local-emulation`: 3                                                        |           3 / 3 |
