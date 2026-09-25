@@ -376,7 +376,8 @@
     },
     "Logger": {
       "auditedMethods": ["clear", "getLog", "log"],
-      "defaultBehavior": "local-emulation"
+      "defaultBehavior": "local-emulation",
+      "contractTestedMethods": ["clear", "getLog", "log"]
     },
     "Session": {
       "auditedMethods": [
