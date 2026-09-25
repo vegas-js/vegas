@@ -376,6 +376,7 @@ interface BlobSource {
     expect(runtimeApiSurfaceName("PropertiesService", "PropertiesService")).toBe(
       "PropertiesService",
     );
+    expect(runtimeApiSurfaceName("console", "Console")).toBe("console");
     expect(runtimeApiSurfaceName("PropertiesService", "Properties")).toBe(
       "PropertiesService.Properties",
     );

@@ -1,6 +1,8 @@
 import type { LoggingTarget } from "./logging-target";
 
 // https://developers.google.com/apps-script/reference/base/console
+// Vegas delegates local formatting, timing, and output to LoggingTarget instead of emulating
+// Google Cloud Logging transport.
 export class AppsScriptConsole {
   readonly #target: LoggingTarget;
 

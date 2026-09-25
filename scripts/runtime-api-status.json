@@ -405,9 +405,10 @@
       "defaultBehavior": "local-emulation",
       "contractTestedMethods": ["getEmail", "getUserLoginId"]
     },
-    "console.Console": {
+    "console": {
       "auditedMethods": ["error", "info", "log", "time", "timeEnd", "warn"],
-      "defaultBehavior": "local-emulation"
+      "defaultBehavior": "local-emulation",
+      "contractTestedMethods": ["error", "info", "log", "time", "timeEnd", "warn"]
     },
     "PropertiesService": {
       "auditedMethods": ["getDocumentProperties", "getScriptProperties", "getUserProperties"],

@@ -526,7 +526,9 @@ export function buildRuntimeApiStatusRows(status) {
 }
 
 export function runtimeApiSurfaceName(globalName, interfaceName) {
-  return globalName === interfaceName ? globalName : `${globalName}.${interfaceName}`;
+  return globalName.toLowerCase() === interfaceName.toLowerCase()
+    ? globalName
+    : `${globalName}.${interfaceName}`;
 }
 
 export function validateRuntimeApiStatusAgainstInventory(status, inventory) {

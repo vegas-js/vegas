@@ -51,7 +51,7 @@ Structural coverage records whether a Runtime method exists; it does not imply G
 | `Logger`                        |               3 | `local-emulation`: 3                                                        |           3 / 3 |
 | `Session`                       |               7 | `local-emulation`: 7                                                        |           7 / 7 |
 | `Session.User`                  |               2 | `local-emulation`: 2                                                        |           2 / 2 |
-| `console.Console`               |               6 | `local-emulation`: 6                                                        |           0 / 6 |
+| `console`                       |               6 | `local-emulation`: 6                                                        |           6 / 6 |
 | `PropertiesService`             |               3 | `local-emulation`: 3                                                        |           3 / 3 |
 | `PropertiesService.Properties`  |               7 | `local-emulation`: 7                                                        |           7 / 7 |
 | `Utilities`                     |              23 | `implemented`: 14<br>`local-emulation`: 9                                   |          0 / 23 |
