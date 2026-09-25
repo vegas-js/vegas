@@ -12,6 +12,97 @@ function createCellKey(row: number, column: number): string {
   return `${row}:${column}`;
 }
 
+export function remapMovedDimensionPosition(
+  position: number,
+  sourceStart: number,
+  sourceCount: number,
+  destinationIndex: number,
+): number {
+  const sourceEnd = sourceStart + sourceCount - 1;
+
+  // Google documents destination coordinates before source removal but not destinations that fall
+  // inside the source span. Vegas treats every boundary from sourceStart through sourceEnd + 1 as
+  // a no-op because reinserting the same block at one of its own boundaries preserves its order.
+  if (destinationIndex >= sourceStart && destinationIndex <= sourceEnd + 1) {
+    return position;
+  }
+
+  if (destinationIndex < sourceStart) {
+    if (position >= sourceStart && position <= sourceEnd) {
+      return destinationIndex + (position - sourceStart);
+    }
+    if (position >= destinationIndex && position < sourceStart) {
+      return position + sourceCount;
+    }
+    return position;
+  }
+
+  if (position >= sourceStart && position <= sourceEnd) {
+    return destinationIndex - sourceCount + (position - sourceStart);
+  }
+  if (position > sourceEnd && position < destinationIndex) {
+    return position - sourceCount;
+  }
+
+  return position;
+}
+
+function moveRows<T>(
+  entries: Map<string, T>,
+  sourceStart: number,
+  sourceCount: number,
+  destinationIndex: number,
+): void {
+  const moved = new Map<string, T>();
+
+  for (const [key, value] of entries) {
+    const separator = key.indexOf(":");
+    const row = Number(key.slice(0, separator));
+    const column = Number(key.slice(separator + 1));
+
+    moved.set(
+      createCellKey(
+        remapMovedDimensionPosition(row, sourceStart, sourceCount, destinationIndex),
+        column,
+      ),
+      value,
+    );
+  }
+
+  entries.clear();
+  for (const [key, value] of moved) {
+    entries.set(key, value);
+  }
+}
+
+function moveColumns<T>(
+  entries: Map<string, T>,
+  sourceStart: number,
+  sourceCount: number,
+  destinationIndex: number,
+): void {
+  const moved = new Map<string, T>();
+
+  for (const [key, value] of entries) {
+    const separator = key.indexOf(":");
+    const row = Number(key.slice(0, separator));
+    const column = Number(key.slice(separator + 1));
+
+    moved.set(
+      createCellKey(
+        row,
+        remapMovedDimensionPosition(column, sourceStart, sourceCount, destinationIndex),
+      ),
+      value,
+    );
+  }
+
+  entries.clear();
+  for (const [key, value] of moved) {
+    entries.set(key, value);
+  }
+}
+
 function shiftRowsDown<T>(entries: Map<string, T>, startRow: number, numRows: number): void {
   const shifted = new Map<string, T>();
 
@@ -174,6 +265,42 @@ export class InMemorySpreadsheetGrid {
       lastRow,
       lastColumn,
     };
+  }
+
+  moveColumns(sourceStart: number, sourceCount: number, destinationIndex: number): void {
+    assertPositiveInteger(sourceStart, "Spreadsheet grid column start");
+    assertPositiveInteger(sourceCount, "Spreadsheet grid column count");
+    assertPositiveInteger(destinationIndex, "Spreadsheet grid column destination");
+
+    if (sourceStart + sourceCount - 1 > this.#maxColumns) {
+      throw new RangeError(`Spreadsheet grid columns must stay within 1 and ${this.#maxColumns}.`);
+    }
+    if (destinationIndex > this.#maxColumns + 1) {
+      throw new RangeError(
+        `Spreadsheet grid column destination must be between 1 and ${this.#maxColumns + 1}.`,
+      );
+    }
+
+    moveColumns(this.#cells, sourceStart, sourceCount, destinationIndex);
+    moveColumns(this.#notes, sourceStart, sourceCount, destinationIndex);
+  }
+
+  moveRows(sourceStart: number, sourceCount: number, destinationIndex: number): void {
+    assertPositiveInteger(sourceStart, "Spreadsheet grid row start");
+    assertPositiveInteger(sourceCount, "Spreadsheet grid row count");
+    assertPositiveInteger(destinationIndex, "Spreadsheet grid row destination");
+
+    if (sourceStart + sourceCount - 1 > this.#maxRows) {
+      throw new RangeError(`Spreadsheet grid rows must stay within 1 and ${this.#maxRows}.`);
+    }
+    if (destinationIndex > this.#maxRows + 1) {
+      throw new RangeError(
+        `Spreadsheet grid row destination must be between 1 and ${this.#maxRows + 1}.`,
+      );
+    }
+
+    moveRows(this.#cells, sourceStart, sourceCount, destinationIndex);
+    moveRows(this.#notes, sourceStart, sourceCount, destinationIndex);
   }
 
   deleteColumns(startColumn: number, numColumns: number): void {

@@ -121,6 +121,22 @@ export type SpreadsheetHostCall =
     }
   | {
       readonly service: "spreadsheet";
+      readonly operation: "move-sheet-columns";
+      readonly sheet: SheetReference;
+      readonly sourceStart: number;
+      readonly sourceCount: number;
+      readonly destinationIndex: number;
+    }
+  | {
+      readonly service: "spreadsheet";
+      readonly operation: "move-sheet-rows";
+      readonly sheet: SheetReference;
+      readonly sourceStart: number;
+      readonly sourceCount: number;
+      readonly destinationIndex: number;
+    }
+  | {
+      readonly service: "spreadsheet";
       readonly operation: "get-sheet-column-hidden-by-user";
       readonly sheet: SheetReference;
       readonly column: number;
@@ -242,6 +258,8 @@ type SpreadsheetHostCallResultMap = {
   "delete-sheet-rows": void;
   "insert-sheet-columns": void;
   "insert-sheet-rows": void;
+  "move-sheet-columns": void;
+  "move-sheet-rows": void;
   "get-sheet-column-hidden-by-user": boolean;
   "get-sheet-row-hidden-by-user": boolean;
   "rename-sheet": void;

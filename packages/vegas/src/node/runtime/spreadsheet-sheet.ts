@@ -260,6 +260,34 @@ export class Sheet {
     return this;
   }
 
+  moveColumns(columnSpec: Range, destinationIndex: number): void {
+    this.#assertRangeBelongsToSheet(columnSpec, "move");
+    assertPositiveInteger(destinationIndex, "Spreadsheet sheet column destination");
+
+    this.#bridge.call({
+      service: "spreadsheet",
+      operation: "move-sheet-columns",
+      sheet: this.#reference,
+      sourceStart: columnSpec.getColumn(),
+      sourceCount: columnSpec.getNumColumns(),
+      destinationIndex,
+    });
+  }
+
+  moveRows(rowSpec: Range, destinationIndex: number): void {
+    this.#assertRangeBelongsToSheet(rowSpec, "move");
+    assertPositiveInteger(destinationIndex, "Spreadsheet sheet row destination");
+
+    this.#bridge.call({
+      service: "spreadsheet",
+      operation: "move-sheet-rows",
+      sheet: this.#reference,
+      sourceStart: rowSpec.getRow(),
+      sourceCount: rowSpec.getNumRows(),
+      destinationIndex,
+    });
+  }
+
   getSheetName(): string {
     return this.getName();
   }
@@ -523,16 +551,16 @@ export class Sheet {
     });
   }
 
-  #assertRangeBelongsToSheet(range: Range): void {
+  #assertRangeBelongsToSheet(range: Range, purpose = "visibility"): void {
     const rangeSheet = range.getSheet();
 
     if (
       rangeSheet.getSheetId() !== this.#reference.sheetId ||
       rangeSheet.getParent().getId() !== this.#reference.spreadsheetId
     ) {
-      // Apps Script does not document cross-Sheet Range behavior for visibility methods.
+      // Apps Script does not document cross-Sheet Range behavior for visibility or move methods.
       // Vegas rejects foreign Ranges instead of applying their coordinates to this Sheet.
-      throw new RangeError("Spreadsheet visibility Range must belong to this Sheet.");
+      throw new RangeError(`Spreadsheet ${purpose} Range must belong to this Sheet.`);
     }
   }
 

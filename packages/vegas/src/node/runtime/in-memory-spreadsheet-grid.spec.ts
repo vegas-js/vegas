@@ -150,6 +150,60 @@ describe("InMemorySpreadsheetGrid", () => {
     expect(grid.getNotes(singleCellRange)).toStrictEqual([["original update"]]);
   });
 
+  test("move rows and columns using destination coordinates from before source removal", () => {
+    const grid = new InMemorySpreadsheetGrid(5, 5, [
+      ["A1", "B1", "C1", "D1", "E1"],
+      ["A2", "B2", "C2", "D2", "E2"],
+      ["A3", "B3", "C3", "D3", "E3"],
+      ["A4", "B4", "C4", "D4", "E4"],
+      ["A5", "B5", "C5", "D5", "E5"],
+    ]);
+    const noteRange = {
+      row: 2,
+      column: 2,
+      numRows: 1,
+      numColumns: 1,
+    };
+
+    grid.setNotes(noteRange, [["moved note"]]);
+    grid.moveColumns(1, 2, 5);
+    grid.moveRows(1, 2, 5);
+
+    expect(
+      grid.getValues({
+        row: 1,
+        column: 1,
+        numRows: 5,
+        numColumns: 5,
+      }),
+    ).toStrictEqual([
+      ["C3", "D3", "A3", "B3", "E3"],
+      ["C4", "D4", "A4", "B4", "E4"],
+      ["C1", "D1", "A1", "B1", "E1"],
+      ["C2", "D2", "A2", "B2", "E2"],
+      ["C5", "D5", "A5", "B5", "E5"],
+    ]);
+    expect(
+      grid.getNotes({
+        ...noteRange,
+        row: 4,
+        column: 4,
+      }),
+    ).toStrictEqual([["moved note"]]);
+
+    grid.moveColumns(3, 2, 1);
+    grid.moveRows(3, 2, 1);
+
+    expect(grid.getValues(RANGE)).toStrictEqual([
+      ["A1", "B1", "C1"],
+      ["A2", "B2", "C2"],
+    ]);
+    expect(grid.getNotes(noteRange)).toStrictEqual([["moved note"]]);
+
+    expect(() => grid.moveColumns(1, 1, 7)).toThrow("column destination must be between 1 and 6");
+    expect(() => grid.moveRows(1, 1, 7)).toThrow("row destination must be between 1 and 6");
+  });
+
   test("reject mismatched value dimensions before changing any cells", () => {
     const grid = createGrid();
 

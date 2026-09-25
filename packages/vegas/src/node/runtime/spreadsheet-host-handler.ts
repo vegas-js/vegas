@@ -104,6 +104,24 @@ export class SpreadsheetHostHandler implements SpreadsheetHostCallHandler {
         await this.#store.insertSheetRows(call.sheet, call.startRow, call.numRows);
         return;
       }
+      case "move-sheet-columns": {
+        await this.#store.moveSheetColumns(
+          call.sheet,
+          call.sourceStart,
+          call.sourceCount,
+          call.destinationIndex,
+        );
+        return;
+      }
+      case "move-sheet-rows": {
+        await this.#store.moveSheetRows(
+          call.sheet,
+          call.sourceStart,
+          call.sourceCount,
+          call.destinationIndex,
+        );
+        return;
+      }
       case "get-sheet-column-hidden-by-user": {
         return this.#store.isSheetColumnHiddenByUser(call.sheet, call.column);
       }

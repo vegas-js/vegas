@@ -1,4 +1,4 @@
-import { InMemorySpreadsheetGrid } from "./in-memory-spreadsheet-grid";
+import { InMemorySpreadsheetGrid, remapMovedDimensionPosition } from "./in-memory-spreadsheet-grid";
 import type { RangeReference, SheetReference, SpreadsheetReference } from "./spreadsheet-reference";
 import type {
   SheetDataBounds,
@@ -581,6 +581,56 @@ export class InMemorySpreadsheetStore implements SpreadsheetStore {
         ...state.metadata,
         maxRows: state.metadata.maxRows + numRows,
       },
+      hiddenRows,
+    });
+  }
+
+  async moveSheetColumns(
+    sheet: SheetReference,
+    sourceStart: number,
+    sourceCount: number,
+    destinationIndex: number,
+  ): Promise<void> {
+    const spreadsheet = this.#getSpreadsheetState(sheet.spreadsheetId);
+    const state = this.#getSheetState(sheet.spreadsheetId, sheet.sheetId);
+
+    state.grid.moveColumns(sourceStart, sourceCount, destinationIndex);
+
+    const hiddenColumns = new Set(
+      [...state.hiddenColumns].map((column) =>
+        remapMovedDimensionPosition(column, sourceStart, sourceCount, destinationIndex),
+      ),
+    );
+
+    // Apps Script documents moved column data but not hidden/frozen remapping. Vegas moves hidden
+    // markers with their columns while keeping the position-based frozen-column count unchanged.
+    spreadsheet.sheets.set(sheet.sheetId, {
+      ...state,
+      hiddenColumns,
+    });
+  }
+
+  async moveSheetRows(
+    sheet: SheetReference,
+    sourceStart: number,
+    sourceCount: number,
+    destinationIndex: number,
+  ): Promise<void> {
+    const spreadsheet = this.#getSpreadsheetState(sheet.spreadsheetId);
+    const state = this.#getSheetState(sheet.spreadsheetId, sheet.sheetId);
+
+    state.grid.moveRows(sourceStart, sourceCount, destinationIndex);
+
+    const hiddenRows = new Set(
+      [...state.hiddenRows].map((row) =>
+        remapMovedDimensionPosition(row, sourceStart, sourceCount, destinationIndex),
+      ),
+    );
+
+    // Apps Script documents moved row data but not hidden/frozen remapping. Vegas moves hidden
+    // markers with their rows while keeping the position-based frozen-row count unchanged.
+    spreadsheet.sheets.set(sheet.sheetId, {
+      ...state,
       hiddenRows,
     });
   }

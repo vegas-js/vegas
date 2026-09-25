@@ -467,6 +467,54 @@ describe("Sheet", () => {
 
   // Public contract:
   // https://developers.google.com/apps-script/reference/spreadsheet/sheet
+  test("move Sheet rows and columns through the HostBridge using Range spans", () => {
+    const bridge = new RecordingHostBridge((call) => {
+      if (
+        call.service === "spreadsheet" &&
+        (call.operation === "move-sheet-columns" || call.operation === "move-sheet-rows")
+      ) {
+        return undefined;
+      }
+
+      throw new Error(`unexpected host call: ${call.service}#${call.operation}`);
+    });
+    const { sheet } = createFixture({ bridge });
+    const range = createVisibilityRangeDouble();
+
+    expect(sheet.moveColumns(range, 7)).toBeUndefined();
+    expect(sheet.moveRows(range, 8)).toBeUndefined();
+    expect(bridge.calls).toStrictEqual([
+      {
+        service: "spreadsheet",
+        operation: "move-sheet-columns",
+        sheet: defaultSheetReference,
+        sourceStart: 3,
+        sourceCount: 2,
+        destinationIndex: 7,
+      },
+      {
+        service: "spreadsheet",
+        operation: "move-sheet-rows",
+        sheet: defaultSheetReference,
+        sourceStart: 2,
+        sourceCount: 4,
+        destinationIndex: 8,
+      },
+    ]);
+
+    const foreignRange = createVisibilityRangeDouble({ sheetId: 9 });
+
+    expect(() => sheet.moveColumns(foreignRange, 2)).toThrow(
+      "Spreadsheet move Range must belong to this Sheet.",
+    );
+    expect(() => sheet.moveRows(foreignRange, 2)).toThrow(
+      "Spreadsheet move Range must belong to this Sheet.",
+    );
+    expect(bridge.calls).toHaveLength(2);
+  });
+
+  // Public contract:
+  // https://developers.google.com/apps-script/reference/spreadsheet/sheet
   test("insert blank Sheet columns through the HostBridge with documented return values", () => {
     const bridge = new RecordingHostBridge((call) => {
       if (call.service === "spreadsheet" && call.operation === "insert-sheet-columns") {

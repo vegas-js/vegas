@@ -72,6 +72,20 @@ export interface SpreadsheetStore {
 
   insertSheetRows(sheet: SheetReference, startRow: number, numRows: number): Promise<void>;
 
+  moveSheetColumns(
+    sheet: SheetReference,
+    sourceStart: number,
+    sourceCount: number,
+    destinationIndex: number,
+  ): Promise<void>;
+
+  moveSheetRows(
+    sheet: SheetReference,
+    sourceStart: number,
+    sourceCount: number,
+    destinationIndex: number,
+  ): Promise<void>;
+
   isSheetColumnHiddenByUser(sheet: SheetReference, column: number): Promise<boolean>;
 
   isSheetRowHiddenByUser(sheet: SheetReference, row: number): Promise<boolean>;
