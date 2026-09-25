@@ -55,8 +55,8 @@ Structural coverage records whether a Runtime method exists; it does not imply G
 | `PropertiesService`             |               3 | `local-emulation`: 3                                                        |           3 / 3 |
 | `PropertiesService.Properties`  |               7 | `local-emulation`: 7                                                        |           7 / 7 |
 | `Utilities`                     |              23 | `implemented`: 14<br>`local-emulation`: 9                                   |          0 / 23 |
-| `UrlFetchApp`                   |               3 | `implemented`: 1<br>`local-emulation`: 2                                    |           0 / 3 |
-| `UrlFetchApp.HTTPResponse`      |               7 | `implemented`: 4<br>`local-emulation`: 2<br>`fail-closed`: 1                |           0 / 7 |
+| `UrlFetchApp`                   |               3 | `implemented`: 1<br>`local-emulation`: 2                                    |           3 / 3 |
+| `UrlFetchApp.HTTPResponse`      |               7 | `implemented`: 4<br>`local-emulation`: 2<br>`fail-closed`: 1                |           7 / 7 |
 
 ## Global Object methods
 

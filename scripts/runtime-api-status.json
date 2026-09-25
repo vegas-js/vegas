@@ -480,7 +480,8 @@
       "defaultBehavior": "local-emulation",
       "behaviorOverrides": {
         "getRequest": "implemented"
-      }
+      },
+      "contractTestedMethods": ["fetch", "fetchAll", "getRequest"]
     },
     "UrlFetchApp.HTTPResponse": {
       "auditedMethods": [
@@ -497,7 +498,16 @@
         "getAs": "fail-closed",
         "getContentText": "local-emulation",
         "getHeaders": "local-emulation"
-      }
+      },
+      "contractTestedMethods": [
+        "getAllHeaders",
+        "getAs",
+        "getBlob",
+        "getContent",
+        "getContentText",
+        "getHeaders",
+        "getResponseCode"
+      ]
     }
   }
 }
