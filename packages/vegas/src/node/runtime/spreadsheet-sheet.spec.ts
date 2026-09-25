@@ -415,6 +415,58 @@ describe("Sheet", () => {
 
   // Public contract:
   // https://developers.google.com/apps-script/reference/spreadsheet/sheet
+  test("delete Sheet rows and columns through the HostBridge with documented return values", () => {
+    const bridge = new RecordingHostBridge((call) => {
+      if (
+        call.service === "spreadsheet" &&
+        (call.operation === "delete-sheet-columns" || call.operation === "delete-sheet-rows")
+      ) {
+        return undefined;
+      }
+
+      throw new Error(`unexpected host call: ${call.service}#${call.operation}`);
+    });
+    const { hydrator, sheet } = createFixture({ bridge });
+
+    expect(sheet.deleteColumn(2)).toBe(sheet);
+    expect(sheet.deleteColumns(3, 2)).toBeUndefined();
+    expect(sheet.deleteRow(4)).toBe(sheet);
+    expect(sheet.deleteRows(5, 2)).toBeUndefined();
+    expect(bridge.calls).toStrictEqual([
+      {
+        service: "spreadsheet",
+        operation: "delete-sheet-columns",
+        sheet: defaultSheetReference,
+        startColumn: 2,
+        numColumns: 1,
+      },
+      {
+        service: "spreadsheet",
+        operation: "delete-sheet-columns",
+        sheet: defaultSheetReference,
+        startColumn: 3,
+        numColumns: 2,
+      },
+      {
+        service: "spreadsheet",
+        operation: "delete-sheet-rows",
+        sheet: defaultSheetReference,
+        startRow: 4,
+        numRows: 1,
+      },
+      {
+        service: "spreadsheet",
+        operation: "delete-sheet-rows",
+        sheet: defaultSheetReference,
+        startRow: 5,
+        numRows: 2,
+      },
+    ]);
+    expect(hydrator.references).toHaveLength(0);
+  });
+
+  // Public contract:
+  // https://developers.google.com/apps-script/reference/spreadsheet/sheet
   test("insert blank Sheet columns through the HostBridge with documented return values", () => {
     const bridge = new RecordingHostBridge((call) => {
       if (call.service === "spreadsheet" && call.operation === "insert-sheet-columns") {

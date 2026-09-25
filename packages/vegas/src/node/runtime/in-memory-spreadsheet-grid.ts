@@ -52,6 +52,56 @@ function shiftColumnsRight<T>(
   }
 }
 
+function shiftRowsUp<T>(entries: Map<string, T>, startRow: number, numRows: number): void {
+  const shifted = new Map<string, T>();
+  const endRow = startRow + numRows - 1;
+
+  for (const [key, value] of entries) {
+    const separator = key.indexOf(":");
+    const row = Number(key.slice(0, separator));
+    const column = Number(key.slice(separator + 1));
+
+    if (row >= startRow && row <= endRow) {
+      continue;
+    }
+
+    const nextRow = row > endRow ? row - numRows : row;
+    shifted.set(createCellKey(nextRow, column), value);
+  }
+
+  entries.clear();
+  for (const [key, value] of shifted) {
+    entries.set(key, value);
+  }
+}
+
+function shiftColumnsLeft<T>(
+  entries: Map<string, T>,
+  startColumn: number,
+  numColumns: number,
+): void {
+  const shifted = new Map<string, T>();
+  const endColumn = startColumn + numColumns - 1;
+
+  for (const [key, value] of entries) {
+    const separator = key.indexOf(":");
+    const row = Number(key.slice(0, separator));
+    const column = Number(key.slice(separator + 1));
+
+    if (column >= startColumn && column <= endColumn) {
+      continue;
+    }
+
+    const nextColumn = column > endColumn ? column - numColumns : column;
+    shifted.set(createCellKey(row, nextColumn), value);
+  }
+
+  entries.clear();
+  for (const [key, value] of shifted) {
+    entries.set(key, value);
+  }
+}
+
 export class InMemorySpreadsheetGrid {
   #maxRows: number;
   #maxColumns: number;
@@ -124,6 +174,38 @@ export class InMemorySpreadsheetGrid {
       lastRow,
       lastColumn,
     };
+  }
+
+  deleteColumns(startColumn: number, numColumns: number): void {
+    assertPositiveInteger(startColumn, "Spreadsheet grid column start");
+    assertPositiveInteger(numColumns, "Spreadsheet grid column count");
+
+    if (startColumn + numColumns - 1 > this.#maxColumns) {
+      throw new RangeError(`Spreadsheet grid columns must stay within 1 and ${this.#maxColumns}.`);
+    }
+    if (numColumns >= this.#maxColumns) {
+      throw new RangeError("Spreadsheet grid must retain at least one column.");
+    }
+
+    shiftColumnsLeft(this.#cells, startColumn, numColumns);
+    shiftColumnsLeft(this.#notes, startColumn, numColumns);
+    this.#maxColumns -= numColumns;
+  }
+
+  deleteRows(startRow: number, numRows: number): void {
+    assertPositiveInteger(startRow, "Spreadsheet grid row start");
+    assertPositiveInteger(numRows, "Spreadsheet grid row count");
+
+    if (startRow + numRows - 1 > this.#maxRows) {
+      throw new RangeError(`Spreadsheet grid rows must stay within 1 and ${this.#maxRows}.`);
+    }
+    if (numRows >= this.#maxRows) {
+      throw new RangeError("Spreadsheet grid must retain at least one row.");
+    }
+
+    shiftRowsUp(this.#cells, startRow, numRows);
+    shiftRowsUp(this.#notes, startRow, numRows);
+    this.#maxRows -= numRows;
   }
 
   insertColumns(startColumn: number, numColumns: number): void {

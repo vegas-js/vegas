@@ -107,6 +107,16 @@ function assertColumnSpan(startColumn: number, numColumns: number, maximum: numb
   }
 }
 
+function assertColumnDeletion(startColumn: number, numColumns: number, maximum: number): void {
+  assertColumnSpan(startColumn, numColumns, maximum);
+
+  // Apps Script does not document deleting every column. Vegas preserves the local grid
+  // invariant that a Sheet always has at least one column.
+  if (numColumns >= maximum) {
+    throw new RangeError("Spreadsheet sheet must retain at least one column.");
+  }
+}
+
 // Apps Script documents 1-based insertion positions but not out-of-bounds behavior. Vegas
 // accepts maxColumns + 1 as an append position and rejects positions that would leave a gap.
 function assertColumnInsertion(startColumn: number, numColumns: number, maximum: number): void {
@@ -128,6 +138,16 @@ function assertRowSpan(startRow: number, numRows: number, maximum: number): void
 
   if (startRow + numRows - 1 > maximum) {
     throw new RangeError(`Spreadsheet sheet rows must stay within 1 and ${maximum}.`);
+  }
+}
+
+function assertRowDeletion(startRow: number, numRows: number, maximum: number): void {
+  assertRowSpan(startRow, numRows, maximum);
+
+  // Apps Script does not document deleting every row. Vegas preserves the local grid invariant
+  // that a Sheet always has at least one row.
+  if (numRows >= maximum) {
+    throw new RangeError("Spreadsheet sheet must retain at least one row.");
   }
 }
 
@@ -439,6 +459,76 @@ export class InMemorySpreadsheetStore implements SpreadsheetStore {
 
   async getSheetMetadata(sheet: SheetReference): Promise<SheetMetadata> {
     return { ...this.#getSheetState(sheet.spreadsheetId, sheet.sheetId).metadata };
+  }
+
+  async deleteSheetColumns(
+    sheet: SheetReference,
+    startColumn: number,
+    numColumns: number,
+  ): Promise<void> {
+    const spreadsheet = this.#getSpreadsheetState(sheet.spreadsheetId);
+    const state = this.#getSheetState(sheet.spreadsheetId, sheet.sheetId);
+    assertColumnDeletion(startColumn, numColumns, state.metadata.maxColumns);
+
+    state.grid.deleteColumns(startColumn, numColumns);
+
+    const endColumn = startColumn + numColumns - 1;
+    const hiddenColumns = new Set<number>();
+    for (const column of state.hiddenColumns) {
+      if (column < startColumn) {
+        hiddenColumns.add(column);
+      } else if (column > endColumn) {
+        hiddenColumns.add(column - numColumns);
+      }
+    }
+
+    const maxColumns = state.metadata.maxColumns - numColumns;
+
+    // Apps Script documents that deletion removes columns and shifts later columns left, but not
+    // how hidden and frozen state is remapped. Vegas drops hidden markers in the deleted span,
+    // shifts later markers left, and preserves the frozen count unless the new grid is smaller.
+    spreadsheet.sheets.set(sheet.sheetId, {
+      ...state,
+      metadata: {
+        ...state.metadata,
+        maxColumns,
+        frozenColumns: Math.min(state.metadata.frozenColumns, maxColumns),
+      },
+      hiddenColumns,
+    });
+  }
+
+  async deleteSheetRows(sheet: SheetReference, startRow: number, numRows: number): Promise<void> {
+    const spreadsheet = this.#getSpreadsheetState(sheet.spreadsheetId);
+    const state = this.#getSheetState(sheet.spreadsheetId, sheet.sheetId);
+    assertRowDeletion(startRow, numRows, state.metadata.maxRows);
+
+    state.grid.deleteRows(startRow, numRows);
+
+    const endRow = startRow + numRows - 1;
+    const hiddenRows = new Set<number>();
+    for (const row of state.hiddenRows) {
+      if (row < startRow) {
+        hiddenRows.add(row);
+      } else if (row > endRow) {
+        hiddenRows.add(row - numRows);
+      }
+    }
+
+    const maxRows = state.metadata.maxRows - numRows;
+
+    // Apps Script documents that deletion removes rows and shifts later rows up, but not how
+    // hidden and frozen state is remapped. Vegas drops hidden markers in the deleted span, shifts
+    // later markers up, and preserves the frozen count unless the new grid is smaller.
+    spreadsheet.sheets.set(sheet.sheetId, {
+      ...state,
+      metadata: {
+        ...state.metadata,
+        maxRows,
+        frozenRows: Math.min(state.metadata.frozenRows, maxRows),
+      },
+      hiddenRows,
+    });
   }
 
   async insertSheetColumns(

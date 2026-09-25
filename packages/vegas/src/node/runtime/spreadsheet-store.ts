@@ -64,6 +64,10 @@ export interface SpreadsheetStore {
 
   getSheetMetadata(sheet: SheetReference): Promise<SheetMetadata>;
 
+  deleteSheetColumns(sheet: SheetReference, startColumn: number, numColumns: number): Promise<void>;
+
+  deleteSheetRows(sheet: SheetReference, startRow: number, numRows: number): Promise<void>;
+
   insertSheetColumns(sheet: SheetReference, startColumn: number, numColumns: number): Promise<void>;
 
   insertSheetRows(sheet: SheetReference, startRow: number, numRows: number): Promise<void>;

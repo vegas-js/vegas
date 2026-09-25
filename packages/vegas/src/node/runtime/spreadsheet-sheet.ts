@@ -186,6 +186,26 @@ export class Sheet {
     return this;
   }
 
+  deleteColumn(columnPosition: number): Sheet {
+    this.#deleteColumns(columnPosition, 1);
+
+    return this;
+  }
+
+  deleteColumns(columnPosition: number, howMany: number): void {
+    this.#deleteColumns(columnPosition, howMany);
+  }
+
+  deleteRow(rowPosition: number): Sheet {
+    this.#deleteRows(rowPosition, 1);
+
+    return this;
+  }
+
+  deleteRows(rowPosition: number, howMany: number): void {
+    this.#deleteRows(rowPosition, howMany);
+  }
+
   insertColumnAfter(afterPosition: number): Sheet {
     return this.insertColumnsAfter(afterPosition, 1);
   }
@@ -514,6 +534,32 @@ export class Sheet {
       // Vegas rejects foreign Ranges instead of applying their coordinates to this Sheet.
       throw new RangeError("Spreadsheet visibility Range must belong to this Sheet.");
     }
+  }
+
+  #deleteColumns(startColumn: number, numColumns: number): void {
+    assertPositiveInteger(startColumn, "Spreadsheet sheet column start");
+    assertPositiveInteger(numColumns, "Spreadsheet sheet column count");
+
+    this.#bridge.call({
+      service: "spreadsheet",
+      operation: "delete-sheet-columns",
+      sheet: this.#reference,
+      startColumn,
+      numColumns,
+    });
+  }
+
+  #deleteRows(startRow: number, numRows: number): void {
+    assertPositiveInteger(startRow, "Spreadsheet sheet row start");
+    assertPositiveInteger(numRows, "Spreadsheet sheet row count");
+
+    this.#bridge.call({
+      service: "spreadsheet",
+      operation: "delete-sheet-rows",
+      sheet: this.#reference,
+      startRow,
+      numRows,
+    });
   }
 
   #insertColumns(startColumn: number, numColumns: number): void {

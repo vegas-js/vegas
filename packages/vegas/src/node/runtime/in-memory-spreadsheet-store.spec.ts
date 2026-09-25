@@ -224,6 +224,109 @@ describe("InMemorySpreadsheetStore resources", () => {
     );
   });
 
+  test("delete Sheet columns while shifting grid and hidden-column state", async () => {
+    const store = createStore();
+    const tailRange = {
+      ...RANGE,
+      row: 1,
+      column: 5,
+      numRows: 2,
+      numColumns: 1,
+    };
+
+    await store.setRangeValues(tailRange, [["Tail"], ["Shifted"]]);
+    await store.setRangeNotes({ ...tailRange, numRows: 1 }, [["shifted note"]]);
+    await store.setSheetColumnsHidden(SUMMARY, 2, 1, true);
+    await store.setSheetColumnsHidden(SUMMARY, 5, 1, true);
+    await store.setSheetFrozenColumns(SUMMARY, 8);
+    await store.deleteSheetColumns(SUMMARY, 2, 2);
+
+    await expect(store.getSheetMetadata(SUMMARY)).resolves.toMatchObject({
+      maxColumns: 6,
+      frozenColumns: 6,
+    });
+    await expect(
+      store.getRangeValues({
+        ...RANGE,
+        row: 1,
+        column: 1,
+        numRows: 2,
+        numColumns: 3,
+      }),
+    ).resolves.toStrictEqual([
+      ["Name", "", "Tail"],
+      ["Vegas", "", "Shifted"],
+    ]);
+    await expect(
+      store.getRangeNotes({
+        ...tailRange,
+        column: 3,
+        numRows: 1,
+      }),
+    ).resolves.toStrictEqual([["shifted note"]]);
+    await expect(store.isSheetColumnHiddenByUser(SUMMARY, 2)).resolves.toBe(false);
+    await expect(store.isSheetColumnHiddenByUser(SUMMARY, 3)).resolves.toBe(true);
+
+    await expect(store.deleteSheetColumns(SUMMARY, 1, 6)).rejects.toThrow(
+      "must retain at least one column",
+    );
+    await expect(store.deleteSheetColumns(SUMMARY, 6, 2)).rejects.toThrow(
+      "columns must stay within 1 and 6",
+    );
+  });
+
+  test("delete Sheet rows while shifting grid and hidden-row state", async () => {
+    const store = createStore();
+    const tailRange = {
+      ...RANGE,
+      row: 5,
+      column: 1,
+      numRows: 1,
+      numColumns: 3,
+    };
+
+    await store.setRangeValues(tailRange, [["Tail", 7, false]]);
+    await store.setRangeNotes({ ...tailRange, numColumns: 1 }, [["shifted note"]]);
+    await store.setSheetRowsHidden(SUMMARY, 2, 1, true);
+    await store.setSheetRowsHidden(SUMMARY, 5, 1, true);
+    await store.setSheetFrozenRows(SUMMARY, 10);
+    await store.deleteSheetRows(SUMMARY, 2, 2);
+
+    await expect(store.getSheetMetadata(SUMMARY)).resolves.toMatchObject({
+      maxRows: 8,
+      frozenRows: 8,
+    });
+    await expect(
+      store.getRangeValues({
+        ...RANGE,
+        row: 1,
+        column: 1,
+        numRows: 3,
+        numColumns: 3,
+      }),
+    ).resolves.toStrictEqual([
+      ["Name", "Amount", 100],
+      ["", "", ""],
+      ["Tail", 7, false],
+    ]);
+    await expect(
+      store.getRangeNotes({
+        ...tailRange,
+        row: 3,
+        numColumns: 1,
+      }),
+    ).resolves.toStrictEqual([["shifted note"]]);
+    await expect(store.isSheetRowHiddenByUser(SUMMARY, 2)).resolves.toBe(false);
+    await expect(store.isSheetRowHiddenByUser(SUMMARY, 3)).resolves.toBe(true);
+
+    await expect(store.deleteSheetRows(SUMMARY, 1, 8)).rejects.toThrow(
+      "must retain at least one row",
+    );
+    await expect(store.deleteSheetRows(SUMMARY, 8, 2)).rejects.toThrow(
+      "rows must stay within 1 and 8",
+    );
+  });
+
   test("insert Sheet columns while shifting grid and hidden-column state", async () => {
     const store = createStore();
     const noteRange = {
