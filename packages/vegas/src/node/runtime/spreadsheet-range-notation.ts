@@ -1,5 +1,12 @@
 import { UnsupportedRuntimeOperationError } from "./unsupported-runtime-operation-error";
 
+interface SpreadsheetRangeBounds {
+  readonly startRowBounded?: boolean;
+  readonly endRowBounded?: boolean;
+  readonly startColumnBounded?: boolean;
+  readonly endColumnBounded?: boolean;
+}
+
 export interface SpreadsheetRangeCoordinates {
   readonly row: number;
   readonly column: number;
@@ -45,6 +52,26 @@ function unsupportedNotation(notation: string): never {
     "Sheet.getRange(a1Notation)",
     `notation is not modeled by the local Runtime: ${JSON.stringify(notation)}`,
   );
+}
+
+export function resolveSpreadsheetRangeBounds(notation: string): SpreadsheetRangeBounds {
+  const value = notation.trim();
+
+  if (A1_COLUMN_RANGE.test(value)) {
+    return {
+      startRowBounded: false,
+      endRowBounded: false,
+    };
+  }
+
+  if (A1_ROW_RANGE.test(value)) {
+    return {
+      startColumnBounded: false,
+      endColumnBounded: false,
+    };
+  }
+
+  return {};
 }
 
 // Apps Script documents both A1 and R1C1 notation. Vegas resolves A1 references first because

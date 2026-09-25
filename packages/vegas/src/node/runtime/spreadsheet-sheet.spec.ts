@@ -915,6 +915,8 @@ describe("Sheet", () => {
         column: 2,
         numRows: 100,
         numColumns: 3,
+        startRowBounded: false,
+        endRowBounded: false,
       },
     ]);
     expect(bridge.calls.map(({ operation }) => operation)).toStrictEqual([

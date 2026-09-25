@@ -23,6 +23,12 @@ export interface RangeReference {
   readonly column: number;
   readonly numRows: number;
   readonly numColumns: number;
+  // Vegas stores notation boundedness separately from finite local grid coordinates so
+  // full-row/full-column A1 Ranges can preserve the Apps Script boundedness contract.
+  readonly startRowBounded?: boolean;
+  readonly endRowBounded?: boolean;
+  readonly startColumnBounded?: boolean;
+  readonly endColumnBounded?: boolean;
 }
 
 export type SpreadsheetObjectReference = SpreadsheetReference | SheetReference | RangeReference;

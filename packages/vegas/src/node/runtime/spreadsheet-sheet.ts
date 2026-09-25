@@ -2,7 +2,10 @@ import type { HostBridge } from "./host-bridge";
 import { SPREADSHEET_SHEET_TYPE, type SpreadsheetSheetType } from "./spreadsheet-enum";
 import type { SpreadsheetObjectHydrator } from "./spreadsheet-hydrator";
 import type { Range } from "./spreadsheet-range";
-import { resolveSpreadsheetRangeNotation } from "./spreadsheet-range-notation";
+import {
+  resolveSpreadsheetRangeBounds,
+  resolveSpreadsheetRangeNotation,
+} from "./spreadsheet-range-notation";
 import type { SheetReference } from "./spreadsheet-reference";
 import type { Spreadsheet } from "./spreadsheet-spreadsheet";
 import type { SpreadsheetCellValue } from "./spreadsheet-store";
@@ -349,6 +352,7 @@ export class Sheet {
     let resolvedColumn: number;
     let resolvedNumRows: number;
     let resolvedNumColumns: number;
+    let rangeBounds = {};
 
     if (typeof rowOrNotation === "string") {
       const metadata = this.#metadata();
@@ -362,6 +366,7 @@ export class Sheet {
       resolvedColumn = coordinates.column;
       resolvedNumRows = coordinates.numRows;
       resolvedNumColumns = coordinates.numColumns;
+      rangeBounds = resolveSpreadsheetRangeBounds(rowOrNotation);
     } else {
       if (column === undefined) {
         throw new TypeError("Spreadsheet range column is required.");
@@ -387,6 +392,7 @@ export class Sheet {
       column: resolvedColumn,
       numRows: resolvedNumRows,
       numColumns: resolvedNumColumns,
+      ...rangeBounds,
     });
   }
 

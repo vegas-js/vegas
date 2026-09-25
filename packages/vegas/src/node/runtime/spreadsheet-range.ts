@@ -8,6 +8,7 @@ import type {
   SpreadsheetNoteGrid,
 } from "./spreadsheet-store";
 import { assertInteger, assertPositiveInteger } from "./spreadsheet-validation";
+import { UnsupportedRuntimeOperationError } from "./unsupported-runtime-operation-error";
 
 function cloneCellValue(value: SpreadsheetCellValue): SpreadsheetCellValue {
   return value instanceof Date ? new Date(value.getTime()) : value;
@@ -19,6 +20,14 @@ function cloneGrid(values: SpreadsheetGrid): SpreadsheetCellValue[][] {
 
 function trimCellWhitespace(value: SpreadsheetCellValue): SpreadsheetCellValue {
   return typeof value === "string" ? value.trim().replace(/\s+/g, " ") : value;
+}
+
+function assertFormulaValuesSupported(values: SpreadsheetGrid, operation: string): void {
+  if (
+    values.some((row) => row.some((value) => typeof value === "string" && value.startsWith("=")))
+  ) {
+    throw new UnsupportedRuntimeOperationError(operation, "formula evaluation is not modeled.");
+  }
 }
 
 function createDuplicateCellKey(value: SpreadsheetCellValue): string {
@@ -44,7 +53,7 @@ function createDuplicateRowKey(
 
 const A1_COLUMN_ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
-function formatA1Cell(row: number, column: number): string {
+function formatA1Column(column: number): string {
   let columnIndex = column;
   let columnName = "";
 
@@ -54,7 +63,11 @@ function formatA1Cell(row: number, column: number): string {
     columnIndex = Math.floor(columnIndex / 26);
   }
 
-  return `${columnName}${row}`;
+  return columnName;
+}
+
+function formatA1Cell(row: number, column: number): string {
+  return `${formatA1Column(column)}${row}`;
 }
 
 // https://developers.google.com/apps-script/reference/spreadsheet/range
@@ -84,24 +97,27 @@ export class Range {
   }
 
   clearContent(): Range {
-    this.#bridge.call({
-      service: "spreadsheet",
-      operation: "set-range-values",
-      range: this.#reference,
-      values: Array.from({ length: this.#reference.numRows }, () =>
+    return this.#writeValues(
+      Array.from({ length: this.#reference.numRows }, () =>
         Array.from({ length: this.#reference.numColumns }, () => ""),
       ),
-    });
-
-    return this;
+    );
   }
 
   getA1Notation(): string {
+    const endRow = this.#reference.row + this.#reference.numRows - 1;
+    const endColumn = this.#reference.column + this.#reference.numColumns - 1;
+
+    if (!this.isStartRowBounded() && !this.isEndRowBounded()) {
+      return `${formatA1Column(this.#reference.column)}:${formatA1Column(endColumn)}`;
+    }
+
+    if (!this.isStartColumnBounded() && !this.isEndColumnBounded()) {
+      return `${this.#reference.row}:${endRow}`;
+    }
+
     const start = formatA1Cell(this.#reference.row, this.#reference.column);
-    const end = formatA1Cell(
-      this.#reference.row + this.#reference.numRows - 1,
-      this.#reference.column + this.#reference.numColumns - 1,
-    );
+    const end = formatA1Cell(endRow, endColumn);
 
     return start === end ? start : `${start}:${end}`;
   }
@@ -214,23 +230,19 @@ export class Range {
   }
 
   isEndColumnBounded(): boolean {
-    // Vegas currently represents only explicit rectangular Ranges, so both column bounds exist.
-    return true;
+    return this.#reference.endColumnBounded ?? true;
   }
 
   isEndRowBounded(): boolean {
-    // Vegas currently represents only explicit rectangular Ranges, so both row bounds exist.
-    return true;
+    return this.#reference.endRowBounded ?? true;
   }
 
   isStartColumnBounded(): boolean {
-    // Vegas currently represents only explicit rectangular Ranges, so both column bounds exist.
-    return true;
+    return this.#reference.startColumnBounded ?? true;
   }
 
   isStartRowBounded(): boolean {
-    // Vegas currently represents only explicit rectangular Ranges, so both row bounds exist.
-    return true;
+    return this.#reference.startRowBounded ?? true;
   }
 
   offset(rowOffset: number, columnOffset: number): Range;
@@ -274,7 +286,7 @@ export class Range {
       [values[index], values[swapIndex]] = [values[swapIndex]!, values[index]!];
     }
 
-    return this.setValues(values);
+    return this.#writeValues(values);
   }
 
   removeDuplicates(): Range;
@@ -315,11 +327,17 @@ export class Range {
       Array.from({ length: this.#reference.numColumns }, () => ""),
     );
 
-    this.setValues([...uniqueRows, ...emptyRows]);
+    this.#writeValues([...uniqueRows, ...emptyRows]);
 
     return this.#hydrator.hydrate({
-      ...this.#reference,
+      service: "spreadsheet",
+      kind: "range",
+      spreadsheetId: this.#reference.spreadsheetId,
+      sheetId: this.#reference.sheetId,
+      row: this.#reference.row,
+      column: this.#reference.column,
       numRows: uniqueRows.length,
+      numColumns: this.#reference.numColumns,
     });
   }
 
@@ -343,17 +361,27 @@ export class Range {
   }
 
   setValue(value: SpreadsheetCellValue): Range {
-    this.#bridge.call({
-      service: "spreadsheet",
-      operation: "set-range-values",
-      range: this.#reference,
-      values: [[value]],
-    });
+    const values = Array.from({ length: this.#reference.numRows }, () =>
+      Array.from({ length: this.#reference.numColumns }, () => value),
+    );
+    assertFormulaValuesSupported(values, "Range.setValue() with formula values");
 
-    return this;
+    return this.#writeValues(values);
   }
 
   setValues(values: SpreadsheetGrid): Range {
+    assertFormulaValuesSupported(values, "Range.setValues() with formula values");
+
+    return this.#writeValues(values);
+  }
+
+  trimWhitespace(): Range {
+    // Apps Script explicitly keeps text beginning with "=" as text after trimming instead of
+    // interpreting it as a formula, so this internal write bypasses public formula handling.
+    return this.#writeValues(this.getValues().map((row) => row.map(trimCellWhitespace)));
+  }
+
+  #writeValues(values: SpreadsheetGrid): Range {
     this.#bridge.call({
       service: "spreadsheet",
       operation: "set-range-values",
@@ -362,9 +390,5 @@ export class Range {
     });
 
     return this;
-  }
-
-  trimWhitespace(): Range {
-    return this.setValues(this.getValues().map((row) => row.map(trimCellWhitespace)));
   }
 }

@@ -282,7 +282,7 @@ describe("Sheet public contract", () => {
 
     expect(sheet.getRange("B2:D4").getA1Notation()).toBe("B2:D4");
     expect(sheet.getRange("R5C6:R7C8").getA1Notation()).toBe("F5:H7");
-    expect(sheet.getRange("B:D").getA1Notation()).toBe("B1:D100");
+    expect(sheet.getRange("B:D").getA1Notation()).toBe("B:D");
 
     expect(() => sheet.getRange("R[1]C[1]")).toThrow(
       "Local Runtime does not support Sheet.getRange(a1Notation)",

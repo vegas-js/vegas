@@ -346,7 +346,11 @@
         "setValues",
         "trimWhitespace"
       ],
-      "defaultBehavior": "local-emulation"
+      "defaultBehavior": "local-emulation",
+      "behaviorOverrides": {
+        "setValue": "fail-closed",
+        "setValues": "fail-closed"
+      }
     },
     "Blob": {
       "auditedMethods": [
