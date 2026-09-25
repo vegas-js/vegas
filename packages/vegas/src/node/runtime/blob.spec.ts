@@ -11,9 +11,16 @@ describe("RuntimeBlob", () => {
     expect(blob).toBeInstanceOf(RuntimeBlob);
     expect(blob.getBytes()).toStrictEqual([71, 111, 111, 103, 108, 101, 32, -29, -126, -80]);
     expect(blob.getDataAsString()).toBe("Google グ");
+    expect(blob.getDataAsString("UTF-8")).toBe("Google グ");
     expect(blob.getContentType()).toBeNull();
     expect(blob.getName()).toBeNull();
     expect(blob.isGoogleType()).toBe(false);
+  });
+
+  test("decode blob data with a specified charset", () => {
+    const blob = createBlob([67, 97, 102, -23]);
+
+    expect(blob.getDataAsString("windows-1252")).toBe("Café");
   });
 
   test("convert blobs through the bound Runtime conversion backend", () => {
@@ -135,6 +142,9 @@ describe("RuntimeBlob", () => {
 
     expect(blob.setBytes([66, 67])).toBe(blob);
     expect(blob.setDataFromString("グ")).toBe(blob);
+    expect(blob.setDataFromString("グ", "UTF-8")).toBe(blob);
+    expect(blob.setContentType(null)).toBe(blob);
+    expect(blob.getContentType()).toBeNull();
     expect(blob.setContentType("text/custom")).toBe(blob);
     expect(blob.setName("renamed.txt")).toBe(blob);
 
@@ -144,6 +154,18 @@ describe("RuntimeBlob", () => {
       name: "renamed.txt",
       googleType: false,
     });
+  });
+
+  test("fail closed when encoding a string with an unsupported local charset", () => {
+    const blob = createBlob("");
+
+    expect(() => blob.setDataFromString("Café", "windows-1252")).toThrow(
+      UnsupportedRuntimeOperationError,
+    );
+    expect(() => blob.setDataFromString("Café", "windows-1252")).toThrow(
+      'Local Runtime does not support Blob.setDataFromString(string, charset): charset encoding is not modeled: "windows-1252".',
+    );
+    expect(blob.getBytes()).toStrictEqual([]);
   });
 
   test("copy and hydrate blobs without sharing mutable byte state", () => {

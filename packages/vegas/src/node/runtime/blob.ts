@@ -12,8 +12,25 @@ function encodeUtf8(value: string): number[] {
   return [...new TextEncoder().encode(value)].map(toSignedByte);
 }
 
-function decodeUtf8(bytes: readonly number[]): string {
-  return new TextDecoder("utf-8").decode(Uint8Array.from(bytes, (value) => value & 0xff));
+function decodeString(bytes: readonly number[], charset: string): string {
+  // Vegas uses Node's WHATWG TextDecoder labels for local charset decoding. This is a local
+  // capability boundary and does not claim to reproduce every charset accepted by Apps Script.
+  return new TextDecoder(charset).decode(Uint8Array.from(bytes, (value) => value & 0xff));
+}
+
+function encodeString(value: string, charset: string): number[] {
+  const encoding = new TextDecoder(charset).encoding;
+
+  if (encoding !== "utf-8") {
+    // Node does not expose a general-purpose TextEncoder for arbitrary charsets. Vegas supports
+    // UTF-8 aliases and fails closed for other encodings instead of silently writing wrong bytes.
+    throw new UnsupportedRuntimeOperationError(
+      "Blob.setDataFromString(string, charset)",
+      `charset encoding is not modeled: ${JSON.stringify(charset)}.`,
+    );
+  }
+
+  return encodeUtf8(value);
 }
 
 const CONTENT_TYPE_BY_EXTENSION: Readonly<Record<string, string>> = {
@@ -127,8 +144,10 @@ export class RuntimeBlob implements RuntimeBlobSource {
     return this.#contentType;
   }
 
-  getDataAsString(): string {
-    return decodeUtf8(this.#bytes);
+  getDataAsString(): string;
+  getDataAsString(charset: string): string;
+  getDataAsString(charset = "utf-8"): string {
+    return decodeString(this.#bytes, charset);
   }
 
   getName(): string | null {
@@ -144,7 +163,7 @@ export class RuntimeBlob implements RuntimeBlobSource {
     return this;
   }
 
-  setContentType(contentType: string): this {
+  setContentType(contentType: string | null): this {
     this.#contentType = contentType;
     return this;
   }
@@ -154,8 +173,10 @@ export class RuntimeBlob implements RuntimeBlobSource {
     return this;
   }
 
-  setDataFromString(value: string): this {
-    this.#bytes = encodeUtf8(value);
+  setDataFromString(value: string): this;
+  setDataFromString(value: string, charset: string): this;
+  setDataFromString(value: string, charset = "utf-8"): this {
+    this.#bytes = encodeString(value, charset);
     return this;
   }
 

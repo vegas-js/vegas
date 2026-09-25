@@ -411,7 +411,7 @@
         "getDataAsString": "local-emulation",
         "isGoogleType": "local-emulation",
         "setContentTypeFromExtension": "local-emulation",
-        "setDataFromString": "local-emulation"
+        "setDataFromString": "fail-closed"
       },
       "contractTestedMethods": ["setContentTypeFromExtension"]
     },
