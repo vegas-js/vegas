@@ -87,11 +87,13 @@
     },
     "DriveApp.FileIterator": {
       "auditedMethods": ["getContinuationToken", "hasNext", "next"],
-      "defaultBehavior": "local-emulation"
+      "defaultBehavior": "local-emulation",
+      "contractTestedMethods": ["getContinuationToken", "hasNext", "next"]
     },
     "DriveApp.FolderIterator": {
       "auditedMethods": ["getContinuationToken", "hasNext", "next"],
-      "defaultBehavior": "local-emulation"
+      "defaultBehavior": "local-emulation",
+      "contractTestedMethods": ["getContinuationToken", "hasNext", "next"]
     },
     "SpreadsheetApp": {
       "auditedMethods": [
