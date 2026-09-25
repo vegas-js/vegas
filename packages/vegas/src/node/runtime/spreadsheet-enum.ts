@@ -1,5 +1,10 @@
 import { createRuntimeEnum } from "./runtime-enum";
 
+export const SPREADSHEET_DIRECTION = createRuntimeEnum("UP", "DOWN", "PREVIOUS", "NEXT");
+
+export type SpreadsheetDirection =
+  (typeof SPREADSHEET_DIRECTION)[keyof typeof SPREADSHEET_DIRECTION];
+
 export const SPREADSHEET_DIMENSION = createRuntimeEnum("COLUMNS", "ROWS");
 
 export type SpreadsheetDimension =

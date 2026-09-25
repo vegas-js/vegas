@@ -1,5 +1,9 @@
 import type { HostBridge } from "./host-bridge";
-import { SPREADSHEET_DIMENSION, SPREADSHEET_SHEET_TYPE } from "./spreadsheet-enum";
+import {
+  SPREADSHEET_DIMENSION,
+  SPREADSHEET_DIRECTION,
+  SPREADSHEET_SHEET_TYPE,
+} from "./spreadsheet-enum";
 import type { SpreadsheetObjectHydrator } from "./spreadsheet-hydrator";
 import type { Spreadsheet } from "./spreadsheet-spreadsheet";
 import { assertPositiveInteger } from "./spreadsheet-validation";
@@ -14,6 +18,7 @@ export class SpreadsheetApp {
   readonly #bridge: HostBridge;
   readonly #hydrator: SpreadsheetObjectHydrator;
 
+  readonly Direction = SPREADSHEET_DIRECTION;
   readonly Dimension = SPREADSHEET_DIMENSION;
   readonly SheetType = SPREADSHEET_SHEET_TYPE;
 

@@ -1,5 +1,5 @@
 import type { HostBridge } from "./host-bridge";
-import type { SpreadsheetDimension } from "./spreadsheet-enum";
+import type { SpreadsheetDimension, SpreadsheetDirection } from "./spreadsheet-enum";
 import type { SpreadsheetObjectHydrator } from "./spreadsheet-hydrator";
 import type { RangeReference } from "./spreadsheet-reference";
 import type { Sheet } from "./spreadsheet-sheet";
@@ -250,6 +250,116 @@ export class Range {
       column,
       numRows: endRow - row + 1,
       numColumns: endColumn - column + 1,
+    });
+  }
+
+  getNextDataCell(direction: SpreadsheetDirection): Range;
+  getNextDataCell(direction: unknown): Range {
+    if (
+      direction !== "UP" &&
+      direction !== "DOWN" &&
+      direction !== "PREVIOUS" &&
+      direction !== "NEXT"
+    ) {
+      // Apps Script accepts Direction enum values but does not document arbitrary runtime values.
+      // Vegas rejects unknown values instead of silently choosing a direction.
+      throw new TypeError("Spreadsheet data cell direction must be UP, DOWN, PREVIOUS, or NEXT.");
+    }
+
+    const sheet = {
+      service: "spreadsheet",
+      kind: "sheet",
+      spreadsheetId: this.#reference.spreadsheetId,
+      sheetId: this.#reference.sheetId,
+    } as const;
+    const metadata = this.#bridge.call({
+      service: "spreadsheet",
+      operation: "get-sheet-metadata",
+      sheet,
+    });
+    const startRow = this.#reference.row;
+    const startColumn = this.#reference.column;
+    let row = direction === "UP" ? 1 : startRow;
+    let column = direction === "PREVIOUS" ? 1 : startColumn;
+    let numRows = 1;
+    let numColumns = 1;
+
+    switch (direction) {
+      case "UP":
+        numRows = startRow;
+        break;
+      case "DOWN":
+        numRows = metadata.maxRows - startRow + 1;
+        break;
+      case "PREVIOUS":
+        numColumns = startColumn;
+        break;
+      case "NEXT":
+        numColumns = metadata.maxColumns - startColumn + 1;
+        break;
+    }
+
+    const grid = this.#bridge.call({
+      service: "spreadsheet",
+      operation: "get-range-values",
+      range: {
+        service: "spreadsheet",
+        kind: "range",
+        spreadsheetId: this.#reference.spreadsheetId,
+        sheetId: this.#reference.sheetId,
+        row,
+        column,
+        numRows,
+        numColumns,
+      },
+    });
+    const cells =
+      direction === "UP" || direction === "DOWN"
+        ? grid.map((values) => values[0]!)
+        : grid[0]!.slice();
+
+    if (direction === "UP" || direction === "PREVIOUS") {
+      cells.reverse();
+    }
+
+    // Apps Script defines getNextDataCell() as Ctrl+Arrow behavior but does not specify each
+    // transition across blank and non-blank cells. Vegas continues through adjacent data; when
+    // there is no adjacent data, it jumps to the next data cell or falls back to the sheet edge.
+    let offset: number;
+    if (cells.length > 1 && cells[0] !== "" && cells[1] !== "") {
+      offset = 1;
+      while (offset + 1 < cells.length && cells[offset + 1] !== "") {
+        offset += 1;
+      }
+    } else {
+      const nextDataOffset = cells.findIndex((value, index) => index > 0 && value !== "");
+      offset = nextDataOffset === -1 ? cells.length - 1 : nextDataOffset;
+    }
+
+    switch (direction) {
+      case "UP":
+        row = startRow - offset;
+        break;
+      case "DOWN":
+        row = startRow + offset;
+        break;
+      case "PREVIOUS":
+        column = startColumn - offset;
+        break;
+      case "NEXT":
+        column = startColumn + offset;
+        break;
+    }
+
+    return this.#hydrator.hydrate({
+      service: "spreadsheet",
+      kind: "range",
+      spreadsheetId: this.#reference.spreadsheetId,
+      sheetId: this.#reference.sheetId,
+      row,
+      column,
+      numRows: 1,
+      numColumns: 1,
     });
   }
 
