@@ -104,6 +104,67 @@ export class Range {
     );
   }
 
+  copyValuesToRange(
+    gridId: GoogleAppsScript.Integer,
+    column: GoogleAppsScript.Integer,
+    columnEnd: GoogleAppsScript.Integer,
+    row: GoogleAppsScript.Integer,
+    rowEnd: GoogleAppsScript.Integer,
+  ): void;
+  copyValuesToRange(
+    sheet: Sheet,
+    column: GoogleAppsScript.Integer,
+    columnEnd: GoogleAppsScript.Integer,
+    row: GoogleAppsScript.Integer,
+    rowEnd: GoogleAppsScript.Integer,
+  ): void;
+  copyValuesToRange(
+    sheetOrGridId: Sheet | GoogleAppsScript.Integer,
+    column: GoogleAppsScript.Integer,
+    columnEnd: GoogleAppsScript.Integer,
+    row: GoogleAppsScript.Integer,
+    rowEnd: GoogleAppsScript.Integer,
+  ): void {
+    assertPositiveInteger(column, "Spreadsheet range copy column");
+    assertPositiveInteger(columnEnd, "Spreadsheet range copy columnEnd");
+    assertPositiveInteger(row, "Spreadsheet range copy row");
+    assertPositiveInteger(rowEnd, "Spreadsheet range copy rowEnd");
+
+    const numColumns = columnEnd - column + 1;
+    const numRows = rowEnd - row + 1;
+
+    // Apps Script documents inclusive destination bounds but not reversed bounds. Vegas rejects
+    // reversed bounds instead of silently swapping their coordinates.
+    assertPositiveInteger(numColumns, "Spreadsheet range copy numColumns");
+    assertPositiveInteger(numRows, "Spreadsheet range copy numRows");
+
+    let sheet: Sheet;
+    if (typeof sheetOrGridId === "number") {
+      assertInteger(sheetOrGridId, "Spreadsheet range copy gridId");
+      sheet = this.#hydrator.hydrate({
+        service: "spreadsheet",
+        kind: "sheet",
+        spreadsheetId: this.#reference.spreadsheetId,
+        sheetId: sheetOrGridId,
+      });
+    } else {
+      sheet = sheetOrGridId;
+    }
+
+    const source = this.getValues();
+    const values = Array.from({ length: numRows }, (_, rowOffset) =>
+      Array.from({ length: numColumns }, (_, columnOffset) =>
+        cloneCellValue(
+          source[rowOffset % source.length]![columnOffset % this.#reference.numColumns]!,
+        ),
+      ),
+    );
+
+    // This copies already-resolved cell content. Bypass public setValues() formula handling so
+    // formula-looking text already stored by the local Runtime remains text while being copied.
+    sheet.getRange(row, column, numRows, numColumns).#writeValues(values);
+  }
+
   getA1Notation(): string {
     const endRow = this.#reference.row + this.#reference.numRows - 1;
     const endColumn = this.#reference.column + this.#reference.numColumns - 1;

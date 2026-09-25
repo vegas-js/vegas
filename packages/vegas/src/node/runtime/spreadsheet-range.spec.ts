@@ -413,6 +413,124 @@ describe("Range", () => {
     expect(hydrator.references).toHaveLength(0);
   });
 
+  // Public contract:
+  // https://developers.google.com/apps-script/reference/spreadsheet/range#copyvaluestorangegridid_column_columnend_row_rowend
+  // https://developers.google.com/apps-script/reference/spreadsheet/range#copyvaluestorangesheet_column_columnend_row_rowend
+  test("copy Range values to Sheet targets with repeat and truncate semantics", () => {
+    const sourceReference = {
+      ...defaultRangeReference,
+      row: 1,
+      column: 1,
+      numRows: 2,
+      numColumns: 2,
+    };
+    const bridge = createBridge([
+      ["=literal", 2],
+      [3, 4],
+    ]);
+    const targetReferences: RangeReference[] = [];
+    const targetSheet = {
+      getRange(row: number, column: number, numRows: number, numColumns: number) {
+        const reference = {
+          service: "spreadsheet",
+          kind: "range",
+          spreadsheetId: "spreadsheet-a",
+          sheetId: 9,
+          row,
+          column,
+          numRows,
+          numColumns,
+        } satisfies RangeReference;
+
+        targetReferences.push(reference);
+
+        return new Range(bridge, reference, {} as SpreadsheetObjectHydrator);
+      },
+    } as unknown as Sheet;
+    const hydrator = new RecordingSpreadsheetObjectHydrator({} as Range, targetSheet);
+    const range = new Range(bridge, sourceReference, hydrator);
+
+    expect(range.copyValuesToRange(targetSheet, 4, 6, 5, 7)).toBeUndefined();
+    expect(range.copyValuesToRange(9, 2, 2, 3, 3)).toBeUndefined();
+    expect(targetReferences).toStrictEqual([
+      {
+        service: "spreadsheet",
+        kind: "range",
+        spreadsheetId: "spreadsheet-a",
+        sheetId: 9,
+        row: 5,
+        column: 4,
+        numRows: 3,
+        numColumns: 3,
+      },
+      {
+        service: "spreadsheet",
+        kind: "range",
+        spreadsheetId: "spreadsheet-a",
+        sheetId: 9,
+        row: 3,
+        column: 2,
+        numRows: 1,
+        numColumns: 1,
+      },
+    ]);
+    expect(bridge.calls).toStrictEqual([
+      {
+        service: "spreadsheet",
+        operation: "get-range-values",
+        range: sourceReference,
+      },
+      {
+        service: "spreadsheet",
+        operation: "set-range-values",
+        range: targetReferences[0],
+        values: [
+          ["=literal", 2, "=literal"],
+          [3, 4, 3],
+          ["=literal", 2, "=literal"],
+        ],
+      },
+      {
+        service: "spreadsheet",
+        operation: "get-range-values",
+        range: sourceReference,
+      },
+      {
+        service: "spreadsheet",
+        operation: "set-range-values",
+        range: targetReferences[1],
+        values: [["=literal"]],
+      },
+    ]);
+    expect(hydrator.references).toStrictEqual([
+      {
+        service: "spreadsheet",
+        kind: "sheet",
+        spreadsheetId: "spreadsheet-a",
+        sheetId: 9,
+      },
+    ]);
+  });
+
+  test("reject invalid copyValuesToRange destinations before collaborators", () => {
+    const { bridge, hydrator, range, sheet } = createFixture();
+
+    expect(() => range.copyValuesToRange(sheet, 0, 1, 1, 1)).toThrow(
+      "copy column must be a positive integer",
+    );
+    expect(() => range.copyValuesToRange(sheet, 2, 1, 1, 1)).toThrow(
+      "copy numColumns must be a positive integer",
+    );
+    expect(() => range.copyValuesToRange(sheet, 1, 1, 2, 1)).toThrow(
+      "copy numRows must be a positive integer",
+    );
+    expect(() => range.copyValuesToRange(1.5, 1, 1, 1, 1)).toThrow(
+      "copy gridId must be an integer",
+    );
+    expect(bridge.calls).toHaveLength(0);
+    expect(hydrator.references).toHaveLength(0);
+  });
+
   test("randomize Range rows and preserve chaining", () => {
     const reference = {
       ...defaultRangeReference,
