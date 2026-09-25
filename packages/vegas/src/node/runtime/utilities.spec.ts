@@ -92,6 +92,15 @@ describe("Utilities", () => {
     ]);
   });
 
+  test("fail closed instead of inventing ZIP entry names for unnamed blobs", () => {
+    const utilities = createNodeUtilities();
+    const unnamed = utilities.newBlob("Vegas");
+
+    expect(() => utilities.zip([unnamed])).toThrow(
+      "Utilities.zip() requires every input blob to have a name.",
+    );
+  });
+
   test("decode standard and web-safe Base64 into signed bytes", () => {
     const utilities = createNodeUtilities();
     const expected = [

@@ -381,6 +381,8 @@ export class Utilities {
       const blob = source.getBlob();
       const entryName = blob.getName();
       if (entryName === null || entryName.length === 0) {
+        // Apps Script does not document how unnamed BlobSource values are named in ZIP archives.
+        // Vegas fails closed instead of inventing a local archive-entry name.
         throw new RangeError("Utilities.zip() requires every input blob to have a name.");
       }
       return {

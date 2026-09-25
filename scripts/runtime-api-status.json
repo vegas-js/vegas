@@ -660,12 +660,12 @@
         "computeRsaSha1Signature": "local-emulation",
         "computeRsaSha256Signature": "local-emulation",
         "computeRsaSignature": "local-emulation",
-        "formatDate": "local-emulation",
-        "formatString": "local-emulation",
+        "formatDate": "fail-closed",
+        "formatString": "fail-closed",
         "parseCsv": "local-emulation",
-        "parseDate": "local-emulation",
-        "unzip": "local-emulation",
-        "zip": "local-emulation"
+        "parseDate": "fail-closed",
+        "unzip": "fail-closed",
+        "zip": "fail-closed"
       }
     },
     "UrlFetchApp": {
