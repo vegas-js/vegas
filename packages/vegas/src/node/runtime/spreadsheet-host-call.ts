@@ -93,6 +93,13 @@ export type SpreadsheetHostCall =
     }
   | {
       readonly service: "spreadsheet";
+      readonly operation: "insert-sheet-rows";
+      readonly sheet: SheetReference;
+      readonly startRow: number;
+      readonly numRows: number;
+    }
+  | {
+      readonly service: "spreadsheet";
       readonly operation: "get-sheet-column-hidden-by-user";
       readonly sheet: SheetReference;
       readonly column: number;
@@ -210,6 +217,7 @@ type SpreadsheetHostCallResultMap = {
   "get-sheet": SheetReference | null;
   "get-sheet-by-name": SheetReference | null;
   "get-sheet-metadata": SheetMetadata;
+  "insert-sheet-rows": void;
   "get-sheet-column-hidden-by-user": boolean;
   "get-sheet-row-hidden-by-user": boolean;
   "rename-sheet": void;

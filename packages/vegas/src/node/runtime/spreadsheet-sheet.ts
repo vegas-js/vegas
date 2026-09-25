@@ -186,6 +186,33 @@ export class Sheet {
     return this;
   }
 
+  insertRowAfter(afterPosition: number): Sheet {
+    return this.insertRowsAfter(afterPosition, 1);
+  }
+
+  insertRowBefore(beforePosition: number): Sheet {
+    return this.insertRowsBefore(beforePosition, 1);
+  }
+
+  insertRows(rowIndex: number): void;
+  insertRows(rowIndex: number, numRows: number): void;
+  insertRows(rowIndex: number, numRows = 1): void {
+    this.#insertRows(rowIndex, numRows);
+  }
+
+  insertRowsAfter(afterPosition: number, howMany: number): Sheet {
+    assertPositiveInteger(afterPosition, "Spreadsheet sheet afterPosition");
+    this.#insertRows(afterPosition + 1, howMany);
+
+    return this;
+  }
+
+  insertRowsBefore(beforePosition: number, howMany: number): Sheet {
+    this.#insertRows(beforePosition, howMany);
+
+    return this;
+  }
+
   getSheetName(): string {
     return this.getName();
   }
@@ -460,6 +487,19 @@ export class Sheet {
       // Vegas rejects foreign Ranges instead of applying their coordinates to this Sheet.
       throw new RangeError("Spreadsheet visibility Range must belong to this Sheet.");
     }
+  }
+
+  #insertRows(startRow: number, numRows: number): void {
+    assertPositiveInteger(startRow, "Spreadsheet sheet row start");
+    assertPositiveInteger(numRows, "Spreadsheet sheet row count");
+
+    this.#bridge.call({
+      service: "spreadsheet",
+      operation: "insert-sheet-rows",
+      sheet: this.#reference,
+      startRow,
+      numRows,
+    });
   }
 
   #metadata() {

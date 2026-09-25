@@ -118,6 +118,19 @@ function assertRowSpan(startRow: number, numRows: number, maximum: number): void
   }
 }
 
+// Apps Script documents 1-based insertion positions but not out-of-bounds behavior. Vegas
+// accepts maxRows + 1 as an append position and rejects positions that would leave a gap.
+function assertRowInsertion(startRow: number, numRows: number, maximum: number): void {
+  assertPositiveInteger(startRow, "Spreadsheet sheet row start");
+  assertPositiveInteger(numRows, "Spreadsheet sheet row count");
+
+  if (startRow > maximum + 1) {
+    throw new RangeError(
+      `Spreadsheet sheet row insertion must start between 1 and ${maximum + 1}.`,
+    );
+  }
+}
+
 function createSheetState(spreadsheetId: string, seed: InMemorySheetSeed): SheetState {
   assertInteger(seed.id, "Spreadsheet sheet id");
 
@@ -413,6 +426,31 @@ export class InMemorySpreadsheetStore implements SpreadsheetStore {
 
   async getSheetMetadata(sheet: SheetReference): Promise<SheetMetadata> {
     return { ...this.#getSheetState(sheet.spreadsheetId, sheet.sheetId).metadata };
+  }
+
+  async insertSheetRows(sheet: SheetReference, startRow: number, numRows: number): Promise<void> {
+    const spreadsheet = this.#getSpreadsheetState(sheet.spreadsheetId);
+    const state = this.#getSheetState(sheet.spreadsheetId, sheet.sheetId);
+    assertRowInsertion(startRow, numRows, state.metadata.maxRows);
+
+    state.grid.insertRows(startRow, numRows);
+
+    const hiddenRows = new Set<number>();
+    for (const row of state.hiddenRows) {
+      hiddenRows.add(row >= startRow ? row + numRows : row);
+    }
+
+    // Apps Script documents that insertion shifts existing rows down, but not how hidden and
+    // frozen row state is remapped. Vegas moves hidden-row markers with shifted rows and preserves
+    // the frozen-row count.
+    spreadsheet.sheets.set(sheet.sheetId, {
+      ...state,
+      metadata: {
+        ...state.metadata,
+        maxRows: state.metadata.maxRows + numRows,
+      },
+      hiddenRows,
+    });
   }
 
   async isSheetColumnHiddenByUser(sheet: SheetReference, column: number): Promise<boolean> {

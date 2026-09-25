@@ -12,8 +12,26 @@ function createCellKey(row: number, column: number): string {
   return `${row}:${column}`;
 }
 
+function shiftRowsDown<T>(entries: Map<string, T>, startRow: number, numRows: number): void {
+  const shifted = new Map<string, T>();
+
+  for (const [key, value] of entries) {
+    const separator = key.indexOf(":");
+    const row = Number(key.slice(0, separator));
+    const column = Number(key.slice(separator + 1));
+    const nextRow = row >= startRow ? row + numRows : row;
+
+    shifted.set(createCellKey(nextRow, column), value);
+  }
+
+  entries.clear();
+  for (const [key, value] of shifted) {
+    entries.set(key, value);
+  }
+}
+
 export class InMemorySpreadsheetGrid {
-  readonly #maxRows: number;
+  #maxRows: number;
   readonly #maxColumns: number;
   readonly #cells = new Map<string, SpreadsheetCellValue>();
   readonly #notes = new Map<string, string>();
@@ -84,6 +102,21 @@ export class InMemorySpreadsheetGrid {
       lastRow,
       lastColumn,
     };
+  }
+
+  insertRows(startRow: number, numRows: number): void {
+    assertPositiveInteger(startRow, "Spreadsheet grid row start");
+    assertPositiveInteger(numRows, "Spreadsheet grid row count");
+
+    if (startRow > this.#maxRows + 1) {
+      throw new RangeError(
+        `Spreadsheet grid row start must be between 1 and ${this.#maxRows + 1}.`,
+      );
+    }
+
+    shiftRowsDown(this.#cells, startRow, numRows);
+    shiftRowsDown(this.#notes, startRow, numRows);
+    this.#maxRows += numRows;
   }
 
   getValues(range: GridRange): SpreadsheetGrid {

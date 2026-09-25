@@ -224,6 +224,63 @@ describe("InMemorySpreadsheetStore resources", () => {
     );
   });
 
+  test("insert Sheet rows while shifting grid and hidden-row state", async () => {
+    const store = createStore();
+    const noteRange = {
+      ...RANGE,
+      row: 2,
+      numRows: 1,
+      numColumns: 1,
+    };
+
+    await store.setRangeNotes(noteRange, [["shifted note"]]);
+    await store.setSheetRowsHidden(SUMMARY, 2, 1, true);
+    await store.insertSheetRows(SUMMARY, 2, 2);
+
+    await expect(store.getSheetMetadata(SUMMARY)).resolves.toMatchObject({
+      maxRows: 12,
+      frozenRows: 0,
+    });
+    await expect(
+      store.getRangeValues({
+        ...RANGE,
+        row: 1,
+        numRows: 4,
+      }),
+    ).resolves.toStrictEqual([
+      ["Name", "Amount", 100],
+      ["", "", ""],
+      ["", "", ""],
+      ["Vegas", 42, true],
+    ]);
+    await expect(
+      store.getRangeNotes({
+        ...noteRange,
+        row: 4,
+      }),
+    ).resolves.toStrictEqual([["shifted note"]]);
+    await expect(store.isSheetRowHiddenByUser(SUMMARY, 2)).resolves.toBe(false);
+    await expect(store.isSheetRowHiddenByUser(SUMMARY, 4)).resolves.toBe(true);
+
+    await store.insertSheetRows(SUMMARY, 13, 1);
+    await expect(store.getSheetMetadata(SUMMARY)).resolves.toMatchObject({
+      maxRows: 13,
+    });
+    await expect(
+      store.getRangeValues({
+        ...noteRange,
+        row: 13,
+      }),
+    ).resolves.toStrictEqual([[""]]);
+
+    await expect(store.insertSheetRows(SUMMARY, 15, 1)).rejects.toThrow(
+      "row insertion must start between 1 and 14",
+    );
+    await expect(store.insertSheetRows(SUMMARY, 1, 0)).rejects.toThrow(
+      "row count must be a positive integer",
+    );
+  });
+
   test("reject invalid local frozen Sheet counts", async () => {
     const store = createStore();
 
