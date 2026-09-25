@@ -2,6 +2,7 @@ import type { HostBridge } from "./host-bridge";
 import { SPREADSHEET_SHEET_TYPE, type SpreadsheetSheetType } from "./spreadsheet-enum";
 import type { SpreadsheetObjectHydrator } from "./spreadsheet-hydrator";
 import type { Range } from "./spreadsheet-range";
+import { resolveSpreadsheetRangeNotation } from "./spreadsheet-range-notation";
 import type { SheetReference } from "./spreadsheet-reference";
 import type { Spreadsheet } from "./spreadsheet-spreadsheet";
 import type { SpreadsheetCellValue } from "./spreadsheet-store";
@@ -339,14 +340,43 @@ export class Sheet {
     });
   }
 
+  getRange(a1Notation: string): Range;
   getRange(row: number, column: number): Range;
   getRange(row: number, column: number, numRows: number): Range;
   getRange(row: number, column: number, numRows: number, numColumns: number): Range;
-  getRange(row: number, column: number, numRows = 1, numColumns = 1): Range {
-    assertPositiveInteger(row, "Spreadsheet range row");
-    assertPositiveInteger(column, "Spreadsheet range column");
-    assertPositiveInteger(numRows, "Spreadsheet range numRows");
-    assertPositiveInteger(numColumns, "Spreadsheet range numColumns");
+  getRange(rowOrNotation: string | number, column?: number, numRows = 1, numColumns = 1): Range {
+    let row: number;
+    let resolvedColumn: number;
+    let resolvedNumRows: number;
+    let resolvedNumColumns: number;
+
+    if (typeof rowOrNotation === "string") {
+      const metadata = this.#metadata();
+      const coordinates = resolveSpreadsheetRangeNotation(
+        rowOrNotation,
+        metadata.maxRows,
+        metadata.maxColumns,
+      );
+
+      row = coordinates.row;
+      resolvedColumn = coordinates.column;
+      resolvedNumRows = coordinates.numRows;
+      resolvedNumColumns = coordinates.numColumns;
+    } else {
+      if (column === undefined) {
+        throw new TypeError("Spreadsheet range column is required.");
+      }
+
+      assertPositiveInteger(rowOrNotation, "Spreadsheet range row");
+      assertPositiveInteger(column, "Spreadsheet range column");
+      assertPositiveInteger(numRows, "Spreadsheet range numRows");
+      assertPositiveInteger(numColumns, "Spreadsheet range numColumns");
+
+      row = rowOrNotation;
+      resolvedColumn = column;
+      resolvedNumRows = numRows;
+      resolvedNumColumns = numColumns;
+    }
 
     return this.#hydrator.hydrate({
       service: "spreadsheet",
@@ -354,9 +384,9 @@ export class Sheet {
       spreadsheetId: this.#reference.spreadsheetId,
       sheetId: this.#reference.sheetId,
       row,
-      column,
-      numRows,
-      numColumns,
+      column: resolvedColumn,
+      numRows: resolvedNumRows,
+      numColumns: resolvedNumColumns,
     });
   }
 

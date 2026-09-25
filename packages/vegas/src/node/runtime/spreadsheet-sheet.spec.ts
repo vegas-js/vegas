@@ -867,6 +867,85 @@ describe("Sheet", () => {
     expect(bridge.calls).toHaveLength(1);
     expect(hydrator.references).toHaveLength(0);
   });
+
+  test("hydrate documented A1 and R1C1 Sheet ranges", () => {
+    const bridge = new RecordingHostBridge((call) => {
+      if (call.service === "spreadsheet" && call.operation === "get-sheet-metadata") {
+        return {
+          maxRows: 100,
+          maxColumns: 26,
+        };
+      }
+
+      throw new Error(`unexpected host call: ${call.service}#${call.operation}`);
+    });
+    const { hydrator, rangeDouble, sheet } = createFixture({ bridge });
+
+    expect(sheet.getRange("B2:D4")).toBe(rangeDouble.range);
+    expect(sheet.getRange("R5C6:R7C8")).toBe(rangeDouble.range);
+    expect(sheet.getRange("B:D")).toBe(rangeDouble.range);
+
+    expect(hydrator.references).toStrictEqual([
+      {
+        service: "spreadsheet",
+        kind: "range",
+        spreadsheetId: "spreadsheet-a",
+        sheetId: 7,
+        row: 2,
+        column: 2,
+        numRows: 3,
+        numColumns: 3,
+      },
+      {
+        service: "spreadsheet",
+        kind: "range",
+        spreadsheetId: "spreadsheet-a",
+        sheetId: 7,
+        row: 5,
+        column: 6,
+        numRows: 3,
+        numColumns: 3,
+      },
+      {
+        service: "spreadsheet",
+        kind: "range",
+        spreadsheetId: "spreadsheet-a",
+        sheetId: 7,
+        row: 1,
+        column: 2,
+        numRows: 100,
+        numColumns: 3,
+      },
+    ]);
+    expect(bridge.calls.map(({ operation }) => operation)).toStrictEqual([
+      "get-sheet-metadata",
+      "get-sheet-metadata",
+      "get-sheet-metadata",
+    ]);
+  });
+
+  test("fail closed for Sheet range notation not modeled locally", () => {
+    const bridge = new RecordingHostBridge((call) => {
+      if (call.service === "spreadsheet" && call.operation === "get-sheet-metadata") {
+        return {
+          maxRows: 100,
+          maxColumns: 26,
+        };
+      }
+
+      throw new Error(`unexpected host call: ${call.service}#${call.operation}`);
+    });
+    const { hydrator, sheet } = createFixture({ bridge });
+
+    expect(() => sheet.getRange("R[1]C[1]")).toThrow(
+      "Local Runtime does not support Sheet.getRange(a1Notation)",
+    );
+    expect(() => sheet.getRange("Other!A1")).toThrow(
+      "Local Runtime does not support Sheet.getRange(a1Notation)",
+    );
+    expect(hydrator.references).toHaveLength(0);
+  });
+
   test("reject invalid numeric Range coordinates before hydration", () => {
     const { bridge, hydrator, sheet } = createFixture();
 

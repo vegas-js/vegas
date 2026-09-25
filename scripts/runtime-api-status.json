@@ -261,7 +261,11 @@
         "getSheetId",
         "getSheetValues"
       ],
-      "defaultBehavior": "local-emulation"
+      "defaultBehavior": "local-emulation",
+      "behaviorOverrides": {
+        "appendRow": "fail-closed",
+        "getRange": "fail-closed"
+      }
     },
     "SpreadsheetApp.Range": {
       "auditedMethods": [
