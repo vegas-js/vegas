@@ -5,6 +5,11 @@
       "mode": "augment",
       "source": "https://developers.google.com/apps-script/reference/spreadsheet/spreadsheet-app",
       "methods": ["enableLookerExecution"]
+    },
+    "Maps": {
+      "mode": "augment",
+      "source": "https://developers.google.com/apps-script/reference/maps/maps",
+      "methods": ["resetAuthenticationApiKey", "setAuthenticationByApiKey"]
     }
   }
 }

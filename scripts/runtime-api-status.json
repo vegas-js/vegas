@@ -387,6 +387,11 @@
         "trimWhitespace"
       ]
     },
+    "Maps": {
+      "auditedMethods": ["decodePolyline", "encodePolyline"],
+      "defaultBehavior": "implemented",
+      "contractTestedMethods": ["decodePolyline", "encodePolyline"]
+    },
     "Blob": {
       "auditedMethods": [
         "copyBlob",

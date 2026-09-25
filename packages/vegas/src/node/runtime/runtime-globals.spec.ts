@@ -9,6 +9,7 @@ import {
   HtmlService,
   LockService,
   Logger,
+  Maps,
   MIME_TYPE,
   PropertiesService,
   Session,
@@ -83,6 +84,7 @@ describe("createRuntimeGlobals", () => {
     expect(globals.ContentService).toBeInstanceOf(ContentService);
     expect(globals.HtmlService).toBeInstanceOf(HtmlService);
     expect(globals.Logger).toBeInstanceOf(Logger);
+    expect(globals.Maps).toBeInstanceOf(Maps);
     expect(globals.MimeType).toBe(MIME_TYPE);
     expect(globals.Session).toBeInstanceOf(Session);
     expect(globals.console).toBeInstanceOf(AppsScriptConsole);

@@ -81,6 +81,7 @@ export type { LocalRuntimeSessionStores } from "./local-runtime-session";
 export { AppsScriptConsole, createConsole } from "./console";
 export { createLogger, Logger } from "./logger";
 export type { LoggingTarget } from "./logging-target";
+export { createMaps, Maps } from "./maps";
 export type { LockHostCall, LockHostCallResult, LockHostScope } from "./lock-host-call";
 export { LockHostHandler } from "./lock-host-handler";
 export type { LockHostCallHandler } from "./lock-host-handler";

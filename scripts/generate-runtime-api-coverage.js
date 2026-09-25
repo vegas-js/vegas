@@ -27,6 +27,7 @@ export const API_SURFACES = {
     ["Sheet", "spreadsheet-sheet.ts", "Sheet"],
     ["Range", "spreadsheet-range.ts", "Range"],
   ],
+  Maps: [["Maps", "maps.ts", "Maps"]],
   UrlFetchApp: [
     ["UrlFetchApp", "url-fetch-app.ts", "UrlFetchApp"],
     ["HTTPResponse", "url-fetch-http-response.ts", "HTTPResponse"],
