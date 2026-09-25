@@ -182,7 +182,17 @@
         "enableBigQueryExecution": "no-op",
         "enableLookerExecution": "no-op",
         "flush": "no-op"
-      }
+      },
+      "contractTestedMethods": [
+        "create",
+        "enableAllDataSourcesExecution",
+        "enableBigQueryExecution",
+        "enableLookerExecution",
+        "flush",
+        "open",
+        "openByUrl",
+        "openById"
+      ]
     },
     "SpreadsheetApp.Spreadsheet": {
       "auditedMethods": [

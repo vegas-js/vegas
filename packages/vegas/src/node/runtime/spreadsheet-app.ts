@@ -56,6 +56,8 @@ export class SpreadsheetApp {
     );
   }
 
+  // Apps Script enables external Spreadsheet data-source execution. Vegas does not model
+  // Connected Sheets execution, so these local enablement methods are intentional no-ops.
   enableAllDataSourcesExecution(): void {
     return;
   }
@@ -69,6 +71,8 @@ export class SpreadsheetApp {
   }
 
   flush(): void {
+    // Apps Script flushes pending Spreadsheet changes. Vegas applies local mutations
+    // synchronously, so there is no pending mutation queue to flush.
     return;
   }
 
