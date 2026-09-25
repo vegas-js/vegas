@@ -1,4 +1,4 @@
-import { serializeBlob, type RuntimeBlob } from "./blob";
+import { serializeBlob, type RuntimeBlobSource } from "./blob";
 import { createDriveFileBlob } from "./drive-create-file";
 import type { DriveFile } from "./drive-file";
 import type { DriveFileIterator } from "./drive-file-iterator";
@@ -21,10 +21,14 @@ export class DriveFolder {
     registerDriveFolderIdentity(this, bridge, reference);
   }
 
-  createFile(blob: RuntimeBlob): DriveFile;
+  createFile(blob: RuntimeBlobSource): DriveFile;
   createFile(name: string, content: string): DriveFile;
   createFile(name: string, content: string, mimeType: string): DriveFile;
-  createFile(blobOrName: RuntimeBlob | string, content?: string, mimeType?: string): DriveFile {
+  createFile(
+    blobOrName: RuntimeBlobSource | string,
+    content?: string,
+    mimeType?: string,
+  ): DriveFile {
     const blob = createDriveFileBlob(blobOrName, content, mimeType);
 
     return this.#hydrator.hydrate(

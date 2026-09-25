@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, test, vi } from "vitest";
 
 import { createDriveFileBlob } from "./drive-create-file";
-import { MIME_TYPE, createBlob } from "./index";
+import { MIME_TYPE, createBlob, type RuntimeBlobSource } from "./index";
 
 afterEach(() => {
   vi.restoreAllMocks();
@@ -12,6 +12,15 @@ describe("createDriveFileBlob", () => {
     const blob = createBlob("Vegas", MIME_TYPE.PLAIN_TEXT, "vegas.txt");
 
     expect(createDriveFileBlob(blob)).toBe(blob);
+  });
+
+  test("resolve BlobSource input through getBlob", () => {
+    const blob = createBlob("Vegas", MIME_TYPE.PLAIN_TEXT, "vegas.txt");
+    const source = {
+      getBlob: () => blob,
+    } satisfies RuntimeBlobSource;
+
+    expect(createDriveFileBlob(source)).toBe(blob);
   });
 
   test("create a named plain-text Blob from string content", () => {

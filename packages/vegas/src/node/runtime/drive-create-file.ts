@@ -1,16 +1,16 @@
 import { MIME_TYPE } from "./base-mime-type";
-import { createBlob, type RuntimeBlob } from "./blob";
+import { createBlob, type RuntimeBlob, type RuntimeBlobSource } from "./blob";
 
 const MAX_PLAIN_TEXT_FILE_CONTENT_BYTES = 50_000_000;
 const MAX_TYPED_FILE_CONTENT_BYTES = 10_000_000;
 
 export function createDriveFileBlob(
-  blobOrName: RuntimeBlob | string,
+  blobOrName: RuntimeBlobSource | string,
   content?: string,
   mimeType?: string,
 ): RuntimeBlob {
   if (typeof blobOrName !== "string") {
-    return blobOrName;
+    return blobOrName.getBlob();
   }
 
   if (content === undefined) {
