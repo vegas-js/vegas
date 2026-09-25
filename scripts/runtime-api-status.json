@@ -22,7 +22,27 @@
         "getFoldersByName",
         "getRootFolder"
       ],
-      "defaultBehavior": "local-emulation"
+      "defaultBehavior": "local-emulation",
+      "contractTestedMethods": [
+        "createFile",
+        "createFolder",
+        "createShortcut",
+        "createShortcutForTargetIdAndResourceKey",
+        "continueFileIterator",
+        "continueFolderIterator",
+        "getFileById",
+        "getFileByIdAndResourceKey",
+        "getFiles",
+        "getTrashedFiles",
+        "getFilesByName",
+        "getFilesByType",
+        "getFolderById",
+        "getFolderByIdAndResourceKey",
+        "getFolders",
+        "getTrashedFolders",
+        "getFoldersByName",
+        "getRootFolder"
+      ]
     },
     "DriveApp.File": {
       "auditedMethods": [
