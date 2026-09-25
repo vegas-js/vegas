@@ -10,6 +10,8 @@ export class Session {
   readonly #temporaryActiveUserKey: string;
 
   constructor(environment: InvocationEnvironment) {
+    // Apps Script derives session identity and locale from the execution context. Vegas receives
+    // those values from the invocation environment instead of inferring Google account state.
     this.#activeUser = new User(environment.activeUserEmail);
     this.#activeUserLocale = environment.activeUserLocale;
     this.#effectiveUser = new User(environment.effectiveUserEmail);
@@ -34,6 +36,8 @@ export class Session {
   }
 
   getTemporaryActiveUserKey(): string {
+    // Google owns temporary-key generation and rotation. Vegas exposes the current key supplied by
+    // the invocation environment instead of inventing Google's script- and account-scoped state.
     return this.#temporaryActiveUserKey;
   }
 

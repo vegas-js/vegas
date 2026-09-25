@@ -389,11 +389,21 @@
         "getTimeZone",
         "getUser"
       ],
-      "defaultBehavior": "local-emulation"
+      "defaultBehavior": "local-emulation",
+      "contractTestedMethods": [
+        "getActiveUser",
+        "getActiveUserLocale",
+        "getEffectiveUser",
+        "getScriptTimeZone",
+        "getTemporaryActiveUserKey",
+        "getTimeZone",
+        "getUser"
+      ]
     },
     "Session.User": {
       "auditedMethods": ["getEmail", "getUserLoginId"],
-      "defaultBehavior": "local-emulation"
+      "defaultBehavior": "local-emulation",
+      "contractTestedMethods": ["getEmail", "getUserLoginId"]
     },
     "console.Console": {
       "auditedMethods": ["error", "info", "log", "time", "timeEnd", "warn"],
