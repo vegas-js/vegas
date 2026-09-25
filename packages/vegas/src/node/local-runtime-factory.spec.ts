@@ -147,6 +147,35 @@ describe("createLocalRuntime", () => {
     });
   });
 
+  test("preserve Executor failures through the Runtime backend", async () => {
+    const snapshot = {
+      spreadsheets: [],
+    } satisfies RuntimeDataSnapshot;
+    const error = new TypeError("user failure");
+    const execute = vi.fn(async (_request: ExecutionRequest) => {
+      throw error;
+    });
+    const localRuntime = await createLocalRuntime(
+      project,
+      snapshot,
+      () => ({
+        source: "",
+        htmlFiles: {},
+      }),
+      {},
+      {
+        createExecutor: () => ({ execute }),
+      },
+    );
+
+    await expect(
+      localRuntime.execute({
+        functionName: "main",
+        args: ["value"],
+      }),
+    ).rejects.toBe(error);
+  });
+
   test("use a provided local Properties store without reapplying snapshot seed data", async () => {
     const snapshot = {
       properties: {
