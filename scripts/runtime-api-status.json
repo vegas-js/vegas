@@ -413,7 +413,22 @@
         "setContentTypeFromExtension": "local-emulation",
         "setDataFromString": "fail-closed"
       },
-      "contractTestedMethods": ["setContentTypeFromExtension"]
+      "contractTestedMethods": [
+        "copyBlob",
+        "getAs",
+        "getAllBlobs",
+        "getBlob",
+        "getBytes",
+        "getContentType",
+        "getDataAsString",
+        "getName",
+        "isGoogleType",
+        "setBytes",
+        "setContentType",
+        "setContentTypeFromExtension",
+        "setDataFromString",
+        "setName"
+      ]
     },
     "ContentService": {
       "auditedMethods": ["createTextOutput"],
