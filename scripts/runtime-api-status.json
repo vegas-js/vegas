@@ -205,7 +205,17 @@
         "getSheetByName",
         "rename"
       ],
-      "defaultBehavior": "local-emulation"
+      "defaultBehavior": "local-emulation",
+      "contractTestedMethods": [
+        "getId",
+        "getUrl",
+        "getName",
+        "getNumSheets",
+        "getSheets",
+        "getSheetById",
+        "getSheetByName",
+        "rename"
+      ]
     },
     "SpreadsheetApp.Sheet": {
       "auditedMethods": [
