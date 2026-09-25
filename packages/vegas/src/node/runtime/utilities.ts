@@ -1,4 +1,4 @@
-import { createBlob, type RuntimeBlob, type RuntimeBlobSource } from "./blob";
+import { createBlob, type RuntimeBlob } from "./blob";
 import type { BlobConverter } from "./blob-converter";
 import { parseCsv as parseCsvString } from "./csv";
 import { formatPrintf } from "./printf";
@@ -313,9 +313,9 @@ export class Utilities {
     return JSON.stringify(obj) as string;
   }
 
-  gzip(blob: RuntimeBlobSource): RuntimeBlob;
-  gzip(blob: RuntimeBlobSource, name: string): RuntimeBlob;
-  gzip(blob: RuntimeBlobSource, name?: string): RuntimeBlob {
+  gzip(blob: GoogleAppsScript.Base.BlobSource): RuntimeBlob;
+  gzip(blob: GoogleAppsScript.Base.BlobSource, name: string): RuntimeBlob;
+  gzip(blob: GoogleAppsScript.Base.BlobSource, name?: string): RuntimeBlob {
     const compressed = this.#capability.gzip(encodeBytes(blob.getBlob().getBytes()));
     return createBlob(
       Array.from(compressed, toSignedByte),
@@ -361,12 +361,12 @@ export class Utilities {
     this.#capability.sleep(milliseconds);
   }
 
-  ungzip(blob: RuntimeBlobSource): RuntimeBlob {
+  ungzip(blob: GoogleAppsScript.Base.BlobSource): RuntimeBlob {
     const uncompressed = this.#capability.gunzip(encodeBytes(blob.getBlob().getBytes()));
     return createBlob(Array.from(uncompressed, toSignedByte), null, null, this.#blobConverter);
   }
 
-  unzip(blob: RuntimeBlobSource): RuntimeBlob[] {
+  unzip(blob: GoogleAppsScript.Base.BlobSource): RuntimeBlob[] {
     return this.#capability
       .unzip(encodeBytes(blob.getBlob().getBytes()))
       .map((entry) =>
@@ -374,9 +374,9 @@ export class Utilities {
       );
   }
 
-  zip(blobs: RuntimeBlobSource[]): RuntimeBlob;
-  zip(blobs: RuntimeBlobSource[], name: string): RuntimeBlob;
-  zip(blobs: RuntimeBlobSource[], name?: string): RuntimeBlob {
+  zip(blobs: GoogleAppsScript.Base.BlobSource[]): RuntimeBlob;
+  zip(blobs: GoogleAppsScript.Base.BlobSource[], name: string): RuntimeBlob;
+  zip(blobs: GoogleAppsScript.Base.BlobSource[], name?: string): RuntimeBlob {
     const entries = blobs.map((source) => {
       const blob = source.getBlob();
       const entryName = blob.getName();

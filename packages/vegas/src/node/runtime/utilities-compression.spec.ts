@@ -37,7 +37,13 @@ describe("Utilities Blob and compression contract", () => {
   test("gzip and ungzip BlobSource data without mutating the source", () => {
     const utilities = createNodeUtilities();
     const source = utilities.newBlob("Some text to compress using gzip compression");
-    const compressed = utilities.gzip({ getBlob: () => source }, "text.gz");
+    const compressed = utilities.gzip(
+      {
+        getAs: (contentType) => source.getAs(contentType),
+        getBlob: () => source,
+      },
+      "text.gz",
+    );
     const uncompressed = utilities.ungzip(compressed);
 
     expect(compressed).toBeInstanceOf(RuntimeBlob);
@@ -53,7 +59,16 @@ describe("Utilities Blob and compression contract", () => {
     const root = utilities.newBlob("root", "text/plain", "root.txt");
     const nested = utilities.newBlob("Google グ", "text/plain", "nested/日本語.txt");
 
-    const archive = utilities.zip([root, { getBlob: () => nested }], "bundle.zip");
+    const archive = utilities.zip(
+      [
+        root,
+        {
+          getAs: (contentType) => nested.getAs(contentType),
+          getBlob: () => nested,
+        },
+      ],
+      "bundle.zip",
+    );
     const files = utilities.unzip(archive);
 
     expect(archive).toBeInstanceOf(RuntimeBlob);
