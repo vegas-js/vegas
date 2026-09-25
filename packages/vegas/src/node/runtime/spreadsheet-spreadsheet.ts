@@ -20,6 +20,22 @@ export class Spreadsheet {
     this.#hydrator = hydrator;
   }
 
+  deleteSheet(sheet: Sheet): void {
+    const parent = sheet.getParent();
+
+    this.#bridge.call({
+      service: "spreadsheet",
+      operation: "delete-sheet",
+      spreadsheet: this.#reference,
+      sheet: {
+        service: "spreadsheet",
+        kind: "sheet",
+        spreadsheetId: parent.getId(),
+        sheetId: sheet.getSheetId(),
+      },
+    });
+  }
+
   getId(): string {
     return this.#reference.id;
   }

@@ -54,6 +54,17 @@ export class SpreadsheetHostHandler implements SpreadsheetHostCallHandler {
       case "list-sheets": {
         return this.#store.listSheets(call.spreadsheet);
       }
+      case "delete-sheet": {
+        if (call.sheet.spreadsheetId !== call.spreadsheet.id) {
+          // Google documents deleting a Sheet from a Spreadsheet but does not define passing a
+          // Sheet owned by another Spreadsheet. Vegas rejects mismatched local references instead
+          // of risking deletion of an unrelated Sheet with the same numeric id.
+          throw new Error("Spreadsheet.deleteSheet() requires a Sheet from the same Spreadsheet.");
+        }
+
+        await this.#store.deleteSheet(call.sheet);
+        return;
+      }
       case "get-sheet": {
         return this.#store.getSheet(call.spreadsheet, call.sheetId);
       }

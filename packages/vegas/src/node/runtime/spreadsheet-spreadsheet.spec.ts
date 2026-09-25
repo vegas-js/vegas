@@ -216,6 +216,36 @@ describe("Spreadsheet", () => {
     expect(hydrator.references).toHaveLength(0);
   });
 
+  // Public contract:
+  // https://developers.google.com/apps-script/reference/spreadsheet/spreadsheet
+  test("delete the specified Sheet through the HostBridge", () => {
+    const bridge = new RecordingHostBridge(() => undefined);
+    const hydrator = new RecordingSpreadsheetObjectHydrator(() => {
+      throw new Error("unexpected hydration");
+    });
+    const spreadsheet = new Spreadsheet(bridge, spreadsheetReference, hydrator);
+    const sheet = {
+      getParent: () => spreadsheet,
+      getSheetId: () => 7,
+    } as Sheet;
+
+    expect(spreadsheet.deleteSheet(sheet)).toBeUndefined();
+    expect(bridge.calls).toStrictEqual([
+      {
+        service: "spreadsheet",
+        operation: "delete-sheet",
+        spreadsheet: spreadsheetReference,
+        sheet: {
+          service: "spreadsheet",
+          kind: "sheet",
+          spreadsheetId: "spreadsheet-a",
+          sheetId: 7,
+        },
+      },
+    ]);
+    expect(hydrator.references).toHaveLength(0);
+  });
+
   test("reject non-integer Sheet ids before HostBridge calls", () => {
     const { bridge, hydrator, spreadsheet } = createFixture();
 

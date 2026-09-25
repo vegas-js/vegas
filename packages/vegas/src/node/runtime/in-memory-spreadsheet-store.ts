@@ -338,6 +338,16 @@ export class InMemorySpreadsheetStore implements SpreadsheetStore {
     );
   }
 
+  async deleteSheet(sheet: SheetReference): Promise<void> {
+    const spreadsheet = this.#getSpreadsheetState(sheet.spreadsheetId);
+
+    // Google documents deleting the specified Sheet but does not define last-Sheet behavior.
+    // Vegas keeps the local model's existing ability to represent a Spreadsheet with zero Sheets
+    // instead of inventing an additional minimum-Sheet rule.
+    this.#getSheetState(sheet.spreadsheetId, sheet.sheetId);
+    spreadsheet.sheets.delete(sheet.sheetId);
+  }
+
   async getSheet(
     spreadsheet: SpreadsheetReference,
     sheetId: number,

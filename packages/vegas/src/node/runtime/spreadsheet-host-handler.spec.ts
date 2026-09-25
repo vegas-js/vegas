@@ -239,6 +239,66 @@ describe("SpreadsheetHostHandler", () => {
     ).resolves.toStrictEqual({ lastRow: 2, lastColumn: 2 });
   });
 
+  test("delete the specified Sheet and reject cross-Spreadsheet references", async () => {
+    const handler = createHandler();
+    const spreadsheet = {
+      service: "spreadsheet",
+      kind: "spreadsheet",
+      id: "spreadsheet-a",
+    } as const;
+    const archive = {
+      service: "spreadsheet",
+      kind: "sheet",
+      spreadsheetId: "spreadsheet-a",
+      sheetId: 9,
+    } as const;
+
+    await expect(
+      handler.handle({
+        service: "spreadsheet",
+        operation: "delete-sheet",
+        spreadsheet,
+        sheet: archive,
+      }),
+    ).resolves.toBeUndefined();
+    await expect(
+      handler.handle({
+        service: "spreadsheet",
+        operation: "get-sheet",
+        spreadsheet,
+        sheetId: 9,
+      }),
+    ).resolves.toBeNull();
+    await expect(
+      handler.handle({
+        service: "spreadsheet",
+        operation: "list-sheets",
+        spreadsheet,
+      }),
+    ).resolves.toStrictEqual([
+      {
+        service: "spreadsheet",
+        kind: "sheet",
+        spreadsheetId: "spreadsheet-a",
+        sheetId: 7,
+      },
+    ]);
+
+    await expect(
+      handler.handle({
+        service: "spreadsheet",
+        operation: "delete-sheet",
+        spreadsheet,
+        sheet: {
+          service: "spreadsheet",
+          kind: "sheet",
+          spreadsheetId: "spreadsheet-b",
+          sheetId: 7,
+        },
+      }),
+    ).rejects.toThrow("Spreadsheet.deleteSheet() requires a Sheet from the same Spreadsheet.");
+  });
+
   test("delegate user-hidden Sheet column state to the store", async () => {
     const handler = createHandler();
     const sheet = {

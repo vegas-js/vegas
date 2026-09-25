@@ -48,6 +48,12 @@ export type SpreadsheetHostCall =
     }
   | {
       readonly service: "spreadsheet";
+      readonly operation: "delete-sheet";
+      readonly spreadsheet: SpreadsheetReference;
+      readonly sheet: SheetReference;
+    }
+  | {
+      readonly service: "spreadsheet";
       readonly operation: "get-sheet";
       readonly spreadsheet: SpreadsheetReference;
       readonly sheetId: number;
@@ -174,6 +180,7 @@ type SpreadsheetHostCallResultMap = {
   "get-spreadsheet-metadata": SpreadsheetMetadata;
   "rename-spreadsheet": void;
   "list-sheets": readonly SheetReference[];
+  "delete-sheet": void;
   "get-sheet": SheetReference | null;
   "get-sheet-by-name": SheetReference | null;
   "get-sheet-metadata": SheetMetadata;
