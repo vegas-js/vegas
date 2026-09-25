@@ -127,7 +127,33 @@
         "setStarred",
         "setTrashed"
       ],
-      "defaultBehavior": "local-emulation"
+      "defaultBehavior": "local-emulation",
+      "contractTestedMethods": [
+        "createFile",
+        "createFolder",
+        "createShortcut",
+        "createShortcutForTargetIdAndResourceKey",
+        "getFiles",
+        "getFilesByName",
+        "getFilesByType",
+        "getFolders",
+        "getFoldersByName",
+        "getDateCreated",
+        "getDescription",
+        "getId",
+        "getLastUpdated",
+        "getName",
+        "getResourceKey",
+        "getSize",
+        "isStarred",
+        "isTrashed",
+        "getParents",
+        "moveTo",
+        "setDescription",
+        "setName",
+        "setStarred",
+        "setTrashed"
+      ]
     },
     "DriveApp.FileIterator": {
       "auditedMethods": ["getContinuationToken", "hasNext", "next"],
