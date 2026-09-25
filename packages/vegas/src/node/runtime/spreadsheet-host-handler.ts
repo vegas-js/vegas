@@ -47,8 +47,22 @@ export class SpreadsheetHostHandler implements SpreadsheetHostCallHandler {
       case "get-spreadsheet-metadata": {
         return this.#store.getSpreadsheetMetadata(call.spreadsheet);
       }
+      case "get-spreadsheet-locale": {
+        return this.#store.getSpreadsheetLocale(call.spreadsheet);
+      }
+      case "get-spreadsheet-time-zone": {
+        return this.#store.getSpreadsheetTimeZone(call.spreadsheet);
+      }
       case "rename-spreadsheet": {
         await this.#store.renameSpreadsheet(call.spreadsheet, call.name);
+        return;
+      }
+      case "set-spreadsheet-locale": {
+        await this.#store.setSpreadsheetLocale(call.spreadsheet, call.locale);
+        return;
+      }
+      case "set-spreadsheet-time-zone": {
+        await this.#store.setSpreadsheetTimeZone(call.spreadsheet, call.timeZone);
         return;
       }
       case "list-sheets": {

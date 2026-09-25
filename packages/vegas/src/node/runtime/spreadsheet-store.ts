@@ -44,7 +44,15 @@ export interface SpreadsheetStore {
 
   getSpreadsheetMetadata(spreadsheet: SpreadsheetReference): Promise<SpreadsheetMetadata>;
 
+  getSpreadsheetLocale(spreadsheet: SpreadsheetReference): Promise<string>;
+
+  getSpreadsheetTimeZone(spreadsheet: SpreadsheetReference): Promise<string>;
+
   renameSpreadsheet(spreadsheet: SpreadsheetReference, name: string): Promise<void>;
+
+  setSpreadsheetLocale(spreadsheet: SpreadsheetReference, locale: string): Promise<void>;
+
+  setSpreadsheetTimeZone(spreadsheet: SpreadsheetReference, timeZone: string): Promise<void>;
 
   listSheets(spreadsheet: SpreadsheetReference): Promise<readonly SheetReference[]>;
 

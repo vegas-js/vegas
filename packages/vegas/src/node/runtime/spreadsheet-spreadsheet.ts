@@ -56,6 +56,22 @@ export class Spreadsheet {
     }).name;
   }
 
+  getSpreadsheetLocale(): string {
+    return this.#bridge.call({
+      service: "spreadsheet",
+      operation: "get-spreadsheet-locale",
+      spreadsheet: this.#reference,
+    });
+  }
+
+  getSpreadsheetTimeZone(): string {
+    return this.#bridge.call({
+      service: "spreadsheet",
+      operation: "get-spreadsheet-time-zone",
+      spreadsheet: this.#reference,
+    });
+  }
+
   getNumSheets(): number {
     return this.#bridge.call({
       service: "spreadsheet",
@@ -104,6 +120,24 @@ export class Spreadsheet {
       operation: "rename-spreadsheet",
       spreadsheet: this.#reference,
       name: newName,
+    });
+  }
+
+  setSpreadsheetLocale(locale: string): void {
+    this.#bridge.call({
+      service: "spreadsheet",
+      operation: "set-spreadsheet-locale",
+      spreadsheet: this.#reference,
+      locale,
+    });
+  }
+
+  setSpreadsheetTimeZone(timeZone: string): void {
+    this.#bridge.call({
+      service: "spreadsheet",
+      operation: "set-spreadsheet-time-zone",
+      spreadsheet: this.#reference,
+      timeZone,
     });
   }
 }

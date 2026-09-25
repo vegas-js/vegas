@@ -37,9 +37,31 @@ export type SpreadsheetHostCall =
     }
   | {
       readonly service: "spreadsheet";
+      readonly operation: "get-spreadsheet-locale";
+      readonly spreadsheet: SpreadsheetReference;
+    }
+  | {
+      readonly service: "spreadsheet";
+      readonly operation: "get-spreadsheet-time-zone";
+      readonly spreadsheet: SpreadsheetReference;
+    }
+  | {
+      readonly service: "spreadsheet";
       readonly operation: "rename-spreadsheet";
       readonly spreadsheet: SpreadsheetReference;
       readonly name: string;
+    }
+  | {
+      readonly service: "spreadsheet";
+      readonly operation: "set-spreadsheet-locale";
+      readonly spreadsheet: SpreadsheetReference;
+      readonly locale: string;
+    }
+  | {
+      readonly service: "spreadsheet";
+      readonly operation: "set-spreadsheet-time-zone";
+      readonly spreadsheet: SpreadsheetReference;
+      readonly timeZone: string;
     }
   | {
       readonly service: "spreadsheet";
@@ -178,7 +200,11 @@ type SpreadsheetHostCallResultMap = {
   "get-spreadsheet-by-url": SpreadsheetReference;
   "get-spreadsheet-url": string;
   "get-spreadsheet-metadata": SpreadsheetMetadata;
+  "get-spreadsheet-locale": string;
+  "get-spreadsheet-time-zone": string;
   "rename-spreadsheet": void;
+  "set-spreadsheet-locale": void;
+  "set-spreadsheet-time-zone": void;
   "list-sheets": readonly SheetReference[];
   "delete-sheet": void;
   "get-sheet": SheetReference | null;

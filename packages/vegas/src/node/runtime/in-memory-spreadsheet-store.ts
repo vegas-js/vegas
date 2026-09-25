@@ -10,6 +10,11 @@ import type {
 } from "./spreadsheet-store";
 import { assertInteger, assertPositiveInteger } from "./spreadsheet-validation";
 
+// Apps Script exposes Spreadsheet locale and time zone but does not define defaults for a local
+// runtime. Vegas uses fixed values so fixtures and runtime-created Spreadsheets are deterministic.
+const DEFAULT_SPREADSHEET_LOCALE = "en_US";
+const DEFAULT_SPREADSHEET_TIME_ZONE = "Etc/UTC";
+
 export interface InMemorySheetSeed {
   readonly id: number;
   readonly name: string;
@@ -42,6 +47,8 @@ type SpreadsheetOwnership = "fixture" | "runtime";
 type SpreadsheetState = {
   readonly reference: SpreadsheetReference;
   readonly metadata: SpreadsheetMetadata;
+  readonly locale: string;
+  readonly timeZone: string;
   readonly ownership: SpreadsheetOwnership;
   readonly url?: string;
   readonly sheets: Map<number, SheetState>;
@@ -166,6 +173,8 @@ function createSpreadsheetState(
     metadata: {
       name: seed.name,
     },
+    locale: DEFAULT_SPREADSHEET_LOCALE,
+    timeZone: DEFAULT_SPREADSHEET_TIME_ZONE,
     ownership,
     url: seed.url,
     sheets,
@@ -202,6 +211,8 @@ export class InMemorySpreadsheetStore implements SpreadsheetStore {
       clone.#spreadsheets.set(id, {
         reference: cloneSpreadsheetReference(state.reference),
         metadata: { ...state.metadata },
+        locale: state.locale,
+        timeZone: state.timeZone,
         ownership: state.ownership,
         url: state.url,
         sheets: new Map(
@@ -254,6 +265,8 @@ export class InMemorySpreadsheetStore implements SpreadsheetStore {
       metadata: {
         name,
       },
+      locale: DEFAULT_SPREADSHEET_LOCALE,
+      timeZone: DEFAULT_SPREADSHEET_TIME_ZONE,
       ownership: "runtime",
       sheets: new Map([[sheet.reference.sheetId, sheet]]),
     });
@@ -320,6 +333,14 @@ export class InMemorySpreadsheetStore implements SpreadsheetStore {
     return { ...this.#getSpreadsheetState(spreadsheet.id).metadata };
   }
 
+  async getSpreadsheetLocale(spreadsheet: SpreadsheetReference): Promise<string> {
+    return this.#getSpreadsheetState(spreadsheet.id).locale;
+  }
+
+  async getSpreadsheetTimeZone(spreadsheet: SpreadsheetReference): Promise<string> {
+    return this.#getSpreadsheetState(spreadsheet.id).timeZone;
+  }
+
   async renameSpreadsheet(spreadsheet: SpreadsheetReference, name: string): Promise<void> {
     const state = this.#getSpreadsheetState(spreadsheet.id);
 
@@ -329,6 +350,24 @@ export class InMemorySpreadsheetStore implements SpreadsheetStore {
         ...state.metadata,
         name,
       },
+    });
+  }
+
+  async setSpreadsheetLocale(spreadsheet: SpreadsheetReference, locale: string): Promise<void> {
+    const state = this.#getSpreadsheetState(spreadsheet.id);
+
+    this.#spreadsheets.set(spreadsheet.id, {
+      ...state,
+      locale,
+    });
+  }
+
+  async setSpreadsheetTimeZone(spreadsheet: SpreadsheetReference, timeZone: string): Promise<void> {
+    const state = this.#getSpreadsheetState(spreadsheet.id);
+
+    this.#spreadsheets.set(spreadsheet.id, {
+      ...state,
+      timeZone,
     });
   }
 

@@ -202,9 +202,13 @@
         "getName",
         "getNumSheets",
         "getSheets",
+        "getSpreadsheetLocale",
+        "getSpreadsheetTimeZone",
         "getSheetById",
         "getSheetByName",
-        "rename"
+        "rename",
+        "setSpreadsheetLocale",
+        "setSpreadsheetTimeZone"
       ],
       "defaultBehavior": "local-emulation",
       "contractTestedMethods": [
@@ -214,9 +218,13 @@
         "getName",
         "getNumSheets",
         "getSheets",
+        "getSpreadsheetLocale",
+        "getSpreadsheetTimeZone",
         "getSheetById",
         "getSheetByName",
-        "rename"
+        "rename",
+        "setSpreadsheetLocale",
+        "setSpreadsheetTimeZone"
       ]
     },
     "SpreadsheetApp.Sheet": {
