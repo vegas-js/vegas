@@ -23,6 +23,10 @@ export type RuntimeDataSnapshotInput =
       readonly value: RuntimeDataSpreadsheet;
     };
 
+function cloneRuntimeDataValue<T>(value: T): T {
+  return structuredClone(value);
+}
+
 function assertSpreadsheetSheetsUnique(source: string, spreadsheet: RuntimeDataSpreadsheet): void {
   const sheetIds = new Set<number>();
   const sheetNames = new Set<string>();
@@ -65,7 +69,7 @@ export function createRuntimeDataSnapshot(
 
         properties = {
           source: input.source,
-          value: input.value,
+          value: cloneRuntimeDataValue(input.value),
         };
         break;
       }
@@ -76,37 +80,38 @@ export function createRuntimeDataSnapshot(
 
         session = {
           source: input.source,
-          value: input.value,
+          value: cloneRuntimeDataValue(input.value),
         };
         break;
       }
       case RuntimeDataTarget.Spreadsheet: {
-        const existingIdSource = spreadsheetSourcesById.get(input.value.id);
+        const spreadsheet = cloneRuntimeDataValue(input.value);
+        const existingIdSource = spreadsheetSourcesById.get(spreadsheet.id);
 
         if (existingIdSource !== undefined) {
           throw new Error(
-            `Duplicate Spreadsheet runtime data id "${input.value.id}": ${existingIdSource}, ${input.source}`,
+            `Duplicate Spreadsheet runtime data id "${spreadsheet.id}": ${existingIdSource}, ${input.source}`,
           );
         }
 
-        spreadsheetSourcesById.set(input.value.id, input.source);
+        spreadsheetSourcesById.set(spreadsheet.id, input.source);
 
-        if (input.value.url !== undefined) {
-          const existingUrlSource = spreadsheetSourcesByUrl.get(input.value.url);
+        if (spreadsheet.url !== undefined) {
+          const existingUrlSource = spreadsheetSourcesByUrl.get(spreadsheet.url);
 
           if (existingUrlSource !== undefined) {
             throw new Error(
-              `Duplicate Spreadsheet runtime data URL "${input.value.url}": ${existingUrlSource}, ${input.source}`,
+              `Duplicate Spreadsheet runtime data URL "${spreadsheet.url}": ${existingUrlSource}, ${input.source}`,
             );
           }
 
-          spreadsheetSourcesByUrl.set(input.value.url, input.source);
+          spreadsheetSourcesByUrl.set(spreadsheet.url, input.source);
         }
 
-        assertSpreadsheetSheetsUnique(input.source, input.value);
+        assertSpreadsheetSheetsUnique(input.source, spreadsheet);
         spreadsheets.push({
           source: input.source,
-          value: input.value,
+          value: spreadsheet,
         });
         break;
       }

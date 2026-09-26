@@ -7,18 +7,18 @@ test("keep Runtime data sources and values explicit", () => {
     readonly properties?: {
       readonly source: string;
       readonly value: {
-        documentProperties?: Record<string, string>;
-        scriptProperties?: Record<string, string>;
-        userProperties?: Record<string, string>;
+        readonly documentProperties?: Readonly<Record<string, string>>;
+        readonly scriptProperties?: Readonly<Record<string, string>>;
+        readonly userProperties?: Readonly<Record<string, string>>;
       };
     };
     readonly session?: {
       readonly source: string;
       readonly value: {
-        activeUserEmail?: string;
-        activeUserLocale?: string;
-        effectiveUserEmail?: string;
-        temporaryActiveUserKey?: string;
+        readonly activeUserEmail?: string;
+        readonly activeUserLocale?: string;
+        readonly effectiveUserEmail?: string;
+        readonly temporaryActiveUserKey?: string;
       };
     };
     readonly spreadsheets: readonly {

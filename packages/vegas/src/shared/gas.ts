@@ -7,16 +7,16 @@ export enum RuntimeDataTarget {
 }
 
 export interface RuntimeDataProperties {
-  documentProperties?: Record<string, string>;
-  scriptProperties?: Record<string, string>;
-  userProperties?: Record<string, string>;
+  readonly documentProperties?: Readonly<Record<string, string>>;
+  readonly scriptProperties?: Readonly<Record<string, string>>;
+  readonly userProperties?: Readonly<Record<string, string>>;
 }
 
 export interface RuntimeDataSession {
-  activeUserEmail?: string;
-  activeUserLocale?: string;
-  effectiveUserEmail?: string;
-  temporaryActiveUserKey?: string;
+  readonly activeUserEmail?: string;
+  readonly activeUserLocale?: string;
+  readonly effectiveUserEmail?: string;
+  readonly temporaryActiveUserKey?: string;
 }
 
 export type RuntimeDataSpreadsheetCellValue = string | number | boolean | Date;
