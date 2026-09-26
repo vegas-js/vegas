@@ -1,8 +1,11 @@
 import type { HostBridge } from "./host-bridge";
 import {
+  SPREADSHEET_BORDER_STYLE,
   SPREADSHEET_DIMENSION,
   SPREADSHEET_DIRECTION,
   SPREADSHEET_SHEET_TYPE,
+  SPREADSHEET_TEXT_DIRECTION,
+  SPREADSHEET_WRAP_STRATEGY,
 } from "./spreadsheet-enum";
 import type { SpreadsheetObjectHydrator } from "./spreadsheet-hydrator";
 import type { Spreadsheet } from "./spreadsheet-spreadsheet";
@@ -18,9 +21,12 @@ export class SpreadsheetApp {
   readonly #bridge: HostBridge;
   readonly #hydrator: SpreadsheetObjectHydrator;
 
+  readonly BorderStyle = SPREADSHEET_BORDER_STYLE;
   readonly Direction = SPREADSHEET_DIRECTION;
   readonly Dimension = SPREADSHEET_DIMENSION;
   readonly SheetType = SPREADSHEET_SHEET_TYPE;
+  readonly TextDirection = SPREADSHEET_TEXT_DIRECTION;
+  readonly WrapStrategy = SPREADSHEET_WRAP_STRATEGY;
 
   constructor(bridge: HostBridge, hydrator: SpreadsheetObjectHydrator) {
     this.#bridge = bridge;
