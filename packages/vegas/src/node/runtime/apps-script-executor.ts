@@ -41,7 +41,7 @@ export function createAppsScriptExecutor(options: AppsScriptExecutorOptions): Ex
   const blob = new BlobHostHandler(options.blobConversionCapability);
 
   return {
-    execute(request) {
+    async execute(request) {
       const driveNamespace = resolveDriveNamespace(request.scope);
       const lockSession = options.lockStore.createSession();
       const dispatcher = new HostDispatcher({
@@ -61,7 +61,11 @@ export function createAppsScriptExecutor(options: AppsScriptExecutorOptions): Ex
         urlFetch: new UrlFetchHostHandler(options.urlFetchCapability, request.signal),
       });
 
-      return options.runWorker(dispatcher, request).finally(() => lockSession.releaseAll());
+      try {
+        return await options.runWorker(dispatcher, request);
+      } finally {
+        await lockSession.releaseAll();
+      }
     },
   };
 }

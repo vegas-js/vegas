@@ -184,4 +184,54 @@ describe("createAppsScriptExecutor", () => {
       ),
     ).resolves.toBe(true);
   });
+
+  test("release invocation locks when the worker runner throws synchronously", async () => {
+    const lockStore = new InMemoryLockStore();
+    const runWorker: AppsScriptWorkerRunner = (dispatcher) => {
+      void dispatcher.dispatch({
+        service: "lock",
+        operation: "acquire",
+        namespace: "script",
+        timeoutInMillis: 0,
+      });
+
+      throw new Error("worker failed synchronously");
+    };
+
+    const executor = createAppsScriptExecutor({
+      blobConversionCapability,
+      cacheStore: new InMemoryCacheStore(),
+      driveIteratorStore: new InMemoryDriveIteratorStore(),
+      driveStore: new InMemoryDriveStore(),
+      lockStore,
+      propertiesStore: new InMemoryPropertiesStore(),
+      spreadsheetStore: new InMemorySpreadsheetStore(),
+      urlFetchCapability,
+      runWorker,
+    });
+
+    await expect(
+      executor.execute({
+        program: {
+          source: "",
+          htmlFiles: {},
+        },
+        functionName: "main",
+        args: [],
+        environment,
+        scope,
+      }),
+    ).rejects.toThrow("worker failed synchronously");
+
+    const nextLockSession = lockStore.createSession();
+    await expect(
+      nextLockSession.acquire(
+        {
+          kind: "script",
+          scriptKey: "script-a",
+        },
+        0,
+      ),
+    ).resolves.toBe(true);
+  });
 });
