@@ -2,6 +2,7 @@ import worker from "node:worker_threads";
 
 import { describe, expect, test } from "vitest";
 
+import { executeRuntimeFunction } from "../runtime/function-execution";
 import type { InvocationEnvironment } from "../runtime/invocation";
 import type { Program } from "../runtime/program";
 import { SpreadsheetApp } from "../runtime/spreadsheet-app";
@@ -144,6 +145,45 @@ function next() {
       firstChannel.port2.close();
       secondChannel.port1.close();
       secondChannel.port2.close();
+    }
+  });
+
+  test("preserve Apps Script V8 asynchronous runtime boundaries", async () => {
+    const { port1, port2 } = new worker.MessageChannel();
+    const asyncProgram = {
+      source: `
+async function resolveMicrotask() {
+  const value = await Promise.resolve("Vegas");
+  return value;
+}
+
+function hasUnavailableAsyncGlobals() {
+  return [
+    typeof setTimeout,
+    typeof setInterval,
+    typeof fetch,
+    typeof process,
+  ].some((value) => value !== "undefined");
+}
+`,
+      htmlFiles: {},
+    } satisfies Program;
+
+    try {
+      const context = createWorkerRuntimeContext({
+        program: asyncProgram,
+        environment,
+        port: port1,
+        sharedArray: new Int32Array(new SharedArrayBuffer(4)),
+      });
+
+      evaluateWorkerProgram(context, asyncProgram.source);
+
+      await expect(executeRuntimeFunction(context, "resolveMicrotask", [])).resolves.toBe("Vegas");
+      expect(context.hasUnavailableAsyncGlobals()).toBe(false);
+    } finally {
+      port1.close();
+      port2.close();
     }
   });
 
