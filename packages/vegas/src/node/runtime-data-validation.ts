@@ -22,13 +22,45 @@ const sessionSchema = z.strictObject({
 
 const spreadsheetCellValueSchema = z.union([z.string(), z.number(), z.boolean(), z.date()]);
 
-const spreadsheetSheetSchema = z.strictObject({
-  id: z.number().int(),
-  name: z.string(),
-  maxRows: z.number().int().positive(),
-  maxColumns: z.number().int().positive(),
-  values: z.array(z.array(spreadsheetCellValueSchema)).optional(),
-});
+const spreadsheetSheetSchema = z
+  .strictObject({
+    id: z.number().int(),
+    name: z.string(),
+    maxRows: z.number().int().positive(),
+    maxColumns: z.number().int().positive(),
+    values: z.array(z.array(spreadsheetCellValueSchema)).optional(),
+  })
+  .superRefine((sheet, context) => {
+    if (sheet.values === undefined) {
+      return;
+    }
+
+    const columnCount = sheet.values.reduce((max, row) => Math.max(max, row.length), 0);
+
+    if (sheet.values.length > sheet.maxRows) {
+      context.addIssue({
+        code: "custom",
+        path: ["values"],
+        message: "Sheet row count exceeds maxRows.",
+      });
+    }
+
+    if (columnCount > sheet.maxColumns) {
+      context.addIssue({
+        code: "custom",
+        path: ["values"],
+        message: "Sheet column count exceeds maxColumns.",
+      });
+    }
+
+    if (sheet.values.some((row) => row.length !== columnCount)) {
+      context.addIssue({
+        code: "custom",
+        path: ["values"],
+        message: "Sheet values must be rectangular.",
+      });
+    }
+  });
 
 const spreadsheetSchema = z.strictObject({
   id: z.string(),

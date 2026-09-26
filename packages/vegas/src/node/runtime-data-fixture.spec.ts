@@ -107,6 +107,80 @@ describe("createRuntimeDataSnapshotFromFixture", () => {
     ).toThrow("Invalid runtime data in inline:spreadsheets[0]: sheets[0].maxRows:");
   });
 
+  test("reject invalid inline Spreadsheet grid shapes", () => {
+    expect(() =>
+      createRuntimeDataSnapshotFromFixture({
+        spreadsheets: [
+          {
+            id: "budget",
+            name: "Budget",
+            sheets: [
+              {
+                id: 1,
+                name: "Sheet1",
+                maxRows: 1,
+                maxColumns: 2,
+                values: [
+                  [1, 2],
+                  [3, 4],
+                ],
+              },
+            ],
+          },
+        ],
+      }),
+    ).toThrow(
+      "Invalid runtime data in inline:spreadsheets[0]: sheets[0].values: Sheet row count exceeds maxRows.",
+    );
+
+    expect(() =>
+      createRuntimeDataSnapshotFromFixture({
+        spreadsheets: [
+          {
+            id: "budget",
+            name: "Budget",
+            sheets: [
+              {
+                id: 1,
+                name: "Sheet1",
+                maxRows: 2,
+                maxColumns: 1,
+                values: [
+                  [1, 2],
+                  [3, 4],
+                ],
+              },
+            ],
+          },
+        ],
+      }),
+    ).toThrow(
+      "Invalid runtime data in inline:spreadsheets[0]: sheets[0].values: Sheet column count exceeds maxColumns.",
+    );
+
+    expect(() =>
+      createRuntimeDataSnapshotFromFixture({
+        spreadsheets: [
+          {
+            id: "budget",
+            name: "Budget",
+            sheets: [
+              {
+                id: 1,
+                name: "Sheet1",
+                maxRows: 2,
+                maxColumns: 2,
+                values: [[1, 2], [3]],
+              },
+            ],
+          },
+        ],
+      }),
+    ).toThrow(
+      "Invalid runtime data in inline:spreadsheets[0]: sheets[0].values: Sheet values must be rectangular.",
+    );
+  });
+
   test("reject unknown inline fixture fields", () => {
     expect(() =>
       createRuntimeDataSnapshotFromFixture({
