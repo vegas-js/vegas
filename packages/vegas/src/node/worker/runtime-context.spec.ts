@@ -104,6 +104,49 @@ describe("createWorkerRuntimeContext", () => {
     }
   });
 
+  test("isolate program globals between worker runtime contexts", () => {
+    const firstChannel = new worker.MessageChannel();
+    const secondChannel = new worker.MessageChannel();
+    const statefulProgram = {
+      source: `
+globalThis.counter = 0;
+
+function next() {
+  globalThis.counter += 1;
+  return globalThis.counter;
+}
+`,
+      htmlFiles: {},
+    } satisfies Program;
+
+    try {
+      const firstContext = createWorkerRuntimeContext({
+        program: statefulProgram,
+        environment,
+        port: firstChannel.port1,
+        sharedArray: new Int32Array(new SharedArrayBuffer(4)),
+      });
+      const secondContext = createWorkerRuntimeContext({
+        program: statefulProgram,
+        environment,
+        port: secondChannel.port1,
+        sharedArray: new Int32Array(new SharedArrayBuffer(4)),
+      });
+
+      evaluateWorkerProgram(firstContext, statefulProgram.source);
+      evaluateWorkerProgram(secondContext, statefulProgram.source);
+
+      expect(firstContext.next()).toBe(1);
+      expect(firstContext.next()).toBe(2);
+      expect(secondContext.next()).toBe(1);
+    } finally {
+      firstChannel.port1.close();
+      firstChannel.port2.close();
+      secondChannel.port1.close();
+      secondChannel.port2.close();
+    }
+  });
+
   test("keep program evaluation separate from runtime context construction", () => {
     const { port1, port2 } = new worker.MessageChannel();
 
