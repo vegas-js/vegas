@@ -135,6 +135,66 @@ describe("createAppsScriptExecutor", () => {
     ).resolves.toBe(true);
   });
 
+  test("isolate lock sessions between concurrent invocations", async () => {
+    const lockStore = new InMemoryLockStore();
+    const runWorker: AppsScriptWorkerRunner = async (dispatcher, request) => {
+      const acquired = await dispatcher.dispatch({
+        service: "lock",
+        operation: "acquire",
+        namespace: "script",
+        timeoutInMillis: 0,
+      });
+
+      return {
+        functionName: request.functionName,
+        acquired,
+      };
+    };
+
+    const executor = createAppsScriptExecutor({
+      blobConversionCapability,
+      cacheStore: new InMemoryCacheStore(),
+      driveIteratorStore: new InMemoryDriveIteratorStore(),
+      driveStore: new InMemoryDriveStore(),
+      lockStore,
+      propertiesStore: new InMemoryPropertiesStore(),
+      spreadsheetStore: new InMemorySpreadsheetStore(),
+      urlFetchCapability,
+      runWorker,
+    });
+    const request = {
+      program: {
+        source: "",
+        htmlFiles: {},
+      },
+      args: [],
+      environment,
+      scope,
+    };
+
+    await expect(
+      Promise.all([
+        executor.execute({
+          ...request,
+          functionName: "first",
+        }),
+        executor.execute({
+          ...request,
+          functionName: "second",
+        }),
+      ]),
+    ).resolves.toStrictEqual([
+      {
+        functionName: "first",
+        acquired: true,
+      },
+      {
+        functionName: "second",
+        acquired: false,
+      },
+    ]);
+  });
+
   test("release invocation locks when the worker runner fails", async () => {
     const lockStore = new InMemoryLockStore();
     const runWorker: AppsScriptWorkerRunner = async (dispatcher) => {
