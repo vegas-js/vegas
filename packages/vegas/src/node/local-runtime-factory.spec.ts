@@ -147,6 +147,39 @@ describe("createLocalRuntime", () => {
     });
   });
 
+  test("bind every provided local Session store to the Runtime Executor", async () => {
+    const snapshot = {
+      spreadsheets: [],
+    } satisfies RuntimeDataSnapshot;
+    const runtimeSession = new LocalRuntimeSession();
+
+    await createLocalRuntime(
+      project,
+      snapshot,
+      () => ({
+        source: "",
+        htmlFiles: {},
+      }),
+      {
+        session: runtimeSession,
+      },
+      {
+        createExecutor: (options) => {
+          expect(options.cacheStore).toBe(runtimeSession.stores.cacheStore);
+          expect(options.driveIteratorStore).toBe(runtimeSession.stores.driveIteratorStore);
+          expect(options.driveStore).toBe(runtimeSession.stores.driveStore);
+          expect(options.lockStore).toBe(runtimeSession.stores.lockStore);
+          expect(options.propertiesStore).toBe(runtimeSession.stores.propertiesStore);
+          expect(options.spreadsheetStore).toBe(runtimeSession.stores.spreadsheetStore);
+
+          return {
+            execute: vi.fn(async (_request: ExecutionRequest) => undefined),
+          };
+        },
+      },
+    );
+  });
+
   test("preserve Executor failures through the Runtime backend", async () => {
     const snapshot = {
       spreadsheets: [],
