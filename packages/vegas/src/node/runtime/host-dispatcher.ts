@@ -6,6 +6,7 @@ import type { LockHostCallHandler } from "./lock-host-handler";
 import type { PropertiesHostCallHandler } from "./properties-host-handler";
 import { RuntimeInfrastructureError } from "./runtime-infrastructure-error";
 import type { SpreadsheetHostCallHandler } from "./spreadsheet-host-handler";
+import { unsupportedHostCall } from "./unsupported-host-call";
 import type { UrlFetchHostCallHandler } from "./url-fetch-host-handler";
 
 export interface HostCallDispatcher {
@@ -107,5 +108,7 @@ export class HostDispatcher implements HostCallDispatcher {
         return (await handler.handle(call)) as HostCallResult<C>;
       }
     }
+
+    return unsupportedHostCall(call);
   }
 }

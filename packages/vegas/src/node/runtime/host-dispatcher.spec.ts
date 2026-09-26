@@ -11,6 +11,7 @@ import {
   PropertiesHostHandler,
   SpreadsheetHostHandler,
   type DriveHostCallHandler,
+  type HostCall,
   type UrlFetchHostCallHandler,
 } from "./index";
 
@@ -263,6 +264,21 @@ describe("HostDispatcher", () => {
         "content-type": "text/plain",
       },
       content: [79, 75],
+    });
+  });
+
+  test("reject unknown host services as protocol errors", async () => {
+    const properties = createPropertiesHandler();
+    const dispatcher = new HostDispatcher({ properties });
+    const call = {
+      service: "unknown",
+      operation: "noop",
+    } as unknown as HostCall;
+
+    await expect(dispatcher.dispatch(call)).rejects.toMatchObject({
+      name: "RuntimeInfrastructureError",
+      kind: "protocol",
+      message: "Unsupported host call: unknown#noop",
     });
   });
 
