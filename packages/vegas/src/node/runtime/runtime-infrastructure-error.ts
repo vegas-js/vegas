@@ -1,6 +1,12 @@
-export type RuntimeInfrastructureErrorKind = "backend" | "protocol" | "serialization" | "timeout";
+export type RuntimeInfrastructureErrorKind =
+  | "authentication"
+  | "backend"
+  | "protocol"
+  | "serialization"
+  | "timeout";
 
 const RUNTIME_INFRASTRUCTURE_ERROR_KINDS = {
+  authentication: true,
   backend: true,
   protocol: true,
   serialization: true,

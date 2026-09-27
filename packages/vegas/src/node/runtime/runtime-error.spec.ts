@@ -5,6 +5,7 @@ import {
   restoreRuntimeError,
   serializeRuntimeError,
 } from "./runtime-error";
+import { RuntimeInfrastructureError } from "./runtime-infrastructure-error";
 import { UnsupportedRuntimeOperationError } from "./unsupported-runtime-operation-error";
 
 describe("Runtime error transport", () => {
@@ -92,6 +93,29 @@ describe("Runtime error transport", () => {
     expect(error.name).toBe(name);
     expect(error.message).toBe("failed");
     expect(error.stack).toBe("runtime stack");
+  });
+
+  test("preserve authentication infrastructure failures across transport", () => {
+    const original = new RuntimeInfrastructureError(
+      "authentication",
+      "Google Apps Script authentication failed.",
+    );
+    const snapshot = serializeRuntimeError(original);
+
+    expect(snapshot).toMatchObject({
+      name: "RuntimeInfrastructureError",
+      message: "Google Apps Script authentication failed.",
+      infrastructureKind: "authentication",
+    });
+
+    const restored = restoreRuntimeError(snapshot);
+
+    expect(restored).toBeInstanceOf(RuntimeInfrastructureError);
+    expect(restored).toMatchObject({
+      name: "RuntimeInfrastructureError",
+      kind: "authentication",
+      message: "Google Apps Script authentication failed.",
+    });
   });
 
   test("preserve intentional Local Runtime limitations across transport", () => {
