@@ -35,7 +35,10 @@ const project = {
   },
 } satisfies ResolvedProject;
 
+type WebSocketHandler = (data: any, client: any) => Promise<void> | void;
+
 function createServer(options: { port: number; listeningPort?: number; listenError?: Error }) {
+  const webSocketHandlers = new Map<string, WebSocketHandler>();
   const close = vi.fn(async () => undefined);
   const listen = vi.fn(async () => {
     if (options.listenError) {
@@ -57,7 +60,9 @@ function createServer(options: { port: number; listeningPort?: number; listenErr
       on: vi.fn(),
     },
     ws: {
-      on: vi.fn(),
+      on: vi.fn((event: string, handler: WebSocketHandler) => {
+        webSocketHandlers.set(event, handler);
+      }),
     },
     middlewares: {
       stack: [],
@@ -80,6 +85,7 @@ function createServer(options: { port: number; listeningPort?: number; listenErr
     server,
     close,
     listen,
+    webSocketHandlers,
   };
 }
 
@@ -101,6 +107,7 @@ describe("startDevApplication", () => {
         xFrameOptionsMode: "DEFAULT",
       },
     }));
+    const serverFunctionExecute = vi.fn(async () => "remote-result");
     const setLocalSpreadsheetOrigin = vi.fn();
     const spreadsheetStore = new InMemorySpreadsheetStore([
       {
@@ -117,6 +124,9 @@ describe("startDevApplication", () => {
         builder: {} as ViteBuilder,
         runtime: {
           execute,
+        },
+        serverFunctionRuntime: {
+          execute: serverFunctionExecute,
         },
         getLocalSpreadsheetStore: () => spreadsheetStore,
         reloadRuntime: async () => undefined,
@@ -144,6 +154,32 @@ describe("startDevApplication", () => {
     expect(userContentConfig?.server).toMatchObject({
       host: "0.0.0.0",
       port: 62001,
+    });
+
+    const serverFunctionSend = vi.fn();
+    await host.webSocketHandlers.get("vegas:server-function-call")?.(
+      {
+        requestId: 1,
+        functionName: "getMessage",
+        args: ["value"],
+      },
+      {
+        send: serverFunctionSend,
+        close: vi.fn(),
+      },
+    );
+
+    expect(serverFunctionExecute).toHaveBeenCalledOnce();
+    expect(serverFunctionExecute).toHaveBeenCalledWith({
+      functionName: "getMessage",
+      args: ["value"],
+      signal: expect.any(AbortSignal),
+    });
+    expect(execute).not.toHaveBeenCalled();
+    expect(serverFunctionSend).toHaveBeenCalledWith("vegas:return", {
+      requestId: 1,
+      status: "ok",
+      result: "remote-result",
     });
 
     const localSpreadsheetHandler = host.server.middlewares.stack[0]

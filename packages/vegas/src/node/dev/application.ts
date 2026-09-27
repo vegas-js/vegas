@@ -26,6 +26,7 @@ interface DevApplicationOptions {
   readonly artifacts: ArtifactStore;
   readonly builder: ViteBuilder;
   readonly runtime: RuntimeBackend;
+  readonly serverFunctionRuntime?: RuntimeBackend;
   readonly getLocalSpreadsheetStore?: () => SpreadsheetStore;
   readonly reloadRuntime?: () => Promise<void>;
   readonly localSpreadsheetUrls?: LocalSpreadsheetUrlConfiguration;
@@ -76,7 +77,7 @@ export async function startDevApplication(
       server: hostServer,
       builds,
       sessions,
-      runtime: options.runtime,
+      runtime: options.serverFunctionRuntime ?? options.runtime,
     });
 
     await hostServer.listen();
