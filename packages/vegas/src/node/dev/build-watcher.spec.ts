@@ -109,6 +109,30 @@ describe("registerBuildWatchers", () => {
     expect(send).not.toHaveBeenCalled();
   });
 
+  test("exclude runtime data when runtime reload is unavailable", async () => {
+    const project = createProject();
+    const { server, handlers, add, invalidateAll, send } = createServer();
+    const rebuild = vi.fn(async () => undefined);
+    const refreshTopology = vi.fn(async () => undefined);
+
+    registerBuildWatchers({
+      server,
+      project,
+      builds: new BuildCoordinator(),
+      buildManager: { rebuild, refreshTopology },
+    });
+
+    expect(add).toHaveBeenCalledWith([project.clientDir, project.serverDir]);
+
+    await handlers.get("change")?.(path.join(project.runtimeDataDir, "session.ts"));
+    await handlers.get("add")?.(path.join(project.runtimeDataDir, "budget.ts"));
+
+    expect(rebuild).not.toHaveBeenCalled();
+    expect(refreshTopology).not.toHaveBeenCalled();
+    expect(invalidateAll).not.toHaveBeenCalled();
+    expect(send).not.toHaveBeenCalled();
+  });
+
   test.each(["add", "unlink"] as const)("refresh topology after %s", async (event) => {
     const project = createProject();
     const { server, handlers, invalidateAll, send } = createServer();

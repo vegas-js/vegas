@@ -27,7 +27,7 @@ interface DevApplicationOptions {
   readonly builder: ViteBuilder;
   readonly runtime: RuntimeBackend;
   readonly getLocalSpreadsheetStore?: () => SpreadsheetStore;
-  readonly reloadRuntime: () => Promise<void>;
+  readonly reloadRuntime?: () => Promise<void>;
   readonly localSpreadsheetUrls?: LocalSpreadsheetUrlConfiguration;
   readonly mode: "development" | "production";
 }

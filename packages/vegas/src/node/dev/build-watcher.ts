@@ -12,7 +12,7 @@ interface BuildWatcherOptions {
   readonly project: ResolvedProject;
   readonly builds: BuildCoordinator;
   readonly buildManager: Pick<DevBuildManager, "rebuild" | "refreshTopology">;
-  readonly reloadRuntime: () => Promise<void>;
+  readonly reloadRuntime?: () => Promise<void>;
 }
 
 function normalizeBuildError(error: unknown): { message: string; stack: string } {
@@ -45,7 +45,12 @@ export function registerBuildWatchers(options: BuildWatcherOptions): void {
     }
   };
 
-  server.watcher.add([project.clientDir, project.serverDir, project.runtimeDataDir]);
+  const watchedDirectories = [project.clientDir, project.serverDir];
+
+  if (reloadRuntime !== undefined) {
+    watchedDirectories.push(project.runtimeDataDir);
+  }
+  server.watcher.add(watchedDirectories);
 
   server.watcher.on("change", async (filePath) => {
     const scope = classifyProjectFile(project, filePath);
@@ -56,7 +61,9 @@ export function registerBuildWatchers(options: BuildWatcherOptions): void {
 
     await runUpdate(async () => {
       if (scope === "runtime-data") {
-        await reloadRuntime();
+        if (reloadRuntime !== undefined) {
+          await reloadRuntime();
+        }
         return;
       }
 
@@ -78,7 +85,9 @@ export function registerBuildWatchers(options: BuildWatcherOptions): void {
 
     await runUpdate(async () => {
       if (scope === "runtime-data") {
-        await reloadRuntime();
+        if (reloadRuntime !== undefined) {
+          await reloadRuntime();
+        }
         return;
       }
 

@@ -225,9 +225,13 @@ describe("runDevApplication", () => {
 
     const [application] = startDevApplicationMock.mock.calls[0];
     const initialCreateRuntimeCall = createLocalRuntimeMock.mock.calls[0];
+    const reloadRuntime = application.reloadRuntime;
 
     if (initialCreateRuntimeCall === undefined) {
       throw new Error("expected initial Local Runtime creation");
+    }
+    if (reloadRuntime === undefined) {
+      throw new Error("expected Local Runtime reload");
     }
 
     const getProgram = initialCreateRuntimeCall[2];
@@ -290,7 +294,7 @@ describe("runDevApplication", () => {
       }),
     ).resolves.toBe("initial");
 
-    await application.reloadRuntime();
+    await reloadRuntime();
 
     const reloadedCreateRuntimeCall = createLocalRuntimeMock.mock.calls[1];
     const reloadedSession = reloadedCreateRuntimeCall?.[3]?.session;
@@ -351,7 +355,7 @@ describe("runDevApplication", () => {
       }),
     ).resolves.toBe("reloaded");
 
-    await expect(application.reloadRuntime()).rejects.toThrow("runtime construction failed");
+    await expect(reloadRuntime()).rejects.toThrow("runtime construction failed");
 
     const failedCreateRuntimeCall = createLocalRuntimeMock.mock.calls[2];
     const failedSession = failedCreateRuntimeCall?.[3]?.session;
@@ -399,7 +403,7 @@ describe("runDevApplication", () => {
       }),
     ).resolves.toBe("reloaded");
 
-    await application.reloadRuntime();
+    await reloadRuntime();
 
     const retriedCreateRuntimeCall = createLocalRuntimeMock.mock.calls[3];
     const retriedSession = retriedCreateRuntimeCall?.[3]?.session;
