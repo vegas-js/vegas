@@ -1,5 +1,6 @@
 import type {
   AppsScriptAccessTokenRefresher,
+  AppsScriptAccessTokenRefreshRequest,
   AppsScriptRefreshedAccessToken,
 } from "./access-token";
 import type { AppsScriptCredential } from "./credential";
@@ -20,6 +21,20 @@ interface CreateGoogleAppsScriptAccessTokenRefresherOptions extends GoogleHttpRe
   readonly now?: () => number;
 }
 
+function combineAbortSignals(
+  configuredSignal: AbortSignal | undefined,
+  requestSignal: AbortSignal | undefined,
+): AbortSignal | undefined {
+  if (configuredSignal === undefined) {
+    return requestSignal;
+  }
+  if (requestSignal === undefined) {
+    return configuredSignal;
+  }
+
+  return AbortSignal.any([configuredSignal, requestSignal]);
+}
+
 export function createGoogleAppsScriptAccessTokenRefresher(
   options: CreateGoogleAppsScriptAccessTokenRefresherOptions = {},
 ): AppsScriptAccessTokenRefresher {
@@ -27,13 +42,17 @@ export function createGoogleAppsScriptAccessTokenRefresher(
   const now = options.now ?? Date.now;
 
   return {
-    async refresh(credential: AppsScriptCredential): Promise<AppsScriptRefreshedAccessToken> {
+    async refresh(
+      credential: AppsScriptCredential,
+      request: AppsScriptAccessTokenRefreshRequest = {},
+    ): Promise<AppsScriptRefreshedAccessToken> {
       const body = new URLSearchParams({
         client_id: credential.clientId,
         client_secret: credential.clientSecret,
         refresh_token: credential.refreshToken,
         grant_type: "refresh_token",
       });
+      const signal = combineAbortSignals(options.signal, request.signal);
 
       const response = await fetch(GOOGLE_OAUTH_TOKEN_URL, {
         method: "POST",
@@ -41,7 +60,10 @@ export function createGoogleAppsScriptAccessTokenRefresher(
           "Content-Type": "application/x-www-form-urlencoded",
         },
         body: body.toString(),
-        signal: createGoogleHttpRequestSignal(options),
+        signal: createGoogleHttpRequestSignal({
+          signal,
+          requestTimeoutMs: options.requestTimeoutMs,
+        }),
       });
 
       const responseBody = await response.text();

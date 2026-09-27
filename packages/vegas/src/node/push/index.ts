@@ -5,6 +5,8 @@ export {
 export type {
   AppsScriptAccessTokenProvider,
   AppsScriptAccessTokenRefresher,
+  AppsScriptAccessTokenRefreshRequest,
+  AppsScriptAccessTokenRequest,
   AppsScriptRefreshedAccessToken,
 } from "./access-token";
 
