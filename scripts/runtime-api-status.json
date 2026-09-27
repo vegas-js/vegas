@@ -206,11 +206,15 @@
         "getSpreadsheetTimeZone",
         "getSheetById",
         "getSheetByName",
+        "insertSheet",
         "rename",
         "setSpreadsheetLocale",
         "setSpreadsheetTimeZone"
       ],
       "defaultBehavior": "local-emulation",
+      "behaviorOverrides": {
+        "insertSheet": "fail-closed"
+      },
       "contractTestedMethods": [
         "deleteSheet",
         "getId",
@@ -222,6 +226,7 @@
         "getSpreadsheetTimeZone",
         "getSheetById",
         "getSheetByName",
+        "insertSheet",
         "rename",
         "setSpreadsheetLocale",
         "setSpreadsheetTimeZone"

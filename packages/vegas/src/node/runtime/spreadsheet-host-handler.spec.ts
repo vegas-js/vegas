@@ -299,6 +299,56 @@ describe("SpreadsheetHostHandler", () => {
     ).rejects.toThrow("Spreadsheet.deleteSheet() requires a Sheet from the same Spreadsheet.");
   });
 
+  test("insert a Sheet through the store", async () => {
+    const handler = createHandler();
+    const spreadsheet = {
+      service: "spreadsheet",
+      kind: "spreadsheet",
+      id: "spreadsheet-a",
+    } as const;
+
+    await expect(
+      handler.handle({
+        service: "spreadsheet",
+        operation: "insert-sheet",
+        spreadsheet,
+        name: "Records",
+        index: 1,
+      }),
+    ).resolves.toStrictEqual({
+      service: "spreadsheet",
+      kind: "sheet",
+      spreadsheetId: "spreadsheet-a",
+      sheetId: 10,
+    });
+    await expect(
+      handler.handle({
+        service: "spreadsheet",
+        operation: "list-sheets",
+        spreadsheet,
+      }),
+    ).resolves.toStrictEqual([
+      {
+        service: "spreadsheet",
+        kind: "sheet",
+        spreadsheetId: "spreadsheet-a",
+        sheetId: 7,
+      },
+      {
+        service: "spreadsheet",
+        kind: "sheet",
+        spreadsheetId: "spreadsheet-a",
+        sheetId: 10,
+      },
+      {
+        service: "spreadsheet",
+        kind: "sheet",
+        spreadsheetId: "spreadsheet-a",
+        sheetId: 9,
+      },
+    ]);
+  });
+
   test("delegate user-hidden Sheet column state to the store", async () => {
     const handler = createHandler();
     const sheet = {

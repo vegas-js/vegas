@@ -88,6 +88,58 @@ describe("InMemorySpreadsheetStore resources", () => {
     await expect(store.getSheetByName(SPREADSHEET, "Missing")).resolves.toBeNull();
   });
 
+  test("insert Sheets with deterministic defaults and zero-based ordering", async () => {
+    const store = createStore();
+
+    const records = await store.insertSheet(SPREADSHEET, "Records", 1);
+
+    expect(records).toStrictEqual({
+      service: "spreadsheet",
+      kind: "sheet",
+      spreadsheetId: "spreadsheet-a",
+      sheetId: 10,
+    });
+    await expect(store.listSheets(SPREADSHEET)).resolves.toStrictEqual([
+      SUMMARY,
+      records,
+      {
+        service: "spreadsheet",
+        kind: "sheet",
+        spreadsheetId: "spreadsheet-a",
+        sheetId: 9,
+      },
+    ]);
+    await expect(store.getSheetMetadata(records)).resolves.toStrictEqual({
+      name: "Records",
+      maxRows: 1_000,
+      maxColumns: 26,
+      frozenColumns: 0,
+      frozenRows: 0,
+      hidden: false,
+      hiddenGridlines: false,
+      rightToLeft: false,
+      tabColor: null,
+    });
+
+    const defaultSheet = await store.insertSheet(SPREADSHEET);
+    expect(defaultSheet.sheetId).toBe(11);
+    await expect(store.getSheetMetadata(defaultSheet)).resolves.toMatchObject({
+      name: "Sheet1",
+      maxRows: 1_000,
+      maxColumns: 26,
+    });
+
+    await expect(store.insertSheet(SPREADSHEET, "Records")).rejects.toThrow(
+      "Duplicate local Spreadsheet sheet name: Records",
+    );
+    await expect(store.insertSheet(SPREADSHEET, "BeforeFirst", -1)).rejects.toThrow(
+      "Spreadsheet sheet index must be between 0 and 4.",
+    );
+    await expect(store.insertSheet(SPREADSHEET, "AfterLast", 5)).rejects.toThrow(
+      "Spreadsheet sheet index must be between 0 and 4.",
+    );
+  });
+
   test("rename a Sheet without allowing duplicate sibling names", async () => {
     const store = createStore();
 

@@ -56,6 +56,12 @@ export interface SpreadsheetStore {
 
   listSheets(spreadsheet: SpreadsheetReference): Promise<readonly SheetReference[]>;
 
+  insertSheet(
+    spreadsheet: SpreadsheetReference,
+    name?: string,
+    index?: number,
+  ): Promise<SheetReference>;
+
   deleteSheet(sheet: SheetReference): Promise<void>;
 
   getSheet(spreadsheet: SpreadsheetReference, sheetId: number): Promise<SheetReference | null>;

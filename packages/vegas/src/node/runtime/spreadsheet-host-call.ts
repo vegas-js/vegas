@@ -70,6 +70,13 @@ export type SpreadsheetHostCall =
     }
   | {
       readonly service: "spreadsheet";
+      readonly operation: "insert-sheet";
+      readonly spreadsheet: SpreadsheetReference;
+      readonly name?: string;
+      readonly index?: number;
+    }
+  | {
+      readonly service: "spreadsheet";
       readonly operation: "delete-sheet";
       readonly spreadsheet: SpreadsheetReference;
       readonly sheet: SheetReference;
@@ -250,6 +257,7 @@ type SpreadsheetHostCallResultMap = {
   "set-spreadsheet-locale": void;
   "set-spreadsheet-time-zone": void;
   "list-sheets": readonly SheetReference[];
+  "insert-sheet": SheetReference;
   "delete-sheet": void;
   "get-sheet": SheetReference | null;
   "get-sheet-by-name": SheetReference | null;

@@ -3,6 +3,7 @@ import type { SpreadsheetObjectHydrator } from "./spreadsheet-hydrator";
 import type { SpreadsheetReference } from "./spreadsheet-reference";
 import type { Sheet } from "./spreadsheet-sheet";
 import { assertInteger } from "./spreadsheet-validation";
+import { UnsupportedRuntimeOperationError } from "./unsupported-runtime-operation-error";
 
 // https://developers.google.com/apps-script/reference/spreadsheet/spreadsheet
 export class Spreadsheet {
@@ -88,6 +89,76 @@ export class Spreadsheet {
         spreadsheet: this.#reference,
       })
       .map((reference) => this.#hydrator.hydrate(reference));
+  }
+
+  insertSheet(): Sheet;
+  insertSheet(sheetIndex: number): Sheet;
+  insertSheet(sheetIndex: number, options: { template?: Sheet | undefined }): Sheet;
+  insertSheet(options: { template?: Sheet | undefined }): Sheet;
+  insertSheet(sheetName: string): Sheet;
+  insertSheet(sheetName: string, sheetIndex: number): Sheet;
+  insertSheet(
+    sheetName: string,
+    sheetIndex: number,
+    options: { template?: Sheet | undefined },
+  ): Sheet;
+  insertSheet(sheetName: string, options: { template?: Sheet | undefined }): Sheet;
+  insertSheet(
+    sheetNameOrIndexOrOptions?: string | number | { template?: Sheet | undefined },
+    sheetIndexOrOptions?: number | { template?: Sheet | undefined },
+    options?: { template?: Sheet | undefined },
+  ): Sheet {
+    let name: string | undefined;
+    let index: number | undefined;
+    let resolvedOptions: { template?: Sheet | undefined } | undefined;
+
+    if (typeof sheetNameOrIndexOrOptions === "string") {
+      name = sheetNameOrIndexOrOptions;
+
+      if (typeof sheetIndexOrOptions === "number") {
+        index = sheetIndexOrOptions;
+        resolvedOptions = options;
+      } else {
+        resolvedOptions = sheetIndexOrOptions;
+      }
+    } else if (typeof sheetNameOrIndexOrOptions === "number") {
+      index = sheetNameOrIndexOrOptions;
+
+      if (typeof sheetIndexOrOptions === "number") {
+        // Apps Script exposes an options object after the numeric-index overload, but does not
+        // document arbitrary runtime values. Vegas rejects another numeric argument explicitly.
+        throw new TypeError("Spreadsheet insert sheet options must be an object.");
+      }
+
+      resolvedOptions = sheetIndexOrOptions;
+    } else {
+      resolvedOptions = sheetNameOrIndexOrOptions;
+    }
+
+    if (index !== undefined) {
+      assertInteger(index, "Spreadsheet sheet index");
+    }
+
+    if (resolvedOptions?.template !== undefined) {
+      // Apps Script documents that the complete template Sheet data is copied. Vegas does not yet
+      // model enough Sheet state to reproduce that contract without silently dropping data.
+      throw new UnsupportedRuntimeOperationError(
+        "Spreadsheet.insertSheet() with a template",
+        "Sheet template cloning is not modeled.",
+      );
+    }
+
+    const reference = this.#bridge.call({
+      service: "spreadsheet",
+      operation: "insert-sheet",
+      spreadsheet: this.#reference,
+      ...(name === undefined ? {} : { name }),
+      ...(index === undefined ? {} : { index }),
+    });
+
+    // Apps Script also makes the inserted Sheet active. Vegas does not model active-Sheet state
+    // yet, so the local Runtime currently models creation and ordering only.
+    return this.#hydrator.hydrate(reference);
   }
 
   getSheetById(id: number): Sheet | null {

@@ -53,6 +53,7 @@ const spreadsheetReference = {
 function createFixture() {
   const sheet7 = {} as Sheet;
   const sheet9 = {} as Sheet;
+  const sheet11 = {} as Sheet;
   const bridge = new RecordingHostBridge((call) => {
     if (call.service !== "spreadsheet") {
       throw new Error(`unexpected service: ${call.service}`);
@@ -80,6 +81,13 @@ function createFixture() {
             sheetId: 9,
           },
         ] satisfies SheetReference[];
+      case "insert-sheet":
+        return {
+          service: "spreadsheet",
+          kind: "sheet",
+          spreadsheetId: call.spreadsheet.id,
+          sheetId: 11,
+        } satisfies SheetReference;
       case "get-sheet":
         if (call.sheetId !== 7 && call.sheetId !== 9) {
           return null;
@@ -119,6 +127,10 @@ function createFixture() {
       return sheet9;
     }
 
+    if (reference.sheetId === 11) {
+      return sheet11;
+    }
+
     throw new Error(`unexpected Sheet reference: ${reference.sheetId}`);
   });
 
@@ -127,6 +139,7 @@ function createFixture() {
     hydrator,
     sheet7,
     sheet9,
+    sheet11,
     spreadsheet: new Spreadsheet(bridge, spreadsheetReference, hydrator),
   };
 }
@@ -243,6 +256,43 @@ describe("Spreadsheet", () => {
         },
       },
     ]);
+    expect(hydrator.references).toHaveLength(0);
+  });
+
+  test("insert a named Sheet at a zero-based index through the HostBridge", () => {
+    const { bridge, hydrator, sheet11, spreadsheet } = createFixture();
+
+    expect(spreadsheet.insertSheet("Records", 1)).toBe(sheet11);
+    expect(bridge.calls).toStrictEqual([
+      {
+        service: "spreadsheet",
+        operation: "insert-sheet",
+        spreadsheet: spreadsheetReference,
+        name: "Records",
+        index: 1,
+      },
+    ]);
+    expect(hydrator.references).toStrictEqual([
+      {
+        service: "spreadsheet",
+        kind: "sheet",
+        spreadsheetId: "spreadsheet-a",
+        sheetId: 11,
+      },
+    ]);
+  });
+
+  test("reject template insertion until complete Sheet cloning is modeled", () => {
+    const { bridge, hydrator, spreadsheet } = createFixture();
+
+    expect(() =>
+      spreadsheet.insertSheet({
+        template: {} as Sheet,
+      }),
+    ).toThrow(
+      "Local Runtime does not support Spreadsheet.insertSheet() with a template: Sheet template cloning is not modeled.",
+    );
+    expect(bridge.calls).toHaveLength(0);
     expect(hydrator.references).toHaveLength(0);
   });
 

@@ -68,6 +68,9 @@ export class SpreadsheetHostHandler implements SpreadsheetHostCallHandler {
       case "list-sheets": {
         return this.#store.listSheets(call.spreadsheet);
       }
+      case "insert-sheet": {
+        return this.#store.insertSheet(call.spreadsheet, call.name, call.index);
+      }
       case "delete-sheet": {
         if (call.sheet.spreadsheetId !== call.spreadsheet.id) {
           // Google documents deleting a Sheet from a Spreadsheet but does not define passing a

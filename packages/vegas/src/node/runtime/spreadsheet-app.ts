@@ -1,5 +1,9 @@
 import type { HostBridge } from "./host-bridge";
 import {
+  DEFAULT_LOCAL_SPREADSHEET_COLUMNS,
+  DEFAULT_LOCAL_SPREADSHEET_ROWS,
+} from "./spreadsheet-defaults";
+import {
   SPREADSHEET_BORDER_STYLE,
   SPREADSHEET_DIMENSION,
   SPREADSHEET_DIRECTION,
@@ -12,9 +16,6 @@ import type { Spreadsheet } from "./spreadsheet-spreadsheet";
 import { assertPositiveInteger } from "./spreadsheet-validation";
 
 type SpreadsheetFile = Pick<GoogleAppsScript.Drive.File, "getId">;
-
-const DEFAULT_LOCAL_SPREADSHEET_ROWS = 1_000;
-const DEFAULT_LOCAL_SPREADSHEET_COLUMNS = 26;
 
 // https://developers.google.com/apps-script/reference/spreadsheet/spreadsheet-app
 export class SpreadsheetApp {

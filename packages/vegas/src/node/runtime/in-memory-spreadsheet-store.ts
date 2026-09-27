@@ -1,4 +1,8 @@
 import { InMemorySpreadsheetGrid, remapMovedDimensionPosition } from "./in-memory-spreadsheet-grid";
+import {
+  DEFAULT_LOCAL_SPREADSHEET_COLUMNS,
+  DEFAULT_LOCAL_SPREADSHEET_ROWS,
+} from "./spreadsheet-defaults";
 import type { RangeReference, SheetReference, SpreadsheetReference } from "./spreadsheet-reference";
 import type {
   SheetDataBounds,
@@ -52,6 +56,7 @@ type SpreadsheetState = {
   readonly ownership: SpreadsheetOwnership;
   readonly url?: string;
   readonly sheets: Map<number, SheetState>;
+  nextSheetId: number;
 };
 
 function cloneSpreadsheetReference(reference: SpreadsheetReference): SpreadsheetReference {
@@ -197,6 +202,7 @@ function createSpreadsheetState(
 ): SpreadsheetState {
   const sheets = new Map<number, SheetState>();
   const sheetNames = new Set<string>();
+  let nextSheetId = 0;
 
   for (const sheetSeed of seed.sheets) {
     if (sheets.has(sheetSeed.id)) {
@@ -208,6 +214,7 @@ function createSpreadsheetState(
 
     sheets.set(sheetSeed.id, createSheetState(seed.id, sheetSeed));
     sheetNames.add(sheetSeed.name);
+    nextSheetId = Math.max(nextSheetId, sheetSeed.id + 1);
   }
 
   return {
@@ -224,6 +231,7 @@ function createSpreadsheetState(
     ownership,
     url: seed.url,
     sheets,
+    nextSheetId,
   };
 }
 
@@ -273,6 +281,7 @@ export class InMemorySpreadsheetStore implements SpreadsheetStore {
             },
           ]),
         ),
+        nextSheetId: state.nextSheetId,
       });
     }
 
@@ -315,6 +324,7 @@ export class InMemorySpreadsheetStore implements SpreadsheetStore {
       timeZone: DEFAULT_SPREADSHEET_TIME_ZONE,
       ownership: "runtime",
       sheets: new Map([[sheet.reference.sheetId, sheet]]),
+      nextSheetId: 1,
     });
 
     return cloneSpreadsheetReference(reference);
@@ -421,6 +431,58 @@ export class InMemorySpreadsheetStore implements SpreadsheetStore {
     return [...this.#getSpreadsheetState(spreadsheet.id).sheets.values()].map(({ reference }) =>
       cloneSheetReference(reference),
     );
+  }
+
+  async insertSheet(
+    spreadsheet: SpreadsheetReference,
+    name?: string,
+    index?: number,
+  ): Promise<SheetReference> {
+    const state = this.#getSpreadsheetState(spreadsheet.id);
+    const insertionIndex = index ?? state.sheets.size;
+
+    assertInteger(insertionIndex, "Spreadsheet sheet index");
+    if (insertionIndex < 0 || insertionIndex > state.sheets.size) {
+      throw new RangeError(`Spreadsheet sheet index must be between 0 and ${state.sheets.size}.`);
+    }
+
+    let resolvedName = name;
+    if (resolvedName === undefined) {
+      // Apps Script documents a default Sheet name but not its allocation algorithm. Vegas uses
+      // the first available SheetN name so local creation is deterministic.
+      const names = new Set([...state.sheets.values()].map(({ metadata }) => metadata.name));
+      let suffix = 1;
+      while (names.has(`Sheet${suffix}`)) {
+        suffix += 1;
+      }
+      resolvedName = `Sheet${suffix}`;
+    }
+
+    for (const sibling of state.sheets.values()) {
+      if (sibling.metadata.name === resolvedName) {
+        throw new Error(`Duplicate local Spreadsheet sheet name: ${resolvedName}`);
+      }
+    }
+
+    const sheetId = state.nextSheetId;
+    const sheet = createSheetState(spreadsheet.id, {
+      id: sheetId,
+      name: resolvedName,
+      // Apps Script does not document the dimensions of a newly inserted blank Sheet. Vegas uses
+      // the same deterministic blank-grid dimensions as SpreadsheetApp.create(name).
+      maxRows: DEFAULT_LOCAL_SPREADSHEET_ROWS,
+      maxColumns: DEFAULT_LOCAL_SPREADSHEET_COLUMNS,
+    });
+    const entries = [...state.sheets.entries()];
+    entries.splice(insertionIndex, 0, [sheetId, sheet]);
+
+    state.sheets.clear();
+    for (const [id, entry] of entries) {
+      state.sheets.set(id, entry);
+    }
+    state.nextSheetId += 1;
+
+    return cloneSheetReference(sheet.reference);
   }
 
   async deleteSheet(sheet: SheetReference): Promise<void> {
