@@ -20,6 +20,7 @@ interface LoginGoogleAppsScriptOptions extends GoogleHttpRequestLifetimeOptions 
   readonly credentialStore: AppsScriptCredentialStore;
   readonly openAuthorizationUrl: GoogleOAuthAuthorizationUrlOpener;
   readonly profile?: string;
+  readonly scopes?: readonly string[];
   readonly fetch?: typeof globalThis.fetch;
   readonly now?: () => number;
 }
@@ -76,6 +77,7 @@ export async function loginGoogleAppsScript(
       redirectUri: listener.redirectUri,
       state,
       codeChallenge,
+      scopes: options.scopes,
     });
 
     await options.openAuthorizationUrl(authorizationUrl);

@@ -53,6 +53,10 @@ describe("loginGoogleAppsScriptUser", () => {
       const redirectUri = url.searchParams.get("redirect_uri");
       const state = url.searchParams.get("state");
 
+      expect(url.searchParams.get("scope")).toBe(
+        "https://www.googleapis.com/auth/script.projects https://www.googleapis.com/auth/spreadsheets",
+      );
+
       if (redirectUri === null || state === null) {
         throw new Error("Invalid authorization URL in test.");
       }
@@ -72,7 +76,8 @@ describe("loginGoogleAppsScriptUser", () => {
           access_token: "access-token",
           refresh_token: "refresh-token",
           expires_in: 3600,
-          scope: "https://www.googleapis.com/auth/script.projects",
+          scope:
+            "https://www.googleapis.com/auth/script.projects https://www.googleapis.com/auth/spreadsheets",
         }),
         { status: 200 },
       );
@@ -82,6 +87,7 @@ describe("loginGoogleAppsScriptUser", () => {
     await loginGoogleAppsScriptUser({
       clientFilePath,
       profile: "work",
+      scopes: ["https://www.googleapis.com/auth/spreadsheets"],
       platform: process.platform,
       homeDir,
       env: {},
@@ -112,7 +118,10 @@ describe("loginGoogleAppsScriptUser", () => {
       refreshToken: "refresh-token",
       accessToken: "access-token",
       expiryDate: now + 3_600_000,
-      scopes: ["https://www.googleapis.com/auth/script.projects"],
+      scopes: [
+        "https://www.googleapis.com/auth/script.projects",
+        "https://www.googleapis.com/auth/spreadsheets",
+      ],
     });
   });
 });

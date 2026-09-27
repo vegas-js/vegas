@@ -4,6 +4,7 @@ import { CliUsageError } from "./error";
 
 interface AuthLoginOptions {
   readonly profile?: string;
+  readonly scope?: readonly string[];
 }
 
 export async function runAuth(
@@ -33,6 +34,7 @@ export async function runAuthLogin(
   await loginGoogleAppsScriptUser({
     clientFilePath,
     profile: options.profile,
+    scopes: options.scope,
   });
 
   const profile = options.profile ?? DEFAULT_APPS_SCRIPT_AUTH_PROFILE;

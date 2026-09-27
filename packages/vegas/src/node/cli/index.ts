@@ -25,6 +25,9 @@ cli.command("build [root]").action(runBuild);
 cli
   .command("auth <action> [client-file]")
   .option("--profile <profile>", "Use an Apps Script authentication profile")
+  .option("--scope <scope>", "Request an additional Google OAuth scope", {
+    type: [String],
+  })
   .action(runAuth);
 
 // push

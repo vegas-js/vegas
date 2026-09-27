@@ -9,6 +9,7 @@ import { createAppsScriptUserCredentialStore } from "./user-credential-store";
 interface LoginGoogleAppsScriptUserOptions extends GoogleHttpRequestLifetimeOptions {
   readonly clientFilePath: string;
   readonly profile?: string;
+  readonly scopes?: readonly string[];
   readonly platform?: NodeJS.Platform;
   readonly homeDir?: string;
   readonly env?: NodeJS.ProcessEnv;
@@ -37,6 +38,7 @@ export async function loginGoogleAppsScriptUser(
     credentialStore,
     openAuthorizationUrl,
     profile: options.profile,
+    scopes: options.scopes,
     fetch: options.fetch,
     now: options.now,
     signal: options.signal,

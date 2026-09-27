@@ -11,6 +11,7 @@ interface CreateGoogleOAuthAuthorizationUrlOptions {
   readonly redirectUri: string;
   readonly state: string;
   readonly codeChallenge: string;
+  readonly scopes?: readonly string[];
 }
 
 function requireValue(value: string, message: string): string {
@@ -19,6 +20,22 @@ function requireValue(value: string, message: string): string {
   }
 
   return value;
+}
+
+function resolveGoogleOAuthScopes(scopes: readonly string[] = []): string {
+  const resolvedScopes = new Set<string>([APPS_SCRIPT_PROJECTS_OAUTH_SCOPE]);
+
+  for (const scope of scopes) {
+    const normalizedScope = scope.trim();
+
+    if (normalizedScope.length === 0) {
+      throw new Error("Google OAuth scope must not be empty.");
+    }
+
+    resolvedScopes.add(normalizedScope);
+  }
+
+  return [...resolvedScopes].join(" ");
 }
 
 export function createGoogleOAuthCodeChallenge(codeVerifier: string): string {
@@ -38,7 +55,7 @@ export function createGoogleOAuthAuthorizationUrl(
     client_id: requireValue(options.clientId, "Google OAuth client ID is required."),
     redirect_uri: requireValue(options.redirectUri, "Google OAuth redirect URI is required."),
     response_type: "code",
-    scope: APPS_SCRIPT_PROJECTS_OAUTH_SCOPE,
+    scope: resolveGoogleOAuthScopes(options.scopes),
     access_type: "offline",
     prompt: "consent",
     state: requireValue(options.state, "Google OAuth state is required."),

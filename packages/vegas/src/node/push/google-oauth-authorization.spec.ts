@@ -56,6 +56,34 @@ describe("createGoogleOAuthCodeChallenge", () => {
       });
     });
 
+    test("include additional scopes without duplicating Apps Script projects scope", () => {
+      const authorizationUrl = createGoogleOAuthAuthorizationUrl({
+        clientId: "client-id",
+        redirectUri: "http://127.0.0.1:45678",
+        state: "state-value",
+        codeChallenge: "code-challenge",
+        scopes: ["https://www.googleapis.com/auth/spreadsheets", APPS_SCRIPT_PROJECTS_OAUTH_SCOPE],
+      });
+
+      const url = new URL(authorizationUrl);
+
+      expect(url.searchParams.get("scope")).toBe(
+        "https://www.googleapis.com/auth/script.projects https://www.googleapis.com/auth/spreadsheets",
+      );
+    });
+
+    test("reject empty additional scope", () => {
+      expect(() =>
+        createGoogleOAuthAuthorizationUrl({
+          clientId: "client-id",
+          redirectUri: "http://127.0.0.1:45678",
+          state: "state-value",
+          codeChallenge: "code-challenge",
+          scopes: ["   "],
+        }),
+      ).toThrow("Google OAuth scope must not be empty.");
+    });
+
     test("use Apps Script projects scope", () => {
       expect(APPS_SCRIPT_PROJECTS_OAUTH_SCOPE).toBe(
         "https://www.googleapis.com/auth/script.projects",
