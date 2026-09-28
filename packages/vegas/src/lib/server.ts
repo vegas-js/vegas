@@ -45,3 +45,4 @@ export {
   type SpreadsheetQueryPlanOptions,
   type SpreadsheetSortDirection,
 } from "./server/spreadsheet-query-plan";
+export { createSpreadsheetQuery, type SpreadsheetQuery } from "./server/spreadsheet-query";

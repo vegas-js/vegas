@@ -1,0 +1,164 @@
+import { describe, expect, expectTypeOf, test } from "vitest";
+
+import {
+  createSpreadsheetColumn,
+  createSpreadsheetQuery,
+  spreadsheetEq,
+  type SpreadsheetQuery,
+  type SpreadsheetQueryPlan,
+} from "../server";
+
+interface UserRow {
+  readonly id: number;
+  readonly name: string;
+  readonly active: boolean;
+}
+
+function createColumns() {
+  return {
+    id: createSpreadsheetColumn<UserRow, number>("id", 0, (row) => row.id),
+    name: createSpreadsheetColumn<UserRow, string>("name", 1, (row) => row.name),
+    active: createSpreadsheetColumn<UserRow, boolean>("active", 2, (row) => row.active),
+  };
+}
+
+describe("createSpreadsheetQuery", () => {
+  test("build a query plan through a typed method chain", () => {
+    const columns = createColumns();
+    const query = createSpreadsheetQuery<UserRow>()
+      .where(spreadsheetEq(columns.active, true))
+      .orderBy(columns.name, "asc")
+      .orderBy(columns.id, "desc")
+      .limit(25);
+    const plan = query.toPlan();
+
+    expectTypeOf(query).toEqualTypeOf<SpreadsheetQuery<UserRow>>();
+    expectTypeOf(plan).toEqualTypeOf<SpreadsheetQueryPlan>();
+    expect(plan).toStrictEqual({
+      where: {
+        kind: "equal",
+        column: 2,
+        value: true,
+      },
+      orderBy: [
+        {
+          column: 1,
+          direction: "asc",
+        },
+        {
+          column: 0,
+          direction: "desc",
+        },
+      ],
+      limit: 25,
+    });
+  });
+
+  test("combine repeated where calls with and", () => {
+    const columns = createColumns();
+    const plan = createSpreadsheetQuery<UserRow>()
+      .where(spreadsheetEq(columns.active, true))
+      .where(spreadsheetEq(columns.id, 42))
+      .toPlan();
+
+    expect(plan).toStrictEqual({
+      where: {
+        kind: "and",
+        expressions: [
+          {
+            kind: "equal",
+            column: 2,
+            value: true,
+          },
+          {
+            kind: "equal",
+            column: 0,
+            value: 42,
+          },
+        ],
+      },
+      orderBy: [],
+    });
+  });
+
+  test("keep query branches independent", () => {
+    const columns = createColumns();
+    const base = createSpreadsheetQuery<UserRow>().where(spreadsheetEq(columns.active, true));
+    const limited = base.limit(1);
+    const ordered = base.orderBy(columns.name, "asc");
+
+    expect(base.toPlan()).toStrictEqual({
+      where: {
+        kind: "equal",
+        column: 2,
+        value: true,
+      },
+      orderBy: [],
+    });
+    expect(limited.toPlan()).toStrictEqual({
+      where: {
+        kind: "equal",
+        column: 2,
+        value: true,
+      },
+      orderBy: [],
+      limit: 1,
+    });
+    expect(ordered.toPlan()).toStrictEqual({
+      where: {
+        kind: "equal",
+        column: 2,
+        value: true,
+      },
+      orderBy: [
+        {
+          column: 1,
+          direction: "asc",
+        },
+      ],
+    });
+  });
+
+  test("replace a previous limit without mutating the previous query", () => {
+    const limited = createSpreadsheetQuery<UserRow>().limit(10);
+    const narrowed = limited.limit(3);
+
+    expect(limited.toPlan()).toStrictEqual({
+      orderBy: [],
+      limit: 10,
+    });
+    expect(narrowed.toPlan()).toStrictEqual({
+      orderBy: [],
+      limit: 3,
+    });
+  });
+
+  test.each([-1, 1.5, Number.NaN])("reject invalid limit: %s", (limit) => {
+    expect(() => createSpreadsheetQuery<UserRow>().limit(limit)).toThrow(
+      "Spreadsheet query limit must be a non-negative integer.",
+    );
+  });
+
+  test("support dynamic query composition", () => {
+    const columns = createColumns();
+    let query = createSpreadsheetQuery<UserRow>();
+
+    query = query.where(spreadsheetEq(columns.active, true));
+
+    const shouldLimit = true;
+
+    if (shouldLimit) {
+      query = query.limit(2);
+    }
+
+    expect(query.toPlan()).toStrictEqual({
+      where: {
+        kind: "equal",
+        column: 2,
+        value: true,
+      },
+      orderBy: [],
+      limit: 2,
+    });
+  });
+});
