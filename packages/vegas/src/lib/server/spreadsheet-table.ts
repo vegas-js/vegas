@@ -1,10 +1,12 @@
 import { matchesSpreadsheetQuery } from "./spreadsheet-query-executor";
 import type { SpreadsheetQueryExpression } from "./spreadsheet-query-ir";
 import type { SpreadsheetRowCodec } from "./spreadsheet-row-codec";
+import type { SpreadsheetStorageCodec } from "./spreadsheet-storage-codec";
 
 export interface SpreadsheetTableOptions {
   readonly startRow?: number;
   readonly startColumn?: number;
+  readonly storageCodec?: SpreadsheetStorageCodec;
 }
 
 export interface SpreadsheetTable<Row> {
@@ -30,6 +32,32 @@ function requireTableIndex(index: number): number {
   return index;
 }
 
+function createDefaultStorageCodec(width: number): SpreadsheetStorageCodec {
+  return {
+    logicalWidth: width,
+    physicalWidth: width,
+    encode(values): readonly unknown[] {
+      return [...values];
+    },
+    decode(values): readonly unknown[] {
+      return [...values];
+    },
+  };
+}
+
+function requireStorageCodecWidth(
+  storageCodec: SpreadsheetStorageCodec,
+  logicalWidth: number,
+): SpreadsheetStorageCodec {
+  if (storageCodec.logicalWidth !== logicalWidth) {
+    throw new RangeError(
+      `Spreadsheet table storage codec logical width ${storageCodec.logicalWidth} must match row codec width ${logicalWidth}.`,
+    );
+  }
+
+  return storageCodec;
+}
+
 export function createSpreadsheetTable<Row>(
   sheet: GoogleAppsScript.Spreadsheet.Sheet,
   codec: SpreadsheetRowCodec<Row>,
@@ -37,6 +65,10 @@ export function createSpreadsheetTable<Row>(
 ): SpreadsheetTable<Row> {
   const startRow = requireTableCoordinate(options.startRow ?? 1, "startRow");
   const startColumn = requireTableCoordinate(options.startColumn ?? 1, "startColumn");
+  const storageCodec = requireStorageCodecWidth(
+    options.storageCodec ?? createDefaultStorageCodec(codec.width),
+    codec.width,
+  );
 
   function readValues(): unknown[][] {
     const lastRow = sheet.getLastRow();
@@ -46,7 +78,10 @@ export function createSpreadsheetTable<Row>(
     }
 
     const rowCount = lastRow - startRow + 1;
-    return sheet.getRange(startRow, startColumn, rowCount, codec.width).getValues();
+    return sheet
+      .getRange(startRow, startColumn, rowCount, storageCodec.physicalWidth)
+      .getValues()
+      .map((row) => [...storageCodec.decode(row)]);
   }
 
   return {
@@ -61,10 +96,10 @@ export function createSpreadsheetTable<Row>(
     },
 
     append(row): void {
-      const values = [...codec.encode(row)];
+      const values = [...storageCodec.encode(codec.encode(row))];
       const rowIndex = Math.max(sheet.getLastRow() + 1, startRow);
 
-      sheet.getRange(rowIndex, startColumn, 1, codec.width).setValues([values]);
+      sheet.getRange(rowIndex, startColumn, 1, storageCodec.physicalWidth).setValues([values]);
     },
 
     updateAt(index, row): void {
@@ -75,9 +110,9 @@ export function createSpreadsheetTable<Row>(
         throw new RangeError(`Spreadsheet table row index ${resolvedIndex} is out of range.`);
       }
 
-      const values = [...codec.encode(row)];
+      const values = [...storageCodec.encode(codec.encode(row))];
 
-      sheet.getRange(rowIndex, startColumn, 1, codec.width).setValues([values]);
+      sheet.getRange(rowIndex, startColumn, 1, storageCodec.physicalWidth).setValues([values]);
     },
   };
 }
