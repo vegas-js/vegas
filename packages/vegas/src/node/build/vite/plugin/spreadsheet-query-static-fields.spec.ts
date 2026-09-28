@@ -12,6 +12,7 @@ function collect(source: string): ReadonlyMap<string, ReadonlyMap<string, number
     program,
     "createSpreadsheetQueryFields",
     "createSpreadsheetColumn",
+    "createSpreadsheetSchema",
   );
 }
 
@@ -39,6 +40,23 @@ const queryFields = createSpreadsheetQueryFields({ identifier: idColumn });
 `);
 
     expect(fields.get("queryFields")).toStrictEqual(new Map([["identifier", 0]]));
+  });
+
+  test("resolve column indexes through a schema column record", () => {
+    const fields = collect(`
+const idColumn = createSpreadsheetColumn("id", 0, (row) => row.id);
+const nameColumn = createSpreadsheetColumn("name", 1, (row) => row.name);
+const columns = { id: idColumn, displayName: nameColumn };
+const schema = createSpreadsheetSchema(codec, columns);
+const queryFields = createSpreadsheetQueryFields(schema.columns);
+`);
+
+    expect(fields.get("queryFields")).toStrictEqual(
+      new Map([
+        ["id", 0],
+        ["displayName", 1],
+      ]),
+    );
   });
 
   test("skip columns whose runtime validation cannot be proven statically", () => {

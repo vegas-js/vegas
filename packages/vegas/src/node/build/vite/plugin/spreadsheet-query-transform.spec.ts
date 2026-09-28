@@ -76,6 +76,41 @@ export function run(minimumId: number) {
     expect(transformed).not.toContain("fields.name.asc");
   });
 
+  test("lower statically indexed query fields through schema columns", () => {
+    const source = `
+import {
+  createSpreadsheetColumn,
+  createSpreadsheetQuery,
+  createSpreadsheetQueryFields,
+  createSpreadsheetSchema as defineSchema,
+  createSpreadsheetTable,
+} from "@vegasjs/vegas/server";
+
+const idColumn = createSpreadsheetColumn("id", 0, (row) => row.id);
+const activeColumn = createSpreadsheetColumn("active", 1, (row) => row.active);
+const columns = { id: idColumn, active: activeColumn };
+const schema = defineSchema(codec, columns);
+const fields = createSpreadsheetQueryFields(schema.columns);
+const table = createSpreadsheetTable(sheet, codec);
+
+export function run(minimumId: number) {
+  return table.execute(
+    createSpreadsheetQuery(fields)
+      .where(($) => $.active.eq(true))
+      .where(($) => $.id.gte(minimumId)),
+  );
+}
+`;
+
+    const transformed = transformSpreadsheetQueryPlans(source, id);
+
+    expect(transformed).toContain(
+      '{where:{kind:"and",expressions:[{kind:"equal",column:1,value:(true)},{kind:"greater-than-or-equal",column:0,value:(minimumId)}]},orderBy:[]}',
+    );
+    expect(transformed).not.toContain("fields.active.eq");
+    expect(transformed).not.toContain("fields.id.gte");
+  });
+
   test("support aliased Vegas query and table factory imports", () => {
     const source = `
 import {

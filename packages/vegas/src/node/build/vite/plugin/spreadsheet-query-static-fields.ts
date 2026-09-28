@@ -133,10 +133,62 @@ function getStaticPropertyValueName(property: unknown): string | undefined {
   return undefined;
 }
 
+function resolveStaticSchemaColumns(
+  node: unknown,
+  moduleInitializers: ReadonlyMap<string, unknown>,
+  schemaFactory: string | undefined,
+): unknown {
+  if (
+    schemaFactory === undefined ||
+    !isAstRecord(node) ||
+    node.type !== "MemberExpression" ||
+    node.computed === true
+  ) {
+    return undefined;
+  }
+
+  const object = node.object;
+  const property = node.property;
+
+  if (
+    !isAstRecord(object) ||
+    object.type !== "Identifier" ||
+    typeof object.name !== "string" ||
+    !isAstRecord(property) ||
+    property.type !== "Identifier" ||
+    property.name !== "columns"
+  ) {
+    return undefined;
+  }
+
+  const schemaInitializer = moduleInitializers.get(object.name);
+
+  if (
+    !isAstRecord(schemaInitializer) ||
+    schemaInitializer.type !== "CallExpression" ||
+    !isAstRecord(schemaInitializer.callee) ||
+    schemaInitializer.callee.type !== "Identifier" ||
+    schemaInitializer.callee.name !== schemaFactory ||
+    !Array.isArray(schemaInitializer.arguments) ||
+    schemaInitializer.arguments.length !== 2
+  ) {
+    return undefined;
+  }
+
+  const columns = schemaInitializer.arguments[1];
+
+  if (!isAstRecord(columns) || columns.type === "SpreadElement") {
+    return undefined;
+  }
+
+  return columns;
+}
+
 function resolveStaticFieldIndexes(
   node: unknown,
   moduleInitializers: ReadonlyMap<string, unknown>,
   columnIndexes: ReadonlyMap<string, number>,
+  schemaFactory: string | undefined,
   resolving: ReadonlySet<string> = new Set(),
 ): ReadonlyMap<string, number> | undefined {
   if (!isAstRecord(node)) {
@@ -157,7 +209,25 @@ function resolveStaticFieldIndexes(
     const nextResolving = new Set(resolving);
     nextResolving.add(node.name);
 
-    return resolveStaticFieldIndexes(initializer, moduleInitializers, columnIndexes, nextResolving);
+    return resolveStaticFieldIndexes(
+      initializer,
+      moduleInitializers,
+      columnIndexes,
+      schemaFactory,
+      nextResolving,
+    );
+  }
+
+  const schemaColumns = resolveStaticSchemaColumns(node, moduleInitializers, schemaFactory);
+
+  if (schemaColumns !== undefined) {
+    return resolveStaticFieldIndexes(
+      schemaColumns,
+      moduleInitializers,
+      columnIndexes,
+      schemaFactory,
+      resolving,
+    );
   }
 
   if (node.type !== "ObjectExpression" || !Array.isArray(node.properties)) {
@@ -203,6 +273,7 @@ export function collectStaticSpreadsheetQueryFieldIndexes(
   program: ESTree.Program,
   queryFieldsFactory: string | undefined,
   columnFactory: string | undefined,
+  schemaFactory: string | undefined,
 ): ReadonlyMap<string, ReadonlyMap<string, number>> {
   const fields = new Map<string, ReadonlyMap<string, number>>();
 
@@ -235,7 +306,12 @@ export function collectStaticSpreadsheetQueryFieldIndexes(
         continue;
       }
 
-      const indexes = resolveStaticFieldIndexes(columns, moduleInitializers, columnIndexes);
+      const indexes = resolveStaticFieldIndexes(
+        columns,
+        moduleInitializers,
+        columnIndexes,
+        schemaFactory,
+      );
 
       if (indexes !== undefined) {
         fields.set(declaration.id.name, indexes);

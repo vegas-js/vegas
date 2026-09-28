@@ -6,6 +6,7 @@ const SERVER_MODULE_ID = "@vegasjs/vegas/server";
 const QUERY_FACTORY_EXPORT = "createSpreadsheetQuery";
 const QUERY_FIELDS_FACTORY_EXPORT = "createSpreadsheetQueryFields";
 const COLUMN_FACTORY_EXPORT = "createSpreadsheetColumn";
+const SCHEMA_FACTORY_EXPORT = "createSpreadsheetSchema";
 const TABLE_FACTORY_EXPORT = "createSpreadsheetTable";
 
 const WHERE_METHOD_KINDS = new Map<string, string>([
@@ -21,6 +22,7 @@ interface ImportedBindings {
   readonly queryFactory?: string;
   readonly queryFieldsFactory?: string;
   readonly columnFactory?: string;
+  readonly schemaFactory?: string;
   readonly tableFactory?: string;
 }
 
@@ -55,6 +57,7 @@ function collectImportedBindings(program: ESTree.Program): ImportedBindings {
   let queryFactory: string | undefined;
   let queryFieldsFactory: string | undefined;
   let columnFactory: string | undefined;
+  let schemaFactory: string | undefined;
   let tableFactory: string | undefined;
 
   for (const statement of program.body) {
@@ -85,6 +88,10 @@ function collectImportedBindings(program: ESTree.Program): ImportedBindings {
         columnFactory = specifier.local.name;
       }
 
+      if (importedName === SCHEMA_FACTORY_EXPORT) {
+        schemaFactory = specifier.local.name;
+      }
+
       if (importedName === TABLE_FACTORY_EXPORT) {
         tableFactory = specifier.local.name;
       }
@@ -95,6 +102,7 @@ function collectImportedBindings(program: ESTree.Program): ImportedBindings {
     ...(queryFactory === undefined ? {} : { queryFactory }),
     ...(queryFieldsFactory === undefined ? {} : { queryFieldsFactory }),
     ...(columnFactory === undefined ? {} : { columnFactory }),
+    ...(schemaFactory === undefined ? {} : { schemaFactory }),
     ...(tableFactory === undefined ? {} : { tableFactory }),
   };
 }
@@ -555,6 +563,7 @@ export function transformSpreadsheetQueryPlans(code: string, id: string): string
     program,
     imports.queryFieldsFactory,
     imports.columnFactory,
+    imports.schemaFactory,
   );
   const moduleTables = collectModuleTables(program, tableFactory);
 
