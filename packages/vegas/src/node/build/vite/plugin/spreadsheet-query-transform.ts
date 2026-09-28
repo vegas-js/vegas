@@ -1,18 +1,32 @@
 import { type ESTree, type Plugin, parseSync, Visitor } from "vite";
 
+import { collectStaticSpreadsheetQueryFieldIndexes } from "./spreadsheet-query-static-fields";
+
 const SERVER_MODULE_ID = "@vegasjs/vegas/server";
 const QUERY_FACTORY_EXPORT = "createSpreadsheetQuery";
+const QUERY_FIELDS_FACTORY_EXPORT = "createSpreadsheetQueryFields";
+const COLUMN_FACTORY_EXPORT = "createSpreadsheetColumn";
 const TABLE_FACTORY_EXPORT = "createSpreadsheetTable";
 
-const WHERE_METHODS = new Set(["eq", "ne", "lt", "lte", "gt", "gte"]);
+const WHERE_METHOD_KINDS = new Map<string, string>([
+  ["eq", "equal"],
+  ["ne", "not-equal"],
+  ["lt", "less-than"],
+  ["lte", "less-than-or-equal"],
+  ["gt", "greater-than"],
+  ["gte", "greater-than-or-equal"],
+]);
 
 interface ImportedBindings {
   readonly queryFactory?: string;
+  readonly queryFieldsFactory?: string;
+  readonly columnFactory?: string;
   readonly tableFactory?: string;
 }
 
 interface ParsedQuery {
   readonly fieldsName: string;
+  readonly fieldIndexes?: ReadonlyMap<string, number>;
   readonly where?: string;
   readonly orderBy: readonly string[];
   readonly limit?: string;
@@ -39,6 +53,8 @@ function getImportedName(specifier: ESTree.ImportSpecifier): string | undefined 
 
 function collectImportedBindings(program: ESTree.Program): ImportedBindings {
   let queryFactory: string | undefined;
+  let queryFieldsFactory: string | undefined;
+  let columnFactory: string | undefined;
   let tableFactory: string | undefined;
 
   for (const statement of program.body) {
@@ -61,6 +77,14 @@ function collectImportedBindings(program: ESTree.Program): ImportedBindings {
         queryFactory = specifier.local.name;
       }
 
+      if (importedName === QUERY_FIELDS_FACTORY_EXPORT) {
+        queryFieldsFactory = specifier.local.name;
+      }
+
+      if (importedName === COLUMN_FACTORY_EXPORT) {
+        columnFactory = specifier.local.name;
+      }
+
       if (importedName === TABLE_FACTORY_EXPORT) {
         tableFactory = specifier.local.name;
       }
@@ -69,6 +93,8 @@ function collectImportedBindings(program: ESTree.Program): ImportedBindings {
 
   return {
     ...(queryFactory === undefined ? {} : { queryFactory }),
+    ...(queryFieldsFactory === undefined ? {} : { queryFieldsFactory }),
+    ...(columnFactory === undefined ? {} : { columnFactory }),
     ...(tableFactory === undefined ? {} : { tableFactory }),
   };
 }
@@ -240,6 +266,7 @@ function parseWhereSelector(
   code: string,
   node: ESTree.Expression,
   fieldsName: string,
+  fieldIndexes: ReadonlyMap<string, number> | undefined,
 ): string | undefined {
   if (
     node.type !== "ArrowFunctionExpression" ||
@@ -266,13 +293,9 @@ function parseWhereSelector(
 
   const fieldName = getStaticMemberName(body.callee.object);
   const methodName = getStaticMemberName(body.callee);
+  const kind = methodName === undefined ? undefined : WHERE_METHOD_KINDS.get(methodName);
 
-  if (
-    fieldName === undefined ||
-    methodName === undefined ||
-    !WHERE_METHODS.has(methodName) ||
-    body.arguments.length !== 1
-  ) {
+  if (fieldName === undefined || kind === undefined || body.arguments.length !== 1) {
     return undefined;
   }
 
@@ -282,10 +305,21 @@ function parseWhereSelector(
     return undefined;
   }
 
-  return `${fieldsName}.${fieldName}.${methodName}(${code.slice(value.start, value.end)})`;
+  const valueCode = code.slice(value.start, value.end);
+  const fieldIndex = fieldIndexes?.get(fieldName);
+
+  if (fieldIndex !== undefined) {
+    return `{kind:${JSON.stringify(kind)},column:${fieldIndex},value:(${valueCode})}`;
+  }
+
+  return `${fieldsName}.${fieldName}.${methodName}(${valueCode})`;
 }
 
-function parseOrderSelector(node: ESTree.Expression, fieldsName: string): string | undefined {
+function parseOrderSelector(
+  node: ESTree.Expression,
+  fieldsName: string,
+  fieldIndexes: ReadonlyMap<string, number> | undefined,
+): string | undefined {
   if (
     node.type !== "ArrowFunctionExpression" ||
     node.async ||
@@ -317,6 +351,12 @@ function parseOrderSelector(node: ESTree.Expression, fieldsName: string): string
     return undefined;
   }
 
+  const fieldIndex = fieldIndexes?.get(fieldName);
+
+  if (fieldIndex !== undefined) {
+    return `{column:${fieldIndex},direction:${JSON.stringify(methodName)}}`;
+  }
+
   return `${fieldsName}.${fieldName}.${methodName}()`;
 }
 
@@ -325,6 +365,7 @@ function parseQueryChain(
   node: ESTree.Expression,
   queryFactory: string,
   moduleConstants: ReadonlySet<string>,
+  staticFieldIndexes: ReadonlyMap<string, ReadonlyMap<string, number>>,
   isShadowed: (name: string) => boolean,
 ): ParsedQuery | undefined {
   if (
@@ -344,8 +385,11 @@ function parseQueryChain(
       return undefined;
     }
 
+    const fieldIndexes = staticFieldIndexes.get(fields.name);
+
     return {
       fieldsName: fields.name,
+      ...(fieldIndexes === undefined ? {} : { fieldIndexes }),
       orderBy: [],
       stage: "where",
     };
@@ -365,7 +409,14 @@ function parseQueryChain(
     return undefined;
   }
 
-  const base = parseQueryChain(code, node.callee.object, queryFactory, moduleConstants, isShadowed);
+  const base = parseQueryChain(
+    code,
+    node.callee.object,
+    queryFactory,
+    moduleConstants,
+    staticFieldIndexes,
+    isShadowed,
+  );
 
   if (base === undefined) {
     return undefined;
@@ -382,7 +433,7 @@ function parseQueryChain(
       return undefined;
     }
 
-    const expression = parseWhereSelector(code, selector, base.fieldsName);
+    const expression = parseWhereSelector(code, selector, base.fieldsName, base.fieldIndexes);
 
     if (expression === undefined) {
       return undefined;
@@ -408,7 +459,7 @@ function parseQueryChain(
       return undefined;
     }
 
-    const order = parseOrderSelector(selector, base.fieldsName);
+    const order = parseOrderSelector(selector, base.fieldsName, base.fieldIndexes);
 
     if (order === undefined) {
       return undefined;
@@ -500,6 +551,11 @@ export function transformSpreadsheetQueryPlans(code: string, id: string): string
   }
 
   const moduleConstants = collectModuleConstants(program);
+  const staticFieldIndexes = collectStaticSpreadsheetQueryFieldIndexes(
+    program,
+    imports.queryFieldsFactory,
+    imports.columnFactory,
+  );
   const moduleTables = collectModuleTables(program, tableFactory);
 
   if (moduleTables.size === 0) {
@@ -579,7 +635,14 @@ export function transformSpreadsheetQueryPlans(code: string, id: string): string
         return;
       }
 
-      const query = parseQueryChain(code, queryArgument, queryFactory, moduleConstants, isShadowed);
+      const query = parseQueryChain(
+        code,
+        queryArgument,
+        queryFactory,
+        moduleConstants,
+        staticFieldIndexes,
+        isShadowed,
+      );
 
       if (query === undefined) {
         return;
