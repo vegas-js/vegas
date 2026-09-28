@@ -136,14 +136,30 @@ export function createSpreadsheetTable<Row>(
   );
 
   function readPhysicalValues(): unknown[][] {
-    const lastRow = sheet.getLastRow();
+    const lastSheetRow = sheet.getLastRow();
 
-    if (lastRow < startRow) {
+    if (lastSheetRow < startRow) {
       return [];
     }
 
-    const rowCount = lastRow - startRow + 1;
-    return sheet.getRange(startRow, startColumn, rowCount, storageCodec.physicalWidth).getValues();
+    const candidateRowCount = lastSheetRow - startRow + 1;
+    const values = sheet
+      .getRange(startRow, startColumn, candidateRowCount, storageCodec.physicalWidth)
+      .getValues();
+    let tableRowCount = values.length;
+
+    // Vegas tables treat trailing rows whose physical cells are all empty strings as outside the table.
+    while (tableRowCount > 0) {
+      const physicalRow = values[tableRowCount - 1];
+
+      if (physicalRow === undefined || !physicalRow.every((value) => value === "")) {
+        break;
+      }
+
+      tableRowCount -= 1;
+    }
+
+    return values.slice(0, tableRowCount);
   }
 
   function readValues(): unknown[][] {
@@ -226,20 +242,21 @@ export function createSpreadsheetTable<Row>(
 
     append(row): void {
       const values = [...storageCodec.encode(codec.encode(row))];
-      const rowIndex = Math.max(sheet.getLastRow() + 1, startRow);
+      const rowIndex = startRow + readPhysicalValues().length;
 
       sheet.getRange(rowIndex, startColumn, 1, storageCodec.physicalWidth).setValues([values]);
     },
 
     updateAt(index, row): void {
       const resolvedIndex = requireTableIndex(index);
-      const rowIndex = startRow + resolvedIndex;
+      const rowCount = readPhysicalValues().length;
 
-      if (rowIndex > sheet.getLastRow()) {
+      if (resolvedIndex >= rowCount) {
         throw new RangeError(`Spreadsheet table row index ${resolvedIndex} is out of range.`);
       }
 
       const values = [...storageCodec.encode(codec.encode(row))];
+      const rowIndex = startRow + resolvedIndex;
 
       sheet.getRange(rowIndex, startColumn, 1, storageCodec.physicalWidth).setValues([values]);
     },

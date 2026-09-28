@@ -277,7 +277,10 @@ describe("createSpreadsheetTable", () => {
   });
 
   test("append and update packed rows using the physical storage width", () => {
-    const source = createSheet([], 2);
+    const source = createSheet([
+      [1, '["Ada","active"]'],
+      [2, '["Grace","inactive"]'],
+    ]);
     const storage = createPackedUserStorage();
     const table = createSpreadsheetTable(source.sheet, storage.codec, {
       startColumn: 3,
@@ -287,8 +290,10 @@ describe("createSpreadsheetTable", () => {
     table.append({ id: 3, name: "Katherine", status: "active" });
     table.updateAt(0, { id: 1, name: "Ada", status: "inactive" });
 
-    expect(source.getRange).toHaveBeenNthCalledWith(1, 3, 3, 1, 2);
-    expect(source.getRange).toHaveBeenNthCalledWith(2, 1, 3, 1, 2);
+    expect(source.getRange).toHaveBeenNthCalledWith(1, 1, 3, 2, 2);
+    expect(source.getRange).toHaveBeenNthCalledWith(2, 3, 3, 1, 2);
+    expect(source.getRange).toHaveBeenNthCalledWith(3, 1, 3, 2, 2);
+    expect(source.getRange).toHaveBeenNthCalledWith(4, 1, 3, 1, 2);
     expect(source.setValues).toHaveBeenNthCalledWith(1, [[3, '["Katherine","active"]']]);
     expect(source.setValues).toHaveBeenNthCalledWith(2, [[1, '["Ada","inactive"]']]);
   });
@@ -318,7 +323,13 @@ describe("createSpreadsheetTable", () => {
   });
 
   test("append an encoded row after the current table rows", () => {
-    const source = createSheet([], 3);
+    const source = createSheet(
+      [
+        [1, "Ada"],
+        [2, "Grace"],
+      ],
+      3,
+    );
     const codec = createSpreadsheetRowCodec<UserRow>(
       2,
       (values) => ({
@@ -335,8 +346,9 @@ describe("createSpreadsheetTable", () => {
     table.append({ id: 3, name: "Katherine" });
 
     expect(source.getLastRow).toHaveBeenCalledOnce();
-    expect(source.getRange).toHaveBeenCalledOnce();
-    expect(source.getRange).toHaveBeenCalledWith(4, 3, 1, 2);
+    expect(source.getRange).toHaveBeenCalledTimes(2);
+    expect(source.getRange).toHaveBeenNthCalledWith(1, 2, 3, 2, 2);
+    expect(source.getRange).toHaveBeenNthCalledWith(2, 4, 3, 1, 2);
     expect(source.setValues).toHaveBeenCalledOnce();
     expect(source.setValues).toHaveBeenCalledWith([[3, "Katherine"]]);
   });
@@ -360,7 +372,14 @@ describe("createSpreadsheetTable", () => {
   });
 
   test("update an existing row by zero-based table index", () => {
-    const source = createSheet([], 4);
+    const source = createSheet(
+      [
+        [1, "Ada"],
+        [2, "Grace"],
+        [3, "Katherine"],
+      ],
+      4,
+    );
     const codec = createSpreadsheetRowCodec<UserRow>(
       2,
       (values) => ({
@@ -377,8 +396,9 @@ describe("createSpreadsheetTable", () => {
     table.updateAt(1, { id: 2, name: "Hopper" });
 
     expect(source.getLastRow).toHaveBeenCalledOnce();
-    expect(source.getRange).toHaveBeenCalledOnce();
-    expect(source.getRange).toHaveBeenCalledWith(3, 3, 1, 2);
+    expect(source.getRange).toHaveBeenCalledTimes(2);
+    expect(source.getRange).toHaveBeenNthCalledWith(1, 2, 3, 3, 2);
+    expect(source.getRange).toHaveBeenNthCalledWith(2, 3, 3, 1, 2);
     expect(source.setValues).toHaveBeenCalledOnce();
     expect(source.setValues).toHaveBeenCalledWith([[2, "Hopper"]]);
   });
@@ -414,7 +434,82 @@ describe("createSpreadsheetTable", () => {
       "Spreadsheet table row index 1 is out of range.",
     );
     expect(source.getLastRow).toHaveBeenCalledOnce();
-    expect(source.getRange).not.toHaveBeenCalled();
+    expect(source.getRange).toHaveBeenCalledOnce();
+    expect(source.getRange).toHaveBeenCalledWith(2, 1, 1, 1);
+    expect(source.getValues).toHaveBeenCalledOnce();
+    expect(source.setValues).not.toHaveBeenCalled();
+  });
+
+  test("ignore trailing empty table rows when other sheet data extends lower", () => {
+    const source = createSheet(
+      [
+        [1, "Ada"],
+        [2, "Grace"],
+        ["", ""],
+        ["", ""],
+      ],
+      4,
+    );
+    const codec = createSpreadsheetRowCodec<UserRow>(
+      2,
+      (values) => ({
+        id: Number(values[0]),
+        name: String(values[1]),
+      }),
+      (row) => [row.id, row.name],
+    );
+    const table = createSpreadsheetTable(source.sheet, codec);
+
+    expect(table.readAll()).toStrictEqual([
+      { id: 1, name: "Ada" },
+      { id: 2, name: "Grace" },
+    ]);
+    expect(source.getRange).toHaveBeenCalledWith(1, 1, 4, 2);
+  });
+
+  test("append after the last table row instead of the sheet last row", () => {
+    const source = createSheet(
+      [
+        [1, "Ada"],
+        [2, "Grace"],
+        ["", ""],
+        ["", ""],
+      ],
+      5,
+    );
+    const codec = createSpreadsheetRowCodec<UserRow>(
+      2,
+      (values) => ({
+        id: Number(values[0]),
+        name: String(values[1]),
+      }),
+      (row) => [row.id, row.name],
+    );
+    const table = createSpreadsheetTable(source.sheet, codec, {
+      startRow: 2,
+      startColumn: 3,
+    });
+
+    table.append({ id: 3, name: "Katherine" });
+
+    expect(source.getRange).toHaveBeenNthCalledWith(1, 2, 3, 4, 2);
+    expect(source.getRange).toHaveBeenNthCalledWith(2, 4, 3, 1, 2);
+    expect(source.setValues).toHaveBeenCalledWith([[3, "Katherine"]]);
+  });
+
+  test("reject updates past the table boundary even when the sheet extends lower", () => {
+    const source = createSheet([[1], [""], [""]], 3);
+    const codec = createSpreadsheetRowCodec(
+      1,
+      (values) => values,
+      (values) => values,
+    );
+    const table = createSpreadsheetTable(source.sheet, codec);
+
+    expect(() => table.updateAt(1, ["value"])).toThrow(
+      "Spreadsheet table row index 1 is out of range.",
+    );
+    expect(source.getRange).toHaveBeenCalledOnce();
     expect(source.setValues).not.toHaveBeenCalled();
   });
 
