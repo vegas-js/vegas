@@ -6,6 +6,7 @@ import { createAppsScriptUserCredentialStore } from "./user-credential-store";
 
 interface CreateAppsScriptUserAccessTokenProviderOptions extends GoogleHttpRequestLifetimeOptions {
   readonly profile?: string;
+  readonly requiredScopes?: readonly string[];
   readonly platform?: NodeJS.Platform;
   readonly homeDir?: string;
   readonly env?: NodeJS.ProcessEnv;
@@ -35,6 +36,7 @@ export function createAppsScriptUserAccessTokenProvider(
     credentialStore,
     refresher,
     profile: options.profile,
+    requiredScopes: options.requiredScopes,
     now,
   });
 }

@@ -5,6 +5,7 @@ import { createGoogleAppsScriptRuntime } from "./runtime/node";
 interface GoogleAppsScriptUserRuntimeOptions {
   readonly deploymentId: string;
   readonly profile?: string;
+  readonly requiredScopes?: readonly string[];
   readonly devMode?: boolean;
   readonly requestTimeoutMs?: number;
   readonly accessTokenRequestTimeoutMs?: number;
@@ -32,6 +33,7 @@ export function createGoogleAppsScriptUserRuntime(
     dependencies.createAccessTokenProvider ?? createAppsScriptUserAccessTokenProvider;
   const accessTokenProvider = createAccessTokenProvider({
     profile: options.profile,
+    requiredScopes: options.requiredScopes,
     platform: options.platform,
     homeDir: options.homeDir,
     env: options.env,

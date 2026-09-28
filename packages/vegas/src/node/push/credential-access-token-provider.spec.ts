@@ -92,6 +92,72 @@ describe("createAppsScriptCredentialAccessTokenProvider", () => {
     expect(credentialStore.save).not.toHaveBeenCalled();
   });
 
+  test("reject credential missing a required OAuth scope before refresh", async () => {
+    const staleCredential: AppsScriptCredential = {
+      ...credential,
+      expiryDate: now + 30_000,
+    };
+    const credentialStore = createCredentialStore(staleCredential);
+    const refresher = createRefresher();
+
+    const provider = createAppsScriptCredentialAccessTokenProvider({
+      credentialStore: credentialStore.store,
+      refresher: refresher.refresher,
+      profile: "work",
+      requiredScopes: [
+        "https://www.googleapis.com/auth/script.projects",
+        "https://www.googleapis.com/auth/spreadsheets",
+      ],
+      now: () => now,
+    });
+
+    await expect(provider.getAccessToken()).rejects.toThrow(AppsScriptAuthPrerequisiteError);
+    await expect(provider.getAccessToken()).rejects.toThrow(
+      'Apps Script credentials for profile "work" are missing required OAuth scopes: https://www.googleapis.com/auth/spreadsheets.',
+    );
+
+    expect(refresher.refresh).not.toHaveBeenCalled();
+    expect(credentialStore.save).not.toHaveBeenCalled();
+  });
+
+  test("accept normalized duplicate required OAuth scopes", async () => {
+    const credentialWithSpreadsheetScope: AppsScriptCredential = {
+      ...credential,
+      scopes: [
+        "https://www.googleapis.com/auth/script.projects",
+        "https://www.googleapis.com/auth/spreadsheets",
+      ],
+    };
+    const credentialStore = createCredentialStore(credentialWithSpreadsheetScope);
+    const refresher = createRefresher();
+
+    const provider = createAppsScriptCredentialAccessTokenProvider({
+      credentialStore: credentialStore.store,
+      refresher: refresher.refresher,
+      requiredScopes: [
+        " https://www.googleapis.com/auth/spreadsheets ",
+        "https://www.googleapis.com/auth/spreadsheets",
+      ],
+      now: () => now,
+    });
+
+    await expect(provider.getAccessToken()).resolves.toBe("cached-access-token");
+    expect(refresher.refresh).not.toHaveBeenCalled();
+  });
+
+  test("reject empty required OAuth scope when creating provider", () => {
+    const credentialStore = createCredentialStore(credential);
+    const refresher = createRefresher();
+
+    expect(() =>
+      createAppsScriptCredentialAccessTokenProvider({
+        credentialStore: credentialStore.store,
+        refresher: refresher.refresher,
+        requiredScopes: ["   "],
+      }),
+    ).toThrow("Apps Script required OAuth scope must not be empty.");
+  });
+
   test("refresh stale access token and save credential", async () => {
     const staleCredential: AppsScriptCredential = {
       ...credential,

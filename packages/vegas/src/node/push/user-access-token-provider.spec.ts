@@ -68,6 +68,39 @@ describe("createAppsScriptUserAccessTokenProvider", () => {
     expect(fetch).not.toHaveBeenCalled();
   });
 
+  test("reject stored credential missing required OAuth scope without refreshing", async () => {
+    const homeDir = await createTempHome();
+    const env: NodeJS.ProcessEnv = {};
+
+    const credentialStore = createAppsScriptUserCredentialStore({
+      platform: process.platform,
+      homeDir,
+      env,
+    });
+
+    await credentialStore.save("work", {
+      ...credential,
+      expiryDate: now + 30_000,
+    });
+
+    const fetch = vi.fn();
+
+    const provider = createAppsScriptUserAccessTokenProvider({
+      profile: "work",
+      requiredScopes: ["https://www.googleapis.com/auth/spreadsheets"],
+      platform: process.platform,
+      homeDir,
+      env,
+      fetch,
+      now: () => now,
+    });
+
+    await expect(provider.getAccessToken()).rejects.toThrow(
+      'Apps Script credentials for profile "work" are missing required OAuth scopes: https://www.googleapis.com/auth/spreadsheets.',
+    );
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
   test("refresh stale access token and persist it", async () => {
     const homeDir = await createTempHome();
     const env: NodeJS.ProcessEnv = {};

@@ -25,6 +25,10 @@ describe("createGoogleAppsScriptUserRuntime", () => {
       {
         deploymentId: "deployment-id",
         profile: "work",
+        requiredScopes: [
+          "https://www.googleapis.com/auth/spreadsheets",
+          "https://www.googleapis.com/auth/drive",
+        ],
         devMode: true,
         requestTimeoutMs: 380_000,
         accessTokenRequestTimeoutMs: 15_000,
@@ -50,6 +54,10 @@ describe("createGoogleAppsScriptUserRuntime", () => {
     expect(runtime).toBe(backend);
     expect(accessTokenProviderOptions).toStrictEqual({
       profile: "work",
+      requiredScopes: [
+        "https://www.googleapis.com/auth/spreadsheets",
+        "https://www.googleapis.com/auth/drive",
+      ],
       platform: "linux",
       homeDir: "/home/test",
       env,
