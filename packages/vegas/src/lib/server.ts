@@ -59,3 +59,9 @@ export {
   type SpreadsheetSortDirection,
 } from "./server/spreadsheet-query-plan";
 export { createSpreadsheetQuery, type SpreadsheetQuery } from "./server/spreadsheet-query";
+export {
+  createSpreadsheetQueryFields,
+  type SpreadsheetComparableQueryField,
+  type SpreadsheetQueryField,
+  type SpreadsheetQueryFields,
+} from "./server/spreadsheet-query-fields";
