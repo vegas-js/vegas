@@ -9,6 +9,7 @@ import {
 import { VIRTUAL_DETECT_SERVER_ENTRY, detectServerEntry } from "./plugin/detect-server-entry";
 import { exportBridge } from "./plugin/exportbridge";
 import { inlineHtmlEntry } from "./plugin/inline-html-entry";
+import { spreadsheetQueryTransform } from "./plugin/spreadsheet-query-transform";
 import { virtualHtml } from "./plugin/virtual-html";
 
 export function createBuilderConfig(plan: BuildPlan): InlineConfig {
@@ -67,6 +68,7 @@ export function createBuilderConfig(plan: BuildPlan): InlineConfig {
       ...plan.plugins,
       virtualHtml(plan.clientModuleTargets),
       inlineHtmlEntry(plan.clientHtmlTargets),
+      spreadsheetQueryTransform(),
       detectServerEntry(plan),
       exportBridge(),
     ],
