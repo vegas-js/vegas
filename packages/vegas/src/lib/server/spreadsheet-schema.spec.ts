@@ -1,0 +1,122 @@
+import { describe, expect, expectTypeOf, test } from "vitest";
+
+import {
+  createSpreadsheetColumn,
+  createSpreadsheetRowCodec,
+  createSpreadsheetSchema,
+  type SpreadsheetColumn,
+  type SpreadsheetSchema,
+} from "../server";
+
+interface UserRow {
+  readonly id: number;
+  readonly name: string;
+}
+
+describe("createSpreadsheetSchema", () => {
+  test("describe named columns on top of a row codec", () => {
+    const codec = createSpreadsheetRowCodec<UserRow>(
+      2,
+      (values) => ({
+        id: Number(values[0]),
+        name: String(values[1]),
+      }),
+      (row) => [row.id, row.name],
+    );
+    const id = createSpreadsheetColumn<UserRow, number>("id", 0, (row) => row.id);
+    const name = createSpreadsheetColumn<UserRow, string>("name", 1, (row) => row.name);
+    const schema = createSpreadsheetSchema(codec, [id, name]);
+
+    expectTypeOf(id).toEqualTypeOf<SpreadsheetColumn<UserRow, number>>();
+    expectTypeOf(schema).toEqualTypeOf<SpreadsheetSchema<UserRow>>();
+    expect(id.getValue({ id: 1, name: "Ada" })).toBe(1);
+    expect(schema.codec).toBe(codec);
+    expect(schema.columns).toStrictEqual([id, name]);
+    expect(schema.getColumn("id")).toBe(id);
+    expect(schema.getColumn("missing")).toBeUndefined();
+  });
+
+  test("copy column definitions supplied by the caller", () => {
+    const codec = createSpreadsheetRowCodec(
+      1,
+      (values) => values,
+      (values) => values,
+    );
+    const column = createSpreadsheetColumn<readonly unknown[], unknown>(
+      "value",
+      0,
+      (row) => row[0],
+    );
+    const columns = [column];
+    const schema = createSpreadsheetSchema(codec, columns);
+
+    columns.length = 0;
+
+    expect(schema.columns).toStrictEqual([column]);
+  });
+
+  test.each([-1, 1.5, Number.NaN])("reject invalid column index: %s", (index) => {
+    expect(() => createSpreadsheetColumn("value", index, (row: unknown) => row)).toThrow(
+      "Spreadsheet column index must be a non-negative integer.",
+    );
+  });
+
+  test("reject an empty column name", () => {
+    expect(() => createSpreadsheetColumn("", 0, (row: unknown) => row)).toThrow(
+      "Spreadsheet column name must not be empty.",
+    );
+  });
+
+  test("reject columns beyond the row codec width", () => {
+    const codec = createSpreadsheetRowCodec(
+      1,
+      (values) => values,
+      (values) => values,
+    );
+    const column = createSpreadsheetColumn<readonly unknown[], unknown>(
+      "value",
+      1,
+      (row) => row[0],
+    );
+
+    expect(() => createSpreadsheetSchema(codec, [column])).toThrow(
+      'Spreadsheet column "value" index 1 exceeds row codec width 1.',
+    );
+  });
+
+  test("reject duplicate column names", () => {
+    const codec = createSpreadsheetRowCodec(
+      2,
+      (values) => values,
+      (values) => values,
+    );
+    const first = createSpreadsheetColumn<readonly unknown[], unknown>("value", 0, (row) => row[0]);
+    const second = createSpreadsheetColumn<readonly unknown[], unknown>(
+      "value",
+      1,
+      (row) => row[1],
+    );
+
+    expect(() => createSpreadsheetSchema(codec, [first, second])).toThrow(
+      'Spreadsheet column name "value" must be unique.',
+    );
+  });
+
+  test("reject duplicate column indexes", () => {
+    const codec = createSpreadsheetRowCodec(
+      2,
+      (values) => values,
+      (values) => values,
+    );
+    const first = createSpreadsheetColumn<readonly unknown[], unknown>("first", 0, (row) => row[0]);
+    const second = createSpreadsheetColumn<readonly unknown[], unknown>(
+      "second",
+      0,
+      (row) => row[0],
+    );
+
+    expect(() => createSpreadsheetSchema(codec, [first, second])).toThrow(
+      "Spreadsheet column index 0 must be unique.",
+    );
+  });
+});

@@ -11,3 +11,9 @@ export {
   createSpreadsheetRepository,
   type SpreadsheetRepository,
 } from "./server/spreadsheet-repository";
+export {
+  createSpreadsheetColumn,
+  createSpreadsheetSchema,
+  type SpreadsheetColumn,
+  type SpreadsheetSchema,
+} from "./server/spreadsheet-schema";
