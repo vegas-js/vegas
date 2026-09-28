@@ -63,6 +63,25 @@ export function resolveProject(
       '"appsScript.scriptId" is required when "appsScript.serverFunctions.backend" is "google".',
     );
   }
+
+  if (
+    serverFunctions?.backend === "google" &&
+    (appsScriptManifest?.oauthScopes === undefined || appsScriptManifest.oauthScopes.length === 0)
+  ) {
+    throw new ConfigValidationError(
+      '"appsScript.manifest.oauthScopes" must contain at least one scope when "appsScript.serverFunctions.backend" is "google".',
+    );
+  }
+
+  if (
+    serverFunctions?.backend === "google" &&
+    appsScriptManifest?.oauthScopes?.some((scope) => scope.trim().length === 0) === true
+  ) {
+    throw new ConfigValidationError(
+      '"appsScript.manifest.oauthScopes" must not contain empty scopes when "appsScript.serverFunctions.backend" is "google".',
+    );
+  }
+
   const clientDir =
     config.clientDir === undefined
       ? path.resolve(root, "src", "client")

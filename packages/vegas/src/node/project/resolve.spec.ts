@@ -291,6 +291,9 @@ describe("resolveProject", () => {
             profile: "work",
             devMode: true,
           },
+          manifest: {
+            oauthScopes: ["scope"],
+          },
         },
       });
 
@@ -307,6 +310,9 @@ describe("resolveProject", () => {
           scriptId: "script-id",
           serverFunctions: {
             backend: "google",
+          },
+          manifest: {
+            oauthScopes: ["scope"],
           },
         },
       });
@@ -329,6 +335,55 @@ describe("resolveProject", () => {
         }),
       ).toThrow(
         'Invalid Vegas config: "appsScript.scriptId" is required when "appsScript.serverFunctions.backend" is "google".',
+      );
+    });
+
+    test("require OAuth scopes for Google server-function backend", () => {
+      expect(() =>
+        resolve({
+          appsScript: {
+            scriptId: "script-id",
+            serverFunctions: {
+              backend: "google",
+            },
+          },
+        }),
+      ).toThrow(
+        'Invalid Vegas config: "appsScript.manifest.oauthScopes" must contain at least one scope when "appsScript.serverFunctions.backend" is "google".',
+      );
+
+      expect(() =>
+        resolve({
+          appsScript: {
+            scriptId: "script-id",
+            serverFunctions: {
+              backend: "google",
+            },
+            manifest: {
+              oauthScopes: [],
+            },
+          },
+        }),
+      ).toThrow(
+        'Invalid Vegas config: "appsScript.manifest.oauthScopes" must contain at least one scope when "appsScript.serverFunctions.backend" is "google".',
+      );
+    });
+
+    test("reject empty OAuth scope for Google server-function backend", () => {
+      expect(() =>
+        resolve({
+          appsScript: {
+            scriptId: "script-id",
+            serverFunctions: {
+              backend: "google",
+            },
+            manifest: {
+              oauthScopes: ["scope", "   "],
+            },
+          },
+        }),
+      ).toThrow(
+        'Invalid Vegas config: "appsScript.manifest.oauthScopes" must not contain empty scopes when "appsScript.serverFunctions.backend" is "google".',
       );
     });
   });
