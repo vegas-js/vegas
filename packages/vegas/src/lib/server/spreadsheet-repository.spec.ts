@@ -13,10 +13,12 @@ interface UserRow {
 
 function createTable(rows: UserRow[]) {
   const readAll = vi.fn(() => rows);
+  const query = vi.fn();
   const append = vi.fn();
   const updateAt = vi.fn();
   const table: SpreadsheetTable<UserRow> = {
     readAll,
+    query,
     append,
     updateAt,
   };
@@ -24,6 +26,7 @@ function createTable(rows: UserRow[]) {
   return {
     table,
     readAll,
+    query,
     append,
     updateAt,
   };

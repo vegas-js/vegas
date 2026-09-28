@@ -1,8 +1,11 @@
 import { describe, expect, expectTypeOf, test, vi } from "vitest";
 
 import {
+  createSpreadsheetColumn,
   createSpreadsheetRowCodec,
   createSpreadsheetTable,
+  spreadsheetAnd,
+  spreadsheetEq,
   type SpreadsheetTable,
 } from "../server";
 
@@ -80,6 +83,52 @@ describe("createSpreadsheetTable", () => {
       [2, "Grace"],
     ]);
     expect(source.getRange).toHaveBeenCalledWith(2, 3, 2, 2);
+  });
+
+  test("query raw rows before decoding matching values", () => {
+    const source = createSheet([
+      [1, "Ada"],
+      [2, "Grace"],
+      [3, "Katherine"],
+    ]);
+    const decode = vi.fn((values: readonly unknown[]) => ({
+      id: Number(values[0]),
+      name: String(values[1]),
+    }));
+    const codec = createSpreadsheetRowCodec<UserRow>(2, decode, (row) => [row.id, row.name]);
+    const id = createSpreadsheetColumn<UserRow, number>("id", 0, (row) => row.id);
+    const name = createSpreadsheetColumn<UserRow, string>("name", 1, (row) => row.name);
+    const table = createSpreadsheetTable(source.sheet, codec);
+    const expression = spreadsheetAnd(spreadsheetEq(id, 2), spreadsheetEq(name, "Grace"));
+
+    expect(table.query(expression)).toStrictEqual([{ id: 2, name: "Grace" }]);
+    expect(source.getLastRow).toHaveBeenCalledOnce();
+    expect(source.getRange).toHaveBeenCalledOnce();
+    expect(source.getRange).toHaveBeenCalledWith(1, 1, 3, 2);
+    expect(source.getValues).toHaveBeenCalledOnce();
+    expect(decode).toHaveBeenCalledOnce();
+    expect(decode).toHaveBeenCalledWith([2, "Grace"]);
+  });
+
+  test("return no query rows without requesting a range when the table is empty", () => {
+    const source = createSheet([], 1);
+    const codec = createSpreadsheetRowCodec<UserRow>(
+      2,
+      (values) => ({
+        id: Number(values[0]),
+        name: String(values[1]),
+      }),
+      (row) => [row.id, row.name],
+    );
+    const id = createSpreadsheetColumn<UserRow, number>("id", 0, (row) => row.id);
+    const table = createSpreadsheetTable(source.sheet, codec, {
+      startRow: 2,
+    });
+
+    expect(table.query(spreadsheetEq(id, 1))).toStrictEqual([]);
+    expect(source.getLastRow).toHaveBeenCalledOnce();
+    expect(source.getRange).not.toHaveBeenCalled();
+    expect(source.getValues).not.toHaveBeenCalled();
   });
 
   test("append an encoded row after the current table rows", () => {

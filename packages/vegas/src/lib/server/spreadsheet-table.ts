@@ -1,3 +1,5 @@
+import { matchesSpreadsheetQuery } from "./spreadsheet-query-executor";
+import type { SpreadsheetQueryExpression } from "./spreadsheet-query-ir";
 import type { SpreadsheetRowCodec } from "./spreadsheet-row-codec";
 
 export interface SpreadsheetTableOptions {
@@ -7,6 +9,7 @@ export interface SpreadsheetTableOptions {
 
 export interface SpreadsheetTable<Row> {
   readAll(): Row[];
+  query(expression: SpreadsheetQueryExpression): Row[];
   append(row: Row): void;
   updateAt(index: number, row: Row): void;
 }
@@ -35,18 +38,26 @@ export function createSpreadsheetTable<Row>(
   const startRow = requireTableCoordinate(options.startRow ?? 1, "startRow");
   const startColumn = requireTableCoordinate(options.startColumn ?? 1, "startColumn");
 
+  function readValues(): unknown[][] {
+    const lastRow = sheet.getLastRow();
+
+    if (lastRow < startRow) {
+      return [];
+    }
+
+    const rowCount = lastRow - startRow + 1;
+    return sheet.getRange(startRow, startColumn, rowCount, codec.width).getValues();
+  }
+
   return {
     readAll(): Row[] {
-      const lastRow = sheet.getLastRow();
+      return readValues().map((row) => codec.decode(row));
+    },
 
-      if (lastRow < startRow) {
-        return [];
-      }
-
-      const rowCount = lastRow - startRow + 1;
-      const values = sheet.getRange(startRow, startColumn, rowCount, codec.width).getValues();
-
-      return values.map((row) => codec.decode(row));
+    query(expression): Row[] {
+      return readValues()
+        .filter((row) => matchesSpreadsheetQuery(row, expression))
+        .map((row) => codec.decode(row));
     },
 
     append(row): void {
