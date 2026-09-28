@@ -6,6 +6,7 @@ import type {
 export interface SpreadsheetStorageCodec {
   readonly logicalWidth: number;
   readonly physicalWidth: number;
+  locate(logicalIndex: number): SpreadsheetStorageLocation;
   encode(values: readonly unknown[]): readonly unknown[];
   decode(values: readonly unknown[]): readonly unknown[];
 }
@@ -138,6 +139,10 @@ export function createSpreadsheetStorageCodec(
   return {
     logicalWidth: layout.logicalWidth,
     physicalWidth: layout.physicalWidth,
+
+    locate(logicalIndex): SpreadsheetStorageLocation {
+      return layout.locate(logicalIndex);
+    },
 
     encode(values): readonly unknown[] {
       const logicalValues = requireStorageWidth(values, layout.logicalWidth, "logical");

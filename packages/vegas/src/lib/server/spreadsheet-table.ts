@@ -1,5 +1,6 @@
 import { matchesSpreadsheetQuery } from "./spreadsheet-query-executor";
 import type { SpreadsheetQueryExpression } from "./spreadsheet-query-ir";
+import { evaluateSpreadsheetQueryPushdown } from "./spreadsheet-query-pushdown";
 import type { SpreadsheetRowCodec } from "./spreadsheet-row-codec";
 import type { SpreadsheetStorageCodec } from "./spreadsheet-storage-codec";
 
@@ -36,6 +37,12 @@ function createDefaultStorageCodec(width: number): SpreadsheetStorageCodec {
   return {
     logicalWidth: width,
     physicalWidth: width,
+    locate(logicalIndex) {
+      return {
+        kind: "materialized",
+        physicalIndex: logicalIndex,
+      };
+    },
     encode(values): readonly unknown[] {
       return [...values];
     },
@@ -70,7 +77,7 @@ export function createSpreadsheetTable<Row>(
     codec.width,
   );
 
-  function readValues(): unknown[][] {
+  function readPhysicalValues(): unknown[][] {
     const lastRow = sheet.getLastRow();
 
     if (lastRow < startRow) {
@@ -78,10 +85,11 @@ export function createSpreadsheetTable<Row>(
     }
 
     const rowCount = lastRow - startRow + 1;
-    return sheet
-      .getRange(startRow, startColumn, rowCount, storageCodec.physicalWidth)
-      .getValues()
-      .map((row) => [...storageCodec.decode(row)]);
+    return sheet.getRange(startRow, startColumn, rowCount, storageCodec.physicalWidth).getValues();
+  }
+
+  function readValues(): unknown[][] {
+    return readPhysicalValues().map((row) => [...storageCodec.decode(row)]);
   }
 
   return {
@@ -90,9 +98,29 @@ export function createSpreadsheetTable<Row>(
     },
 
     query(expression): Row[] {
-      return readValues()
-        .filter((row) => matchesSpreadsheetQuery(row, expression))
-        .map((row) => codec.decode(row));
+      const rows: Row[] = [];
+
+      for (const physicalValues of readPhysicalValues()) {
+        const pushdown = evaluateSpreadsheetQueryPushdown(
+          physicalValues,
+          expression,
+          (logicalIndex) => storageCodec.locate(logicalIndex),
+        );
+
+        if (pushdown === "miss") {
+          continue;
+        }
+
+        const logicalValues = [...storageCodec.decode(physicalValues)];
+
+        if (pushdown === "unknown" && !matchesSpreadsheetQuery(logicalValues, expression)) {
+          continue;
+        }
+
+        rows.push(codec.decode(logicalValues));
+      }
+
+      return rows;
     },
 
     append(row): void {

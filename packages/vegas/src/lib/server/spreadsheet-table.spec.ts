@@ -46,6 +46,22 @@ function createPackedUserStorage() {
     codec,
     id,
     name,
+    status,
+    schema,
+    storageCodec: createSpreadsheetStorageCodec(layout),
+  };
+}
+
+function createIndexedPackedUserStorage() {
+  const storage = createPackedUserStorage();
+  const layout = createSpreadsheetStorageLayout(storage.schema, {
+    mode: "indexed-packed",
+    key: storage.id,
+    materialize: [storage.status],
+  });
+
+  return {
+    ...storage,
     storageCodec: createSpreadsheetStorageCodec(layout),
   };
 }
@@ -208,6 +224,58 @@ describe("createSpreadsheetTable", () => {
     expect(decode).toHaveBeenCalledWith([2, "Grace", "inactive"]);
   });
 
+  test("skip packed payload decoding when a materialized predicate misses", () => {
+    const source = createSheet([
+      [1, "active", '["Ada"]'],
+      [2, "inactive", "invalid-json"],
+      [3, "active", '["Katherine"]'],
+    ]);
+    const storage = createIndexedPackedUserStorage();
+    const decodeStorage = vi.fn((values: readonly unknown[]) =>
+      storage.storageCodec.decode(values),
+    );
+    const table = createSpreadsheetTable(source.sheet, storage.codec, {
+      storageCodec: {
+        ...storage.storageCodec,
+        decode: decodeStorage,
+      },
+    });
+
+    expect(table.query(spreadsheetEq(storage.status, "active"))).toStrictEqual([
+      { id: 1, name: "Ada", status: "active" },
+      { id: 3, name: "Katherine", status: "active" },
+    ]);
+    expect(source.getRange).toHaveBeenCalledWith(1, 1, 3, 3);
+    expect(decodeStorage).toHaveBeenCalledTimes(2);
+    expect(decodeStorage).not.toHaveBeenCalledWith([2, "inactive", "invalid-json"]);
+  });
+
+  test("use materialized predicates to reject rows before evaluating payload predicates", () => {
+    const source = createSheet([
+      [1, "active", '["Ada"]'],
+      [2, "inactive", "invalid-json"],
+      [3, "active", '["Katherine"]'],
+    ]);
+    const storage = createIndexedPackedUserStorage();
+    const decodeStorage = vi.fn((values: readonly unknown[]) =>
+      storage.storageCodec.decode(values),
+    );
+    const table = createSpreadsheetTable(source.sheet, storage.codec, {
+      storageCodec: {
+        ...storage.storageCodec,
+        decode: decodeStorage,
+      },
+    });
+    const expression = spreadsheetAnd(
+      spreadsheetEq(storage.name, "Ada"),
+      spreadsheetEq(storage.status, "active"),
+    );
+
+    expect(table.query(expression)).toStrictEqual([{ id: 1, name: "Ada", status: "active" }]);
+    expect(decodeStorage).toHaveBeenCalledTimes(2);
+    expect(decodeStorage).not.toHaveBeenCalledWith([2, "inactive", "invalid-json"]);
+  });
+
   test("append and update packed rows using the physical storage width", () => {
     const source = createSheet([], 2);
     const storage = createPackedUserStorage();
@@ -238,6 +306,10 @@ describe("createSpreadsheetTable", () => {
         storageCodec: {
           logicalWidth: 1,
           physicalWidth: 1,
+          locate: () => ({
+            kind: "materialized",
+            physicalIndex: 0,
+          }),
           encode: (values) => values,
           decode: (values) => values,
         },
