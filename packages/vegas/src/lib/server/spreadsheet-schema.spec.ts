@@ -36,6 +36,49 @@ describe("createSpreadsheetSchema", () => {
     expect(schema.getColumn("missing")).toBeUndefined();
   });
 
+  test("accept a shared column record", () => {
+    const codec = createSpreadsheetRowCodec<UserRow>(
+      2,
+      (values) => ({
+        id: Number(values[0]),
+        name: String(values[1]),
+      }),
+      (row) => [row.id, row.name],
+    );
+    const id = createSpreadsheetColumn<UserRow, number>("id", 0, (row) => row.id);
+    const name = createSpreadsheetColumn<UserRow, string>("name", 1, (row) => row.name);
+    const columns = {
+      primaryKey: id,
+      displayName: name,
+    };
+    const schema = createSpreadsheetSchema(codec, columns);
+
+    expect(schema.columns).toStrictEqual([id, name]);
+    expect(schema.getColumn("id")).toBe(id);
+    expect(schema.getColumn("name")).toBe(name);
+  });
+
+  test("copy column records supplied by the caller", () => {
+    const codec = createSpreadsheetRowCodec<UserRow>(
+      2,
+      (values) => ({
+        id: Number(values[0]),
+        name: String(values[1]),
+      }),
+      (row) => [row.id, row.name],
+    );
+    const id = createSpreadsheetColumn<UserRow, number>("id", 0, (row) => row.id);
+    const replacement = createSpreadsheetColumn<UserRow, number>("replacement", 0, (row) => row.id);
+    const columns = {
+      id,
+    };
+    const schema = createSpreadsheetSchema(codec, columns);
+
+    columns.id = replacement;
+
+    expect(schema.columns).toStrictEqual([id]);
+  });
+
   test("copy column definitions supplied by the caller", () => {
     const codec = createSpreadsheetRowCodec(
       1,

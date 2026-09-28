@@ -40,11 +40,21 @@ export function createSpreadsheetColumn<Row, Value>(
   };
 }
 
+type SpreadsheetSchemaColumnSource<Row> =
+  | readonly SpreadsheetColumn<Row, unknown>[]
+  | Readonly<Record<string, SpreadsheetColumn<Row, unknown>>>;
+
+function resolveSpreadsheetSchemaColumns<Row>(
+  columns: SpreadsheetSchemaColumnSource<Row>,
+): readonly SpreadsheetColumn<Row, unknown>[] {
+  return Array.isArray(columns) ? [...columns] : Object.values(columns);
+}
+
 export function createSpreadsheetSchema<Row>(
   codec: SpreadsheetRowCodec<Row>,
-  columns: readonly SpreadsheetColumn<Row, unknown>[],
+  columns: SpreadsheetSchemaColumnSource<Row>,
 ): SpreadsheetSchema<Row> {
-  const resolvedColumns = [...columns];
+  const resolvedColumns = resolveSpreadsheetSchemaColumns(columns);
   const names = new Set<string>();
   const indices = new Set<number>();
 
