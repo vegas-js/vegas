@@ -1,5 +1,6 @@
 import { matchesSpreadsheetQuery } from "./spreadsheet-query-executor";
 import type { SpreadsheetQueryExpression } from "./spreadsheet-query-ir";
+import type { SpreadsheetOrderBy, SpreadsheetQueryPlan } from "./spreadsheet-query-plan";
 import { evaluateSpreadsheetQueryPushdown } from "./spreadsheet-query-pushdown";
 import type { SpreadsheetRowCodec } from "./spreadsheet-row-codec";
 import type { SpreadsheetStorageCodec } from "./spreadsheet-storage-codec";
@@ -13,6 +14,7 @@ export interface SpreadsheetTableOptions {
 export interface SpreadsheetTable<Row> {
   readAll(): Row[];
   query(expression: SpreadsheetQueryExpression): Row[];
+  execute(plan: SpreadsheetQueryPlan): Row[];
   append(row: Row): void;
   updateAt(index: number, row: Row): void;
 }
@@ -50,6 +52,82 @@ function createDefaultStorageCodec(width: number): SpreadsheetStorageCodec {
       return [...values];
     },
   };
+}
+
+function requireQueryPlan(plan: SpreadsheetQueryPlan, logicalWidth: number): void {
+  if (plan.limit !== undefined && (!Number.isInteger(plan.limit) || plan.limit < 0)) {
+    throw new RangeError("Spreadsheet query limit must be a non-negative integer.");
+  }
+
+  for (const orderBy of plan.orderBy) {
+    if (!Number.isInteger(orderBy.column) || orderBy.column < 0 || orderBy.column >= logicalWidth) {
+      throw new RangeError(
+        `Spreadsheet query order column index ${orderBy.column} must be between 0 and ${logicalWidth - 1}.`,
+      );
+    }
+
+    if (orderBy.direction !== "asc" && orderBy.direction !== "desc") {
+      throw new RangeError(
+        `Spreadsheet query sort direction "${String(orderBy.direction)}" must be "asc" or "desc".`,
+      );
+    }
+  }
+}
+
+function compareQueryValues(left: unknown, right: unknown): number {
+  if (Object.is(left, right)) {
+    return 0;
+  }
+
+  if (typeof left === "number" && typeof right === "number") {
+    if (!Number.isFinite(left) || !Number.isFinite(right)) {
+      throw new TypeError("Spreadsheet query order values must be comparable.");
+    }
+
+    return left < right ? -1 : 1;
+  }
+
+  if (typeof left === "string" && typeof right === "string") {
+    return left < right ? -1 : 1;
+  }
+
+  if (typeof left === "boolean" && typeof right === "boolean") {
+    return left ? 1 : -1;
+  }
+
+  if (left instanceof Date && right instanceof Date) {
+    const leftTime = left.getTime();
+    const rightTime = right.getTime();
+
+    if (!Number.isFinite(leftTime) || !Number.isFinite(rightTime)) {
+      throw new TypeError("Spreadsheet query order values must be comparable.");
+    }
+
+    return leftTime < rightTime ? -1 : 1;
+  }
+
+  throw new TypeError("Spreadsheet query order values must be comparable.");
+}
+
+interface SpreadsheetQueryCandidate {
+  readonly values: readonly unknown[];
+  readonly sourceIndex: number;
+}
+
+function compareQueryCandidates(
+  left: SpreadsheetQueryCandidate,
+  right: SpreadsheetQueryCandidate,
+  orderBy: readonly SpreadsheetOrderBy[],
+): number {
+  for (const order of orderBy) {
+    const comparison = compareQueryValues(left.values[order.column], right.values[order.column]);
+
+    if (comparison !== 0) {
+      return order.direction === "asc" ? comparison : -comparison;
+    }
+  }
+
+  return left.sourceIndex - right.sourceIndex;
 }
 
 function requireStorageCodecWidth(
@@ -92,35 +170,78 @@ export function createSpreadsheetTable<Row>(
     return readPhysicalValues().map((row) => [...storageCodec.decode(row)]);
   }
 
+  function executePlan(plan: SpreadsheetQueryPlan): Row[] {
+    requireQueryPlan(plan, codec.width);
+
+    if (plan.limit === 0) {
+      return [];
+    }
+
+    const candidates: SpreadsheetQueryCandidate[] = [];
+    const canStopAtLimit = plan.orderBy.length === 0 && plan.limit !== undefined;
+    let sourceIndex = 0;
+
+    for (const physicalValues of readPhysicalValues()) {
+      if (plan.where !== undefined) {
+        const pushdown = evaluateSpreadsheetQueryPushdown(
+          physicalValues,
+          plan.where,
+          (logicalIndex) => storageCodec.locate(logicalIndex),
+        );
+
+        if (pushdown === "miss") {
+          sourceIndex += 1;
+          continue;
+        }
+
+        const logicalValues = [...storageCodec.decode(physicalValues)];
+
+        if (pushdown === "unknown" && !matchesSpreadsheetQuery(logicalValues, plan.where)) {
+          sourceIndex += 1;
+          continue;
+        }
+
+        candidates.push({
+          values: logicalValues,
+          sourceIndex,
+        });
+      } else {
+        candidates.push({
+          values: [...storageCodec.decode(physicalValues)],
+          sourceIndex,
+        });
+      }
+
+      sourceIndex += 1;
+
+      if (canStopAtLimit && candidates.length === plan.limit) {
+        break;
+      }
+    }
+
+    if (plan.orderBy.length > 0) {
+      candidates.sort((left, right) => compareQueryCandidates(left, right, plan.orderBy));
+    }
+
+    const selected = plan.limit === undefined ? candidates : candidates.slice(0, plan.limit);
+
+    return selected.map((candidate) => codec.decode(candidate.values));
+  }
+
   return {
     readAll(): Row[] {
       return readValues().map((row) => codec.decode(row));
     },
 
     query(expression): Row[] {
-      const rows: Row[] = [];
+      return executePlan({
+        where: expression,
+        orderBy: [],
+      });
+    },
 
-      for (const physicalValues of readPhysicalValues()) {
-        const pushdown = evaluateSpreadsheetQueryPushdown(
-          physicalValues,
-          expression,
-          (logicalIndex) => storageCodec.locate(logicalIndex),
-        );
-
-        if (pushdown === "miss") {
-          continue;
-        }
-
-        const logicalValues = [...storageCodec.decode(physicalValues)];
-
-        if (pushdown === "unknown" && !matchesSpreadsheetQuery(logicalValues, expression)) {
-          continue;
-        }
-
-        rows.push(codec.decode(logicalValues));
-      }
-
-      return rows;
+    execute(plan): Row[] {
+      return executePlan(plan);
     },
 
     append(row): void {
