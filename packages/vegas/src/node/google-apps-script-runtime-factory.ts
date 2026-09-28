@@ -3,7 +3,7 @@ import type { RuntimeBackend } from "./runtime";
 import { createGoogleAppsScriptRuntime } from "./runtime/node";
 
 interface GoogleAppsScriptUserRuntimeOptions {
-  readonly deploymentId: string;
+  readonly scriptId: string;
   readonly profile?: string;
   readonly requiredScopes?: readonly string[];
   readonly devMode?: boolean;
@@ -44,7 +44,7 @@ export function createGoogleAppsScriptUserRuntime(
   const createRuntime = dependencies.createRuntime ?? createGoogleAppsScriptRuntime;
 
   return createRuntime({
-    deploymentId: options.deploymentId,
+    deploymentId: options.scriptId,
     devMode: options.devMode,
     requestTimeoutMs: options.requestTimeoutMs,
     fetch: options.fetch,

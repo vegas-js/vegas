@@ -23,7 +23,7 @@ describe("createGoogleAppsScriptUserRuntime", () => {
 
     const runtime = createGoogleAppsScriptUserRuntime(
       {
-        deploymentId: "deployment-id",
+        scriptId: "script-id",
         profile: "work",
         requiredScopes: [
           "https://www.googleapis.com/auth/spreadsheets",
@@ -71,7 +71,7 @@ describe("createGoogleAppsScriptUserRuntime", () => {
     }
 
     expect(runtimeOptions).toMatchObject({
-      deploymentId: "deployment-id",
+      deploymentId: "script-id",
       devMode: true,
       requestTimeoutMs: 380_000,
       fetch,
@@ -94,7 +94,7 @@ describe("createGoogleAppsScriptUserRuntime", () => {
 
     createGoogleAppsScriptUserRuntime(
       {
-        deploymentId: "deployment-id",
+        scriptId: "script-id",
         requestTimeoutMs: 390_000,
         accessTokenRequestTimeoutMs: 20_000,
       },
