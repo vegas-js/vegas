@@ -6,10 +6,24 @@ export interface SpreadsheetColumn<Row, Value> {
   getValue(row: Row): Value;
 }
 
-export interface SpreadsheetSchema<Row> {
+export type SpreadsheetSchemaColumnSource<Row> =
+  | readonly SpreadsheetColumn<Row, unknown>[]
+  | Readonly<Record<string, SpreadsheetColumn<Row, unknown>>>;
+
+export interface SpreadsheetSchema<
+  Row,
+  Columns extends SpreadsheetSchemaColumnSource<Row> = readonly SpreadsheetColumn<Row, unknown>[],
+> {
   readonly codec: SpreadsheetRowCodec<Row>;
-  readonly columns: readonly SpreadsheetColumn<Row, unknown>[];
+  readonly columns: Columns;
+  readonly columnList: readonly SpreadsheetColumn<Row, unknown>[];
   getColumn(name: string): SpreadsheetColumn<Row, unknown> | undefined;
+}
+
+function isSpreadsheetSchemaColumnArray<Row>(
+  columns: SpreadsheetSchemaColumnSource<Row>,
+): columns is readonly SpreadsheetColumn<Row, unknown>[] {
+  return Array.isArray(columns);
 }
 
 function requireSpreadsheetColumnName(name: string): string {
@@ -40,25 +54,26 @@ export function createSpreadsheetColumn<Row, Value>(
   };
 }
 
-type SpreadsheetSchemaColumnSource<Row> =
-  | readonly SpreadsheetColumn<Row, unknown>[]
-  | Readonly<Record<string, SpreadsheetColumn<Row, unknown>>>;
-
-function resolveSpreadsheetSchemaColumns<Row>(
-  columns: SpreadsheetSchemaColumnSource<Row>,
-): readonly SpreadsheetColumn<Row, unknown>[] {
-  return Array.isArray(columns) ? [...columns] : Object.values(columns);
-}
-
+export function createSpreadsheetSchema<Row>(
+  codec: SpreadsheetRowCodec<Row>,
+  columns: readonly SpreadsheetColumn<Row, unknown>[],
+): SpreadsheetSchema<Row>;
+export function createSpreadsheetSchema<
+  Row,
+  Columns extends Readonly<Record<string, SpreadsheetColumn<Row, unknown>>>,
+>(codec: SpreadsheetRowCodec<Row>, columns: Columns): SpreadsheetSchema<Row, Columns>;
 export function createSpreadsheetSchema<Row>(
   codec: SpreadsheetRowCodec<Row>,
   columns: SpreadsheetSchemaColumnSource<Row>,
-): SpreadsheetSchema<Row> {
-  const resolvedColumns = resolveSpreadsheetSchemaColumns(columns);
+): SpreadsheetSchema<Row, SpreadsheetSchemaColumnSource<Row>> {
+  const resolvedColumns = isSpreadsheetSchemaColumnArray(columns) ? [...columns] : { ...columns };
+  const columnList = isSpreadsheetSchemaColumnArray(resolvedColumns)
+    ? resolvedColumns
+    : Object.values(resolvedColumns);
   const names = new Set<string>();
   const indices = new Set<number>();
 
-  for (const column of resolvedColumns) {
+  for (const column of columnList) {
     if (column.index >= codec.width) {
       throw new RangeError(
         `Spreadsheet column "${column.name}" index ${column.index} exceeds row codec width ${codec.width}.`,
@@ -80,8 +95,9 @@ export function createSpreadsheetSchema<Row>(
   return {
     codec,
     columns: resolvedColumns,
+    columnList,
     getColumn(name): SpreadsheetColumn<Row, unknown> | undefined {
-      return resolvedColumns.find((column) => column.name === name);
+      return columnList.find((column) => column.name === name);
     },
   };
 }

@@ -18,6 +18,7 @@ export {
   createSpreadsheetSchema,
   type SpreadsheetColumn,
   type SpreadsheetSchema,
+  type SpreadsheetSchemaColumnSource,
 } from "./server/spreadsheet-schema";
 export {
   spreadsheetAnd,

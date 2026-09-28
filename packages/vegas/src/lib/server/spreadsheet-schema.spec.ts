@@ -32,6 +32,7 @@ describe("createSpreadsheetSchema", () => {
     expect(id.getValue({ id: 1, name: "Ada" })).toBe(1);
     expect(schema.codec).toBe(codec);
     expect(schema.columns).toStrictEqual([id, name]);
+    expect(schema.columnList).toStrictEqual([id, name]);
     expect(schema.getColumn("id")).toBe(id);
     expect(schema.getColumn("missing")).toBeUndefined();
   });
@@ -53,7 +54,12 @@ describe("createSpreadsheetSchema", () => {
     };
     const schema = createSpreadsheetSchema(codec, columns);
 
-    expect(schema.columns).toStrictEqual([id, name]);
+    expectTypeOf(schema).toEqualTypeOf<SpreadsheetSchema<UserRow, typeof columns>>();
+    expectTypeOf(schema.columns.primaryKey).toEqualTypeOf<SpreadsheetColumn<UserRow, number>>();
+    expectTypeOf(schema.columns.displayName).toEqualTypeOf<SpreadsheetColumn<UserRow, string>>();
+    expect(schema.columns).toStrictEqual(columns);
+    expect(schema.columns).not.toBe(columns);
+    expect(schema.columnList).toStrictEqual([id, name]);
     expect(schema.getColumn("id")).toBe(id);
     expect(schema.getColumn("name")).toBe(name);
   });
@@ -76,7 +82,8 @@ describe("createSpreadsheetSchema", () => {
 
     columns.id = replacement;
 
-    expect(schema.columns).toStrictEqual([id]);
+    expect(schema.columns.id).toBe(id);
+    expect(schema.columnList).toStrictEqual([id]);
   });
 
   test("copy column definitions supplied by the caller", () => {
@@ -96,6 +103,7 @@ describe("createSpreadsheetSchema", () => {
     columns.length = 0;
 
     expect(schema.columns).toStrictEqual([column]);
+    expect(schema.columnList).toStrictEqual([column]);
   });
 
   test.each([-1, 1.5, Number.NaN])("reject invalid column index: %s", (index) => {

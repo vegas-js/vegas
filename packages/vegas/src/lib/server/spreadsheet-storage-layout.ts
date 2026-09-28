@@ -1,4 +1,8 @@
-import type { SpreadsheetColumn, SpreadsheetSchema } from "./spreadsheet-schema";
+import type {
+  SpreadsheetColumn,
+  SpreadsheetSchema,
+  SpreadsheetSchemaColumnSource,
+} from "./spreadsheet-schema";
 
 export type SpreadsheetStorageMode = "columns" | "packed" | "indexed-packed";
 
@@ -44,12 +48,12 @@ function requireLogicalIndex(index: number, width: number): number {
   return index;
 }
 
-function requireSchemaColumn<Row>(
-  schema: SpreadsheetSchema<Row>,
+function requireSchemaColumn<Row, Columns extends SpreadsheetSchemaColumnSource<Row>>(
+  schema: SpreadsheetSchema<Row, Columns>,
   column: SpreadsheetColumn<Row, unknown>,
   role: "key" | "materialized",
 ): number {
-  const matchesSchema = schema.columns.some(
+  const matchesSchema = schema.columnList.some(
     (candidate) => candidate.index === column.index && candidate.name === column.name,
   );
 
@@ -69,8 +73,8 @@ function createColumnLocations(width: number): readonly SpreadsheetStorageLocati
   }));
 }
 
-function createPackedLocations<Row>(
-  schema: SpreadsheetSchema<Row>,
+function createPackedLocations<Row, Columns extends SpreadsheetSchemaColumnSource<Row>>(
+  schema: SpreadsheetSchema<Row, Columns>,
   key: SpreadsheetColumn<Row, unknown>,
   materialized: readonly SpreadsheetColumn<Row, unknown>[],
 ): {
@@ -130,8 +134,11 @@ function createPackedLocations<Row>(
   };
 }
 
-export function createSpreadsheetStorageLayout<Row>(
-  schema: SpreadsheetSchema<Row>,
+export function createSpreadsheetStorageLayout<
+  Row,
+  Columns extends SpreadsheetSchemaColumnSource<Row>,
+>(
+  schema: SpreadsheetSchema<Row, Columns>,
   options: SpreadsheetStorageLayoutOptions<Row>,
 ): SpreadsheetStorageLayout {
   if (options.mode === "columns") {
