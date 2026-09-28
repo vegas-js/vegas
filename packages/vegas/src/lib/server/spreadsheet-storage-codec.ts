@@ -1,0 +1,197 @@
+import type {
+  SpreadsheetStorageLayout,
+  SpreadsheetStorageLocation,
+} from "./spreadsheet-storage-layout";
+
+export interface SpreadsheetStorageCodec {
+  readonly logicalWidth: number;
+  readonly physicalWidth: number;
+  encode(values: readonly unknown[]): readonly unknown[];
+  decode(values: readonly unknown[]): readonly unknown[];
+}
+
+function requireStorageWidth(
+  values: readonly unknown[],
+  width: number,
+  kind: "logical" | "physical",
+): readonly unknown[] {
+  if (values.length !== width) {
+    throw new RangeError(
+      `Spreadsheet storage codec expected ${width} ${kind} values, received ${values.length}.`,
+    );
+  }
+
+  return values;
+}
+
+function isPlainObject(value: object): boolean {
+  const prototype = Object.getPrototypeOf(value);
+  return prototype === Object.prototype || prototype === null;
+}
+
+function requireJsonCompatible(value: unknown, logicalIndex: number, seen: Set<object>): void {
+  if (
+    value === null ||
+    typeof value === "string" ||
+    typeof value === "boolean" ||
+    (typeof value === "number" && Number.isFinite(value) && !Object.is(value, -0))
+  ) {
+    return;
+  }
+
+  if (typeof value !== "object") {
+    throw new TypeError(
+      `Spreadsheet packed storage logical column ${logicalIndex} must be JSON-compatible.`,
+    );
+  }
+
+  if (seen.has(value)) {
+    throw new TypeError(
+      `Spreadsheet packed storage logical column ${logicalIndex} must not contain circular data.`,
+    );
+  }
+
+  seen.add(value);
+
+  if (Array.isArray(value)) {
+    for (let index = 0; index < value.length; index += 1) {
+      if (!(index in value)) {
+        throw new TypeError(
+          `Spreadsheet packed storage logical column ${logicalIndex} must not contain sparse arrays.`,
+        );
+      }
+
+      requireJsonCompatible(value[index], logicalIndex, seen);
+    }
+
+    seen.delete(value);
+    return;
+  }
+
+  if (!isPlainObject(value)) {
+    throw new TypeError(
+      `Spreadsheet packed storage logical column ${logicalIndex} must be JSON-compatible.`,
+    );
+  }
+
+  for (const key of Reflect.ownKeys(value)) {
+    if (typeof key !== "string") {
+      throw new TypeError(
+        `Spreadsheet packed storage logical column ${logicalIndex} must not contain symbol keys.`,
+      );
+    }
+
+    const descriptor = Object.getOwnPropertyDescriptor(value, key);
+
+    if (descriptor === undefined || !descriptor.enumerable || !("value" in descriptor)) {
+      throw new TypeError(
+        `Spreadsheet packed storage logical column ${logicalIndex} must contain enumerable data properties only.`,
+      );
+    }
+
+    requireJsonCompatible(descriptor.value, logicalIndex, seen);
+  }
+
+  seen.delete(value);
+}
+
+function parsePayload(value: unknown, expectedWidth: number): readonly unknown[] {
+  if (typeof value !== "string") {
+    throw new TypeError("Spreadsheet packed storage payload must be a JSON string.");
+  }
+
+  let parsed: unknown;
+
+  try {
+    parsed = JSON.parse(value) as unknown;
+  } catch {
+    throw new TypeError("Spreadsheet packed storage payload must contain valid JSON.");
+  }
+
+  if (!Array.isArray(parsed)) {
+    throw new TypeError("Spreadsheet packed storage payload must contain a JSON array.");
+  }
+
+  if (parsed.length !== expectedWidth) {
+    throw new RangeError(
+      `Spreadsheet packed storage payload expected ${expectedWidth} values, received ${parsed.length}.`,
+    );
+  }
+
+  return parsed;
+}
+
+export function createSpreadsheetStorageCodec(
+  layout: SpreadsheetStorageLayout,
+): SpreadsheetStorageCodec {
+  const locations = Array.from(
+    { length: layout.logicalWidth },
+    (_, logicalIndex): SpreadsheetStorageLocation => layout.locate(logicalIndex),
+  );
+  const payloadLocations = locations.filter(
+    (location): location is Extract<SpreadsheetStorageLocation, { readonly kind: "payload" }> =>
+      location.kind === "payload",
+  );
+  const payloadPhysicalIndex = payloadLocations[0]?.physicalIndex;
+  const payloadWidth = payloadLocations.length;
+
+  return {
+    logicalWidth: layout.logicalWidth,
+    physicalWidth: layout.physicalWidth,
+
+    encode(values): readonly unknown[] {
+      const logicalValues = requireStorageWidth(values, layout.logicalWidth, "logical");
+
+      if (payloadPhysicalIndex === undefined) {
+        return [...logicalValues];
+      }
+
+      const physicalValues = Array.from<unknown>({
+        length: layout.physicalWidth,
+      });
+      const payload = Array.from<unknown>({
+        length: payloadWidth,
+      });
+
+      for (let logicalIndex = 0; logicalIndex < locations.length; logicalIndex += 1) {
+        const location = locations[logicalIndex]!;
+        const value = logicalValues[logicalIndex];
+
+        if (location.kind === "materialized") {
+          physicalValues[location.physicalIndex] = value;
+          continue;
+        }
+
+        requireJsonCompatible(value, logicalIndex, new Set());
+        payload[location.payloadIndex] = value;
+      }
+
+      physicalValues[payloadPhysicalIndex] = JSON.stringify(payload);
+      return physicalValues;
+    },
+
+    decode(values): readonly unknown[] {
+      const physicalValues = requireStorageWidth(values, layout.physicalWidth, "physical");
+
+      if (payloadPhysicalIndex === undefined) {
+        return [...physicalValues];
+      }
+
+      const payload = parsePayload(physicalValues[payloadPhysicalIndex], payloadWidth);
+      const logicalValues = Array.from<unknown>({
+        length: layout.logicalWidth,
+      });
+
+      for (let logicalIndex = 0; logicalIndex < locations.length; logicalIndex += 1) {
+        const location = locations[logicalIndex]!;
+
+        logicalValues[logicalIndex] =
+          location.kind === "materialized"
+            ? physicalValues[location.physicalIndex]
+            : payload[location.payloadIndex];
+      }
+
+      return logicalValues;
+    },
+  };
+}

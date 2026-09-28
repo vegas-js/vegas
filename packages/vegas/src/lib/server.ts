@@ -33,3 +33,7 @@ export {
   type SpreadsheetStorageLocation,
   type SpreadsheetStorageMode,
 } from "./server/spreadsheet-storage-layout";
+export {
+  createSpreadsheetStorageCodec,
+  type SpreadsheetStorageCodec,
+} from "./server/spreadsheet-storage-codec";

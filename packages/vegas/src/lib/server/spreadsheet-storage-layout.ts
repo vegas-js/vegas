@@ -29,6 +29,7 @@ export type SpreadsheetStorageLayoutOptions<Row> =
 
 export interface SpreadsheetStorageLayout {
   readonly mode: SpreadsheetStorageMode;
+  readonly logicalWidth: number;
   readonly physicalWidth: number;
   locate(logicalIndex: number): SpreadsheetStorageLocation;
 }
@@ -138,6 +139,7 @@ export function createSpreadsheetStorageLayout<Row>(
 
     return {
       mode: options.mode,
+      logicalWidth: schema.codec.width,
       physicalWidth: schema.codec.width,
       locate(logicalIndex): SpreadsheetStorageLocation {
         return locations[requireLogicalIndex(logicalIndex, schema.codec.width)]!;
@@ -153,6 +155,7 @@ export function createSpreadsheetStorageLayout<Row>(
 
   return {
     mode: options.mode,
+    logicalWidth: schema.codec.width,
     physicalWidth: packed.physicalWidth,
     locate(logicalIndex): SpreadsheetStorageLocation {
       return packed.locations[requireLogicalIndex(logicalIndex, schema.codec.width)]!;

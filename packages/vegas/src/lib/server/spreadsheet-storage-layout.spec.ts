@@ -55,6 +55,7 @@ describe("createSpreadsheetStorageLayout", () => {
 
     expectTypeOf(layout).toEqualTypeOf<SpreadsheetStorageLayout>();
     expect(layout.mode).toBe("columns");
+    expect(layout.logicalWidth).toBe(4);
     expect(layout.physicalWidth).toBe(4);
     expect(layout.locate(0)).toStrictEqual({
       kind: "materialized",
@@ -74,6 +75,7 @@ describe("createSpreadsheetStorageLayout", () => {
     });
 
     expect(layout.mode).toBe("packed");
+    expect(layout.logicalWidth).toBe(4);
     expect(layout.physicalWidth).toBe(2);
     expect(layout.locate(0)).toStrictEqual({
       kind: "materialized",
@@ -108,6 +110,7 @@ describe("createSpreadsheetStorageLayout", () => {
     materialize.length = 0;
 
     expect(layout.mode).toBe("indexed-packed");
+    expect(layout.logicalWidth).toBe(4);
     expect(layout.physicalWidth).toBe(4);
     expect(layout.locate(0)).toStrictEqual({
       kind: "materialized",
