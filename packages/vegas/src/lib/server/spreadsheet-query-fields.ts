@@ -7,6 +7,7 @@ import type {
   SpreadsheetLessThanOrEqualExpression,
   SpreadsheetNotEqualExpression,
 } from "./spreadsheet-query-ir";
+import type { SpreadsheetOrderBy } from "./spreadsheet-query-plan";
 import type { SpreadsheetColumn } from "./spreadsheet-schema";
 
 export interface SpreadsheetQueryField<Value> {
@@ -21,6 +22,8 @@ export interface SpreadsheetComparableQueryField<
   lte(value: Value): SpreadsheetLessThanOrEqualExpression<Value>;
   gt(value: Value): SpreadsheetGreaterThanExpression<Value>;
   gte(value: Value): SpreadsheetGreaterThanOrEqualExpression<Value>;
+  asc(): SpreadsheetOrderBy;
+  desc(): SpreadsheetOrderBy;
 }
 
 type SpreadsheetQueryFieldForValue<Value> = [Value] extends [SpreadsheetComparableValue]
@@ -42,6 +45,8 @@ interface RuntimeSpreadsheetQueryField {
   lte(value: SpreadsheetComparableValue): SpreadsheetLessThanOrEqualExpression;
   gt(value: SpreadsheetComparableValue): SpreadsheetGreaterThanExpression;
   gte(value: SpreadsheetComparableValue): SpreadsheetGreaterThanOrEqualExpression;
+  asc(): SpreadsheetOrderBy;
+  desc(): SpreadsheetOrderBy;
 }
 
 function createRuntimeSpreadsheetQueryField(
@@ -88,6 +93,18 @@ function createRuntimeSpreadsheetQueryField(
         kind: "greater-than-or-equal",
         column: column.index,
         value,
+      };
+    },
+    asc(): SpreadsheetOrderBy {
+      return {
+        column: column.index,
+        direction: "asc",
+      };
+    },
+    desc(): SpreadsheetOrderBy {
+      return {
+        column: column.index,
+        direction: "desc",
       };
     },
   };

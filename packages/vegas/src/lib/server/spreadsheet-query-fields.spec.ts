@@ -62,6 +62,19 @@ describe("createSpreadsheetQueryFields", () => {
     ]);
   });
 
+  test("lower field ordering directly to data-only order descriptors", () => {
+    const fields = createSpreadsheetQueryFields(createColumns());
+
+    expect(fields.name.asc()).toStrictEqual({
+      column: 1,
+      direction: "asc",
+    });
+    expect(fields.id.desc()).toStrictEqual({
+      column: 0,
+      direction: "desc",
+    });
+  });
+
   test("preserve value types for equality on non-comparable fields", () => {
     const fields = createSpreadsheetQueryFields(createColumns());
     const metadata = {

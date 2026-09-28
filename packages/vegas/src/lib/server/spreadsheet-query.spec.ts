@@ -3,6 +3,7 @@ import { describe, expect, expectTypeOf, test } from "vitest";
 import {
   createSpreadsheetColumn,
   createSpreadsheetQuery,
+  createSpreadsheetQueryFields,
   spreadsheetEq,
   type SpreadsheetQuery,
   type SpreadsheetQueryPlan,
@@ -51,6 +52,45 @@ describe("createSpreadsheetQuery", () => {
         },
       ],
       limit: 25,
+    });
+  });
+
+  test("build a query plan through field selector callbacks", () => {
+    const fields = createSpreadsheetQueryFields(createColumns());
+    const query = createSpreadsheetQuery(fields)
+      .where(($) => $.active.eq(true))
+      .where(($) => $.id.gte(18))
+      .orderBy(($) => $.name.asc())
+      .orderBy(($) => $.id.desc())
+      .limit(10);
+
+    expect(query.toPlan()).toStrictEqual({
+      where: {
+        kind: "and",
+        expressions: [
+          {
+            kind: "equal",
+            column: 2,
+            value: true,
+          },
+          {
+            kind: "greater-than-or-equal",
+            column: 0,
+            value: 18,
+          },
+        ],
+      },
+      orderBy: [
+        {
+          column: 1,
+          direction: "asc",
+        },
+        {
+          column: 0,
+          direction: "desc",
+        },
+      ],
+      limit: 10,
     });
   });
 
