@@ -14,7 +14,7 @@ type GoogleAppsScriptApiValue =
   | { readonly [key: string]: GoogleAppsScriptApiValue };
 
 export interface GoogleAppsScriptRuntimeOptions {
-  readonly deploymentId: string;
+  readonly scriptId: string;
   readonly acquireAccessToken: (minimumValidityMs: number, signal?: AbortSignal) => Promise<string>;
   readonly devMode?: boolean;
   readonly requestTimeoutMs?: number;
@@ -221,8 +221,8 @@ function throwCallerAbort(signal: AbortSignal | undefined): void {
 export function createGoogleAppsScriptRuntime(
   options: GoogleAppsScriptRuntimeOptions,
 ): RuntimeBackend {
-  if (options.deploymentId.length === 0) {
-    throw new RangeError("Google Apps Script deployment id must not be empty.");
+  if (options.scriptId.length === 0) {
+    throw new RangeError("Google Apps Script script id must not be empty.");
   }
 
   const requestTimeoutMs = requireRequestTimeout(
@@ -290,7 +290,7 @@ export function createGoogleAppsScriptRuntime(
 
       try {
         response = await fetchImplementation(
-          `https://script.googleapis.com/v1/scripts/${encodeURIComponent(options.deploymentId)}:run`,
+          `https://script.googleapis.com/v1/scripts/${encodeURIComponent(options.scriptId)}:run`,
           {
             method: "POST",
             headers: {

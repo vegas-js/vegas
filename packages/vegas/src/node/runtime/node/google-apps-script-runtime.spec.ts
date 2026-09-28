@@ -50,7 +50,7 @@ describe("createGoogleAppsScriptRuntime", () => {
     );
     const tokenRequests: { minimumValidityMs: number; signal?: AbortSignal }[] = [];
     const runtime = createGoogleAppsScriptRuntime({
-      deploymentId: "deployment/id",
+      scriptId: "deployment/id",
       devMode: true,
       acquireAccessToken: async (minimumValidityMs, signal) => {
         tokenRequests.push({ minimumValidityMs, signal });
@@ -103,7 +103,7 @@ describe("createGoogleAppsScriptRuntime", () => {
       }),
     );
     const runtime = createGoogleAppsScriptRuntime({
-      deploymentId: "deployment-id",
+      scriptId: "deployment-id",
       acquireAccessToken: async () => "access-token",
       fetch,
     });
@@ -149,7 +149,7 @@ describe("createGoogleAppsScriptRuntime", () => {
       }),
     );
     const runtime = createGoogleAppsScriptRuntime({
-      deploymentId: "deployment-id",
+      scriptId: "deployment-id",
       acquireAccessToken: async () => "access-token",
       fetch,
     });
@@ -179,7 +179,7 @@ describe("createGoogleAppsScriptRuntime", () => {
       }),
     );
     const runtime = createGoogleAppsScriptRuntime({
-      deploymentId: "deployment-id",
+      scriptId: "deployment-id",
       acquireAccessToken: async () => "access-token",
       fetch,
     });
@@ -198,7 +198,7 @@ describe("createGoogleAppsScriptRuntime", () => {
   test.each([401, 403])("classify HTTP %i as an authentication failure", async (status) => {
     const { fetch } = createRecordingFetch(new Response(null, { status }));
     const runtime = createGoogleAppsScriptRuntime({
-      deploymentId: "deployment-id",
+      scriptId: "deployment-id",
       acquireAccessToken: async () => "access-token",
       fetch,
     });
@@ -217,7 +217,7 @@ describe("createGoogleAppsScriptRuntime", () => {
   test("classify non-authentication HTTP failures as backend failures", async () => {
     const { fetch } = createRecordingFetch(new Response(null, { status: 500 }));
     const runtime = createGoogleAppsScriptRuntime({
-      deploymentId: "deployment-id",
+      scriptId: "deployment-id",
       acquireAccessToken: async () => "access-token",
       fetch,
     });
@@ -235,12 +235,12 @@ describe("createGoogleAppsScriptRuntime", () => {
 
   test("reject malformed and incomplete API operations", async () => {
     const malformedRuntime = createGoogleAppsScriptRuntime({
-      deploymentId: "deployment-id",
+      scriptId: "deployment-id",
       acquireAccessToken: async () => "access-token",
       fetch: createRecordingFetch(new Response("not-json", { status: 200 })).fetch,
     });
     const incompleteRuntime = createGoogleAppsScriptRuntime({
-      deploymentId: "deployment-id",
+      scriptId: "deployment-id",
       acquireAccessToken: async () => "access-token",
       fetch: createRecordingFetch(jsonResponse({ done: false })).fetch,
     });
@@ -273,7 +273,7 @@ describe("createGoogleAppsScriptRuntime", () => {
       return jsonResponse({ done: true, response: {} });
     };
     const runtime = createGoogleAppsScriptRuntime({
-      deploymentId: "deployment-id",
+      scriptId: "deployment-id",
       acquireAccessToken: async () => {
         tokenCalls += 1;
         return "access-token";
@@ -309,7 +309,7 @@ describe("createGoogleAppsScriptRuntime", () => {
   test("reject Vegas web-app invocation context before remote execution", async () => {
     let tokenCalls = 0;
     const runtime = createGoogleAppsScriptRuntime({
-      deploymentId: "deployment-id",
+      scriptId: "deployment-id",
       acquireAccessToken: async () => {
         tokenCalls += 1;
         return "access-token";
@@ -339,7 +339,7 @@ describe("createGoogleAppsScriptRuntime", () => {
   test("wrap access token acquisition failures as authentication infrastructure errors", async () => {
     const tokenError = new Error("refresh failed");
     const runtime = createGoogleAppsScriptRuntime({
-      deploymentId: "deployment-id",
+      scriptId: "deployment-id",
       acquireAccessToken: async () => {
         throw tokenError;
       },
@@ -368,7 +368,7 @@ describe("createGoogleAppsScriptRuntime", () => {
     controller.abort(reason);
 
     const runtime = createGoogleAppsScriptRuntime({
-      deploymentId: "deployment-id",
+      scriptId: "deployment-id",
       acquireAccessToken: async () => {
         tokenCalls += 1;
         return "access-token";
@@ -411,7 +411,7 @@ describe("createGoogleAppsScriptRuntime", () => {
         }
       });
     const runtime = createGoogleAppsScriptRuntime({
-      deploymentId: "deployment-id",
+      scriptId: "deployment-id",
       acquireAccessToken: async () => "access-token",
       requestTimeoutMs: 1_000,
       fetch,
@@ -433,14 +433,14 @@ describe("createGoogleAppsScriptRuntime", () => {
   test("validate backend construction options", () => {
     expect(() =>
       createGoogleAppsScriptRuntime({
-        deploymentId: "",
+        scriptId: "",
         acquireAccessToken: async () => "access-token",
       }),
-    ).toThrow("Google Apps Script deployment id must not be empty.");
+    ).toThrow("Google Apps Script script id must not be empty.");
 
     expect(() =>
       createGoogleAppsScriptRuntime({
-        deploymentId: "deployment-id",
+        scriptId: "deployment-id",
         acquireAccessToken: async () => "access-token",
         requestTimeoutMs: 0,
       }),

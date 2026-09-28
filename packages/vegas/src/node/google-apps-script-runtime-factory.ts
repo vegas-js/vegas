@@ -44,7 +44,7 @@ export function createGoogleAppsScriptUserRuntime(
   const createRuntime = dependencies.createRuntime ?? createGoogleAppsScriptRuntime;
 
   return createRuntime({
-    deploymentId: options.scriptId,
+    scriptId: options.scriptId,
     devMode: options.devMode,
     requestTimeoutMs: options.requestTimeoutMs,
     fetch: options.fetch,

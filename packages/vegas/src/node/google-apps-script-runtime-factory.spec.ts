@@ -71,7 +71,7 @@ describe("createGoogleAppsScriptUserRuntime", () => {
     }
 
     expect(runtimeOptions).toMatchObject({
-      deploymentId: "script-id",
+      scriptId: "script-id",
       devMode: true,
       requestTimeoutMs: 380_000,
       fetch,
