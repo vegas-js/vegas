@@ -45,6 +45,9 @@ describe("resolveProject", () => {
 
       appsScript: {
         scriptId: undefined,
+        serverFunctions: {
+          backend: "local",
+        },
         manifest: {
           dependencies: undefined,
           exceptionLogging: "STACKDRIVER",
@@ -277,6 +280,56 @@ describe("resolveProject", () => {
       });
 
       expect(project.appsScript.scriptId).toBe("script-id");
+    });
+
+    test("resolve Google server-function backend", () => {
+      const project = resolve({
+        appsScript: {
+          scriptId: "script-id",
+          serverFunctions: {
+            backend: "google",
+            profile: "work",
+            devMode: true,
+          },
+        },
+      });
+
+      expect(project.appsScript.serverFunctions).toStrictEqual({
+        backend: "google",
+        profile: "work",
+        devMode: true,
+      });
+    });
+
+    test("default Google server-function development mode to false", () => {
+      const project = resolve({
+        appsScript: {
+          scriptId: "script-id",
+          serverFunctions: {
+            backend: "google",
+          },
+        },
+      });
+
+      expect(project.appsScript.serverFunctions).toStrictEqual({
+        backend: "google",
+        profile: undefined,
+        devMode: false,
+      });
+    });
+
+    test("require script id for Google server-function backend", () => {
+      expect(() =>
+        resolve({
+          appsScript: {
+            serverFunctions: {
+              backend: "google",
+            },
+          },
+        }),
+      ).toThrow(
+        'Invalid Vegas config: "appsScript.scriptId" is required when "appsScript.serverFunctions.backend" is "google".',
+      );
     });
   });
 

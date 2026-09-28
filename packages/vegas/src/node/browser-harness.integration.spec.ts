@@ -38,6 +38,9 @@ function createProject(root: string): ResolvedProject {
       open: false,
     },
     appsScript: {
+      serverFunctions: {
+        backend: "local",
+      },
       manifest: {
         exceptionLogging: "STACKDRIVER",
         runtimeVersion: "V8",

@@ -53,6 +53,16 @@ export function resolveProject(
   const root = path.resolve(options.cwd, options.root ?? config.root ?? ".");
   const appType = config.appType ?? "spa";
   const appsScriptManifest = config.appsScript?.manifest;
+  const serverFunctions = config.appsScript?.serverFunctions;
+
+  if (
+    serverFunctions?.backend === "google" &&
+    (config.appsScript?.scriptId === undefined || config.appsScript.scriptId.trim().length === 0)
+  ) {
+    throw new ConfigValidationError(
+      '"appsScript.scriptId" is required when "appsScript.serverFunctions.backend" is "google".',
+    );
+  }
   const clientDir =
     config.clientDir === undefined
       ? path.resolve(root, "src", "client")
@@ -90,6 +100,16 @@ export function resolveProject(
 
     appsScript: {
       scriptId: config.appsScript?.scriptId,
+      serverFunctions:
+        serverFunctions?.backend === "google"
+          ? {
+              backend: "google",
+              profile: serverFunctions.profile,
+              devMode: serverFunctions.devMode ?? false,
+            }
+          : {
+              backend: "local",
+            },
       manifest: {
         dependencies: appsScriptManifest?.dependencies,
         exceptionLogging: appsScriptManifest?.exceptionLogging ?? "STACKDRIVER",

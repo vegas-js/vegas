@@ -28,6 +28,9 @@ const project: ResolvedProject = {
   devServer: { open: false },
   appsScript: {
     scriptId: "script-id",
+    serverFunctions: {
+      backend: "local",
+    },
     manifest: {},
   },
 };

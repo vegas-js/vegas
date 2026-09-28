@@ -28,6 +28,11 @@ describe("validateUserConfig", () => {
       },
       appsScript: {
         scriptId: "script-id",
+        serverFunctions: {
+          backend: "google",
+          profile: "work",
+          devMode: true,
+        },
         manifest: {
           dependencies: {
             enabledAdvancedServices: [
@@ -108,6 +113,19 @@ describe("validateUserConfig", () => {
         appType: "web",
       }),
     ).toThrow('Invalid Vegas config: "appType" must be one of "spa", "script".');
+  });
+
+  test("reject empty Google server-function auth profile", () => {
+    expect(() =>
+      validateUserConfig({
+        appsScript: {
+          serverFunctions: {
+            backend: "google",
+            profile: "   ",
+          },
+        },
+      }),
+    ).toThrow('Invalid Vegas config: "appsScript.serverFunctions.profile" must not be empty.');
   });
 
   test("reject unknown nested option", () => {

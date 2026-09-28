@@ -90,8 +90,22 @@ const manifestSchema = strictPlainObject({
   webapp: webAppSchema.optional(),
 });
 
+const serverFunctionsSchema = plainObjectSchema.pipe(
+  z.discriminatedUnion("backend", [
+    z.strictObject({
+      backend: z.literal("local"),
+    }),
+    z.strictObject({
+      backend: z.literal("google"),
+      profile: nonEmptyStringSchema.optional(),
+      devMode: z.boolean().optional(),
+    }),
+  ]),
+);
+
 const appsScriptSchema = strictPlainObject({
   scriptId: z.string().optional(),
+  serverFunctions: serverFunctionsSchema.optional(),
   manifest: manifestSchema.optional(),
 });
 

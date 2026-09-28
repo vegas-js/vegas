@@ -66,11 +66,27 @@ export type OutputConfig = {
   allowOutsideRoot?: boolean;
 };
 
+export type AppsScriptServerFunctionsConfig =
+  | {
+      backend: "local";
+    }
+  | {
+      backend: "google";
+      profile?: string;
+      devMode?: boolean;
+    };
+
 export type AppsScriptConfig = {
   /**
-   * Apps Script project ID used as the push target.
+   * Apps Script project ID used as the push target and Google server-function execution target.
    */
   scriptId?: string;
+
+  /**
+   * Backend used for server functions invoked from the local web app.
+   * @default { backend: 'local' }
+   */
+  serverFunctions?: AppsScriptServerFunctionsConfig;
 
   /**
    * Apps Script manifest configuration written to appsscript.json.

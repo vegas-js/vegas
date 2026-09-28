@@ -20,6 +20,9 @@ function createProject(tempDirPath: string, appType: "spa" | "script" = "spa"): 
     devServer: { open: false },
 
     appsScript: {
+      serverFunctions: {
+        backend: "local",
+      },
       manifest: {
         exceptionLogging: "STACKDRIVER",
         runtimeVersion: "V8",

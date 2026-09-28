@@ -23,6 +23,9 @@ const project = {
     open: true,
   },
   appsScript: {
+    serverFunctions: {
+      backend: "local",
+    },
     manifest: {
       exceptionLogging: "STACKDRIVER",
       runtimeVersion: "V8",

@@ -30,6 +30,9 @@ const project = {
     open: false,
   },
   appsScript: {
+    serverFunctions: {
+      backend: "local",
+    },
     manifest: {
       exceptionLogging: "STACKDRIVER",
       runtimeVersion: "V8",

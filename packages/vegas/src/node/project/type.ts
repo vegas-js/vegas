@@ -19,6 +19,15 @@ export interface ResolvedProject {
 
   readonly appsScript: {
     readonly scriptId?: string;
+    readonly serverFunctions:
+      | {
+          readonly backend: "local";
+        }
+      | {
+          readonly backend: "google";
+          readonly profile?: string;
+          readonly devMode: boolean;
+        };
     readonly manifest: AppsScriptManifest;
   };
 }

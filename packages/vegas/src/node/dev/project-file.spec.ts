@@ -22,6 +22,9 @@ function createProject(
     devServer: { open: false },
 
     appsScript: {
+      serverFunctions: {
+        backend: "local",
+      },
       manifest: {
         exceptionLogging: "STACKDRIVER",
         runtimeVersion: "V8",
