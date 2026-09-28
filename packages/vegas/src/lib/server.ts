@@ -37,3 +37,11 @@ export {
   createSpreadsheetStorageCodec,
   type SpreadsheetStorageCodec,
 } from "./server/spreadsheet-storage-codec";
+export {
+  createSpreadsheetQueryPlan,
+  spreadsheetOrderBy,
+  type SpreadsheetOrderBy,
+  type SpreadsheetQueryPlan,
+  type SpreadsheetQueryPlanOptions,
+  type SpreadsheetSortDirection,
+} from "./server/spreadsheet-query-plan";

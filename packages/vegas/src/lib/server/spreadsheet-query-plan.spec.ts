@@ -1,0 +1,105 @@
+import { describe, expect, expectTypeOf, test } from "vitest";
+
+import {
+  createSpreadsheetColumn,
+  createSpreadsheetQueryPlan,
+  spreadsheetAnd,
+  spreadsheetEq,
+  spreadsheetOrderBy,
+  type SpreadsheetOrderBy,
+  type SpreadsheetQueryPlan,
+} from "../server";
+
+interface UserRow {
+  readonly id: number;
+  readonly name: string;
+  readonly active: boolean;
+}
+
+describe("spreadsheet query plan", () => {
+  test("create a serializable query plan from typed columns", () => {
+    const id = createSpreadsheetColumn<UserRow, number>("id", 0, (row) => row.id);
+    const name = createSpreadsheetColumn<UserRow, string>("name", 1, (row) => row.name);
+    const active = createSpreadsheetColumn<UserRow, boolean>("active", 2, (row) => row.active);
+    const plan = createSpreadsheetQueryPlan({
+      where: spreadsheetAnd(spreadsheetEq(active, true), spreadsheetEq(id, 42)),
+      orderBy: [spreadsheetOrderBy(name, "asc"), spreadsheetOrderBy(id, "desc")],
+      limit: 25,
+    });
+
+    expectTypeOf(plan).toEqualTypeOf<SpreadsheetQueryPlan>();
+    expect(plan).toStrictEqual({
+      where: {
+        kind: "and",
+        expressions: [
+          { kind: "equal", column: 2, value: true },
+          { kind: "equal", column: 0, value: 42 },
+        ],
+      },
+      orderBy: [
+        { column: 1, direction: "asc" },
+        { column: 0, direction: "desc" },
+      ],
+      limit: 25,
+    });
+    expect(JSON.stringify(plan)).toBe(
+      '{"where":{"kind":"and","expressions":[{"kind":"equal","column":2,"value":true},{"kind":"equal","column":0,"value":42}]},"orderBy":[{"column":1,"direction":"asc"},{"column":0,"direction":"desc"}],"limit":25}',
+    );
+  });
+
+  test("create an empty plan without optional operations", () => {
+    const plan = createSpreadsheetQueryPlan();
+
+    expect(plan).toStrictEqual({
+      orderBy: [],
+    });
+  });
+
+  test("create typed order descriptors without retaining columns", () => {
+    const name = createSpreadsheetColumn<UserRow, string>("name", 1, (row) => row.name);
+    const orderBy = spreadsheetOrderBy(name, "desc");
+
+    expectTypeOf(orderBy).toEqualTypeOf<SpreadsheetOrderBy>();
+    expect(orderBy).toStrictEqual({
+      column: 1,
+      direction: "desc",
+    });
+    expect(Object.values(orderBy)).not.toContain(name);
+  });
+
+  test("copy order descriptors supplied by the caller", () => {
+    const name = createSpreadsheetColumn<UserRow, string>("name", 1, (row) => row.name);
+    const orderBy = [spreadsheetOrderBy(name, "asc")];
+    const plan = createSpreadsheetQueryPlan({
+      orderBy,
+    });
+
+    orderBy.length = 0;
+
+    expect(plan.orderBy).toStrictEqual([
+      {
+        column: 1,
+        direction: "asc",
+      },
+    ]);
+  });
+
+  test.each([-1, 1.5, Number.NaN])("reject invalid limit: %s", (limit) => {
+    expect(() =>
+      createSpreadsheetQueryPlan({
+        limit,
+      }),
+    ).toThrow("Spreadsheet query limit must be a non-negative integer.");
+  });
+
+  test("allow a zero limit", () => {
+    expect(
+      createSpreadsheetQueryPlan({
+        limit: 0,
+      }),
+    ).toStrictEqual({
+      orderBy: [],
+      limit: 0,
+    });
+  });
+});
