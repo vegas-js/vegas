@@ -1,3 +1,4 @@
+import { compareSpreadsheetQueryValues } from "./spreadsheet-query-comparison";
 import { matchesSpreadsheetQuery } from "./spreadsheet-query-executor";
 import type { SpreadsheetQueryExpression } from "./spreadsheet-query-ir";
 import type { SpreadsheetOrderBy, SpreadsheetQueryPlan } from "./spreadsheet-query-plan";
@@ -74,41 +75,6 @@ function requireQueryPlan(plan: SpreadsheetQueryPlan, logicalWidth: number): voi
   }
 }
 
-function compareQueryValues(left: unknown, right: unknown): number {
-  if (Object.is(left, right)) {
-    return 0;
-  }
-
-  if (typeof left === "number" && typeof right === "number") {
-    if (!Number.isFinite(left) || !Number.isFinite(right)) {
-      throw new TypeError("Spreadsheet query order values must be comparable.");
-    }
-
-    return left < right ? -1 : 1;
-  }
-
-  if (typeof left === "string" && typeof right === "string") {
-    return left < right ? -1 : 1;
-  }
-
-  if (typeof left === "boolean" && typeof right === "boolean") {
-    return left ? 1 : -1;
-  }
-
-  if (left instanceof Date && right instanceof Date) {
-    const leftTime = left.getTime();
-    const rightTime = right.getTime();
-
-    if (!Number.isFinite(leftTime) || !Number.isFinite(rightTime)) {
-      throw new TypeError("Spreadsheet query order values must be comparable.");
-    }
-
-    return leftTime < rightTime ? -1 : 1;
-  }
-
-  throw new TypeError("Spreadsheet query order values must be comparable.");
-}
-
 interface SpreadsheetQueryCandidate {
   readonly values: readonly unknown[];
   readonly sourceIndex: number;
@@ -120,7 +86,11 @@ function compareQueryCandidates(
   orderBy: readonly SpreadsheetOrderBy[],
 ): number {
   for (const order of orderBy) {
-    const comparison = compareQueryValues(left.values[order.column], right.values[order.column]);
+    const comparison = compareSpreadsheetQueryValues(
+      left.values[order.column],
+      right.values[order.column],
+      "Spreadsheet query order values must be comparable.",
+    );
 
     if (comparison !== 0) {
       return order.direction === "asc" ? comparison : -comparison;

@@ -42,9 +42,57 @@ describe("evaluateSpreadsheetQueryPushdown", () => {
     );
   });
 
+  test("evaluate materialized comparison operators without reading the payload", () => {
+    expect(
+      evaluateSpreadsheetQueryPushdown(
+        [1, "active", "not-json"],
+        {
+          kind: "not-equal",
+          column: 2,
+          value: "inactive",
+        },
+        locate,
+      ),
+    ).toBe("match");
+    expect(
+      evaluateSpreadsheetQueryPushdown(
+        [1, "active", "not-json"],
+        {
+          kind: "greater-than-or-equal",
+          column: 0,
+          value: 1,
+        },
+        locate,
+      ),
+    ).toBe("match");
+    expect(
+      evaluateSpreadsheetQueryPushdown(
+        [1, "active", "not-json"],
+        {
+          kind: "less-than",
+          column: 0,
+          value: 1,
+        },
+        locate,
+      ),
+    ).toBe("miss");
+  });
+
   test("return unknown for payload equality", () => {
     const expression: SpreadsheetQueryExpression = {
       kind: "equal",
+      column: 1,
+      value: "Ada",
+    };
+
+    expect(evaluateSpreadsheetQueryPushdown([1, "active", "not-json"], expression, locate)).toBe(
+      "unknown",
+    );
+  });
+
+  test("return unknown for payload relational comparison", () => {
+    const expression: SpreadsheetQueryExpression = {
+      kind: "greater-than",
       column: 1,
       value: "Ada",
     };

@@ -4,9 +4,19 @@ import {
   createSpreadsheetColumn,
   spreadsheetAnd,
   spreadsheetEq,
+  spreadsheetGt,
+  spreadsheetGte,
+  spreadsheetLt,
+  spreadsheetLte,
+  spreadsheetNe,
   spreadsheetOr,
   type SpreadsheetAndExpression,
   type SpreadsheetEqualExpression,
+  type SpreadsheetGreaterThanExpression,
+  type SpreadsheetGreaterThanOrEqualExpression,
+  type SpreadsheetLessThanExpression,
+  type SpreadsheetLessThanOrEqualExpression,
+  type SpreadsheetNotEqualExpression,
   type SpreadsheetOrExpression,
   type SpreadsheetQueryExpression,
 } from "../server";
@@ -28,6 +38,34 @@ describe("spreadsheet query IR", () => {
       value: 42,
     });
     expect(JSON.stringify(expression)).toBe('{"kind":"equal","column":0,"value":42}');
+  });
+
+  test("lower typed comparison operators to data-only query IR", () => {
+    const id = createSpreadsheetColumn<UserRow, number>("id", 0, (row) => row.id);
+
+    expectTypeOf(spreadsheetNe(id, 42)).toEqualTypeOf<SpreadsheetNotEqualExpression<number>>();
+    expectTypeOf(spreadsheetLt(id, 42)).toEqualTypeOf<SpreadsheetLessThanExpression<number>>();
+    expectTypeOf(spreadsheetLte(id, 42)).toEqualTypeOf<
+      SpreadsheetLessThanOrEqualExpression<number>
+    >();
+    expectTypeOf(spreadsheetGt(id, 42)).toEqualTypeOf<SpreadsheetGreaterThanExpression<number>>();
+    expectTypeOf(spreadsheetGte(id, 42)).toEqualTypeOf<
+      SpreadsheetGreaterThanOrEqualExpression<number>
+    >();
+
+    expect([
+      spreadsheetNe(id, 42),
+      spreadsheetLt(id, 42),
+      spreadsheetLte(id, 42),
+      spreadsheetGt(id, 42),
+      spreadsheetGte(id, 42),
+    ]).toStrictEqual([
+      { kind: "not-equal", column: 0, value: 42 },
+      { kind: "less-than", column: 0, value: 42 },
+      { kind: "less-than-or-equal", column: 0, value: 42 },
+      { kind: "greater-than", column: 0, value: 42 },
+      { kind: "greater-than-or-equal", column: 0, value: 42 },
+    ]);
   });
 
   test("compose query expressions with and and or", () => {

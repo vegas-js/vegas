@@ -1,3 +1,4 @@
+import { matchesSpreadsheetComparison } from "./spreadsheet-query-comparison";
 import type { SpreadsheetQueryExpression } from "./spreadsheet-query-ir";
 import type { SpreadsheetStorageLocation } from "./spreadsheet-storage-layout";
 
@@ -9,14 +10,25 @@ export function evaluateSpreadsheetQueryPushdown(
   locate: (logicalIndex: number) => SpreadsheetStorageLocation,
 ): SpreadsheetQueryPushdownResult {
   switch (expression.kind) {
-    case "equal": {
+    case "equal":
+    case "not-equal":
+    case "less-than":
+    case "less-than-or-equal":
+    case "greater-than":
+    case "greater-than-or-equal": {
       const location = locate(expression.column);
 
       if (location.kind === "payload") {
         return "unknown";
       }
 
-      return Object.is(physicalValues[location.physicalIndex], expression.value) ? "match" : "miss";
+      return matchesSpreadsheetComparison(
+        physicalValues[location.physicalIndex],
+        expression.kind,
+        expression.value,
+      )
+        ? "match"
+        : "miss";
     }
 
     case "and": {

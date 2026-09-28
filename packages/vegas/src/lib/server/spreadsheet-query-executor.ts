@@ -1,3 +1,4 @@
+import { matchesSpreadsheetComparison } from "./spreadsheet-query-comparison";
 import type { SpreadsheetQueryExpression } from "./spreadsheet-query-ir";
 
 export function matchesSpreadsheetQuery(
@@ -6,7 +7,16 @@ export function matchesSpreadsheetQuery(
 ): boolean {
   switch (expression.kind) {
     case "equal":
-      return Object.is(values[expression.column], expression.value);
+    case "not-equal":
+    case "less-than":
+    case "less-than-or-equal":
+    case "greater-than":
+    case "greater-than-or-equal":
+      return matchesSpreadsheetComparison(
+        values[expression.column],
+        expression.kind,
+        expression.value,
+      );
     case "and":
       return expression.expressions.every((candidate) =>
         matchesSpreadsheetQuery(values, candidate),
