@@ -441,6 +441,7 @@ function smokeVegasPackage() {
 
     assert.deepEqual(packageJson.exports["./server"], {
       types: "./server.d.ts",
+      import: "./dist/server.js",
     });
 
     assert.deepEqual(packageJson.exports["./vitest"], {
@@ -471,6 +472,7 @@ function smokeVegasPackage() {
         import * as vegas from "@vegasjs/vegas";
         import * as client from "@vegasjs/vegas/client";
         import * as playwright from "@vegasjs/vegas/playwright";
+        import * as server from "@vegasjs/vegas/server";
 
         assert.equal(typeof vegas.defineConfig, "function");
         assert.equal(typeof playwright.createBrowserTest, "function");
@@ -483,6 +485,22 @@ function smokeVegasPackage() {
           typeof client.createServerFunctionClient,
           "function",
         );
+
+        assert.equal(typeof server.createSpreadsheetRowCodec, "function");
+
+        const rowCodec = server.createSpreadsheetRowCodec(
+          2,
+          (values) => ({ id: values[0], name: values[1] }),
+          (row) => [row.id, row.name],
+        );
+        assert.deepEqual(rowCodec.decode([1, "Ada"]), {
+          id: 1,
+          name: "Ada",
+        });
+        assert.deepEqual(rowCodec.encode({ id: 2, name: "Grace" }), [
+          2,
+          "Grace",
+        ]);
 
         assert.equal("createGASClient" in vegas, false);
         assert.equal("createGASClient" in client, false);

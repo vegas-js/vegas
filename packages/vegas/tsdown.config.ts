@@ -20,6 +20,7 @@ export default defineConfig([
     entry: {
       config: "./src/lib/config",
       client: "./src/lib/client",
+      server: "./src/lib/server",
     },
     fixedExtension: false,
     dts: {

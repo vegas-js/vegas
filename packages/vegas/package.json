@@ -45,7 +45,8 @@
       "import": "./dist/playwright.js"
     },
     "./server": {
-      "types": "./server.d.ts"
+      "types": "./server.d.ts",
+      "import": "./dist/server.js"
     },
     "./vitest": {
       "types": "./dist/vitest.d.ts",
