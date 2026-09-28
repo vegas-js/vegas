@@ -2,6 +2,7 @@ import { describe, expect, expectTypeOf, test, vi } from "vitest";
 
 import {
   createSpreadsheetRepository,
+  SpreadsheetRepositoryKeyConflictError,
   type SpreadsheetRepository,
   type SpreadsheetTable,
 } from "../server";
@@ -62,10 +63,31 @@ describe("createSpreadsheetRepository", () => {
 
     repository.insert(row);
 
+    expect(source.readAll).toHaveBeenCalledOnce();
     expect(source.append).toHaveBeenCalledOnce();
     expect(source.append).toHaveBeenCalledWith(row);
-    expect(source.readAll).not.toHaveBeenCalled();
     expect(source.updateAt).not.toHaveBeenCalled();
+  });
+
+  test("reject inserting a duplicate key", () => {
+    const source = createTable([{ id: 1, name: "Ada" }]);
+    const repository = createSpreadsheetRepository(source.table, (row) => row.id);
+
+    expect(() => repository.insert({ id: 1, name: "Grace" })).toThrow(
+      SpreadsheetRepositoryKeyConflictError,
+    );
+    expect(source.readAll).toHaveBeenCalledOnce();
+    expect(source.append).not.toHaveBeenCalled();
+  });
+
+  test("reject an ambiguous duplicate key lookup", () => {
+    const source = createTable([
+      { id: 1, name: "Ada" },
+      { id: 1, name: "Grace" },
+    ]);
+    const repository = createSpreadsheetRepository(source.table, (row) => row.id);
+
+    expect(() => repository.findByKey(1)).toThrow(SpreadsheetRepositoryKeyConflictError);
   });
 
   test("update a row by key", () => {
@@ -82,6 +104,32 @@ describe("createSpreadsheetRepository", () => {
     expect(source.updateAt).toHaveBeenCalledWith(1, row);
   });
 
+  test("reject updating a row to an existing key", () => {
+    const source = createTable([
+      { id: 1, name: "Ada" },
+      { id: 2, name: "Grace" },
+    ]);
+    const repository = createSpreadsheetRepository(source.table, (row) => row.id);
+
+    expect(() => repository.updateByKey(1, { id: 2, name: "Ada" })).toThrow(
+      SpreadsheetRepositoryKeyConflictError,
+    );
+    expect(source.updateAt).not.toHaveBeenCalled();
+  });
+
+  test("reject updating an ambiguous duplicate key", () => {
+    const source = createTable([
+      { id: 1, name: "Ada" },
+      { id: 1, name: "Grace" },
+    ]);
+    const repository = createSpreadsheetRepository(source.table, (row) => row.id);
+
+    expect(() => repository.updateByKey(1, { id: 1, name: "Hopper" })).toThrow(
+      SpreadsheetRepositoryKeyConflictError,
+    );
+    expect(source.updateAt).not.toHaveBeenCalled();
+  });
+
   test("return false without writing when an update key is missing", () => {
     const source = createTable([{ id: 1, name: "Ada" }]);
     const repository = createSpreadsheetRepository(source.table, (row) => row.id);
@@ -91,7 +139,7 @@ describe("createSpreadsheetRepository", () => {
     expect(source.updateAt).not.toHaveBeenCalled();
   });
 
-  test("delete the first row matching a key", () => {
+  test("delete a row by key", () => {
     const source = createTable([
       { id: 1, name: "Ada" },
       { id: 2, name: "Grace" },
@@ -102,6 +150,17 @@ describe("createSpreadsheetRepository", () => {
     expect(source.readAll).toHaveBeenCalledOnce();
     expect(source.deleteAt).toHaveBeenCalledOnce();
     expect(source.deleteAt).toHaveBeenCalledWith(1);
+  });
+
+  test("reject deleting an ambiguous duplicate key", () => {
+    const source = createTable([
+      { id: 1, name: "Ada" },
+      { id: 1, name: "Grace" },
+    ]);
+    const repository = createSpreadsheetRepository(source.table, (row) => row.id);
+
+    expect(() => repository.deleteByKey(1)).toThrow(SpreadsheetRepositoryKeyConflictError);
+    expect(source.deleteAt).not.toHaveBeenCalled();
   });
 
   test("return false without writing when a delete key is missing", () => {

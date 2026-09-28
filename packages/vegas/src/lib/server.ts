@@ -9,6 +9,7 @@ export {
 } from "./server/spreadsheet-table";
 export {
   createSpreadsheetRepository,
+  SpreadsheetRepositoryKeyConflictError,
   type SpreadsheetRepository,
 } from "./server/spreadsheet-repository";
 export {
