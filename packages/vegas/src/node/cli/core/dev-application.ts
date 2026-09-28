@@ -5,15 +5,38 @@ import { buildDevTopology } from "../../dev/build-topology";
 import { ReloadableLocalRuntime } from "../../dev/reloadable-local-runtime";
 import { createRuntimeProgram } from "../../dev/runtime-program";
 import { LocalSpreadsheetUrlResolver } from "../../dev/webapp/local-spreadsheet-url";
+import { createGoogleAppsScriptUserRuntime } from "../../google-apps-script-runtime-factory";
 import { createLocalRuntime } from "../../local-runtime-factory";
-import { loadProject, scanRuntimeDataSources } from "../../project";
-import type { LocalRuntimeSession } from "../../runtime";
+import { loadProject, scanRuntimeDataSources, type ResolvedProject } from "../../project";
+import type { LocalRuntimeSession, RuntimeBackend } from "../../runtime";
 import { reconcileLocalRuntimeSession } from "../../runtime-data-reconcile";
 import { resetLocalRuntimeSession } from "../../runtime-data-reset";
 import { createInvocationScope } from "../../runtime-scope";
 import { loadRuntimeDataSnapshot } from "./runtime-data";
 
 type DevApplicationMode = "development" | "production";
+
+function createServerFunctionRuntime(project: ResolvedProject): RuntimeBackend | undefined {
+  const serverFunctions = project.appsScript.serverFunctions;
+
+  if (serverFunctions.backend === "local") {
+    return undefined;
+  }
+
+  const scriptId = project.appsScript.scriptId;
+  if (scriptId === undefined) {
+    throw new Error(
+      "Resolved Apps Script project is missing a script id for Google server functions.",
+    );
+  }
+
+  return createGoogleAppsScriptUserRuntime({
+    scriptId,
+    profile: serverFunctions.profile,
+    requiredScopes: project.appsScript.manifest.oauthScopes,
+    devMode: serverFunctions.devMode,
+  });
+}
 
 export async function runDevApplication(mode: DevApplicationMode, root?: string): Promise<void> {
   const project = await loadProject({
@@ -41,6 +64,7 @@ export async function runDevApplication(mode: DevApplicationMode, root?: string)
     });
   const initialRuntime = await createRuntime(currentSnapshot, currentSession);
   const runtime = new ReloadableLocalRuntime(initialRuntime);
+  const serverFunctionRuntime = createServerFunctionRuntime(project);
   const reloadRuntime = async (): Promise<void> => {
     const runtimeDataSources = await scanRuntimeDataSources(project);
     const nextSnapshot = await loadRuntimeDataSnapshot(project.root, runtimeDataSources);
@@ -62,6 +86,7 @@ export async function runDevApplication(mode: DevApplicationMode, root?: string)
     artifacts,
     builder: topology.builder,
     runtime,
+    serverFunctionRuntime,
     getLocalSpreadsheetStore: () => currentSession.stores.spreadsheetStore,
     reloadRuntime,
     localSpreadsheetUrls,

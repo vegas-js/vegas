@@ -7,6 +7,7 @@ import { startDevApplication } from "../../dev/application";
 import { buildDevTopology } from "../../dev/build-topology";
 import { ReloadableLocalRuntime } from "../../dev/reloadable-local-runtime";
 import { createRuntimeProgram } from "../../dev/runtime-program";
+import { createGoogleAppsScriptUserRuntime } from "../../google-apps-script-runtime-factory";
 import { createLocalRuntime } from "../../local-runtime-factory";
 import { loadProject, scanRuntimeDataSources, type ResolvedProject } from "../../project";
 import {
@@ -40,6 +41,10 @@ vi.mock("../../local-runtime-factory", () => ({
   createLocalRuntime: vi.fn(),
 }));
 
+vi.mock("../../google-apps-script-runtime-factory", () => ({
+  createGoogleAppsScriptUserRuntime: vi.fn(),
+}));
+
 vi.mock("./runtime-data", () => ({
   loadRuntimeDataSnapshot: vi.fn(),
 }));
@@ -50,6 +55,7 @@ const createRuntimeProgramMock = vi.mocked(createRuntimeProgram);
 const loadProjectMock = vi.mocked(loadProject);
 const scanRuntimeDataSourcesMock = vi.mocked(scanRuntimeDataSources);
 const createLocalRuntimeMock = vi.mocked(createLocalRuntime);
+const createGoogleAppsScriptUserRuntimeMock = vi.mocked(createGoogleAppsScriptUserRuntime);
 const loadRuntimeDataSnapshotMock = vi.mocked(loadRuntimeDataSnapshot);
 
 function createProject(): ResolvedProject {
@@ -253,6 +259,8 @@ describe("runDevApplication", () => {
     expect(application.artifacts.readText("index.html")).toBe("client-artifact");
     expect(application.artifacts.readText("Code.js")).toBe("server-artifact");
     expect(application.runtime).toBeInstanceOf(ReloadableLocalRuntime);
+    expect(application.serverFunctionRuntime).toBeUndefined();
+    expect(createGoogleAppsScriptUserRuntimeMock).not.toHaveBeenCalled();
     expect(application.getLocalSpreadsheetStore?.()).toBe(initialSpreadsheetStore);
     expect(initialPropertiesStore).toBeInstanceOf(InMemoryPropertiesStore);
     expect(initialSession).toBeInstanceOf(LocalRuntimeSession);
@@ -453,5 +461,72 @@ describe("runDevApplication", () => {
         args: [],
       }),
     ).resolves.toBe("retried");
+  });
+
+  test("use Google backend only for server function calls", async () => {
+    vi.clearAllMocks();
+
+    const localProject = createProject();
+    const project: ResolvedProject = {
+      ...localProject,
+      appsScript: {
+        ...localProject.appsScript,
+        scriptId: "script-id",
+        serverFunctions: {
+          backend: "google",
+          profile: "work",
+          devMode: true,
+        },
+        manifest: {
+          ...localProject.appsScript.manifest,
+          oauthScopes: ["scope-a", "scope-b"],
+        },
+      },
+    };
+    const builder = {} as ViteBuilder;
+    const localRuntime = createRuntime("local");
+    const googleRuntime = createRuntime("google");
+
+    loadProjectMock.mockResolvedValueOnce(project);
+    buildDevTopologyMock.mockResolvedValueOnce({
+      snapshot: {
+        clientSources: [],
+        serverSources: [],
+        runtimeDataSources: [],
+        clientModuleEntries: [],
+        clientHtmlEntries: [],
+      },
+      builder,
+      clientArtifacts: [],
+      serverArtifacts: [],
+    });
+    loadRuntimeDataSnapshotMock.mockResolvedValueOnce({
+      spreadsheets: [],
+    });
+    createLocalRuntimeMock.mockResolvedValueOnce(localRuntime);
+    createGoogleAppsScriptUserRuntimeMock.mockReturnValueOnce(googleRuntime);
+    startDevApplicationMock.mockResolvedValueOnce(undefined);
+
+    await runDevApplication("development");
+
+    expect(createGoogleAppsScriptUserRuntimeMock).toHaveBeenCalledOnce();
+    expect(createGoogleAppsScriptUserRuntimeMock).toHaveBeenCalledWith({
+      scriptId: "script-id",
+      profile: "work",
+      requiredScopes: ["scope-a", "scope-b"],
+      devMode: true,
+    });
+    expect(startDevApplicationMock).toHaveBeenCalledOnce();
+
+    const [application] = startDevApplicationMock.mock.calls[0];
+
+    expect(application.runtime).toBeInstanceOf(ReloadableLocalRuntime);
+    expect(application.serverFunctionRuntime).toBe(googleRuntime);
+    await expect(
+      application.runtime.execute({
+        functionName: "main",
+        args: [],
+      }),
+    ).resolves.toBe("local");
   });
 });
