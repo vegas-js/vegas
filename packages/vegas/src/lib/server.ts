@@ -7,3 +7,7 @@ export {
   type SpreadsheetTable,
   type SpreadsheetTableOptions,
 } from "./server/spreadsheet-table";
+export {
+  createSpreadsheetRepository,
+  type SpreadsheetRepository,
+} from "./server/spreadsheet-repository";
