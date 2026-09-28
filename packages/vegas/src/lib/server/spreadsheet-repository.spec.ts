@@ -17,12 +17,14 @@ function createTable(rows: UserRow[]) {
   const execute = vi.fn();
   const append = vi.fn();
   const updateAt = vi.fn();
+  const deleteAt = vi.fn();
   const table: SpreadsheetTable<UserRow> = {
     readAll,
     query,
     execute,
     append,
     updateAt,
+    deleteAt,
   };
 
   return {
@@ -32,6 +34,7 @@ function createTable(rows: UserRow[]) {
     execute,
     append,
     updateAt,
+    deleteAt,
   };
 }
 
@@ -86,5 +89,27 @@ describe("createSpreadsheetRepository", () => {
     expect(repository.updateByKey(2, { id: 2, name: "Grace" })).toBe(false);
     expect(source.readAll).toHaveBeenCalledOnce();
     expect(source.updateAt).not.toHaveBeenCalled();
+  });
+
+  test("delete the first row matching a key", () => {
+    const source = createTable([
+      { id: 1, name: "Ada" },
+      { id: 2, name: "Grace" },
+    ]);
+    const repository = createSpreadsheetRepository(source.table, (row) => row.id);
+
+    expect(repository.deleteByKey(2)).toBe(true);
+    expect(source.readAll).toHaveBeenCalledOnce();
+    expect(source.deleteAt).toHaveBeenCalledOnce();
+    expect(source.deleteAt).toHaveBeenCalledWith(1);
+  });
+
+  test("return false without writing when a delete key is missing", () => {
+    const source = createTable([{ id: 1, name: "Ada" }]);
+    const repository = createSpreadsheetRepository(source.table, (row) => row.id);
+
+    expect(repository.deleteByKey(2)).toBe(false);
+    expect(source.readAll).toHaveBeenCalledOnce();
+    expect(source.deleteAt).not.toHaveBeenCalled();
   });
 });

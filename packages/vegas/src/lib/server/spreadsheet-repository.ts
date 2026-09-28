@@ -4,6 +4,7 @@ export interface SpreadsheetRepository<Row, Key> {
   findByKey(key: Key): Row | undefined;
   insert(row: Row): void;
   updateByKey(key: Key, row: Row): boolean;
+  deleteByKey(key: Key): boolean;
 }
 
 export function createSpreadsheetRepository<Row, Key>(
@@ -27,6 +28,17 @@ export function createSpreadsheetRepository<Row, Key>(
       }
 
       table.updateAt(index, row);
+      return true;
+    },
+
+    deleteByKey(key): boolean {
+      const index = table.readAll().findIndex((candidate) => Object.is(getKey(candidate), key));
+
+      if (index === -1) {
+        return false;
+      }
+
+      table.deleteAt(index);
       return true;
     },
   };

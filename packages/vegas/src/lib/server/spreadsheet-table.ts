@@ -22,6 +22,7 @@ export interface SpreadsheetTable<Row> {
   execute(query: SpreadsheetQueryPlan | SpreadsheetQueryPlanSource): Row[];
   append(row: Row): void;
   updateAt(index: number, row: Row): void;
+  deleteAt(index: number): void;
 }
 
 function requireTableCoordinate(value: number, name: "startRow" | "startColumn"): number {
@@ -259,6 +260,28 @@ export function createSpreadsheetTable<Row>(
       const rowIndex = startRow + resolvedIndex;
 
       sheet.getRange(rowIndex, startColumn, 1, storageCodec.physicalWidth).setValues([values]);
+    },
+
+    deleteAt(index): void {
+      const resolvedIndex = requireTableIndex(index);
+      const physicalValues = readPhysicalValues();
+
+      if (resolvedIndex >= physicalValues.length) {
+        throw new RangeError(`Spreadsheet table row index ${resolvedIndex} is out of range.`);
+      }
+
+      const shiftedValues = physicalValues.slice(resolvedIndex + 1).map((row) => [...row]);
+      shiftedValues.push(Array.from({ length: storageCodec.physicalWidth }, () => ""));
+
+      // Vegas table deletion shifts only the table's physical cells so adjacent sheet data stays fixed.
+      sheet
+        .getRange(
+          startRow + resolvedIndex,
+          startColumn,
+          physicalValues.length - resolvedIndex,
+          storageCodec.physicalWidth,
+        )
+        .setValues(shiftedValues);
     },
   };
 }

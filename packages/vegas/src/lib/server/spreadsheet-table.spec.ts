@@ -403,6 +403,88 @@ describe("createSpreadsheetTable", () => {
     expect(source.setValues).toHaveBeenCalledWith([[2, "Hopper"]]);
   });
 
+  test("delete a row by shifting only the table rectangle", () => {
+    const source = createSheet(
+      [
+        [1, "Ada"],
+        [2, "Grace"],
+        [3, "Katherine"],
+        ["", ""],
+      ],
+      4,
+    );
+    const codec = createSpreadsheetRowCodec<UserRow>(
+      2,
+      (values) => ({
+        id: Number(values[0]),
+        name: String(values[1]),
+      }),
+      (row) => [row.id, row.name],
+    );
+    const table = createSpreadsheetTable(source.sheet, codec, {
+      startColumn: 3,
+    });
+
+    table.deleteAt(1);
+
+    expect(source.getRange).toHaveBeenNthCalledWith(1, 1, 3, 4, 2);
+    expect(source.getRange).toHaveBeenNthCalledWith(2, 2, 3, 2, 2);
+    expect(source.setValues).toHaveBeenCalledWith([
+      [3, "Katherine"],
+      ["", ""],
+    ]);
+  });
+
+  test("delete the last table row by clearing only its physical cells", () => {
+    const source = createSheet(
+      [
+        [1, "Ada"],
+        [2, "Grace"],
+        ["", ""],
+      ],
+      4,
+    );
+    const codec = createSpreadsheetRowCodec<UserRow>(
+      2,
+      (values) => ({
+        id: Number(values[0]),
+        name: String(values[1]),
+      }),
+      (row) => [row.id, row.name],
+    );
+    const table = createSpreadsheetTable(source.sheet, codec, {
+      startRow: 2,
+      startColumn: 3,
+    });
+
+    table.deleteAt(1);
+
+    expect(source.getRange).toHaveBeenNthCalledWith(1, 2, 3, 3, 2);
+    expect(source.getRange).toHaveBeenNthCalledWith(2, 3, 3, 1, 2);
+    expect(source.setValues).toHaveBeenCalledWith([["", ""]]);
+  });
+
+  test("delete packed rows without decoding or re-encoding payloads", () => {
+    const source = createSheet([
+      [1, '["Ada","active"]'],
+      [2, '["Grace","inactive"]'],
+      [3, '["Katherine","active"]'],
+    ]);
+    const storage = createPackedUserStorage();
+    const table = createSpreadsheetTable(source.sheet, storage.codec, {
+      storageCodec: storage.storageCodec,
+    });
+
+    table.deleteAt(0);
+
+    expect(source.getRange).toHaveBeenNthCalledWith(2, 1, 1, 3, 2);
+    expect(source.setValues).toHaveBeenCalledWith([
+      [2, '["Grace","inactive"]'],
+      [3, '["Katherine","active"]'],
+      ["", ""],
+    ]);
+  });
+
   test.each([-1, 1.5, Number.NaN])("reject invalid row index: %s", (index) => {
     const source = createSheet([], 3);
     const codec = createSpreadsheetRowCodec(
@@ -413,6 +495,9 @@ describe("createSpreadsheetTable", () => {
     const table = createSpreadsheetTable(source.sheet, codec);
 
     expect(() => table.updateAt(index, ["value"])).toThrow(
+      "Spreadsheet table row index must be a non-negative integer.",
+    );
+    expect(() => table.deleteAt(index)).toThrow(
       "Spreadsheet table row index must be a non-negative integer.",
     );
     expect(source.getLastRow).not.toHaveBeenCalled();
