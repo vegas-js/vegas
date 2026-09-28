@@ -8,6 +8,7 @@ export interface SpreadsheetTableOptions {
 export interface SpreadsheetTable<Row> {
   readAll(): Row[];
   append(row: Row): void;
+  updateAt(index: number, row: Row): void;
 }
 
 function requireTableCoordinate(value: number, name: "startRow" | "startColumn"): number {
@@ -16,6 +17,14 @@ function requireTableCoordinate(value: number, name: "startRow" | "startColumn")
   }
 
   return value;
+}
+
+function requireTableIndex(index: number): number {
+  if (!Number.isInteger(index) || index < 0) {
+    throw new RangeError("Spreadsheet table row index must be a non-negative integer.");
+  }
+
+  return index;
 }
 
 export function createSpreadsheetTable<Row>(
@@ -43,6 +52,19 @@ export function createSpreadsheetTable<Row>(
     append(row): void {
       const values = [...codec.encode(row)];
       const rowIndex = Math.max(sheet.getLastRow() + 1, startRow);
+
+      sheet.getRange(rowIndex, startColumn, 1, codec.width).setValues([values]);
+    },
+
+    updateAt(index, row): void {
+      const resolvedIndex = requireTableIndex(index);
+      const rowIndex = startRow + resolvedIndex;
+
+      if (rowIndex > sheet.getLastRow()) {
+        throw new RangeError(`Spreadsheet table row index ${resolvedIndex} is out of range.`);
+      }
+
+      const values = [...codec.encode(row)];
 
       sheet.getRange(rowIndex, startColumn, 1, codec.width).setValues([values]);
     },

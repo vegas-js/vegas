@@ -124,6 +124,65 @@ describe("createSpreadsheetTable", () => {
     expect(source.setValues).toHaveBeenCalledWith([[1, "Ada"]]);
   });
 
+  test("update an existing row by zero-based table index", () => {
+    const source = createSheet([], 4);
+    const codec = createSpreadsheetRowCodec<UserRow>(
+      2,
+      (values) => ({
+        id: Number(values[0]),
+        name: String(values[1]),
+      }),
+      (row) => [row.id, row.name],
+    );
+    const table = createSpreadsheetTable(source.sheet, codec, {
+      startRow: 2,
+      startColumn: 3,
+    });
+
+    table.updateAt(1, { id: 2, name: "Hopper" });
+
+    expect(source.getLastRow).toHaveBeenCalledOnce();
+    expect(source.getRange).toHaveBeenCalledOnce();
+    expect(source.getRange).toHaveBeenCalledWith(3, 3, 1, 2);
+    expect(source.setValues).toHaveBeenCalledOnce();
+    expect(source.setValues).toHaveBeenCalledWith([[2, "Hopper"]]);
+  });
+
+  test.each([-1, 1.5, Number.NaN])("reject invalid row index: %s", (index) => {
+    const source = createSheet([], 3);
+    const codec = createSpreadsheetRowCodec(
+      1,
+      (values) => values,
+      (values) => values,
+    );
+    const table = createSpreadsheetTable(source.sheet, codec);
+
+    expect(() => table.updateAt(index, ["value"])).toThrow(
+      "Spreadsheet table row index must be a non-negative integer.",
+    );
+    expect(source.getLastRow).not.toHaveBeenCalled();
+    expect(source.getRange).not.toHaveBeenCalled();
+  });
+
+  test("reject update past the current table rows", () => {
+    const source = createSheet([], 2);
+    const codec = createSpreadsheetRowCodec(
+      1,
+      (values) => values,
+      (values) => values,
+    );
+    const table = createSpreadsheetTable(source.sheet, codec, {
+      startRow: 2,
+    });
+
+    expect(() => table.updateAt(1, ["value"])).toThrow(
+      "Spreadsheet table row index 1 is out of range.",
+    );
+    expect(source.getLastRow).toHaveBeenCalledOnce();
+    expect(source.getRange).not.toHaveBeenCalled();
+    expect(source.setValues).not.toHaveBeenCalled();
+  });
+
   test("return no rows without requesting a range when the table is empty", () => {
     const source = createSheet([], 1);
     const codec = createSpreadsheetRowCodec(
