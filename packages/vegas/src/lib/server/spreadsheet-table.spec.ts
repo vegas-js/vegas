@@ -13,7 +13,8 @@ interface UserRow {
 
 function createSheet(values: unknown[][], lastRow = values.length) {
   const getValues = vi.fn(() => values);
-  const getRange = vi.fn(() => ({ getValues }));
+  const setValues = vi.fn();
+  const getRange = vi.fn(() => ({ getValues, setValues }));
   const getLastRow = vi.fn(() => lastRow);
   const sheet = {
     getLastRow,
@@ -25,6 +26,7 @@ function createSheet(values: unknown[][], lastRow = values.length) {
     getLastRow,
     getRange,
     getValues,
+    setValues,
   };
 }
 
@@ -78,6 +80,48 @@ describe("createSpreadsheetTable", () => {
       [2, "Grace"],
     ]);
     expect(source.getRange).toHaveBeenCalledWith(2, 3, 2, 2);
+  });
+
+  test("append an encoded row after the current table rows", () => {
+    const source = createSheet([], 3);
+    const codec = createSpreadsheetRowCodec<UserRow>(
+      2,
+      (values) => ({
+        id: Number(values[0]),
+        name: String(values[1]),
+      }),
+      (row) => [row.id, row.name],
+    );
+    const table = createSpreadsheetTable(source.sheet, codec, {
+      startRow: 2,
+      startColumn: 3,
+    });
+
+    table.append({ id: 3, name: "Katherine" });
+
+    expect(source.getLastRow).toHaveBeenCalledOnce();
+    expect(source.getRange).toHaveBeenCalledOnce();
+    expect(source.getRange).toHaveBeenCalledWith(4, 3, 1, 2);
+    expect(source.setValues).toHaveBeenCalledOnce();
+    expect(source.setValues).toHaveBeenCalledWith([[3, "Katherine"]]);
+  });
+
+  test("append at the configured start row when the table is empty", () => {
+    const source = createSheet([], 1);
+    const codec = createSpreadsheetRowCodec(
+      2,
+      (values) => values,
+      (values) => values,
+    );
+    const table = createSpreadsheetTable(source.sheet, codec, {
+      startRow: 2,
+      startColumn: 3,
+    });
+
+    table.append([1, "Ada"]);
+
+    expect(source.getRange).toHaveBeenCalledWith(2, 3, 1, 2);
+    expect(source.setValues).toHaveBeenCalledWith([[1, "Ada"]]);
   });
 
   test("return no rows without requesting a range when the table is empty", () => {

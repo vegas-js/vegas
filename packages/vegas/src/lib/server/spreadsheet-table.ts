@@ -7,6 +7,7 @@ export interface SpreadsheetTableOptions {
 
 export interface SpreadsheetTable<Row> {
   readAll(): Row[];
+  append(row: Row): void;
 }
 
 function requireTableCoordinate(value: number, name: "startRow" | "startColumn"): number {
@@ -37,6 +38,13 @@ export function createSpreadsheetTable<Row>(
       const values = sheet.getRange(startRow, startColumn, rowCount, codec.width).getValues();
 
       return values.map((row) => codec.decode(row));
+    },
+
+    append(row): void {
+      const values = [...codec.encode(row)];
+      const rowIndex = Math.max(sheet.getLastRow() + 1, startRow);
+
+      sheet.getRange(rowIndex, startColumn, 1, codec.width).setValues([values]);
     },
   };
 }
