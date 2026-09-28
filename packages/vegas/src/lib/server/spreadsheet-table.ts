@@ -16,10 +16,18 @@ export interface SpreadsheetTableOptions {
   readonly storageCodec?: SpreadsheetStorageCodec;
 }
 
+export interface SpreadsheetTableEntry<Row> {
+  readonly index: number;
+  readonly row: Row;
+}
+
 export interface SpreadsheetTable<Row> {
   readAll(): Row[];
   query(expression: SpreadsheetQueryExpression): Row[];
   execute(query: SpreadsheetQueryPlan | SpreadsheetQueryPlanSource): Row[];
+  executeEntries(
+    query: SpreadsheetQueryPlan | SpreadsheetQueryPlanSource,
+  ): SpreadsheetTableEntry<Row>[];
   append(row: Row): void;
   updateAt(index: number, row: Row): void;
   deleteAt(index: number): void;
@@ -167,7 +175,7 @@ export function createSpreadsheetTable<Row>(
     return readPhysicalValues().map((row) => [...storageCodec.decode(row)]);
   }
 
-  function executePlan(plan: SpreadsheetQueryPlan): Row[] {
+  function selectQueryCandidates(plan: SpreadsheetQueryPlan): SpreadsheetQueryCandidate[] {
     requireQueryPlan(plan, codec.width);
 
     if (plan.limit === 0) {
@@ -220,9 +228,18 @@ export function createSpreadsheetTable<Row>(
       candidates.sort((left, right) => compareQueryCandidates(left, right, plan.orderBy));
     }
 
-    const selected = plan.limit === undefined ? candidates : candidates.slice(0, plan.limit);
+    return plan.limit === undefined ? candidates : candidates.slice(0, plan.limit);
+  }
 
-    return selected.map((candidate) => codec.decode(candidate.values));
+  function executePlanEntries(plan: SpreadsheetQueryPlan): SpreadsheetTableEntry<Row>[] {
+    return selectQueryCandidates(plan).map((candidate) => ({
+      index: candidate.sourceIndex,
+      row: codec.decode(candidate.values),
+    }));
+  }
+
+  function executePlan(plan: SpreadsheetQueryPlan): Row[] {
+    return executePlanEntries(plan).map((entry) => entry.row);
   }
 
   return {
@@ -239,6 +256,10 @@ export function createSpreadsheetTable<Row>(
 
     execute(query): Row[] {
       return executePlan(resolveQueryPlan(query));
+    },
+
+    executeEntries(query): SpreadsheetTableEntry<Row>[] {
+      return executePlanEntries(resolveQueryPlan(query));
     },
 
     append(row): void {

@@ -1,4 +1,6 @@
-import type { SpreadsheetTable } from "./spreadsheet-table";
+import { spreadsheetEq } from "./spreadsheet-query-ir";
+import type { SpreadsheetColumn } from "./spreadsheet-schema";
+import type { SpreadsheetTable, SpreadsheetTableEntry } from "./spreadsheet-table";
 
 export class SpreadsheetRepositoryKeyConflictError extends Error {
   constructor() {
@@ -14,31 +16,34 @@ export interface SpreadsheetRepository<Row, Key> {
   deleteByKey(key: Key): boolean;
 }
 
-function findUniqueRowIndex<Row, Key>(
+function findUniqueRowEntry<Row, Key>(
   rows: readonly Row[],
   key: Key,
   getKey: (row: Row) => Key,
-): number {
-  let index = -1;
+): SpreadsheetTableEntry<Row> | undefined {
+  let entry: SpreadsheetTableEntry<Row> | undefined;
 
-  for (let candidateIndex = 0; candidateIndex < rows.length; candidateIndex += 1) {
-    const candidate = rows[candidateIndex];
+  for (let index = 0; index < rows.length; index += 1) {
+    const row = rows[index];
 
-    if (candidate === undefined || !Object.is(getKey(candidate), key)) {
+    if (row === undefined || !Object.is(getKey(row), key)) {
       continue;
     }
 
-    if (index !== -1) {
+    if (entry !== undefined) {
       throw new SpreadsheetRepositoryKeyConflictError();
     }
 
-    index = candidateIndex;
+    entry = {
+      index,
+      row,
+    };
   }
 
-  return index;
+  return entry;
 }
 
-function requireAvailableKey<Row, Key>(
+function requireAvailableRowKey<Row, Key>(
   rows: readonly Row[],
   key: Key,
   getKey: (row: Row) => Key,
@@ -49,55 +54,103 @@ function requireAvailableKey<Row, Key>(
       continue;
     }
 
-    const candidate = rows[index];
+    const row = rows[index];
 
-    if (candidate !== undefined && Object.is(getKey(candidate), key)) {
+    if (row !== undefined && Object.is(getKey(row), key)) {
       throw new SpreadsheetRepositoryKeyConflictError();
     }
   }
 }
 
+function findUniqueColumnEntry<Row, Key>(
+  table: SpreadsheetTable<Row>,
+  column: SpreadsheetColumn<Row, Key>,
+  key: Key,
+): SpreadsheetTableEntry<Row> | undefined {
+  const entries = table.executeEntries({
+    where: spreadsheetEq(column, key),
+    orderBy: [],
+    limit: 2,
+  });
+
+  if (entries.length > 1) {
+    throw new SpreadsheetRepositoryKeyConflictError();
+  }
+
+  return entries[0];
+}
+
+export function createSpreadsheetRepository<Row, Key>(
+  table: SpreadsheetTable<Row>,
+  keyColumn: SpreadsheetColumn<Row, Key>,
+): SpreadsheetRepository<Row, Key>;
 export function createSpreadsheetRepository<Row, Key>(
   table: SpreadsheetTable<Row>,
   getKey: (row: Row) => Key,
+): SpreadsheetRepository<Row, Key>;
+export function createSpreadsheetRepository<Row, Key>(
+  table: SpreadsheetTable<Row>,
+  keySource: SpreadsheetColumn<Row, Key> | ((row: Row) => Key),
 ): SpreadsheetRepository<Row, Key> {
+  const keyColumn = typeof keySource === "function" ? undefined : keySource;
+  const getKey =
+    typeof keySource === "function" ? keySource : (row: Row): Key => keySource.getValue(row);
+
+  function findEntry(key: Key): SpreadsheetTableEntry<Row> | undefined {
+    if (keyColumn !== undefined) {
+      return findUniqueColumnEntry(table, keyColumn, key);
+    }
+
+    return findUniqueRowEntry(table.readAll(), key, getKey);
+  }
+
+  function requireAvailableKey(key: Key, excludedIndex = -1): void {
+    if (keyColumn !== undefined) {
+      if (findUniqueColumnEntry(table, keyColumn, key) !== undefined) {
+        throw new SpreadsheetRepositoryKeyConflictError();
+      }
+
+      return;
+    }
+
+    requireAvailableRowKey(table.readAll(), key, getKey, excludedIndex);
+  }
+
   return {
     findByKey(key): Row | undefined {
-      const rows = table.readAll();
-      const index = findUniqueRowIndex(rows, key, getKey);
-
-      return index === -1 ? undefined : rows[index];
+      return findEntry(key)?.row;
     },
 
     insert(row): void {
-      const rows = table.readAll();
-
-      requireAvailableKey(rows, getKey(row), getKey);
+      requireAvailableKey(getKey(row));
       table.append(row);
     },
 
     updateByKey(key, row): boolean {
-      const rows = table.readAll();
-      const index = findUniqueRowIndex(rows, key, getKey);
+      const entry = findEntry(key);
 
-      if (index === -1) {
+      if (entry === undefined) {
         return false;
       }
 
-      requireAvailableKey(rows, getKey(row), getKey, index);
-      table.updateAt(index, row);
+      const nextKey = getKey(row);
+
+      if (!Object.is(nextKey, key)) {
+        requireAvailableKey(nextKey);
+      }
+
+      table.updateAt(entry.index, row);
       return true;
     },
 
     deleteByKey(key): boolean {
-      const rows = table.readAll();
-      const index = findUniqueRowIndex(rows, key, getKey);
+      const entry = findEntry(key);
 
-      if (index === -1) {
+      if (entry === undefined) {
         return false;
       }
 
-      table.deleteAt(index);
+      table.deleteAt(entry.index);
       return true;
     },
   };

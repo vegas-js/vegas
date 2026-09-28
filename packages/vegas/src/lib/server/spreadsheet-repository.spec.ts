@@ -1,6 +1,7 @@
 import { describe, expect, expectTypeOf, test, vi } from "vitest";
 
 import {
+  createSpreadsheetColumn,
   createSpreadsheetRepository,
   SpreadsheetRepositoryKeyConflictError,
   type SpreadsheetRepository,
@@ -16,6 +17,7 @@ function createTable(rows: UserRow[]) {
   const readAll = vi.fn(() => rows);
   const query = vi.fn();
   const execute = vi.fn();
+  const executeEntries = vi.fn();
   const append = vi.fn();
   const updateAt = vi.fn();
   const deleteAt = vi.fn();
@@ -23,6 +25,7 @@ function createTable(rows: UserRow[]) {
     readAll,
     query,
     execute,
+    executeEntries,
     append,
     updateAt,
     deleteAt,
@@ -33,6 +36,7 @@ function createTable(rows: UserRow[]) {
     readAll,
     query,
     execute,
+    executeEntries,
     append,
     updateAt,
     deleteAt,
@@ -161,6 +165,74 @@ describe("createSpreadsheetRepository", () => {
 
     expect(() => repository.deleteByKey(1)).toThrow(SpreadsheetRepositoryKeyConflictError);
     expect(source.deleteAt).not.toHaveBeenCalled();
+  });
+
+  test("use query entries when a key column is provided", () => {
+    const source = createTable([]);
+    const id = createSpreadsheetColumn<UserRow, number>("id", 0, (row) => row.id);
+    const repository = createSpreadsheetRepository(source.table, id);
+
+    source.executeEntries
+      .mockReturnValueOnce([
+        {
+          index: 4,
+          row: { id: 2, name: "Grace" },
+        },
+      ])
+      .mockReturnValueOnce([]);
+
+    expect(repository.findByKey(2)).toStrictEqual({
+      id: 2,
+      name: "Grace",
+    });
+    expect(repository.findByKey(3)).toBeUndefined();
+    expect(source.readAll).not.toHaveBeenCalled();
+    expect(source.executeEntries).toHaveBeenNthCalledWith(1, {
+      where: {
+        kind: "equal",
+        column: 0,
+        value: 2,
+      },
+      orderBy: [],
+      limit: 2,
+    });
+  });
+
+  test("update by the source table index when a key column is provided", () => {
+    const source = createTable([]);
+    const id = createSpreadsheetColumn<UserRow, number>("id", 0, (row) => row.id);
+    const repository = createSpreadsheetRepository(source.table, id);
+    const row = { id: 2, name: "Hopper" };
+
+    source.executeEntries.mockReturnValueOnce([
+      {
+        index: 7,
+        row: { id: 2, name: "Grace" },
+      },
+    ]);
+
+    expect(repository.updateByKey(2, row)).toBe(true);
+    expect(source.readAll).not.toHaveBeenCalled();
+    expect(source.updateAt).toHaveBeenCalledWith(7, row);
+  });
+
+  test("reject duplicate key query entries", () => {
+    const source = createTable([]);
+    const id = createSpreadsheetColumn<UserRow, number>("id", 0, (row) => row.id);
+    const repository = createSpreadsheetRepository(source.table, id);
+
+    source.executeEntries.mockReturnValueOnce([
+      {
+        index: 1,
+        row: { id: 2, name: "Grace" },
+      },
+      {
+        index: 5,
+        row: { id: 2, name: "Hopper" },
+      },
+    ]);
+
+    expect(() => repository.findByKey(2)).toThrow(SpreadsheetRepositoryKeyConflictError);
   });
 
   test("return false without writing when a delete key is missing", () => {

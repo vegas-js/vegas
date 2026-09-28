@@ -5,6 +5,7 @@ export {
 export {
   createSpreadsheetTable,
   type SpreadsheetTable,
+  type SpreadsheetTableEntry,
   type SpreadsheetTableOptions,
 } from "./server/spreadsheet-table";
 export {
