@@ -17,3 +17,12 @@ export {
   type SpreadsheetColumn,
   type SpreadsheetSchema,
 } from "./server/spreadsheet-schema";
+export {
+  spreadsheetAnd,
+  spreadsheetEq,
+  spreadsheetOr,
+  type SpreadsheetAndExpression,
+  type SpreadsheetEqualExpression,
+  type SpreadsheetOrExpression,
+  type SpreadsheetQueryExpression,
+} from "./server/spreadsheet-query-ir";
