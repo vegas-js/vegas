@@ -26,3 +26,10 @@ export {
   type SpreadsheetOrExpression,
   type SpreadsheetQueryExpression,
 } from "./server/spreadsheet-query-ir";
+export {
+  createSpreadsheetStorageLayout,
+  type SpreadsheetStorageLayout,
+  type SpreadsheetStorageLayoutOptions,
+  type SpreadsheetStorageLocation,
+  type SpreadsheetStorageMode,
+} from "./server/spreadsheet-storage-layout";
