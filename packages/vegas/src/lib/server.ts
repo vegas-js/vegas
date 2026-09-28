@@ -56,6 +56,7 @@ export {
   type SpreadsheetOrderBy,
   type SpreadsheetQueryPlan,
   type SpreadsheetQueryPlanOptions,
+  type SpreadsheetQueryPlanSource,
   type SpreadsheetSortDirection,
 } from "./server/spreadsheet-query-plan";
 export { createSpreadsheetQuery, type SpreadsheetQuery } from "./server/spreadsheet-query";

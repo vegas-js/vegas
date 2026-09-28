@@ -1,7 +1,9 @@
-import { describe, expect, test, vi } from "vitest";
+import { describe, expect, expectTypeOf, test, vi } from "vitest";
 
 import {
   createSpreadsheetColumn,
+  createSpreadsheetQuery,
+  createSpreadsheetQueryFields,
   createSpreadsheetQueryPlan,
   createSpreadsheetRowCodec,
   createSpreadsheetSchema,
@@ -84,6 +86,30 @@ describe("SpreadsheetTable.execute", () => {
     ]);
     expect(source.getRange).toHaveBeenCalledWith(1, 1, 4, 3);
     expect(model.decode).toHaveBeenCalledTimes(2);
+  });
+
+  test("execute a query builder directly and preserve the table row type", () => {
+    const source = createSheet([
+      [1, "Grace", true],
+      [2, "Ada", true],
+      [3, "Katherine", false],
+    ]);
+    const model = createUserModel();
+    const table = createSpreadsheetTable(source.sheet, model.codec);
+    const fields = createSpreadsheetQueryFields({
+      id: model.id,
+      name: model.name,
+      active: model.active,
+    });
+    const query = createSpreadsheetQuery(fields)
+      .where(($) => $.active.eq(true))
+      .orderBy(($) => $.name.asc())
+      .limit(1);
+    const rows = table.execute(query);
+
+    expectTypeOf(rows).toEqualTypeOf<UserRow[]>();
+    expect(rows).toStrictEqual([{ id: 2, name: "Ada", active: true }]);
+    expect(source.getRange).toHaveBeenCalledWith(1, 1, 3, 3);
   });
 
   test("preserve source row order when order values are equal", () => {

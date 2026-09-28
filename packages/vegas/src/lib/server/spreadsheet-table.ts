@@ -1,7 +1,11 @@
 import { compareSpreadsheetQueryValues } from "./spreadsheet-query-comparison";
 import { matchesSpreadsheetQuery } from "./spreadsheet-query-executor";
 import type { SpreadsheetQueryExpression } from "./spreadsheet-query-ir";
-import type { SpreadsheetOrderBy, SpreadsheetQueryPlan } from "./spreadsheet-query-plan";
+import type {
+  SpreadsheetOrderBy,
+  SpreadsheetQueryPlan,
+  SpreadsheetQueryPlanSource,
+} from "./spreadsheet-query-plan";
 import { evaluateSpreadsheetQueryPushdown } from "./spreadsheet-query-pushdown";
 import type { SpreadsheetRowCodec } from "./spreadsheet-row-codec";
 import type { SpreadsheetStorageCodec } from "./spreadsheet-storage-codec";
@@ -15,7 +19,7 @@ export interface SpreadsheetTableOptions {
 export interface SpreadsheetTable<Row> {
   readAll(): Row[];
   query(expression: SpreadsheetQueryExpression): Row[];
-  execute(plan: SpreadsheetQueryPlan): Row[];
+  execute(query: SpreadsheetQueryPlan | SpreadsheetQueryPlanSource): Row[];
   append(row: Row): void;
   updateAt(index: number, row: Row): void;
 }
@@ -53,6 +57,12 @@ function createDefaultStorageCodec(width: number): SpreadsheetStorageCodec {
       return [...values];
     },
   };
+}
+
+function resolveQueryPlan(
+  query: SpreadsheetQueryPlan | SpreadsheetQueryPlanSource,
+): SpreadsheetQueryPlan {
+  return "toPlan" in query ? query.toPlan() : query;
 }
 
 function requireQueryPlan(plan: SpreadsheetQueryPlan, logicalWidth: number): void {
@@ -210,8 +220,8 @@ export function createSpreadsheetTable<Row>(
       });
     },
 
-    execute(plan): Row[] {
-      return executePlan(plan);
+    execute(query): Row[] {
+      return executePlan(resolveQueryPlan(query));
     },
 
     append(row): void {

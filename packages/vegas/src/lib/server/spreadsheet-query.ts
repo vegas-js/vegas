@@ -5,6 +5,7 @@ import {
   spreadsheetOrderBy,
   type SpreadsheetOrderBy,
   type SpreadsheetQueryPlan,
+  type SpreadsheetQueryPlanSource,
   type SpreadsheetSortDirection,
 } from "./spreadsheet-query-plan";
 import type { SpreadsheetColumn } from "./spreadsheet-schema";
@@ -17,7 +18,7 @@ type SpreadsheetOrderSelector<Fields> = [Fields] extends [undefined]
   ? never
   : (fields: Exclude<Fields, undefined>) => SpreadsheetOrderBy;
 
-export interface SpreadsheetQuery<Row, Fields = undefined> {
+export interface SpreadsheetQuery<Row, Fields = undefined> extends SpreadsheetQueryPlanSource {
   where(
     expression: SpreadsheetQueryExpression | SpreadsheetQuerySelector<Fields>,
   ): SpreadsheetQuery<Row, Fields>;

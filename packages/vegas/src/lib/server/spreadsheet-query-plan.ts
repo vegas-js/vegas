@@ -14,6 +14,10 @@ export interface SpreadsheetQueryPlan {
   readonly limit?: number;
 }
 
+export interface SpreadsheetQueryPlanSource {
+  toPlan(): SpreadsheetQueryPlan;
+}
+
 export interface SpreadsheetQueryPlanOptions {
   readonly where?: SpreadsheetQueryExpression;
   readonly orderBy?: readonly SpreadsheetOrderBy[];
