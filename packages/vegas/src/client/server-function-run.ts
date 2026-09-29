@@ -1,8 +1,10 @@
-export type ServerFunctionHandler = (value: unknown) => void;
+export type ServerFunctionHandler = (value: unknown, userObject?: unknown) => void;
+export type ServerFunctionFailureHandler = (error: Error, userObject?: unknown) => void;
 
 export interface ServerFunctionHandlers {
   readonly success?: ServerFunctionHandler;
-  readonly failure?: ServerFunctionHandler;
+  readonly failure?: ServerFunctionFailureHandler | null;
+  readonly userObject?: unknown;
 }
 
 export interface ServerFunctionInvocation {
@@ -13,7 +15,8 @@ export interface ServerFunctionInvocation {
 
 export interface ServerFunctionRun {
   withSuccessHandler(handler: ServerFunctionHandler): ServerFunctionRun;
-  withFailureHandler(handler: ServerFunctionHandler): ServerFunctionRun;
+  withFailureHandler(handler: ServerFunctionFailureHandler | null): ServerFunctionRun;
+  withUserObject(userObject: unknown): ServerFunctionRun;
 }
 
 type ServerFunctionDispatch = (invocation: ServerFunctionInvocation) => void;
@@ -35,10 +38,18 @@ export function createServerFunctionRun(
         }
 
         if (property === "withFailureHandler") {
-          return (handler: ServerFunctionHandler) =>
+          return (handler: ServerFunctionFailureHandler | null) =>
             createServerFunctionRun(dispatch, {
               ...handlers,
               failure: handler,
+            });
+        }
+
+        if (property === "withUserObject") {
+          return (userObject: unknown) =>
+            createServerFunctionRun(dispatch, {
+              ...handlers,
+              userObject,
             });
         }
 

@@ -27,16 +27,41 @@ describe("ServerFunctionRequestRegistry", () => {
     expect(success).toHaveBeenCalledWith("result");
   });
 
-  test("fail a pending request once", () => {
-    const failure = vi.fn();
+  test("pass the user object to success handlers", () => {
+    const success = vi.fn();
+    const userObject = { id: "button" };
     const requests = new ServerFunctionRequestRegistry();
-    const requestId = requests.create({ failure });
+    const requestId = requests.create({ success, userObject });
 
-    requests.fail(requestId, "disconnected");
-    requests.fail(requestId, "ignored");
+    requests.complete({
+      requestId,
+      status: "ok",
+      result: "result",
+    });
+
+    expect(success).toHaveBeenCalledWith("result", userObject);
+  });
+
+  test("pass Error and the user object to failure handlers", () => {
+    const failure = vi.fn();
+    const userObject = { id: "button" };
+    const requests = new ServerFunctionRequestRegistry();
+    const requestId = requests.create({ failure, userObject });
+
+    requests.complete({
+      requestId,
+      status: "err",
+      message: "server failure",
+    });
+    requests.complete({
+      requestId,
+      status: "err",
+      message: "ignored",
+    });
 
     expect(failure).toHaveBeenCalledOnce();
-    expect(failure).toHaveBeenCalledWith("disconnected");
+    expect(failure).toHaveBeenCalledWith(expect.any(Error), userObject);
+    expect(failure.mock.calls[0]?.[0]).toMatchObject({ message: "server failure" });
   });
 
   test("report an unhandled failure", () => {
@@ -51,6 +76,20 @@ describe("ServerFunctionRequestRegistry", () => {
     });
 
     expect(reportUnhandledFailure).toHaveBeenCalledWith("server failure");
+  });
+
+  test("suppress the default failure report for an explicit null handler", () => {
+    const reportUnhandledFailure = vi.fn();
+    const requests = new ServerFunctionRequestRegistry({ reportUnhandledFailure });
+    const requestId = requests.create({ failure: null });
+
+    requests.complete({
+      requestId,
+      status: "err",
+      message: "server failure",
+    });
+
+    expect(reportUnhandledFailure).not.toHaveBeenCalled();
   });
 
   test("fail every request that was pending when the transport disconnects", () => {
@@ -73,8 +112,10 @@ describe("ServerFunctionRequestRegistry", () => {
       message: "ignored",
     });
 
-    expect(firstFailure).toHaveBeenCalledWith("transport disconnected");
-    expect(secondFailure).toHaveBeenCalledWith("transport disconnected");
+    expect(firstFailure).toHaveBeenCalledWith(expect.any(Error));
+    expect(firstFailure.mock.calls[0]?.[0]).toMatchObject({ message: "transport disconnected" });
+    expect(secondFailure).toHaveBeenCalledWith(expect.any(Error));
+    expect(secondFailure.mock.calls[0]?.[0]).toMatchObject({ message: "transport disconnected" });
   });
 
   test("fail a request when its transport timeout expires", () => {
@@ -90,7 +131,8 @@ describe("ServerFunctionRequestRegistry", () => {
     vi.advanceTimersByTime(1_000);
 
     expect(failure).toHaveBeenCalledOnce();
-    expect(failure).toHaveBeenCalledWith("transport timed out");
+    expect(failure).toHaveBeenCalledWith(expect.any(Error));
+    expect(failure.mock.calls[0]?.[0]).toMatchObject({ message: "transport timed out" });
 
     requests.complete({
       requestId,
@@ -138,6 +180,7 @@ describe("ServerFunctionRequestRegistry", () => {
     vi.advanceTimersByTime(1_000);
 
     expect(failure).toHaveBeenCalledOnce();
-    expect(failure).toHaveBeenCalledWith("transport disconnected");
+    expect(failure).toHaveBeenCalledWith(expect.any(Error));
+    expect(failure.mock.calls[0]?.[0]).toMatchObject({ message: "transport disconnected" });
   });
 });

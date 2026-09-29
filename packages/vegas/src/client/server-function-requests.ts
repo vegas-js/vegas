@@ -15,6 +15,19 @@ interface PendingServerFunctionRequest {
   readonly timeoutId?: TimeoutId;
 }
 
+function callHandler<T>(
+  handler: (value: T, userObject?: unknown) => void,
+  value: T,
+  handlers: ServerFunctionHandlers,
+): void {
+  if (Object.hasOwn(handlers, "userObject")) {
+    handler(value, handlers.userObject);
+    return;
+  }
+
+  handler(value);
+}
+
 export class ServerFunctionRequestRegistry {
   readonly #requests = new Map<number, PendingServerFunctionRequest>();
   readonly #reportUnhandledFailure: UnhandledFailureReporter;
@@ -54,7 +67,9 @@ export class ServerFunctionRequestRegistry {
     }
 
     if (response.status === "ok") {
-      request.handlers.success?.(response.result);
+      if (request.handlers.success !== undefined) {
+        callHandler(request.handlers.success, response.result, request.handlers);
+      }
       return;
     }
 
@@ -101,8 +116,14 @@ export class ServerFunctionRequestRegistry {
   }
 
   #reportFailure(handlers: ServerFunctionHandlers, message: string): void {
-    if (handlers.failure) {
-      handlers.failure(message);
+    if (handlers.failure === null) {
+      return;
+    }
+
+    if (handlers.failure !== undefined) {
+      // Vegas transports failures as messages and reconstructs the documented client-side Error
+      // object only when the response reaches the google.script.run failure handler boundary.
+      callHandler(handlers.failure, new Error(message), handlers);
       return;
     }
 

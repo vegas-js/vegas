@@ -13,14 +13,16 @@ function invoke(run: object, functionName: string, ...args: unknown[]): void {
 }
 
 describe("createServerFunctionRun", () => {
-  test("dispatch server functions with configured handlers", () => {
+  test("dispatch server functions with configured handlers and user object", () => {
     const dispatch = vi.fn();
     const success = vi.fn();
     const failure = vi.fn();
+    const userObject = { id: "button" };
 
     const run = createServerFunctionRun(dispatch)
       .withSuccessHandler(success)
-      .withFailureHandler(failure);
+      .withFailureHandler(failure)
+      .withUserObject(userObject);
 
     invoke(run, "greet", "Vegas", 42);
 
@@ -30,15 +32,17 @@ describe("createServerFunctionRun", () => {
       handlers: {
         success,
         failure,
+        userObject,
       },
     });
   });
 
-  test("return a new runner when configuring a handler", () => {
+  test("return a new runner when configuring callbacks and user objects", () => {
     const dispatch = vi.fn();
     const success = vi.fn();
+    const userObject = { id: "configured" };
     const baseRun = createServerFunctionRun(dispatch);
-    const configuredRun = baseRun.withSuccessHandler(success);
+    const configuredRun = baseRun.withSuccessHandler(success).withUserObject(userObject);
 
     invoke(baseRun, "baseCall");
     invoke(configuredRun, "configuredCall");
@@ -51,7 +55,20 @@ describe("createServerFunctionRun", () => {
     expect(dispatch).toHaveBeenNthCalledWith(2, {
       functionName: "configuredCall",
       args: [],
-      handlers: { success },
+      handlers: { success, userObject },
+    });
+  });
+
+  test("preserve an explicit null failure handler", () => {
+    const dispatch = vi.fn();
+    const run = createServerFunctionRun(dispatch).withFailureHandler(null);
+
+    invoke(run, "silencedCall");
+
+    expect(dispatch).toHaveBeenCalledWith({
+      functionName: "silencedCall",
+      args: [],
+      handlers: { failure: null },
     });
   });
 });
