@@ -34,6 +34,29 @@ export interface SpreadsheetTable<Row> {
   deleteAt(index: number): void;
 }
 
+const spreadsheetTableMaterializedLookup = Symbol("spreadsheetTableMaterializedLookup");
+
+interface SpreadsheetTableWithMaterializedLookup<Row> extends SpreadsheetTable<Row> {
+  [spreadsheetTableMaterializedLookup](
+    logicalIndex: number,
+    value: unknown,
+    limit: number,
+  ): SpreadsheetTableEntry<Row>[] | undefined;
+}
+
+export function tryFindSpreadsheetTableEntriesByMaterializedColumn<Row>(
+  table: SpreadsheetTable<Row>,
+  logicalIndex: number,
+  value: unknown,
+  limit: number,
+): SpreadsheetTableEntry<Row>[] | undefined {
+  const lookup = (table as Partial<SpreadsheetTableWithMaterializedLookup<Row>>)[
+    spreadsheetTableMaterializedLookup
+  ];
+
+  return lookup?.(logicalIndex, value, limit);
+}
+
 function requireTableCoordinate(value: number, name: "startRow" | "startColumn"): number {
   if (!Number.isInteger(value) || value <= 0) {
     throw new RangeError(`Spreadsheet table ${name} must be a positive integer.`);
@@ -193,6 +216,58 @@ export function createSpreadsheetTable<Row>(
     return readPhysicalValues().map((row) => [...storageCodec.decode(row)]);
   }
 
+  function findEntriesByMaterializedColumn(
+    logicalIndex: number,
+    value: unknown,
+    limit: number,
+  ): SpreadsheetTableEntry<Row>[] | undefined {
+    const location = storageCodec.locate(logicalIndex);
+
+    if (location.kind !== "materialized" || Object.is(value, "")) {
+      return undefined;
+    }
+
+    if (limit === 0) {
+      return [];
+    }
+
+    const lastSheetRow = sheet.getLastRow();
+
+    if (lastSheetRow < startRow) {
+      return [];
+    }
+
+    const candidateRowCount = lastSheetRow - startRow + 1;
+    const materializedValues = sheet
+      .getRange(startRow, startColumn + location.physicalIndex, candidateRowCount, 1)
+      .getValues();
+    const entries: SpreadsheetTableEntry<Row>[] = [];
+
+    for (let sourceIndex = 0; sourceIndex < materializedValues.length; sourceIndex += 1) {
+      const materializedRow = materializedValues[sourceIndex];
+
+      if (materializedRow === undefined || !Object.is(materializedRow[0], value)) {
+        continue;
+      }
+
+      // Vegas table boundaries trim only trailing rows whose physical cells are all empty
+      // strings. A non-empty materialized equality match therefore cannot be outside the table.
+      const physicalValues = sheet
+        .getRange(startRow + sourceIndex, startColumn, 1, storageCodec.physicalWidth)
+        .getValues()[0]!;
+      entries.push({
+        index: sourceIndex,
+        row: codec.decode(storageCodec.decode(physicalValues)),
+      });
+
+      if (entries.length === limit) {
+        break;
+      }
+    }
+
+    return entries;
+  }
+
   function selectQueryCandidates(plan: SpreadsheetQueryPlan): SpreadsheetQueryCandidate[] {
     requireQueryPlan(plan, codec.width);
 
@@ -260,7 +335,7 @@ export function createSpreadsheetTable<Row>(
     return executePlanEntries(plan).map((entry) => entry.row);
   }
 
-  return {
+  const table: SpreadsheetTableWithMaterializedLookup<Row> = {
     readAll(): Row[] {
       return readValues().map((row) => codec.decode(row));
     },
@@ -278,6 +353,10 @@ export function createSpreadsheetTable<Row>(
 
     executeEntries(query): SpreadsheetTableEntry<Row>[] {
       return executePlanEntries(resolveQueryPlan(query));
+    },
+
+    [spreadsheetTableMaterializedLookup](logicalIndex, value, limit) {
+      return findEntriesByMaterializedColumn(logicalIndex, value, limit);
     },
 
     append(row): void {
@@ -323,4 +402,6 @@ export function createSpreadsheetTable<Row>(
         .setValues(shiftedValues);
     },
   };
+
+  return table;
 }

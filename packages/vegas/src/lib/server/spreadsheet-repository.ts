@@ -1,6 +1,10 @@
 import { spreadsheetEq } from "./spreadsheet-query-ir";
 import type { SpreadsheetColumn } from "./spreadsheet-schema";
-import type { SpreadsheetTable, SpreadsheetTableEntry } from "./spreadsheet-table";
+import {
+  tryFindSpreadsheetTableEntriesByMaterializedColumn,
+  type SpreadsheetTable,
+  type SpreadsheetTableEntry,
+} from "./spreadsheet-table";
 
 export class SpreadsheetRepositoryKeyConflictError extends Error {
   constructor() {
@@ -75,11 +79,13 @@ function findUniqueColumnEntry<Row, Key>(
   column: SpreadsheetColumn<Row, Key>,
   key: Key,
 ): SpreadsheetTableEntry<Row> | undefined {
-  const entries = table.executeEntries({
-    where: spreadsheetEq(column, key),
-    orderBy: [],
-    limit: 2,
-  });
+  const entries =
+    tryFindSpreadsheetTableEntriesByMaterializedColumn(table, column.index, key, 2) ??
+    table.executeEntries({
+      where: spreadsheetEq(column, key),
+      orderBy: [],
+      limit: 2,
+    });
 
   if (entries.length > 1) {
     throw new SpreadsheetRepositoryKeyConflictError();
