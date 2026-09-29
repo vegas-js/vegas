@@ -433,6 +433,52 @@ describe("createSpreadsheetTable", () => {
     );
   });
 
+  test("reject invalid custom row codec metadata", () => {
+    const source = createSheet([]);
+
+    expect(() =>
+      createSpreadsheetTable(source.sheet, {
+        width: 0,
+        decode: (values) => values,
+        encode: (values) => values,
+      }),
+    ).toThrow("Spreadsheet table row codec width must be a positive integer.");
+  });
+
+  test("snapshot custom row codec width", () => {
+    const source = createSheet([[1, "Ada"]]);
+    let width = 2;
+    const codec = {
+      get width() {
+        return width;
+      },
+      decode: (values: readonly unknown[]): UserRow => ({
+        id: Number(values[0]),
+        name: String(values[1]),
+      }),
+      encode: (row: UserRow): readonly unknown[] => [row.id, row.name],
+    };
+    const name = createSpreadsheetColumn<UserRow, string>("name", 1, (row) => row.name);
+    const table = createSpreadsheetTable(source.sheet, codec);
+
+    width = 1;
+
+    expect(table.query(spreadsheetEq(name, "Ada"))).toStrictEqual([{ id: 1, name: "Ada" }]);
+  });
+
+  test("validate custom row codec encode widths", () => {
+    const source = createSheet([]);
+    const table = createSpreadsheetTable(source.sheet, {
+      width: 2,
+      decode: (values) => values,
+      encode: (values: readonly unknown[]) => [values[0]],
+    });
+
+    expect(() => table.append([1, "Ada"])).toThrow(
+      "Spreadsheet table row codec encode expected 2 values, received 1.",
+    );
+  });
+
   test("append an encoded row after the current table rows", () => {
     const source = createSheet(
       [

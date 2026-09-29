@@ -225,6 +225,44 @@ function isSpreadsheetSchema<Row>(
   return "codec" in source && "columnList" in source && "getColumn" in source;
 }
 
+function requireRowCodecWidth(width: number): number {
+  if (!Number.isInteger(width) || width <= 0) {
+    throw new RangeError("Spreadsheet table row codec width must be a positive integer.");
+  }
+
+  return width;
+}
+
+function requireRowCodecValues(
+  values: readonly unknown[],
+  width: number,
+  operation: "decode" | "encode",
+): readonly unknown[] {
+  const resolvedValues = [...values];
+
+  if (resolvedValues.length !== width) {
+    throw new RangeError(
+      `Spreadsheet table row codec ${operation} expected ${width} values, received ${resolvedValues.length}.`,
+    );
+  }
+
+  return resolvedValues;
+}
+
+function resolveRowCodec<Row>(rowCodec: SpreadsheetRowCodec<Row>): SpreadsheetRowCodec<Row> {
+  const width = requireRowCodecWidth(rowCodec.width);
+
+  return {
+    width,
+    decode(values): Row {
+      return rowCodec.decode(requireRowCodecValues(values, width, "decode"));
+    },
+    encode(row): readonly unknown[] {
+      return requireRowCodecValues(rowCodec.encode(row), width, "encode");
+    },
+  };
+}
+
 function requireStorageCodecLogicalIndex(index: number, logicalWidth: number): number {
   if (!Number.isInteger(index) || index < 0 || index >= logicalWidth) {
     throw new RangeError(
@@ -349,7 +387,7 @@ export function createSpreadsheetTable<Row>(
   source: SpreadsheetRowCodec<Row> | SpreadsheetSchema<Row, SpreadsheetSchemaColumnSource<Row>>,
   options: SpreadsheetTableOptions = {},
 ): SpreadsheetTable<Row> {
-  const codec = isSpreadsheetSchema(source) ? source.codec : source;
+  const codec = resolveRowCodec(isSpreadsheetSchema(source) ? source.codec : source);
   const startRow = requireTableCoordinate(options.startRow ?? 1, "startRow");
   const startColumn = requireTableCoordinate(options.startColumn ?? 1, "startColumn");
   const storageCodec = resolveStorageCodec(
