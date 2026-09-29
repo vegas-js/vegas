@@ -5,7 +5,7 @@ import {
   createSpreadsheetQueryFields,
   createSpreadsheetRowCodec,
   createSpreadsheetSchema,
-  createSpreadsheetStorageLayout,
+  createSpreadsheetStorageCodec,
   type SpreadsheetComparableQueryField,
 } from "../server";
 
@@ -29,8 +29,8 @@ describe("spreadsheet schema composition", () => {
       name: createSpreadsheetColumn<UserRow, string>("name", 1, (row) => row.name),
     };
     const schema = createSpreadsheetSchema(codec, columns);
-    const fields = createSpreadsheetQueryFields(schema.columns);
-    const layout = createSpreadsheetStorageLayout(schema, {
+    const fields = createSpreadsheetQueryFields(schema);
+    const storage = createSpreadsheetStorageCodec(schema, {
       mode: "packed",
       key: schema.columns.id,
     });
@@ -42,11 +42,11 @@ describe("spreadsheet schema composition", () => {
       column: 0,
       value: 1,
     });
-    expect(layout.locate(0)).toStrictEqual({
+    expect(storage.locate(0)).toStrictEqual({
       kind: "materialized",
       physicalIndex: 0,
     });
-    expect(layout.locate(1)).toStrictEqual({
+    expect(storage.locate(1)).toStrictEqual({
       kind: "payload",
       physicalIndex: 1,
       payloadIndex: 0,

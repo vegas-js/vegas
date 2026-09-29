@@ -66,6 +66,32 @@ describe("createSpreadsheetStorageCodec", () => {
     expect(codec.decode(logicalValues)).not.toBe(logicalValues);
   });
 
+  test("create a storage codec directly from a schema", () => {
+    const { schema, id, status } = createUserSchema();
+    const codec = createSpreadsheetStorageCodec(schema, {
+      mode: "indexed-packed",
+      key: id,
+      materialize: [status],
+    });
+
+    expectTypeOf(codec).toEqualTypeOf<SpreadsheetStorageCodec>();
+    expect(codec.logicalWidth).toBe(4);
+    expect(codec.physicalWidth).toBe(3);
+    expect(codec.locate(0)).toStrictEqual({
+      kind: "materialized",
+      physicalIndex: 0,
+    });
+    expect(codec.locate(2)).toStrictEqual({
+      kind: "materialized",
+      physicalIndex: 1,
+    });
+    expect(codec.encode([1, "Ada", "active", { active: true }])).toStrictEqual([
+      1,
+      "active",
+      '["Ada",{"active":true}]',
+    ]);
+  });
+
   test("encode and decode a packed JSON tuple", () => {
     const { schema, id } = createUserSchema();
     const layout = createSpreadsheetStorageLayout(schema, {

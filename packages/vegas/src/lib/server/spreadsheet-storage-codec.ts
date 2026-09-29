@@ -1,6 +1,9 @@
-import type {
-  SpreadsheetStorageLayout,
-  SpreadsheetStorageLocation,
+import type { SpreadsheetSchema, SpreadsheetSchemaColumnSource } from "./spreadsheet-schema";
+import {
+  createSpreadsheetStorageLayout,
+  type SpreadsheetStorageLayout,
+  type SpreadsheetStorageLayoutOptions,
+  type SpreadsheetStorageLocation,
 } from "./spreadsheet-storage-layout";
 
 export interface SpreadsheetStorageCodec {
@@ -124,7 +127,36 @@ function parsePayload(value: unknown, expectedWidth: number): readonly unknown[]
 
 export function createSpreadsheetStorageCodec(
   layout: SpreadsheetStorageLayout,
+): SpreadsheetStorageCodec;
+export function createSpreadsheetStorageCodec<
+  Row,
+  Columns extends SpreadsheetSchemaColumnSource<Row>,
+>(
+  schema: SpreadsheetSchema<Row, Columns>,
+  options: SpreadsheetStorageLayoutOptions<Row>,
+): SpreadsheetStorageCodec;
+export function createSpreadsheetStorageCodec<
+  Row,
+  Columns extends SpreadsheetSchemaColumnSource<Row>,
+>(
+  source: SpreadsheetStorageLayout | SpreadsheetSchema<Row, Columns>,
+  options?: SpreadsheetStorageLayoutOptions<Row>,
 ): SpreadsheetStorageCodec {
+  let layout: SpreadsheetStorageLayout;
+
+  if ("mode" in source) {
+    if (options !== undefined) {
+      throw new TypeError("Spreadsheet storage codec options require a schema.");
+    }
+
+    layout = source;
+  } else {
+    if (options === undefined) {
+      throw new TypeError("Spreadsheet storage codec schema options are required.");
+    }
+
+    layout = createSpreadsheetStorageLayout(source, options);
+  }
   const locations = Array.from(
     { length: layout.logicalWidth },
     (_, logicalIndex): SpreadsheetStorageLocation => layout.locate(logicalIndex),
