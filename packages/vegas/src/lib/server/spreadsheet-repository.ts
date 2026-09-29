@@ -1,8 +1,8 @@
 import { spreadsheetEq } from "./spreadsheet-query-ir";
 import type { SpreadsheetColumn } from "./spreadsheet-schema";
 import {
-  tryFindSpreadsheetTableEntriesByMaterializedColumn,
   tryFindSpreadsheetTableIndicesByMaterializedColumn,
+  tryReadSpreadsheetTableEntryAtKnownIndex,
   tryUpdateSpreadsheetTableAtKnownIndex,
   type SpreadsheetTable,
   type SpreadsheetTableEntry,
@@ -81,13 +81,31 @@ function findUniqueColumnEntry<Row, Key>(
   column: SpreadsheetColumn<Row, Key>,
   key: Key,
 ): SpreadsheetTableEntry<Row> | undefined {
-  const entries =
-    tryFindSpreadsheetTableEntriesByMaterializedColumn(table, column.index, key, 2) ??
-    table.executeEntries({
-      where: spreadsheetEq(column, key),
-      orderBy: [],
-      limit: 2,
-    });
+  const indices = tryFindSpreadsheetTableIndicesByMaterializedColumn(table, column.index, key, 2);
+
+  if (indices !== undefined) {
+    if (indices.length > 1) {
+      throw new SpreadsheetRepositoryKeyConflictError();
+    }
+
+    const index = indices[0];
+
+    if (index === undefined) {
+      return undefined;
+    }
+
+    const entry = tryReadSpreadsheetTableEntryAtKnownIndex(table, index);
+
+    if (entry !== undefined) {
+      return entry;
+    }
+  }
+
+  const entries = table.executeEntries({
+    where: spreadsheetEq(column, key),
+    orderBy: [],
+    limit: 2,
+  });
 
   if (entries.length > 1) {
     throw new SpreadsheetRepositoryKeyConflictError();

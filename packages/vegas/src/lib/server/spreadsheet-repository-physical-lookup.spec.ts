@@ -79,7 +79,7 @@ describe("spreadsheet repository physical key lookup", () => {
     expect(source.getRange).toHaveBeenCalledWith(1, 1, 3, 1);
   });
 
-  test("read only two matching rows before reporting a duplicate key", () => {
+  test("report a duplicate key without reading matching row data", () => {
     const source = createSheet([
       [1, "Ada"],
       [2, "Grace"],
@@ -89,10 +89,8 @@ describe("spreadsheet repository physical key lookup", () => {
     const repository = createUserRepository(source);
 
     expect(() => repository.findByKey(2)).toThrow(SpreadsheetRepositoryKeyConflictError);
-    expect(source.getRange).toHaveBeenCalledTimes(3);
-    expect(source.getRange).toHaveBeenNthCalledWith(1, 1, 1, 4, 1);
-    expect(source.getRange).toHaveBeenNthCalledWith(2, 2, 1, 1, 2);
-    expect(source.getRange).toHaveBeenNthCalledWith(3, 3, 1, 1, 2);
+    expect(source.getRange).toHaveBeenCalledOnce();
+    expect(source.getRange).toHaveBeenCalledWith(1, 1, 4, 1);
   });
 
   test("check duplicate keys without reading matching row data", () => {

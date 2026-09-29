@@ -34,17 +34,9 @@ export interface SpreadsheetTable<Row> {
   deleteAt(index: number): void;
 }
 
-const spreadsheetTableMaterializedLookup = Symbol("spreadsheetTableMaterializedLookup");
 const spreadsheetTableMaterializedIndexLookup = Symbol("spreadsheetTableMaterializedIndexLookup");
+const spreadsheetTableKnownIndexRead = Symbol("spreadsheetTableKnownIndexRead");
 const spreadsheetTableKnownIndexUpdate = Symbol("spreadsheetTableKnownIndexUpdate");
-
-interface SpreadsheetTableWithMaterializedLookup<Row> extends SpreadsheetTable<Row> {
-  [spreadsheetTableMaterializedLookup](
-    logicalIndex: number,
-    value: unknown,
-    limit: number,
-  ): SpreadsheetTableEntry<Row>[] | undefined;
-}
 
 interface SpreadsheetTableWithMaterializedIndexLookup<Row> extends SpreadsheetTable<Row> {
   [spreadsheetTableMaterializedIndexLookup](
@@ -54,21 +46,12 @@ interface SpreadsheetTableWithMaterializedIndexLookup<Row> extends SpreadsheetTa
   ): number[] | undefined;
 }
 
-interface SpreadsheetTableWithKnownIndexUpdate<Row> extends SpreadsheetTable<Row> {
-  [spreadsheetTableKnownIndexUpdate](index: number, row: Row): void;
+interface SpreadsheetTableWithKnownIndexRead<Row> extends SpreadsheetTable<Row> {
+  [spreadsheetTableKnownIndexRead](index: number): SpreadsheetTableEntry<Row>;
 }
 
-export function tryFindSpreadsheetTableEntriesByMaterializedColumn<Row>(
-  table: SpreadsheetTable<Row>,
-  logicalIndex: number,
-  value: unknown,
-  limit: number,
-): SpreadsheetTableEntry<Row>[] | undefined {
-  const lookup = (table as Partial<SpreadsheetTableWithMaterializedLookup<Row>>)[
-    spreadsheetTableMaterializedLookup
-  ];
-
-  return lookup?.(logicalIndex, value, limit);
+interface SpreadsheetTableWithKnownIndexUpdate<Row> extends SpreadsheetTable<Row> {
+  [spreadsheetTableKnownIndexUpdate](index: number, row: Row): void;
 }
 
 export function tryFindSpreadsheetTableIndicesByMaterializedColumn<Row>(
@@ -82,6 +65,17 @@ export function tryFindSpreadsheetTableIndicesByMaterializedColumn<Row>(
   ];
 
   return lookup?.(logicalIndex, value, limit);
+}
+
+export function tryReadSpreadsheetTableEntryAtKnownIndex<Row>(
+  table: SpreadsheetTable<Row>,
+  index: number,
+): SpreadsheetTableEntry<Row> | undefined {
+  const read = (table as Partial<SpreadsheetTableWithKnownIndexRead<Row>>)[
+    spreadsheetTableKnownIndexRead
+  ];
+
+  return read?.(index);
 }
 
 export function tryUpdateSpreadsheetTableAtKnownIndex<Row>(
@@ -299,6 +293,8 @@ export function createSpreadsheetTable<Row>(
         continue;
       }
 
+      // Vegas table boundaries trim only trailing rows whose physical cells are all empty
+      // strings. A non-empty materialized equality match therefore cannot be outside the table.
       indices.push(sourceIndex);
 
       if (indices.length === limit) {
@@ -309,25 +305,16 @@ export function createSpreadsheetTable<Row>(
     return indices;
   }
 
-  function findEntriesByMaterializedColumn(
-    logicalIndex: number,
-    value: unknown,
-    limit: number,
-  ): SpreadsheetTableEntry<Row>[] | undefined {
-    const indices = findIndicesByMaterializedColumn(logicalIndex, value, limit);
+  function readKnownIndex(index: number): SpreadsheetTableEntry<Row> {
+    const sourceIndex = requireTableIndex(index);
+    const physicalValues = sheet
+      .getRange(startRow + sourceIndex, startColumn, 1, storageCodec.physicalWidth)
+      .getValues()[0]!;
 
-    return indices?.map((sourceIndex) => {
-      // Vegas table boundaries trim only trailing rows whose physical cells are all empty
-      // strings. A non-empty materialized equality match therefore cannot be outside the table.
-      const physicalValues = sheet
-        .getRange(startRow + sourceIndex, startColumn, 1, storageCodec.physicalWidth)
-        .getValues()[0]!;
-
-      return {
-        index: sourceIndex,
-        row: codec.decode(storageCodec.decode(physicalValues)),
-      };
-    });
+    return {
+      index: sourceIndex,
+      row: codec.decode(storageCodec.decode(physicalValues)),
+    };
   }
 
   function updateKnownIndex(index: number, row: Row): void {
@@ -405,8 +392,8 @@ export function createSpreadsheetTable<Row>(
     return executePlanEntries(plan).map((entry) => entry.row);
   }
 
-  const table: SpreadsheetTableWithMaterializedLookup<Row> &
-    SpreadsheetTableWithMaterializedIndexLookup<Row> &
+  const table: SpreadsheetTableWithMaterializedIndexLookup<Row> &
+    SpreadsheetTableWithKnownIndexRead<Row> &
     SpreadsheetTableWithKnownIndexUpdate<Row> = {
     readAll(): Row[] {
       return readValues().map((row) => codec.decode(row));
@@ -427,12 +414,12 @@ export function createSpreadsheetTable<Row>(
       return executePlanEntries(resolveQueryPlan(query));
     },
 
-    [spreadsheetTableMaterializedLookup](logicalIndex, value, limit) {
-      return findEntriesByMaterializedColumn(logicalIndex, value, limit);
-    },
-
     [spreadsheetTableMaterializedIndexLookup](logicalIndex, value, limit) {
       return findIndicesByMaterializedColumn(logicalIndex, value, limit);
+    },
+
+    [spreadsheetTableKnownIndexRead](index) {
+      return readKnownIndex(index);
     },
 
     [spreadsheetTableKnownIndexUpdate](index, row): void {
