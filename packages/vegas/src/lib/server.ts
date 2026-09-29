@@ -12,6 +12,8 @@ export {
   createSpreadsheetRepository,
   SpreadsheetRepositoryKeyConflictError,
   type SpreadsheetRepository,
+  type SpreadsheetRepositoryMutationGuard,
+  type SpreadsheetRepositoryOptions,
 } from "./server/spreadsheet-repository";
 export {
   createSpreadsheetColumn,

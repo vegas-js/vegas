@@ -16,6 +16,14 @@ export interface SpreadsheetRepository<Row, Key> {
   deleteByKey(key: Key): boolean;
 }
 
+export interface SpreadsheetRepositoryMutationGuard {
+  runExclusive<Result>(mutation: () => Result): Result;
+}
+
+export interface SpreadsheetRepositoryOptions {
+  readonly mutationGuard?: SpreadsheetRepositoryMutationGuard;
+}
+
 function findUniqueRowEntry<Row, Key>(
   rows: readonly Row[],
   key: Key,
@@ -83,18 +91,29 @@ function findUniqueColumnEntry<Row, Key>(
 export function createSpreadsheetRepository<Row, Key>(
   table: SpreadsheetTable<Row>,
   keyColumn: SpreadsheetColumn<Row, Key>,
+  options?: SpreadsheetRepositoryOptions,
 ): SpreadsheetRepository<Row, Key>;
 export function createSpreadsheetRepository<Row, Key>(
   table: SpreadsheetTable<Row>,
   getKey: (row: Row) => Key,
+  options?: SpreadsheetRepositoryOptions,
 ): SpreadsheetRepository<Row, Key>;
 export function createSpreadsheetRepository<Row, Key>(
   table: SpreadsheetTable<Row>,
   keySource: SpreadsheetColumn<Row, Key> | ((row: Row) => Key),
+  options: SpreadsheetRepositoryOptions = {},
 ): SpreadsheetRepository<Row, Key> {
   const keyColumn = typeof keySource === "function" ? undefined : keySource;
   const getKey =
     typeof keySource === "function" ? keySource : (row: Row): Key => keySource.getValue(row);
+
+  function runMutation<Result>(mutation: () => Result): Result {
+    if (options.mutationGuard === undefined) {
+      return mutation();
+    }
+
+    return options.mutationGuard.runExclusive(mutation);
+  }
 
   function findEntry(key: Key): SpreadsheetTableEntry<Row> | undefined {
     if (keyColumn !== undefined) {
@@ -122,36 +141,42 @@ export function createSpreadsheetRepository<Row, Key>(
     },
 
     insert(row): void {
-      requireAvailableKey(getKey(row));
-      table.append(row);
+      runMutation(() => {
+        requireAvailableKey(getKey(row));
+        table.append(row);
+      });
     },
 
     updateByKey(key, row): boolean {
-      const entry = findEntry(key);
+      return runMutation(() => {
+        const entry = findEntry(key);
 
-      if (entry === undefined) {
-        return false;
-      }
+        if (entry === undefined) {
+          return false;
+        }
 
-      const nextKey = getKey(row);
+        const nextKey = getKey(row);
 
-      if (!Object.is(nextKey, key)) {
-        requireAvailableKey(nextKey);
-      }
+        if (!Object.is(nextKey, key)) {
+          requireAvailableKey(nextKey);
+        }
 
-      table.updateAt(entry.index, row);
-      return true;
+        table.updateAt(entry.index, row);
+        return true;
+      });
     },
 
     deleteByKey(key): boolean {
-      const entry = findEntry(key);
+      return runMutation(() => {
+        const entry = findEntry(key);
 
-      if (entry === undefined) {
-        return false;
-      }
+        if (entry === undefined) {
+          return false;
+        }
 
-      table.deleteAt(entry.index);
-      return true;
+        table.deleteAt(entry.index);
+        return true;
+      });
     },
   };
 }

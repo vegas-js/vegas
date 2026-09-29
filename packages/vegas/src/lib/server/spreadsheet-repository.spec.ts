@@ -5,6 +5,7 @@ import {
   createSpreadsheetRepository,
   SpreadsheetRepositoryKeyConflictError,
   type SpreadsheetRepository,
+  type SpreadsheetRepositoryMutationGuard,
   type SpreadsheetTable,
 } from "../server";
 
@@ -71,6 +72,60 @@ describe("createSpreadsheetRepository", () => {
     expect(source.append).toHaveBeenCalledOnce();
     expect(source.append).toHaveBeenCalledWith(row);
     expect(source.updateAt).not.toHaveBeenCalled();
+  });
+
+  test("guard the complete insert mutation", () => {
+    const events: string[] = [];
+    const source = createTable([]);
+    source.readAll.mockImplementation(() => {
+      events.push("read");
+      return [];
+    });
+    source.append.mockImplementation(() => {
+      events.push("append");
+    });
+    const mutationGuard: SpreadsheetRepositoryMutationGuard = {
+      runExclusive<Result>(mutation: () => Result): Result {
+        events.push("enter");
+
+        try {
+          return mutation();
+        } finally {
+          events.push("leave");
+        }
+      },
+    };
+    const repository = createSpreadsheetRepository(source.table, (row) => row.id, {
+      mutationGuard,
+    });
+
+    repository.insert({ id: 1, name: "Ada" });
+
+    expect(events).toStrictEqual(["enter", "read", "append", "leave"]);
+  });
+
+  test("guard update and delete mutations but not reads", () => {
+    const source = createTable([
+      { id: 1, name: "Ada" },
+      { id: 2, name: "Grace" },
+    ]);
+    let mutationCount = 0;
+    const mutationGuard: SpreadsheetRepositoryMutationGuard = {
+      runExclusive<Result>(mutation: () => Result): Result {
+        mutationCount += 1;
+        return mutation();
+      },
+    };
+    const repository = createSpreadsheetRepository(source.table, (row) => row.id, {
+      mutationGuard,
+    });
+
+    expect(repository.findByKey(1)).toStrictEqual({ id: 1, name: "Ada" });
+    expect(mutationCount).toBe(0);
+
+    expect(repository.updateByKey(2, { id: 2, name: "Hopper" })).toBe(true);
+    expect(repository.deleteByKey(2)).toBe(true);
+    expect(mutationCount).toBe(2);
   });
 
   test("reject inserting a duplicate key", () => {
