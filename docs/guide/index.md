@@ -27,6 +27,7 @@ The reasoning behind the project is explained in detail in the [Why Vegas](./why
 | Start a new project                                        | Continue with [Scaffolding Your First Vegas Project](#scaffolding-your-first-vegas-project) below |
 | Learn the Vegas commands and their roles                   | [Command Line Interface](./cli)                                                                   |
 | Understand source layout and SPA entry points              | [Project Structure](./project-structure)                                                          |
+| Compare development, preview, and production builds        | [Development and Build](./development-and-build)                                                  |
 | Understand local server-side execution                     | [Local Runtime](./local-runtime)                                                                  |
 | Model typed data stored in Google Sheets                   | [Spreadsheet Data](./spreadsheet-data)                                                            |
 | Check which Apps Script APIs are modeled                   | [Runtime API coverage](./runtime-api-coverage)                                                    |

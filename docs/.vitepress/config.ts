@@ -23,6 +23,7 @@ export default defineConfig({
             { text: "Getting Started", link: "/guide/" },
             { text: "Command Line Interface", link: "/guide/cli/" },
             { text: "Project Structure", link: "/guide/project-structure/" },
+            { text: "Development and Build", link: "/guide/development-and-build/" },
             { text: "Why Vegas", link: "/guide/why/" },
             { text: "Philosophy", link: "/guide/philosophy/" },
           ],
