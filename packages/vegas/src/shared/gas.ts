@@ -3,7 +3,7 @@ export enum RuntimeDataTarget {
   Properties = "Properties",
   Session = "Session",
   Spreadsheet = "Spreadsheet",
-  // TODO
+  // Cache fixture data is reserved for a future runtime data model and currently fails closed.
 }
 
 export interface RuntimeDataProperties {
