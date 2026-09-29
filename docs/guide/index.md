@@ -25,6 +25,7 @@ The reasoning behind the project is explained in detail in the [Why Vegas](./why
 | Goal                                                       | Read                                                                                              |
 | ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
 | Start a new project                                        | Continue with [Scaffolding Your First Vegas Project](#scaffolding-your-first-vegas-project) below |
+| Learn the Vegas commands and their roles                   | [Command Line Interface](./cli)                                                                   |
 | Understand local server-side execution                     | [Local Runtime](./local-runtime)                                                                  |
 | Model typed data stored in Google Sheets                   | [Spreadsheet Data](./spreadsheet-data)                                                            |
 | Check which Apps Script APIs are modeled                   | [Runtime API coverage](./runtime-api-coverage)                                                    |
@@ -68,6 +69,7 @@ In a project where Vegas is installed, you can use the vegas binary in your npm 
   "scripts": {
     "dev": "vegas",
     "build": "vegas build",
+    "preview": "vegas preview",
     "login": "vegas auth login",
     "push": "vegas push"
   }
@@ -75,6 +77,8 @@ In a project where Vegas is installed, you can use the vegas binary in your npm 
 ```
 
 :::
+
+See [Command Line Interface](./cli) for the available commands, aliases, root argument, and authentication options.
 
 ## Pushing to Apps Script
 

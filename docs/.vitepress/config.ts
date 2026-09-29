@@ -21,6 +21,7 @@ export default defineConfig({
           text: "Introduction",
           items: [
             { text: "Getting Started", link: "/guide/" },
+            { text: "Command Line Interface", link: "/guide/cli/" },
             { text: "Why Vegas", link: "/guide/why/" },
             { text: "Philosophy", link: "/guide/philosophy/" },
           ],
