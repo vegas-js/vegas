@@ -313,6 +313,12 @@ function requireStorageCodecPayloadIndex(index: number): number {
   return index;
 }
 
+function throwUnsupportedStorageCodecLocationKind(location: { readonly kind?: unknown }): never {
+  throw new RangeError(
+    `Spreadsheet table storage codec location kind "${String(location.kind)}" is not supported.`,
+  );
+}
+
 function requireStorageCodecValues(
   values: readonly unknown[],
   width: number,
@@ -345,16 +351,21 @@ function resolveStorageCodec(
     const location = storageCodec.locate(logicalIndex);
     const physicalIndex = requireStorageCodecPhysicalIndex(location.physicalIndex, physicalWidth);
 
-    return location.kind === "materialized"
-      ? {
+    switch (location.kind) {
+      case "materialized":
+        return {
           kind: location.kind,
           physicalIndex,
-        }
-      : {
+        };
+      case "payload":
+        return {
           kind: location.kind,
           physicalIndex,
           payloadIndex: requireStorageCodecPayloadIndex(location.payloadIndex),
         };
+      default:
+        return throwUnsupportedStorageCodecLocationKind(location);
+    }
   });
 
   return {

@@ -8,6 +8,7 @@ import {
   createSpreadsheetStorageLayout,
   type SpreadsheetStorageCodec,
   type SpreadsheetStorageLayout,
+  type SpreadsheetStorageLocation,
 } from "../server";
 
 interface UserRow {
@@ -201,6 +202,17 @@ describe("createSpreadsheetStorageCodec", () => {
         };
       },
     };
+    const unsupportedLocationKind: SpreadsheetStorageLayout = {
+      mode: "columns",
+      logicalWidth: 1,
+      physicalWidth: 1,
+      locate() {
+        return {
+          kind: "unsupported",
+          physicalIndex: 0,
+        } as unknown as SpreadsheetStorageLocation;
+      },
+    };
 
     expect(() => createSpreadsheetStorageCodec(duplicatePhysicalIndex)).toThrow(
       "Spreadsheet storage layout physical index 0 must not be mapped more than once.",
@@ -213,6 +225,9 @@ describe("createSpreadsheetStorageCodec", () => {
     );
     expect(() => createSpreadsheetStorageCodec(unmappedPhysicalColumn)).toThrow(
       "Spreadsheet storage layout must map every physical column.",
+    );
+    expect(() => createSpreadsheetStorageCodec(unsupportedLocationKind)).toThrow(
+      'Spreadsheet storage layout location kind "unsupported" is not supported.',
     );
   });
 

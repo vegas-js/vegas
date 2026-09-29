@@ -9,6 +9,7 @@ import {
   createSpreadsheetTable,
   spreadsheetAnd,
   spreadsheetEq,
+  type SpreadsheetStorageLocation,
   type SpreadsheetTable,
 } from "../server";
 
@@ -360,6 +361,20 @@ describe("createSpreadsheetTable", () => {
         },
       }),
     ).toThrow("Spreadsheet table storage codec physical index 2 must be between 0 and 1.");
+
+    expect(() =>
+      createSpreadsheetTable(source.sheet, codec, {
+        storageCodec: {
+          ...baseStorageCodec,
+          physicalWidth: 2,
+          locate: () =>
+            ({
+              kind: "unsupported",
+              physicalIndex: 0,
+            }) as unknown as SpreadsheetStorageLocation,
+        },
+      }),
+    ).toThrow('Spreadsheet table storage codec location kind "unsupported" is not supported.');
   });
 
   test("snapshot custom storage codec locations", () => {

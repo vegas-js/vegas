@@ -169,17 +169,28 @@ function requireStorageLogicalIndex(index: number, logicalWidth: number): number
   return index;
 }
 
+function throwUnsupportedStorageLocationKind(location: { readonly kind?: unknown }): never {
+  throw new RangeError(
+    `Spreadsheet storage layout location kind "${String(location.kind)}" is not supported.`,
+  );
+}
+
 function copyStorageLocation(location: SpreadsheetStorageLocation): SpreadsheetStorageLocation {
-  return location.kind === "materialized"
-    ? {
+  switch (location.kind) {
+    case "materialized":
+      return {
         kind: location.kind,
         physicalIndex: location.physicalIndex,
-      }
-    : {
+      };
+    case "payload":
+      return {
         kind: location.kind,
         physicalIndex: location.physicalIndex,
         payloadIndex: location.payloadIndex,
       };
+    default:
+      return throwUnsupportedStorageLocationKind(location);
+  }
 }
 
 function resolveStorageLayout(layout: SpreadsheetStorageLayout): ResolvedStorageLayout {
