@@ -159,6 +159,54 @@ describe("createSpreadsheetQuery", () => {
     });
   });
 
+  test("snapshot expressions and orders supplied while extending a query", () => {
+    const columns = createColumns();
+    const fields = createSpreadsheetQueryFields(columns);
+    const expression = spreadsheetEq(columns.active, true);
+    const order = {
+      column: columns.name.index,
+      direction: "asc" as const,
+    };
+    const query = createSpreadsheetQuery(fields)
+      .where(expression)
+      .orderBy(() => order);
+
+    expect(Reflect.set(expression, "column", columns.id.index)).toBe(true);
+    order.column = columns.id.index;
+
+    const plan = query.toPlan();
+
+    expect(plan).toStrictEqual({
+      where: {
+        kind: "equal",
+        column: 2,
+        value: true,
+      },
+      orderBy: [
+        {
+          column: 1,
+          direction: "asc",
+        },
+      ],
+    });
+
+    expect(Reflect.set(plan.where!, "column", columns.id.index)).toBe(true);
+    expect(Reflect.set(plan.orderBy[0]!, "column", columns.id.index)).toBe(true);
+    expect(query.toPlan()).toStrictEqual({
+      where: {
+        kind: "equal",
+        column: 2,
+        value: true,
+      },
+      orderBy: [
+        {
+          column: 1,
+          direction: "asc",
+        },
+      ],
+    });
+  });
+
   test("replace a previous limit without mutating the previous query", () => {
     const limited = createSpreadsheetQuery<UserRow>().limit(10);
     const narrowed = limited.limit(3);

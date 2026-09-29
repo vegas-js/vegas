@@ -69,11 +69,13 @@ describe("spreadsheet query plan", () => {
 
   test("copy order descriptors supplied by the caller", () => {
     const name = createSpreadsheetColumn<UserRow, string>("name", 1, (row) => row.name);
-    const orderBy = [spreadsheetOrderBy(name, "asc")];
+    const order = spreadsheetOrderBy(name, "asc");
+    const orderBy = [order];
     const plan = createSpreadsheetQueryPlan({
       orderBy,
     });
 
+    expect(Reflect.set(order, "column", 0)).toBe(true);
     orderBy.length = 0;
 
     expect(plan.orderBy).toStrictEqual([
@@ -82,6 +84,26 @@ describe("spreadsheet query plan", () => {
         direction: "asc",
       },
     ]);
+  });
+
+  test("copy query expressions supplied by the caller", () => {
+    const id = createSpreadsheetColumn<UserRow, number>("id", 0, (row) => row.id);
+    const active = createSpreadsheetColumn<UserRow, boolean>("active", 2, (row) => row.active);
+    const where = spreadsheetAnd(spreadsheetEq(active, true), spreadsheetEq(id, 42));
+    const plan = createSpreadsheetQueryPlan({
+      where,
+    });
+
+    expect(Reflect.set(where.expressions[0]!, "column", 1)).toBe(true);
+    expect(Reflect.set(where, "expressions", [])).toBe(true);
+
+    expect(plan.where).toStrictEqual({
+      kind: "and",
+      expressions: [
+        { kind: "equal", column: 2, value: true },
+        { kind: "equal", column: 0, value: 42 },
+      ],
+    });
   });
 
   test.each([-1, 1.5, Number.NaN])("reject invalid limit: %s", (limit) => {

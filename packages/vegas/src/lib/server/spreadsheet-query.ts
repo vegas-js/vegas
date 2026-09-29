@@ -60,10 +60,14 @@ function createSpreadsheetQueryFromState<Row, Fields>(
         expression = input;
       }
 
+      const snapshot = createSpreadsheetQueryPlan({
+        where: expression,
+      }).where!;
+
       return createSpreadsheetQueryFromState(
         {
           ...state,
-          where: state.where === undefined ? expression : spreadsheetAnd(state.where, expression),
+          where: state.where === undefined ? snapshot : spreadsheetAnd(state.where, snapshot),
         },
         fields,
       );
@@ -86,10 +90,14 @@ function createSpreadsheetQueryFromState<Row, Fields>(
         order = spreadsheetOrderBy(input, direction);
       }
 
+      const snapshot = createSpreadsheetQueryPlan({
+        orderBy: [order],
+      }).orderBy[0]!;
+
       return createSpreadsheetQueryFromState(
         {
           ...state,
-          orderBy: [...state.orderBy, order],
+          orderBy: [...state.orderBy, snapshot],
         },
         fields,
       );

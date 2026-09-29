@@ -32,6 +32,35 @@ function requireQueryLimit(limit: number): number {
   return limit;
 }
 
+function copyQueryExpression(expression: SpreadsheetQueryExpression): SpreadsheetQueryExpression {
+  switch (expression.kind) {
+    case "equal":
+    case "not-equal":
+    case "less-than":
+    case "less-than-or-equal":
+    case "greater-than":
+    case "greater-than-or-equal":
+      return { ...expression };
+    case "and":
+      return {
+        kind: expression.kind,
+        expressions: expression.expressions.map(copyQueryExpression),
+      };
+    case "or":
+      return {
+        kind: expression.kind,
+        expressions: expression.expressions.map(copyQueryExpression),
+      };
+  }
+}
+
+function copyOrderBy(order: SpreadsheetOrderBy): SpreadsheetOrderBy {
+  return {
+    column: order.column,
+    direction: order.direction,
+  };
+}
+
 export function spreadsheetOrderBy<Row, Value>(
   column: SpreadsheetColumn<Row, Value>,
   direction: SpreadsheetSortDirection,
@@ -46,8 +75,8 @@ export function createSpreadsheetQueryPlan(
   options: SpreadsheetQueryPlanOptions = {},
 ): SpreadsheetQueryPlan {
   return {
-    ...(options.where === undefined ? {} : { where: options.where }),
-    orderBy: options.orderBy === undefined ? [] : [...options.orderBy],
+    ...(options.where === undefined ? {} : { where: copyQueryExpression(options.where) }),
+    orderBy: options.orderBy === undefined ? [] : options.orderBy.map(copyOrderBy),
     ...(options.limit === undefined ? {} : { limit: requireQueryLimit(options.limit) }),
   };
 }
