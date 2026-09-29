@@ -322,6 +322,117 @@ describe("createSpreadsheetTable", () => {
     ).toThrow("Spreadsheet table storage codec logical width 1 must match row codec width 2.");
   });
 
+  test("reject invalid custom storage codec metadata", () => {
+    const source = createSheet([]);
+    const codec = createSpreadsheetRowCodec(
+      2,
+      (values) => values,
+      (values) => values,
+    );
+    const baseStorageCodec = {
+      logicalWidth: 2,
+      encode: (values: readonly unknown[]) => values,
+      decode: (values: readonly unknown[]) => values,
+    };
+
+    expect(() =>
+      createSpreadsheetTable(source.sheet, codec, {
+        storageCodec: {
+          ...baseStorageCodec,
+          physicalWidth: 0,
+          locate: () => ({
+            kind: "materialized",
+            physicalIndex: 0,
+          }),
+        },
+      }),
+    ).toThrow("Spreadsheet table storage codec physical width must be a positive integer.");
+
+    expect(() =>
+      createSpreadsheetTable(source.sheet, codec, {
+        storageCodec: {
+          ...baseStorageCodec,
+          physicalWidth: 2,
+          locate: (logicalIndex) => ({
+            kind: "materialized",
+            physicalIndex: logicalIndex === 0 ? 0 : 2,
+          }),
+        },
+      }),
+    ).toThrow("Spreadsheet table storage codec physical index 2 must be between 0 and 1.");
+  });
+
+  test("snapshot custom storage codec locations", () => {
+    const source = createSheet([[1, "Ada"]]);
+    const codec = createSpreadsheetRowCodec<UserRow>(
+      2,
+      (values) => ({
+        id: Number(values[0]),
+        name: String(values[1]),
+      }),
+      (row) => [row.id, row.name],
+    );
+    const id = createSpreadsheetColumn<UserRow, number>("id", 0, (row) => row.id);
+    let reversed = false;
+    const table = createSpreadsheetTable(source.sheet, codec, {
+      storageCodec: {
+        logicalWidth: 2,
+        physicalWidth: 2,
+        locate: (logicalIndex) => ({
+          kind: "materialized",
+          physicalIndex: reversed ? 1 - logicalIndex : logicalIndex,
+        }),
+        encode: (values) => values,
+        decode: (values) => values,
+      },
+    });
+
+    reversed = true;
+
+    expect(table.query(spreadsheetEq(id, 1))).toStrictEqual([{ id: 1, name: "Ada" }]);
+  });
+
+  test("validate custom storage codec result widths", () => {
+    const source = createSheet([[1, "Ada"]]);
+    const codec = createSpreadsheetRowCodec(
+      2,
+      (values) => values,
+      (values) => values,
+    );
+    const createStorageCodec = (
+      encode: (values: readonly unknown[]) => readonly unknown[],
+      decode: (values: readonly unknown[]) => readonly unknown[],
+    ) => ({
+      logicalWidth: 2,
+      physicalWidth: 2,
+      locate: (logicalIndex: number) => ({
+        kind: "materialized" as const,
+        physicalIndex: logicalIndex,
+      }),
+      encode,
+      decode,
+    });
+    const encodeTable = createSpreadsheetTable(source.sheet, codec, {
+      storageCodec: createStorageCodec(
+        () => [1],
+        (values) => values,
+      ),
+    });
+    const decodeTable = createSpreadsheetTable(source.sheet, codec, {
+      storageCodec: createStorageCodec(
+        (values) => values,
+        (values) => [values[0]],
+      ),
+    });
+
+    expect(() => encodeTable.append([2, "Grace"])).toThrow(
+      "Spreadsheet table storage codec encode expected 2 physical values, received 1.",
+    );
+    expect(() => decodeTable.readAll()).toThrow(
+      "Spreadsheet table storage codec decode expected 2 logical values, received 1.",
+    );
+  });
+
   test("append an encoded row after the current table rows", () => {
     const source = createSheet(
       [

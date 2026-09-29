@@ -225,7 +225,64 @@ function isSpreadsheetSchema<Row>(
   return "codec" in source && "columnList" in source && "getColumn" in source;
 }
 
-function requireStorageCodecWidth(
+function requireStorageCodecLogicalIndex(index: number, logicalWidth: number): number {
+  if (!Number.isInteger(index) || index < 0 || index >= logicalWidth) {
+    throw new RangeError(
+      `Spreadsheet table storage codec logical column index ${index} must be between 0 and ${logicalWidth - 1}.`,
+    );
+  }
+
+  return index;
+}
+
+function requireStorageCodecPhysicalWidth(width: number): number {
+  if (!Number.isInteger(width) || width <= 0) {
+    throw new RangeError(
+      "Spreadsheet table storage codec physical width must be a positive integer.",
+    );
+  }
+
+  return width;
+}
+
+function requireStorageCodecPhysicalIndex(index: number, physicalWidth: number): number {
+  if (!Number.isInteger(index) || index < 0 || index >= physicalWidth) {
+    throw new RangeError(
+      `Spreadsheet table storage codec physical index ${index} must be between 0 and ${physicalWidth - 1}.`,
+    );
+  }
+
+  return index;
+}
+
+function requireStorageCodecPayloadIndex(index: number): number {
+  if (!Number.isInteger(index) || index < 0) {
+    throw new RangeError(
+      "Spreadsheet table storage codec payload index must be a non-negative integer.",
+    );
+  }
+
+  return index;
+}
+
+function requireStorageCodecValues(
+  values: readonly unknown[],
+  width: number,
+  operation: "encode" | "decode",
+  kind: "logical" | "physical",
+): readonly unknown[] {
+  const resolvedValues = [...values];
+
+  if (resolvedValues.length !== width) {
+    throw new RangeError(
+      `Spreadsheet table storage codec ${operation} expected ${width} ${kind} values, received ${resolvedValues.length}.`,
+    );
+  }
+
+  return resolvedValues;
+}
+
+function resolveStorageCodec(
   storageCodec: SpreadsheetStorageCodec,
   logicalWidth: number,
 ): SpreadsheetStorageCodec {
@@ -235,7 +292,46 @@ function requireStorageCodecWidth(
     );
   }
 
-  return storageCodec;
+  const physicalWidth = requireStorageCodecPhysicalWidth(storageCodec.physicalWidth);
+  const locations = Array.from({ length: logicalWidth }, (_, logicalIndex) => {
+    const location = storageCodec.locate(logicalIndex);
+    const physicalIndex = requireStorageCodecPhysicalIndex(location.physicalIndex, physicalWidth);
+
+    return location.kind === "materialized"
+      ? {
+          kind: location.kind,
+          physicalIndex,
+        }
+      : {
+          kind: location.kind,
+          physicalIndex,
+          payloadIndex: requireStorageCodecPayloadIndex(location.payloadIndex),
+        };
+  });
+
+  return {
+    logicalWidth,
+    physicalWidth,
+    locate(logicalIndex) {
+      return locations[requireStorageCodecLogicalIndex(logicalIndex, logicalWidth)]!;
+    },
+    encode(values) {
+      return requireStorageCodecValues(
+        storageCodec.encode(values),
+        physicalWidth,
+        "encode",
+        "physical",
+      );
+    },
+    decode(values) {
+      return requireStorageCodecValues(
+        storageCodec.decode(values),
+        logicalWidth,
+        "decode",
+        "logical",
+      );
+    },
+  };
 }
 
 export function createSpreadsheetTable<Row>(
@@ -256,7 +352,7 @@ export function createSpreadsheetTable<Row>(
   const codec = isSpreadsheetSchema(source) ? source.codec : source;
   const startRow = requireTableCoordinate(options.startRow ?? 1, "startRow");
   const startColumn = requireTableCoordinate(options.startColumn ?? 1, "startColumn");
-  const storageCodec = requireStorageCodecWidth(
+  const storageCodec = resolveStorageCodec(
     options.storageCodec ?? createDefaultStorageCodec(codec.width),
     codec.width,
   );
