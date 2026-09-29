@@ -223,7 +223,7 @@ describe("SpreadsheetTable.execute", () => {
     expect(() => table.execute(plan)).toThrow("Spreadsheet query order values must be comparable.");
   });
 
-  test("validate manually constructed plan limits and order columns", () => {
+  test("validate manually constructed plan limits and query columns", () => {
     const source = createSheet([]);
     const model = createUserModel();
     const table = createSpreadsheetTable(source.sheet, model.codec);
@@ -245,5 +245,41 @@ describe("SpreadsheetTable.execute", () => {
         ],
       }),
     ).toThrow("Spreadsheet query order column index 3 must be between 0 and 2.");
+
+    expect(() =>
+      table.execute({
+        where: {
+          kind: "and",
+          expressions: [
+            {
+              kind: "equal",
+              column: 0,
+              value: 1,
+            },
+            {
+              kind: "or",
+              expressions: [
+                {
+                  kind: "equal",
+                  column: 3,
+                  value: true,
+                },
+              ],
+            },
+          ],
+        },
+        orderBy: [],
+      }),
+    ).toThrow("Spreadsheet query filter column index 3 must be between 0 and 2.");
+
+    expect(() =>
+      table.execute({
+        where: {
+          kind: "and",
+          expressions: [],
+        },
+        orderBy: [],
+      }),
+    ).toThrow("Spreadsheet query and expression must not be empty.");
   });
 });

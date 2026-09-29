@@ -136,9 +136,47 @@ function resolveQueryPlan(
   return "toPlan" in query ? query.toPlan() : query;
 }
 
+function requireQueryExpression(
+  expression: SpreadsheetQueryExpression,
+  logicalWidth: number,
+): void {
+  switch (expression.kind) {
+    case "equal":
+    case "not-equal":
+    case "less-than":
+    case "less-than-or-equal":
+    case "greater-than":
+    case "greater-than-or-equal":
+      if (
+        !Number.isInteger(expression.column) ||
+        expression.column < 0 ||
+        expression.column >= logicalWidth
+      ) {
+        throw new RangeError(
+          `Spreadsheet query filter column index ${expression.column} must be between 0 and ${logicalWidth - 1}.`,
+        );
+      }
+
+      return;
+    case "and":
+    case "or":
+      if (expression.expressions.length === 0) {
+        throw new RangeError(`Spreadsheet query ${expression.kind} expression must not be empty.`);
+      }
+
+      for (const candidate of expression.expressions) {
+        requireQueryExpression(candidate, logicalWidth);
+      }
+  }
+}
+
 function requireQueryPlan(plan: SpreadsheetQueryPlan, logicalWidth: number): void {
   if (plan.limit !== undefined && (!Number.isInteger(plan.limit) || plan.limit < 0)) {
     throw new RangeError("Spreadsheet query limit must be a non-negative integer.");
+  }
+
+  if (plan.where !== undefined) {
+    requireQueryExpression(plan.where, logicalWidth);
   }
 
   for (const orderBy of plan.orderBy) {
