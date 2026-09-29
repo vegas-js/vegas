@@ -207,16 +207,17 @@ export function createSpreadsheetTable<Row>(
     codec.width,
   );
 
-  function readPhysicalValues(): unknown[][] {
+  function readPhysicalValuesFrom(sourceIndex: number): unknown[][] {
+    const rowIndex = startRow + sourceIndex;
     const lastSheetRow = sheet.getLastRow();
 
-    if (lastSheetRow < startRow) {
+    if (lastSheetRow < rowIndex) {
       return [];
     }
 
-    const candidateRowCount = lastSheetRow - startRow + 1;
+    const candidateRowCount = lastSheetRow - rowIndex + 1;
     const values = sheet
-      .getRange(startRow, startColumn, candidateRowCount, storageCodec.physicalWidth)
+      .getRange(rowIndex, startColumn, candidateRowCount, storageCodec.physicalWidth)
       .getValues();
     let tableRowCount = values.length;
 
@@ -232,6 +233,10 @@ export function createSpreadsheetTable<Row>(
     }
 
     return values.slice(0, tableRowCount);
+  }
+
+  function readPhysicalValues(): unknown[][] {
+    return readPhysicalValuesFrom(0);
   }
 
   function readValues(): unknown[][] {
@@ -414,13 +419,13 @@ export function createSpreadsheetTable<Row>(
 
     deleteAt(index): void {
       const resolvedIndex = requireTableIndex(index);
-      const physicalValues = readPhysicalValues();
+      const physicalValues = readPhysicalValuesFrom(resolvedIndex);
 
-      if (resolvedIndex >= physicalValues.length) {
+      if (physicalValues.length === 0) {
         throw new RangeError(`Spreadsheet table row index ${resolvedIndex} is out of range.`);
       }
 
-      const shiftedValues = physicalValues.slice(resolvedIndex + 1).map((row) => [...row]);
+      const shiftedValues = physicalValues.slice(1).map((row) => [...row]);
       shiftedValues.push(Array.from({ length: storageCodec.physicalWidth }, () => ""));
 
       // Vegas table deletion shifts only the table's physical cells so adjacent sheet data stays fixed.
@@ -428,7 +433,7 @@ export function createSpreadsheetTable<Row>(
         .getRange(
           startRow + resolvedIndex,
           startColumn,
-          physicalValues.length - resolvedIndex,
+          physicalValues.length,
           storageCodec.physicalWidth,
         )
         .setValues(shiftedValues);

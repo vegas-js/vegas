@@ -424,10 +424,15 @@ describe("createSpreadsheetTable", () => {
     const table = createSpreadsheetTable(source.sheet, codec, {
       startColumn: 3,
     });
+    source.getValues.mockReturnValueOnce([
+      [2, "Grace"],
+      [3, "Katherine"],
+      ["", ""],
+    ]);
 
     table.deleteAt(1);
 
-    expect(source.getRange).toHaveBeenNthCalledWith(1, 1, 3, 4, 2);
+    expect(source.getRange).toHaveBeenNthCalledWith(1, 2, 3, 3, 2);
     expect(source.getRange).toHaveBeenNthCalledWith(2, 2, 3, 2, 2);
     expect(source.setValues).toHaveBeenCalledWith([
       [3, "Katherine"],
@@ -456,10 +461,14 @@ describe("createSpreadsheetTable", () => {
       startRow: 2,
       startColumn: 3,
     });
+    source.getValues.mockReturnValueOnce([
+      [2, "Grace"],
+      ["", ""],
+    ]);
 
     table.deleteAt(1);
 
-    expect(source.getRange).toHaveBeenNthCalledWith(1, 2, 3, 3, 2);
+    expect(source.getRange).toHaveBeenNthCalledWith(1, 3, 3, 2, 2);
     expect(source.getRange).toHaveBeenNthCalledWith(2, 3, 3, 1, 2);
     expect(source.setValues).toHaveBeenCalledWith([["", ""]]);
   });
@@ -595,6 +604,22 @@ describe("createSpreadsheetTable", () => {
       "Spreadsheet table row index 1 is out of range.",
     );
     expect(source.getRange).toHaveBeenCalledOnce();
+    expect(source.setValues).not.toHaveBeenCalled();
+  });
+
+  test("reject deletes past the table boundary even when the sheet extends lower", () => {
+    const source = createSheet([[1], [""], [""]], 3);
+    const codec = createSpreadsheetRowCodec(
+      1,
+      (values) => values,
+      (values) => values,
+    );
+    const table = createSpreadsheetTable(source.sheet, codec);
+    source.getValues.mockReturnValueOnce([[""], [""]]);
+
+    expect(() => table.deleteAt(1)).toThrow("Spreadsheet table row index 1 is out of range.");
+    expect(source.getRange).toHaveBeenCalledOnce();
+    expect(source.getRange).toHaveBeenCalledWith(2, 1, 2, 1);
     expect(source.setValues).not.toHaveBeenCalled();
   });
 

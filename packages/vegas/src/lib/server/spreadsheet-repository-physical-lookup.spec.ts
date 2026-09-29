@@ -111,6 +111,24 @@ describe("spreadsheet repository physical key lookup", () => {
     expect(source.getRange).toHaveBeenNthCalledWith(3, 2, 1, 1, 2);
   });
 
+  test("delete a found row without rereading rows before it", () => {
+    const source = createSheet([
+      [1, "Ada"],
+      [2, "Grace"],
+      [3, "Katherine"],
+      [4, "Margaret"],
+    ]);
+    const repository = createUserRepository(source);
+
+    expect(repository.deleteByKey(3)).toBe(true);
+    expect(source.getLastRow).toHaveBeenCalledTimes(2);
+    expect(source.getRange).toHaveBeenCalledTimes(4);
+    expect(source.getRange).toHaveBeenNthCalledWith(1, 1, 1, 4, 1);
+    expect(source.getRange).toHaveBeenNthCalledWith(2, 3, 1, 1, 2);
+    expect(source.getRange).toHaveBeenNthCalledWith(3, 3, 1, 2, 2);
+    expect(source.getRange).toHaveBeenNthCalledWith(4, 3, 1, 2, 2);
+  });
+
   test("fall back to the full table read for an empty-string key", () => {
     interface StringKeyRow {
       readonly id: string;
