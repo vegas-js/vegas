@@ -1,12 +1,17 @@
-import { describe, expect, expectTypeOf, test } from "vitest";
+import { describe, expect, expectTypeOf, test, vi } from "vitest";
 
 import {
   createSpreadsheetColumn,
+  createSpreadsheetQuery,
   createSpreadsheetQueryFields,
+  createSpreadsheetRepository,
   createSpreadsheetRowCodec,
   createSpreadsheetSchema,
   createSpreadsheetStorageCodec,
+  createSpreadsheetTable,
   type SpreadsheetComparableQueryField,
+  type SpreadsheetRepository,
+  type SpreadsheetTable,
 } from "../server";
 
 interface UserRow {
@@ -15,7 +20,7 @@ interface UserRow {
 }
 
 describe("spreadsheet schema composition", () => {
-  test("reuse a typed column record across schema, query fields, and storage", () => {
+  test("compose query, storage, table, and repository from one schema", () => {
     const codec = createSpreadsheetRowCodec<UserRow>(
       2,
       (values) => ({
@@ -34,9 +39,29 @@ describe("spreadsheet schema composition", () => {
       mode: "packed",
       key: schema.columns.id,
     });
+    const values = [
+      [1, '["Ada"]'],
+      [2, '["Grace"]'],
+    ];
+    const sheet = {
+      getLastRow: vi.fn(() => values.length),
+      getRange: vi.fn(() => ({
+        getValues: vi.fn(() => values),
+        setValues: vi.fn(),
+      })),
+    } as unknown as GoogleAppsScript.Spreadsheet.Sheet;
+    const table = createSpreadsheetTable(sheet, schema, {
+      storageCodec: storage,
+    });
+    const repository = createSpreadsheetRepository(table, schema.columns.id);
+    const query = createSpreadsheetQuery(fields)
+      .where(($) => $.id.gte(2))
+      .orderBy(($) => $.name.asc());
 
     expectTypeOf(fields.id).toEqualTypeOf<SpreadsheetComparableQueryField<number>>();
     expectTypeOf(fields.name).toEqualTypeOf<SpreadsheetComparableQueryField<string>>();
+    expectTypeOf(table).toEqualTypeOf<SpreadsheetTable<UserRow>>();
+    expectTypeOf(repository).toEqualTypeOf<SpreadsheetRepository<UserRow, number>>();
     expect(fields.id.eq(1)).toStrictEqual({
       kind: "equal",
       column: 0,
@@ -50,6 +75,16 @@ describe("spreadsheet schema composition", () => {
       kind: "payload",
       physicalIndex: 1,
       payloadIndex: 0,
+    });
+    expect(table.execute(query)).toStrictEqual([
+      {
+        id: 2,
+        name: "Grace",
+      },
+    ]);
+    expect(repository.findByKey(1)).toStrictEqual({
+      id: 1,
+      name: "Ada",
     });
   });
 });
