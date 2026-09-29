@@ -38,6 +38,37 @@ export function run(minimumId: number) {
     expect(transformed).not.toContain("createSpreadsheetQuery(fields)");
   });
 
+  test("lower a static selector query passed directly to executeEntries", () => {
+    const source = `
+import {
+  createSpreadsheetQuery,
+  createSpreadsheetQueryFields,
+  createSpreadsheetTable,
+} from "@vegasjs/vegas/server";
+
+const table = createSpreadsheetTable(sheet, codec);
+const fields = createSpreadsheetQueryFields(columns);
+
+export function run() {
+  return table.executeEntries(
+    createSpreadsheetQuery(fields)
+      .where(($) => $.active.eq(true))
+      .orderBy(($) => $.name.asc())
+      .limit(10),
+  );
+}
+`;
+
+    const transformed = transformSpreadsheetQueryPlans(source, id);
+
+    expect(transformed).not.toBeNull();
+    expect(transformed).toContain(
+      "{where:fields.active.eq(true),orderBy:[fields.name.asc()],limit:(10)}",
+    );
+    expect(transformed).toContain("table.executeEntries(");
+    expect(transformed).not.toContain("createSpreadsheetQuery(fields)");
+  });
+
   test("lower statically indexed query fields to literal plan data", () => {
     const source = `
 import {

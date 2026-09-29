@@ -627,9 +627,14 @@ export function transformSpreadsheetQueryPlans(code: string, id: string): string
       scopeStack.pop();
     },
     CallExpression(node) {
+      if (node.callee.type !== "MemberExpression") {
+        return;
+      }
+
+      const methodName = getStaticMemberName(node.callee);
+
       if (
-        node.callee.type !== "MemberExpression" ||
-        getStaticMemberName(node.callee) !== "execute" ||
+        (methodName !== "execute" && methodName !== "executeEntries") ||
         node.callee.object.type !== "Identifier" ||
         !moduleTables.has(node.callee.object.name) ||
         isShadowed(node.callee.object.name) ||

@@ -63,6 +63,15 @@ export function run(minimumId: number) {
       .limit(10),
   );
 }
+
+export function runEntries(minimumId: number) {
+  return table.executeEntries(
+    createSpreadsheetQuery(fields)
+      .where(($) => $.active.eq(true))
+      .where(($) => $.id.gte(minimumId))
+      .limit(10),
+  );
+}
 `,
       );
 
