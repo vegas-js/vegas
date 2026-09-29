@@ -17,8 +17,10 @@ export {
 } from "./server/spreadsheet-repository";
 export {
   createSpreadsheetRepositoryLockGuard,
+  createSpreadsheetRepositoryScriptLockGuard,
   type SpreadsheetRepositoryLock,
   type SpreadsheetRepositoryLockGuardOptions,
+  type SpreadsheetRepositoryScriptLockGuardOptions,
 } from "./server/spreadsheet-repository-lock-guard";
 export {
   createSpreadsheetColumn,

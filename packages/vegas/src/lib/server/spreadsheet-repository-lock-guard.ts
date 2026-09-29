@@ -1,5 +1,7 @@
 import type { SpreadsheetRepositoryMutationGuard } from "./spreadsheet-repository";
 
+const DEFAULT_SPREADSHEET_REPOSITORY_LOCK_TIMEOUT_MILLISECONDS = 30_000;
+
 export interface SpreadsheetRepositoryLock {
   waitLock(timeoutMilliseconds: number): void;
   releaseLock(): void;
@@ -30,4 +32,25 @@ export function createSpreadsheetRepositoryLockGuard(
       }
     },
   };
+}
+
+export interface SpreadsheetRepositoryScriptLockGuardOptions {
+  readonly timeoutMilliseconds?: number;
+}
+
+/**
+ * Creates a repository mutation guard backed by the Apps Script script lock.
+ *
+ * Script locks coordinate executions of the same Apps Script project. Separate
+ * script projects that access the same spreadsheet are not coordinated by this guard.
+ */
+export function createSpreadsheetRepositoryScriptLockGuard(
+  options: SpreadsheetRepositoryScriptLockGuardOptions = {},
+): SpreadsheetRepositoryMutationGuard {
+  return createSpreadsheetRepositoryLockGuard({
+    getLock: () => LockService.getScriptLock(),
+    timeoutMilliseconds:
+      options.timeoutMilliseconds ?? DEFAULT_SPREADSHEET_REPOSITORY_LOCK_TIMEOUT_MILLISECONDS,
+    flush: () => SpreadsheetApp.flush(),
+  });
 }

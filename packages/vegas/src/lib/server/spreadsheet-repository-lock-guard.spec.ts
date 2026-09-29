@@ -1,6 +1,10 @@
-import { describe, expect, test, vi } from "vitest";
+import { afterEach, describe, expect, test, vi } from "vitest";
 
-import { createSpreadsheetRepositoryLockGuard, type SpreadsheetRepositoryLock } from "../server";
+import {
+  createSpreadsheetRepositoryLockGuard,
+  createSpreadsheetRepositoryScriptLockGuard,
+  type SpreadsheetRepositoryLock,
+} from "../server";
 
 function createLock(events: string[]): SpreadsheetRepositoryLock {
   return {
@@ -12,6 +16,10 @@ function createLock(events: string[]): SpreadsheetRepositoryLock {
     },
   };
 }
+
+afterEach(() => {
+  vi.unstubAllGlobals();
+});
 
 describe("createSpreadsheetRepositoryLockGuard", () => {
   test("run a mutation while holding the lock", () => {
@@ -92,5 +100,49 @@ describe("createSpreadsheetRepositoryLockGuard", () => {
 
     expect(() => guard.runExclusive(() => "result")).toThrow("flush failed");
     expect(releaseLock).toHaveBeenCalledOnce();
+  });
+});
+
+describe("createSpreadsheetRepositoryScriptLockGuard", () => {
+  test("use the Apps Script script lock and flush with the default timeout", () => {
+    const events: string[] = [];
+    const lock = createLock(events);
+    vi.stubGlobal("LockService", {
+      getScriptLock() {
+        events.push("get-script-lock");
+        return lock;
+      },
+    });
+    vi.stubGlobal("SpreadsheetApp", {
+      flush(): void {
+        events.push("flush");
+      },
+    });
+
+    const guard = createSpreadsheetRepositoryScriptLockGuard();
+
+    expect(
+      guard.runExclusive(() => {
+        events.push("mutation");
+        return "result";
+      }),
+    ).toBe("result");
+    expect(events).toStrictEqual(["get-script-lock", "wait:30000", "mutation", "flush", "release"]);
+  });
+
+  test("forward a custom timeout to the script lock", () => {
+    const events: string[] = [];
+    const lock = createLock(events);
+    vi.stubGlobal("LockService", {
+      getScriptLock: () => lock,
+    });
+    vi.stubGlobal("SpreadsheetApp", {
+      flush(): void {},
+    });
+
+    const guard = createSpreadsheetRepositoryScriptLockGuard({ timeoutMilliseconds: 500 });
+    guard.runExclusive(() => undefined);
+
+    expect(events).toStrictEqual(["wait:500", "release"]);
   });
 });
