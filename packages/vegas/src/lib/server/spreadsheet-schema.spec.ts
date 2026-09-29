@@ -118,6 +118,58 @@ describe("createSpreadsheetSchema", () => {
     );
   });
 
+  test.each([-1, 1.5, Number.NaN])(
+    "reject invalid column index supplied directly to a schema: %s",
+    (index) => {
+      const codec = createSpreadsheetRowCodec(
+        1,
+        (values) => values,
+        (values) => values,
+      );
+      const column: SpreadsheetColumn<readonly unknown[], unknown> = {
+        name: "value",
+        index,
+        getValue: (row) => row[0],
+      };
+
+      expect(() => createSpreadsheetSchema(codec, [column])).toThrow(
+        "Spreadsheet column index must be a non-negative integer.",
+      );
+    },
+  );
+
+  test("reject an empty column name supplied directly to a schema", () => {
+    const codec = createSpreadsheetRowCodec(
+      1,
+      (values) => values,
+      (values) => values,
+    );
+    const column: SpreadsheetColumn<readonly unknown[], unknown> = {
+      name: "",
+      index: 0,
+      getValue: (row) => row[0],
+    };
+
+    expect(() => createSpreadsheetSchema(codec, [column])).toThrow(
+      "Spreadsheet column name must not be empty.",
+    );
+  });
+
+  test.each([0, -1, 1.5, Number.NaN])(
+    "reject invalid row codec width supplied directly to a schema: %s",
+    (width) => {
+      const codec = {
+        width,
+        decode: (values: readonly unknown[]) => values,
+        encode: (values: readonly unknown[]) => values,
+      };
+
+      expect(() => createSpreadsheetSchema(codec, [])).toThrow(
+        "Spreadsheet row codec width must be a positive integer.",
+      );
+    },
+  );
+
   test("reject columns beyond the row codec width", () => {
     const codec = createSpreadsheetRowCodec(
       1,

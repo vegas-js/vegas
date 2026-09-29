@@ -26,6 +26,14 @@ function isSpreadsheetSchemaColumnArray<Row>(
   return Array.isArray(columns);
 }
 
+function requireSpreadsheetRowCodecWidth(width: number): number {
+  if (!Number.isInteger(width) || width <= 0) {
+    throw new RangeError("Spreadsheet row codec width must be a positive integer.");
+  }
+
+  return width;
+}
+
 function requireSpreadsheetColumnName(name: string): string {
   if (name.length === 0) {
     throw new RangeError("Spreadsheet column name must not be empty.");
@@ -66,6 +74,7 @@ export function createSpreadsheetSchema<Row>(
   codec: SpreadsheetRowCodec<Row>,
   columns: SpreadsheetSchemaColumnSource<Row>,
 ): SpreadsheetSchema<Row, SpreadsheetSchemaColumnSource<Row>> {
+  const width = requireSpreadsheetRowCodecWidth(codec.width);
   const resolvedColumns = isSpreadsheetSchemaColumnArray(columns) ? [...columns] : { ...columns };
   const columnList = isSpreadsheetSchemaColumnArray(resolvedColumns)
     ? resolvedColumns
@@ -74,22 +83,25 @@ export function createSpreadsheetSchema<Row>(
   const indices = new Set<number>();
 
   for (const column of columnList) {
-    if (column.index >= codec.width) {
+    const name = requireSpreadsheetColumnName(column.name);
+    const index = requireSpreadsheetColumnIndex(column.index);
+
+    if (index >= width) {
       throw new RangeError(
-        `Spreadsheet column "${column.name}" index ${column.index} exceeds row codec width ${codec.width}.`,
+        `Spreadsheet column "${name}" index ${index} exceeds row codec width ${width}.`,
       );
     }
 
-    if (names.has(column.name)) {
-      throw new RangeError(`Spreadsheet column name "${column.name}" must be unique.`);
+    if (names.has(name)) {
+      throw new RangeError(`Spreadsheet column name "${name}" must be unique.`);
     }
 
-    if (indices.has(column.index)) {
-      throw new RangeError(`Spreadsheet column index ${column.index} must be unique.`);
+    if (indices.has(index)) {
+      throw new RangeError(`Spreadsheet column index ${index} must be unique.`);
     }
 
-    names.add(column.name);
-    indices.add(column.index);
+    names.add(name);
+    indices.add(index);
   }
 
   return {
