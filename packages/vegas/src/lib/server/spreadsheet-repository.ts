@@ -2,6 +2,7 @@ import { spreadsheetEq } from "./spreadsheet-query-ir";
 import type { SpreadsheetColumn } from "./spreadsheet-schema";
 import {
   tryFindSpreadsheetTableEntriesByMaterializedColumn,
+  tryFindSpreadsheetTableIndicesByMaterializedColumn,
   tryUpdateSpreadsheetTableAtKnownIndex,
   type SpreadsheetTable,
   type SpreadsheetTableEntry,
@@ -95,6 +96,24 @@ function findUniqueColumnEntry<Row, Key>(
   return entries[0];
 }
 
+function findUniqueColumnIndex<Row, Key>(
+  table: SpreadsheetTable<Row>,
+  column: SpreadsheetColumn<Row, Key>,
+  key: Key,
+): number | undefined {
+  const indices = tryFindSpreadsheetTableIndicesByMaterializedColumn(table, column.index, key, 2);
+
+  if (indices === undefined) {
+    return findUniqueColumnEntry(table, column, key)?.index;
+  }
+
+  if (indices.length > 1) {
+    throw new SpreadsheetRepositoryKeyConflictError();
+  }
+
+  return indices[0];
+}
+
 export function createSpreadsheetRepository<Row, Key>(
   table: SpreadsheetTable<Row>,
   keyColumn: SpreadsheetColumn<Row, Key>,
@@ -130,9 +149,17 @@ export function createSpreadsheetRepository<Row, Key>(
     return findUniqueRowEntry(table.readAll(), key, getKey);
   }
 
+  function findIndex(key: Key): number | undefined {
+    if (keyColumn !== undefined) {
+      return findUniqueColumnIndex(table, keyColumn, key);
+    }
+
+    return findEntry(key)?.index;
+  }
+
   function requireAvailableKey(key: Key, excludedIndex = -1): void {
     if (keyColumn !== undefined) {
-      if (findUniqueColumnEntry(table, keyColumn, key) !== undefined) {
+      if (findUniqueColumnIndex(table, keyColumn, key) !== undefined) {
         throw new SpreadsheetRepositoryKeyConflictError();
       }
 
@@ -178,13 +205,13 @@ export function createSpreadsheetRepository<Row, Key>(
 
     deleteByKey(key): boolean {
       return runMutation(() => {
-        const entry = findEntry(key);
+        const index = findIndex(key);
 
-        if (entry === undefined) {
+        if (index === undefined) {
           return false;
         }
 
-        table.deleteAt(entry.index);
+        table.deleteAt(index);
         return true;
       });
     },
