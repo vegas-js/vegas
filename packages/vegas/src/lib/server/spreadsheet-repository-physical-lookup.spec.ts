@@ -110,7 +110,7 @@ describe("spreadsheet repository physical key lookup", () => {
     expect(source.getRange).toHaveBeenCalledWith(1, 1, 3, 1);
   });
 
-  test("update a found row without rereading the full table", () => {
+  test("update a found row without reading matching row data", () => {
     const source = createSheet([
       [1, "Ada"],
       [2, "Grace"],
@@ -120,10 +120,9 @@ describe("spreadsheet repository physical key lookup", () => {
 
     expect(repository.updateByKey(2, { id: 2, name: "Hopper" })).toBe(true);
     expect(source.getLastRow).toHaveBeenCalledOnce();
-    expect(source.getRange).toHaveBeenCalledTimes(3);
+    expect(source.getRange).toHaveBeenCalledTimes(2);
     expect(source.getRange).toHaveBeenNthCalledWith(1, 1, 1, 3, 1);
     expect(source.getRange).toHaveBeenNthCalledWith(2, 2, 1, 1, 2);
-    expect(source.getRange).toHaveBeenNthCalledWith(3, 2, 1, 1, 2);
   });
 
   test("delete a found row without rereading rows before it", () => {

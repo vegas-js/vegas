@@ -183,9 +183,9 @@ export function createSpreadsheetRepository<Row, Key>(
 
     updateByKey(key, row): boolean {
       return runMutation(() => {
-        const entry = findEntry(key);
+        const index = findIndex(key);
 
-        if (entry === undefined) {
+        if (index === undefined) {
           return false;
         }
 
@@ -195,8 +195,8 @@ export function createSpreadsheetRepository<Row, Key>(
           requireAvailableKey(nextKey);
         }
 
-        if (!tryUpdateSpreadsheetTableAtKnownIndex(table, entry.index, row)) {
-          table.updateAt(entry.index, row);
+        if (!tryUpdateSpreadsheetTableAtKnownIndex(table, index, row)) {
+          table.updateAt(index, row);
         }
 
         return true;
