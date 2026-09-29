@@ -153,14 +153,41 @@ function requireStorageLayoutPayloadIndex(index: number): number {
   return index;
 }
 
-function resolveStorageLocations(
-  layout: SpreadsheetStorageLayout,
-): readonly SpreadsheetStorageLocation[] {
+interface ResolvedStorageLayout {
+  readonly logicalWidth: number;
+  readonly physicalWidth: number;
+  readonly locations: readonly SpreadsheetStorageLocation[];
+}
+
+function requireStorageLogicalIndex(index: number, logicalWidth: number): number {
+  if (!Number.isInteger(index) || index < 0 || index >= logicalWidth) {
+    throw new RangeError(
+      `Spreadsheet storage logical column index ${index} must be between 0 and ${logicalWidth - 1}.`,
+    );
+  }
+
+  return index;
+}
+
+function resolveStorageLayout(layout: SpreadsheetStorageLayout): ResolvedStorageLayout {
   const logicalWidth = requireStorageLayoutWidth(layout.logicalWidth, "logical");
   const physicalWidth = requireStorageLayoutWidth(layout.physicalWidth, "physical");
   const locations = Array.from(
     { length: logicalWidth },
-    (_, logicalIndex): SpreadsheetStorageLocation => layout.locate(logicalIndex),
+    (_, logicalIndex): SpreadsheetStorageLocation => {
+      const location = layout.locate(logicalIndex);
+
+      return location.kind === "materialized"
+        ? {
+            kind: location.kind,
+            physicalIndex: location.physicalIndex,
+          }
+        : {
+            kind: location.kind,
+            physicalIndex: location.physicalIndex,
+            payloadIndex: location.payloadIndex,
+          };
+    },
   );
   const occupiedPhysicalIndices = new Set<number>();
   const payloadIndices = new Set<number>();
@@ -216,7 +243,11 @@ function resolveStorageLocations(
     throw new RangeError("Spreadsheet storage layout must map every physical column.");
   }
 
-  return locations;
+  return {
+    logicalWidth,
+    physicalWidth,
+    locations,
+  };
 }
 
 export function createSpreadsheetStorageCodec(
@@ -251,7 +282,7 @@ export function createSpreadsheetStorageCodec<
 
     layout = createSpreadsheetStorageLayout(source, options);
   }
-  const locations = resolveStorageLocations(layout);
+  const { logicalWidth, physicalWidth, locations } = resolveStorageLayout(layout);
   const payloadLocations = locations.filter(
     (location): location is Extract<SpreadsheetStorageLocation, { readonly kind: "payload" }> =>
       location.kind === "payload",
@@ -260,18 +291,18 @@ export function createSpreadsheetStorageCodec<
   const payloadWidth = payloadLocations.length;
 
   return {
-    logicalWidth: layout.logicalWidth,
-    physicalWidth: layout.physicalWidth,
+    logicalWidth,
+    physicalWidth,
 
     locate(logicalIndex): SpreadsheetStorageLocation {
-      return layout.locate(logicalIndex);
+      return locations[requireStorageLogicalIndex(logicalIndex, logicalWidth)]!;
     },
 
     encode(values): readonly unknown[] {
-      const logicalValues = requireStorageWidth(values, layout.logicalWidth, "logical");
+      const logicalValues = requireStorageWidth(values, logicalWidth, "logical");
 
       const physicalValues = Array.from<unknown>({
-        length: layout.physicalWidth,
+        length: physicalWidth,
       });
       const payload = Array.from<unknown>({
         length: payloadWidth,
@@ -298,14 +329,14 @@ export function createSpreadsheetStorageCodec<
     },
 
     decode(values): readonly unknown[] {
-      const physicalValues = requireStorageWidth(values, layout.physicalWidth, "physical");
+      const physicalValues = requireStorageWidth(values, physicalWidth, "physical");
 
       const payload =
         payloadPhysicalIndex === undefined
           ? []
           : parsePayload(physicalValues[payloadPhysicalIndex], payloadWidth);
       const logicalValues = Array.from<unknown>({
-        length: layout.logicalWidth,
+        length: logicalWidth,
       });
 
       for (let logicalIndex = 0; logicalIndex < locations.length; logicalIndex += 1) {

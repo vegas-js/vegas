@@ -92,6 +92,44 @@ describe("createSpreadsheetStorageCodec", () => {
     expect(codec.decode(["physical-0", "physical-1"])).toStrictEqual(["physical-1", "physical-0"]);
   });
 
+  test("snapshot custom layout mappings when creating a codec", () => {
+    let logicalWidth = 2;
+    let physicalWidth = 2;
+    let reversed = true;
+    const layout: SpreadsheetStorageLayout = {
+      mode: "columns",
+      get logicalWidth() {
+        return logicalWidth;
+      },
+      get physicalWidth() {
+        return physicalWidth;
+      },
+      locate(logicalIndex) {
+        return {
+          kind: "materialized",
+          physicalIndex: reversed ? 1 - logicalIndex : logicalIndex,
+        };
+      },
+    };
+    const codec = createSpreadsheetStorageCodec(layout);
+
+    logicalWidth = 1;
+    physicalWidth = 1;
+    reversed = false;
+
+    expect(codec.logicalWidth).toBe(2);
+    expect(codec.physicalWidth).toBe(2);
+    expect(codec.locate(0)).toStrictEqual({
+      kind: "materialized",
+      physicalIndex: 1,
+    });
+    expect(codec.encode(["logical-0", "logical-1"])).toStrictEqual(["logical-1", "logical-0"]);
+    expect(codec.decode(["physical-0", "physical-1"])).toStrictEqual(["physical-1", "physical-0"]);
+    expect(() => codec.locate(2)).toThrow(
+      "Spreadsheet storage logical column index 2 must be between 0 and 1.",
+    );
+  });
+
   test("reject invalid custom layout mappings", () => {
     const duplicatePhysicalIndex: SpreadsheetStorageLayout = {
       mode: "columns",
