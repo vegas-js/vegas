@@ -8,7 +8,7 @@ import type {
   SpreadsheetNotEqualExpression,
 } from "./spreadsheet-query-ir";
 import type { SpreadsheetOrderBy } from "./spreadsheet-query-plan";
-import type { SpreadsheetColumn } from "./spreadsheet-schema";
+import type { SpreadsheetColumn, SpreadsheetSchema } from "./spreadsheet-schema";
 
 export interface SpreadsheetQueryField<Value> {
   eq(value: Value): SpreadsheetEqualExpression<Value>;
@@ -110,16 +110,56 @@ function createRuntimeSpreadsheetQueryField(
   };
 }
 
+function isSpreadsheetQueryFieldSchema(source: unknown): source is Readonly<{
+  columns: Readonly<Record<string, SpreadsheetColumn<unknown, unknown>>>;
+  columnList: readonly SpreadsheetColumn<unknown, unknown>[];
+  getColumn(name: string): SpreadsheetColumn<unknown, unknown> | undefined;
+}> {
+  return (
+    typeof source === "object" &&
+    source !== null &&
+    "columns" in source &&
+    "columnList" in source &&
+    Array.isArray(source.columnList) &&
+    "getColumn" in source &&
+    typeof source.getColumn === "function"
+  );
+}
+
 export function createSpreadsheetQueryFields<
   Columns extends Readonly<Record<string, SpreadsheetColumn<unknown, unknown>>>,
 >(columns: Columns): SpreadsheetQueryFields<Columns>;
+export function createSpreadsheetQueryFields<
+  Row,
+  Columns extends Readonly<Record<string, SpreadsheetColumn<Row, unknown>>>,
+>(schema: SpreadsheetSchema<Row, Columns>): SpreadsheetQueryFields<Columns>;
 export function createSpreadsheetQueryFields(
-  columns: Readonly<Record<string, SpreadsheetColumn<unknown, unknown>>>,
+  source: unknown,
 ): Readonly<Record<string, RuntimeSpreadsheetQueryField>> {
+  const columns = isSpreadsheetQueryFieldSchema(source) ? source.columns : source;
+
+  if (typeof columns !== "object" || columns === null || Array.isArray(columns)) {
+    throw new TypeError(
+      "Spreadsheet query fields require a column record or record-backed schema.",
+    );
+  }
+
   return Object.fromEntries(
-    Object.entries(columns).map(([name, column]) => [
-      name,
-      createRuntimeSpreadsheetQueryField(column),
-    ]),
+    Object.entries(columns).map(([name, column]) => {
+      if (
+        typeof column !== "object" ||
+        column === null ||
+        !("name" in column) ||
+        !("index" in column) ||
+        !("getValue" in column) ||
+        typeof column.getValue !== "function"
+      ) {
+        throw new TypeError(
+          "Spreadsheet query fields require a column record or record-backed schema.",
+        );
+      }
+
+      return [name, createRuntimeSpreadsheetQueryField(column)];
+    }),
   );
 }

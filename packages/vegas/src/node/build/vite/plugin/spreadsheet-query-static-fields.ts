@@ -138,30 +138,29 @@ function resolveStaticSchemaColumns(
   moduleInitializers: ReadonlyMap<string, unknown>,
   schemaFactory: string | undefined,
 ): unknown {
-  if (
-    schemaFactory === undefined ||
-    !isAstRecord(node) ||
-    node.type !== "MemberExpression" ||
-    node.computed === true
-  ) {
+  if (schemaFactory === undefined || !isAstRecord(node)) {
     return undefined;
   }
 
-  const object = node.object;
-  const property = node.property;
+  let schemaInitializer: unknown = node;
 
-  if (
-    !isAstRecord(object) ||
-    object.type !== "Identifier" ||
-    typeof object.name !== "string" ||
-    !isAstRecord(property) ||
-    property.type !== "Identifier" ||
-    property.name !== "columns"
-  ) {
-    return undefined;
+  if (node.type === "MemberExpression" && node.computed !== true) {
+    const object = node.object;
+    const property = node.property;
+
+    if (
+      !isAstRecord(object) ||
+      object.type !== "Identifier" ||
+      typeof object.name !== "string" ||
+      !isAstRecord(property) ||
+      property.type !== "Identifier" ||
+      property.name !== "columns"
+    ) {
+      return undefined;
+    }
+
+    schemaInitializer = moduleInitializers.get(object.name);
   }
-
-  const schemaInitializer = moduleInitializers.get(object.name);
 
   if (
     !isAstRecord(schemaInitializer) ||

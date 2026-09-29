@@ -3,6 +3,8 @@ import { describe, expect, expectTypeOf, test } from "vitest";
 import {
   createSpreadsheetColumn,
   createSpreadsheetQueryFields,
+  createSpreadsheetRowCodec,
+  createSpreadsheetSchema,
   type SpreadsheetComparableQueryField,
   type SpreadsheetQueryField,
 } from "../server";
@@ -40,6 +42,31 @@ describe("createSpreadsheetQueryFields", () => {
     expectTypeOf(fields.active).toEqualTypeOf<SpreadsheetComparableQueryField<boolean>>();
     expectTypeOf(fields.createdAt).toEqualTypeOf<SpreadsheetComparableQueryField<Date>>();
     expectTypeOf(fields.metadata).toEqualTypeOf<SpreadsheetQueryField<UserRow["metadata"]>>();
+  });
+
+  test("create typed comparison fields from a record-backed schema", () => {
+    const columns = createColumns();
+    const codec = createSpreadsheetRowCodec<UserRow>(
+      5,
+      (values) => ({
+        id: Number(values[0]),
+        name: String(values[1]),
+        active: Boolean(values[2]),
+        createdAt: new Date(String(values[3])),
+        metadata: { role: String(values[4]) },
+      }),
+      (row) => [row.id, row.name, row.active, row.createdAt, row.metadata],
+    );
+    const schema = createSpreadsheetSchema(codec, columns);
+    const fields = createSpreadsheetQueryFields(schema);
+
+    expectTypeOf(fields.id).toEqualTypeOf<SpreadsheetComparableQueryField<number>>();
+    expectTypeOf(fields.metadata).toEqualTypeOf<SpreadsheetQueryField<UserRow["metadata"]>>();
+    expect(fields.id.eq(42)).toStrictEqual({
+      kind: "equal",
+      column: 0,
+      value: 42,
+    });
   });
 
   test("lower field methods directly to data-only query IR", () => {

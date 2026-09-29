@@ -59,6 +59,23 @@ const queryFields = createSpreadsheetQueryFields(schema.columns);
     );
   });
 
+  test("resolve column indexes from a record-backed schema directly", () => {
+    const fields = collect(`
+const idColumn = createSpreadsheetColumn("id", 0, (row) => row.id);
+const nameColumn = createSpreadsheetColumn("name", 1, (row) => row.name);
+const columns = { id: idColumn, displayName: nameColumn };
+const schema = createSpreadsheetSchema(codec, columns);
+const queryFields = createSpreadsheetQueryFields(schema);
+`);
+
+    expect(fields.get("queryFields")).toStrictEqual(
+      new Map([
+        ["id", 0],
+        ["displayName", 1],
+      ]),
+    );
+  });
+
   test("skip columns whose runtime validation cannot be proven statically", () => {
     const fields = collect(`
 const dynamicIndex = getColumnIndex();
