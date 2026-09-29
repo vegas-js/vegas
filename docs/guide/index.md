@@ -26,6 +26,7 @@ The reasoning behind the project is explained in detail in the [Why Vegas](./why
 | ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
 | Start a new project                                        | Continue with [Scaffolding Your First Vegas Project](#scaffolding-your-first-vegas-project) below |
 | Learn the Vegas commands and their roles                   | [Command Line Interface](./cli)                                                                   |
+| Understand source layout and SPA entry points              | [Project Structure](./project-structure)                                                          |
 | Understand local server-side execution                     | [Local Runtime](./local-runtime)                                                                  |
 | Model typed data stored in Google Sheets                   | [Spreadsheet Data](./spreadsheet-data)                                                            |
 | Check which Apps Script APIs are modeled                   | [Runtime API coverage](./runtime-api-coverage)                                                    |
@@ -48,15 +49,18 @@ $ pnpm create vegas
 
 Then follow the prompts.
 
-## `index.html` and Project Root
+## SPA Entry Points
 
-You may have noticed that `index.html` is not located in the root of a Vegas SPA project. This is intentional. Unlike Vite's default HTML-entry model, Vegas uses client modules such as `main.ts` or `main.tsx` as SPA entry points and generates the host HTML during the build.
+Vegas does not require Vite's conventional project-root `index.html`. SPA entries live under the configured client directory, which defaults to `src/client`.
 
-There are two Apps Script-specific reasons for this design.
+Vegas supports two entry styles:
 
-First, Apps Script web apps are served through HTML Service and its iframe sandbox. Vegas therefore owns the generated host document needed to load the built client instead of requiring a hand-maintained root `index.html`.
+- Module entries named `main.ts`, `main.tsx`, `main.js`, or `main.jsx`. Vegas generates the corresponding HTML artifact.
+- Physical `.html` entries inside the client directory. Vegas keeps their relative HTML paths as build entries.
 
-Second, a single Apps Script project can contain multiple frontends. Vegas detects separate client entries, such as admin and user frontends, and emits an independent HTML artifact for each entry.
+This allows both generated-host and HTML-first projects while keeping client entry points separate from Apps Script server sources. Nested entries can also represent multiple frontends in one Apps Script project.
+
+See [Project Structure](./project-structure) for the default layouts and entry-point rules.
 
 ## Command Line Interface
 
