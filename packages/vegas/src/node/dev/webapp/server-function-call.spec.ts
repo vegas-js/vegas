@@ -54,6 +54,27 @@ describe("executeServerFunctionCall", () => {
     expect(response.status).toBe("ok");
   });
 
+  test("reject private server functions", async () => {
+    const response = await executeServerFunctionCall(
+      {
+        execute: async () => {
+          throw new Error("Private server function should not execute.");
+        },
+      },
+      {
+        requestId: 1,
+        functionName: "secret_",
+        args: [],
+      },
+    );
+
+    expect(response).toStrictEqual({
+      requestId: 1,
+      status: "err",
+      message: 'Server function "secret_" is private and cannot be called by google.script.run.',
+    });
+  });
+
   test("return failed response", async () => {
     const response = await executeServerFunctionCall(
       {

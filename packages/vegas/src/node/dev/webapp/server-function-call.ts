@@ -9,6 +9,14 @@ export async function executeServerFunctionCall(
   request: ServerFunctionCallRequest,
   signal?: AbortSignal,
 ): Promise<ServerFunctionCallResponse> {
+  if (request.functionName.endsWith("_")) {
+    return {
+      requestId: request.requestId,
+      status: "err",
+      message: `Server function "${request.functionName}" is private and cannot be called by google.script.run.`,
+    };
+  }
+
   try {
     const result = await runtime.execute({
       functionName: request.functionName,
