@@ -5,6 +5,7 @@
 - Added native Google Apps Script authentication and push workflows using the Apps Script API.
 - Added Apps Script project and manifest configuration, including script ID resolution and strict configuration validation.
 - Added explicit public package surfaces for configuration, client server-function calls, and Apps Script server types.
+- Added a typed Spreadsheet data layer with schemas, query plans, storage layouts, repositories, and mutation guards.
 - Improved CLI diagnostics and failure messages for configuration, authentication, push prerequisites, and Google service errors.
 - Hardened package validation, release smoke testing, CI, and tag-driven npm publishing.
 - Updated project layout defaults for SPA and script-only applications.

@@ -26,6 +26,7 @@ The reasoning behind the project is explained in detail in the [Why Vegas](./why
 | ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
 | Start a new project                                        | Continue with [Scaffolding Your First Vegas Project](#scaffolding-your-first-vegas-project) below |
 | Understand local server-side execution                     | [Local Runtime](./local-runtime)                                                                  |
+| Model typed data stored in Google Sheets                   | [Spreadsheet Data](./spreadsheet-data)                                                            |
 | Check which Apps Script APIs are modeled                   | [Runtime API coverage](./runtime-api-coverage)                                                    |
 | Configure project layout, Apps Script metadata, or plugins | [Configuring Vegas](../config/)                                                                   |
 | Understand the design rationale                            | [Why Vegas](./why) and [Project Philosophy](./philosophy)                                         |

@@ -27,7 +27,10 @@ export default defineConfig({
         },
         {
           text: "Development",
-          items: [{ text: "Local Runtime", link: "/guide/local-runtime/" }],
+          items: [
+            { text: "Local Runtime", link: "/guide/local-runtime/" },
+            { text: "Spreadsheet Data", link: "/guide/spreadsheet-data/" },
+          ],
         },
         {
           text: "Reference",

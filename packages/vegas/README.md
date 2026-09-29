@@ -14,6 +14,7 @@ This project is in the experimental stage and will undergo frequent breaking cha
 - SPA and script-only Apps Script project support
 - Automatic client entry point detection for SPA projects
 - Client library for calling Apps Script server functions
+- Typed Spreadsheet data layer for schema, queries, storage layouts, and repositories
 - Authentication and push workflows using the Google Apps Script API
 
 ## Quick Start
