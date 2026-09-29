@@ -2,6 +2,7 @@ import type {
   ServerFunctionCallRequest,
   ServerFunctionCallResponse,
 } from "../shared/webapp-protocol";
+import { isTrustedMessageSource } from "./message-source";
 import { ServerFunctionRequestRegistry } from "./server-function-requests";
 import { createServerFunctionRun } from "./server-function-run";
 
@@ -10,6 +11,8 @@ const RPC_TIMEOUT_MESSAGE = "Vegas RPC transport timed out while waiting for a r
 const RPC_TRANSPORT_TIMEOUT_MS = 7 * 60 * 1_000;
 
 const { port1, port2 } = new MessageChannel();
+const hostOrigin = window.vegas.hostOrigin!;
+const hostWindow = window.parent;
 const requests = new ServerFunctionRequestRegistry({
   timeoutMs: RPC_TRANSPORT_TIMEOUT_MS,
   timeoutMessage: RPC_TIMEOUT_MESSAGE,
@@ -44,9 +47,9 @@ let rpcConnected = false;
 function vegasLoadListener() {
   retryPreInitTimer = setInterval(
     () =>
-      window.parent.postMessage(
+      hostWindow.postMessage(
         { type: "vegas:preinit", payload: { contentOrigin: window.origin } },
-        window.vegas.hostOrigin!,
+        hostOrigin,
       ),
     10,
   );
@@ -54,15 +57,21 @@ function vegasLoadListener() {
 }
 
 window.addEventListener("message", (event) => {
-  if (event.data.type === "vegas:preinit" && retryPreInitTimer) {
-    clearInterval(retryPreInitTimer);
-    retryPreInitTimer = null;
-    window.parent.postMessage(
-      { type: "vegas:init", payload: { id: window.vegas.id, port: port2 } },
-      window.vegas.hostOrigin!,
-      [port2],
-    );
+  if (
+    !isTrustedMessageSource(event, hostOrigin, hostWindow) ||
+    event.data?.type !== "vegas:preinit" ||
+    retryPreInitTimer === null
+  ) {
+    return;
   }
+
+  clearInterval(retryPreInitTimer);
+  retryPreInitTimer = null;
+  hostWindow.postMessage(
+    { type: "vegas:init", payload: { id: window.vegas.id, port: port2 } },
+    hostOrigin,
+    [port2],
+  );
 });
 
 port1.onmessage = (event: MessageEvent<VegasEvent>) => {
