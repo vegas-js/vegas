@@ -2,6 +2,7 @@ import { describe, expect, expectTypeOf, test, vi } from "vitest";
 
 import {
   createSpreadsheetColumn,
+  createSpreadsheetRepository,
   createSpreadsheetRowCodec,
   createSpreadsheetSchema,
   createSpreadsheetStorageCodec,
@@ -71,5 +72,16 @@ describe("createSpreadsheetTable with schema", () => {
         name: "Ada",
       },
     ]);
+  });
+
+  test("require repository key columns to belong to the table schema", () => {
+    const schema = createUserSchema();
+    const table = createSpreadsheetTable(createSheet([]), schema);
+    const externalId = createSpreadsheetColumn<UserRow, number>("id", 0, (row) => row.name.length);
+
+    expect(() => createSpreadsheetRepository(table, externalId)).toThrow(
+      'Spreadsheet repository key column "id" must belong to the table schema.',
+    );
+    expect(() => createSpreadsheetRepository(table, schema.columns.id)).not.toThrow();
   });
 });

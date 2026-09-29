@@ -2,6 +2,7 @@ import { spreadsheetEq } from "./spreadsheet-query-ir";
 import type { SpreadsheetColumn } from "./spreadsheet-schema";
 import {
   tryFindSpreadsheetTableIndicesByMaterializedColumn,
+  tryHasSpreadsheetTableSchemaColumn,
   tryReadSpreadsheetTableEntryAtKnownIndex,
   tryUpdateSpreadsheetTableAtKnownIndex,
   type SpreadsheetTable,
@@ -148,6 +149,17 @@ export function createSpreadsheetRepository<Row, Key>(
   options: SpreadsheetRepositoryOptions = {},
 ): SpreadsheetRepository<Row, Key> {
   const keyColumn = typeof keySource === "function" ? undefined : keySource;
+
+  if (keyColumn !== undefined) {
+    const belongsToSchema = tryHasSpreadsheetTableSchemaColumn(table, keyColumn);
+
+    if (belongsToSchema === false) {
+      throw new RangeError(
+        `Spreadsheet repository key column "${keyColumn.name}" must belong to the table schema.`,
+      );
+    }
+  }
+
   const getKey =
     typeof keySource === "function" ? keySource : (row: Row): Key => keySource.getValue(row);
 

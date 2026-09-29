@@ -8,7 +8,11 @@ import type {
 } from "./spreadsheet-query-plan";
 import { evaluateSpreadsheetQueryPushdown } from "./spreadsheet-query-pushdown";
 import type { SpreadsheetRowCodec } from "./spreadsheet-row-codec";
-import type { SpreadsheetSchema, SpreadsheetSchemaColumnSource } from "./spreadsheet-schema";
+import type {
+  SpreadsheetColumn,
+  SpreadsheetSchema,
+  SpreadsheetSchemaColumnSource,
+} from "./spreadsheet-schema";
 import type { SpreadsheetStorageCodec } from "./spreadsheet-storage-codec";
 
 export interface SpreadsheetTableOptions {
@@ -34,6 +38,7 @@ export interface SpreadsheetTable<Row> {
   deleteAt(index: number): void;
 }
 
+const spreadsheetTableSchemaColumnMembership = Symbol("spreadsheetTableSchemaColumnMembership");
 const spreadsheetTableMaterializedIndexLookup = Symbol("spreadsheetTableMaterializedIndexLookup");
 const spreadsheetTableKnownIndexRead = Symbol("spreadsheetTableKnownIndexRead");
 const spreadsheetTableKnownIndexUpdate = Symbol("spreadsheetTableKnownIndexUpdate");
@@ -54,6 +59,12 @@ interface SpreadsheetTableWithKnownIndexUpdate<Row> extends SpreadsheetTable<Row
   [spreadsheetTableKnownIndexUpdate](index: number, row: Row): void;
 }
 
+interface SpreadsheetTableWithSchemaColumnMembership<Row> extends SpreadsheetTable<Row> {
+  [spreadsheetTableSchemaColumnMembership](
+    column: SpreadsheetColumn<Row, unknown>,
+  ): boolean | undefined;
+}
+
 export function tryFindSpreadsheetTableIndicesByMaterializedColumn<Row>(
   table: SpreadsheetTable<Row>,
   logicalIndex: number,
@@ -65,6 +76,17 @@ export function tryFindSpreadsheetTableIndicesByMaterializedColumn<Row>(
   ];
 
   return lookup?.(logicalIndex, value, limit);
+}
+
+export function tryHasSpreadsheetTableSchemaColumn<Row>(
+  table: SpreadsheetTable<Row>,
+  column: SpreadsheetColumn<Row, unknown>,
+): boolean | undefined {
+  const hasColumn = (table as Partial<SpreadsheetTableWithSchemaColumnMembership<Row>>)[
+    spreadsheetTableSchemaColumnMembership
+  ];
+
+  return hasColumn?.(column);
 }
 
 export function tryReadSpreadsheetTableEntryAtKnownIndex<Row>(
@@ -408,7 +430,17 @@ export function createSpreadsheetTable<Row>(
   source: SpreadsheetRowCodec<Row> | SpreadsheetSchema<Row, SpreadsheetSchemaColumnSource<Row>>,
   options: SpreadsheetTableOptions = {},
 ): SpreadsheetTable<Row> {
-  const codec = resolveRowCodec(isSpreadsheetSchema(source) ? source.codec : source);
+  let rowCodec: SpreadsheetRowCodec<Row>;
+  let schemaColumns: ReadonlySet<SpreadsheetColumn<Row, unknown>> | undefined;
+
+  if (isSpreadsheetSchema(source)) {
+    rowCodec = source.codec;
+    schemaColumns = new Set(source.columnList);
+  } else {
+    rowCodec = source;
+  }
+
+  const codec = resolveRowCodec(rowCodec);
   const startRow = requireTableCoordinate(options.startRow ?? 1, "startRow");
   const startColumn = requireTableCoordinate(options.startColumn ?? 1, "startColumn");
   const storageCodec = resolveStorageCodec(
@@ -586,8 +618,11 @@ export function createSpreadsheetTable<Row>(
   }
 
   const table: SpreadsheetTableWithMaterializedIndexLookup<Row> &
+    SpreadsheetTableWithSchemaColumnMembership<Row> &
     SpreadsheetTableWithKnownIndexRead<Row> &
     SpreadsheetTableWithKnownIndexUpdate<Row> = {
+    [spreadsheetTableSchemaColumnMembership]: (column) => schemaColumns?.has(column),
+
     readAll(): Row[] {
       return readValues().map((row) => codec.decode(row));
     },
