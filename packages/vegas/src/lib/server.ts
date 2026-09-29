@@ -16,6 +16,11 @@ export {
   type SpreadsheetRepositoryOptions,
 } from "./server/spreadsheet-repository";
 export {
+  createSpreadsheetRepositoryLockGuard,
+  type SpreadsheetRepositoryLock,
+  type SpreadsheetRepositoryLockGuardOptions,
+} from "./server/spreadsheet-repository-lock-guard";
+export {
   createSpreadsheetColumn,
   createSpreadsheetSchema,
   type SpreadsheetColumn,
