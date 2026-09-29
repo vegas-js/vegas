@@ -125,6 +125,100 @@ function parsePayload(value: unknown, expectedWidth: number): readonly unknown[]
   return parsed;
 }
 
+function requireStorageLayoutWidth(width: number, kind: "logical" | "physical"): number {
+  if (!Number.isInteger(width) || width <= 0) {
+    throw new RangeError(`Spreadsheet storage layout ${kind} width must be a positive integer.`);
+  }
+
+  return width;
+}
+
+function requireStorageLayoutPhysicalIndex(index: number, physicalWidth: number): number {
+  if (!Number.isInteger(index) || index < 0 || index >= physicalWidth) {
+    throw new RangeError(
+      `Spreadsheet storage layout physical index ${index} must be between 0 and ${physicalWidth - 1}.`,
+    );
+  }
+
+  return index;
+}
+
+function requireStorageLayoutPayloadIndex(index: number): number {
+  if (!Number.isInteger(index) || index < 0) {
+    throw new RangeError(
+      "Spreadsheet storage layout payload index must be a non-negative integer.",
+    );
+  }
+
+  return index;
+}
+
+function resolveStorageLocations(
+  layout: SpreadsheetStorageLayout,
+): readonly SpreadsheetStorageLocation[] {
+  const logicalWidth = requireStorageLayoutWidth(layout.logicalWidth, "logical");
+  const physicalWidth = requireStorageLayoutWidth(layout.physicalWidth, "physical");
+  const locations = Array.from(
+    { length: logicalWidth },
+    (_, logicalIndex): SpreadsheetStorageLocation => layout.locate(logicalIndex),
+  );
+  const occupiedPhysicalIndices = new Set<number>();
+  const payloadIndices = new Set<number>();
+  let payloadPhysicalIndex: number | undefined;
+
+  for (const location of locations) {
+    const physicalIndex = requireStorageLayoutPhysicalIndex(location.physicalIndex, physicalWidth);
+
+    if (location.kind === "materialized") {
+      if (occupiedPhysicalIndices.has(physicalIndex)) {
+        throw new RangeError(
+          `Spreadsheet storage layout physical index ${physicalIndex} must not be mapped more than once.`,
+        );
+      }
+
+      occupiedPhysicalIndices.add(physicalIndex);
+      continue;
+    }
+
+    if (payloadPhysicalIndex === undefined) {
+      if (occupiedPhysicalIndices.has(physicalIndex)) {
+        throw new RangeError(
+          `Spreadsheet storage layout physical index ${physicalIndex} must not be mapped more than once.`,
+        );
+      }
+
+      payloadPhysicalIndex = physicalIndex;
+      occupiedPhysicalIndices.add(physicalIndex);
+    } else if (physicalIndex !== payloadPhysicalIndex) {
+      throw new RangeError(
+        "Spreadsheet storage layout payload columns must share one physical index.",
+      );
+    }
+
+    const payloadIndex = requireStorageLayoutPayloadIndex(location.payloadIndex);
+
+    if (payloadIndices.has(payloadIndex)) {
+      throw new RangeError(
+        `Spreadsheet storage layout payload index ${payloadIndex} must not be mapped more than once.`,
+      );
+    }
+
+    payloadIndices.add(payloadIndex);
+  }
+
+  for (let payloadIndex = 0; payloadIndex < payloadIndices.size; payloadIndex += 1) {
+    if (!payloadIndices.has(payloadIndex)) {
+      throw new RangeError("Spreadsheet storage layout payload indices must be contiguous from 0.");
+    }
+  }
+
+  if (occupiedPhysicalIndices.size !== physicalWidth) {
+    throw new RangeError("Spreadsheet storage layout must map every physical column.");
+  }
+
+  return locations;
+}
+
 export function createSpreadsheetStorageCodec(
   layout: SpreadsheetStorageLayout,
 ): SpreadsheetStorageCodec;
@@ -157,10 +251,7 @@ export function createSpreadsheetStorageCodec<
 
     layout = createSpreadsheetStorageLayout(source, options);
   }
-  const locations = Array.from(
-    { length: layout.logicalWidth },
-    (_, logicalIndex): SpreadsheetStorageLocation => layout.locate(logicalIndex),
-  );
+  const locations = resolveStorageLocations(layout);
   const payloadLocations = locations.filter(
     (location): location is Extract<SpreadsheetStorageLocation, { readonly kind: "payload" }> =>
       location.kind === "payload",

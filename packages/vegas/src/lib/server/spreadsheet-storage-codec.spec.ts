@@ -92,6 +92,68 @@ describe("createSpreadsheetStorageCodec", () => {
     expect(codec.decode(["physical-0", "physical-1"])).toStrictEqual(["physical-1", "physical-0"]);
   });
 
+  test("reject invalid custom layout mappings", () => {
+    const duplicatePhysicalIndex: SpreadsheetStorageLayout = {
+      mode: "columns",
+      logicalWidth: 2,
+      physicalWidth: 2,
+      locate() {
+        return {
+          kind: "materialized",
+          physicalIndex: 0,
+        };
+      },
+    };
+    const splitPayload: SpreadsheetStorageLayout = {
+      mode: "packed",
+      logicalWidth: 2,
+      physicalWidth: 2,
+      locate(logicalIndex) {
+        return {
+          kind: "payload",
+          physicalIndex: logicalIndex,
+          payloadIndex: logicalIndex,
+        };
+      },
+    };
+    const sparsePayload: SpreadsheetStorageLayout = {
+      mode: "packed",
+      logicalWidth: 2,
+      physicalWidth: 1,
+      locate(logicalIndex) {
+        return {
+          kind: "payload",
+          physicalIndex: 0,
+          payloadIndex: logicalIndex === 0 ? 0 : 2,
+        };
+      },
+    };
+    const unmappedPhysicalColumn: SpreadsheetStorageLayout = {
+      mode: "columns",
+      logicalWidth: 1,
+      physicalWidth: 2,
+      locate() {
+        return {
+          kind: "materialized",
+          physicalIndex: 0,
+        };
+      },
+    };
+
+    expect(() => createSpreadsheetStorageCodec(duplicatePhysicalIndex)).toThrow(
+      "Spreadsheet storage layout physical index 0 must not be mapped more than once.",
+    );
+    expect(() => createSpreadsheetStorageCodec(splitPayload)).toThrow(
+      "Spreadsheet storage layout payload columns must share one physical index.",
+    );
+    expect(() => createSpreadsheetStorageCodec(sparsePayload)).toThrow(
+      "Spreadsheet storage layout payload indices must be contiguous from 0.",
+    );
+    expect(() => createSpreadsheetStorageCodec(unmappedPhysicalColumn)).toThrow(
+      "Spreadsheet storage layout must map every physical column.",
+    );
+  });
+
   test("create a storage codec directly from a schema", () => {
     const { schema, id, status } = createUserSchema();
     const codec = createSpreadsheetStorageCodec(schema, {
