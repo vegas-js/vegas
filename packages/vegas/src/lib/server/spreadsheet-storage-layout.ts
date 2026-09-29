@@ -66,6 +66,19 @@ function requireSchemaColumn<Row, Columns extends SpreadsheetSchemaColumnSource<
   return column.index;
 }
 
+function copyStorageLocation(location: SpreadsheetStorageLocation): SpreadsheetStorageLocation {
+  return location.kind === "materialized"
+    ? {
+        kind: location.kind,
+        physicalIndex: location.physicalIndex,
+      }
+    : {
+        kind: location.kind,
+        physicalIndex: location.physicalIndex,
+        payloadIndex: location.payloadIndex,
+      };
+}
+
 function createColumnLocations(width: number): readonly SpreadsheetStorageLocation[] {
   return Array.from({ length: width }, (_, physicalIndex) => ({
     kind: "materialized" as const,
@@ -75,6 +88,7 @@ function createColumnLocations(width: number): readonly SpreadsheetStorageLocati
 
 function createPackedLocations<Row, Columns extends SpreadsheetSchemaColumnSource<Row>>(
   schema: SpreadsheetSchema<Row, Columns>,
+  logicalWidth: number,
   key: SpreadsheetColumn<Row, unknown>,
   materialized: readonly SpreadsheetColumn<Row, unknown>[],
 ): {
@@ -101,7 +115,7 @@ function createPackedLocations<Row, Columns extends SpreadsheetSchemaColumnSourc
   const payloadPhysicalIndex = physicalIndices.size;
   let payloadIndex = 0;
   const locations = Array.from(
-    { length: schema.codec.width },
+    { length: logicalWidth },
     (_, logicalIndex): SpreadsheetStorageLocation => {
       const physicalIndex = physicalIndices.get(logicalIndex);
 
@@ -141,31 +155,36 @@ export function createSpreadsheetStorageLayout<
   schema: SpreadsheetSchema<Row, Columns>,
   options: SpreadsheetStorageLayoutOptions<Row>,
 ): SpreadsheetStorageLayout {
+  const logicalWidth = schema.codec.width;
+
   if (options.mode === "columns") {
-    const locations = createColumnLocations(schema.codec.width);
+    const locations = createColumnLocations(logicalWidth);
 
     return {
       mode: options.mode,
-      logicalWidth: schema.codec.width,
-      physicalWidth: schema.codec.width,
+      logicalWidth,
+      physicalWidth: logicalWidth,
       locate(logicalIndex): SpreadsheetStorageLocation {
-        return locations[requireLogicalIndex(logicalIndex, schema.codec.width)]!;
+        return copyStorageLocation(locations[requireLogicalIndex(logicalIndex, logicalWidth)]!);
       },
     };
   }
 
   const packed = createPackedLocations(
     schema,
+    logicalWidth,
     options.key,
     options.mode === "indexed-packed" ? options.materialize : [],
   );
 
   return {
     mode: options.mode,
-    logicalWidth: schema.codec.width,
+    logicalWidth,
     physicalWidth: packed.physicalWidth,
     locate(logicalIndex): SpreadsheetStorageLocation {
-      return packed.locations[requireLogicalIndex(logicalIndex, schema.codec.width)]!;
+      return copyStorageLocation(
+        packed.locations[requireLogicalIndex(logicalIndex, logicalWidth)]!,
+      );
     },
   };
 }

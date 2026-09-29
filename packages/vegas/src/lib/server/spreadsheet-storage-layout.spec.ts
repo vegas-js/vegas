@@ -67,6 +67,53 @@ describe("createSpreadsheetStorageLayout", () => {
     });
   });
 
+  test("snapshot schema width when creating a layout", () => {
+    let width = 2;
+    const codec = {
+      get width() {
+        return width;
+      },
+      decode: (values: readonly unknown[]) => values,
+      encode: (values: readonly unknown[]) => values,
+    };
+    const first = createSpreadsheetColumn<readonly unknown[], unknown>("first", 0, (row) => row[0]);
+    const second = createSpreadsheetColumn<readonly unknown[], unknown>(
+      "second",
+      1,
+      (row) => row[1],
+    );
+    const schema = createSpreadsheetSchema(codec, [first, second]);
+    const layout = createSpreadsheetStorageLayout(schema, {
+      mode: "columns",
+    });
+
+    width = 1;
+
+    expect(layout.logicalWidth).toBe(2);
+    expect(layout.physicalWidth).toBe(2);
+    expect(layout.locate(1)).toStrictEqual({
+      kind: "materialized",
+      physicalIndex: 1,
+    });
+    expect(() => layout.locate(2)).toThrow(
+      "Spreadsheet storage logical column index 2 must be between 0 and 1.",
+    );
+  });
+
+  test("do not expose mutable layout mappings", () => {
+    const { schema } = createUserSchema();
+    const layout = createSpreadsheetStorageLayout(schema, {
+      mode: "columns",
+    });
+    const location = layout.locate(0);
+
+    expect(Reflect.set(location, "physicalIndex", 3)).toBe(true);
+    expect(layout.locate(0)).toStrictEqual({
+      kind: "materialized",
+      physicalIndex: 0,
+    });
+  });
+
   test("store the key separately and pack remaining columns into a tuple payload", () => {
     const { schema, id } = createUserSchema();
     const layout = createSpreadsheetStorageLayout(schema, {
