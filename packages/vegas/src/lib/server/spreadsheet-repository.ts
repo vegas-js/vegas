@@ -2,6 +2,7 @@ import { spreadsheetEq } from "./spreadsheet-query-ir";
 import type { SpreadsheetColumn } from "./spreadsheet-schema";
 import {
   tryFindSpreadsheetTableEntriesByMaterializedColumn,
+  tryUpdateSpreadsheetTableAtKnownIndex,
   type SpreadsheetTable,
   type SpreadsheetTableEntry,
 } from "./spreadsheet-table";
@@ -167,7 +168,10 @@ export function createSpreadsheetRepository<Row, Key>(
           requireAvailableKey(nextKey);
         }
 
-        table.updateAt(entry.index, row);
+        if (!tryUpdateSpreadsheetTableAtKnownIndex(table, entry.index, row)) {
+          table.updateAt(entry.index, row);
+        }
+
         return true;
       });
     },

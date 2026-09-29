@@ -35,6 +35,7 @@ export interface SpreadsheetTable<Row> {
 }
 
 const spreadsheetTableMaterializedLookup = Symbol("spreadsheetTableMaterializedLookup");
+const spreadsheetTableKnownIndexUpdate = Symbol("spreadsheetTableKnownIndexUpdate");
 
 interface SpreadsheetTableWithMaterializedLookup<Row> extends SpreadsheetTable<Row> {
   [spreadsheetTableMaterializedLookup](
@@ -42,6 +43,10 @@ interface SpreadsheetTableWithMaterializedLookup<Row> extends SpreadsheetTable<R
     value: unknown,
     limit: number,
   ): SpreadsheetTableEntry<Row>[] | undefined;
+}
+
+interface SpreadsheetTableWithKnownIndexUpdate<Row> extends SpreadsheetTable<Row> {
+  [spreadsheetTableKnownIndexUpdate](index: number, row: Row): void;
 }
 
 export function tryFindSpreadsheetTableEntriesByMaterializedColumn<Row>(
@@ -55,6 +60,23 @@ export function tryFindSpreadsheetTableEntriesByMaterializedColumn<Row>(
   ];
 
   return lookup?.(logicalIndex, value, limit);
+}
+
+export function tryUpdateSpreadsheetTableAtKnownIndex<Row>(
+  table: SpreadsheetTable<Row>,
+  index: number,
+  row: Row,
+): boolean {
+  const update = (table as Partial<SpreadsheetTableWithKnownIndexUpdate<Row>>)[
+    spreadsheetTableKnownIndexUpdate
+  ];
+
+  if (update === undefined) {
+    return false;
+  }
+
+  update(index, row);
+  return true;
 }
 
 function requireTableCoordinate(value: number, name: "startRow" | "startColumn"): number {
@@ -268,6 +290,14 @@ export function createSpreadsheetTable<Row>(
     return entries;
   }
 
+  function updateKnownIndex(index: number, row: Row): void {
+    const resolvedIndex = requireTableIndex(index);
+    const values = [...storageCodec.encode(codec.encode(row))];
+    const rowIndex = startRow + resolvedIndex;
+
+    sheet.getRange(rowIndex, startColumn, 1, storageCodec.physicalWidth).setValues([values]);
+  }
+
   function selectQueryCandidates(plan: SpreadsheetQueryPlan): SpreadsheetQueryCandidate[] {
     requireQueryPlan(plan, codec.width);
 
@@ -335,7 +365,8 @@ export function createSpreadsheetTable<Row>(
     return executePlanEntries(plan).map((entry) => entry.row);
   }
 
-  const table: SpreadsheetTableWithMaterializedLookup<Row> = {
+  const table: SpreadsheetTableWithMaterializedLookup<Row> &
+    SpreadsheetTableWithKnownIndexUpdate<Row> = {
     readAll(): Row[] {
       return readValues().map((row) => codec.decode(row));
     },
@@ -359,6 +390,10 @@ export function createSpreadsheetTable<Row>(
       return findEntriesByMaterializedColumn(logicalIndex, value, limit);
     },
 
+    [spreadsheetTableKnownIndexUpdate](index, row): void {
+      updateKnownIndex(index, row);
+    },
+
     append(row): void {
       const values = [...storageCodec.encode(codec.encode(row))];
       const rowIndex = startRow + readPhysicalValues().length;
@@ -374,10 +409,7 @@ export function createSpreadsheetTable<Row>(
         throw new RangeError(`Spreadsheet table row index ${resolvedIndex} is out of range.`);
       }
 
-      const values = [...storageCodec.encode(codec.encode(row))];
-      const rowIndex = startRow + resolvedIndex;
-
-      sheet.getRange(rowIndex, startColumn, 1, storageCodec.physicalWidth).setValues([values]);
+      updateKnownIndex(resolvedIndex, row);
     },
 
     deleteAt(index): void {
