@@ -169,25 +169,26 @@ function requireStorageLogicalIndex(index: number, logicalWidth: number): number
   return index;
 }
 
+function copyStorageLocation(location: SpreadsheetStorageLocation): SpreadsheetStorageLocation {
+  return location.kind === "materialized"
+    ? {
+        kind: location.kind,
+        physicalIndex: location.physicalIndex,
+      }
+    : {
+        kind: location.kind,
+        physicalIndex: location.physicalIndex,
+        payloadIndex: location.payloadIndex,
+      };
+}
+
 function resolveStorageLayout(layout: SpreadsheetStorageLayout): ResolvedStorageLayout {
   const logicalWidth = requireStorageLayoutWidth(layout.logicalWidth, "logical");
   const physicalWidth = requireStorageLayoutWidth(layout.physicalWidth, "physical");
   const locations = Array.from(
     { length: logicalWidth },
-    (_, logicalIndex): SpreadsheetStorageLocation => {
-      const location = layout.locate(logicalIndex);
-
-      return location.kind === "materialized"
-        ? {
-            kind: location.kind,
-            physicalIndex: location.physicalIndex,
-          }
-        : {
-            kind: location.kind,
-            physicalIndex: location.physicalIndex,
-            payloadIndex: location.payloadIndex,
-          };
-    },
+    (_, logicalIndex): SpreadsheetStorageLocation =>
+      copyStorageLocation(layout.locate(logicalIndex)),
   );
   const occupiedPhysicalIndices = new Set<number>();
   const payloadIndices = new Set<number>();
@@ -295,7 +296,9 @@ export function createSpreadsheetStorageCodec<
     physicalWidth,
 
     locate(logicalIndex): SpreadsheetStorageLocation {
-      return locations[requireStorageLogicalIndex(logicalIndex, logicalWidth)]!;
+      return copyStorageLocation(
+        locations[requireStorageLogicalIndex(logicalIndex, logicalWidth)]!,
+      );
     },
 
     encode(values): readonly unknown[] {

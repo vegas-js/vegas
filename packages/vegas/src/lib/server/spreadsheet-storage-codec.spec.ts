@@ -130,6 +130,30 @@ describe("createSpreadsheetStorageCodec", () => {
     );
   });
 
+  test("do not expose mutable codec layout mappings", () => {
+    const layout: SpreadsheetStorageLayout = {
+      mode: "columns",
+      logicalWidth: 2,
+      physicalWidth: 2,
+      locate(logicalIndex) {
+        return {
+          kind: "materialized",
+          physicalIndex: 1 - logicalIndex,
+        };
+      },
+    };
+    const codec = createSpreadsheetStorageCodec(layout);
+    const location = codec.locate(0);
+
+    expect(Reflect.set(location, "physicalIndex", 0)).toBe(true);
+    expect(codec.locate(0)).toStrictEqual({
+      kind: "materialized",
+      physicalIndex: 1,
+    });
+    expect(codec.encode(["logical-0", "logical-1"])).toStrictEqual(["logical-1", "logical-0"]);
+    expect(codec.decode(["physical-0", "physical-1"])).toStrictEqual(["physical-1", "physical-0"]);
+  });
+
   test("reject invalid custom layout mappings", () => {
     const duplicatePhysicalIndex: SpreadsheetStorageLayout = {
       mode: "columns",
