@@ -7,6 +7,7 @@ import {
   createSpreadsheetStorageCodec,
   createSpreadsheetStorageLayout,
   type SpreadsheetStorageCodec,
+  type SpreadsheetStorageLayout,
 } from "../server";
 
 interface UserRow {
@@ -64,6 +65,31 @@ describe("createSpreadsheetStorageCodec", () => {
     expect(codec.encode(logicalValues)).not.toBe(logicalValues);
     expect(codec.decode(logicalValues)).toStrictEqual(logicalValues);
     expect(codec.decode(logicalValues)).not.toBe(logicalValues);
+  });
+
+  test("respect materialized physical indices in custom layouts", () => {
+    const layout: SpreadsheetStorageLayout = {
+      mode: "columns",
+      logicalWidth: 2,
+      physicalWidth: 2,
+      locate(logicalIndex) {
+        if (logicalIndex === 0) {
+          return {
+            kind: "materialized",
+            physicalIndex: 1,
+          };
+        }
+
+        return {
+          kind: "materialized",
+          physicalIndex: 0,
+        };
+      },
+    };
+    const codec = createSpreadsheetStorageCodec(layout);
+
+    expect(codec.encode(["logical-0", "logical-1"])).toStrictEqual(["logical-1", "logical-0"]);
+    expect(codec.decode(["physical-0", "physical-1"])).toStrictEqual(["physical-1", "physical-0"]);
   });
 
   test("create a storage codec directly from a schema", () => {

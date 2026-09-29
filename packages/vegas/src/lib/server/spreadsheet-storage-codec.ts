@@ -179,10 +179,6 @@ export function createSpreadsheetStorageCodec<
     encode(values): readonly unknown[] {
       const logicalValues = requireStorageWidth(values, layout.logicalWidth, "logical");
 
-      if (payloadPhysicalIndex === undefined) {
-        return [...logicalValues];
-      }
-
       const physicalValues = Array.from<unknown>({
         length: layout.physicalWidth,
       });
@@ -203,18 +199,20 @@ export function createSpreadsheetStorageCodec<
         payload[location.payloadIndex] = value;
       }
 
-      physicalValues[payloadPhysicalIndex] = JSON.stringify(payload);
+      if (payloadPhysicalIndex !== undefined) {
+        physicalValues[payloadPhysicalIndex] = JSON.stringify(payload);
+      }
+
       return physicalValues;
     },
 
     decode(values): readonly unknown[] {
       const physicalValues = requireStorageWidth(values, layout.physicalWidth, "physical");
 
-      if (payloadPhysicalIndex === undefined) {
-        return [...physicalValues];
-      }
-
-      const payload = parsePayload(physicalValues[payloadPhysicalIndex], payloadWidth);
+      const payload =
+        payloadPhysicalIndex === undefined
+          ? []
+          : parsePayload(physicalValues[payloadPhysicalIndex], payloadWidth);
       const logicalValues = Array.from<unknown>({
         length: layout.logicalWidth,
       });
