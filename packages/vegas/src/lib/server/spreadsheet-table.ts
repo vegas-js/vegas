@@ -8,6 +8,7 @@ import type {
 } from "./spreadsheet-query-plan";
 import { evaluateSpreadsheetQueryPushdown } from "./spreadsheet-query-pushdown";
 import type { SpreadsheetRowCodec } from "./spreadsheet-row-codec";
+import type { SpreadsheetSchema, SpreadsheetSchemaColumnSource } from "./spreadsheet-schema";
 import type { SpreadsheetStorageCodec } from "./spreadsheet-storage-codec";
 
 export interface SpreadsheetTableOptions {
@@ -119,6 +120,12 @@ function compareQueryCandidates(
   return left.sourceIndex - right.sourceIndex;
 }
 
+function isSpreadsheetSchema<Row>(
+  source: SpreadsheetRowCodec<Row> | SpreadsheetSchema<Row, SpreadsheetSchemaColumnSource<Row>>,
+): source is SpreadsheetSchema<Row, SpreadsheetSchemaColumnSource<Row>> {
+  return "codec" in source && "columnList" in source && "getColumn" in source;
+}
+
 function requireStorageCodecWidth(
   storageCodec: SpreadsheetStorageCodec,
   logicalWidth: number,
@@ -135,8 +142,19 @@ function requireStorageCodecWidth(
 export function createSpreadsheetTable<Row>(
   sheet: GoogleAppsScript.Spreadsheet.Sheet,
   codec: SpreadsheetRowCodec<Row>,
+  options?: SpreadsheetTableOptions,
+): SpreadsheetTable<Row>;
+export function createSpreadsheetTable<Row, Columns extends SpreadsheetSchemaColumnSource<Row>>(
+  sheet: GoogleAppsScript.Spreadsheet.Sheet,
+  schema: SpreadsheetSchema<Row, Columns>,
+  options?: SpreadsheetTableOptions,
+): SpreadsheetTable<Row>;
+export function createSpreadsheetTable<Row>(
+  sheet: GoogleAppsScript.Spreadsheet.Sheet,
+  source: SpreadsheetRowCodec<Row> | SpreadsheetSchema<Row, SpreadsheetSchemaColumnSource<Row>>,
   options: SpreadsheetTableOptions = {},
 ): SpreadsheetTable<Row> {
+  const codec = isSpreadsheetSchema(source) ? source.codec : source;
   const startRow = requireTableCoordinate(options.startRow ?? 1, "startRow");
   const startColumn = requireTableCoordinate(options.startColumn ?? 1, "startColumn");
   const storageCodec = requireStorageCodecWidth(
