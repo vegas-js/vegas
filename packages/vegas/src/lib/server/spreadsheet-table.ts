@@ -136,6 +136,12 @@ function resolveQueryPlan(
   return "toPlan" in query ? query.toPlan() : query;
 }
 
+function throwUnsupportedQueryExpressionKind(expression: { readonly kind?: unknown }): never {
+  throw new RangeError(
+    `Spreadsheet query expression kind "${String(expression.kind)}" is not supported.`,
+  );
+}
+
 function requireQueryExpression(
   expression: SpreadsheetQueryExpression,
   logicalWidth: number,
@@ -167,6 +173,10 @@ function requireQueryExpression(
       for (const candidate of expression.expressions) {
         requireQueryExpression(candidate, logicalWidth);
       }
+
+      return;
+    default:
+      return throwUnsupportedQueryExpressionKind(expression);
   }
 }
 

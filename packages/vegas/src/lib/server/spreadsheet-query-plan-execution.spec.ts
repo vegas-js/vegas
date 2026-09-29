@@ -12,6 +12,7 @@ import {
   createSpreadsheetTable,
   spreadsheetEq,
   spreadsheetOrderBy,
+  type SpreadsheetQueryExpression,
 } from "../server";
 
 interface UserRow {
@@ -281,5 +282,17 @@ describe("SpreadsheetTable.execute", () => {
         orderBy: [],
       }),
     ).toThrow("Spreadsheet query and expression must not be empty.");
+
+    const unsupportedWhere = {
+      kind: "unsupported",
+    } as unknown as SpreadsheetQueryExpression;
+
+    expect(() =>
+      table.execute({
+        where: unsupportedWhere,
+        orderBy: [],
+      }),
+    ).toThrow('Spreadsheet query expression kind "unsupported" is not supported.');
+    expect(source.getLastRow).not.toHaveBeenCalled();
   });
 });

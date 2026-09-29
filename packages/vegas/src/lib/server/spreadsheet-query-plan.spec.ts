@@ -7,6 +7,7 @@ import {
   spreadsheetEq,
   spreadsheetOrderBy,
   type SpreadsheetOrderBy,
+  type SpreadsheetQueryExpression,
   type SpreadsheetQueryPlan,
 } from "../server";
 
@@ -104,6 +105,18 @@ describe("spreadsheet query plan", () => {
         { kind: "equal", column: 0, value: 42 },
       ],
     });
+  });
+
+  test("reject unsupported query expression kinds instead of dropping the filter", () => {
+    const where = {
+      kind: "unsupported",
+    } as unknown as SpreadsheetQueryExpression;
+
+    expect(() =>
+      createSpreadsheetQueryPlan({
+        where,
+      }),
+    ).toThrow('Spreadsheet query expression kind "unsupported" is not supported.');
   });
 
   test.each([-1, 1.5, Number.NaN])("reject invalid limit: %s", (limit) => {

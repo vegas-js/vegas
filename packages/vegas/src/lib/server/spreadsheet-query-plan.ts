@@ -32,6 +32,12 @@ function requireQueryLimit(limit: number): number {
   return limit;
 }
 
+function throwUnsupportedQueryExpressionKind(expression: { readonly kind?: unknown }): never {
+  throw new RangeError(
+    `Spreadsheet query expression kind "${String(expression.kind)}" is not supported.`,
+  );
+}
+
 function copyQueryExpression(expression: SpreadsheetQueryExpression): SpreadsheetQueryExpression {
   switch (expression.kind) {
     case "equal":
@@ -51,6 +57,8 @@ function copyQueryExpression(expression: SpreadsheetQueryExpression): Spreadshee
         kind: expression.kind,
         expressions: expression.expressions.map(copyQueryExpression),
       };
+    default:
+      return throwUnsupportedQueryExpressionKind(expression);
   }
 }
 
