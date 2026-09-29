@@ -26,18 +26,19 @@ export default defineConfig({
           ],
         },
         {
-          text: "Development",
+          text: "Runtime",
           items: [
             { text: "Local Runtime", link: "/guide/local-runtime/" },
-            { text: "Spreadsheet Data", link: "/guide/spreadsheet-data/" },
+            { text: "Runtime API coverage", link: "/guide/runtime-api-coverage/" },
           ],
         },
         {
+          text: "Data",
+          items: [{ text: "Spreadsheet Data", link: "/guide/spreadsheet-data/" }],
+        },
+        {
           text: "Reference",
-          items: [
-            { text: "JavaScript API", link: "/guide/api-javascript/" },
-            { text: "Runtime API coverage", link: "/guide/runtime-api-coverage/" },
-          ],
+          items: [{ text: "JavaScript API", link: "/guide/api-javascript/" }],
         },
       ],
       "/config/": [
