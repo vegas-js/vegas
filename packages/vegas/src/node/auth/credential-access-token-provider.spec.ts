@@ -1,6 +1,5 @@
 import { describe, expect, test, vi } from "vitest";
 
-import { AppsScriptAuthPrerequisiteError } from "../auth/error";
 import type {
   AppsScriptAccessTokenRefresher,
   AppsScriptRefreshedAccessToken,
@@ -8,6 +7,7 @@ import type {
 import type { AppsScriptCredential } from "./credential";
 import { createAppsScriptCredentialAccessTokenProvider } from "./credential-access-token-provider";
 import type { AppsScriptCredentialStore } from "./credential-store";
+import { AppsScriptAuthPrerequisiteError } from "./error";
 
 const now = 1_000_000;
 

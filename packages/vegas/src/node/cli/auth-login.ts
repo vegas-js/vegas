@@ -1,4 +1,5 @@
-import { DEFAULT_APPS_SCRIPT_AUTH_PROFILE, loginGoogleAppsScriptUser } from "../push";
+import { DEFAULT_APPS_SCRIPT_AUTH_PROFILE } from "../auth/auth-profile";
+import { loginGoogleAppsScriptUser } from "../auth/user-login";
 import { validateAuthProfileOption } from "./auth-profile-option";
 import { CliUsageError } from "./error";
 

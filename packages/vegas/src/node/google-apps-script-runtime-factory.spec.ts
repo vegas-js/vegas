@@ -1,7 +1,7 @@
 import { describe, expect, expectTypeOf, test, vi } from "vitest";
 
+import { createAppsScriptUserAccessTokenProvider } from "./auth/user-access-token-provider";
 import { createGoogleAppsScriptUserRuntime } from "./google-apps-script-runtime-factory";
-import { createAppsScriptUserAccessTokenProvider } from "./push";
 import type { RuntimeBackend } from "./runtime";
 import { createGoogleAppsScriptRuntime } from "./runtime/node";
 

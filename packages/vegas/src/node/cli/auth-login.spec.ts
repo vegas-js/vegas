@@ -1,9 +1,9 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
-import { loginGoogleAppsScriptUser } from "../push";
+import { loginGoogleAppsScriptUser } from "../auth/user-login";
 import { runAuth } from "./auth-login";
 
-vi.mock("../push", () => ({
+vi.mock("../auth/user-login", () => ({
   DEFAULT_APPS_SCRIPT_AUTH_PROFILE: "default",
   loginGoogleAppsScriptUser: vi.fn(),
 }));
