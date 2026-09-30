@@ -1,4 +1,4 @@
-import { HtmlDocument } from "../../html";
+import { HtmlDocument } from "../../html-document";
 import type { HtmlOutputSnapshot } from "../../runtime";
 import { serializeInlineScriptValue } from "./inline-script";
 
