@@ -4,7 +4,7 @@ layout: home
 
 hero:
   name: Vegas
-  text: The Build Tool for the Google Apps Script
+  text: The Build Tool for Google Apps Script
   tagline: "Vegas は Google Apps Script に特化した、<br>Vite ベースの開発・ビルドツールです。"
   image:
     src: /logo.webp

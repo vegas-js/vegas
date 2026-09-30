@@ -6,38 +6,19 @@ outline: deep
 
 ## Overview
 
-Vegas (Vite + GAS) is an integrated development and build tool for modern projects on the Google Apps Script platform. It covers local development, production builds, authentication, and pushing build output to Apps Script.
+Vegas (Vite + GAS) is a development and build tool that brings a dedicated modern project workflow to the Google Apps Script platform.
 
 - A development server with a local Apps Script-oriented runtime for supported APIs, powered by [Vite](https://vite.dev).
 
-- A production build pipeline that bundles frontend and server code for Apps Script.
+- A production build pipeline that produces Apps Script-specific bundles from frontend and server code.
 
-- Native Apps Script authentication and push commands for sending built output directly to an Apps Script project.
+- Native Apps Script authentication and push commands for sending build artifacts directly to an Apps Script project.
 
 Vegas provides defaults for common project layouts, so many projects can start without custom configuration. See [Configuring Vegas](../config/) for available options.
 
 Vite plugins can be supplied through Vegas configuration, allowing framework integrations and other Vite plugins to participate in the client build.
 
 The reasoning behind the project is explained in detail in the [Why Vegas](./why) section.
-
-## Choose Your Next Step
-
-| Goal                                                       | Read                                                                                              |
-| ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
-| Start a new project                                        | Continue with [Scaffolding Your First Vegas Project](#scaffolding-your-first-vegas-project) below |
-| Learn the Vegas commands and their roles                   | [Command Line Interface](./cli)                                                                   |
-| Understand source layout and SPA entry points              | [Project Structure](./project-structure)                                                          |
-| Compare development, preview, and production builds        | [Development and Build](./development-and-build)                                                  |
-| Understand local and Google server-function backends       | [Runtime Architecture](./runtime-architecture)                                                    |
-| Understand local server-side execution                     | [Local Runtime](./local-runtime)                                                                  |
-| Execute server functions through Google Apps Script        | [Google Apps Script Runtime](./google-apps-script-runtime)                                        |
-| Test server functions with an isolated Local Runtime       | [Vitest](./vitest)                                                                                |
-| Test the local web app and browser bridge                  | [Playwright](./playwright)                                                                        |
-| Browse package entry points and exported APIs              | [JavaScript API](./api-javascript)                                                                |
-| Model typed data stored in Google Sheets                   | [Spreadsheet Data](./spreadsheet-data)                                                            |
-| Check which Apps Script APIs are modeled                   | [Runtime API coverage](./runtime-api-coverage)                                                    |
-| Configure project layout, Apps Script metadata, or plugins | [Configuring Vegas](../config/)                                                                   |
-| Understand the design rationale                            | [Why Vegas](./why) and [Project Philosophy](./philosophy)                                         |
 
 ## Scaffolding Your First Vegas Project
 
