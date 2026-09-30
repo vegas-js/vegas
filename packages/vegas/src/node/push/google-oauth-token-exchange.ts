@@ -1,9 +1,9 @@
+import { AppsScriptRemoteServiceError } from "../google/apps-script-remote-service-error";
 import { formatGoogleHttpError } from "../google/error-response";
 import {
   createGoogleHttpRequestSignal,
   type GoogleHttpRequestLifetimeOptions,
 } from "../google/http-request";
-import { AppsScriptRemoteServiceError } from "./error";
 import { APPS_SCRIPT_PROJECTS_OAUTH_SCOPE } from "./google-oauth-authorization";
 import type { GoogleOAuthDesktopClient } from "./google-oauth-client";
 import {

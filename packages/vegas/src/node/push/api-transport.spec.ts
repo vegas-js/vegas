@@ -1,7 +1,7 @@
 import { describe, expect, test, vi } from "vitest";
 
+import { AppsScriptRemoteServiceError } from "../google/apps-script-remote-service-error";
 import { createAppsScriptApiPushTransport } from "./api-transport";
-import { AppsScriptRemoteServiceError } from "./error";
 import type { AppsScriptPushRequest } from "./request";
 
 const request: AppsScriptPushRequest = {

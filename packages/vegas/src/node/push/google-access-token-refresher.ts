@@ -1,3 +1,4 @@
+import { AppsScriptRemoteServiceError } from "../google/apps-script-remote-service-error";
 import { formatGoogleHttpError } from "../google/error-response";
 import {
   createGoogleHttpRequestSignal,
@@ -9,7 +10,6 @@ import type {
   AppsScriptRefreshedAccessToken,
 } from "./access-token";
 import type { AppsScriptCredential } from "./credential";
-import { AppsScriptRemoteServiceError } from "./error";
 import {
   GOOGLE_OAUTH_TOKEN_URL,
   parseGoogleOAuthAccessToken,

@@ -1,7 +1,7 @@
 import { describe, expect, test, vi } from "vitest";
 
+import { AppsScriptRemoteServiceError } from "../google/apps-script-remote-service-error";
 import type { AppsScriptCredential } from "./credential";
-import { AppsScriptRemoteServiceError } from "./error";
 import { createGoogleAppsScriptAccessTokenRefresher } from "./google-access-token-refresher";
 
 const now = 1_000_000;

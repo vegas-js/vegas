@@ -11,10 +11,3 @@ export class AppsScriptPushPrerequisiteError extends Error {
     this.name = "AppsScriptPushPrerequisiteError";
   }
 }
-
-export class AppsScriptRemoteServiceError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = "AppsScriptRemoteServiceError";
-  }
-}

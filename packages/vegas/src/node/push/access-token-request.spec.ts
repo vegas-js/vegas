@@ -1,5 +1,6 @@
 import { describe, expect, test, vi } from "vitest";
 
+import { AppsScriptRemoteServiceError } from "../google/apps-script-remote-service-error";
 import {
   APPS_SCRIPT_ACCESS_TOKEN_EXPIRY_SKEW_MS,
   getUsableAppsScriptAccessToken,
@@ -9,7 +10,6 @@ import {
 import type { AppsScriptCredential } from "./credential";
 import { createAppsScriptCredentialAccessTokenProvider } from "./credential-access-token-provider";
 import type { AppsScriptCredentialStore } from "./credential-store";
-import { AppsScriptRemoteServiceError } from "./error";
 import { createGoogleAppsScriptAccessTokenRefresher } from "./google-access-token-refresher";
 
 const now = 1_000_000;

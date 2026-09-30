@@ -1,6 +1,6 @@
 import { describe, expect, test, vi } from "vitest";
 
-import { AppsScriptRemoteServiceError } from "./error";
+import { AppsScriptRemoteServiceError } from "../google/apps-script-remote-service-error";
 import { APPS_SCRIPT_PROJECTS_OAUTH_SCOPE } from "./google-oauth-authorization";
 import { exchangeGoogleOAuthAuthorizationCode } from "./google-oauth-token-exchange";
 
