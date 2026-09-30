@@ -1,5 +1,5 @@
-import type { LocalRuntimeProject } from "./local-runtime-project";
-import type { InvocationScope } from "./runtime";
+import type { InvocationScope } from "../runtime";
+import type { LocalRuntimeProject } from "./project";
 
 export function createInvocationScope(project: LocalRuntimeProject): InvocationScope {
   return {

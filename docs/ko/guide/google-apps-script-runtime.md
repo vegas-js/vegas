@@ -129,13 +129,13 @@ Apps Script 함수 자체가 throw하면, Vegas는 Google이 반환한 error typ
 
 인프라 오류에는 `RuntimeInfrastructureError`를 사용하며 다음과 같이 분류합니다.
 
-| Kind | 의미 |
-| --- | --- |
-| `authentication` | credential, token 획득 또는 authorization이 실패했습니다. |
-| `serialization` | 함수 인수를 Google 실행 요청으로 표현할 수 없습니다. |
-| `timeout` | 실행 요청이 지원되는 request lifetime을 초과했거나 Google이 execution timeout을 반환했습니다. |
-| `backend` | 요청을 보낼 수 없거나 Google이 일반적인 script error response 이외의 방식으로 요청을 거부했습니다. |
-| `protocol` | Google이 반환한 response를 Vegas가 유효한 실행 결과로 해석할 수 없습니다. |
+| Kind             | 의미                                                                                               |
+| ---------------- | -------------------------------------------------------------------------------------------------- |
+| `authentication` | credential, token 획득 또는 authorization이 실패했습니다.                                          |
+| `serialization`  | 함수 인수를 Google 실행 요청으로 표현할 수 없습니다.                                               |
+| `timeout`        | 실행 요청이 지원되는 request lifetime을 초과했거나 Google이 execution timeout을 반환했습니다.      |
+| `backend`        | 요청을 보낼 수 없거나 Google이 일반적인 script error response 이외의 방식으로 요청을 거부했습니다. |
+| `protocol`       | Google이 반환한 response를 Vegas가 유효한 실행 결과로 해석할 수 없습니다.                          |
 
 이 구분을 통해 application exception은 application exception으로 처리하면서 transport 및 authentication 실패를 별도로 구분할 수 있습니다.
 

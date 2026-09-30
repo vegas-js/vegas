@@ -6,12 +6,11 @@ import { ReloadableLocalRuntime } from "../../dev/reloadable-local-runtime";
 import { createRuntimeProgram } from "../../dev/runtime-program";
 import { LocalSpreadsheetUrlResolver } from "../../dev/webapp/local-spreadsheet-url";
 import { createGoogleAppsScriptUserRuntime } from "../../google-apps-script-runtime-factory";
-import { createLocalRuntime } from "../../local-runtime-factory";
+import { createInvocationScope, createLocalRuntime } from "../../local-runtime";
 import { loadProject, scanRuntimeDataSources, type ResolvedProject } from "../../project";
 import type { LocalRuntimeSession, RuntimeBackend } from "../../runtime";
 import { reconcileLocalRuntimeSession } from "../../runtime-data-reconcile";
 import { resetLocalRuntimeSession } from "../../runtime-data-reset";
-import { createInvocationScope } from "../../runtime-scope";
 import { loadRuntimeDataSnapshot } from "./runtime-data";
 
 type DevApplicationMode = "development" | "production";

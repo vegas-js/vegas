@@ -10,10 +10,10 @@ Vegas는 프로젝트 루트에서 source, Runtime Data, output 디렉터리를 
 
 Vegas는 `appType`을 통해 두 가지 프로젝트 유형을 지원합니다.
 
-| `appType` | 용도 | 기본 클라이언트 디렉터리 | 기본 서버 디렉터리 |
-| --- | --- | --- | --- |
-| `"spa"` | 클라이언트 애플리케이션이 있는 Apps Script 프로젝트 | `src/client` | `src/server` |
-| `"script"` | SPA 클라이언트 엔트리가 없는 Apps Script 프로젝트 | — | `src` |
+| `appType`  | 용도                                                | 기본 클라이언트 디렉터리 | 기본 서버 디렉터리 |
+| ---------- | --------------------------------------------------- | ------------------------ | ------------------ |
+| `"spa"`    | 클라이언트 애플리케이션이 있는 Apps Script 프로젝트 | `src/client`             | `src/server`       |
+| `"script"` | SPA 클라이언트 엔트리가 없는 Apps Script 프로젝트   | —                        | `src`              |
 
 기본값은 `"spa"`입니다.
 

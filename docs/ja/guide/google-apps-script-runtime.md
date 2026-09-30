@@ -129,13 +129,13 @@ Apps Script の関数自体がthrowした場合、Vegas は Google から返さ�
 
 インフラストラクチャの失敗では `RuntimeInfrastructureError` を使用し、次のように分類します。
 
-| Kind | 意味 |
-| --- | --- |
-| `authentication` | credential、token取得、authorizationのいずれかに失敗しました。 |
-| `serialization` | 関数の引数を Google の実行リクエストで表現できません。 |
-| `timeout` | 実行リクエストが対応するrequest lifetimeを超えたか、Google がexecution timeoutを返しました。 |
-| `backend` | リクエストを送信できなかったか、通常のscript error response以外の形で Google に拒否されました。 |
-| `protocol` | Google のresponseを Vegas が有効な実行結果として解釈できませんでした。 |
+| Kind             | 意味                                                                                            |
+| ---------------- | ----------------------------------------------------------------------------------------------- |
+| `authentication` | credential、token取得、authorizationのいずれかに失敗しました。                                  |
+| `serialization`  | 関数の引数を Google の実行リクエストで表現できません。                                          |
+| `timeout`        | 実行リクエストが対応するrequest lifetimeを超えたか、Google がexecution timeoutを返しました。    |
+| `backend`        | リクエストを送信できなかったか、通常のscript error response以外の形で Google に拒否されました。 |
+| `protocol`       | Google のresponseを Vegas が有効な実行結果として解釈できませんでした。                          |
 
 この分離により、アプリケーション例外はアプリケーション例外として扱いつつ、transportやauthenticationの失敗を区別できます。
 

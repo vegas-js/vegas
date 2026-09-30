@@ -12,13 +12,13 @@ Vegas はこの隔たりを埋めるため、GAS のアーキテクチャを尊�
 
 ## 機能比較
 
-| 機能 | clasp 単体 | Vite 単体 | Vegas |
-| :--- | :--- | :--- | :--- |
-| ローカルfrontend dev server | なし | あり | あり |
-| ローカル Apps Script 向け Runtime | なし | なし | 対応APIで利用可能 |
-| Apps Script projectへのpush | あり | なし | あり |
-| Apps Script 向けbuild | なし | 一般的なWeb build | あり |
-| SPA client entryの自動検出 | なし | 既定ではなし | あり |
+| 機能                              | clasp 単体 | Vite 単体         | Vegas             |
+| :-------------------------------- | :--------- | :---------------- | :---------------- |
+| ローカルfrontend dev server       | なし       | あり              | あり              |
+| ローカル Apps Script 向け Runtime | なし       | なし              | 対応APIで利用可能 |
+| Apps Script projectへのpush       | あり       | なし              | あり              |
+| Apps Script 向けbuild             | なし       | 一般的なWeb build | あり              |
+| SPA client entryの自動検出        | なし       | 既定ではなし      | あり              |
 
 ## 主な利点
 

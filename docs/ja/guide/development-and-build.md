@@ -6,11 +6,11 @@ outline: deep
 
 Vegas は development・preview・本番ビルドで同じプロジェクトモデルとビルド計画を使用しますが、それぞれライフサイクルが異なります。
 
-| ワークフロー | ビルドモード | ローカル Web アプリ | プロジェクトファイルを監視 | Local Runtime を起動 | `output.dir` へ書き込み |
-| --- | --- | --- | --- | --- | --- |
-| `vegas`, `vegas dev`, `vegas serve` | development | する | する | する | しない |
-| `vegas preview` | production | する | する | する | しない |
-| `vegas build` | production | しない | しない | しない | する |
+| ワークフロー                        | ビルドモード | ローカル Web アプリ | プロジェクトファイルを監視 | Local Runtime を起動 | `output.dir` へ書き込み |
+| ----------------------------------- | ------------ | ------------------- | -------------------------- | -------------------- | ----------------------- |
+| `vegas`, `vegas dev`, `vegas serve` | development  | する                | する                       | する                 | しない                  |
+| `vegas preview`                     | production   | する                | する                       | する                 | しない                  |
+| `vegas build`                       | production   | しない              | しない                     | しない               | する                    |
 
 ビルドモードは、Vegas がクライアント／サーバーアーティファクトをビルドするときに使用する Vite の mode と環境値を制御します。アーティファクトを本番出力ディレクトリへ書き込むかどうかとは別の概念です。
 

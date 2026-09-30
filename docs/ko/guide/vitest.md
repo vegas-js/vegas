@@ -129,13 +129,13 @@ test("starts from the fixture again", async ({ vegas }) => {
 
 `vegas` fixture는 다음 surface를 가진 `LocalRuntimeHarness`입니다.
 
-| Property | 용도 |
-| --- | --- |
-| `appsScript` | Local Runtime을 통해 서버 함수를 실행합니다. |
-| `runtime` | 내부 `LocalRuntime`에 접근합니다. |
-| `session` | 이 테스트 harness가 소유하는 `LocalRuntimeSession`에 접근합니다. |
-| `propertiesStore` | 인메모리 Properties store를 직접 검사하거나 변경합니다. |
-| `spreadsheetStore` | 인메모리 Spreadsheet store를 직접 검사하거나 변경합니다. |
+| Property           | 용도                                                             |
+| ------------------ | ---------------------------------------------------------------- |
+| `appsScript`       | Local Runtime을 통해 서버 함수를 실행합니다.                     |
+| `runtime`          | 내부 `LocalRuntime`에 접근합니다.                                |
+| `session`          | 이 테스트 harness가 소유하는 `LocalRuntimeSession`에 접근합니다. |
+| `propertiesStore`  | 인메모리 Properties store를 직접 검사하거나 변경합니다.          |
+| `spreadsheetStore` | 인메모리 Spreadsheet store를 직접 검사하거나 변경합니다.         |
 
 애플리케이션 테스트에서는 일반적으로 `appsScript.execute()`를 통해 동작을 확인하세요. 더 낮은 수준의 Runtime과 store는 직접적인 상태 assertion이나 Runtime 전용 setup이 필요한 경우 사용할 수 있습니다.
 

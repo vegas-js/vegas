@@ -6,11 +6,11 @@ outline: deep
 
 Vegas는 development, preview, production build에서 같은 프로젝트 모델과 build planning을 사용하지만 각 워크플로의 lifecycle은 다릅니다.
 
-| 워크플로 | 빌드 모드 | 로컬 Web 앱 | 프로젝트 파일 감시 | Local Runtime 시작 | `output.dir`에 기록 |
-| --- | --- | --- | --- | --- | --- |
-| `vegas`, `vegas dev`, `vegas serve` | development | 예 | 예 | 예 | 아니요 |
-| `vegas preview` | production | 예 | 예 | 예 | 아니요 |
-| `vegas build` | production | 아니요 | 아니요 | 아니요 | 예 |
+| 워크플로                            | 빌드 모드   | 로컬 Web 앱 | 프로젝트 파일 감시 | Local Runtime 시작 | `output.dir`에 기록 |
+| ----------------------------------- | ----------- | ----------- | ------------------ | ------------------ | ------------------- |
+| `vegas`, `vegas dev`, `vegas serve` | development | 예          | 예                 | 예                 | 아니요              |
+| `vegas preview`                     | production  | 예          | 예                 | 예                 | 아니요              |
+| `vegas build`                       | production  | 아니요      | 아니요             | 아니요             | 예                  |
 
 빌드 모드는 Vegas가 클라이언트 및 서버 아티팩트를 빌드할 때 사용하는 Vite mode와 환경 값을 제어합니다. 아티팩트를 프로덕션 출력 디렉터리에 기록하는지 여부와는 별개의 개념입니다.
 

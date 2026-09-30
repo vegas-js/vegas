@@ -148,12 +148,12 @@ viewer의 편집은 Local Runtime 서버 코드가 사용하는 현재 session�
 
 구조적 coverage는 어떤 method가 Vegas Runtime에 존재하는지를 나타냅니다. behavior status는 해당 method가 어떤 종류의 구현인지를 나타냅니다. 이 둘은 의도적으로 분리되어 있습니다.
 
-| Status | 의미 |
-| --- | --- |
-| `implemented` | 알려진 Local Runtime 고유의 의미상 차이 없이 문서화된 public contract를 구현합니다. |
+| Status            | 의미                                                                                                                        |
+| ----------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| `implemented`     | 알려진 Local Runtime 고유의 의미상 차이 없이 문서화된 public contract를 구현합니다.                                         |
 | `local-emulation` | 로컬 모델 또는 로컬 플랫폼 구현을 통해 문서화된 기능을 제공하므로 관측 가능한 동작이 Google Apps Script와 다를 수 있습니다. |
-| `no-op` | 부작용을 만들지 않고 의도적으로 작업을 받아들입니다. |
-| `fail-closed` | Vegas가 충실히 표현할 수 없는 작업에 대해 근사값을 반환하는 대신 거부합니다. |
+| `no-op`           | 부작용을 만들지 않고 의도적으로 작업을 받아들입니다.                                                                        |
+| `fail-closed`     | Vegas가 충실히 표현할 수 없는 작업에 대해 근사값을 반환하는 대신 거부합니다.                                                |
 
 따라서 API가 구조적으로 존재하더라도 `implemented`로 분류되었다는 의미는 아닙니다.
 

@@ -8,13 +8,13 @@ outline: deep
 
 `src` 또는 `dist` 내부의 구현 파일을 직접 import하지 말고 이 페이지에 설명된 package entry point를 사용하세요.
 
-| Entry point | Public surface |
-| --- | --- |
-| `@vegasjs/vegas` | `defineConfig()`와 공개 config type을 통한 프로젝트 설정 |
-| `@vegasjs/vegas/client` | typed `google.script.run` client |
-| `@vegasjs/vegas/server` | typed Spreadsheet data API |
-| `@vegasjs/vegas/vitest` | Local Runtime Vitest adapter와 테스트용 Runtime type |
-| `@vegasjs/vegas/playwright` | Browser test adapter와 Playwright `expect` |
+| Entry point                 | Public surface                                           |
+| --------------------------- | -------------------------------------------------------- |
+| `@vegasjs/vegas`            | `defineConfig()`와 공개 config type을 통한 프로젝트 설정 |
+| `@vegasjs/vegas/client`     | typed `google.script.run` client                         |
+| `@vegasjs/vegas/server`     | typed Spreadsheet data API                               |
+| `@vegasjs/vegas/vitest`     | Local Runtime Vitest adapter와 테스트용 Runtime type     |
+| `@vegasjs/vegas/playwright` | Browser test adapter와 Playwright `expect`               |
 
 ## `@vegasjs/vegas`
 

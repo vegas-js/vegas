@@ -8,15 +8,15 @@ Vegas は、ローカル開発・本番ビルド・認証・Apps Script への�
 
 ## コマンド
 
-| コマンド | 目的 |
-| --- | --- |
-| `vegas [root]` | ローカル開発サーバーを起動する |
-| `vegas dev [root]` | 既定の開発コマンドのエイリアス |
-| `vegas serve [root]` | 既定の開発コマンドのエイリアス |
-| `vegas preview [root]` | production モードのビルドパイプラインを使ってローカルサーバーを起動する |
-| `vegas build [root]` | 本番アーティファクトをビルドする |
-| `vegas auth login <client-file>` | Apps Script 用に Google へ認証する |
-| `vegas push [root]` | 現在の本番ビルド出力を Apps Script プロジェクトへ push する |
+| コマンド                         | 目的                                                                    |
+| -------------------------------- | ----------------------------------------------------------------------- |
+| `vegas [root]`                   | ローカル開発サーバーを起動する                                          |
+| `vegas dev [root]`               | 既定の開発コマンドのエイリアス                                          |
+| `vegas serve [root]`             | 既定の開発コマンドのエイリアス                                          |
+| `vegas preview [root]`           | production モードのビルドパイプラインを使ってローカルサーバーを起動する |
+| `vegas build [root]`             | 本番アーティファクトをビルドする                                        |
+| `vegas auth login <client-file>` | Apps Script 用に Google へ認証する                                      |
+| `vegas push [root]`              | 現在の本番ビルド出力を Apps Script プロジェクトへ push する             |
 
 ## プロジェクトルート
 

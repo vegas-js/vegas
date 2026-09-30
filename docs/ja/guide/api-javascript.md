@@ -8,13 +8,13 @@ outline: deep
 
 `src` や `dist` 内の実装ファイルを直接importするのではなく、ここに記載するpackage entrypointを使用してください。
 
-| Entrypoint | 公開surface |
-| --- | --- |
-| `@vegasjs/vegas` | `defineConfig()` と公開config typeによるプロジェクト設定 |
-| `@vegasjs/vegas/client` | 型付き `google.script.run` client |
-| `@vegasjs/vegas/server` | 型付き Spreadsheet data API |
-| `@vegasjs/vegas/vitest` | Local Runtime Vitest adapterとテスト向けRuntime type |
-| `@vegasjs/vegas/playwright` | Browser test adapterと Playwright `expect` |
+| Entrypoint                  | 公開surface                                              |
+| --------------------------- | -------------------------------------------------------- |
+| `@vegasjs/vegas`            | `defineConfig()` と公開config typeによるプロジェクト設定 |
+| `@vegasjs/vegas/client`     | 型付き `google.script.run` client                        |
+| `@vegasjs/vegas/server`     | 型付き Spreadsheet data API                              |
+| `@vegasjs/vegas/vitest`     | Local Runtime Vitest adapterとテスト向けRuntime type     |
+| `@vegasjs/vegas/playwright` | Browser test adapterと Playwright `expect`               |
 
 ## `@vegasjs/vegas`
 

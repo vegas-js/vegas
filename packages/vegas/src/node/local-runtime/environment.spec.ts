@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 
-import type { LocalRuntimeProject } from "./local-runtime-project";
-import { createInvocationEnvironment } from "./runtime-environment";
+import { createInvocationEnvironment } from "./environment";
+import type { LocalRuntimeProject } from "./project";
 
 const project = {
   root: "/project",

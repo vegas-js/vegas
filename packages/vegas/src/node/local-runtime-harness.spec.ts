@@ -1,8 +1,8 @@
 import { describe, expect, test } from "vitest";
 
 import type { RuntimeDataSnapshot } from "../shared/gas";
+import type { LocalRuntimeProject } from "./local-runtime";
 import { createLocalRuntimeHarness } from "./local-runtime-harness";
-import type { LocalRuntimeProject } from "./local-runtime-project";
 import type { Program } from "./runtime";
 
 const project = {

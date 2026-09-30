@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 
-import type { LocalRuntimeProject } from "./local-runtime-project";
-import { createInvocationScope } from "./runtime-scope";
+import type { LocalRuntimeProject } from "./project";
+import { createInvocationScope } from "./scope";
 
 const project = {
   root: "/project",

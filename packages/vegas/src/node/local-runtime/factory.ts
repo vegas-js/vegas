@@ -1,11 +1,11 @@
-import type { RuntimeDataSnapshot } from "../shared/gas";
-import type { LocalRuntimeProject } from "./local-runtime-project";
-import type { LocalRuntime, LocalRuntimeSession, Program } from "./runtime";
-import { resetLocalRuntimeSession } from "./runtime-data-reset";
-import { createInvocationEnvironment } from "./runtime-environment";
-import { createInvocationScope } from "./runtime-scope";
-import { createNodeAppsScriptExecutor } from "./runtime/node";
-import type { SpreadsheetUrlCapability } from "./runtime/spreadsheet-url-capability";
+import type { RuntimeDataSnapshot } from "../../shared/gas";
+import type { LocalRuntime, LocalRuntimeSession, Program } from "../runtime";
+import { resetLocalRuntimeSession } from "../runtime-data-reset";
+import { createNodeAppsScriptExecutor } from "../runtime/node";
+import type { SpreadsheetUrlCapability } from "../runtime/spreadsheet-url-capability";
+import { createInvocationEnvironment } from "./environment";
+import type { LocalRuntimeProject } from "./project";
+import { createInvocationScope } from "./scope";
 
 interface LocalRuntimeOptions {
   readonly session?: LocalRuntimeSession;

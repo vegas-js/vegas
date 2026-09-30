@@ -8,7 +8,7 @@ import { buildDevTopology } from "../../dev/build-topology";
 import { ReloadableLocalRuntime } from "../../dev/reloadable-local-runtime";
 import { createRuntimeProgram } from "../../dev/runtime-program";
 import { createGoogleAppsScriptUserRuntime } from "../../google-apps-script-runtime-factory";
-import { createLocalRuntime } from "../../local-runtime-factory";
+import { createLocalRuntime } from "../../local-runtime";
 import { loadProject, scanRuntimeDataSources, type ResolvedProject } from "../../project";
 import {
   InMemoryPropertiesStore,
@@ -37,7 +37,8 @@ vi.mock("../../project", () => ({
   scanRuntimeDataSources: vi.fn(),
 }));
 
-vi.mock("../../local-runtime-factory", () => ({
+vi.mock("../../local-runtime", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("../../local-runtime")>()),
   createLocalRuntime: vi.fn(),
 }));
 

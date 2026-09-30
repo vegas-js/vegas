@@ -8,15 +8,15 @@ Vegas는 로컬 개발, 프로덕션 빌드, 인증, 빌드 출력을 Apps Scrip
 
 ## 명령
 
-| 명령 | 용도 |
-| --- | --- |
-| `vegas [root]` | 로컬 개발 서버 시작 |
-| `vegas dev [root]` | 기본 개발 명령의 별칭 |
-| `vegas serve [root]` | 기본 개발 명령의 별칭 |
-| `vegas preview [root]` | 프로덕션 모드 빌드 파이프라인을 사용하여 로컬 서버 시작 |
-| `vegas build [root]` | 프로덕션 아티팩트 빌드 |
-| `vegas auth login <client-file>` | Apps Script용 Google 인증 |
-| `vegas push [root]` | 현재 프로덕션 빌드 출력을 Apps Script 프로젝트로 push |
+| 명령                             | 용도                                                    |
+| -------------------------------- | ------------------------------------------------------- |
+| `vegas [root]`                   | 로컬 개발 서버 시작                                     |
+| `vegas dev [root]`               | 기본 개발 명령의 별칭                                   |
+| `vegas serve [root]`             | 기본 개발 명령의 별칭                                   |
+| `vegas preview [root]`           | 프로덕션 모드 빌드 파이프라인을 사용하여 로컬 서버 시작 |
+| `vegas build [root]`             | 프로덕션 아티팩트 빌드                                  |
+| `vegas auth login <client-file>` | Apps Script용 Google 인증                               |
+| `vegas push [root]`              | 현재 프로덕션 빌드 출력을 Apps Script 프로젝트로 push   |
 
 ## 프로젝트 루트
 
