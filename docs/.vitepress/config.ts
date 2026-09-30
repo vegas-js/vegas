@@ -171,9 +171,7 @@ export default defineConfig({
             },
             {
               text: "データ",
-              items: [
-                { text: "Spreadsheet Data", link: "/ja/guide/spreadsheet-data/" },
-              ],
+              items: [{ text: "Spreadsheet Data", link: "/ja/guide/spreadsheet-data/" }],
             },
             {
               text: "リファレンス",
@@ -201,7 +199,9 @@ export default defineConfig({
           ],
         },
 
-        outlineTitle: "このページの内容",
+        outline: {
+          label: "このページの内容",
+        },
         docFooter: {
           prev: "前のページ",
           next: "次のページ",
@@ -212,9 +212,6 @@ export default defineConfig({
         sidebarMenuLabel: "メニュー",
         returnToTopLabel: "トップへ戻る",
         langMenuLabel: "言語を変更",
-        navMenuLabel: "メインナビゲーション",
-        mobileMenuLabel: "メニュー",
-        extraMenuLabel: "その他",
         skipToContentLabel: "コンテンツへ移動",
 
         footer: {
