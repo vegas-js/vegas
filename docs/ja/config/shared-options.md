@@ -160,7 +160,7 @@ Apps Script プロジェクトと manifest の設定です。
 
 development と preview で、Vegas のローカル Web アプリから呼び出されたサーバー関数の実行バックエンドを選択します。
 
-この設定で変わるのは、そのサーバー関数呼び出しをどこで実行するかです。ローカル Web アプリ自体を置き換えるものではなく、`vegas build` や `vegas push` にも影響しません。実行境界については [Runtime Architecture（英語）](/guide/runtime-architecture) を参照してください。
+この設定で変わるのは、そのサーバー関数呼び出しをどこで実行するかです。ローカル Web アプリ自体を置き換えるものではなく、`vegas build` や `vegas push` にも影響しません。実行境界については [Runtime アーキテクチャ](../guide/runtime-architecture) を参照してください。
 
 #### appsScript.serverFunctions.backend
 

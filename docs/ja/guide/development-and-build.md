@@ -28,7 +28,7 @@ Vegas はプロジェクトを解決・スキャンし、development モード�
 
 必要に応じて、クライアントの再ビルドやビルドトポロジーの変更によってブラウザも再読み込みされます。
 
-Runtime Data のライフサイクルと対応している Apps Script の挙動については [Local Runtime（英語）](/guide/local-runtime) を参照してください。
+Runtime Data のライフサイクルと対応している Apps Script の挙動については [Local Runtime](./local-runtime) を参照してください。
 
 ## Preview
 
