@@ -14,7 +14,7 @@ Local Runtime の実行と、任意で使用できる Google Apps Script サー�
 
 Vegas が現在モデル化している API を使用するコードの開発では、Local Runtime を使って素早くフィードバックを得られます。一方、デプロイされた Google Apps Script は別の実行環境として扱い、その挙動は Google が公開しているプラットフォームの契約に従うものとしてください。
 
-development と preview は同じ Local Runtime のライフサイクルを使用します。現在の API 一覧と構造上の coverage は [Runtime API coverage（英語）](/guide/runtime-api-coverage) で確認できます。
+development と preview は同じ Local Runtime のライフサイクルを使用します。現在の API 一覧と構造上の coverage は [Runtime API coverage](./runtime-api-coverage) で確認できます。
 
 ## Runtime Data
 
