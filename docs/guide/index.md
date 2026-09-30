@@ -33,6 +33,7 @@ The reasoning behind the project is explained in detail in the [Why Vegas](./why
 | Execute server functions through Google Apps Script        | [Google Apps Script Runtime](./google-apps-script-runtime)                                        |
 | Test server functions with an isolated Local Runtime       | [Vitest](./vitest)                                                                                |
 | Test the local web app and browser bridge                  | [Playwright](./playwright)                                                                        |
+| Browse package entry points and exported APIs              | [JavaScript API](./api-javascript)                                                                |
 | Model typed data stored in Google Sheets                   | [Spreadsheet Data](./spreadsheet-data)                                                            |
 | Check which Apps Script APIs are modeled                   | [Runtime API coverage](./runtime-api-coverage)                                                    |
 | Configure project layout, Apps Script metadata, or plugins | [Configuring Vegas](../config/)                                                                   |
