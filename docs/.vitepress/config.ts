@@ -41,6 +41,10 @@ export default defineConfig({
           ],
         },
         {
+          text: "Testing",
+          items: [{ text: "Vitest", link: "/guide/vitest/" }],
+        },
+        {
           text: "Data",
           items: [{ text: "Spreadsheet Data", link: "/guide/spreadsheet-data/" }],
         },
