@@ -4,8 +4,7 @@ import path from "node:path";
 
 import { afterEach, describe, expect, test, vi } from "vitest";
 
-import type { AppsScriptCredential } from "../auth/credential";
-import { createAppsScriptUserCredentialStore } from "../auth/user-credential-store";
+import { createAppsScriptUserCredentialStore, type AppsScriptCredential } from "../auth";
 import { pushAppsScriptProject } from "./direct-push";
 
 const now = 1_000_000;

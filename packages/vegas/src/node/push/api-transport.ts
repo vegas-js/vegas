@@ -1,4 +1,4 @@
-import type { AppsScriptAccessTokenProvider } from "../auth/access-token";
+import type { AppsScriptAccessTokenProvider } from "../auth";
 import { AppsScriptRemoteServiceError } from "../google/apps-script-remote-service-error";
 import { formatGoogleHttpError } from "../google/error-response";
 import {

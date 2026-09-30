@@ -1,4 +1,4 @@
-import { createAppsScriptUserAccessTokenProvider } from "./auth/user-access-token-provider";
+import { createAppsScriptUserAccessTokenProvider } from "./auth";
 import type { RuntimeBackend } from "./runtime";
 import { createGoogleAppsScriptRuntime } from "./runtime/node";
 

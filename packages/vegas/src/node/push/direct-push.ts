@@ -1,4 +1,4 @@
-import { createAppsScriptUserAccessTokenProvider } from "../auth/user-access-token-provider";
+import { createAppsScriptUserAccessTokenProvider } from "../auth";
 import type { GoogleHttpRequestLifetimeOptions } from "../google/http-request";
 import { createAppsScriptApiPushTransport } from "./api-transport";
 import { loadAppsScriptPushRequest } from "./load-request";
