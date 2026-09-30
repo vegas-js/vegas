@@ -153,6 +153,43 @@ When multiple script ID sources are available, Vegas uses the following preceden
 
 An explicitly configured empty script ID is treated as invalid and does not fall back to a lower-precedence source.
 
+### appsScript.serverFunctions
+
+- **Type:** `{ backend: "local" } | { backend: "google"; profile?: string; devMode?: boolean }`
+- **Default:** `{ backend: "local" }`
+
+Selects the execution backend for server functions invoked from the Vegas local web application during development and preview.
+
+This setting changes where those server-function calls execute. It does not replace the local web application itself, and it does not change `vegas build` or `vegas push`. See [Runtime Architecture](../guide/runtime-architecture) for the execution boundary.
+
+#### appsScript.serverFunctions.backend
+
+- **Type:** `"local" | "google"`
+- **Default:** `"local"`
+
+`"local"` executes server functions through the Vegas Local Runtime using the current local server build and runtime data.
+
+`"google"` executes server functions through the Google Apps Script API. When this backend is selected:
+
+- `appsScript.scriptId` is required and must not be empty.
+- `appsScript.manifest.oauthScopes` must contain at least one non-empty scope.
+- Vegas acquires an access token through the selected Apps Script authentication profile.
+
+#### appsScript.serverFunctions.profile
+
+- **Type:** `string`
+- **Backend:** `"google"`
+
+Selects a named Apps Script authentication profile for Google-backed server-function execution.
+
+#### appsScript.serverFunctions.devMode
+
+- **Type:** `boolean`
+- **Default:** `false`
+- **Backend:** `"google"`
+
+Controls the `devMode` value sent with Google Apps Script API execution requests.
+
 ### appsScript.manifest
 
 - **Type:** `object`

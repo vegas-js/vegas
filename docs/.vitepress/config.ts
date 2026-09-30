@@ -31,6 +31,7 @@ export default defineConfig({
         {
           text: "Runtime",
           items: [
+            { text: "Runtime Architecture", link: "/guide/runtime-architecture/" },
             { text: "Local Runtime", link: "/guide/local-runtime/" },
             { text: "Runtime API coverage", link: "/guide/runtime-api-coverage/" },
           ],
