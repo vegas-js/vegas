@@ -1,9 +1,9 @@
-import { buildRuntimeProgram } from "./dev/runtime-program";
-import { LocalSpreadsheetUrlResolver } from "./dev/webapp/local-spreadsheet-url";
-import { startEphemeralWebAppApplication } from "./dev/webapp/server-application";
-import { createLocalRuntimeHarness, type LocalRuntimeHarness } from "./local-runtime-harness";
-import { loadProject } from "./project";
-import { createRuntimeDataSnapshotFromFixture, type RuntimeDataFixture } from "./runtime-data";
+import { buildRuntimeProgram } from "../dev/runtime-program";
+import { LocalSpreadsheetUrlResolver } from "../dev/webapp/local-spreadsheet-url";
+import { startEphemeralWebAppApplication } from "../dev/webapp/server-application";
+import { loadProject } from "../project";
+import { createRuntimeDataSnapshotFromFixture, type RuntimeDataFixture } from "../runtime-data";
+import { createLocalRuntimeHarness, type LocalRuntimeHarness } from "./local-runtime";
 
 export interface BrowserHarness extends LocalRuntimeHarness {
   readonly urls: {

@@ -1,7 +1,7 @@
 import { test as baseTest, type TestAPI } from "vitest";
 
 import { buildRuntimeProgram } from "../dev/runtime-program";
-import { createLocalRuntimeHarness, type LocalRuntimeHarness } from "../local-runtime-harness";
+import { createLocalRuntimeHarness, type LocalRuntimeHarness } from "../harness";
 import { loadProject, type ResolvedProject } from "../project";
 import type { Program } from "../runtime";
 import { createRuntimeDataSnapshotFromFixture, type RuntimeDataFixture } from "../runtime-data";

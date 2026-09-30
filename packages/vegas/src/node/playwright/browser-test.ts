@@ -1,6 +1,6 @@
 import { test as baseTest, type Locator, type Page } from "@playwright/test";
 
-import { createBrowserHarness } from "../browser-harness";
+import { createBrowserHarness } from "../harness";
 import type { RuntimeDataFixture } from "../runtime-data";
 
 export interface BrowserTestOptions {

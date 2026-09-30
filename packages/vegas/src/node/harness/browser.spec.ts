@@ -1,21 +1,18 @@
 import type { ViteDevServer } from "vite";
 import { describe, expect, test, vi } from "vitest";
 
-import {
-  createBrowserHarnessWithDependencies,
-  type BrowserHarnessOptions,
-} from "./browser-harness";
-import type { EphemeralWebAppApplicationOptions } from "./dev/webapp/server-application";
-import type { WebAppServerPair } from "./dev/webapp/server-pair";
-import type { LocalRuntimeHarness, LocalRuntimeHarnessOptions } from "./local-runtime-harness";
-import type { ResolvedProject } from "./project";
+import type { EphemeralWebAppApplicationOptions } from "../dev/webapp/server-application";
+import type { WebAppServerPair } from "../dev/webapp/server-pair";
+import type { ResolvedProject } from "../project";
 import {
   InMemoryPropertiesStore,
   InMemorySpreadsheetStore,
   LocalRuntimeSession,
   type LocalRuntime,
   type Program,
-} from "./runtime";
+} from "../runtime";
+import { createBrowserHarnessWithDependencies, type BrowserHarnessOptions } from "./browser";
+import type { LocalRuntimeHarness, LocalRuntimeHarnessOptions } from "./local-runtime";
 
 const project = {
   root: "/project",

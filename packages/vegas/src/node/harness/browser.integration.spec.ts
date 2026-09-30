@@ -4,20 +4,17 @@ import path from "node:path";
 
 import { describe, expect, test, vi } from "vitest";
 
-import {
-  createBrowserHarnessWithDependencies,
-  type BrowserHarnessOptions,
-} from "./browser-harness";
-import { startEphemeralWebAppApplication } from "./dev/webapp/server-application";
-import type { LocalRuntimeHarness, LocalRuntimeHarnessOptions } from "./local-runtime-harness";
-import type { ResolvedProject } from "./project";
+import { startEphemeralWebAppApplication } from "../dev/webapp/server-application";
+import type { ResolvedProject } from "../project";
 import {
   InMemoryPropertiesStore,
   InMemorySpreadsheetStore,
   LocalRuntimeSession,
   type LocalRuntime,
   type Program,
-} from "./runtime";
+} from "../runtime";
+import { createBrowserHarnessWithDependencies, type BrowserHarnessOptions } from "./browser";
+import type { LocalRuntimeHarness, LocalRuntimeHarnessOptions } from "./local-runtime";
 
 const program = {
   source: "",

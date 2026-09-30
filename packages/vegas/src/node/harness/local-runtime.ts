@@ -1,18 +1,18 @@
-import type { RuntimeDataSnapshot } from "../shared/gas";
+import type { RuntimeDataSnapshot } from "../../shared/gas";
 import {
   createInvocationScope,
   createLocalRuntime,
   type LocalRuntimeProject,
-} from "./local-runtime";
+} from "../local-runtime";
 import type {
   InMemoryPropertiesStore,
   InMemorySpreadsheetStore,
   LocalRuntime,
   LocalRuntimeSession,
   Program,
-} from "./runtime";
-import { createSeededLocalRuntimeSession } from "./runtime-data";
-import type { SpreadsheetUrlCapability } from "./runtime/spreadsheet-url-capability";
+} from "../runtime";
+import { createSeededLocalRuntimeSession } from "../runtime-data";
+import type { SpreadsheetUrlCapability } from "../runtime/spreadsheet-url-capability";
 
 export interface LocalRuntimeHarness {
   readonly appsScript: {
