@@ -1,4 +1,4 @@
-import type { GoogleHttpRequestLifetimeOptions } from "./google-http-request";
+import type { GoogleHttpRequestLifetimeOptions } from "../google/http-request";
 import { createGoogleOAuthAuthorizationUrlOpener } from "./google-oauth-browser";
 import {
   loginGoogleAppsScript,

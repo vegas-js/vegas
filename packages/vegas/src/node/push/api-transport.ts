@@ -1,10 +1,10 @@
-import type { AppsScriptAccessTokenProvider } from "./access-token";
-import { AppsScriptRemoteServiceError } from "./error";
-import { formatGoogleHttpError } from "./google-error-response";
+import { formatGoogleHttpError } from "../google/error-response";
 import {
   createGoogleHttpRequestSignal,
   type GoogleHttpRequestLifetimeOptions,
-} from "./google-http-request";
+} from "../google/http-request";
+import type { AppsScriptAccessTokenProvider } from "./access-token";
+import { AppsScriptRemoteServiceError } from "./error";
 import type { AppsScriptPushRequest } from "./request";
 import type { AppsScriptPushTransport } from "./transport";
 import { createAppsScriptUpdateContentHttpRequest } from "./update-content";

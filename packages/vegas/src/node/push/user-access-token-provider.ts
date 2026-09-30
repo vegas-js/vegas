@@ -1,7 +1,7 @@
+import type { GoogleHttpRequestLifetimeOptions } from "../google/http-request";
 import type { AppsScriptAccessTokenProvider } from "./access-token";
 import { createAppsScriptCredentialAccessTokenProvider } from "./credential-access-token-provider";
 import { createGoogleAppsScriptAccessTokenRefresher } from "./google-access-token-refresher";
-import type { GoogleHttpRequestLifetimeOptions } from "./google-http-request";
 import { createAppsScriptUserCredentialStore } from "./user-credential-store";
 
 interface CreateAppsScriptUserAccessTokenProviderOptions extends GoogleHttpRequestLifetimeOptions {

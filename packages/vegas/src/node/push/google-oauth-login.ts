@@ -1,10 +1,10 @@
 import crypto from "node:crypto";
 import fs from "node:fs";
 
+import type { GoogleHttpRequestLifetimeOptions } from "../google/http-request";
 import { DEFAULT_APPS_SCRIPT_AUTH_PROFILE, requireAppsScriptAuthProfile } from "./auth-profile";
 import type { AppsScriptCredentialStore } from "./credential-store";
 import { AppsScriptAuthPrerequisiteError } from "./error";
-import type { GoogleHttpRequestLifetimeOptions } from "./google-http-request";
 import {
   createGoogleOAuthAuthorizationUrl,
   createGoogleOAuthCodeChallenge,

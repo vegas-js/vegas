@@ -3,7 +3,7 @@ import { describe, expect, test } from "vitest";
 import {
   DEFAULT_GOOGLE_HTTP_REQUEST_TIMEOUT_MS,
   createGoogleHttpRequestSignal,
-} from "./google-http-request";
+} from "./http-request";
 
 describe("createGoogleHttpRequestSignal", () => {
   test("use a one minute default request lifetime", () => {

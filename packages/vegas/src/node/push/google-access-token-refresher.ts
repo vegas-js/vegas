@@ -1,3 +1,8 @@
+import { formatGoogleHttpError } from "../google/error-response";
+import {
+  createGoogleHttpRequestSignal,
+  type GoogleHttpRequestLifetimeOptions,
+} from "../google/http-request";
 import type {
   AppsScriptAccessTokenRefresher,
   AppsScriptAccessTokenRefreshRequest,
@@ -5,11 +10,6 @@ import type {
 } from "./access-token";
 import type { AppsScriptCredential } from "./credential";
 import { AppsScriptRemoteServiceError } from "./error";
-import { formatGoogleHttpError } from "./google-error-response";
-import {
-  createGoogleHttpRequestSignal,
-  type GoogleHttpRequestLifetimeOptions,
-} from "./google-http-request";
 import {
   GOOGLE_OAUTH_TOKEN_URL,
   parseGoogleOAuthAccessToken,

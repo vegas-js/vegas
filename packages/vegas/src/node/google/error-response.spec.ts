@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import { formatGoogleHttpError } from "./google-error-response";
+import { formatGoogleHttpError } from "./error-response";
 
 describe("formatGoogleHttpError", () => {
   test("format OAuth error", () => {
