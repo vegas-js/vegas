@@ -1,5 +1,5 @@
-export { createLocalRuntimeTest } from "../node/vitest/local-runtime-test";
-export type { LocalRuntimeTestOptions } from "../node/vitest/local-runtime-test";
+export { createLocalRuntimeTest } from "../node/vitest";
+export type { LocalRuntimeTestOptions } from "../node/vitest";
 export type { LocalRuntimeHarness } from "../node/harness";
 export type { LocalRuntimeProject } from "../node/local-runtime";
 export type { RuntimeDataFixture } from "../node/runtime-data";
