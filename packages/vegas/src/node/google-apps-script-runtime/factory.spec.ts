@@ -1,9 +1,9 @@
 import { describe, expect, expectTypeOf, test, vi } from "vitest";
 
-import { createAppsScriptUserAccessTokenProvider } from "./auth";
-import { createGoogleAppsScriptUserRuntime } from "./google-apps-script-runtime-factory";
-import type { RuntimeBackend } from "./runtime";
-import { createGoogleAppsScriptRuntime } from "./runtime/node";
+import { createAppsScriptUserAccessTokenProvider } from "../auth";
+import type { RuntimeBackend } from "../runtime";
+import { createGoogleAppsScriptRuntime } from "../runtime/node";
+import { createGoogleAppsScriptUserRuntime } from "./factory";
 
 const env: NodeJS.ProcessEnv = {
   HOME: "/home/test",

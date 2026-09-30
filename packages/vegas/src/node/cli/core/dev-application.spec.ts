@@ -7,7 +7,7 @@ import { startDevApplication } from "../../dev/application";
 import { buildDevTopology } from "../../dev/build-topology";
 import { ReloadableLocalRuntime } from "../../dev/reloadable-local-runtime";
 import { createRuntimeProgram } from "../../dev/runtime-program";
-import { createGoogleAppsScriptUserRuntime } from "../../google-apps-script-runtime-factory";
+import { createGoogleAppsScriptUserRuntime } from "../../google-apps-script-runtime";
 import { createLocalRuntime } from "../../local-runtime";
 import { loadProject, scanRuntimeDataSources, type ResolvedProject } from "../../project";
 import {
@@ -42,7 +42,7 @@ vi.mock("../../local-runtime", async (importOriginal) => ({
   createLocalRuntime: vi.fn(),
 }));
 
-vi.mock("../../google-apps-script-runtime-factory", () => ({
+vi.mock("../../google-apps-script-runtime", () => ({
   createGoogleAppsScriptUserRuntime: vi.fn(),
 }));
 
