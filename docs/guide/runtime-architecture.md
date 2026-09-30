@@ -64,6 +64,8 @@ The Google backend requires:
 
 The optional `profile` selects a named authentication profile. The optional `devMode` flag is forwarded with the Apps Script API execution request.
 
+See [Google Apps Script Runtime](./google-apps-script-runtime) for Google-side prerequisites, authentication, code selection, serialization, and error behavior.
+
 ## What Backend Selection Changes
 
 `appsScript.serverFunctions` selects the destination for server-function invocations made by the local web application.

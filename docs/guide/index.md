@@ -30,6 +30,7 @@ The reasoning behind the project is explained in detail in the [Why Vegas](./why
 | Compare development, preview, and production builds        | [Development and Build](./development-and-build)                                                  |
 | Understand local and Google server-function backends       | [Runtime Architecture](./runtime-architecture)                                                    |
 | Understand local server-side execution                     | [Local Runtime](./local-runtime)                                                                  |
+| Execute server functions through Google Apps Script        | [Google Apps Script Runtime](./google-apps-script-runtime)                                        |
 | Model typed data stored in Google Sheets                   | [Spreadsheet Data](./spreadsheet-data)                                                            |
 | Check which Apps Script APIs are modeled                   | [Runtime API coverage](./runtime-api-coverage)                                                    |
 | Configure project layout, Apps Script metadata, or plugins | [Configuring Vegas](../config/)                                                                   |

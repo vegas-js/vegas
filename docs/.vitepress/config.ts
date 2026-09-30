@@ -33,6 +33,10 @@ export default defineConfig({
           items: [
             { text: "Runtime Architecture", link: "/guide/runtime-architecture/" },
             { text: "Local Runtime", link: "/guide/local-runtime/" },
+            {
+              text: "Google Apps Script Runtime",
+              link: "/guide/google-apps-script-runtime/",
+            },
             { text: "Runtime API coverage", link: "/guide/runtime-api-coverage/" },
           ],
         },
