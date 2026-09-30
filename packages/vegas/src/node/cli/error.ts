@@ -1,6 +1,7 @@
+import { AppsScriptAuthPrerequisiteError } from "../auth/error";
 import { AppsScriptRemoteServiceError } from "../google/apps-script-remote-service-error";
 import { ConfigValidationError } from "../project/validate-config";
-import { AppsScriptAuthPrerequisiteError, AppsScriptPushPrerequisiteError } from "../push/error";
+import { AppsScriptPushPrerequisiteError } from "../push/error";
 
 export class CliUsageError extends Error {
   constructor(message: string) {

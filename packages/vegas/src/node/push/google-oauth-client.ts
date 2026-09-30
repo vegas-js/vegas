@@ -1,4 +1,4 @@
-import { AppsScriptAuthPrerequisiteError } from "./error";
+import { AppsScriptAuthPrerequisiteError } from "../auth/error";
 
 export interface GoogleOAuthDesktopClient {
   readonly clientId: string;
