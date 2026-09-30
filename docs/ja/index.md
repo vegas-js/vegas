@@ -4,8 +4,8 @@ layout: home
 
 hero:
   name: Vegas
-  text: Google Apps Script 向け Vite ベースの開発・ビルドツール
-  tagline: "Vite のように使えて、実際に Vite です（そして速い）。"
+  text: The Build Tool for the Google Apps Script
+  tagline: "Vegas は Google Apps Script に特化した、<br>Vite ベースの開発・ビルドツールです。"
   image:
     src: /logo.webp
     alt: Vegas
@@ -20,7 +20,7 @@ hero:
 features:
   - title: 高速なローカル開発
     details: 編集のたびにリモート実行へ依存することなく、Vite ベースの開発ワークフローを Apps Script プロジェクトで利用できます。
-  - title: Apps Script を意識したビルド
+  - title: Apps Script に特化したビルド
     details: 複数の独立したフロントエンドエントリを含め、Apps Script の制約に合わせてクライアントコードとサーバーコードをビルドします。
   - title: 明示的な Local Runtime
     details: 対応している Apps Script API を、挙動の分類・制約・契約ベースの検証方針を明示したローカル環境で実行できます。
