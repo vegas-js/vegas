@@ -8,11 +8,118 @@ Vegas includes a local Apps Script-oriented runtime to shorten the development f
 
 The Local Runtime is **not** a copy of the Google Apps Script production runtime and is not intended to reproduce undocumented Google behavior.
 
+See [Runtime Architecture](./runtime-architecture) for how Local Runtime execution relates to the optional Google Apps Script server-function backend.
+
 ## How to Use It
 
 Use the Local Runtime for fast feedback while developing code that uses APIs Vegas currently models. Treat deployed Google Apps Script as a separate execution environment whose behavior is governed by Google's public platform contract.
 
-The current API inventory and structural coverage are listed in [Runtime API coverage](./runtime-api-coverage).
+Development and preview both use the same Local Runtime lifecycle. The current API inventory and structural coverage are listed in [Runtime API coverage](./runtime-api-coverage).
+
+## Runtime Data
+
+Runtime data provides declarative seed data for the Local Runtime. Vegas scans TypeScript files under `runtimeDataDir`, which defaults to `runtime` at the project root.
+
+Each runtime-data file must have a default export with one target. The currently supported targets are:
+
+- `"Properties"`
+- `"Session"`
+- `"Spreadsheet"`
+
+`"Cache"` is reserved for a future runtime-data model and currently fails closed instead of being silently ignored.
+
+Runtime-data files are **fixtures, not persistence**. Mutations made while server code executes affect the current Local Runtime session, but Vegas does not write those mutations back to the source files.
+
+### Properties
+
+A Properties fixture seeds the local script, user, and document property namespaces.
+
+```typescript
+export default {
+  target: "Properties",
+  scriptProperties: {
+    API_BASE_URL: "http://localhost:3000",
+  },
+  userProperties: {
+    theme: "dark",
+  },
+};
+```
+
+A runtime-data snapshot can contain at most one Properties fixture.
+
+### Session
+
+A Session fixture supplies the local invocation identity and locale information used by supported Session APIs.
+
+```typescript
+export default {
+  target: "Session",
+  activeUserEmail: "developer@example.com",
+  activeUserLocale: "en",
+  effectiveUserEmail: "developer@example.com",
+  temporaryActiveUserKey: "local-user",
+};
+```
+
+A runtime-data snapshot can contain at most one Session fixture.
+
+### Spreadsheet
+
+Each Spreadsheet fixture defines one local spreadsheet. Multiple Spreadsheet fixture files can be used in the same project.
+
+```typescript
+export default {
+  target: "Spreadsheet",
+  id: "budget",
+  name: "Budget",
+  sheets: [
+    {
+      id: 0,
+      name: "Sheet1",
+      maxRows: 20,
+      maxColumns: 10,
+      values: [
+        ["Item", "Amount"],
+        ["Hosting", 25],
+      ],
+    },
+  ],
+};
+```
+
+Spreadsheet IDs and explicit URLs must be unique across the snapshot. Sheet IDs and names must be unique within each spreadsheet. Fixture values must fit inside the declared grid and form a rectangular matrix.
+
+## Session Lifetime
+
+A Local Runtime session owns the mutable local stores used while the application is running. The current session contains stores for Cache, Drive, Drive iterators, Lock, Properties, and Spreadsheet state.
+
+When development or preview starts, Vegas creates a fresh session. Properties and Spreadsheet fixtures seed their corresponding stores, while Session fixture data becomes part of the invocation environment.
+
+This distinction matters because a fixture describes initial or replacement data, while a session owns mutable runtime state. A runtime-data source file is therefore not the backing store for an Apps Script service.
+
+## Runtime Data Reloads
+
+Vegas watches the runtime-data directory during development and preview. Adding, changing, or removing a runtime-data source causes Vegas to load and validate a new snapshot and reconcile it with the current session.
+
+Reload is granular:
+
+- An unchanged Properties fixture keeps the current Properties store state. When the Properties fixture changes, the fixture-backed property namespaces are replaced from the new fixture.
+- A changed or removed Spreadsheet fixture replaces or removes that fixture-owned spreadsheet.
+- Unchanged Spreadsheet state is retained.
+- Spreadsheets created by server code are session-owned runtime resources and are not removed by unrelated fixture reloads.
+- Cache, Drive, Drive iterator, and Lock stores remain session-owned across runtime-data reloads.
+- Session fixture changes are reflected in the invocation environment of the replacement runtime.
+
+Spreadsheet fixture ownership is explicit. A fixture cannot silently replace a spreadsheet that was created by the running Local Runtime with the same ID; that conflict fails instead.
+
+### Transactional Replacement
+
+A runtime-data reload is prepared before it becomes active. Vegas loads and validates the next snapshot, reconciles cloned fixture-backed stores, creates the next Local Runtime, and only then replaces the runtime used for new invocations.
+
+If loading, validation, reconciliation, or runtime creation fails, the current runtime remains active instead of being partially updated.
+
+An invocation that has already been dispatched continues against the runtime that accepted it. Invocations dispatched after a successful replacement use the new runtime.
 
 ## Behavior Categories
 
