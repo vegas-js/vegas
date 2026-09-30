@@ -3,8 +3,8 @@ import { loadModule } from "../../module";
 import {
   createRuntimeDataSnapshot,
   type RuntimeDataSnapshotInput,
-} from "../../runtime-data-snapshot";
-import { validateRuntimeDataModule } from "../../runtime-data-validation";
+  validateRuntimeDataModule,
+} from "../../runtime-data";
 
 export async function loadRuntimeDataSnapshot(
   projectRoot: string,

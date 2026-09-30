@@ -4,17 +4,17 @@ import type {
   RuntimeDataSnapshot,
   RuntimeDataSpreadsheet,
   RuntimeDataSpreadsheetSheet,
-} from "../shared/gas";
+} from "../../shared/gas";
+import { InMemoryPropertiesStore } from "../runtime/in-memory-properties-store";
+import { InMemorySpreadsheetStore } from "../runtime/in-memory-spreadsheet-store";
+import { LocalRuntimeSession } from "../runtime/local-runtime-session";
+import type { InvocationScope } from "../runtime/scope";
+import type { RangeReference } from "../runtime/spreadsheet-reference";
 import {
   reconcileLocalPropertiesStore,
   reconcileLocalRuntimeSession,
   reconcileLocalSpreadsheetStore,
-} from "./runtime-data-reconcile";
-import { InMemoryPropertiesStore } from "./runtime/in-memory-properties-store";
-import { InMemorySpreadsheetStore } from "./runtime/in-memory-spreadsheet-store";
-import { LocalRuntimeSession } from "./runtime/local-runtime-session";
-import type { InvocationScope } from "./runtime/scope";
-import type { RangeReference } from "./runtime/spreadsheet-reference";
+} from "./reconcile";
 
 function spreadsheet(
   id: string,

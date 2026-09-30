@@ -1,9 +1,9 @@
-import type { RuntimeDataSnapshot } from "../shared/gas";
-import { RuntimeDataTarget } from "../shared/gas";
-import { createRuntimeDataSnapshot, type RuntimeDataSnapshotInput } from "./runtime-data-snapshot";
-import { validateRuntimeDataFixture, type RuntimeDataFixture } from "./runtime-data-validation";
+import type { RuntimeDataSnapshot } from "../../shared/gas";
+import { RuntimeDataTarget } from "../../shared/gas";
+import { createRuntimeDataSnapshot, type RuntimeDataSnapshotInput } from "./snapshot";
+import { validateRuntimeDataFixture, type RuntimeDataFixture } from "./validation";
 
-export type { RuntimeDataFixture } from "./runtime-data-validation";
+export type { RuntimeDataFixture } from "./validation";
 
 export function createRuntimeDataSnapshotFromFixture(
   fixture: RuntimeDataFixture = {},

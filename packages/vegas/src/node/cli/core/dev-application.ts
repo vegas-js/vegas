@@ -9,8 +9,7 @@ import { createGoogleAppsScriptUserRuntime } from "../../google-apps-script-runt
 import { createInvocationScope, createLocalRuntime } from "../../local-runtime";
 import { loadProject, scanRuntimeDataSources, type ResolvedProject } from "../../project";
 import type { LocalRuntimeSession, RuntimeBackend } from "../../runtime";
-import { reconcileLocalRuntimeSession } from "../../runtime-data-reconcile";
-import { resetLocalRuntimeSession } from "../../runtime-data-reset";
+import { reconcileLocalRuntimeSession, resetLocalRuntimeSession } from "../../runtime-data";
 import { loadRuntimeDataSnapshot } from "./runtime-data";
 
 type DevApplicationMode = "development" | "production";

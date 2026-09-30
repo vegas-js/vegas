@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import { createRuntimeDataSnapshotFromFixture } from "./runtime-data-fixture";
+import { createRuntimeDataSnapshotFromFixture } from "./fixture";
 
 describe("createRuntimeDataSnapshotFromFixture", () => {
   test("normalize inline Runtime data into a snapshot", () => {

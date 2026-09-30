@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 
-import { RuntimeDataTarget } from "../shared/gas";
-import { createRuntimeDataSnapshot } from "./runtime-data-snapshot";
+import { RuntimeDataTarget } from "../../shared/gas";
+import { createRuntimeDataSnapshot } from "./snapshot";
 
 describe("createRuntimeDataSnapshot", () => {
   test("create a target-free snapshot from normalized runtime data inputs", () => {

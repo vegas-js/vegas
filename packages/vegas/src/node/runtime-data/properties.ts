@@ -1,5 +1,5 @@
-import type { RuntimeDataProperties } from "../shared/gas";
-import { resolvePropertiesNamespace, type InvocationScope, type PropertiesStore } from "./runtime";
+import type { RuntimeDataProperties } from "../../shared/gas";
+import { resolvePropertiesNamespace, type InvocationScope, type PropertiesStore } from "../runtime";
 
 export async function applyPropertiesRuntimeData(
   store: PropertiesStore,

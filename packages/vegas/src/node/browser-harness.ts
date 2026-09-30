@@ -3,10 +3,7 @@ import { LocalSpreadsheetUrlResolver } from "./dev/webapp/local-spreadsheet-url"
 import { startEphemeralWebAppApplication } from "./dev/webapp/server-application";
 import { createLocalRuntimeHarness, type LocalRuntimeHarness } from "./local-runtime-harness";
 import { loadProject } from "./project";
-import {
-  createRuntimeDataSnapshotFromFixture,
-  type RuntimeDataFixture,
-} from "./runtime-data-fixture";
+import { createRuntimeDataSnapshotFromFixture, type RuntimeDataFixture } from "./runtime-data";
 
 export interface BrowserHarness extends LocalRuntimeHarness {
   readonly urls: {

@@ -11,7 +11,7 @@ import type {
   LocalRuntimeSession,
   Program,
 } from "./runtime";
-import { createSeededLocalRuntimeSession } from "./runtime-data-reset";
+import { createSeededLocalRuntimeSession } from "./runtime-data";
 import type { SpreadsheetUrlCapability } from "./runtime/spreadsheet-url-capability";
 
 export interface LocalRuntimeHarness {

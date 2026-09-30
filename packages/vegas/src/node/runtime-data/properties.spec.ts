@@ -4,8 +4,8 @@ import {
   InMemoryPropertiesStore,
   resolvePropertiesNamespace,
   type InvocationScope,
-} from "./runtime";
-import { applyPropertiesRuntimeData } from "./runtime-data-properties";
+} from "../runtime";
+import { applyPropertiesRuntimeData } from "./properties";
 
 describe("applyPropertiesRuntimeData", () => {
   test("replace runtime property data in each available namespace", async () => {

@@ -3,7 +3,7 @@ import { afterAll, describe, expect, expectTypeOf } from "vitest";
 import type { LocalRuntimeHarness } from "../local-runtime-harness";
 import type { ResolvedProject } from "../project";
 import type { Program } from "../runtime";
-import type { RuntimeDataFixture } from "../runtime-data-fixture";
+import type { RuntimeDataFixture } from "../runtime-data";
 import { createLocalRuntimeTestWithDependencies } from "./local-runtime-test";
 
 const project = {

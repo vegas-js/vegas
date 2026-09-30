@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 
-import { RuntimeDataTarget } from "../shared/gas";
-import { validateRuntimeDataModule } from "./runtime-data-validation";
+import { RuntimeDataTarget } from "../../shared/gas";
+import { validateRuntimeDataModule } from "./validation";
 
 describe("validateRuntimeDataModule", () => {
   test("reject Cache runtime data until fixture support is implemented", () => {
