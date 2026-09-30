@@ -1,58 +1,65 @@
-# Unreleased
+# Changelog
+
+## Unreleased
+
+### Added
 
 - Added safer scaffold target handling for missing, empty, non-empty, and invalid destination directories.
 - Added package name validation before scaffolding.
-- Extracted project scaffolding into an explicit execution flow with safer special-file finalization.
-- Added smoke coverage across all six project templates.
-- Improved top-level CLI failure handling and diagnostics.
+- Added smoke coverage across all eight registered project templates.
 - Added package and release smoke validation.
+
+### Changed
+
+- Extracted project scaffolding into an explicit execution flow with safer special-file finalization.
+- Improved top-level CLI failure handling and diagnostics.
 - Updated generated project layouts to match the current Vegas SPA conventions.
 
-# 0.1.8 (2026-06-30)
+## 0.1.8 - 2026-06-30
 
-chore: upgrade dependencies
+- Upgraded dependencies.
 
-# 0.1.7 (2026-06-09)
+## 0.1.7 - 2026-06-09
 
-chore: upgrade dependencies
+- Upgraded dependencies.
 
-# 0.1.6 (2026-05-12)
+## 0.1.6 - 2026-05-12
 
-chore: upgrade dependencies
+- Upgraded dependencies.
 
-# 0.1.5 (2026-04-09)
+## 0.1.5 - 2026-04-09
 
-chore: strict type separation between client and server.
-chore: upgrade dependencies.
+- Added strict type separation between client and server.
+- Upgraded dependencies.
 
-# 0.1.4 (2026-04-01)
+## 0.1.4 - 2026-04-01
 
-fix: not published templates.
+- Fixed unpublished templates.
 
-# 0.1.3 (2026-04-01)
+## 0.1.3 - 2026-04-01
 
-feat: add solid template.
-feat: add svelte template.
-fix: LICENSE-TEMPLATES (command name).
-chore: improve templates npm script.
-chore: upgrade templates dependencies version.
-chore: rename frontend dir (web -> client).
+- Added the Solid template.
+- Added the Svelte template.
+- Fixed the `LICENSE-TEMPLATES` command name.
+- Improved template npm scripts.
+- Upgraded template dependency versions.
+- Renamed the frontend directory from `web` to `client`.
 
-# 0.1.2 (2026-03-22)
+## 0.1.2 - 2026-03-22
 
-feat: improve react/vue template.
-feat: add vanilla/preact template.
-chore: we waive the copyright to the template.
-chore: improve scaffolding prompt.
-chore: remove template-react-oxc.
+- Improved the React and Vue templates.
+- Added the Vanilla and Preact templates.
+- Waived copyright for the templates.
+- Improved the scaffolding prompt.
+- Removed `template-react-oxc`.
 
-# 0.1.1 (2026-03-17)
+## 0.1.1 - 2026-03-17
 
-fix: accepts stdio for npm commands.
-fix: revert the template package version to 0.0.0.
-chore: auto generation of full bundle licenses.
-chore: add README.
+- Fixed npm commands to accept stdio.
+- Reverted the template package version to `0.0.0`.
+- Added automatic generation of full-bundle licenses.
+- Added the README.
 
-# 0.1.0 (2026-03-14)
+## 0.1.0 - 2026-03-14
 
-Initial release.
+- Initial release.
