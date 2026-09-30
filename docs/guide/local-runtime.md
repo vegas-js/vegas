@@ -121,6 +121,29 @@ If loading, validation, reconciliation, or runtime creation fails, the current r
 
 An invocation that has already been dispatched continues against the runtime that accepted it. Invocations dispatched after a successful replacement use the new runtime.
 
+## Local Spreadsheet Viewer
+
+When `vegas` or `vegas preview` is running, Local Runtime spreadsheets can be opened in a browser-based viewer served by the Vegas local application. For a local Spreadsheet resource, `Spreadsheet.getUrl()` returns the local viewer URL instead of a Google Sheets URL.
+
+This is a Vegas-specific local capability: the viewer URL exists only while the local server is running.
+
+The viewer provides:
+
+- Sheet tabs for switching between local sheets.
+- An editable grid that shows at least 20 rows and 10 columns when the Sheet is large enough, while expanding to include populated cells and never exceeding the Sheet's declared bounds.
+- Keyboard navigation with the arrow keys and `Tab` / `Shift+Tab`.
+- Editing by typing, pressing `Enter` or `F2`, or double-clicking a cell.
+- Commit with `Enter`, `Tab`, or focus loss; cancel with `Escape`; clear with `Delete` or `Backspace`.
+
+Cell text is converted using the viewer's local input rules:
+
+- `true` and `false`, ignoring case, become booleans.
+- Finite numeric text becomes a number.
+- A leading apostrophe forces the remaining text to stay a string.
+- Date cells are displayed read-only in the viewer.
+
+Viewer edits update the same current-session Spreadsheet store used by Local Runtime server code. They do not modify runtime-data source files. If a corresponding Spreadsheet fixture later changes, the normal fixture-reload rules described above apply.
+
 ## Behavior Categories
 
 Structural coverage answers whether a method exists in the Vegas Runtime. Behavior status answers what kind of implementation that method has. These are deliberately separate.
