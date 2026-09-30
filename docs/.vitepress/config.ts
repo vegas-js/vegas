@@ -42,7 +42,10 @@ export default defineConfig({
         },
         {
           text: "Testing",
-          items: [{ text: "Vitest", link: "/guide/vitest/" }],
+          items: [
+            { text: "Vitest", link: "/guide/vitest/" },
+            { text: "Playwright", link: "/guide/playwright/" },
+          ],
         },
         {
           text: "Data",
