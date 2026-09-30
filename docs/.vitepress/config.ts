@@ -11,7 +11,31 @@ export default defineConfig({
 
     nav: [
       { text: "Guide", link: "/guide" },
-      { text: "Local Runtime", link: "/guide/local-runtime/" },
+      {
+        text: "Runtime",
+        items: [
+          { text: "Runtime Architecture", link: "/guide/runtime-architecture/" },
+          { text: "Local Runtime", link: "/guide/local-runtime/" },
+          {
+            text: "Google Apps Script Runtime",
+            link: "/guide/google-apps-script-runtime/",
+          },
+        ],
+      },
+      {
+        text: "Testing",
+        items: [
+          { text: "Vitest", link: "/guide/vitest/" },
+          { text: "Playwright", link: "/guide/playwright/" },
+        ],
+      },
+      {
+        text: "Reference",
+        items: [
+          { text: "JavaScript API", link: "/guide/api-javascript/" },
+          { text: "Runtime API coverage", link: "/guide/runtime-api-coverage/" },
+        ],
+      },
       { text: "Config", link: "/config" },
     ],
 
@@ -24,8 +48,6 @@ export default defineConfig({
             { text: "Command Line Interface", link: "/guide/cli/" },
             { text: "Project Structure", link: "/guide/project-structure/" },
             { text: "Development and Build", link: "/guide/development-and-build/" },
-            { text: "Why Vegas", link: "/guide/why/" },
-            { text: "Philosophy", link: "/guide/philosophy/" },
           ],
         },
         {
@@ -37,7 +59,6 @@ export default defineConfig({
               text: "Google Apps Script Runtime",
               link: "/guide/google-apps-script-runtime/",
             },
-            { text: "Runtime API coverage", link: "/guide/runtime-api-coverage/" },
           ],
         },
         {
@@ -53,7 +74,17 @@ export default defineConfig({
         },
         {
           text: "Reference",
-          items: [{ text: "JavaScript API", link: "/guide/api-javascript/" }],
+          items: [
+            { text: "JavaScript API", link: "/guide/api-javascript/" },
+            { text: "Runtime API coverage", link: "/guide/runtime-api-coverage/" },
+          ],
+        },
+        {
+          text: "About",
+          items: [
+            { text: "Why Vegas", link: "/guide/why/" },
+            { text: "Philosophy", link: "/guide/philosophy/" },
+          ],
         },
       ],
       "/config/": [
