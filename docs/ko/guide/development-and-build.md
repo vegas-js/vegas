@@ -28,7 +28,7 @@ Vegas는 프로젝트를 해석하고 스캔한 뒤 development mode builder를 
 
 필요한 경우 클라이언트 rebuild와 build topology 변경으로 브라우저도 다시 로드됩니다.
 
-Runtime Data lifecycle과 지원되는 Apps Script 동작은 현재 영어 문서의 [Local Runtime](/guide/local-runtime)을 참고하세요.
+Runtime Data lifecycle과 지원되는 Apps Script 동작은 [Local Runtime](./local-runtime)을 참고하세요.
 
 ## Preview
 

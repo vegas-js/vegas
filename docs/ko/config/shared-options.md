@@ -160,7 +160,7 @@ Apps Script 프로젝트 및 manifest 설정입니다.
 
 development 및 preview 중 Vegas 로컬 Web 애플리케이션에서 호출된 서버 함수의 실행 backend를 선택합니다.
 
-이 설정은 해당 서버 함수 호출이 어디에서 실행되는지만 변경합니다. 로컬 Web 애플리케이션 자체를 대체하지 않으며 `vegas build` 또는 `vegas push`의 동작도 변경하지 않습니다. 실행 경계는 현재 영어 문서의 [Runtime Architecture](/guide/runtime-architecture)를 참고하세요.
+이 설정은 해당 서버 함수 호출이 어디에서 실행되는지만 변경합니다. 로컬 Web 애플리케이션 자체를 대체하지 않으며 `vegas build` 또는 `vegas push`의 동작도 변경하지 않습니다. 실행 경계는 [Runtime 아키텍처](../guide/runtime-architecture)를 참고하세요.
 
 #### appsScript.serverFunctions.backend
 

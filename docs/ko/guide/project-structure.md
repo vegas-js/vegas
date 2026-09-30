@@ -85,7 +85,7 @@ runtime/
 └─ spreadsheet.ts
 ```
 
-Vegas는 이 디렉터리의 TypeScript 파일을 로컬 Runtime Data source로 스캔합니다. Runtime Data는 애플리케이션 소스 코드와 별개입니다. lifecycle과 동작은 현재 영어 문서의 [Local Runtime](/guide/local-runtime)을 참고하세요.
+Vegas는 이 디렉터리의 TypeScript 파일을 로컬 Runtime Data source로 스캔합니다. Runtime Data는 애플리케이션 소스 코드와 별개입니다. lifecycle과 동작은 [Local Runtime](./local-runtime)을 참고하세요.
 
 ## 프로덕션 출력
 
