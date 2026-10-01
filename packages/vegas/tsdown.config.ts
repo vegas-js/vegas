@@ -18,7 +18,7 @@ export default defineConfig([
   },
   {
     entry: {
-      "webapp-bridge": "./src/client",
+      "webapp-bridge": "./src/webapp-bridge",
     },
     tsconfig: "./tsconfig.client.json",
     fixedExtension: false,
