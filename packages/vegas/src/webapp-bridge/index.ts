@@ -1,7 +1,4 @@
-import type {
-  ServerFunctionCallRequest,
-  ServerFunctionCallResponse,
-} from "../shared/webapp-protocol";
+import type { ServerFunctionCallRequest, ServerFunctionCallResponse } from "../webapp/protocol";
 import { isTrustedMessageSource } from "./message-source";
 import { ServerFunctionRequestRegistry } from "./server-function-requests";
 import { createServerFunctionRun } from "./server-function-run";

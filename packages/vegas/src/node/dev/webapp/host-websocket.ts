@@ -1,6 +1,6 @@
 import type { ViteDevServer } from "vite";
 
-import type { ServerFunctionCallRequest } from "../../../shared/webapp-protocol";
+import type { ServerFunctionCallRequest } from "../../../webapp/protocol";
 import type { RuntimeBackend } from "../../runtime";
 import type { BuildCoordinator } from "../build-coordinator";
 import { executeServerFunctionCall } from "./server-function-call";

@@ -1,4 +1,4 @@
-import type { ServerFunctionCallResponse } from "../shared/webapp-protocol";
+import type { ServerFunctionCallResponse } from "../webapp/protocol";
 import type { ServerFunctionHandlers } from "./server-function-run";
 
 type UnhandledFailureReporter = (message: string) => void;
