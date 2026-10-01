@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 
-import { RuntimeDataTarget } from "../../../shared/gas";
 import { InMemorySpreadsheetStore } from "../../runtime";
+import { RuntimeDataTarget } from "../../runtime-data/model";
 import { loadRuntimeDataSnapshot } from "./runtime-data";
 
 describe("runtime data", () => {

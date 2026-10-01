@@ -1,5 +1,5 @@
-import type { RuntimeDataSession } from "../../shared/gas";
 import type { InvocationEnvironment } from "../runtime";
+import type { RuntimeDataSession } from "../runtime-data";
 import type { LocalRuntimeProject } from "./project";
 
 export function createInvocationEnvironment(

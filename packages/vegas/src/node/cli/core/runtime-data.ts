@@ -1,7 +1,7 @@
-import type { RuntimeDataSnapshot } from "../../../shared/gas";
 import { loadModule } from "../../module";
 import {
   createRuntimeDataSnapshot,
+  type RuntimeDataSnapshot,
   type RuntimeDataSnapshotInput,
   validateRuntimeDataModule,
 } from "../../runtime-data";

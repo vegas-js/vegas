@@ -6,7 +6,7 @@ import type {
   RuntimeDataSpreadsheet,
   RuntimeDataSpreadsheetCellValue,
   RuntimeDataSpreadsheetSheet,
-} from "../../shared/gas";
+} from "./model";
 
 export type RuntimeDataChangeKey = "properties" | "session" | `spreadsheet:${string}`;
 

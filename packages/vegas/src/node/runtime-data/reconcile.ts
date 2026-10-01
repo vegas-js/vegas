@@ -1,8 +1,3 @@
-import type {
-  RuntimeDataProperties,
-  RuntimeDataSnapshot,
-  RuntimeDataSpreadsheet,
-} from "../../shared/gas";
 import { InMemoryPropertiesStore } from "../runtime/in-memory-properties-store";
 import { InMemorySpreadsheetStore } from "../runtime/in-memory-spreadsheet-store";
 import { LocalRuntimeSession } from "../runtime/local-runtime-session";
@@ -11,6 +6,7 @@ import type { PropertiesStore } from "../runtime/properties-store";
 import type { InvocationScope } from "../runtime/scope";
 import type { SpreadsheetStore } from "../runtime/spreadsheet-store";
 import { diffRuntimeDataSnapshots } from "./diff";
+import type { RuntimeDataProperties, RuntimeDataSnapshot, RuntimeDataSpreadsheet } from "./model";
 
 const SPREADSHEET_CHANGE_PREFIX = "spreadsheet:";
 

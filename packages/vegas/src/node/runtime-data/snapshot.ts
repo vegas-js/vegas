@@ -3,8 +3,8 @@ import type {
   RuntimeDataSession,
   RuntimeDataSnapshot,
   RuntimeDataSpreadsheet,
-} from "../../shared/gas";
-import { RuntimeDataTarget } from "../../shared/gas";
+} from "./model";
+import { RuntimeDataTarget } from "./model";
 
 export type RuntimeDataSnapshotInput =
   | {

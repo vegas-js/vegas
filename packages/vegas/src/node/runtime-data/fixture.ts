@@ -1,5 +1,5 @@
-import type { RuntimeDataSnapshot } from "../../shared/gas";
-import { RuntimeDataTarget } from "../../shared/gas";
+import type { RuntimeDataSnapshot } from "./model";
+import { RuntimeDataTarget } from "./model";
 import { createRuntimeDataSnapshot, type RuntimeDataSnapshotInput } from "./snapshot";
 import { validateRuntimeDataFixture, type RuntimeDataFixture } from "./validation";
 

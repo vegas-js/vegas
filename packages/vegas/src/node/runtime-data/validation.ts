@@ -1,11 +1,7 @@
 import * as z from "zod";
 
-import type {
-  RuntimeDataProperties,
-  RuntimeDataSession,
-  RuntimeDataSpreadsheet,
-} from "../../shared/gas";
-import { RuntimeDataTarget } from "../../shared/gas";
+import type { RuntimeDataProperties, RuntimeDataSession, RuntimeDataSpreadsheet } from "./model";
+import { RuntimeDataTarget } from "./model";
 
 const propertiesSchema = z.strictObject({
   documentProperties: z.record(z.string(), z.string()).optional(),

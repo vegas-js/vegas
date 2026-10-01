@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 
-import type { RuntimeDataSnapshot } from "../../shared/gas";
 import type { InvocationScope } from "../runtime";
+import type { RuntimeDataSnapshot } from "./model";
 import { createSeededLocalRuntimeSession, resetLocalRuntimeSession } from "./reset";
 
 const scope = {

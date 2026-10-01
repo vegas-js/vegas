@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 
-import type { RuntimeDataSnapshot, RuntimeDataSpreadsheet } from "../../shared/gas";
 import { diffRuntimeDataSnapshots } from "./diff";
+import type { RuntimeDataSnapshot, RuntimeDataSpreadsheet } from "./model";
 
 function spreadsheet(
   id: string,

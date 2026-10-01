@@ -1,6 +1,6 @@
 import { expectTypeOf, test } from "vitest";
 
-import type { RuntimeDataSnapshot } from "./gas";
+import type { RuntimeDataSnapshot } from "./model";
 
 test("keep Runtime data sources and values explicit", () => {
   expectTypeOf<RuntimeDataSnapshot>().toEqualTypeOf<{

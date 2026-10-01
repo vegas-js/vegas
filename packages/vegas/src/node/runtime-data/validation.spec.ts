@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import { RuntimeDataTarget } from "../../shared/gas";
+import { RuntimeDataTarget } from "./model";
 import { validateRuntimeDataModule } from "./validation";
 
 describe("validateRuntimeDataModule", () => {

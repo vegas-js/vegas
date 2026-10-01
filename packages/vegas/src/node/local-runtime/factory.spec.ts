@@ -1,6 +1,5 @@
 import { describe, expect, expectTypeOf, test, vi } from "vitest";
 
-import type { RuntimeDataSnapshot } from "../../shared/gas";
 import {
   InMemoryPropertiesStore,
   InMemorySpreadsheetStore,
@@ -12,6 +11,7 @@ import {
   type RuntimeExecutionRequest,
   type SpreadsheetStore,
 } from "../runtime";
+import type { RuntimeDataSnapshot } from "../runtime-data";
 import { createLocalRuntime } from "./factory";
 import type { LocalRuntimeProject } from "./project";
 

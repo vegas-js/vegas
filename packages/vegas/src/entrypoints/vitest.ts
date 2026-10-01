@@ -10,4 +10,4 @@ export type {
   RuntimeDataSpreadsheet,
   RuntimeDataSpreadsheetCellValue,
   RuntimeDataSpreadsheetSheet,
-} from "../shared/gas";
+} from "../node/runtime-data";

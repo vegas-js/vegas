@@ -1,4 +1,3 @@
-import type { RuntimeDataSnapshot } from "../../shared/gas";
 import {
   createInvocationScope,
   createLocalRuntime,
@@ -11,6 +10,7 @@ import type {
   LocalRuntimeSession,
   Program,
 } from "../runtime";
+import type { RuntimeDataSnapshot } from "../runtime-data";
 import { createSeededLocalRuntimeSession } from "../runtime-data";
 import type { SpreadsheetUrlCapability } from "../runtime/spreadsheet-url-capability";
 

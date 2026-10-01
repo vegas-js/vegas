@@ -1,5 +1,5 @@
-import type { RuntimeDataSnapshot } from "../../shared/gas";
 import type { LocalRuntime, LocalRuntimeSession, Program } from "../runtime";
+import type { RuntimeDataSnapshot } from "../runtime-data";
 import { resetLocalRuntimeSession } from "../runtime-data";
 import { createNodeAppsScriptExecutor } from "../runtime/node";
 import type { SpreadsheetUrlCapability } from "../runtime/spreadsheet-url-capability";
