@@ -1,12 +1,7 @@
 {
   "compilerOptions": {
-    "target": "es2023",
-    "module": "esnext",
     "lib": ["DOM", "DOM.Iterable", "ES2023"],
-    "skipLibCheck": true,
-
-    /* Linting */
-    "strict": true
+    "skipLibCheck": true
   },
   "include": ["src/client"]
 }

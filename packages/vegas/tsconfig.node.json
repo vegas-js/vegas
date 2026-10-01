@@ -1,18 +1,6 @@
 {
   "compilerOptions": {
-    "target": "es2023",
-    "module": "esnext",
-    "types": ["google-apps-script", "node", "parse5", "vite", "vitest", "tsdown"],
-    "skipLibCheck": true,
-
-    "noEmit": true,
-    "allowImportingTsExtensions": true,
-
-    /* Bundler mode */
-    "moduleResolution": "bundler",
-
-    /* Linting */
-    "strict": true
+    "types": ["google-apps-script", "node", "parse5", "vite", "vitest"]
   },
-  "include": ["src/shared", "src/lib", "src/node", "tsdown.config.ts"]
+  "include": ["src/shared", "src/lib", "src/node"]
 }

@@ -1,9 +1,10 @@
 {
   "compilerOptions": {
-    "types": ["node"],
+    "target": "es2025",
+    "types": ["node", "tsdown"],
 
     "noEmit": true,
     "allowImportingTsExtensions": true
   },
-  "include": ["src", "tsdown.config.ts"]
+  "include": ["tsdown.config.ts"]
 }
