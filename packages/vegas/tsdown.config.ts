@@ -7,14 +7,22 @@ export default defineConfig([
     entry: {
       vegas: "./src/node/cli",
       worker: "./src/node/worker",
-      "webapp-bridge": "./src/client",
     },
     deps: {
       onlyBundle: ["cac", "entities", "json5", "parse5", "zod"],
     },
+    tsconfig: "./tsconfig.node.json",
     fixedExtension: false,
     dts: false,
     plugins: [rolldownLicensePlugin(import.meta.dirname)],
+  },
+  {
+    entry: {
+      "webapp-bridge": "./src/client",
+    },
+    tsconfig: "./tsconfig.client.json",
+    fixedExtension: false,
+    dts: false,
   },
   {
     entry: {
