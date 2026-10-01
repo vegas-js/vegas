@@ -19,9 +19,30 @@ export default defineConfig([
   {
     entry: {
       config: "./src/lib/config",
+    },
+    tsconfig: "./tsconfig.node.json",
+    fixedExtension: false,
+    dts: {
+      compilerOptions: { isolatedDeclarations: true },
+    },
+    attw: true,
+  },
+  {
+    entry: {
       client: "./src/lib/client",
+    },
+    tsconfig: "./tsconfig.client.json",
+    fixedExtension: false,
+    dts: {
+      compilerOptions: { isolatedDeclarations: true },
+    },
+    attw: true,
+  },
+  {
+    entry: {
       server: "./src/lib/server",
     },
+    tsconfig: "./tsconfig.server.json",
     fixedExtension: false,
     dts: {
       compilerOptions: { isolatedDeclarations: true },
