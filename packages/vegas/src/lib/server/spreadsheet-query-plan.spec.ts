@@ -1,15 +1,17 @@
 import { describe, expect, expectTypeOf, test } from "vitest";
 
 import {
-  createSpreadsheetColumn,
-  createSpreadsheetQueryPlan,
   spreadsheetAnd,
   spreadsheetEq,
+  type SpreadsheetQueryExpression,
+} from "./spreadsheet-query-ir";
+import {
+  createSpreadsheetQueryPlan,
   spreadsheetOrderBy,
   type SpreadsheetOrderBy,
-  type SpreadsheetQueryExpression,
   type SpreadsheetQueryPlan,
-} from "../server";
+} from "./spreadsheet-query-plan";
+import { createSpreadsheetColumn } from "./spreadsheet-schema";
 
 interface UserRow {
   readonly id: number;

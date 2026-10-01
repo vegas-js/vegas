@@ -4,7 +4,7 @@ import {
   createSpreadsheetRepositoryLockGuard,
   createSpreadsheetRepositoryScriptLockGuard,
   type SpreadsheetRepositoryLock,
-} from "../server";
+} from "./spreadsheet-repository-lock-guard";
 
 function createLock(events: string[]): SpreadsheetRepositoryLock {
   return {

@@ -4,12 +4,12 @@
   },
   "include": [
     "src/shared",
-    "src/lib/config.spec.ts",
-    "src/lib/config.ts",
-    "src/lib/playwright.spec.ts",
-    "src/lib/playwright.ts",
-    "src/lib/vitest.spec.ts",
-    "src/lib/vitest.ts",
+    "src/entrypoints/config.spec.ts",
+    "src/entrypoints/config.ts",
+    "src/entrypoints/playwright.spec.ts",
+    "src/entrypoints/playwright.ts",
+    "src/entrypoints/vitest.spec.ts",
+    "src/entrypoints/vitest.ts",
     "src/node"
   ]
 }

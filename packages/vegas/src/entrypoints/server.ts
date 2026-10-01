@@ -1,34 +1,34 @@
 export {
   createSpreadsheetRowCodec,
   type SpreadsheetRowCodec,
-} from "./server/spreadsheet-row-codec";
+} from "../lib/server/spreadsheet-row-codec";
 export {
   createSpreadsheetTable,
   type SpreadsheetTable,
   type SpreadsheetTableEntry,
   type SpreadsheetTableOptions,
-} from "./server/spreadsheet-table";
+} from "../lib/server/spreadsheet-table";
 export {
   createSpreadsheetRepository,
   SpreadsheetRepositoryKeyConflictError,
   type SpreadsheetRepository,
   type SpreadsheetRepositoryMutationGuard,
   type SpreadsheetRepositoryOptions,
-} from "./server/spreadsheet-repository";
+} from "../lib/server/spreadsheet-repository";
 export {
   createSpreadsheetRepositoryLockGuard,
   createSpreadsheetRepositoryScriptLockGuard,
   type SpreadsheetRepositoryLock,
   type SpreadsheetRepositoryLockGuardOptions,
   type SpreadsheetRepositoryScriptLockGuardOptions,
-} from "./server/spreadsheet-repository-lock-guard";
+} from "../lib/server/spreadsheet-repository-lock-guard";
 export {
   createSpreadsheetColumn,
   createSpreadsheetSchema,
   type SpreadsheetColumn,
   type SpreadsheetSchema,
   type SpreadsheetSchemaColumnSource,
-} from "./server/spreadsheet-schema";
+} from "../lib/server/spreadsheet-schema";
 export {
   spreadsheetAnd,
   spreadsheetEq,
@@ -50,18 +50,18 @@ export {
   type SpreadsheetNotEqualExpression,
   type SpreadsheetOrExpression,
   type SpreadsheetQueryExpression,
-} from "./server/spreadsheet-query-ir";
+} from "../lib/server/spreadsheet-query-ir";
 export {
   createSpreadsheetStorageLayout,
   type SpreadsheetStorageLayout,
   type SpreadsheetStorageLayoutOptions,
   type SpreadsheetStorageLocation,
   type SpreadsheetStorageMode,
-} from "./server/spreadsheet-storage-layout";
+} from "../lib/server/spreadsheet-storage-layout";
 export {
   createSpreadsheetStorageCodec,
   type SpreadsheetStorageCodec,
-} from "./server/spreadsheet-storage-codec";
+} from "../lib/server/spreadsheet-storage-codec";
 export {
   createSpreadsheetQueryPlan,
   spreadsheetOrderBy,
@@ -70,11 +70,11 @@ export {
   type SpreadsheetQueryPlanOptions,
   type SpreadsheetQueryPlanSource,
   type SpreadsheetSortDirection,
-} from "./server/spreadsheet-query-plan";
-export { createSpreadsheetQuery, type SpreadsheetQuery } from "./server/spreadsheet-query";
+} from "../lib/server/spreadsheet-query-plan";
+export { createSpreadsheetQuery, type SpreadsheetQuery } from "../lib/server/spreadsheet-query";
 export {
   createSpreadsheetQueryFields,
   type SpreadsheetComparableQueryField,
   type SpreadsheetQueryField,
   type SpreadsheetQueryFields,
-} from "./server/spreadsheet-query-fields";
+} from "../lib/server/spreadsheet-query-fields";

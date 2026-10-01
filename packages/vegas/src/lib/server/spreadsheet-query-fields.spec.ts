@@ -1,13 +1,12 @@
 import { describe, expect, expectTypeOf, test } from "vitest";
 
 import {
-  createSpreadsheetColumn,
   createSpreadsheetQueryFields,
-  createSpreadsheetRowCodec,
-  createSpreadsheetSchema,
   type SpreadsheetComparableQueryField,
   type SpreadsheetQueryField,
-} from "../server";
+} from "./spreadsheet-query-fields";
+import { createSpreadsheetRowCodec } from "./spreadsheet-row-codec";
+import { createSpreadsheetColumn, createSpreadsheetSchema } from "./spreadsheet-schema";
 
 interface UserRow {
   readonly id: number;

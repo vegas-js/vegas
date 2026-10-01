@@ -11,7 +11,9 @@ import { buildApp } from "../build";
 import { createBuilderConfig } from "../config";
 
 const SERVER_MODULE_ID = "@vegasjs/vegas/server";
-const serverEntryPath = fileURLToPath(new URL("../../../../lib/server.ts", import.meta.url));
+const serverEntryPath = fileURLToPath(
+  new URL("../../../../entrypoints/server.ts", import.meta.url),
+);
 
 function createServerModuleResolver(): Plugin {
   return {

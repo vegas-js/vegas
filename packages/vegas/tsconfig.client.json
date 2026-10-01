@@ -3,5 +3,5 @@
     "lib": ["DOM", "DOM.Iterable", "ES2023"],
     "skipLibCheck": true
   },
-  "include": ["src/webapp-bridge", "src/lib/client.ts", "src/lib/client.spec.ts"]
+  "include": ["src/webapp-bridge", "src/entrypoints/client.ts", "src/entrypoints/client.spec.ts"]
 }

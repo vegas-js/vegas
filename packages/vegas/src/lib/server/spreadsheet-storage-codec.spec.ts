@@ -1,15 +1,16 @@
 import { describe, expect, expectTypeOf, test } from "vitest";
 
+import { createSpreadsheetRowCodec } from "./spreadsheet-row-codec";
+import { createSpreadsheetColumn, createSpreadsheetSchema } from "./spreadsheet-schema";
 import {
-  createSpreadsheetColumn,
-  createSpreadsheetRowCodec,
-  createSpreadsheetSchema,
   createSpreadsheetStorageCodec,
-  createSpreadsheetStorageLayout,
   type SpreadsheetStorageCodec,
+} from "./spreadsheet-storage-codec";
+import {
+  createSpreadsheetStorageLayout,
   type SpreadsheetStorageLayout,
   type SpreadsheetStorageLocation,
-} from "../server";
+} from "./spreadsheet-storage-layout";
 
 interface UserRow {
   readonly id: number;

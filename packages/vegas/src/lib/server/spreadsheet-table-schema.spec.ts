@@ -1,14 +1,10 @@
 import { describe, expect, expectTypeOf, test, vi } from "vitest";
 
-import {
-  createSpreadsheetColumn,
-  createSpreadsheetRepository,
-  createSpreadsheetRowCodec,
-  createSpreadsheetSchema,
-  createSpreadsheetStorageCodec,
-  createSpreadsheetTable,
-  type SpreadsheetTable,
-} from "../server";
+import { createSpreadsheetRepository } from "./spreadsheet-repository";
+import { createSpreadsheetRowCodec } from "./spreadsheet-row-codec";
+import { createSpreadsheetColumn, createSpreadsheetSchema } from "./spreadsheet-schema";
+import { createSpreadsheetStorageCodec } from "./spreadsheet-storage-codec";
+import { createSpreadsheetTable, type SpreadsheetTable } from "./spreadsheet-table";
 
 interface UserRow {
   readonly id: number;

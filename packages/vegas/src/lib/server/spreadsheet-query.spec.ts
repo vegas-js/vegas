@@ -1,13 +1,10 @@
 import { describe, expect, expectTypeOf, test } from "vitest";
 
-import {
-  createSpreadsheetColumn,
-  createSpreadsheetQuery,
-  createSpreadsheetQueryFields,
-  spreadsheetEq,
-  type SpreadsheetQuery,
-  type SpreadsheetQueryPlan,
-} from "../server";
+import { createSpreadsheetQuery, type SpreadsheetQuery } from "./spreadsheet-query";
+import { createSpreadsheetQueryFields } from "./spreadsheet-query-fields";
+import { spreadsheetEq } from "./spreadsheet-query-ir";
+import type { SpreadsheetQueryPlan } from "./spreadsheet-query-plan";
+import { createSpreadsheetColumn } from "./spreadsheet-schema";
 
 interface UserRow {
   readonly id: number;

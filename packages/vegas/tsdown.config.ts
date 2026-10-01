@@ -26,7 +26,7 @@ export default defineConfig([
   },
   {
     entry: {
-      config: "./src/lib/config",
+      config: "./src/entrypoints/config",
     },
     tsconfig: "./tsconfig.node.json",
     fixedExtension: false,
@@ -37,7 +37,7 @@ export default defineConfig([
   },
   {
     entry: {
-      client: "./src/lib/client",
+      client: "./src/entrypoints/client",
     },
     tsconfig: "./tsconfig.client.json",
     fixedExtension: false,
@@ -48,7 +48,7 @@ export default defineConfig([
   },
   {
     entry: {
-      server: "./src/lib/server",
+      server: "./src/entrypoints/server",
     },
     tsconfig: "./tsconfig.server.json",
     fixedExtension: false,
@@ -59,8 +59,8 @@ export default defineConfig([
   },
   {
     entry: {
-      playwright: "./src/lib/playwright",
-      vitest: "./src/lib/vitest",
+      playwright: "./src/entrypoints/playwright",
+      vitest: "./src/entrypoints/vitest",
     },
     deps: {
       onlyBundle: ["entities", "parse5", "zod"],
