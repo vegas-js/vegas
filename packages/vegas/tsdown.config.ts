@@ -1,6 +1,6 @@
 import { defineConfig } from "tsdown";
 
-import rolldownLicensePlugin from "./rolldown-license-plugin.ts";
+import rolldownLicensePlugin from "../../tooling/rolldown-license-plugin.ts";
 
 export default defineConfig([
   {
