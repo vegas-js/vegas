@@ -1,6 +1,6 @@
 import path from "node:path";
 
-import type { UserConfig } from "../../shared/config";
+import type { UserConfig } from "../../config/model";
 import type { ResolvedProject } from "./type";
 import { ConfigValidationError } from "./validate-config";
 

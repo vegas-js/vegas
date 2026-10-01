@@ -1,4 +1,4 @@
-import type { AppsScriptManifest } from "../../shared/config";
+import type { AppsScriptManifest } from "../../config/model";
 import type { BuildArtifact } from "./artifact";
 
 export function createAppsScriptManifestArtifact(

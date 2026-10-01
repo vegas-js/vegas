@@ -3,7 +3,7 @@
     "types": ["google-apps-script", "node", "parse5", "vite", "vitest"]
   },
   "include": [
-    "src/shared",
+    "src/config",
     "src/entrypoints/config.spec.ts",
     "src/entrypoints/config.ts",
     "src/entrypoints/playwright.spec.ts",

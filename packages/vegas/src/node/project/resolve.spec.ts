@@ -2,7 +2,7 @@ import path from "node:path";
 
 import { describe, expect, test } from "vitest";
 
-import type { UserConfig } from "../../shared/config";
+import type { UserConfig } from "../../config/model";
 import { resolveProject } from "./resolve";
 
 const fsRoot = path.parse(process.cwd()).root;

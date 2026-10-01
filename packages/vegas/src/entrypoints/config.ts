@@ -1,4 +1,4 @@
-import type { UserConfig, UserConfigExport, UserConfigFactory } from "../shared/config";
+import type { UserConfig, UserConfigExport, UserConfigFactory } from "../config/model";
 
 export type {
   AppsScriptConfig,
@@ -7,7 +7,7 @@ export type {
   UserConfig,
   UserConfigExport,
   UserConfigFactory,
-} from "../shared/config";
+} from "../config/model";
 
 export function defineConfig(config: UserConfig): UserConfig;
 export function defineConfig(config: Promise<UserConfig>): Promise<UserConfig>;

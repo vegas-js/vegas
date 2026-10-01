@@ -1,6 +1,6 @@
 import type { PluginOption } from "vite";
 
-import type { AppsScriptManifest } from "../../shared/config";
+import type { AppsScriptManifest } from "../../config/model";
 
 export interface ResolvedProject {
   readonly root: string;

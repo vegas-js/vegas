@@ -1,6 +1,6 @@
 import type * as z from "zod";
 
-import type { UserConfig } from "../../shared/config";
+import type { UserConfig } from "../../config/model";
 import { userConfigSchema } from "./config-schema";
 
 export class ConfigValidationError extends Error {

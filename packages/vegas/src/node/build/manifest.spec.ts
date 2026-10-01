@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import type { AppsScriptManifest } from "../../shared/config";
+import type { AppsScriptManifest } from "../../config/model";
 import { createAppsScriptManifestArtifact } from "./manifest";
 
 describe("createAppsScriptManifestArtifact", () => {
