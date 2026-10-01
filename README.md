@@ -88,6 +88,10 @@ API coverage varies by service and method. The local runtime should not be treat
 
 [Read the Docs to Learn More](https://vegasjs.dev).
 
+## Contributing
+
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for repository setup, testing, architecture, and Local Runtime contribution guidelines.
+
 ## License
 
 [MIT License](./LICENSE).
