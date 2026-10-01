@@ -1,6 +1,6 @@
-import type { RangeReference } from "./spreadsheet-reference";
-import type { SheetDataBounds, SpreadsheetCellValue, SpreadsheetGrid } from "./spreadsheet-store";
-import { assertPositiveInteger } from "./spreadsheet-validation";
+import type { RangeReference } from "./spreadsheet/reference";
+import type { SheetDataBounds, SpreadsheetCellValue, SpreadsheetGrid } from "./spreadsheet/store";
+import { assertPositiveInteger } from "./spreadsheet/validation";
 
 type GridRange = Pick<RangeReference, "row" | "column" | "numRows" | "numColumns">;
 

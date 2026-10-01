@@ -29,6 +29,12 @@
       }
     },
     {
+      "files": ["packages/vegas/src/node/runtime/*/runtime-boundary.ts"],
+      "rules": {
+        "import/no-relative-parent-imports": "off"
+      }
+    },
+    {
       "files": ["packages/vegas/src/node/runtime/node/**/*.ts"],
       "excludeFiles": ["packages/vegas/src/node/runtime/node/**/*.spec.ts"],
       "rules": {

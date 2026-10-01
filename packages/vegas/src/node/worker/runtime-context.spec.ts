@@ -5,7 +5,7 @@ import { describe, expect, test } from "vitest";
 import { executeRuntimeFunction } from "../runtime/function-execution";
 import type { InvocationEnvironment } from "../runtime/invocation";
 import type { Program } from "../runtime/program";
-import { SpreadsheetApp } from "../runtime/spreadsheet-app";
+import { SpreadsheetApp } from "../runtime/spreadsheet/app";
 import { Utilities } from "../runtime/utilities";
 import { createWorkerRuntimeContext, evaluateWorkerProgram } from "./runtime-context";
 

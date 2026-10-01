@@ -1,5 +1,5 @@
 import type { RuntimeBackend } from "./executor";
-import type { SpreadsheetStore } from "./spreadsheet-store";
+import type { SpreadsheetStore } from "./spreadsheet/store";
 
 export interface LocalRuntimeResources {
   readonly spreadsheets: SpreadsheetStore;

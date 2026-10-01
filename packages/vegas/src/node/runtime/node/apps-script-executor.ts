@@ -10,8 +10,8 @@ import type { HostCallDispatcher } from "../host-dispatcher";
 import type { LockStore } from "../lock-store";
 import type { PropertiesStore } from "../properties-store";
 import { RuntimeInfrastructureError } from "../runtime-infrastructure-error";
-import type { SpreadsheetStore } from "../spreadsheet-store";
-import type { SpreadsheetUrlCapability } from "../spreadsheet-url-capability";
+import type { SpreadsheetStore } from "../spreadsheet/store";
+import type { SpreadsheetUrlCapability } from "../spreadsheet/url-capability";
 import {
   isAppsScriptWorkerResponse,
   restoreAppsScriptWorkerError,

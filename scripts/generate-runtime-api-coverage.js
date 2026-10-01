@@ -22,10 +22,10 @@ export const API_SURFACES = {
     ["FolderIterator", "drive-folder-iterator.ts", "DriveFolderIterator"],
   ],
   SpreadsheetApp: [
-    ["SpreadsheetApp", "spreadsheet-app.ts", "SpreadsheetApp"],
-    ["Spreadsheet", "spreadsheet-spreadsheet.ts", "Spreadsheet"],
-    ["Sheet", "spreadsheet-sheet.ts", "Sheet"],
-    ["Range", "spreadsheet-range.ts", "Range"],
+    ["SpreadsheetApp", "spreadsheet/app.ts", "SpreadsheetApp"],
+    ["Spreadsheet", "spreadsheet/spreadsheet.ts", "Spreadsheet"],
+    ["Sheet", "spreadsheet/sheet.ts", "Sheet"],
+    ["Range", "spreadsheet/range.ts", "Range"],
   ],
   Maps: [["Maps", "maps.ts", "Maps"]],
   UrlFetchApp: [

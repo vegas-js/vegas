@@ -12,7 +12,7 @@ import type {
 } from "../runtime";
 import type { RuntimeDataSnapshot } from "../runtime-data";
 import { createSeededLocalRuntimeSession } from "../runtime-data";
-import type { SpreadsheetUrlCapability } from "../runtime/spreadsheet-url-capability";
+import type { SpreadsheetUrlCapability } from "../runtime/spreadsheet/url-capability";
 
 export interface LocalRuntimeHarness {
   readonly appsScript: {

@@ -5,7 +5,7 @@ import type { HostCall, HostCallResult } from "./host-call";
 import type { LockHostCallHandler } from "./lock-host-handler";
 import type { PropertiesHostCallHandler } from "./properties-host-handler";
 import { RuntimeInfrastructureError } from "./runtime-infrastructure-error";
-import type { SpreadsheetHostCallHandler } from "./spreadsheet-host-handler";
+import type { SpreadsheetHostCallHandler } from "./spreadsheet/host-handler";
 import { unsupportedHostCall } from "./unsupported-host-call";
 import type { UrlFetchHostCallHandler } from "./url-fetch-host-handler";
 
