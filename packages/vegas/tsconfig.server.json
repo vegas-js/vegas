@@ -1,0 +1,7 @@
+{
+  "compilerOptions": {
+    "lib": ["ES2023"],
+    "types": ["google-apps-script"]
+  },
+  "include": ["src/lib/server.ts", "src/lib/server.spec.ts", "src/lib/server"]
+}

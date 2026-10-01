@@ -3,5 +3,5 @@
     "lib": ["DOM", "DOM.Iterable", "ES2023"],
     "skipLibCheck": true
   },
-  "include": ["src/client"]
+  "include": ["src/client", "src/lib/client.ts", "src/lib/client.spec.ts"]
 }

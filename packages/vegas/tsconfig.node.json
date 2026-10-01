@@ -2,5 +2,14 @@
   "compilerOptions": {
     "types": ["google-apps-script", "node", "parse5", "vite", "vitest"]
   },
-  "include": ["src/shared", "src/lib", "src/node"]
+  "include": [
+    "src/shared",
+    "src/lib/config.spec.ts",
+    "src/lib/config.ts",
+    "src/lib/playwright.spec.ts",
+    "src/lib/playwright.ts",
+    "src/lib/vitest.spec.ts",
+    "src/lib/vitest.ts",
+    "src/node"
+  ]
 }
