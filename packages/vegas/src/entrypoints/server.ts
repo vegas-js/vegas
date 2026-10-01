@@ -1,34 +1,34 @@
 export {
   createSpreadsheetRowCodec,
   type SpreadsheetRowCodec,
-} from "../lib/server/spreadsheet-row-codec";
+} from "../server/spreadsheet/spreadsheet-row-codec";
 export {
   createSpreadsheetTable,
   type SpreadsheetTable,
   type SpreadsheetTableEntry,
   type SpreadsheetTableOptions,
-} from "../lib/server/spreadsheet-table";
+} from "../server/spreadsheet/spreadsheet-table";
 export {
   createSpreadsheetRepository,
   SpreadsheetRepositoryKeyConflictError,
   type SpreadsheetRepository,
   type SpreadsheetRepositoryMutationGuard,
   type SpreadsheetRepositoryOptions,
-} from "../lib/server/spreadsheet-repository";
+} from "../server/spreadsheet/spreadsheet-repository";
 export {
   createSpreadsheetRepositoryLockGuard,
   createSpreadsheetRepositoryScriptLockGuard,
   type SpreadsheetRepositoryLock,
   type SpreadsheetRepositoryLockGuardOptions,
   type SpreadsheetRepositoryScriptLockGuardOptions,
-} from "../lib/server/spreadsheet-repository-lock-guard";
+} from "../server/spreadsheet/spreadsheet-repository-lock-guard";
 export {
   createSpreadsheetColumn,
   createSpreadsheetSchema,
   type SpreadsheetColumn,
   type SpreadsheetSchema,
   type SpreadsheetSchemaColumnSource,
-} from "../lib/server/spreadsheet-schema";
+} from "../server/spreadsheet/spreadsheet-schema";
 export {
   spreadsheetAnd,
   spreadsheetEq,
@@ -50,18 +50,18 @@ export {
   type SpreadsheetNotEqualExpression,
   type SpreadsheetOrExpression,
   type SpreadsheetQueryExpression,
-} from "../lib/server/spreadsheet-query-ir";
+} from "../server/spreadsheet/spreadsheet-query-ir";
 export {
   createSpreadsheetStorageLayout,
   type SpreadsheetStorageLayout,
   type SpreadsheetStorageLayoutOptions,
   type SpreadsheetStorageLocation,
   type SpreadsheetStorageMode,
-} from "../lib/server/spreadsheet-storage-layout";
+} from "../server/spreadsheet/spreadsheet-storage-layout";
 export {
   createSpreadsheetStorageCodec,
   type SpreadsheetStorageCodec,
-} from "../lib/server/spreadsheet-storage-codec";
+} from "../server/spreadsheet/spreadsheet-storage-codec";
 export {
   createSpreadsheetQueryPlan,
   spreadsheetOrderBy,
@@ -70,11 +70,14 @@ export {
   type SpreadsheetQueryPlanOptions,
   type SpreadsheetQueryPlanSource,
   type SpreadsheetSortDirection,
-} from "../lib/server/spreadsheet-query-plan";
-export { createSpreadsheetQuery, type SpreadsheetQuery } from "../lib/server/spreadsheet-query";
+} from "../server/spreadsheet/spreadsheet-query-plan";
+export {
+  createSpreadsheetQuery,
+  type SpreadsheetQuery,
+} from "../server/spreadsheet/spreadsheet-query";
 export {
   createSpreadsheetQueryFields,
   type SpreadsheetComparableQueryField,
   type SpreadsheetQueryField,
   type SpreadsheetQueryFields,
-} from "../lib/server/spreadsheet-query-fields";
+} from "../server/spreadsheet/spreadsheet-query-fields";

@@ -3,5 +3,9 @@
     "lib": ["ES2023"],
     "types": ["google-apps-script"]
   },
-  "include": ["src/entrypoints/server.ts", "src/entrypoints/server.spec.ts", "src/lib/server"]
+  "include": [
+    "src/entrypoints/server.ts",
+    "src/entrypoints/server.spec.ts",
+    "src/server/spreadsheet"
+  ]
 }
