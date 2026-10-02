@@ -58,8 +58,8 @@ export const API_SURFACES = {
     ["Lock", "lock.ts", "Lock"],
   ],
   PropertiesService: [
-    ["PropertiesService", "properties-service.ts", "PropertiesService"],
-    ["Properties", "properties.ts", "Properties"],
+    ["PropertiesService", "properties/service.ts", "PropertiesService"],
+    ["Properties", "properties/properties.ts", "Properties"],
   ],
 };
 

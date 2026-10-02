@@ -1,5 +1,5 @@
-import type { HostBridge } from "./host-bridge";
-import type { PropertiesHostScope } from "./properties-host-call";
+import type { PropertiesHostScope } from "./host-call";
+import type { HostBridge } from "./runtime-boundary";
 
 // https://developers.google.com/apps-script/reference/properties/properties
 export class Properties {

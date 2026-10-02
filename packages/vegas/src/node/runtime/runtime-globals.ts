@@ -12,7 +12,7 @@ import { createLockService } from "./lock-service";
 import { createLogger } from "./logger";
 import type { LoggingTarget } from "./logging-target";
 import { createMaps } from "./maps";
-import { createPropertiesService } from "./properties-service";
+import { createPropertiesService } from "./properties/service";
 import { createSession } from "./session";
 import { createSpreadsheetApp } from "./spreadsheet/object-hydrator";
 import { createUrlFetchApp } from "./url-fetch-app";

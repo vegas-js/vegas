@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import { InMemoryPropertiesStore, PropertiesHostHandler } from "./index";
+import { InMemoryPropertiesStore, PropertiesHostHandler } from "../index";
 
 const SCOPE = {
   scriptKey: "script",

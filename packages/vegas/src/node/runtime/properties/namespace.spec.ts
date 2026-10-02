@@ -1,7 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import { resolvePropertiesNamespace } from "./properties-namespace";
-import type { InvocationScope } from "./scope";
+import { resolvePropertiesNamespace, type InvocationScope } from "../index";
 
 const scope: InvocationScope = {
   scriptKey: "script-a",

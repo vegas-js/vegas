@@ -419,6 +419,19 @@ interface BlobSource {
     ).toThrow("missing modeled surface: PropertiesService.Properties");
   });
 
+  test("track grouped PropertiesService Runtime objects", () => {
+    expect(API_SURFACES.PropertiesService).toContainEqual([
+      "PropertiesService",
+      "properties/service.ts",
+      "PropertiesService",
+    ]);
+    expect(API_SURFACES.PropertiesService).toContainEqual([
+      "Properties",
+      "properties/properties.ts",
+      "Properties",
+    ]);
+  });
+
   test("track modeled HtmlService Runtime objects", () => {
     expect(API_SURFACES.HtmlService).toContainEqual([
       "HtmlTemplate",

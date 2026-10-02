@@ -89,18 +89,18 @@ export { resolveLockNamespace } from "./lock-namespace";
 export { Lock } from "./lock";
 export { createLockService, LockService } from "./lock-service";
 export type { LockNamespace, LockStore, LockStoreSession } from "./lock-store";
-export { Properties } from "./properties";
-export { createPropertiesService, PropertiesService } from "./properties-service";
-export { PropertiesHostHandler } from "./properties-host-handler";
-export type { PropertiesHostCallHandler } from "./properties-host-handler";
+export { Properties } from "./properties/properties";
+export { createPropertiesService, PropertiesService } from "./properties/service";
+export { PropertiesHostHandler } from "./properties/host-handler";
+export type { PropertiesHostCallHandler } from "./properties/host-handler";
 export type {
   PropertiesHostCall,
   PropertiesHostCallResult,
   PropertiesHostScope,
-} from "./properties-host-call";
-export type { PropertiesNamespace, PropertiesStore } from "./properties-store";
+} from "./properties/host-call";
+export type { PropertiesNamespace, PropertiesStore } from "./properties/store";
 export type { Program } from "./program";
-export { resolvePropertiesNamespace } from "./properties-namespace";
+export { resolvePropertiesNamespace } from "./properties/namespace";
 export { createRuntimeGlobals } from "./runtime-globals";
 export type { RuntimeGlobalsOptions } from "./runtime-globals";
 export type { InvocationScope } from "./scope";

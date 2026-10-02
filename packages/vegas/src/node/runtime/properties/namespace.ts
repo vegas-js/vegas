@@ -1,5 +1,5 @@
-import type { PropertiesNamespace } from "./properties-store";
-import type { InvocationScope } from "./scope";
+import type { InvocationScope } from "./runtime-boundary";
+import type { PropertiesNamespace } from "./store";
 
 // https://developers.google.com/apps-script/reference/properties/properties-service
 export function resolvePropertiesNamespace(

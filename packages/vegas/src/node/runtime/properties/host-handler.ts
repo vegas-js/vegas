@@ -2,11 +2,10 @@ import type {
   PropertiesHostCall,
   PropertiesHostCallResult,
   PropertiesHostScope,
-} from "./properties-host-call";
-import { resolvePropertiesNamespace } from "./properties-namespace";
-import type { PropertiesNamespace, PropertiesStore } from "./properties-store";
-import type { InvocationScope } from "./scope";
-import { unsupportedHostCall } from "./unsupported-host-call";
+} from "./host-call";
+import { resolvePropertiesNamespace } from "./namespace";
+import { type InvocationScope, unsupportedHostCall } from "./runtime-boundary";
+import type { PropertiesNamespace, PropertiesStore } from "./store";
 
 export interface PropertiesHostCallHandler {
   handle(call: PropertiesHostCall): Promise<PropertiesHostCallResult<PropertiesHostCall>>;

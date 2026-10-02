@@ -1,8 +1,7 @@
+import { resolvePropertiesNamespace, type PropertiesStore } from "../runtime";
 import { InMemoryPropertiesStore } from "../runtime/in-memory-properties-store";
 import { InMemorySpreadsheetStore } from "../runtime/in-memory-spreadsheet-store";
 import { LocalRuntimeSession } from "../runtime/local-runtime-session";
-import { resolvePropertiesNamespace } from "../runtime/properties-namespace";
-import type { PropertiesStore } from "../runtime/properties-store";
 import type { InvocationScope } from "../runtime/scope";
 import type { SpreadsheetStore } from "../runtime/spreadsheet/store";
 import { diffRuntimeDataSnapshots } from "./diff";

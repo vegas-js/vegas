@@ -2,7 +2,7 @@ import { describe, expect, test } from "vitest";
 
 import { HostDispatcher } from "./host-dispatcher";
 import { InMemoryPropertiesStore } from "./in-memory-properties-store";
-import { PropertiesHostHandler } from "./properties-host-handler";
+import { PropertiesHostHandler } from "./properties/host-handler";
 import { RuntimeInfrastructureError } from "./runtime-infrastructure-error";
 
 function createDispatcher(): HostDispatcher {

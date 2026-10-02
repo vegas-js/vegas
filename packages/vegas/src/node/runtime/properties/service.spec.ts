@@ -7,7 +7,7 @@ import {
   type HostBridge,
   type HostCall,
   type HostCallResult,
-} from "./index";
+} from "../index";
 
 class RecordingHostBridge implements HostBridge {
   readonly calls: HostCall[] = [];
