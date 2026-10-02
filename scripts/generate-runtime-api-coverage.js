@@ -54,8 +54,8 @@ export const API_SURFACES = {
     ["Cache", "cache/cache.ts", "Cache"],
   ],
   LockService: [
-    ["LockService", "lock-service.ts", "LockService"],
-    ["Lock", "lock.ts", "Lock"],
+    ["LockService", "lock/service.ts", "LockService"],
+    ["Lock", "lock/lock.ts", "Lock"],
   ],
   PropertiesService: [
     ["PropertiesService", "properties/service.ts", "PropertiesService"],

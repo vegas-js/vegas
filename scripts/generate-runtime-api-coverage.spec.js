@@ -419,6 +419,15 @@ interface BlobSource {
     ).toThrow("missing modeled surface: PropertiesService.Properties");
   });
 
+  test("track grouped LockService Runtime objects", () => {
+    expect(API_SURFACES.LockService).toContainEqual([
+      "LockService",
+      "lock/service.ts",
+      "LockService",
+    ]);
+    expect(API_SURFACES.LockService).toContainEqual(["Lock", "lock/lock.ts", "Lock"]);
+  });
+
   test("track grouped PropertiesService Runtime objects", () => {
     expect(API_SURFACES.PropertiesService).toContainEqual([
       "PropertiesService",

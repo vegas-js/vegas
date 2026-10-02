@@ -8,7 +8,7 @@ import type { HostBridge } from "./host-bridge";
 import { createHtmlService } from "./html-service";
 import type { HtmlTemplateEvaluator } from "./html-template";
 import type { InvocationContext, InvocationEnvironment } from "./invocation";
-import { createLockService } from "./lock-service";
+import { createLockService } from "./lock/service";
 import { createLogger } from "./logger";
 import type { LoggingTarget } from "./logging-target";
 import { createMaps } from "./maps";

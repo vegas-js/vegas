@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import { resolveLockNamespace } from "./lock-namespace";
+import { resolveLockNamespace } from "./namespace";
 
 describe("resolveLockNamespace", () => {
   test("resolve script and user namespaces from the invocation scope", () => {

@@ -1,8 +1,7 @@
-import type { LockHostCall, LockHostCallResult, LockHostScope } from "./lock-host-call";
-import { resolveLockNamespace } from "./lock-namespace";
-import type { LockNamespace, LockStoreSession } from "./lock-store";
-import type { InvocationScope } from "./scope";
-import { unsupportedHostCall } from "./unsupported-host-call";
+import type { LockHostCall, LockHostCallResult, LockHostScope } from "./host-call";
+import { resolveLockNamespace } from "./namespace";
+import { type InvocationScope, unsupportedHostCall } from "./runtime-boundary";
+import type { LockNamespace, LockStoreSession } from "./store";
 
 export interface LockHostCallHandler {
   handle(call: LockHostCall): Promise<LockHostCallResult<LockHostCall>>;

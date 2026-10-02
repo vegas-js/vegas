@@ -1,6 +1,6 @@
 import { describe, expectTypeOf, test } from "vitest";
 
-import { type HostCallResult, type LockHostCall } from "./index";
+import { type HostCallResult, type LockHostCall } from "../index";
 
 describe("Lock host call result types", () => {
   test("map Lock host calls to operation-specific result types", () => {

@@ -7,7 +7,7 @@ import { InMemoryDriveStore } from "./in-memory-drive-store";
 import { InMemoryLockStore } from "./in-memory-lock-store";
 import { InMemoryPropertiesStore } from "./in-memory-properties-store";
 import { InMemorySpreadsheetStore } from "./in-memory-spreadsheet-store";
-import type { LockStore } from "./lock-store";
+import type { LockStore } from "./lock/store";
 import type { PropertiesStore } from "./properties/store";
 import type { SpreadsheetStore } from "./spreadsheet/store";
 

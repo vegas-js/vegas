@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import { LockHostHandler, type LockNamespace, type LockStoreSession } from "./index";
+import { LockHostHandler, type LockNamespace, type LockStoreSession } from "../index";
 
 class RecordingLockStoreSession implements LockStoreSession {
   readonly calls: unknown[] = [];

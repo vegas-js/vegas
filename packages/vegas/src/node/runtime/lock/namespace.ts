@@ -1,5 +1,5 @@
-import type { LockNamespace } from "./lock-store";
-import type { InvocationScope } from "./scope";
+import type { InvocationScope } from "./runtime-boundary";
+import type { LockNamespace } from "./store";
 
 // https://developers.google.com/apps-script/reference/lock/lock-service
 export function resolveLockNamespace(

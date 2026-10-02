@@ -1,5 +1,5 @@
-import type { HostBridge } from "./host-bridge";
-import type { LockHostScope } from "./lock-host-call";
+import type { LockHostScope } from "./host-call";
+import type { HostBridge } from "./runtime-boundary";
 
 // https://developers.google.com/apps-script/reference/lock/lock
 export class Lock {

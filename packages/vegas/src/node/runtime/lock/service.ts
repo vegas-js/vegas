@@ -1,5 +1,5 @@
-import type { HostBridge } from "./host-bridge";
 import { Lock } from "./lock";
+import type { HostBridge } from "./runtime-boundary";
 
 // https://developers.google.com/apps-script/reference/lock/lock-service
 export class LockService {
