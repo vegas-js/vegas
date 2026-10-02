@@ -1,7 +1,7 @@
 import type { BlobConversionCapability } from "./blob-conversion-capability";
 import { BlobHostHandler } from "./blob-host-handler";
-import { CacheHostHandler } from "./cache-host-handler";
-import type { CacheStore } from "./cache-store";
+import { CacheHostHandler } from "./cache/host-handler";
+import type { CacheStore } from "./cache/store";
 import { LocalDriveHostHandler } from "./drive/host-handler";
 import type { DriveIteratorStore } from "./drive/iterator-store";
 import { resolveDriveNamespace } from "./drive/namespace";

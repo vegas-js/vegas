@@ -1,4 +1,4 @@
-import type { CacheStore } from "./cache-store";
+import type { CacheStore } from "./cache/store";
 import type { DriveIteratorStore } from "./drive/iterator-store";
 import type { DriveStore } from "./drive/store";
 import { InMemoryCacheStore } from "./in-memory-cache-store";

@@ -2,7 +2,7 @@ import path from "node:path";
 import worker from "node:worker_threads";
 
 import { createAppsScriptExecutor, type AppsScriptWorkerRunner } from "../apps-script-executor";
-import type { CacheStore } from "../cache-store";
+import type { CacheStore } from "../cache/store";
 import type { DriveIteratorStore } from "../drive/iterator-store";
 import type { DriveStore } from "../drive/store";
 import type { Executor } from "../executor";

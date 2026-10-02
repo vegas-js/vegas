@@ -1,5 +1,5 @@
 import { Cache } from "./cache";
-import type { HostBridge } from "./host-bridge";
+import type { HostBridge } from "./runtime-boundary";
 
 // https://developers.google.com/apps-script/reference/cache/cache-service
 export class CacheService {

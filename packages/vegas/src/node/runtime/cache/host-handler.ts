@@ -1,8 +1,7 @@
-import type { CacheHostCall, CacheHostCallResult, CacheHostScope } from "./cache-host-call";
-import { resolveCacheNamespace } from "./cache-namespace";
-import type { CacheNamespace, CacheStore } from "./cache-store";
-import type { InvocationScope } from "./scope";
-import { unsupportedHostCall } from "./unsupported-host-call";
+import type { CacheHostCall, CacheHostCallResult, CacheHostScope } from "./host-call";
+import { resolveCacheNamespace } from "./namespace";
+import { type InvocationScope, unsupportedHostCall } from "./runtime-boundary";
+import type { CacheNamespace, CacheStore } from "./store";
 
 export interface CacheHostCallHandler {
   handle(call: CacheHostCall): Promise<CacheHostCallResult<CacheHostCall>>;

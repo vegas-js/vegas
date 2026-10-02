@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import { Cache, type HostBridge, type HostCall, type HostCallResult } from "./index";
+import { Cache, type HostBridge, type HostCall, type HostCallResult } from "../index";
 
 class RecordingHostBridge implements HostBridge {
   readonly calls: HostCall[] = [];

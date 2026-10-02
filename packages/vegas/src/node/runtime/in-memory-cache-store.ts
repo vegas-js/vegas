@@ -1,4 +1,4 @@
-import type { CacheNamespace, CacheStore } from "./cache-store";
+import type { CacheNamespace, CacheStore } from "./cache/store";
 
 type CacheEntry = {
   readonly value: string;

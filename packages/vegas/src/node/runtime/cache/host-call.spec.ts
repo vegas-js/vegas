@@ -1,6 +1,6 @@
 import { describe, expectTypeOf, test } from "vitest";
 
-import { type CacheHostCall, type HostCallResult } from "./index";
+import { type CacheHostCall, type HostCallResult } from "../index";
 
 describe("Cache host call result types", () => {
   test("map Cache host calls to operation-specific result types", () => {

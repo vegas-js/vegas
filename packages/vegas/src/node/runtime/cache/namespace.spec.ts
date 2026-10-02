@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import { resolveCacheNamespace } from "./cache-namespace";
+import { resolveCacheNamespace } from "./namespace";
 
 describe("resolveCacheNamespace", () => {
   test("resolve script and user namespaces from the invocation scope", () => {

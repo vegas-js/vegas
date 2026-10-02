@@ -1,5 +1,5 @@
-import type { CacheHostScope } from "./cache-host-call";
-import type { HostBridge } from "./host-bridge";
+import type { CacheHostScope } from "./host-call";
+import type { HostBridge } from "./runtime-boundary";
 
 const DEFAULT_EXPIRATION_SECONDS = 600;
 const MIN_EXPIRATION_SECONDS = 1;

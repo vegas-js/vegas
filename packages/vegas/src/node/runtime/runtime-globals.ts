@@ -1,6 +1,6 @@
 import { MIME_TYPE } from "./base-mime-type";
 import { createBlobConverter } from "./blob-converter";
-import { createCacheService } from "./cache-service";
+import { createCacheService } from "./cache/service";
 import { createConsole } from "./console";
 import { createContentService } from "./content-service";
 import { createDriveApp } from "./drive/object-hydrator";

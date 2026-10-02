@@ -50,8 +50,8 @@ export const API_SURFACES = {
   ],
   console: [["Console", "console.ts", "AppsScriptConsole"]],
   CacheService: [
-    ["CacheService", "cache-service.ts", "CacheService"],
-    ["Cache", "cache.ts", "Cache"],
+    ["CacheService", "cache/service.ts", "CacheService"],
+    ["Cache", "cache/cache.ts", "Cache"],
   ],
   LockService: [
     ["LockService", "lock-service.ts", "LockService"],

@@ -1,5 +1,5 @@
-import type { CacheNamespace } from "./cache-store";
-import type { InvocationScope } from "./scope";
+import type { InvocationScope } from "./runtime-boundary";
+import type { CacheNamespace } from "./store";
 
 // https://developers.google.com/apps-script/reference/cache/cache-service
 export function resolveCacheNamespace(

@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import { CacheHostHandler, type CacheNamespace, type CacheStore } from "./index";
+import { CacheHostHandler, type CacheNamespace, type CacheStore } from "../index";
 
 class RecordingCacheStore implements CacheStore {
   readonly calls: string[] = [];

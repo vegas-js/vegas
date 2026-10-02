@@ -6,7 +6,7 @@ import {
   type HostBridge,
   type HostCall,
   type HostCallResult,
-} from "./index";
+} from "../index";
 
 type CacheNamespace = "document" | "script" | "user";
 
