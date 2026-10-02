@@ -3,7 +3,7 @@ import { createBlobConverter } from "./blob-converter";
 import { createCacheService } from "./cache-service";
 import { createConsole } from "./console";
 import { createContentService } from "./content-service";
-import { createDriveApp } from "./drive-object-hydrator";
+import { createDriveApp } from "./drive/object-hydrator";
 import type { HostBridge } from "./host-bridge";
 import { createHtmlService } from "./html-service";
 import type { HtmlTemplateEvaluator } from "./html-template";

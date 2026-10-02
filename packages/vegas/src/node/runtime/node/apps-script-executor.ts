@@ -3,8 +3,8 @@ import worker from "node:worker_threads";
 
 import { createAppsScriptExecutor, type AppsScriptWorkerRunner } from "../apps-script-executor";
 import type { CacheStore } from "../cache-store";
-import type { DriveIteratorStore } from "../drive-iterator-store";
-import type { DriveStore } from "../drive-store";
+import type { DriveIteratorStore } from "../drive/iterator-store";
+import type { DriveStore } from "../drive/store";
 import type { Executor } from "../executor";
 import type { HostCallDispatcher } from "../host-dispatcher";
 import type { LockStore } from "../lock-store";

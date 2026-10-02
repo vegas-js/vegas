@@ -1,6 +1,6 @@
 import type { BlobHostCallHandler } from "./blob-host-handler";
 import type { CacheHostCallHandler } from "./cache-host-handler";
-import type { DriveHostCallHandler } from "./drive-host-handler";
+import type { DriveHostCallHandler } from "./drive/host-handler";
 import type { HostCall, HostCallResult } from "./host-call";
 import type { LockHostCallHandler } from "./lock-host-handler";
 import type { PropertiesHostCallHandler } from "./properties-host-handler";

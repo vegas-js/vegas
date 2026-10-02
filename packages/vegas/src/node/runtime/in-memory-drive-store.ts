@@ -1,12 +1,12 @@
 import { MIME_TYPE } from "./base-mime-type";
 import type { BlobValue } from "./blob-value";
-import type { DriveFileReference, DriveFolderReference } from "./drive-reference";
+import type { DriveFileReference, DriveFolderReference } from "./drive/reference";
 import type {
   DriveFileMetadata,
   DriveNamespace,
   DriveShortcutTarget,
   DriveStore,
-} from "./drive-store";
+} from "./drive/store";
 
 type DriveFileContent = {
   readonly bytes: readonly number[];

@@ -1,5 +1,5 @@
-import type { DriveIteratorSession, DriveIteratorStore } from "./drive-iterator-store";
-import type { DriveNamespace } from "./drive-store";
+import type { DriveIteratorSession, DriveIteratorStore } from "./drive/iterator-store";
+import type { DriveNamespace } from "./drive/store";
 import {
   cloneDriveIteratorContinuationState,
   InMemoryDriveIteratorSession,

@@ -15,11 +15,11 @@ const STANDALONE_GLOBAL_ENUMS = new Set(["MimeType"]);
 
 export const API_SURFACES = {
   DriveApp: [
-    ["DriveApp", "drive-app.ts", "DriveApp"],
-    ["File", "drive-file.ts", "DriveFile"],
-    ["Folder", "drive-folder.ts", "DriveFolder"],
-    ["FileIterator", "drive-file-iterator.ts", "DriveFileIterator"],
-    ["FolderIterator", "drive-folder-iterator.ts", "DriveFolderIterator"],
+    ["DriveApp", "drive/app.ts", "DriveApp"],
+    ["File", "drive/file.ts", "DriveFile"],
+    ["Folder", "drive/folder.ts", "DriveFolder"],
+    ["FileIterator", "drive/file-iterator.ts", "DriveFileIterator"],
+    ["FolderIterator", "drive/folder-iterator.ts", "DriveFolderIterator"],
   ],
   SpreadsheetApp: [
     ["SpreadsheetApp", "spreadsheet/app.ts", "SpreadsheetApp"],

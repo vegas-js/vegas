@@ -18,21 +18,21 @@ export { resolveCacheNamespace } from "./cache-namespace";
 export { Cache } from "./cache";
 export { CacheService, createCacheService } from "./cache-service";
 export type { CacheNamespace, CacheStore } from "./cache-store";
-export { DRIVE_ACCESS, DRIVE_PERMISSION } from "./drive-enum";
-export type { DriveAccess, DrivePermission } from "./drive-enum";
-export type { DriveHostCall, DriveHostCallResult } from "./drive-host-call";
-export { LocalDriveHostHandler } from "./drive-host-handler";
-export { resolveDriveNamespace } from "./drive-namespace";
-export type { DriveHostCallHandler } from "./drive-host-handler";
-export type { DriveIteratorSession, DriveIteratorStore } from "./drive-iterator-store";
-export type { DriveLiveCapability } from "./drive-live-capability";
-export { DriveFile } from "./drive-file";
-export { createDriveApp, createDriveObjectHydrator } from "./drive-object-hydrator";
-export { DriveFileIterator } from "./drive-file-iterator";
-export { DriveFolder } from "./drive-folder";
-export { DriveFolderIterator } from "./drive-folder-iterator";
-export type { DriveObjectHydrator, HydratedDriveObject } from "./drive-hydrator";
-export { DriveApp } from "./drive-app";
+export { DRIVE_ACCESS, DRIVE_PERMISSION } from "./drive/enum";
+export type { DriveAccess, DrivePermission } from "./drive/enum";
+export type { DriveHostCall, DriveHostCallResult } from "./drive/host-call";
+export { LocalDriveHostHandler } from "./drive/host-handler";
+export { resolveDriveNamespace } from "./drive/namespace";
+export type { DriveHostCallHandler } from "./drive/host-handler";
+export type { DriveIteratorSession, DriveIteratorStore } from "./drive/iterator-store";
+export type { DriveLiveCapability } from "./drive/live-capability";
+export { DriveFile } from "./drive/file";
+export { createDriveApp, createDriveObjectHydrator } from "./drive/object-hydrator";
+export { DriveFileIterator } from "./drive/file-iterator";
+export { DriveFolder } from "./drive/folder";
+export { DriveFolderIterator } from "./drive/folder-iterator";
+export type { DriveObjectHydrator, HydratedDriveObject } from "./drive/hydrator";
+export { DriveApp } from "./drive/app";
 export type {
   DriveFileIteratorReference,
   DriveFileReference,
@@ -41,13 +41,13 @@ export type {
   DriveIteratorReference,
   DriveObjectReference,
   DriveResourceReference,
-} from "./drive-reference";
+} from "./drive/reference";
 export type {
   DriveFileMetadata,
   DriveNamespace,
   DriveShortcutTarget,
   DriveStore,
-} from "./drive-store";
+} from "./drive/store";
 export type {
   ExecutionRequest,
   Executor,
