@@ -1,4 +1,4 @@
-import type { BlobConverter } from "./blob-converter";
+import type { BlobConverter } from "./blob/blob-converter";
 import { HtmlOutput } from "./html-output";
 import type { HtmlTemplateEvaluator } from "./html-template";
 

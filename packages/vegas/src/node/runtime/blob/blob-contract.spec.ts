@@ -1,8 +1,8 @@
 import { describe, expect, test } from "vitest";
 
+import { createBlob, hydrateBlob, RuntimeBlob, serializeBlob } from "../index";
+import { UnsupportedRuntimeOperationError } from "../unsupported-runtime-operation-error";
 import type { BlobConverter } from "./blob-converter";
-import { createBlob, hydrateBlob, RuntimeBlob, serializeBlob } from "./index";
-import { UnsupportedRuntimeOperationError } from "./unsupported-runtime-operation-error";
 
 // Public contract:
 // https://developers.google.com/apps-script/reference/base/blob

@@ -1,4 +1,4 @@
-import type { BlobHostCall, BlobHostCallResult } from "./blob-host-call";
+import type { BlobHostCall, BlobHostCallResult } from "./blob/blob-host-call";
 import type { CacheHostCall, CacheHostCallResult } from "./cache/host-call";
 import type { DriveHostCall, DriveHostCallResult } from "./drive/host-call";
 import type { LockHostCall, LockHostCallResult } from "./lock/host-call";

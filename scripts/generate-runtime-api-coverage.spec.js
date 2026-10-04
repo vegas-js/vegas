@@ -459,7 +459,7 @@ interface BlobSource {
       name: "Blob",
       declarationPath: "google-apps-script.base.d.ts",
       interfaceNames: ["Blob", "BlobSource"],
-      relativePath: "blob.ts",
+      relativePath: "blob/blob.ts",
       className: "RuntimeBlob",
     });
   });

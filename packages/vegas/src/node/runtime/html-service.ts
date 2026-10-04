@@ -1,6 +1,6 @@
 import { MIME_TYPE } from "./base-mime-type";
-import type { RuntimeBlobSource } from "./blob";
-import type { BlobConverter } from "./blob-converter";
+import type { RuntimeBlobSource } from "./blob/blob";
+import type { BlobConverter } from "./blob/blob-converter";
 import { HTML_SANDBOX_MODE, HTML_X_FRAME_OPTIONS_MODE } from "./html-enum";
 import { HtmlOutput } from "./html-output";
 import { HtmlTemplate, type HtmlTemplateEvaluator } from "./html-template";

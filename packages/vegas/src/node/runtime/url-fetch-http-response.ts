@@ -1,5 +1,5 @@
-import { createBlob, type RuntimeBlob } from "./blob";
-import { convertBlob, type BlobConverter } from "./blob-converter";
+import { createBlob, type RuntimeBlob } from "./blob/blob";
+import { convertBlob, type BlobConverter } from "./blob/blob-converter";
 import { UnsupportedRuntimeOperationError } from "./unsupported-runtime-operation-error";
 import type { UrlFetchResponseHeaderValue, UrlFetchResponseValue } from "./url-fetch-value";
 

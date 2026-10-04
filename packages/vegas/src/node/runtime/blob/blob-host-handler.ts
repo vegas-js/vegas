@@ -1,6 +1,6 @@
 import type { BlobConversionCapability } from "./blob-conversion-capability";
 import type { BlobHostCall, BlobHostCallResult } from "./blob-host-call";
-import { unsupportedHostCall } from "./unsupported-host-call";
+import { unsupportedHostCall } from "./runtime-boundary";
 
 export interface BlobHostCallHandler {
   handle(call: BlobHostCall): Promise<BlobHostCallResult<BlobHostCall>>;

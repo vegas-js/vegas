@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import { RuntimeBlob } from "./blob";
+import { RuntimeBlob } from "./blob/blob";
 import { createNodeUtilities } from "./node";
 
 type CompressionMethodName = keyof Pick<

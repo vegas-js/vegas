@@ -2,7 +2,7 @@ import crypto from "node:crypto";
 
 import { describe, expect, test } from "vitest";
 
-import type { BlobConverter } from "./blob-converter";
+import type { BlobConverter } from "./blob/blob-converter";
 import { createNodeUtilities } from "./node";
 import { Utilities } from "./utilities";
 

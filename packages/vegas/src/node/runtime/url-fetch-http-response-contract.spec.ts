@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import type { BlobConverter } from "./blob-converter";
+import type { BlobConverter } from "./blob/blob-converter";
 import { RuntimeBlob, hydrateHttpResponse, type UrlFetchResponseValue } from "./index";
 
 const RESPONSE: UrlFetchResponseValue = {

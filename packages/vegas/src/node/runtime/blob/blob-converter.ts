@@ -1,6 +1,6 @@
 import { hydrateBlob, serializeBlob, type RuntimeBlob } from "./blob";
 import type { BlobValue } from "./blob-value";
-import type { HostBridge } from "./host-bridge";
+import type { HostBridge } from "./runtime-boundary";
 
 export type BlobConverter = (value: BlobValue, contentType: string) => BlobValue;
 

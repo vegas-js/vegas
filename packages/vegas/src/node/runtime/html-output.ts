@@ -1,5 +1,5 @@
-import { createBlob, type RuntimeBlob } from "./blob";
-import { convertBlob, type BlobConverter } from "./blob-converter";
+import { createBlob, type RuntimeBlob } from "./blob/blob";
+import { convertBlob, type BlobConverter } from "./blob/blob-converter";
 import { escapeHtmlContextually } from "./html-contextual-escape";
 import type { HtmlSandboxMode, HtmlXFrameOptionsMode } from "./html-enum";
 import { HtmlTemplate, type HtmlTemplateEvaluator } from "./html-template";

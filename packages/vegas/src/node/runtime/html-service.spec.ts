@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import type { BlobConverter } from "./blob-converter";
+import type { BlobConverter } from "./blob/blob-converter";
 import { createBlob, createHtmlService, HtmlOutput, HtmlService, HtmlTemplate } from "./index";
 
 describe("HtmlService", () => {

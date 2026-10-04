@@ -1,5 +1,5 @@
 import { MIME_TYPE } from "./base-mime-type";
-import type { BlobValue } from "./blob-value";
+import type { BlobValue } from "./blob/blob-value";
 import type { DriveFileReference, DriveFolderReference } from "./drive/reference";
 import type {
   DriveFileMetadata,

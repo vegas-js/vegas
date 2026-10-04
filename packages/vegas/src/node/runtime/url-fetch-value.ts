@@ -1,4 +1,4 @@
-import type { BlobValue } from "./blob-value";
+import type { BlobValue } from "./blob/blob-value";
 
 export type UrlFetchMethod = "get" | "delete" | "patch" | "post" | "put";
 

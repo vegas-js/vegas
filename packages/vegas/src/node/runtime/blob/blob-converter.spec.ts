@@ -1,8 +1,8 @@
 import { describe, expect, test } from "vitest";
 
+import type { HostBridge } from "../index";
 import { createBlob } from "./blob";
 import { convertBlob, createBlobConverter } from "./blob-converter";
-import type { HostBridge } from "./host-bridge";
 
 describe("Blob conversion", () => {
   test("route conversion through the HostBridge", () => {

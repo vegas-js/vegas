@@ -1,11 +1,11 @@
 export { MIME_TYPE } from "./base-mime-type";
-export { createBlob, hydrateBlob, RuntimeBlob, serializeBlob } from "./blob";
-export type { RuntimeBlobSource } from "./blob";
-export type { BlobConversionCapability } from "./blob-conversion-capability";
-export { BlobHostHandler } from "./blob-host-handler";
-export type { BlobHostCallHandler } from "./blob-host-handler";
-export type { BlobHostCall, BlobHostCallResult } from "./blob-host-call";
-export type { BlobValue } from "./blob-value";
+export { createBlob, hydrateBlob, RuntimeBlob, serializeBlob } from "./blob/blob";
+export type { RuntimeBlobSource } from "./blob/blob";
+export type { BlobConversionCapability } from "./blob/blob-conversion-capability";
+export { BlobHostHandler } from "./blob/blob-host-handler";
+export type { BlobHostCallHandler } from "./blob/blob-host-handler";
+export type { BlobHostCall, BlobHostCallResult } from "./blob/blob-host-call";
+export type { BlobValue } from "./blob/blob-value";
 export { createAppsScriptExecutor } from "./apps-script-executor";
 export type { AppsScriptExecutorOptions, AppsScriptWorkerRunner } from "./apps-script-executor";
 export { CONTENT_MIME_TYPE } from "./content-enum";

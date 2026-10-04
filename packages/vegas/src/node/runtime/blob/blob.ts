@@ -1,7 +1,6 @@
-import { MIME_TYPE } from "./base-mime-type";
 import type { BlobConverter } from "./blob-converter";
 import type { BlobValue } from "./blob-value";
-import { UnsupportedRuntimeOperationError } from "./unsupported-runtime-operation-error";
+import { MIME_TYPE, UnsupportedRuntimeOperationError } from "./runtime-boundary";
 
 function toSignedByte(value: number): number {
   const unsigned = value & 0xff;

@@ -1,5 +1,5 @@
-import { createBlob, type RuntimeBlob } from "./blob";
-import type { BlobConverter } from "./blob-converter";
+import { createBlob, type RuntimeBlob } from "./blob/blob";
+import type { BlobConverter } from "./blob/blob-converter";
 import { parseCsv as parseCsvString } from "./csv";
 import { formatPrintf } from "./printf";
 import { formatSimpleDate, parseSimpleDate } from "./simple-date-format";

@@ -1,5 +1,5 @@
-import type { BlobConversionCapability } from "../blob-conversion-capability";
-import type { BlobValue } from "../blob-value";
+import type { BlobConversionCapability } from "../blob/blob-conversion-capability";
+import type { BlobValue } from "../blob/blob-value";
 import { UnsupportedRuntimeOperationError } from "../unsupported-runtime-operation-error";
 
 // Apps Script documents the supported Blob conversion targets, but does not define the conversion
