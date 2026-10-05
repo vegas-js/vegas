@@ -1,5 +1,6 @@
 export { createLocalRuntime } from "./factory";
 export type { LocalRuntimeProject } from "./project";
+export { ReloadableLocalRuntime } from "./reloadable-runtime";
 export type { LocalRuntime, LocalRuntimeResources } from "./runtime";
 export { LocalRuntimeSession } from "./session";
 export type { LocalRuntimeSessionStores } from "./session";

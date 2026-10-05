@@ -1,8 +1,8 @@
 import { describe, expect, test, vi } from "vitest";
 
-import type { LocalRuntime } from "../local-runtime";
 import { InMemorySpreadsheetStore } from "../runtime";
-import { ReloadableLocalRuntime } from "./reloadable-local-runtime";
+import { ReloadableLocalRuntime } from "./reloadable-runtime";
+import type { LocalRuntime } from "./runtime";
 
 function createRuntime(label: string): {
   readonly runtime: LocalRuntime;

@@ -1,12 +1,12 @@
 import { ArtifactStore, buildDevTopology, replaceDevBuildArtifacts } from "../../build";
 import { startDevApplication } from "../../dev/application";
-import { ReloadableLocalRuntime } from "../../dev/reloadable-local-runtime";
 import { LocalSpreadsheetUrlResolver } from "../../dev/webapp/local-spreadsheet-url";
 import { createGoogleAppsScriptUserRuntime } from "../../google-apps-script-runtime";
 import {
   createInvocationScope,
   createLocalRuntime,
   reconcileLocalRuntimeSession,
+  ReloadableLocalRuntime,
   resetLocalRuntimeSession,
   LocalRuntimeSession,
 } from "../../local-runtime";

@@ -5,9 +5,13 @@ import { describe, expect, test, vi } from "vitest";
 
 import { buildDevTopology } from "../../build";
 import { startDevApplication } from "../../dev/application";
-import { ReloadableLocalRuntime } from "../../dev/reloadable-local-runtime";
 import { createGoogleAppsScriptUserRuntime } from "../../google-apps-script-runtime";
-import { createLocalRuntime, LocalRuntimeSession, type LocalRuntime } from "../../local-runtime";
+import {
+  createLocalRuntime,
+  LocalRuntimeSession,
+  ReloadableLocalRuntime,
+  type LocalRuntime,
+} from "../../local-runtime";
 import { loadProject, scanRuntimeDataSources, type ResolvedProject } from "../../project";
 import { InMemoryPropertiesStore, InMemorySpreadsheetStore, type Program } from "../../runtime";
 import { createRuntimeProgram } from "../../runtime-program";
