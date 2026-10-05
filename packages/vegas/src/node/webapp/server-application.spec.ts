@@ -1,9 +1,9 @@
 import type { ViteDevServer } from "vite";
 import { describe, expect, test, vi } from "vitest";
 
-import type { SpreadsheetStore } from "../../runtime";
-import type { WebAppServerPair } from "../../webapp/server-pair";
+import type { SpreadsheetStore } from "../runtime";
 import { startEphemeralWebAppApplication } from "./server-application";
+import type { WebAppServerPair } from "./server-pair";
 
 function createServer(options: { readonly websocketError?: Error } = {}) {
   const wsOn = vi.fn(() => {
