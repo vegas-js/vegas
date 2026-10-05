@@ -1,4 +1,4 @@
-import type { LoggingTarget } from "./logging-target";
+import type { LoggingTarget } from "./target";
 
 // https://developers.google.com/apps-script/reference/base/logger
 export class Logger {

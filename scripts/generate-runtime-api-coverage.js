@@ -43,12 +43,12 @@ export const API_SURFACES = {
     ["HtmlOutputMetaTag", "html-output.ts", "HtmlOutputMetaTag"],
     ["HtmlTemplate", "html-template.ts", "HtmlTemplate"],
   ],
-  Logger: [["Logger", "logger.ts", "Logger"]],
+  Logger: [["Logger", "logging/logger.ts", "Logger"]],
   Session: [
     ["Session", "session/session.ts", "Session"],
     ["User", "session/user.ts", "User"],
   ],
-  console: [["Console", "console.ts", "AppsScriptConsole"]],
+  console: [["Console", "logging/console.ts", "AppsScriptConsole"]],
   CacheService: [
     ["CacheService", "cache/service.ts", "CacheService"],
     ["Cache", "cache/cache.ts", "Cache"],

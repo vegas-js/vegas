@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import { AppsScriptConsole, createConsole, type LoggingTarget } from "./index";
+import { AppsScriptConsole, createConsole, type LoggingTarget } from "../index";
 
 type LoggingMethod = keyof LoggingTarget;
 

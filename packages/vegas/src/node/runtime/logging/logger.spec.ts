@@ -1,6 +1,6 @@
 import { describe, expect, expectTypeOf, test } from "vitest";
 
-import { createLogger, Logger, type LoggingTarget } from "./index";
+import { createLogger, Logger, type LoggingTarget } from "../index";
 
 type LoggingMethod = keyof LoggingTarget;
 

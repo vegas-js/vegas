@@ -463,6 +463,15 @@ interface BlobSource {
     expect(API_SURFACES.Session).toContainEqual(["User", "session/user.ts", "User"]);
   });
 
+  test("track grouped logging Runtime objects", () => {
+    expect(API_SURFACES.Logger).toContainEqual(["Logger", "logging/logger.ts", "Logger"]);
+    expect(API_SURFACES.console).toContainEqual([
+      "Console",
+      "logging/console.ts",
+      "AppsScriptConsole",
+    ]);
+  });
+
   test("track grouped UrlFetchApp Runtime objects", () => {
     expect(API_SURFACES.UrlFetchApp).toContainEqual([
       "UrlFetchApp",
