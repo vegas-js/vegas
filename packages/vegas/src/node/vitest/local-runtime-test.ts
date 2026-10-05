@@ -1,14 +1,12 @@
 import { test as baseTest, type TestAPI } from "vitest";
 
-import { buildRuntimeProgram } from "../dev/runtime-program";
 import {
   createLocalRuntimeHarness,
-  loadHarnessProjectWithDependencies,
+  loadHarnessProject,
   type HarnessProject,
-  type HarnessProjectDependencies,
+  type HarnessProjectLoader,
   type LocalRuntimeHarness,
 } from "../harness";
-import { loadProject } from "../project";
 import { createRuntimeDataSnapshotFromFixture, type RuntimeDataFixture } from "../runtime-data";
 
 export interface LocalRuntimeTestOptions {
@@ -16,7 +14,9 @@ export interface LocalRuntimeTestOptions {
   readonly runtimeData?: RuntimeDataFixture;
 }
 
-type LocalRuntimeTestDependencies = HarnessProjectDependencies;
+interface LocalRuntimeTestDependencies {
+  readonly loadHarnessProject: HarnessProjectLoader;
+}
 
 function createEnvironmentLoader(
   options: LocalRuntimeTestOptions,
@@ -25,12 +25,9 @@ function createEnvironmentLoader(
   let environment: Promise<HarnessProject> | undefined;
 
   return () => {
-    environment ??= loadHarnessProjectWithDependencies(
-      {
-        root: options.root,
-      },
-      dependencies,
-    );
+    environment ??= dependencies.loadHarnessProject({
+      root: options.root,
+    });
 
     return environment;
   };
@@ -63,8 +60,6 @@ export function createLocalRuntimeTest(
   options: LocalRuntimeTestOptions = {},
 ): TestAPI<{ vegas: LocalRuntimeHarness }> {
   return createLocalRuntimeTestWithDependencies(options, {
-    cwd: process.cwd(),
-    loadProject,
-    buildRuntimeProgram,
+    loadHarnessProject,
   });
 }

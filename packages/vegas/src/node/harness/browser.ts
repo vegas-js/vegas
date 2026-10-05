@@ -1,10 +1,8 @@
-import { buildRuntimeProgram } from "../dev/runtime-program";
 import { LocalSpreadsheetUrlResolver } from "../dev/webapp/local-spreadsheet-url";
 import { startEphemeralWebAppApplication } from "../dev/webapp/server-application";
-import { loadProject } from "../project";
 import { createRuntimeDataSnapshotFromFixture, type RuntimeDataFixture } from "../runtime-data";
 import { createLocalRuntimeHarness, type LocalRuntimeHarness } from "./local-runtime";
-import { loadHarnessProjectWithDependencies, type HarnessProjectDependencies } from "./project";
+import { loadHarnessProject, type HarnessProjectLoader } from "./project";
 
 export interface BrowserHarness extends LocalRuntimeHarness {
   readonly urls: {
@@ -19,7 +17,8 @@ export interface BrowserHarnessOptions {
   readonly runtimeData?: RuntimeDataFixture;
 }
 
-interface BrowserHarnessDependencies extends HarnessProjectDependencies {
+interface BrowserHarnessDependencies {
+  readonly loadHarnessProject: HarnessProjectLoader;
   readonly createLocalRuntimeHarness: typeof createLocalRuntimeHarness;
   readonly startWebAppApplication: typeof startEphemeralWebAppApplication;
 }
@@ -36,12 +35,9 @@ export async function createBrowserHarnessWithDependencies(
   dependencies: BrowserHarnessDependencies,
 ): Promise<BrowserHarness> {
   const snapshot = createRuntimeDataSnapshotFromFixture(options.runtimeData);
-  const { project, program } = await loadHarnessProjectWithDependencies(
-    {
-      root: options.root,
-    },
-    dependencies,
-  );
+  const { project, program } = await dependencies.loadHarnessProject({
+    root: options.root,
+  });
   const localSpreadsheetUrls = new LocalSpreadsheetUrlResolver();
   const runtimeHarness = await dependencies.createLocalRuntimeHarness({
     project,
@@ -68,9 +64,7 @@ export async function createBrowserHarness(
   options: BrowserHarnessOptions = {},
 ): Promise<BrowserHarness> {
   return createBrowserHarnessWithDependencies(options, {
-    cwd: process.cwd(),
-    loadProject,
-    buildRuntimeProgram,
+    loadHarnessProject,
     createLocalRuntimeHarness,
     startWebAppApplication: startEphemeralWebAppApplication,
   });

@@ -109,8 +109,7 @@ describe("BrowserHarness integration", () => {
         mimeType: "JSON",
       },
     });
-    const loadProject = vi.fn(async () => project);
-    const buildRuntimeProgram = vi.fn(async () => program);
+    const loadHarnessProject = vi.fn(async () => ({ project, program }));
     const createLocalRuntimeHarness = vi.fn(
       async (_options: LocalRuntimeHarnessOptions) => runtimeHarness,
     );
@@ -118,9 +117,7 @@ describe("BrowserHarness integration", () => {
 
     try {
       harness = await createBrowserHarnessWithDependencies({} satisfies BrowserHarnessOptions, {
-        cwd: root,
-        loadProject,
-        buildRuntimeProgram,
+        loadHarnessProject,
         createLocalRuntimeHarness,
         startWebAppApplication: startEphemeralWebAppApplication,
       });
@@ -163,8 +160,7 @@ describe("BrowserHarness integration", () => {
     const root = await fs.mkdtemp(path.join(os.tmpdir(), "vegas-browser-harness-"));
     const project = createProject(root);
     const runtimeHarness = createRuntimeHarness();
-    const loadProject = vi.fn(async () => project);
-    const buildRuntimeProgram = vi.fn(async () => program);
+    const loadHarnessProject = vi.fn(async () => ({ project, program }));
     const createLocalRuntimeHarness = vi.fn(
       async (_options: LocalRuntimeHarnessOptions) => runtimeHarness,
     );
@@ -172,9 +168,7 @@ describe("BrowserHarness integration", () => {
 
     try {
       harness = await createBrowserHarnessWithDependencies({} satisfies BrowserHarnessOptions, {
-        cwd: root,
-        loadProject,
-        buildRuntimeProgram,
+        loadHarnessProject,
         createLocalRuntimeHarness,
         startWebAppApplication: startEphemeralWebAppApplication,
       });

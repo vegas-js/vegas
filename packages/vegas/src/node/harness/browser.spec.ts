@@ -98,8 +98,7 @@ describe("createBrowserHarnessWithDependencies", () => {
       },
     } satisfies BrowserHarnessOptions;
     const runtimeHarness = createRuntimeHarness();
-    const loadProject = vi.fn(async () => project);
-    const buildRuntimeProgram = vi.fn(async () => program);
+    const loadHarnessProject = vi.fn(async () => ({ project, program }));
     const createLocalRuntimeHarness = vi.fn(
       async (_options: LocalRuntimeHarnessOptions) => runtimeHarness,
     );
@@ -113,18 +112,14 @@ describe("createBrowserHarnessWithDependencies", () => {
     );
 
     const harness = await createBrowserHarnessWithDependencies(options, {
-      cwd: "/workspace",
-      loadProject,
-      buildRuntimeProgram,
+      loadHarnessProject,
       createLocalRuntimeHarness,
       startWebAppApplication,
     });
 
-    expect(loadProject).toHaveBeenCalledWith({
-      cwd: "/workspace",
+    expect(loadHarnessProject).toHaveBeenCalledWith({
       root: "./fixture",
     });
-    expect(buildRuntimeProgram).toHaveBeenCalledWith(project, "development");
 
     const runtimeHarnessOptions = createLocalRuntimeHarness.mock.calls[0]?.[0];
     expect(runtimeHarnessOptions?.project).toBe(project);

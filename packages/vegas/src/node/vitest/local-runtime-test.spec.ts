@@ -53,28 +53,16 @@ const program = {
 } satisfies Program;
 
 const harnesses = new Set<LocalRuntimeHarness>();
-const loadProjectCalls: Array<{ readonly cwd: string; readonly root?: string }> = [];
-const buildRuntimeProgramCalls: Array<{
-  readonly project: ResolvedProject;
-  readonly mode: "development" | "production";
-}> = [];
+const loadHarnessProjectCalls: Array<{ readonly root?: string }> = [];
 const test = createLocalRuntimeTestWithDependencies(
   {
     root: "project",
     runtimeData,
   },
   {
-    cwd: "/workspace",
-    loadProject: async (options) => {
-      loadProjectCalls.push(options);
-      return project;
-    },
-    buildRuntimeProgram: async (receivedProject, mode) => {
-      buildRuntimeProgramCalls.push({
-        project: receivedProject,
-        mode,
-      });
-      return program;
+    loadHarnessProject: async (options) => {
+      loadHarnessProjectCalls.push(options);
+      return { project, program };
     },
   },
 );
@@ -87,16 +75,9 @@ describe("createLocalRuntimeTest", () => {
     expect(harnesses.has(vegas)).toBe(false);
     harnesses.add(vegas);
 
-    expect(loadProjectCalls).toStrictEqual([
+    expect(loadHarnessProjectCalls).toStrictEqual([
       {
-        cwd: "/workspace",
         root: "project",
-      },
-    ]);
-    expect(buildRuntimeProgramCalls).toStrictEqual([
-      {
-        project,
-        mode: "development",
       },
     ]);
 
@@ -147,6 +128,5 @@ describe("createLocalRuntimeTest", () => {
 
 afterAll(() => {
   expect(harnesses.size).toBe(2);
-  expect(loadProjectCalls).toHaveLength(1);
-  expect(buildRuntimeProgramCalls).toHaveLength(1);
+  expect(loadHarnessProjectCalls).toHaveLength(1);
 });

@@ -11,6 +11,8 @@ export interface HarnessProjectOptions {
   readonly root?: string;
 }
 
+export type HarnessProjectLoader = (options: HarnessProjectOptions) => Promise<HarnessProject>;
+
 export interface HarnessProjectDependencies {
   readonly cwd: string;
   readonly loadProject: typeof loadProject;

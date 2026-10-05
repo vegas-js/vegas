@@ -9,5 +9,6 @@ export {
   loadHarnessProjectWithDependencies,
   type HarnessProject,
   type HarnessProjectDependencies,
+  type HarnessProjectLoader,
   type HarnessProjectOptions,
 } from "./project";
