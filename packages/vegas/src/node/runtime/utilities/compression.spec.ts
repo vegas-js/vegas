@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 
-import { RuntimeBlob } from "./blob/blob";
-import { createNodeUtilities } from "./node";
+import { RuntimeBlob } from "../blob/blob";
+import { createNodeUtilities } from "../node";
 
 type CompressionMethodName = keyof Pick<
   GoogleAppsScript.Utilities.Utilities,

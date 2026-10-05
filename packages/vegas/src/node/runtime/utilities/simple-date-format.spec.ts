@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 
-import { createNodeUtilities } from "./node";
-import { UnsupportedRuntimeOperationError } from "./unsupported-runtime-operation-error";
+import { createNodeUtilities } from "../node";
+import { UnsupportedRuntimeOperationError } from "../unsupported-runtime-operation-error";
 
 type DateContract = Pick<GoogleAppsScript.Utilities.Utilities, "formatDate" | "parseDate">;
 

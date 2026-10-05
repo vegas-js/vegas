@@ -2,7 +2,7 @@ import crypto from "node:crypto";
 
 import { describe, expect, test } from "vitest";
 
-import { createNodeUtilities } from "./node";
+import { createNodeUtilities } from "../node";
 
 type UtilitiesContract = Pick<
   GoogleAppsScript.Utilities.Utilities,

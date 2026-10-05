@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import { createNodeUtilities } from "./node";
+import { createNodeUtilities } from "../node";
 
 type CsvContract = Pick<GoogleAppsScript.Utilities.Utilities, "parseCsv">;
 

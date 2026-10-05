@@ -2,8 +2,8 @@ import crypto from "node:crypto";
 import zlib from "node:zlib";
 
 import type { BlobConverter } from "../blob/blob-converter";
-import { createUtilities } from "../utilities";
-import type { UtilitiesArchiveEntry, UtilitiesCapability } from "../utilities-capability";
+import type { UtilitiesArchiveEntry, UtilitiesCapability } from "../utilities/capability";
+import { createUtilities } from "../utilities/utilities";
 import { createZip, extractZip } from "./zip";
 
 const SLEEP_ARRAY = new Int32Array(new SharedArrayBuffer(Int32Array.BYTES_PER_ELEMENT));

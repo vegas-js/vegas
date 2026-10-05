@@ -1,7 +1,7 @@
 import { describe, expect, test, vi } from "vitest";
 
+import type { UtilitiesCapability } from "./capability";
 import { Utilities } from "./utilities";
-import type { UtilitiesCapability } from "./utilities-capability";
 
 describe("Utilities.sleep", () => {
   test("delegate synchronous waiting to the Runtime capability after validating the duration", () => {

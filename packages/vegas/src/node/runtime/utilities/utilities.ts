@@ -1,14 +1,10 @@
-import { createBlob, type RuntimeBlob } from "./blob/blob";
-import type { BlobConverter } from "./blob/blob-converter";
-import { parseCsv as parseCsvString } from "./csv";
-import { formatPrintf } from "./printf";
-import { formatSimpleDate, parseSimpleDate } from "./simple-date-format";
-import type { UtilitiesCapability } from "./utilities-capability";
+import type { UtilitiesCapability } from "./capability";
 import {
   computeUtilitiesDigest,
   computeUtilitiesHmac,
   computeUtilitiesRsaSignature,
-} from "./utilities-crypto";
+} from "./crypto";
+import { parseCsv as parseCsvString } from "./csv";
 import {
   UTILITIES_CHARSET,
   UTILITIES_DIGEST_ALGORITHM,
@@ -18,7 +14,10 @@ import {
   type UtilitiesDigestAlgorithm,
   type UtilitiesMacAlgorithm,
   type UtilitiesRsaAlgorithm,
-} from "./utilities-enum";
+} from "./enum";
+import { formatPrintf } from "./printf";
+import { createBlob, type BlobConverter, type RuntimeBlob } from "./runtime-boundary";
+import { formatSimpleDate, parseSimpleDate } from "./simple-date-format";
 
 const MAX_SLEEP_MILLISECONDS = 300_000;
 

@@ -1,4 +1,4 @@
-import { createRuntimeEnum } from "./runtime-enum";
+import { createRuntimeEnum } from "./runtime-boundary";
 
 export const UTILITIES_CHARSET = createRuntimeEnum("US_ASCII", "UTF_8");
 export type UtilitiesCharset = (typeof UTILITIES_CHARSET)[keyof typeof UTILITIES_CHARSET];

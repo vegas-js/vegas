@@ -6,7 +6,7 @@ import { executeRuntimeFunction } from "../runtime/function-execution";
 import type { InvocationEnvironment } from "../runtime/invocation";
 import type { Program } from "../runtime/program";
 import { SpreadsheetApp } from "../runtime/spreadsheet/app";
-import { Utilities } from "../runtime/utilities";
+import { Utilities } from "../runtime/utilities/utilities";
 import { createWorkerRuntimeContext, evaluateWorkerProgram } from "./runtime-context";
 
 const environment = {

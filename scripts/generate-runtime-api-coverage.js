@@ -32,7 +32,7 @@ export const API_SURFACES = {
     ["UrlFetchApp", "url-fetch/app.ts", "UrlFetchApp"],
     ["HTTPResponse", "url-fetch/http-response.ts", "HTTPResponse"],
   ],
-  Utilities: [["Utilities", "utilities.ts", "Utilities"]],
+  Utilities: [["Utilities", "utilities/utilities.ts", "Utilities"]],
   ContentService: [
     ["ContentService", "content/service.ts", "ContentService"],
     ["TextOutput", "content/text-output.ts", "TextOutput"],

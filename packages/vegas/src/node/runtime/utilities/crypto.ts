@@ -1,5 +1,4 @@
-import { computeMd2 } from "./md2";
-import type { UtilitiesCapability } from "./utilities-capability";
+import type { UtilitiesCapability } from "./capability";
 import {
   UTILITIES_DIGEST_ALGORITHM,
   UTILITIES_MAC_ALGORITHM,
@@ -7,7 +6,8 @@ import {
   type UtilitiesDigestAlgorithm,
   type UtilitiesMacAlgorithm,
   type UtilitiesRsaAlgorithm,
-} from "./utilities-enum";
+} from "./enum";
+import { computeMd2 } from "./md2";
 
 function toSignedBytes(data: Uint8Array): GoogleAppsScript.Byte[] {
   return Array.from(data, (value) => (value > 0x7f ? value - 0x100 : value));

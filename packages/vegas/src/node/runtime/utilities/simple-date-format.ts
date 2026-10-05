@@ -1,4 +1,4 @@
-import { UnsupportedRuntimeOperationError } from "./unsupported-runtime-operation-error";
+import { UnsupportedRuntimeOperationError } from "./runtime-boundary";
 
 // Google Apps Script Utilities.formatDate/parseDate explicitly use Java SE 7 SimpleDateFormat patterns.
 // Vegas implements the locale-independent numeric/time-zone subset from the public Java contract.

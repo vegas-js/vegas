@@ -16,7 +16,7 @@ import { createPropertiesService } from "./properties/service";
 import { createSession } from "./session/session";
 import { createSpreadsheetApp } from "./spreadsheet/object-hydrator";
 import { createUrlFetchApp } from "./url-fetch/app";
-import type { Utilities } from "./utilities";
+import type { Utilities } from "./utilities/utilities";
 
 export interface RuntimeGlobalsOptions {
   readonly hostBridge: HostBridge;

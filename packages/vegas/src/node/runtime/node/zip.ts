@@ -1,7 +1,7 @@
 import zlib from "node:zlib";
 
 import { UnsupportedRuntimeOperationError } from "../unsupported-runtime-operation-error";
-import type { UtilitiesArchiveEntry } from "../utilities-capability";
+import type { UtilitiesArchiveEntry } from "../utilities/capability";
 
 const LOCAL_FILE_HEADER_SIGNATURE = 0x04034b50;
 const CENTRAL_DIRECTORY_HEADER_SIGNATURE = 0x02014b50;
