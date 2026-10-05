@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import { InMemoryCacheStore } from "./in-memory-cache-store";
+import { InMemoryCacheStore } from "./cache/in-memory-store";
 import { InMemoryDriveIteratorStore } from "./in-memory-drive-iterator-store";
 import { InMemoryDriveStore } from "./in-memory-drive-store";
 import { InMemoryLockStore } from "./in-memory-lock-store";

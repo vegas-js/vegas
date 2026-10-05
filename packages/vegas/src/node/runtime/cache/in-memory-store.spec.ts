@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 
-import type { CacheNamespace } from "./cache/store";
-import { InMemoryCacheStore } from "./in-memory-cache-store";
+import { InMemoryCacheStore } from "./in-memory-store";
+import type { CacheNamespace } from "./store";
 
 const SCRIPT_CACHE = {
   kind: "script",
