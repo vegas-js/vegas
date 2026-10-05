@@ -10,6 +10,7 @@ import { ContentResponseRegistry } from "../webapp/content-response-registry";
 import { createHostHttpHandler } from "../webapp/host-http-handler";
 import { createHostServerConfig } from "../webapp/host-server";
 import { registerHostWebSocketHandlers } from "../webapp/host-websocket";
+import { createLocalSpreadsheetHttpHandler } from "../webapp/local-spreadsheet-http-handler";
 import type { LocalSpreadsheetUrlConfiguration } from "../webapp/local-spreadsheet-url";
 import { WebAppServerLifecycle } from "../webapp/server-lifecycle";
 import { getListeningPort } from "../webapp/server-port";
@@ -19,7 +20,6 @@ import { createUserContentServerConfig } from "../webapp/user-content-server";
 import { BuildCoordinator } from "./build-coordinator";
 import { DevBuildManager } from "./build-manager";
 import { registerBuildWatchers } from "./build-watcher";
-import { createLocalSpreadsheetHttpHandler } from "./webapp/local-spreadsheet-http-handler";
 
 interface DevApplicationOptions {
   readonly project: ResolvedProject;

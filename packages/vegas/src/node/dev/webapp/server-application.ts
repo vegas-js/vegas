@@ -4,11 +4,11 @@ import { createContentResponseHttpHandler } from "../../webapp/content-response-
 import { ContentResponseRegistry } from "../../webapp/content-response-registry";
 import { createHostHttpHandler } from "../../webapp/host-http-handler";
 import { registerHostWebSocketHandlers } from "../../webapp/host-websocket";
+import { createLocalSpreadsheetHttpHandler } from "../../webapp/local-spreadsheet-http-handler";
 import type { LocalSpreadsheetUrlConfiguration } from "../../webapp/local-spreadsheet-url";
 import { startEphemeralWebAppServerPair, type WebAppServerPair } from "../../webapp/server-pair";
 import { WebAppSessionRegistry } from "../../webapp/session-registry";
 import { createUserContentHttpHandler } from "../../webapp/user-content-http-handler";
-import { createLocalSpreadsheetHttpHandler } from "./local-spreadsheet-http-handler";
 
 export interface EphemeralWebAppApplicationOptions {
   readonly root: string;

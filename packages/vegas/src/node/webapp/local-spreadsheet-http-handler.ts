@@ -5,8 +5,8 @@ import type {
   SpreadsheetGrid,
   SpreadsheetReference,
   SpreadsheetStore,
-} from "../../runtime";
-import { readRequestBody } from "../../webapp/http";
+} from "../runtime";
+import { readRequestBody } from "./http";
 import {
   createLocalSpreadsheetHtml,
   type LocalSpreadsheetPage,

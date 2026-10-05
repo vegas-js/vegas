@@ -2,7 +2,7 @@ import { Readable } from "node:stream";
 
 import { describe, expect, test, vi } from "vitest";
 
-import { InMemorySpreadsheetStore } from "../../runtime";
+import { InMemorySpreadsheetStore } from "../runtime";
 import { createLocalSpreadsheetHttpHandler } from "./local-spreadsheet-http-handler";
 
 type LocalSpreadsheetHttpHandler = ReturnType<typeof createLocalSpreadsheetHttpHandler>;
