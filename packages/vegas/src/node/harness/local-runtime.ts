@@ -1,12 +1,12 @@
 import {
   createInvocationScope,
   createLocalRuntime,
+  type LocalRuntime,
   type LocalRuntimeProject,
 } from "../local-runtime";
 import type {
   InMemoryPropertiesStore,
   InMemorySpreadsheetStore,
-  LocalRuntime,
   LocalRuntimeSession,
   Program,
 } from "../runtime";

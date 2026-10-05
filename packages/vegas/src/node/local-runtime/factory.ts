@@ -1,10 +1,11 @@
-import type { LocalRuntime, LocalRuntimeSession, Program } from "../runtime";
+import type { LocalRuntimeSession, Program } from "../runtime";
 import type { RuntimeDataSnapshot } from "../runtime-data";
 import { resetLocalRuntimeSession } from "../runtime-data";
 import { createNodeAppsScriptExecutor } from "../runtime/node";
 import type { SpreadsheetUrlCapability } from "../runtime/spreadsheet/url-capability";
 import { createInvocationEnvironment } from "./environment";
 import type { LocalRuntimeProject } from "./project";
+import type { LocalRuntime } from "./runtime";
 import { createInvocationScope } from "./scope";
 
 interface LocalRuntimeOptions {

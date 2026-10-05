@@ -1,9 +1,5 @@
-import type {
-  LocalRuntime,
-  LocalRuntimeResources,
-  RuntimeBackend,
-  RuntimeExecutionRequest,
-} from "../runtime";
+import type { LocalRuntime, LocalRuntimeResources } from "../local-runtime";
+import type { RuntimeBackend, RuntimeExecutionRequest } from "../runtime";
 
 export class ReloadableLocalRuntime implements RuntimeBackend {
   #runtime: LocalRuntime;

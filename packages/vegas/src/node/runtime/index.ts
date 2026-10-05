@@ -75,7 +75,6 @@ export { InMemoryPropertiesStore } from "./properties/in-memory-store";
 export { InMemorySpreadsheetStore } from "./spreadsheet/in-memory-store";
 export type { InMemorySheetSeed, InMemorySpreadsheetSeed } from "./spreadsheet/in-memory-store";
 export type { InvocationContext, InvocationEnvironment } from "./invocation";
-export type { LocalRuntime, LocalRuntimeResources } from "./local-runtime";
 export { LocalRuntimeSession } from "./local-runtime-session";
 export type { LocalRuntimeSessionStores } from "./local-runtime-session";
 export { AppsScriptConsole, createConsole } from "./logging/console";

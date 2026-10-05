@@ -5,12 +5,12 @@ import path from "node:path";
 import { describe, expect, test, vi } from "vitest";
 
 import { startEphemeralWebAppApplication } from "../dev/webapp/server-application";
+import type { LocalRuntime } from "../local-runtime";
 import type { ResolvedProject } from "../project";
 import {
   InMemoryPropertiesStore,
   InMemorySpreadsheetStore,
   LocalRuntimeSession,
-  type LocalRuntime,
   type Program,
 } from "../runtime";
 import { createBrowserHarnessWithDependencies, type BrowserHarnessOptions } from "./browser";
