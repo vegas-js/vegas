@@ -1,8 +1,8 @@
 import type { ViteBuilder } from "vite";
 import { describe, expect, test, vi } from "vitest";
 
-import { ArtifactStore, type BuildArtifact } from "../build";
-import { buildDevArtifacts, replaceDevBuildArtifacts } from "./build-artifacts";
+import { ArtifactStore, type BuildArtifact } from "./artifact";
+import { buildDevArtifacts, replaceDevBuildArtifacts } from "./dev-artifacts";
 
 describe("buildDevArtifacts", () => {
   test("build client and server artifacts in parallel scopes", async () => {

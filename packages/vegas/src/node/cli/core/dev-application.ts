@@ -1,6 +1,5 @@
-import { ArtifactStore } from "../../build";
+import { ArtifactStore, replaceDevBuildArtifacts } from "../../build";
 import { startDevApplication } from "../../dev/application";
-import { replaceDevBuildArtifacts } from "../../dev/build-artifacts";
 import { buildDevTopology } from "../../dev/build-topology";
 import { ReloadableLocalRuntime } from "../../dev/reloadable-local-runtime";
 import { createRuntimeProgram } from "../../dev/runtime-program";

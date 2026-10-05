@@ -5,6 +5,11 @@ export {
   writeArtifacts,
 } from "./artifact";
 export { createProjectBuilder } from "./builder";
+export {
+  buildDevArtifacts,
+  replaceDevBuildArtifacts,
+  type DevBuildArtifacts,
+} from "./dev-artifacts";
 export { createAppsScriptManifestArtifact } from "./manifest";
 export { buildProjectArtifacts } from "./pipeline";
 export {

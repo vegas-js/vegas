@@ -1,12 +1,7 @@
 import type { ViteBuilder } from "vite";
 
-import {
-  CLIENT_ENVIRONMENT_PATTERN,
-  SERVER_ENVIRONMENT_PATTERN,
-  type ArtifactStore,
-  type BuildArtifact,
-  buildApp,
-} from "../build";
+import type { ArtifactStore, BuildArtifact } from "./artifact";
+import { CLIENT_ENVIRONMENT_PATTERN, SERVER_ENVIRONMENT_PATTERN, buildApp } from "./vite";
 
 export interface DevBuildArtifacts {
   readonly clientArtifacts: readonly BuildArtifact[];

@@ -1,8 +1,13 @@
 import type { ViteBuilder } from "vite";
 
-import { SERVER_ENVIRONMENT_PATTERN, type ArtifactStore, buildApp } from "../build";
+import {
+  SERVER_ENVIRONMENT_PATTERN,
+  type ArtifactStore,
+  buildApp,
+  buildDevArtifacts,
+  replaceDevBuildArtifacts,
+} from "../build";
 import type { ResolvedProject } from "../project";
-import { buildDevArtifacts, replaceDevBuildArtifacts } from "./build-artifacts";
 import { buildDevTopology } from "./build-topology";
 import type { ProjectBuildScope } from "./project-file";
 
