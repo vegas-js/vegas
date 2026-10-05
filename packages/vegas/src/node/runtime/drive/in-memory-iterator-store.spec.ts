@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import { InMemoryDriveIteratorStore, type DriveFileReference, type DriveNamespace } from "./index";
+import { InMemoryDriveIteratorStore, type DriveFileReference, type DriveNamespace } from "../index";
 
 const FILES = [
   { service: "drive", kind: "file", id: "a" },

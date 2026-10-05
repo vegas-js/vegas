@@ -1,10 +1,10 @@
-import type { DriveIteratorSession, DriveIteratorStore } from "./drive/iterator-store";
-import type { DriveNamespace } from "./drive/store";
 import {
   cloneDriveIteratorContinuationState,
   InMemoryDriveIteratorSession,
   type DriveIteratorContinuationState,
-} from "./in-memory-drive-iterator-session";
+} from "./in-memory-iterator-session";
+import type { DriveIteratorSession, DriveIteratorStore } from "./iterator-store";
+import type { DriveNamespace } from "./store";
 
 type StoredContinuation = {
   readonly namespace: DriveNamespace;

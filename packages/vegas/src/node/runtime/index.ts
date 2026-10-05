@@ -68,7 +68,7 @@ export type { HostBridge } from "./host-bridge";
 export type { HostCall, HostCallResult } from "./host-call";
 export type { HostError, HostRequestMessage, HostResponseMessage } from "./host-protocol";
 export { InMemoryCacheStore } from "./cache/in-memory-store";
-export { InMemoryDriveIteratorStore } from "./in-memory-drive-iterator-store";
+export { InMemoryDriveIteratorStore } from "./drive/in-memory-iterator-store";
 export { InMemoryDriveStore } from "./in-memory-drive-store";
 export { InMemoryLockStore } from "./lock/in-memory-store";
 export { InMemoryPropertiesStore } from "./properties/in-memory-store";

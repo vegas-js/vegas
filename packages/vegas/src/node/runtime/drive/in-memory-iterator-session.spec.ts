@@ -1,10 +1,10 @@
 import { describe, expect, test } from "vitest";
 
+import type { DriveFileReference, DriveFolderReference, DriveNamespace } from "../index";
 import {
   InMemoryDriveIteratorSession,
   type DriveIteratorContinuationState,
-} from "./in-memory-drive-iterator-session";
-import type { DriveFileReference, DriveFolderReference, DriveNamespace } from "./index";
+} from "./in-memory-iterator-session";
 
 const FILES = [
   { service: "drive", kind: "file", id: "a" },

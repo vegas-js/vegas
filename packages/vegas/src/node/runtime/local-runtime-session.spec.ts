@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 
 import { InMemoryCacheStore } from "./cache/in-memory-store";
-import { InMemoryDriveIteratorStore } from "./in-memory-drive-iterator-store";
+import { InMemoryDriveIteratorStore } from "./drive/in-memory-iterator-store";
 import { InMemoryDriveStore } from "./in-memory-drive-store";
 import { InMemorySpreadsheetStore } from "./in-memory-spreadsheet-store";
 import { LocalRuntimeSession } from "./local-runtime-session";

@@ -1,12 +1,12 @@
-import type { DriveIteratorSession } from "./drive/iterator-store";
+import type { DriveIteratorSession } from "./iterator-store";
 import type {
   DriveFileIteratorReference,
   DriveFileReference,
   DriveFolderIteratorReference,
   DriveFolderReference,
   DriveIteratorReference,
-} from "./drive/reference";
-import type { DriveNamespace } from "./drive/store";
+} from "./reference";
+import type { DriveNamespace } from "./store";
 
 type IteratorState<T> = {
   readonly values: readonly T[];
