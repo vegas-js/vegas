@@ -134,19 +134,19 @@ export { createSession, Session } from "./session";
 export { serializeTextOutput, TextOutput } from "./text-output";
 export type { TextOutputSnapshot } from "./text-output";
 export { User } from "./user";
-export { createUrlFetchApp, UrlFetchApp } from "./url-fetch-app";
-export { HTTPResponse, hydrateHttpResponse } from "./url-fetch-http-response";
-export type { UrlFetchCapability } from "./url-fetch-capability";
-export { UrlFetchHostHandler } from "./url-fetch-host-handler";
-export type { UrlFetchHostCallHandler } from "./url-fetch-host-handler";
-export type { UrlFetchHostCall, UrlFetchHostCallResult } from "./url-fetch-host-call";
-export { normalizeUrlFetchRequest } from "./url-fetch-request";
+export { createUrlFetchApp, UrlFetchApp } from "./url-fetch/app";
+export { HTTPResponse, hydrateHttpResponse } from "./url-fetch/http-response";
+export type { UrlFetchCapability } from "./url-fetch/capability";
+export { UrlFetchHostHandler } from "./url-fetch/host-handler";
+export type { UrlFetchHostCallHandler } from "./url-fetch/host-handler";
+export type { UrlFetchHostCall, UrlFetchHostCallResult } from "./url-fetch/host-call";
+export { normalizeUrlFetchRequest } from "./url-fetch/request";
 export type {
   UrlFetchFormFieldInput,
   UrlFetchPayloadInput,
   UrlFetchRequestInput,
   UrlFetchRequestOptionsInput,
-} from "./url-fetch-request";
+} from "./url-fetch/request";
 export type {
   UrlFetchFormFieldValue,
   UrlFetchMethod,
@@ -154,7 +154,7 @@ export type {
   UrlFetchRequestValue,
   UrlFetchResponseHeaderValue,
   UrlFetchResponseValue,
-} from "./url-fetch-value";
+} from "./url-fetch/value";
 export { createUtilities, Utilities } from "./utilities";
 export type { UtilitiesArchiveEntry, UtilitiesCapability } from "./utilities-capability";
 export { serializeWebAppOutput } from "./web-app-output";

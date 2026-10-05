@@ -1,8 +1,8 @@
 import { describe, expect, test } from "vitest";
 
-import type { UrlFetchRequestValue } from "./index";
-import { NodeUrlFetchCapability } from "./node";
-import { UnsupportedRuntimeOperationError } from "./unsupported-runtime-operation-error";
+import { UnsupportedRuntimeOperationError } from "../unsupported-runtime-operation-error";
+import type { UrlFetchRequestValue } from "../url-fetch/value";
+import { NodeUrlFetchCapability } from "./url-fetch-capability";
 
 describe("NodeUrlFetchCapability", () => {
   test("map a request through fetch and serialize the response", async () => {

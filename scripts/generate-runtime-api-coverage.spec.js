@@ -441,6 +441,19 @@ interface BlobSource {
     ]);
   });
 
+  test("track grouped UrlFetchApp Runtime objects", () => {
+    expect(API_SURFACES.UrlFetchApp).toContainEqual([
+      "UrlFetchApp",
+      "url-fetch/app.ts",
+      "UrlFetchApp",
+    ]);
+    expect(API_SURFACES.UrlFetchApp).toContainEqual([
+      "HTTPResponse",
+      "url-fetch/http-response.ts",
+      "HTTPResponse",
+    ]);
+  });
+
   test("track modeled HtmlService Runtime objects", () => {
     expect(API_SURFACES.HtmlService).toContainEqual([
       "HtmlTemplate",

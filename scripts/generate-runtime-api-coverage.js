@@ -29,8 +29,8 @@ export const API_SURFACES = {
   ],
   Maps: [["Maps", "maps.ts", "Maps"]],
   UrlFetchApp: [
-    ["UrlFetchApp", "url-fetch-app.ts", "UrlFetchApp"],
-    ["HTTPResponse", "url-fetch-http-response.ts", "HTTPResponse"],
+    ["UrlFetchApp", "url-fetch/app.ts", "UrlFetchApp"],
+    ["HTTPResponse", "url-fetch/http-response.ts", "HTTPResponse"],
   ],
   Utilities: [["Utilities", "utilities.ts", "Utilities"]],
   ContentService: [

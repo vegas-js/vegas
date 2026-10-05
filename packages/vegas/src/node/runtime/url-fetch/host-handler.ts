@@ -1,6 +1,6 @@
-import { unsupportedHostCall } from "./unsupported-host-call";
-import type { UrlFetchCapability } from "./url-fetch-capability";
-import type { UrlFetchHostCall, UrlFetchHostCallResult } from "./url-fetch-host-call";
+import type { UrlFetchCapability } from "./capability";
+import type { UrlFetchHostCall, UrlFetchHostCallResult } from "./host-call";
+import { unsupportedHostCall } from "./runtime-boundary";
 
 export interface UrlFetchHostCallHandler {
   handle(call: UrlFetchHostCall): Promise<UrlFetchHostCallResult<UrlFetchHostCall>>;

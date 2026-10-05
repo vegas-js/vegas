@@ -1,7 +1,11 @@
-import { createBlob, type RuntimeBlob } from "./blob/blob";
-import { convertBlob, type BlobConverter } from "./blob/blob-converter";
-import { UnsupportedRuntimeOperationError } from "./unsupported-runtime-operation-error";
-import type { UrlFetchResponseHeaderValue, UrlFetchResponseValue } from "./url-fetch-value";
+import {
+  createBlob,
+  convertBlob,
+  UnsupportedRuntimeOperationError,
+  type BlobConverter,
+  type RuntimeBlob,
+} from "./runtime-boundary";
+import type { UrlFetchResponseHeaderValue, UrlFetchResponseValue } from "./value";
 
 function cloneHeaderValue(value: UrlFetchResponseHeaderValue): UrlFetchResponseHeaderValue {
   return Array.isArray(value) ? [...value] : value;

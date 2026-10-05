@@ -1,6 +1,6 @@
 import { describe, expect, expectTypeOf, test } from "vitest";
 
-import type { UrlFetchHostCallResult, UrlFetchRequestValue, UrlFetchResponseValue } from "./index";
+import type { UrlFetchHostCallResult, UrlFetchRequestValue, UrlFetchResponseValue } from "../index";
 
 describe("UrlFetch host contract", () => {
   test("represent documented request options with structured-clone-safe values", () => {

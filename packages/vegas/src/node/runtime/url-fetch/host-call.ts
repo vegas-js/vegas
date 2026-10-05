@@ -1,4 +1,4 @@
-import type { UrlFetchRequestValue, UrlFetchResponseValue } from "./url-fetch-value";
+import type { UrlFetchRequestValue, UrlFetchResponseValue } from "./value";
 
 export type UrlFetchHostCall =
   | {

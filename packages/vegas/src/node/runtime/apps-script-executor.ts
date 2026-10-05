@@ -16,8 +16,8 @@ import type { PropertiesStore } from "./properties/store";
 import { SpreadsheetHostHandler } from "./spreadsheet/host-handler";
 import type { SpreadsheetStore } from "./spreadsheet/store";
 import type { SpreadsheetUrlCapability } from "./spreadsheet/url-capability";
-import type { UrlFetchCapability } from "./url-fetch-capability";
-import { UrlFetchHostHandler } from "./url-fetch-host-handler";
+import type { UrlFetchCapability } from "./url-fetch/capability";
+import { UrlFetchHostHandler } from "./url-fetch/host-handler";
 
 export type AppsScriptWorkerRunner = (
   dispatcher: HostCallDispatcher,

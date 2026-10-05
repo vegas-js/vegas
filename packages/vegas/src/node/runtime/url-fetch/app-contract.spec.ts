@@ -7,7 +7,7 @@ import {
   type HostCall,
   type HostCallResult,
   type UrlFetchResponseValue,
-} from "./index";
+} from "../index";
 
 const FIRST_RESPONSE: UrlFetchResponseValue = {
   statusCode: 200,

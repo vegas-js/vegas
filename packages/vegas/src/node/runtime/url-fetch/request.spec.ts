@@ -5,7 +5,7 @@ import {
   normalizeUrlFetchRequest,
   type UrlFetchRequestInput,
   type UrlFetchRequestOptionsInput,
-} from "./index";
+} from "../index";
 
 describe("normalizeUrlFetchRequest", () => {
   test("normalize a URL string without inventing optional request values", () => {

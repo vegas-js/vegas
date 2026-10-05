@@ -15,7 +15,7 @@ import { createMaps } from "./maps";
 import { createPropertiesService } from "./properties/service";
 import { createSession } from "./session";
 import { createSpreadsheetApp } from "./spreadsheet/object-hydrator";
-import { createUrlFetchApp } from "./url-fetch-app";
+import { createUrlFetchApp } from "./url-fetch/app";
 import type { Utilities } from "./utilities";
 
 export interface RuntimeGlobalsOptions {

@@ -1,5 +1,5 @@
-import { RuntimeBlob, serializeBlob } from "./blob/blob";
-import type { UrlFetchMethod, UrlFetchPayloadValue, UrlFetchRequestValue } from "./url-fetch-value";
+import { RuntimeBlob, serializeBlob } from "./runtime-boundary";
+import type { UrlFetchMethod, UrlFetchPayloadValue, UrlFetchRequestValue } from "./value";
 
 export type UrlFetchFormFieldInput = string | RuntimeBlob;
 

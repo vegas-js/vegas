@@ -1,15 +1,18 @@
-import { RuntimeBlob } from "./blob/blob";
-import { createBlobConverter, type BlobConverter } from "./blob/blob-converter";
-import type { HostBridge } from "./host-bridge";
-import { hydrateHttpResponse, type HTTPResponse } from "./url-fetch-http-response";
+import { hydrateHttpResponse, type HTTPResponse } from "./http-response";
 import {
   normalizeUrlFetchRequest,
   type UrlFetchFormFieldInput,
   type UrlFetchPayloadInput,
   type UrlFetchRequestInput,
   type UrlFetchRequestOptionsInput,
-} from "./url-fetch-request";
-import type { UrlFetchMethod } from "./url-fetch-value";
+} from "./request";
+import {
+  createBlobConverter,
+  RuntimeBlob,
+  type BlobConverter,
+  type HostBridge,
+} from "./runtime-boundary";
+import type { UrlFetchMethod } from "./value";
 
 export interface UrlFetchRequestPreview {
   readonly url: string;

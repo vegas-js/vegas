@@ -1,13 +1,13 @@
 import { describe, expect, test } from "vitest";
 
-import type { BlobConverter } from "./blob/blob-converter";
+import type { BlobConverter } from "../blob/blob-converter";
 import {
   HTTPResponse,
   RuntimeBlob,
   hydrateHttpResponse,
   type UrlFetchResponseValue,
-} from "./index";
-import { UnsupportedRuntimeOperationError } from "./unsupported-runtime-operation-error";
+} from "../index";
+import { UnsupportedRuntimeOperationError } from "../unsupported-runtime-operation-error";
 
 function createResponseValue(): UrlFetchResponseValue {
   return {
