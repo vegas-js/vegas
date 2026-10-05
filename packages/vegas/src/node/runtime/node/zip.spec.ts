@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 
-import { createZip, extractZip } from "./node/zip";
-import { UnsupportedRuntimeOperationError } from "./unsupported-runtime-operation-error";
+import { UnsupportedRuntimeOperationError } from "../unsupported-runtime-operation-error";
+import { createZip, extractZip } from "./zip";
 
 const PYTHON_ZIP_FIXTURE = Buffer.from(
   "UEsDBBQAAAAAAIMYIlAL+UNWBgAAAAYAAAAJAAAAcGxhaW4udHh0c3RvcmVkUEsDBBQAAAAAAIMYIlAAAAAAAAAAAAAAAAAHAAAAbmVzdGVkL1BLAwQUAAAICACDGCJQJumFphAAAAAOAAAAFAAAAG5lc3RlZC/ml6XmnKzoqp4udHh0S87PLShKLS5OTVF43LQBAFBLAQIUAxQAAAAAAIMYIlAL+UNWBgAAAAYAAAAJAAAAAAAAAAAAAACAAQAAAABwbGFpbi50eHRQSwECFAMUAAAAAACDGCJQAAAAAAAAAAAAAAAABwAAAAAAAAAAAAAA/UEtAAAAbmVzdGVkL1BLAQIUAxQAAAgIAIMYIlAm6YWmEAAAAA4AAAAUAAAAAAAAAAAAAACAAVIAAABuZXN0ZWQv5pel5pys6KqeLnR4dFBLBQYAAAAAAwADAK4AAACUAAAAAAA=",
