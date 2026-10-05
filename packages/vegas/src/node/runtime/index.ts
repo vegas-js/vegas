@@ -130,10 +130,10 @@ export type {
   SpreadsheetMetadata,
   SpreadsheetStore,
 } from "./spreadsheet/store";
-export { createSession, Session } from "./session";
+export { createSession, Session } from "./session/session";
 export { serializeTextOutput, TextOutput } from "./content/text-output";
 export type { TextOutputSnapshot } from "./content/text-output";
-export { User } from "./user";
+export { User } from "./session/user";
 export { createUrlFetchApp, UrlFetchApp } from "./url-fetch/app";
 export { HTTPResponse, hydrateHttpResponse } from "./url-fetch/http-response";
 export type { UrlFetchCapability } from "./url-fetch/capability";

@@ -45,8 +45,8 @@ export const API_SURFACES = {
   ],
   Logger: [["Logger", "logger.ts", "Logger"]],
   Session: [
-    ["Session", "session.ts", "Session"],
-    ["User", "user.ts", "User"],
+    ["Session", "session/session.ts", "Session"],
+    ["User", "session/user.ts", "User"],
   ],
   console: [["Console", "console.ts", "AppsScriptConsole"]],
   CacheService: [

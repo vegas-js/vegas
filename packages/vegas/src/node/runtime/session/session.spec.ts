@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import { createSession, Session, User, type InvocationEnvironment } from "./index";
+import { createSession, Session, User, type InvocationEnvironment } from "../index";
 
 const ENVIRONMENT = {
   activeUserEmail: "active@example.com",

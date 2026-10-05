@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import { User } from "./index";
+import { User } from "../index";
 
 // https://developers.google.com/apps-script/reference/base/user
 describe("User Runtime object", () => {

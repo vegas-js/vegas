@@ -454,6 +454,11 @@ interface BlobSource {
     ]);
   });
 
+  test("track grouped Session Runtime objects", () => {
+    expect(API_SURFACES.Session).toContainEqual(["Session", "session/session.ts", "Session"]);
+    expect(API_SURFACES.Session).toContainEqual(["User", "session/user.ts", "User"]);
+  });
+
   test("track grouped UrlFetchApp Runtime objects", () => {
     expect(API_SURFACES.UrlFetchApp).toContainEqual([
       "UrlFetchApp",

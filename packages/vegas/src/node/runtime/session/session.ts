@@ -1,4 +1,4 @@
-import type { InvocationEnvironment } from "./invocation";
+import type { InvocationEnvironment } from "./runtime-boundary";
 import { User } from "./user";
 
 // https://developers.google.com/apps-script/reference/base/session

@@ -13,7 +13,7 @@ import { createLogger } from "./logger";
 import type { LoggingTarget } from "./logging-target";
 import { createMaps } from "./maps";
 import { createPropertiesService } from "./properties/service";
-import { createSession } from "./session";
+import { createSession } from "./session/session";
 import { createSpreadsheetApp } from "./spreadsheet/object-hydrator";
 import { createUrlFetchApp } from "./url-fetch/app";
 import type { Utilities } from "./utilities";
