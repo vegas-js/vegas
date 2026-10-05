@@ -1,6 +1,6 @@
 import { describe, expect, test, vi } from "vitest";
 
-import { InMemoryLockStore, type LockNamespace } from "./index";
+import { InMemoryLockStore, type LockNamespace } from "../index";
 
 const SCRIPT_LOCK = {
   kind: "script",

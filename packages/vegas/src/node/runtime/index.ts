@@ -70,7 +70,7 @@ export type { HostError, HostRequestMessage, HostResponseMessage } from "./host-
 export { InMemoryCacheStore } from "./cache/in-memory-store";
 export { InMemoryDriveIteratorStore } from "./in-memory-drive-iterator-store";
 export { InMemoryDriveStore } from "./in-memory-drive-store";
-export { InMemoryLockStore } from "./in-memory-lock-store";
+export { InMemoryLockStore } from "./lock/in-memory-store";
 export { InMemoryPropertiesStore } from "./in-memory-properties-store";
 export { InMemorySpreadsheetStore } from "./in-memory-spreadsheet-store";
 export type { InMemorySheetSeed, InMemorySpreadsheetSeed } from "./in-memory-spreadsheet-store";

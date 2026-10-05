@@ -1,4 +1,4 @@
-import type { LockNamespace, LockStore, LockStoreSession } from "./lock/store";
+import type { LockNamespace, LockStore, LockStoreSession } from "./store";
 
 type LockWaiter = {
   readonly sessionId: number;
