@@ -4,6 +4,7 @@ import { startEphemeralWebAppApplication } from "../dev/webapp/server-applicatio
 import { loadProject } from "../project";
 import { createRuntimeDataSnapshotFromFixture, type RuntimeDataFixture } from "../runtime-data";
 import { createLocalRuntimeHarness, type LocalRuntimeHarness } from "./local-runtime";
+import { loadHarnessProjectWithDependencies, type HarnessProjectDependencies } from "./project";
 
 export interface BrowserHarness extends LocalRuntimeHarness {
   readonly urls: {
@@ -18,10 +19,7 @@ export interface BrowserHarnessOptions {
   readonly runtimeData?: RuntimeDataFixture;
 }
 
-interface BrowserHarnessDependencies {
-  readonly cwd: string;
-  readonly loadProject: typeof loadProject;
-  readonly buildRuntimeProgram: typeof buildRuntimeProgram;
+interface BrowserHarnessDependencies extends HarnessProjectDependencies {
   readonly createLocalRuntimeHarness: typeof createLocalRuntimeHarness;
   readonly startWebAppApplication: typeof startEphemeralWebAppApplication;
 }
@@ -38,11 +36,12 @@ export async function createBrowserHarnessWithDependencies(
   dependencies: BrowserHarnessDependencies,
 ): Promise<BrowserHarness> {
   const snapshot = createRuntimeDataSnapshotFromFixture(options.runtimeData);
-  const project = await dependencies.loadProject({
-    cwd: dependencies.cwd,
-    root: options.root,
-  });
-  const program = await dependencies.buildRuntimeProgram(project, "development");
+  const { project, program } = await loadHarnessProjectWithDependencies(
+    {
+      root: options.root,
+    },
+    dependencies,
+  );
   const localSpreadsheetUrls = new LocalSpreadsheetUrlResolver();
   const runtimeHarness = await dependencies.createLocalRuntimeHarness({
     project,

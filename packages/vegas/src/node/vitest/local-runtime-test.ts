@@ -1,9 +1,14 @@
 import { test as baseTest, type TestAPI } from "vitest";
 
 import { buildRuntimeProgram } from "../dev/runtime-program";
-import { createLocalRuntimeHarness, type LocalRuntimeHarness } from "../harness";
-import { loadProject, type ResolvedProject } from "../project";
-import type { Program } from "../runtime";
+import {
+  createLocalRuntimeHarness,
+  loadHarnessProjectWithDependencies,
+  type HarnessProject,
+  type HarnessProjectDependencies,
+  type LocalRuntimeHarness,
+} from "../harness";
+import { loadProject } from "../project";
 import { createRuntimeDataSnapshotFromFixture, type RuntimeDataFixture } from "../runtime-data";
 
 export interface LocalRuntimeTestOptions {
@@ -11,33 +16,21 @@ export interface LocalRuntimeTestOptions {
   readonly runtimeData?: RuntimeDataFixture;
 }
 
-interface LocalRuntimeTestEnvironment {
-  readonly project: ResolvedProject;
-  readonly program: Program;
-}
-
-interface LocalRuntimeTestDependencies {
-  readonly cwd: string;
-  readonly loadProject: typeof loadProject;
-  readonly buildRuntimeProgram: typeof buildRuntimeProgram;
-}
+type LocalRuntimeTestDependencies = HarnessProjectDependencies;
 
 function createEnvironmentLoader(
   options: LocalRuntimeTestOptions,
   dependencies: LocalRuntimeTestDependencies,
 ) {
-  let environment: Promise<LocalRuntimeTestEnvironment> | undefined;
+  let environment: Promise<HarnessProject> | undefined;
 
   return () => {
-    environment ??= (async () => {
-      const project = await dependencies.loadProject({
-        cwd: dependencies.cwd,
+    environment ??= loadHarnessProjectWithDependencies(
+      {
         root: options.root,
-      });
-      const program = await dependencies.buildRuntimeProgram(project, "development");
-
-      return { project, program };
-    })();
+      },
+      dependencies,
+    );
 
     return environment;
   };
