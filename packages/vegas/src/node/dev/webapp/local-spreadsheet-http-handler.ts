@@ -6,7 +6,7 @@ import type {
   SpreadsheetReference,
   SpreadsheetStore,
 } from "../../runtime";
-import { readRequestBody } from "./http";
+import { readRequestBody } from "../../webapp/http";
 import {
   createLocalSpreadsheetHtml,
   type LocalSpreadsheetPage,

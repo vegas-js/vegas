@@ -1,5 +1,5 @@
-import { HtmlDocument } from "../../html-document";
-import type { HtmlOutputSnapshot } from "../../runtime";
+import { HtmlDocument } from "../html-document";
+import type { HtmlOutputSnapshot } from "../runtime";
 import { createHostBridgeScript } from "./host-bridge-script";
 
 export type AppsScriptDoGetResult = HtmlOutputSnapshot;

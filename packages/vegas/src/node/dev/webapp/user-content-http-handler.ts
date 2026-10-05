@@ -1,8 +1,11 @@
 import type { Connect, ViteDevServer } from "vite";
 
 import type { WebAppBuildBarrier } from "../../webapp/build-barrier";
-import type { WebAppSessionRegistry } from "./session-registry";
-import { createBlankUserContentHtml, createUserContentPanelHtml } from "./user-content-html";
+import type { WebAppSessionRegistry } from "../../webapp/session-registry";
+import {
+  createBlankUserContentHtml,
+  createUserContentPanelHtml,
+} from "../../webapp/user-content-html";
 
 interface UserContentHttpHandlerOptions {
   readonly server: ViteDevServer;
