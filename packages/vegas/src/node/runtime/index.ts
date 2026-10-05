@@ -69,7 +69,7 @@ export type { HostCall, HostCallResult } from "./host-call";
 export type { HostError, HostRequestMessage, HostResponseMessage } from "./host-protocol";
 export { InMemoryCacheStore } from "./cache/in-memory-store";
 export { InMemoryDriveIteratorStore } from "./drive/in-memory-iterator-store";
-export { InMemoryDriveStore } from "./in-memory-drive-store";
+export { InMemoryDriveStore } from "./drive/in-memory-store";
 export { InMemoryLockStore } from "./lock/in-memory-store";
 export { InMemoryPropertiesStore } from "./properties/in-memory-store";
 export { InMemorySpreadsheetStore } from "./in-memory-spreadsheet-store";

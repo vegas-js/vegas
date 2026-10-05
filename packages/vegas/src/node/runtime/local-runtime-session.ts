@@ -1,9 +1,9 @@
 import { InMemoryCacheStore } from "./cache/in-memory-store";
 import type { CacheStore } from "./cache/store";
 import { InMemoryDriveIteratorStore } from "./drive/in-memory-iterator-store";
+import { InMemoryDriveStore } from "./drive/in-memory-store";
 import type { DriveIteratorStore } from "./drive/iterator-store";
 import type { DriveStore } from "./drive/store";
-import { InMemoryDriveStore } from "./in-memory-drive-store";
 import { InMemorySpreadsheetStore } from "./in-memory-spreadsheet-store";
 import { InMemoryLockStore } from "./lock/in-memory-store";
 import type { LockStore } from "./lock/store";

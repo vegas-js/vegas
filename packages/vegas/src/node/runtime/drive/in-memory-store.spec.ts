@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import { InMemoryDriveStore, type DriveNamespace } from "./index";
+import { InMemoryDriveStore, type DriveNamespace } from "../index";
 
 const USER_A = { userKey: "user-a" } as const satisfies DriveNamespace;
 const USER_B = { userKey: "user-b" } as const satisfies DriveNamespace;
