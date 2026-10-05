@@ -1,14 +1,14 @@
 import type { RuntimeBackend, SpreadsheetStore } from "../../runtime";
 import { createIdleWebAppBuildBarrier } from "../../webapp/build-barrier";
+import { createContentResponseHttpHandler } from "../../webapp/content-response-http-handler";
 import { ContentResponseRegistry } from "../../webapp/content-response-registry";
+import { createHostHttpHandler } from "../../webapp/host-http-handler";
+import { registerHostWebSocketHandlers } from "../../webapp/host-websocket";
 import type { LocalSpreadsheetUrlConfiguration } from "../../webapp/local-spreadsheet-url";
 import { startEphemeralWebAppServerPair, type WebAppServerPair } from "../../webapp/server-pair";
 import { WebAppSessionRegistry } from "../../webapp/session-registry";
-import { createContentResponseHttpHandler } from "./content-response-http-handler";
-import { createHostHttpHandler } from "./host-http-handler";
-import { registerHostWebSocketHandlers } from "./host-websocket";
+import { createUserContentHttpHandler } from "../../webapp/user-content-http-handler";
 import { createLocalSpreadsheetHttpHandler } from "./local-spreadsheet-http-handler";
-import { createUserContentHttpHandler } from "./user-content-http-handler";
 
 export interface EphemeralWebAppApplicationOptions {
   readonly root: string;

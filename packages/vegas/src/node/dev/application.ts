@@ -5,21 +5,21 @@ import type { ViteBuilder } from "vite";
 import type { ArtifactStore } from "../build";
 import type { ResolvedProject } from "../project";
 import type { RuntimeBackend, SpreadsheetStore } from "../runtime";
+import { createContentResponseHttpHandler } from "../webapp/content-response-http-handler";
 import { ContentResponseRegistry } from "../webapp/content-response-registry";
+import { createHostHttpHandler } from "../webapp/host-http-handler";
 import { createHostServerConfig } from "../webapp/host-server";
+import { registerHostWebSocketHandlers } from "../webapp/host-websocket";
 import type { LocalSpreadsheetUrlConfiguration } from "../webapp/local-spreadsheet-url";
 import { WebAppServerLifecycle } from "../webapp/server-lifecycle";
 import { getListeningPort } from "../webapp/server-port";
 import { WebAppSessionRegistry } from "../webapp/session-registry";
+import { createUserContentHttpHandler } from "../webapp/user-content-http-handler";
 import { createUserContentServerConfig } from "../webapp/user-content-server";
 import { BuildCoordinator } from "./build-coordinator";
 import { DevBuildManager } from "./build-manager";
 import { registerBuildWatchers } from "./build-watcher";
-import { createContentResponseHttpHandler } from "./webapp/content-response-http-handler";
-import { createHostHttpHandler } from "./webapp/host-http-handler";
-import { registerHostWebSocketHandlers } from "./webapp/host-websocket";
 import { createLocalSpreadsheetHttpHandler } from "./webapp/local-spreadsheet-http-handler";
-import { createUserContentHttpHandler } from "./webapp/user-content-http-handler";
 
 interface DevApplicationOptions {
   readonly project: ResolvedProject;

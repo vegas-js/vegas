@@ -1,12 +1,12 @@
 import { describe, expect, test, vi } from "vitest";
 
-import type { ContentMimeType, TextOutputSnapshot } from "../../runtime";
-import { ContentResponseRegistry } from "../../webapp/content-response-registry";
+import type { ContentMimeType, TextOutputSnapshot } from "../runtime";
 import {
   createContentResponseHttpHandler,
   createContentResponsePath,
   resolveContentResponseMimeType,
 } from "./content-response-http-handler";
+import { ContentResponseRegistry } from "./content-response-registry";
 
 function createResponse() {
   const headers = new Map<string, string>();
