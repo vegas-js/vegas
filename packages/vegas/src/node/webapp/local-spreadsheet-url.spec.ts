@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import type { SpreadsheetReference } from "../../runtime/spreadsheet/reference";
+import type { SpreadsheetReference } from "../runtime/spreadsheet/reference";
 import { LocalSpreadsheetUrlResolver } from "./local-spreadsheet-url";
 
 const spreadsheet = {

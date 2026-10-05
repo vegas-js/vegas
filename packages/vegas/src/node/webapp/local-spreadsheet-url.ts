@@ -1,5 +1,5 @@
-import type { SpreadsheetReference } from "../../runtime/spreadsheet/reference";
-import type { SpreadsheetUrlCapability } from "../../runtime/spreadsheet/url-capability";
+import type { SpreadsheetReference } from "../runtime/spreadsheet/reference";
+import type { SpreadsheetUrlCapability } from "../runtime/spreadsheet/url-capability";
 
 const LOCAL_SPREADSHEET_PAGE_PATH_PREFIX = "/__vegas/spreadsheets/";
 

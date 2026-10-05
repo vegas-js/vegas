@@ -1,6 +1,5 @@
 import { ArtifactStore, buildDevTopology, replaceDevBuildArtifacts } from "../../build";
 import { startDevApplication } from "../../dev/application";
-import { LocalSpreadsheetUrlResolver } from "../../dev/webapp/local-spreadsheet-url";
 import { createGoogleAppsScriptUserRuntime } from "../../google-apps-script-runtime";
 import {
   createInvocationScope,
@@ -13,6 +12,7 @@ import {
 import { loadProject, scanRuntimeDataSources, type ResolvedProject } from "../../project";
 import type { RuntimeBackend } from "../../runtime";
 import { createRuntimeProgram } from "../../runtime-program";
+import { LocalSpreadsheetUrlResolver } from "../../webapp/local-spreadsheet-url";
 import { loadRuntimeDataSnapshot } from "./runtime-data";
 
 type DevApplicationMode = "development" | "production";
