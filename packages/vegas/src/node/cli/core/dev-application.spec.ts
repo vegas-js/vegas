@@ -6,11 +6,11 @@ import { describe, expect, test, vi } from "vitest";
 import { buildDevTopology } from "../../build";
 import { startDevApplication } from "../../dev/application";
 import { ReloadableLocalRuntime } from "../../dev/reloadable-local-runtime";
-import { createRuntimeProgram } from "../../dev/runtime-program";
 import { createGoogleAppsScriptUserRuntime } from "../../google-apps-script-runtime";
 import { createLocalRuntime, LocalRuntimeSession, type LocalRuntime } from "../../local-runtime";
 import { loadProject, scanRuntimeDataSources, type ResolvedProject } from "../../project";
 import { InMemoryPropertiesStore, InMemorySpreadsheetStore, type Program } from "../../runtime";
+import { createRuntimeProgram } from "../../runtime-program";
 import { runDevApplication } from "./dev-application";
 import { loadRuntimeDataSnapshot } from "./runtime-data";
 
@@ -23,7 +23,7 @@ vi.mock("../../build", async (importOriginal) => ({
   buildDevTopology: vi.fn(),
 }));
 
-vi.mock("../../dev/runtime-program", () => ({
+vi.mock("../../runtime-program", () => ({
   createRuntimeProgram: vi.fn(),
 }));
 

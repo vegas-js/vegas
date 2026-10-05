@@ -1,7 +1,6 @@
 import { ArtifactStore, buildDevTopology, replaceDevBuildArtifacts } from "../../build";
 import { startDevApplication } from "../../dev/application";
 import { ReloadableLocalRuntime } from "../../dev/reloadable-local-runtime";
-import { createRuntimeProgram } from "../../dev/runtime-program";
 import { LocalSpreadsheetUrlResolver } from "../../dev/webapp/local-spreadsheet-url";
 import { createGoogleAppsScriptUserRuntime } from "../../google-apps-script-runtime";
 import {
@@ -13,6 +12,7 @@ import {
 } from "../../local-runtime";
 import { loadProject, scanRuntimeDataSources, type ResolvedProject } from "../../project";
 import type { RuntimeBackend } from "../../runtime";
+import { createRuntimeProgram } from "../../runtime-program";
 import { loadRuntimeDataSnapshot } from "./runtime-data";
 
 type DevApplicationMode = "development" | "production";

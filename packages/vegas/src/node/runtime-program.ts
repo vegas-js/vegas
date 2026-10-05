@@ -3,9 +3,9 @@ import {
   buildDevTopology,
   replaceDevBuildArtifacts,
   type DevBuildArtifacts,
-} from "../build";
-import type { ResolvedProject } from "../project";
-import type { Program } from "../runtime";
+} from "./build";
+import type { ResolvedProject } from "./project";
+import type { Program } from "./runtime";
 
 type RuntimeProgramBuilder = (
   project: ResolvedProject,

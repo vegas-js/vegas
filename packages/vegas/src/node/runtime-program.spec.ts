@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 
-import { ArtifactStore } from "../build";
-import type { ResolvedProject } from "../project";
+import { ArtifactStore } from "./build";
+import type { ResolvedProject } from "./project";
 import { buildRuntimeProgram, createRuntimeProgram } from "./runtime-program";
 
 const project = {
