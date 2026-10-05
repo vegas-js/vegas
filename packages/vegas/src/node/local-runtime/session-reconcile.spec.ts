@@ -1,20 +1,20 @@
 import { describe, expect, test } from "vitest";
 
-import { LocalRuntimeSession } from "../local-runtime/session";
-import { InMemoryPropertiesStore } from "../runtime/properties/in-memory-store";
-import type { InvocationScope } from "../runtime/scope";
-import { InMemorySpreadsheetStore } from "../runtime/spreadsheet/in-memory-store";
-import type { RangeReference } from "../runtime/spreadsheet/reference";
 import type {
   RuntimeDataSnapshot,
   RuntimeDataSpreadsheet,
   RuntimeDataSpreadsheetSheet,
-} from "./model";
+} from "../runtime-data/model";
+import { InMemoryPropertiesStore } from "../runtime/properties/in-memory-store";
+import type { InvocationScope } from "../runtime/scope";
+import { InMemorySpreadsheetStore } from "../runtime/spreadsheet/in-memory-store";
+import type { RangeReference } from "../runtime/spreadsheet/reference";
+import { LocalRuntimeSession } from "./session";
 import {
   reconcileLocalPropertiesStore,
   reconcileLocalRuntimeSession,
   reconcileLocalSpreadsheetStore,
-} from "./reconcile";
+} from "./session-reconcile";
 
 function spreadsheet(
   id: string,

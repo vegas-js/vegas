@@ -1,11 +1,15 @@
-import { LocalRuntimeSession } from "../local-runtime/session";
 import { resolvePropertiesNamespace, type PropertiesStore } from "../runtime";
+import { diffRuntimeDataSnapshots } from "../runtime-data/diff";
+import type {
+  RuntimeDataProperties,
+  RuntimeDataSnapshot,
+  RuntimeDataSpreadsheet,
+} from "../runtime-data/model";
 import { InMemoryPropertiesStore } from "../runtime/properties/in-memory-store";
 import type { InvocationScope } from "../runtime/scope";
 import { InMemorySpreadsheetStore } from "../runtime/spreadsheet/in-memory-store";
 import type { SpreadsheetStore } from "../runtime/spreadsheet/store";
-import { diffRuntimeDataSnapshots } from "./diff";
-import type { RuntimeDataProperties, RuntimeDataSnapshot, RuntimeDataSpreadsheet } from "./model";
+import { LocalRuntimeSession } from "./session";
 
 const SPREADSHEET_CHANGE_PREFIX = "spreadsheet:";
 

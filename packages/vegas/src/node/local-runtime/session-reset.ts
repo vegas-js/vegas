@@ -1,11 +1,11 @@
-import { LocalRuntimeSession } from "../local-runtime/session";
 import {
   InMemoryPropertiesStore,
   InMemorySpreadsheetStore,
   type InvocationScope,
 } from "../runtime";
-import type { RuntimeDataSnapshot } from "./model";
-import { applyPropertiesRuntimeData } from "./properties";
+import type { RuntimeDataSnapshot } from "../runtime-data/model";
+import { applyPropertiesRuntimeData } from "../runtime-data/properties";
+import { LocalRuntimeSession } from "./session";
 
 // Google does not define local fixture initialization or reset semantics. Vegas builds session-owned
 // state from fresh stores and applies only the declared Properties and Spreadsheet fixtures.

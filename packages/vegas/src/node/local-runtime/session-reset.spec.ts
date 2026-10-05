@@ -1,8 +1,8 @@
 import { describe, expect, test } from "vitest";
 
 import type { InvocationScope } from "../runtime";
-import type { RuntimeDataSnapshot } from "./model";
-import { createSeededLocalRuntimeSession, resetLocalRuntimeSession } from "./reset";
+import type { RuntimeDataSnapshot } from "../runtime-data/model";
+import { createSeededLocalRuntimeSession, resetLocalRuntimeSession } from "./session-reset";
 
 const scope = {
   scriptKey: "script-a",
