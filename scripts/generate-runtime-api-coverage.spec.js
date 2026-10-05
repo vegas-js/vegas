@@ -441,6 +441,10 @@ interface BlobSource {
     ]);
   });
 
+  test("track grouped Maps Runtime object", () => {
+    expect(API_SURFACES.Maps).toContainEqual(["Maps", "maps/maps.ts", "Maps"]);
+  });
+
   test("track grouped ContentService Runtime objects", () => {
     expect(API_SURFACES.ContentService).toContainEqual([
       "ContentService",

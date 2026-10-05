@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import { createMaps, Maps } from "./index";
+import { createMaps, Maps } from "../index";
 
 const DOCUMENTED_POINTS = [38.5, -120.2, 40.7, -120.95, 43.252, -126.453] as const;
 const DOCUMENTED_POLYLINE = "_p~iF~ps|U_ulLnnqC_mqNvxq`@";

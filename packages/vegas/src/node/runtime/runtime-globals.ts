@@ -11,7 +11,7 @@ import type { InvocationContext, InvocationEnvironment } from "./invocation";
 import { createLockService } from "./lock/service";
 import { createLogger } from "./logger";
 import type { LoggingTarget } from "./logging-target";
-import { createMaps } from "./maps";
+import { createMaps } from "./maps/maps";
 import { createPropertiesService } from "./properties/service";
 import { createSession } from "./session/session";
 import { createSpreadsheetApp } from "./spreadsheet/object-hydrator";
