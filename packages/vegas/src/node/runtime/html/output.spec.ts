@@ -1,14 +1,14 @@
 import { describe, expect, test } from "vitest";
 
-import type { BlobConverter } from "./blob/blob-converter";
+import type { BlobConverter } from "../blob/blob-converter";
 import {
   HtmlOutput,
   HtmlOutputMetaTag,
   HtmlTemplate,
   RuntimeBlob,
   serializeHtmlOutput,
-} from "./index";
-import { UnsupportedRuntimeOperationError } from "./unsupported-runtime-operation-error";
+} from "../index";
+import { UnsupportedRuntimeOperationError } from "../unsupported-runtime-operation-error";
 
 describe("HtmlOutput", () => {
   test("hold and mutate trusted HTML content with chaining", () => {

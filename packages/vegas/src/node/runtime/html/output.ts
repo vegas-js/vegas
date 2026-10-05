@@ -1,9 +1,13 @@
-import { createBlob, type RuntimeBlob } from "./blob/blob";
-import { convertBlob, type BlobConverter } from "./blob/blob-converter";
-import { escapeHtmlContextually } from "./html-contextual-escape";
-import type { HtmlSandboxMode, HtmlXFrameOptionsMode } from "./html-enum";
-import { HtmlTemplate, type HtmlTemplateEvaluator } from "./html-template";
-import { UnsupportedRuntimeOperationError } from "./unsupported-runtime-operation-error";
+import { escapeHtmlContextually } from "./contextual-escape";
+import type { HtmlSandboxMode, HtmlXFrameOptionsMode } from "./enum";
+import {
+  createBlob,
+  convertBlob,
+  UnsupportedRuntimeOperationError,
+  type BlobConverter,
+  type RuntimeBlob,
+} from "./runtime-boundary";
+import { HtmlTemplate, type HtmlTemplateEvaluator } from "./template";
 
 export interface HtmlOutputSnapshot {
   readonly content: string;

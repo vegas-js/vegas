@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import { createBlob, createHtmlService, HtmlOutput, HtmlTemplate } from "./index";
+import { createBlob, createHtmlService, HtmlOutput, HtmlTemplate } from "../index";
 
 // Public contract:
 // https://developers.google.com/apps-script/reference/html/html-service

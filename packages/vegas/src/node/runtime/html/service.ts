@@ -1,10 +1,12 @@
-import { MIME_TYPE } from "./base-mime-type";
-import type { RuntimeBlobSource } from "./blob/blob";
-import type { BlobConverter } from "./blob/blob-converter";
-import { HTML_SANDBOX_MODE, HTML_X_FRAME_OPTIONS_MODE } from "./html-enum";
-import { HtmlOutput } from "./html-output";
-import { HtmlTemplate, type HtmlTemplateEvaluator } from "./html-template";
-import type { InvocationContext } from "./invocation";
+import { HTML_SANDBOX_MODE, HTML_X_FRAME_OPTIONS_MODE } from "./enum";
+import { HtmlOutput } from "./output";
+import {
+  MIME_TYPE,
+  type BlobConverter,
+  type InvocationContext,
+  type RuntimeBlobSource,
+} from "./runtime-boundary";
+import { HtmlTemplate, type HtmlTemplateEvaluator } from "./template";
 
 // https://developers.google.com/apps-script/reference/html/html-service
 export class HtmlService {

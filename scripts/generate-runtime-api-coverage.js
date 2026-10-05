@@ -38,10 +38,10 @@ export const API_SURFACES = {
     ["TextOutput", "content/text-output.ts", "TextOutput"],
   ],
   HtmlService: [
-    ["HtmlService", "html-service.ts", "HtmlService"],
-    ["HtmlOutput", "html-output.ts", "HtmlOutput"],
-    ["HtmlOutputMetaTag", "html-output.ts", "HtmlOutputMetaTag"],
-    ["HtmlTemplate", "html-template.ts", "HtmlTemplate"],
+    ["HtmlService", "html/service.ts", "HtmlService"],
+    ["HtmlOutput", "html/output.ts", "HtmlOutput"],
+    ["HtmlOutputMetaTag", "html/output.ts", "HtmlOutputMetaTag"],
+    ["HtmlTemplate", "html/template.ts", "HtmlTemplate"],
   ],
   Logger: [["Logger", "logging/logger.ts", "Logger"]],
   Session: [

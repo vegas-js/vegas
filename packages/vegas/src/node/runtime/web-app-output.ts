@@ -1,5 +1,5 @@
 import { serializeTextOutput, TextOutput, type TextOutputSnapshot } from "./content/text-output";
-import { HtmlOutput, serializeHtmlOutput, type HtmlOutputSnapshot } from "./html-output";
+import { HtmlOutput, serializeHtmlOutput, type HtmlOutputSnapshot } from "./html/output";
 
 export interface HtmlWebAppOutputSnapshot {
   readonly kind: "html";

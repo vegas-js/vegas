@@ -2,8 +2,8 @@ import vm from "node:vm";
 
 import { describe, expect, test } from "vitest";
 
-import { serializeHtmlOutput } from "../runtime/html-output";
-import { createHtmlService } from "../runtime/html-service";
+import { serializeHtmlOutput } from "../runtime/html/output";
+import { createHtmlService } from "../runtime/html/service";
 import type { Program } from "../runtime/program";
 
 describe("worker HTML integration", () => {

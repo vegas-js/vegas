@@ -1,8 +1,8 @@
 import { describe, expect, test } from "vitest";
 
-import type { BlobConverter } from "./blob/blob-converter";
-import { createHtmlService, HtmlOutputMetaTag, RuntimeBlob, serializeHtmlOutput } from "./index";
-import { UnsupportedRuntimeOperationError } from "./unsupported-runtime-operation-error";
+import type { BlobConverter } from "../blob/blob-converter";
+import { createHtmlService, HtmlOutputMetaTag, RuntimeBlob, serializeHtmlOutput } from "../index";
+import { UnsupportedRuntimeOperationError } from "../unsupported-runtime-operation-error";
 
 // Public contract:
 // https://developers.google.com/apps-script/reference/html/html-output

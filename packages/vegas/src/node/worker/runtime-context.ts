@@ -8,9 +8,9 @@ import {
   type Program,
 } from "../runtime";
 import { createBlobConverter } from "../runtime/blob/blob-converter";
-import type { HtmlTemplateEvaluator } from "../runtime/html-template";
-import { HTML_TEMPLATE_OUTPUT_FACTORY } from "../runtime/html-template-compiler";
-import { createHtmlTemplateOutput } from "../runtime/html-template-output";
+import type { HtmlTemplateEvaluator } from "../runtime/html/template";
+import { HTML_TEMPLATE_OUTPUT_FACTORY } from "../runtime/html/template-compiler";
+import { createHtmlTemplateOutput } from "../runtime/html/template-output";
 import { createNodeUtilities, createWorkerHostBridge } from "../runtime/node";
 
 export interface RuntimeWorkerData {

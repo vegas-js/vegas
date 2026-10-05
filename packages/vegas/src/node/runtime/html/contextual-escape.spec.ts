@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 
-import { escapeHtmlContextually } from "./html-contextual-escape";
-import { UnsupportedRuntimeOperationError } from "./unsupported-runtime-operation-error";
+import { UnsupportedRuntimeOperationError } from "../unsupported-runtime-operation-error";
+import { escapeHtmlContextually } from "./contextual-escape";
 
 describe("escapeHtmlContextually", () => {
   test("escape markup in HTML text", () => {

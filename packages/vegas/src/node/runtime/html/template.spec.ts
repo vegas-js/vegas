@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 
-import type { HtmlTemplateEvaluator } from "./html-template";
-import { HtmlOutput, HtmlTemplate } from "./index";
+import { HtmlOutput, HtmlTemplate } from "../index";
+import type { HtmlTemplateEvaluator } from "./template";
 
 describe("HtmlTemplate", () => {
   test("return unprocessed template content", () => {

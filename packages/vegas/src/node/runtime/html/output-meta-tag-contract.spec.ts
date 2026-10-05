@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import { HtmlOutput, HtmlOutputMetaTag } from "./index";
+import { HtmlOutput, HtmlOutputMetaTag } from "../index";
 
 // Public contract:
 // https://developers.google.com/apps-script/reference/html/html-output-meta-tag

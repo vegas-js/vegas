@@ -485,16 +485,22 @@ interface BlobSource {
     ]);
   });
 
-  test("track modeled HtmlService Runtime objects", () => {
+  test("track grouped HtmlService Runtime objects", () => {
     expect(API_SURFACES.HtmlService).toContainEqual([
-      "HtmlTemplate",
-      "html-template.ts",
-      "HtmlTemplate",
+      "HtmlService",
+      "html/service.ts",
+      "HtmlService",
+    ]);
+    expect(API_SURFACES.HtmlService).toContainEqual(["HtmlOutput", "html/output.ts", "HtmlOutput"]);
+    expect(API_SURFACES.HtmlService).toContainEqual([
+      "HtmlOutputMetaTag",
+      "html/output.ts",
+      "HtmlOutputMetaTag",
     ]);
     expect(API_SURFACES.HtmlService).toContainEqual([
-      "HtmlOutputMetaTag",
-      "html-output.ts",
-      "HtmlOutputMetaTag",
+      "HtmlTemplate",
+      "html/template.ts",
+      "HtmlTemplate",
     ]);
   });
 

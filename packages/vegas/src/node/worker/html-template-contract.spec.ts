@@ -2,7 +2,7 @@ import worker from "node:worker_threads";
 
 import { describe, expect, test } from "vitest";
 
-import { HtmlOutput } from "../runtime/html-output";
+import { HtmlOutput } from "../runtime/html/output";
 import type { InvocationEnvironment } from "../runtime/invocation";
 import type { Program } from "../runtime/program";
 import { createWorkerRuntimeContext, evaluateWorkerProgram } from "./runtime-context";

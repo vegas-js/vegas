@@ -4,7 +4,7 @@ import {
   compileHtmlTemplate,
   compileHtmlTemplateWithComments,
   parseHtmlTemplate,
-} from "./html-template-compiler";
+} from "./template-compiler";
 
 describe("HTML template compiler", () => {
   test("parse text and all scriptlet forms", () => {

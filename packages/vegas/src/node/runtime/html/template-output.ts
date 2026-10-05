@@ -1,6 +1,6 @@
-import type { BlobConverter } from "./blob/blob-converter";
-import { HtmlOutput } from "./html-output";
-import type { HtmlTemplateEvaluator } from "./html-template";
+import { HtmlOutput } from "./output";
+import type { BlobConverter } from "./runtime-boundary";
+import type { HtmlTemplateEvaluator } from "./template";
 
 // This is the private output-sink protocol emitted by html-template-compiler.ts. Apps Script
 // documents contextual and force-printing behavior, but does not define its internal sink object.

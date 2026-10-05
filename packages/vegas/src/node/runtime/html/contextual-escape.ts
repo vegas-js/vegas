@@ -2,7 +2,7 @@
 // scriptlets, but does not define the escaping implementation. Vegas models HTML text, ordinary
 // attribute values, and URL attributes here. Nested executable contexts remain unsupported until
 // they can be represented faithfully instead of guessing at Google-internal escaping behavior.
-import { UnsupportedRuntimeOperationError } from "./unsupported-runtime-operation-error";
+import { UnsupportedRuntimeOperationError } from "./runtime-boundary";
 
 type HtmlEscapeContext =
   | {

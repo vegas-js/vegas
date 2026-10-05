@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 
-import type { BlobConverter } from "./blob/blob-converter";
-import { createHtmlTemplateOutput } from "./html-template-output";
+import type { BlobConverter } from "../blob/blob-converter";
+import { createHtmlTemplateOutput } from "./template-output";
 
 describe("createHtmlTemplateOutput", () => {
   test("preserve Blob conversion on evaluated template output", () => {

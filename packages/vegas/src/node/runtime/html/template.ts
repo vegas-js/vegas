@@ -1,5 +1,5 @@
-import type { HtmlOutput } from "./html-output";
-import { compileHtmlTemplate, compileHtmlTemplateWithComments } from "./html-template-compiler";
+import type { HtmlOutput } from "./output";
+import { compileHtmlTemplate, compileHtmlTemplateWithComments } from "./template-compiler";
 
 type HtmlTemplateContent = string | (() => string);
 

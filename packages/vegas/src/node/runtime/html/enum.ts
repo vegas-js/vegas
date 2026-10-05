@@ -1,4 +1,4 @@
-import { createRuntimeEnum } from "./runtime-enum";
+import { createRuntimeEnum } from "./runtime-boundary";
 
 export const HTML_SANDBOX_MODE = createRuntimeEnum("EMULATED", "IFRAME", "NATIVE");
 export type HtmlSandboxMode = (typeof HTML_SANDBOX_MODE)[keyof typeof HTML_SANDBOX_MODE];
