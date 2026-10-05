@@ -2,10 +2,10 @@ import type { ViteDevServer } from "vite";
 import { describe, expect, test, vi } from "vitest";
 
 import type { EphemeralWebAppApplicationOptions } from "../dev/webapp/server-application";
-import type { WebAppServerPair } from "../dev/webapp/server-pair";
 import { LocalRuntimeSession, type LocalRuntime } from "../local-runtime";
 import type { ResolvedProject } from "../project";
 import { InMemoryPropertiesStore, InMemorySpreadsheetStore, type Program } from "../runtime";
+import type { WebAppServerPair } from "../webapp/server-pair";
 import { createBrowserHarnessWithDependencies, type BrowserHarnessOptions } from "./browser";
 import type { LocalRuntimeHarness, LocalRuntimeHarnessOptions } from "./local-runtime";
 

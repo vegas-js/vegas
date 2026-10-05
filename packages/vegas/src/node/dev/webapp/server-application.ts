@@ -1,12 +1,12 @@
 import type { RuntimeBackend, SpreadsheetStore } from "../../runtime";
 import { createIdleWebAppBuildBarrier } from "../../webapp/build-barrier";
 import type { LocalSpreadsheetUrlConfiguration } from "../../webapp/local-spreadsheet-url";
+import { startEphemeralWebAppServerPair, type WebAppServerPair } from "../../webapp/server-pair";
 import { createContentResponseHttpHandler } from "./content-response-http-handler";
 import { ContentResponseRegistry } from "./content-response-registry";
 import { createHostHttpHandler } from "./host-http-handler";
 import { registerHostWebSocketHandlers } from "./host-websocket";
 import { createLocalSpreadsheetHttpHandler } from "./local-spreadsheet-http-handler";
-import { startEphemeralWebAppServerPair, type WebAppServerPair } from "./server-pair";
 import { WebAppSessionRegistry } from "./session-registry";
 import { createUserContentHttpHandler } from "./user-content-http-handler";
 
