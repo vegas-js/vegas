@@ -8,15 +8,9 @@ import { buildDevTopology } from "../../dev/build-topology";
 import { ReloadableLocalRuntime } from "../../dev/reloadable-local-runtime";
 import { createRuntimeProgram } from "../../dev/runtime-program";
 import { createGoogleAppsScriptUserRuntime } from "../../google-apps-script-runtime";
-import { createLocalRuntime } from "../../local-runtime";
-import type { LocalRuntime } from "../../local-runtime";
+import { createLocalRuntime, LocalRuntimeSession, type LocalRuntime } from "../../local-runtime";
 import { loadProject, scanRuntimeDataSources, type ResolvedProject } from "../../project";
-import {
-  InMemoryPropertiesStore,
-  InMemorySpreadsheetStore,
-  LocalRuntimeSession,
-  type Program,
-} from "../../runtime";
+import { InMemoryPropertiesStore, InMemorySpreadsheetStore, type Program } from "../../runtime";
 import { runDevApplication } from "./dev-application";
 import { loadRuntimeDataSnapshot } from "./runtime-data";
 

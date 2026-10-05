@@ -3,13 +3,9 @@ import {
   createLocalRuntime,
   type LocalRuntime,
   type LocalRuntimeProject,
+  type LocalRuntimeSession,
 } from "../local-runtime";
-import type {
-  InMemoryPropertiesStore,
-  InMemorySpreadsheetStore,
-  LocalRuntimeSession,
-  Program,
-} from "../runtime";
+import type { InMemoryPropertiesStore, InMemorySpreadsheetStore, Program } from "../runtime";
 import type { RuntimeDataSnapshot } from "../runtime-data";
 import { createSeededLocalRuntimeSession } from "../runtime-data";
 import type { SpreadsheetUrlCapability } from "../runtime/spreadsheet/url-capability";

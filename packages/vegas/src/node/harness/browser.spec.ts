@@ -3,14 +3,9 @@ import { describe, expect, test, vi } from "vitest";
 
 import type { EphemeralWebAppApplicationOptions } from "../dev/webapp/server-application";
 import type { WebAppServerPair } from "../dev/webapp/server-pair";
-import type { LocalRuntime } from "../local-runtime";
+import { LocalRuntimeSession, type LocalRuntime } from "../local-runtime";
 import type { ResolvedProject } from "../project";
-import {
-  InMemoryPropertiesStore,
-  InMemorySpreadsheetStore,
-  LocalRuntimeSession,
-  type Program,
-} from "../runtime";
+import { InMemoryPropertiesStore, InMemorySpreadsheetStore, type Program } from "../runtime";
 import { createBrowserHarnessWithDependencies, type BrowserHarnessOptions } from "./browser";
 import type { LocalRuntimeHarness, LocalRuntimeHarnessOptions } from "./local-runtime";
 

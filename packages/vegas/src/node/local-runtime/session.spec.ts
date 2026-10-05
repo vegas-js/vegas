@@ -1,12 +1,12 @@
 import { describe, expect, test } from "vitest";
 
-import { InMemoryCacheStore } from "./cache/in-memory-store";
-import { InMemoryDriveIteratorStore } from "./drive/in-memory-iterator-store";
-import { InMemoryDriveStore } from "./drive/in-memory-store";
-import { LocalRuntimeSession } from "./local-runtime-session";
-import { InMemoryLockStore } from "./lock/in-memory-store";
-import { InMemoryPropertiesStore } from "./properties/in-memory-store";
-import { InMemorySpreadsheetStore } from "./spreadsheet/in-memory-store";
+import { InMemoryCacheStore } from "../runtime/cache/in-memory-store";
+import { InMemoryDriveIteratorStore } from "../runtime/drive/in-memory-iterator-store";
+import { InMemoryDriveStore } from "../runtime/drive/in-memory-store";
+import { InMemoryLockStore } from "../runtime/lock/in-memory-store";
+import { InMemoryPropertiesStore } from "../runtime/properties/in-memory-store";
+import { InMemorySpreadsheetStore } from "../runtime/spreadsheet/in-memory-store";
+import { LocalRuntimeSession } from "./session";
 
 describe("LocalRuntimeSession", () => {
   test("own isolated default stores", () => {

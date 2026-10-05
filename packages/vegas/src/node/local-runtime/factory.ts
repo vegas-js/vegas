@@ -1,4 +1,4 @@
-import type { LocalRuntimeSession, Program } from "../runtime";
+import type { Program } from "../runtime";
 import type { RuntimeDataSnapshot } from "../runtime-data";
 import { resetLocalRuntimeSession } from "../runtime-data";
 import { createNodeAppsScriptExecutor } from "../runtime/node";
@@ -7,6 +7,7 @@ import { createInvocationEnvironment } from "./environment";
 import type { LocalRuntimeProject } from "./project";
 import type { LocalRuntime } from "./runtime";
 import { createInvocationScope } from "./scope";
+import type { LocalRuntimeSession } from "./session";
 
 interface LocalRuntimeOptions {
   readonly session?: LocalRuntimeSession;

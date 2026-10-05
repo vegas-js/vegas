@@ -1,15 +1,15 @@
-import { InMemoryCacheStore } from "./cache/in-memory-store";
-import type { CacheStore } from "./cache/store";
-import { InMemoryDriveIteratorStore } from "./drive/in-memory-iterator-store";
-import { InMemoryDriveStore } from "./drive/in-memory-store";
-import type { DriveIteratorStore } from "./drive/iterator-store";
-import type { DriveStore } from "./drive/store";
-import { InMemoryLockStore } from "./lock/in-memory-store";
-import type { LockStore } from "./lock/store";
-import { InMemoryPropertiesStore } from "./properties/in-memory-store";
-import type { PropertiesStore } from "./properties/store";
-import { InMemorySpreadsheetStore } from "./spreadsheet/in-memory-store";
-import type { SpreadsheetStore } from "./spreadsheet/store";
+import { InMemoryCacheStore } from "../runtime/cache/in-memory-store";
+import type { CacheStore } from "../runtime/cache/store";
+import { InMemoryDriveIteratorStore } from "../runtime/drive/in-memory-iterator-store";
+import { InMemoryDriveStore } from "../runtime/drive/in-memory-store";
+import type { DriveIteratorStore } from "../runtime/drive/iterator-store";
+import type { DriveStore } from "../runtime/drive/store";
+import { InMemoryLockStore } from "../runtime/lock/in-memory-store";
+import type { LockStore } from "../runtime/lock/store";
+import { InMemoryPropertiesStore } from "../runtime/properties/in-memory-store";
+import type { PropertiesStore } from "../runtime/properties/store";
+import { InMemorySpreadsheetStore } from "../runtime/spreadsheet/in-memory-store";
+import type { SpreadsheetStore } from "../runtime/spreadsheet/store";
 
 export interface LocalRuntimeSessionStores {
   readonly cacheStore: CacheStore;

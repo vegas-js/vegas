@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import { LocalRuntimeSession } from "../runtime/local-runtime-session";
+import { LocalRuntimeSession } from "../local-runtime/session";
 import { InMemoryPropertiesStore } from "../runtime/properties/in-memory-store";
 import type { InvocationScope } from "../runtime/scope";
 import { InMemorySpreadsheetStore } from "../runtime/spreadsheet/in-memory-store";

@@ -1,7 +1,7 @@
+import { LocalRuntimeSession } from "../local-runtime/session";
 import {
   InMemoryPropertiesStore,
   InMemorySpreadsheetStore,
-  LocalRuntimeSession,
   type InvocationScope,
 } from "../runtime";
 import type { RuntimeDataSnapshot } from "./model";

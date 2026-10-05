@@ -3,7 +3,6 @@ import { describe, expect, expectTypeOf, test, vi } from "vitest";
 import {
   InMemoryPropertiesStore,
   InMemorySpreadsheetStore,
-  LocalRuntimeSession,
   type ExecutionRequest,
   type Program,
   type PropertiesStore,
@@ -14,6 +13,7 @@ import {
 import type { RuntimeDataSnapshot } from "../runtime-data";
 import { createLocalRuntime } from "./factory";
 import type { LocalRuntimeProject } from "./project";
+import { LocalRuntimeSession } from "./session";
 
 const project = {
   root: "/project",
