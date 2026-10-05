@@ -5,10 +5,10 @@ import {
   type ArtifactStore,
   buildApp,
   buildDevArtifacts,
+  buildDevTopology,
   replaceDevBuildArtifacts,
 } from "../build";
 import type { ResolvedProject } from "../project";
-import { buildDevTopology } from "./build-topology";
 import type { ProjectBuildScope } from "./project-file";
 
 interface DevBuildManagerOptions {

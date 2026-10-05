@@ -1,7 +1,11 @@
-import { ArtifactStore, replaceDevBuildArtifacts, type DevBuildArtifacts } from "../build";
+import {
+  ArtifactStore,
+  buildDevTopology,
+  replaceDevBuildArtifacts,
+  type DevBuildArtifacts,
+} from "../build";
 import type { ResolvedProject } from "../project";
 import type { Program } from "../runtime";
-import { buildDevTopology } from "./build-topology";
 
 type RuntimeProgramBuilder = (
   project: ResolvedProject,

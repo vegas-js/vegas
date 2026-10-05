@@ -10,6 +10,7 @@ export {
   replaceDevBuildArtifacts,
   type DevBuildArtifacts,
 } from "./dev-artifacts";
+export { buildDevTopology, type DevBuildTopology } from "./dev-topology";
 export { createAppsScriptManifestArtifact } from "./manifest";
 export { buildProjectArtifacts } from "./pipeline";
 export {

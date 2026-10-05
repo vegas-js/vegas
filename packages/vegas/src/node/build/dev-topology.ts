@@ -1,7 +1,8 @@
 import type { ViteBuilder } from "vite";
 
-import { buildDevArtifacts, createProjectBuilder, type DevBuildArtifacts } from "../build";
 import { type ProjectSnapshot, type ResolvedProject, scanProject } from "../project";
+import { createProjectBuilder } from "./builder";
+import { buildDevArtifacts, type DevBuildArtifacts } from "./dev-artifacts";
 
 export interface DevBuildTopology extends DevBuildArtifacts {
   readonly snapshot: ProjectSnapshot;

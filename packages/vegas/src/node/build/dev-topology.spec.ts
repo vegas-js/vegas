@@ -4,8 +4,8 @@ import path from "node:path";
 
 import { describe, expect, test } from "vitest";
 
+import { buildDevTopology } from "../build";
 import type { ResolvedProject } from "../project";
-import { buildDevTopology } from "./build-topology";
 
 function createProject(root: string): ResolvedProject {
   return {

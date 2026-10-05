@@ -3,8 +3,8 @@ import path from "node:path";
 import type { ViteBuilder } from "vite";
 import { describe, expect, test, vi } from "vitest";
 
+import { buildDevTopology } from "../../build";
 import { startDevApplication } from "../../dev/application";
-import { buildDevTopology } from "../../dev/build-topology";
 import { ReloadableLocalRuntime } from "../../dev/reloadable-local-runtime";
 import { createRuntimeProgram } from "../../dev/runtime-program";
 import { createGoogleAppsScriptUserRuntime } from "../../google-apps-script-runtime";
@@ -18,7 +18,8 @@ vi.mock("../../dev/application", () => ({
   startDevApplication: vi.fn(),
 }));
 
-vi.mock("../../dev/build-topology", () => ({
+vi.mock("../../build", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("../../build")>()),
   buildDevTopology: vi.fn(),
 }));
 
