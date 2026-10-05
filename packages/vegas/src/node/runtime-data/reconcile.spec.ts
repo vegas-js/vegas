@@ -1,8 +1,8 @@
 import { describe, expect, test } from "vitest";
 
-import { InMemoryPropertiesStore } from "../runtime/in-memory-properties-store";
 import { InMemorySpreadsheetStore } from "../runtime/in-memory-spreadsheet-store";
 import { LocalRuntimeSession } from "../runtime/local-runtime-session";
+import { InMemoryPropertiesStore } from "../runtime/properties/in-memory-store";
 import type { InvocationScope } from "../runtime/scope";
 import type { RangeReference } from "../runtime/spreadsheet/reference";
 import type {

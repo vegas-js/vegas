@@ -4,10 +4,10 @@ import type { DriveIteratorStore } from "./drive/iterator-store";
 import type { DriveStore } from "./drive/store";
 import { InMemoryDriveIteratorStore } from "./in-memory-drive-iterator-store";
 import { InMemoryDriveStore } from "./in-memory-drive-store";
-import { InMemoryPropertiesStore } from "./in-memory-properties-store";
 import { InMemorySpreadsheetStore } from "./in-memory-spreadsheet-store";
 import { InMemoryLockStore } from "./lock/in-memory-store";
 import type { LockStore } from "./lock/store";
+import { InMemoryPropertiesStore } from "./properties/in-memory-store";
 import type { PropertiesStore } from "./properties/store";
 import type { SpreadsheetStore } from "./spreadsheet/store";
 

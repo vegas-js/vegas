@@ -71,7 +71,7 @@ export { InMemoryCacheStore } from "./cache/in-memory-store";
 export { InMemoryDriveIteratorStore } from "./in-memory-drive-iterator-store";
 export { InMemoryDriveStore } from "./in-memory-drive-store";
 export { InMemoryLockStore } from "./lock/in-memory-store";
-export { InMemoryPropertiesStore } from "./in-memory-properties-store";
+export { InMemoryPropertiesStore } from "./properties/in-memory-store";
 export { InMemorySpreadsheetStore } from "./in-memory-spreadsheet-store";
 export type { InMemorySheetSeed, InMemorySpreadsheetSeed } from "./in-memory-spreadsheet-store";
 export type { InvocationContext, InvocationEnvironment } from "./invocation";

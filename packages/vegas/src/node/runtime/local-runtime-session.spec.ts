@@ -3,10 +3,10 @@ import { describe, expect, test } from "vitest";
 import { InMemoryCacheStore } from "./cache/in-memory-store";
 import { InMemoryDriveIteratorStore } from "./in-memory-drive-iterator-store";
 import { InMemoryDriveStore } from "./in-memory-drive-store";
-import { InMemoryPropertiesStore } from "./in-memory-properties-store";
 import { InMemorySpreadsheetStore } from "./in-memory-spreadsheet-store";
 import { LocalRuntimeSession } from "./local-runtime-session";
 import { InMemoryLockStore } from "./lock/in-memory-store";
+import { InMemoryPropertiesStore } from "./properties/in-memory-store";
 
 describe("LocalRuntimeSession", () => {
   test("own isolated default stores", () => {

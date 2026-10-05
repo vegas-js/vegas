@@ -1,4 +1,4 @@
-import type { PropertiesNamespace, PropertiesStore } from "./properties/store";
+import type { PropertiesNamespace, PropertiesStore } from "./store";
 
 function createNamespaceKey(namespace: PropertiesNamespace): string {
   switch (namespace.kind) {

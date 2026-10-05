@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 
-import { InMemoryPropertiesStore } from "./in-memory-properties-store";
-import type { PropertiesNamespace } from "./properties/store";
+import { InMemoryPropertiesStore } from "./in-memory-store";
+import type { PropertiesNamespace } from "./store";
 
 const scriptProperties: PropertiesNamespace = {
   kind: "script",
