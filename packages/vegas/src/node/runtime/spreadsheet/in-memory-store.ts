@@ -1,9 +1,6 @@
-import { InMemorySpreadsheetGrid, remapMovedDimensionPosition } from "./in-memory-spreadsheet-grid";
-import {
-  DEFAULT_LOCAL_SPREADSHEET_COLUMNS,
-  DEFAULT_LOCAL_SPREADSHEET_ROWS,
-} from "./spreadsheet/defaults";
-import type { RangeReference, SheetReference, SpreadsheetReference } from "./spreadsheet/reference";
+import { DEFAULT_LOCAL_SPREADSHEET_COLUMNS, DEFAULT_LOCAL_SPREADSHEET_ROWS } from "./defaults";
+import { InMemorySpreadsheetGrid, remapMovedDimensionPosition } from "./in-memory-grid";
+import type { RangeReference, SheetReference, SpreadsheetReference } from "./reference";
 import type {
   SheetDataBounds,
   SheetMetadata,
@@ -11,8 +8,8 @@ import type {
   SpreadsheetMetadata,
   SpreadsheetNoteGrid,
   SpreadsheetStore,
-} from "./spreadsheet/store";
-import { assertInteger, assertPositiveInteger } from "./spreadsheet/validation";
+} from "./store";
+import { assertInteger, assertPositiveInteger } from "./validation";
 
 // Apps Script exposes Spreadsheet locale and time zone but does not define defaults for a local
 // runtime. Vegas uses fixed values so fixtures and runtime-created Spreadsheets are deterministic.

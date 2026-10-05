@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 
-import { InMemorySpreadsheetStore } from "./in-memory-spreadsheet-store";
-import type { RangeReference, SheetReference, SpreadsheetReference } from "./spreadsheet/reference";
+import { InMemorySpreadsheetStore } from "./in-memory-store";
+import type { RangeReference, SheetReference, SpreadsheetReference } from "./reference";
 
 const SPREADSHEET: SpreadsheetReference = {
   service: "spreadsheet",

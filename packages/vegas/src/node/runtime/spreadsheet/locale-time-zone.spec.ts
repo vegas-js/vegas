@@ -2,7 +2,7 @@ import { describe, expect, test } from "vitest";
 
 import type { HostBridge } from "../host-bridge";
 import type { HostCall, HostCallResult } from "../host-call";
-import { InMemorySpreadsheetStore } from "../in-memory-spreadsheet-store";
+import { InMemorySpreadsheetStore } from "../spreadsheet/in-memory-store";
 import { SpreadsheetHostHandler } from "./host-handler";
 import type { SpreadsheetObjectHydrator } from "./hydrator";
 import type { SpreadsheetReference } from "./reference";

@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import { InMemorySpreadsheetStore } from "../in-memory-spreadsheet-store";
+import { InMemorySpreadsheetStore } from "../spreadsheet/in-memory-store";
 import { UnsupportedRuntimeOperationError } from "../unsupported-runtime-operation-error";
 import { SpreadsheetHostHandler } from "./host-handler";
 

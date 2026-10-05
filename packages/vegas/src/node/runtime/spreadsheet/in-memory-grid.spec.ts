@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import { InMemorySpreadsheetGrid } from "./in-memory-spreadsheet-grid";
+import { InMemorySpreadsheetGrid } from "./in-memory-grid";
 
 const RANGE = {
   row: 1,
