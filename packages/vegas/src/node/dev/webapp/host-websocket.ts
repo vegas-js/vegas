@@ -2,13 +2,13 @@ import type { ViteDevServer } from "vite";
 
 import type { ServerFunctionCallRequest } from "../../../webapp/protocol";
 import type { RuntimeBackend } from "../../runtime";
-import type { BuildCoordinator } from "../build-coordinator";
+import type { WebAppBuildBarrier } from "../../webapp/build-barrier";
 import { executeServerFunctionCall } from "./server-function-call";
 import type { WebAppSessionRegistry } from "./session-registry";
 
 interface HostWebSocketOptions {
   readonly server: ViteDevServer;
-  readonly builds: Pick<BuildCoordinator, "waitForIdle">;
+  readonly builds: WebAppBuildBarrier;
   readonly sessions: Pick<WebAppSessionRegistry, "consume">;
   readonly runtime: RuntimeBackend;
 }

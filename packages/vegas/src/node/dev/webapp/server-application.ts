@@ -1,6 +1,6 @@
 import type { RuntimeBackend, SpreadsheetStore } from "../../runtime";
+import { createIdleWebAppBuildBarrier } from "../../webapp/build-barrier";
 import type { LocalSpreadsheetUrlConfiguration } from "../../webapp/local-spreadsheet-url";
-import { BuildCoordinator } from "../build-coordinator";
 import { createContentResponseHttpHandler } from "./content-response-http-handler";
 import { ContentResponseRegistry } from "./content-response-registry";
 import { createHostHttpHandler } from "./host-http-handler";
@@ -34,7 +34,7 @@ export async function startEphemeralWebAppApplication(
     mode: "development",
     bridgeFilePath: options.bridgeFilePath,
   });
-  const builds = new BuildCoordinator();
+  const builds = createIdleWebAppBuildBarrier();
   const sessions = new WebAppSessionRegistry();
   const contentResponses = new ContentResponseRegistry();
 

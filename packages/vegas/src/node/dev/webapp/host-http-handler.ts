@@ -7,7 +7,7 @@ import {
   type RuntimeBackend,
   type TextOutputSnapshot,
 } from "../../runtime";
-import type { BuildCoordinator } from "../build-coordinator";
+import type { WebAppBuildBarrier } from "../../webapp/build-barrier";
 import { createContentResponsePath } from "./content-response-http-handler";
 import type { ContentResponseRegistry } from "./content-response-registry";
 import { createAppsScriptDoGetEvent, createAppsScriptDoPostEvent } from "./event";
@@ -17,7 +17,7 @@ import type { WebAppSessionRegistry } from "./session-registry";
 
 interface HostHttpHandlerOptions {
   readonly server: ViteDevServer;
-  readonly builds: Pick<BuildCoordinator, "waitForIdle">;
+  readonly builds: WebAppBuildBarrier;
   readonly contentResponses: Pick<ContentResponseRegistry, "issue">;
   readonly sessions: Pick<WebAppSessionRegistry, "issue">;
   readonly runtime: RuntimeBackend;

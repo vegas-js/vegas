@@ -1,12 +1,12 @@
 import type { Connect, ViteDevServer } from "vite";
 
-import type { BuildCoordinator } from "../build-coordinator";
+import type { WebAppBuildBarrier } from "../../webapp/build-barrier";
 import type { WebAppSessionRegistry } from "./session-registry";
 import { createBlankUserContentHtml, createUserContentPanelHtml } from "./user-content-html";
 
 interface UserContentHttpHandlerOptions {
   readonly server: ViteDevServer;
-  readonly builds: Pick<BuildCoordinator, "waitForIdle">;
+  readonly builds: WebAppBuildBarrier;
   readonly sessions: Pick<WebAppSessionRegistry, "claim">;
   readonly hostPort: number;
 }
