@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import { createContentService, TextOutput } from "./index";
+import { createContentService, TextOutput } from "../index";
 
 // Public contracts:
 // https://developers.google.com/apps-script/reference/content/content-service

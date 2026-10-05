@@ -1,4 +1,4 @@
-import { CONTENT_MIME_TYPE, type ContentMimeType } from "./content-enum";
+import { CONTENT_MIME_TYPE, type ContentMimeType } from "./enum";
 
 export interface TextOutputSnapshot {
   readonly content: string;

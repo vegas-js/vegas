@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import { ContentService, createContentService, TextOutput } from "./index";
+import { ContentService, createContentService, TextOutput } from "../index";
 
 describe("ContentService", () => {
   test("expose ContentService MimeType values", () => {

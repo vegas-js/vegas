@@ -1,4 +1,4 @@
-import { CONTENT_MIME_TYPE } from "./content-enum";
+import { CONTENT_MIME_TYPE } from "./enum";
 import { TextOutput } from "./text-output";
 
 // https://developers.google.com/apps-script/reference/content/content-service

@@ -1,4 +1,4 @@
-import { createRuntimeEnum } from "./runtime-enum";
+import { createRuntimeEnum } from "./runtime-boundary";
 
 export const CONTENT_MIME_TYPE = createRuntimeEnum(
   "ATOM",

@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import { serializeTextOutput, TextOutput } from "./index";
+import { serializeTextOutput, TextOutput } from "../index";
 
 describe("TextOutput", () => {
   test("hold and mutate text content with chaining", () => {

@@ -34,8 +34,8 @@ export const API_SURFACES = {
   ],
   Utilities: [["Utilities", "utilities.ts", "Utilities"]],
   ContentService: [
-    ["ContentService", "content-service.ts", "ContentService"],
-    ["TextOutput", "text-output.ts", "TextOutput"],
+    ["ContentService", "content/service.ts", "ContentService"],
+    ["TextOutput", "content/text-output.ts", "TextOutput"],
   ],
   HtmlService: [
     ["HtmlService", "html-service.ts", "HtmlService"],
