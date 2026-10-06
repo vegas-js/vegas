@@ -6,14 +6,18 @@ import {
   type InvocationContext,
   type RuntimeBackend,
   type TextOutputSnapshot,
-} from "../../runtime";
-import type { WebAppBuildBarrier } from "./build-barrier";
-import { createContentResponsePath } from "./content-response-http-handler";
-import type { ContentResponseRegistry } from "./content-response-registry";
+} from "../../../runtime";
+import { createContentResponsePath } from "../content-response/content-response-http-handler";
+import type { ContentResponseRegistry } from "../content-response/content-response-registry";
+import type { WebAppBuildBarrier } from "../shared/build-barrier";
+import {
+  parseWebAppPath,
+  readRequestBody,
+  resolveAppsScriptXFrameOptionsHeader,
+} from "../shared/http";
+import type { WebAppSessionRegistry } from "../shared/session-registry";
 import { createAppsScriptDoGetEvent, createAppsScriptDoPostEvent } from "./event";
 import { createHostHtml, type AppsScriptDoGetResult } from "./host-html";
-import { parseWebAppPath, readRequestBody, resolveAppsScriptXFrameOptionsHeader } from "./http";
-import type { WebAppSessionRegistry } from "./session-registry";
 
 interface HostHttpHandlerOptions {
   readonly server: ViteDevServer;

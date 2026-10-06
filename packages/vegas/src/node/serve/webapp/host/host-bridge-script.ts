@@ -1,4 +1,4 @@
-import { serializeInlineScriptValue } from "./inline-script";
+import { serializeInlineScriptValue } from "../shared/inline-script";
 
 export function createHostBridgeScript(hostOrigin: string, userHtml: string): string {
   const serializedHostOrigin = serializeInlineScriptValue(hostOrigin);

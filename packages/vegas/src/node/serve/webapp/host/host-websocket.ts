@@ -1,10 +1,10 @@
 import type { ViteDevServer } from "vite";
 
-import type { ServerFunctionCallRequest } from "../../../webapp/protocol";
-import type { RuntimeBackend } from "../../runtime";
-import type { WebAppBuildBarrier } from "./build-barrier";
+import type { ServerFunctionCallRequest } from "../../../../webapp/protocol";
+import type { RuntimeBackend } from "../../../runtime";
+import type { WebAppBuildBarrier } from "../shared/build-barrier";
+import type { WebAppSessionRegistry } from "../shared/session-registry";
 import { executeServerFunctionCall } from "./server-function-call";
-import type { WebAppSessionRegistry } from "./session-registry";
 
 interface HostWebSocketOptions {
   readonly server: ViteDevServer;

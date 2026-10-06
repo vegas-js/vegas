@@ -1,4 +1,4 @@
-import type { SpreadsheetCellValue, SpreadsheetGrid } from "../../runtime";
+import type { SpreadsheetCellValue, SpreadsheetGrid } from "../../../runtime";
 
 export interface LocalSpreadsheetSheetSummary {
   readonly id: number;

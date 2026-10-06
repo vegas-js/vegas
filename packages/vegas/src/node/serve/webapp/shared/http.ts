@@ -1,4 +1,4 @@
-import type { HtmlXFrameOptionsMode } from "../../runtime";
+import type { HtmlXFrameOptionsMode } from "../../../runtime";
 
 export type WebAppEndpoint = "dev" | "exec";
 

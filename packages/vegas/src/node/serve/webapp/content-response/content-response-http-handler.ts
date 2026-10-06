@@ -1,6 +1,6 @@
 import type { Connect } from "vite";
 
-import type { ContentMimeType } from "../../runtime";
+import type { ContentMimeType } from "../../../runtime";
 import type { ContentResponseRegistry } from "./content-response-registry";
 
 export const CONTENT_RESPONSE_PATH_PREFIX = "/__vegas/content/";

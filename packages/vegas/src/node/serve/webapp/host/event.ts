@@ -1,5 +1,5 @@
 // https://developers.google.com/apps-script/guides/web
-import { parseWebAppPath } from "./http";
+import { parseWebAppPath } from "../shared/http";
 
 interface AppsScriptWebAppEventBase {
   readonly queryString: string | null;

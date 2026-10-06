@@ -1,5 +1,5 @@
-import { HtmlDocument } from "../../html-document";
-import { serializeInlineScriptValue } from "./inline-script";
+import { HtmlDocument } from "../../../html-document";
+import { serializeInlineScriptValue } from "../shared/inline-script";
 
 const USER_CONTENT_IFRAME_ALLOW =
   "accelerometer *; ambient-light-sensor *; autoplay *; camera *; clipboard-read *; clipboard-write *; encrypted-media *; fullscreen *; geolocation *; gyroscope *; local-network-access *; magnetometer *; microphone *; midi *; payment *; picture-in-picture *; screen-wake-lock *; speaker *; sync-xhr *; usb *; vibrate *; vr *; web-share *";

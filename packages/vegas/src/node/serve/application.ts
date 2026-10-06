@@ -13,7 +13,7 @@ import type { RuntimeBackend } from "../runtime";
 import { createRuntimeProgram } from "../runtime-program";
 import { loadRuntimeDataSnapshot } from "./runtime-data";
 import { startDevApplication } from "./server";
-import { LocalSpreadsheetUrlResolver } from "./webapp/local-spreadsheet-url";
+import { LocalSpreadsheetUrlResolver } from "./webapp/local-spreadsheet/local-spreadsheet-url";
 
 type DevApplicationMode = "development" | "production";
 

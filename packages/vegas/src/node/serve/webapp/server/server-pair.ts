@@ -2,10 +2,10 @@ import path from "node:path";
 
 import { createServer, type ViteDevServer } from "vite";
 
-import { createHostServerConfig } from "./host-server";
+import { createHostServerConfig } from "../host/host-server";
+import { createUserContentServerConfig } from "../user-content/user-content-server";
 import { WebAppServerLifecycle } from "./server-lifecycle";
 import { getListeningPort } from "./server-port";
-import { createUserContentServerConfig } from "./user-content-server";
 
 const LOOPBACK_HOST = "127.0.0.1";
 

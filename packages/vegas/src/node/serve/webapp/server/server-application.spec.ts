@@ -1,7 +1,7 @@
 import type { ViteDevServer } from "vite";
 import { describe, expect, test, vi } from "vitest";
 
-import type { SpreadsheetStore } from "../../runtime";
+import type { SpreadsheetStore } from "../../../runtime";
 import { startEphemeralWebAppApplication } from "./server-application";
 import type { WebAppServerPair } from "./server-pair";
 

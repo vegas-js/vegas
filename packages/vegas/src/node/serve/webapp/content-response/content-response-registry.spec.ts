@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import type { TextOutputSnapshot } from "../../runtime";
+import type { TextOutputSnapshot } from "../../../runtime";
 import { ContentResponseRegistry } from "./content-response-registry";
 
 const output = {

@@ -1,6 +1,6 @@
 import { createRuntimeDataSnapshotFromFixture, type RuntimeDataFixture } from "../runtime-data";
-import { LocalSpreadsheetUrlResolver } from "../serve/webapp/local-spreadsheet-url";
-import { startEphemeralWebAppApplication } from "../serve/webapp/server-application";
+import { LocalSpreadsheetUrlResolver } from "../serve/webapp/local-spreadsheet/local-spreadsheet-url";
+import { startEphemeralWebAppApplication } from "../serve/webapp/server/server-application";
 import { createLocalRuntimeHarness, type LocalRuntimeHarness } from "./local-runtime";
 import { loadHarnessProject, type HarnessProjectLoader } from "./project";
 
