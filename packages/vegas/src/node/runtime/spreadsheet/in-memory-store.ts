@@ -1,5 +1,10 @@
 import { DEFAULT_LOCAL_SPREADSHEET_COLUMNS, DEFAULT_LOCAL_SPREADSHEET_ROWS } from "./defaults";
-import { InMemorySpreadsheetGrid, remapMovedDimensionPosition } from "./in-memory-grid";
+import {
+  remapDeletedDimensionPositions,
+  remapInsertedDimensionPositions,
+  remapMovedDimensionPositions,
+} from "./in-memory-dimension";
+import { InMemorySpreadsheetGrid } from "./in-memory-grid";
 import type { RangeReference, SheetReference, SpreadsheetReference } from "./reference";
 import type {
   SheetDataBounds,
@@ -531,15 +536,11 @@ export class InMemorySpreadsheetStore implements SpreadsheetStore {
 
     state.grid.deleteColumns(startColumn, numColumns);
 
-    const endColumn = startColumn + numColumns - 1;
-    const hiddenColumns = new Set<number>();
-    for (const column of state.hiddenColumns) {
-      if (column < startColumn) {
-        hiddenColumns.add(column);
-      } else if (column > endColumn) {
-        hiddenColumns.add(column - numColumns);
-      }
-    }
+    const hiddenColumns = remapDeletedDimensionPositions(
+      state.hiddenColumns,
+      startColumn,
+      numColumns,
+    );
 
     const maxColumns = state.metadata.maxColumns - numColumns;
 
@@ -564,15 +565,7 @@ export class InMemorySpreadsheetStore implements SpreadsheetStore {
 
     state.grid.deleteRows(startRow, numRows);
 
-    const endRow = startRow + numRows - 1;
-    const hiddenRows = new Set<number>();
-    for (const row of state.hiddenRows) {
-      if (row < startRow) {
-        hiddenRows.add(row);
-      } else if (row > endRow) {
-        hiddenRows.add(row - numRows);
-      }
-    }
+    const hiddenRows = remapDeletedDimensionPositions(state.hiddenRows, startRow, numRows);
 
     const maxRows = state.metadata.maxRows - numRows;
 
@@ -601,10 +594,11 @@ export class InMemorySpreadsheetStore implements SpreadsheetStore {
 
     state.grid.insertColumns(startColumn, numColumns);
 
-    const hiddenColumns = new Set<number>();
-    for (const column of state.hiddenColumns) {
-      hiddenColumns.add(column >= startColumn ? column + numColumns : column);
-    }
+    const hiddenColumns = remapInsertedDimensionPositions(
+      state.hiddenColumns,
+      startColumn,
+      numColumns,
+    );
 
     // Apps Script documents that insertion shifts existing columns right, but not how hidden and
     // frozen column state is remapped. Vegas moves hidden-column markers with shifted columns and
@@ -626,10 +620,7 @@ export class InMemorySpreadsheetStore implements SpreadsheetStore {
 
     state.grid.insertRows(startRow, numRows);
 
-    const hiddenRows = new Set<number>();
-    for (const row of state.hiddenRows) {
-      hiddenRows.add(row >= startRow ? row + numRows : row);
-    }
+    const hiddenRows = remapInsertedDimensionPositions(state.hiddenRows, startRow, numRows);
 
     // Apps Script documents that insertion shifts existing rows down, but not how hidden and
     // frozen row state is remapped. Vegas moves hidden-row markers with shifted rows and preserves
@@ -655,10 +646,11 @@ export class InMemorySpreadsheetStore implements SpreadsheetStore {
 
     state.grid.moveColumns(sourceStart, sourceCount, destinationIndex);
 
-    const hiddenColumns = new Set(
-      [...state.hiddenColumns].map((column) =>
-        remapMovedDimensionPosition(column, sourceStart, sourceCount, destinationIndex),
-      ),
+    const hiddenColumns = remapMovedDimensionPositions(
+      state.hiddenColumns,
+      sourceStart,
+      sourceCount,
+      destinationIndex,
     );
 
     // Apps Script documents moved column data but not hidden/frozen remapping. Vegas moves hidden
@@ -680,10 +672,11 @@ export class InMemorySpreadsheetStore implements SpreadsheetStore {
 
     state.grid.moveRows(sourceStart, sourceCount, destinationIndex);
 
-    const hiddenRows = new Set(
-      [...state.hiddenRows].map((row) =>
-        remapMovedDimensionPosition(row, sourceStart, sourceCount, destinationIndex),
-      ),
+    const hiddenRows = remapMovedDimensionPositions(
+      state.hiddenRows,
+      sourceStart,
+      sourceCount,
+      destinationIndex,
     );
 
     // Apps Script documents moved row data but not hidden/frozen remapping. Vegas moves hidden

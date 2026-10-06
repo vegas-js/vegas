@@ -1,3 +1,4 @@
+import { remapMovedDimensionPosition } from "./in-memory-dimension";
 import type { RangeReference } from "./reference";
 import type { SheetDataBounds, SpreadsheetCellValue, SpreadsheetGrid } from "./store";
 import { assertPositiveInteger } from "./validation";
@@ -10,41 +11,6 @@ function cloneCellValue(value: SpreadsheetCellValue): SpreadsheetCellValue {
 
 function createCellKey(row: number, column: number): string {
   return `${row}:${column}`;
-}
-
-export function remapMovedDimensionPosition(
-  position: number,
-  sourceStart: number,
-  sourceCount: number,
-  destinationIndex: number,
-): number {
-  const sourceEnd = sourceStart + sourceCount - 1;
-
-  // Google documents destination coordinates before source removal but not destinations that fall
-  // inside the source span. Vegas treats every boundary from sourceStart through sourceEnd + 1 as
-  // a no-op because reinserting the same block at one of its own boundaries preserves its order.
-  if (destinationIndex >= sourceStart && destinationIndex <= sourceEnd + 1) {
-    return position;
-  }
-
-  if (destinationIndex < sourceStart) {
-    if (position >= sourceStart && position <= sourceEnd) {
-      return destinationIndex + (position - sourceStart);
-    }
-    if (position >= destinationIndex && position < sourceStart) {
-      return position + sourceCount;
-    }
-    return position;
-  }
-
-  if (position >= sourceStart && position <= sourceEnd) {
-    return destinationIndex - sourceCount + (position - sourceStart);
-  }
-  if (position > sourceEnd && position < destinationIndex) {
-    return position - sourceCount;
-  }
-
-  return position;
 }
 
 function moveRows<T>(
