@@ -1,73 +1,18 @@
+import {
+  cloneFile,
+  cloneFileMetadata,
+  cloneFolder,
+  cloneShortcutTarget,
+  createDriveState,
+  createNamespaceKey,
+  matchesResourceKey,
+  type DriveFileState,
+  type DriveFolderState,
+  type DriveState,
+} from "./in-memory-state";
 import type { DriveFileReference, DriveFolderReference } from "./reference";
 import { MIME_TYPE, type BlobValue } from "./runtime-boundary";
 import type { DriveFileMetadata, DriveNamespace, DriveShortcutTarget, DriveStore } from "./store";
-
-type DriveFileContent = {
-  readonly bytes: readonly number[];
-  readonly googleType: boolean;
-};
-
-// Drive exposes creation and modification timestamps, but not Vegas's in-memory mutation model.
-// Vegas advances lastUpdated only for direct item mutations, not starred state or child creation.
-type DriveTimestamps = {
-  readonly createdAtMillis: number;
-  lastUpdatedAtMillis: number;
-};
-
-type DriveFileState = {
-  readonly reference: DriveFileReference;
-  content: DriveFileContent;
-  description: string | null;
-  metadata: DriveFileMetadata;
-  parentIds: string[];
-  shortcutTarget: DriveShortcutTarget | null;
-  starred: boolean;
-  timestamps: DriveTimestamps;
-  trashed: boolean;
-};
-
-type DriveFolderState = {
-  readonly reference: DriveFolderReference;
-  description: string | null;
-  name: string | null;
-  parentIds: string[];
-  starred: boolean;
-  timestamps: DriveTimestamps;
-  trashed: boolean;
-};
-
-type DriveState = {
-  readonly root: DriveFolderState;
-  readonly files: Map<string, DriveFileState>;
-  readonly folders: Map<string, DriveFolderState>;
-};
-
-function createNamespaceKey(namespace: DriveNamespace): string {
-  return JSON.stringify(["user", namespace.userKey]);
-}
-
-function cloneFileMetadata(metadata: DriveFileMetadata): DriveFileMetadata {
-  return { ...metadata };
-}
-
-function cloneFile(reference: DriveFileReference): DriveFileReference {
-  return { ...reference };
-}
-
-function cloneShortcutTarget(target: DriveShortcutTarget | null): DriveShortcutTarget | null {
-  return target === null ? null : { ...target };
-}
-
-function cloneFolder(reference: DriveFolderReference): DriveFolderReference {
-  return { ...reference };
-}
-
-function matchesResourceKey(
-  reference: DriveFileReference | DriveFolderReference,
-  resourceKey: string | undefined,
-): boolean {
-  return resourceKey === undefined || reference.resourceKey === resourceKey;
-}
 
 export class InMemoryDriveStore implements DriveStore {
   readonly #drives = new Map<string, DriveState>();
@@ -743,27 +688,7 @@ export class InMemoryDriveStore implements DriveStore {
     }
 
     this.#nextRootId += 1;
-    const now = this.#now();
-    const created: DriveState = {
-      root: {
-        reference: {
-          service: "drive",
-          kind: "folder",
-          id: `drive-root:${this.#nextRootId}`,
-        },
-        description: null,
-        name: null,
-        parentIds: [],
-        starred: false,
-        timestamps: {
-          createdAtMillis: now,
-          lastUpdatedAtMillis: now,
-        },
-        trashed: false,
-      },
-      files: new Map(),
-      folders: new Map(),
-    };
+    const created = createDriveState(`drive-root:${this.#nextRootId}`, this.#now());
     this.#drives.set(namespaceKey, created);
     return created;
   }
