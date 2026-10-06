@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import type { AppsScriptPushRequest } from "./request";
+import type { AppsScriptPushRequest } from "../request";
 import { createAppsScriptUpdateContentHttpRequest } from "./update-content";
 
 describe("createAppsScriptUpdateContentHttpRequest", () => {

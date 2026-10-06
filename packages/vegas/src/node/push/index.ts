@@ -1,4 +1,4 @@
-export { createAppsScriptApiPushTransport } from "./api-transport";
+export { createAppsScriptApiPushTransport } from "./transport/api";
 
 export { createAppsScriptProjectContent } from "./content";
 export type { AppsScriptProjectContent, AppsScriptProjectFile } from "./content";
@@ -20,5 +20,5 @@ export { resolveAppsScriptScriptId } from "./script-id";
 
 export type { AppsScriptPushTransport } from "./transport";
 
-export { createAppsScriptUpdateContentHttpRequest } from "./update-content";
-export type { AppsScriptUpdateContentHttpRequest } from "./update-content";
+export { createAppsScriptUpdateContentHttpRequest } from "./transport/update-content";
+export type { AppsScriptUpdateContentHttpRequest } from "./transport/update-content";

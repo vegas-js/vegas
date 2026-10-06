@@ -1,5 +1,5 @@
-import type { AppsScriptProjectContent } from "./content";
-import type { AppsScriptPushRequest } from "./request";
+import type { AppsScriptProjectContent } from "../content";
+import type { AppsScriptPushRequest } from "../request";
 
 const APPS_SCRIPT_API_BASE_URL = "https://script.googleapis.com/v1";
 
