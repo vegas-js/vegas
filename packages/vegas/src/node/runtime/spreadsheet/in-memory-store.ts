@@ -4,7 +4,14 @@ import {
   remapInsertedDimensionPositions,
   remapMovedDimensionPositions,
 } from "./in-memory-dimension";
-import { InMemorySpreadsheetGrid } from "./in-memory-grid";
+import {
+  createFixtureSpreadsheetState,
+  createRuntimeSpreadsheetState,
+  createSheetState,
+  SheetState,
+  type InMemorySpreadsheetSeed,
+  type SpreadsheetState,
+} from "./in-memory-state";
 import type { RangeReference, SheetReference, SpreadsheetReference } from "./reference";
 import type {
   SheetDataBounds,
@@ -16,50 +23,7 @@ import type {
 } from "./store";
 import { assertInteger, assertPositiveInteger } from "./validation";
 
-// Apps Script exposes Spreadsheet locale and time zone but does not define defaults for a local
-// runtime. Vegas uses fixed values so fixtures and runtime-created Spreadsheets are deterministic.
-const DEFAULT_SPREADSHEET_LOCALE = "en_US";
-const DEFAULT_SPREADSHEET_TIME_ZONE = "Etc/UTC";
-
-export interface InMemorySheetSeed {
-  readonly id: number;
-  readonly name: string;
-  readonly maxRows: number;
-  readonly maxColumns: number;
-  readonly hidden?: boolean;
-  readonly hiddenGridlines?: boolean;
-  readonly rightToLeft?: boolean;
-  readonly tabColor?: string | null;
-  readonly values?: SpreadsheetGrid;
-}
-
-export interface InMemorySpreadsheetSeed {
-  readonly id: string;
-  readonly url?: string;
-  readonly name: string;
-  readonly sheets: readonly InMemorySheetSeed[];
-}
-
-type SheetState = {
-  readonly reference: SheetReference;
-  readonly metadata: SheetMetadata;
-  readonly hiddenColumns: ReadonlySet<number>;
-  readonly hiddenRows: ReadonlySet<number>;
-  readonly grid: InMemorySpreadsheetGrid;
-};
-
-type SpreadsheetOwnership = "fixture" | "runtime";
-
-type SpreadsheetState = {
-  readonly reference: SpreadsheetReference;
-  readonly metadata: SpreadsheetMetadata;
-  readonly locale: string;
-  readonly timeZone: string;
-  readonly ownership: SpreadsheetOwnership;
-  readonly url?: string;
-  readonly sheets: Map<number, SheetState>;
-  nextSheetId: number;
-};
+export type { InMemorySheetSeed, InMemorySpreadsheetSeed } from "./in-memory-state";
 
 function cloneSpreadsheetReference(reference: SpreadsheetReference): SpreadsheetReference {
   return { ...reference };
@@ -171,72 +135,6 @@ function assertRowInsertion(startRow: number, numRows: number, maximum: number):
   }
 }
 
-function createSheetState(spreadsheetId: string, seed: InMemorySheetSeed): SheetState {
-  assertInteger(seed.id, "Spreadsheet sheet id");
-
-  return {
-    reference: {
-      service: "spreadsheet",
-      kind: "sheet",
-      spreadsheetId,
-      sheetId: seed.id,
-    },
-    metadata: {
-      name: seed.name,
-      maxRows: seed.maxRows,
-      maxColumns: seed.maxColumns,
-      frozenColumns: 0,
-      frozenRows: 0,
-      hidden: seed.hidden ?? false,
-      hiddenGridlines: seed.hiddenGridlines ?? false,
-      rightToLeft: seed.rightToLeft ?? false,
-      tabColor: seed.tabColor ?? null,
-    },
-    hiddenColumns: new Set(),
-    hiddenRows: new Set(),
-    grid: new InMemorySpreadsheetGrid(seed.maxRows, seed.maxColumns, seed.values),
-  };
-}
-
-function createSpreadsheetState(
-  seed: InMemorySpreadsheetSeed,
-  ownership: SpreadsheetOwnership,
-): SpreadsheetState {
-  const sheets = new Map<number, SheetState>();
-  const sheetNames = new Set<string>();
-  let nextSheetId = 0;
-
-  for (const sheetSeed of seed.sheets) {
-    if (sheets.has(sheetSeed.id)) {
-      throw new Error(`Duplicate local Spreadsheet sheet id: ${seed.id}#${sheetSeed.id}`);
-    }
-    if (sheetNames.has(sheetSeed.name)) {
-      throw new Error(`Duplicate local Spreadsheet sheet name: ${sheetSeed.name}`);
-    }
-
-    sheets.set(sheetSeed.id, createSheetState(seed.id, sheetSeed));
-    sheetNames.add(sheetSeed.name);
-    nextSheetId = Math.max(nextSheetId, sheetSeed.id + 1);
-  }
-
-  return {
-    reference: {
-      service: "spreadsheet",
-      kind: "spreadsheet",
-      id: seed.id,
-    },
-    metadata: {
-      name: seed.name,
-    },
-    locale: DEFAULT_SPREADSHEET_LOCALE,
-    timeZone: DEFAULT_SPREADSHEET_TIME_ZONE,
-    ownership,
-    url: seed.url,
-    sheets,
-    nextSheetId,
-  };
-}
-
 export class InMemorySpreadsheetStore implements SpreadsheetStore {
   readonly #spreadsheets = new Map<string, SpreadsheetState>();
   readonly #spreadsheetIdsByUrl = new Map<string, string>();
@@ -250,7 +148,7 @@ export class InMemorySpreadsheetStore implements SpreadsheetStore {
 
       this.#assertUrlAvailable(seed.url, seed.id);
 
-      const state = createSpreadsheetState(seed, "fixture");
+      const state = createFixtureSpreadsheetState(seed);
 
       if (state.url !== undefined) {
         this.#spreadsheetIdsByUrl.set(state.url, seed.id);
@@ -305,31 +203,11 @@ export class InMemorySpreadsheetStore implements SpreadsheetStore {
     assertPositiveInteger(columns, "Spreadsheet columns");
 
     const id = this.#createSpreadsheetId();
-    const reference: SpreadsheetReference = {
-      service: "spreadsheet",
-      kind: "spreadsheet",
-      id,
-    };
-    const sheet = createSheetState(id, {
-      id: 0,
-      name: "Sheet1",
-      maxRows: rows,
-      maxColumns: columns,
-    });
+    const state = createRuntimeSpreadsheetState(id, name, rows, columns);
 
-    this.#spreadsheets.set(id, {
-      reference,
-      metadata: {
-        name,
-      },
-      locale: DEFAULT_SPREADSHEET_LOCALE,
-      timeZone: DEFAULT_SPREADSHEET_TIME_ZONE,
-      ownership: "runtime",
-      sheets: new Map([[sheet.reference.sheetId, sheet]]),
-      nextSheetId: 1,
-    });
+    this.#spreadsheets.set(id, state);
 
-    return cloneSpreadsheetReference(reference);
+    return cloneSpreadsheetReference(state.reference);
   }
 
   replaceFixtureSpreadsheet(seed: InMemorySpreadsheetSeed): void {
@@ -341,7 +219,7 @@ export class InMemorySpreadsheetStore implements SpreadsheetStore {
 
     this.#assertUrlAvailable(seed.url, seed.id);
 
-    const next = createSpreadsheetState(seed, "fixture");
+    const next = createFixtureSpreadsheetState(seed);
 
     if (existing?.url !== undefined && existing.url !== next.url) {
       this.#spreadsheetIdsByUrl.delete(existing.url);
