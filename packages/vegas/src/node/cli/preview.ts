@@ -1,4 +1,4 @@
-import { runDevApplication } from "./core/dev-application";
+import { runDevApplication } from "../serve/application";
 
 export function runPreview(root?: string) {
   return runDevApplication("production", root);

@@ -1,6 +1,6 @@
-import { ArtifactStore, buildDevTopology, replaceDevBuildArtifacts } from "../../build";
-import { startDevApplication } from "../../dev/application";
-import { createGoogleAppsScriptUserRuntime } from "../../google-apps-script-runtime";
+import { ArtifactStore, buildDevTopology, replaceDevBuildArtifacts } from "../build";
+import { startDevApplication } from "../dev/application";
+import { createGoogleAppsScriptUserRuntime } from "../google-apps-script-runtime";
 import {
   createInvocationScope,
   createLocalRuntime,
@@ -8,11 +8,11 @@ import {
   ReloadableLocalRuntime,
   resetLocalRuntimeSession,
   LocalRuntimeSession,
-} from "../../local-runtime";
-import { loadProject, scanRuntimeDataSources, type ResolvedProject } from "../../project";
-import type { RuntimeBackend } from "../../runtime";
-import { createRuntimeProgram } from "../../runtime-program";
-import { LocalSpreadsheetUrlResolver } from "../../webapp/local-spreadsheet-url";
+} from "../local-runtime";
+import { loadProject, scanRuntimeDataSources, type ResolvedProject } from "../project";
+import type { RuntimeBackend } from "../runtime";
+import { createRuntimeProgram } from "../runtime-program";
+import { LocalSpreadsheetUrlResolver } from "../webapp/local-spreadsheet-url";
 import { loadRuntimeDataSnapshot } from "./runtime-data";
 
 type DevApplicationMode = "development" | "production";

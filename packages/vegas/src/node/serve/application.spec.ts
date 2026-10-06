@@ -3,45 +3,45 @@ import path from "node:path";
 import type { ViteBuilder } from "vite";
 import { describe, expect, test, vi } from "vitest";
 
-import { buildDevTopology } from "../../build";
-import { startDevApplication } from "../../dev/application";
-import { createGoogleAppsScriptUserRuntime } from "../../google-apps-script-runtime";
+import { buildDevTopology } from "../build";
+import { startDevApplication } from "../dev/application";
+import { createGoogleAppsScriptUserRuntime } from "../google-apps-script-runtime";
 import {
   createLocalRuntime,
   LocalRuntimeSession,
   ReloadableLocalRuntime,
   type LocalRuntime,
-} from "../../local-runtime";
-import { loadProject, scanRuntimeDataSources, type ResolvedProject } from "../../project";
-import { InMemoryPropertiesStore, InMemorySpreadsheetStore, type Program } from "../../runtime";
-import { createRuntimeProgram } from "../../runtime-program";
-import { runDevApplication } from "./dev-application";
+} from "../local-runtime";
+import { loadProject, scanRuntimeDataSources, type ResolvedProject } from "../project";
+import { InMemoryPropertiesStore, InMemorySpreadsheetStore, type Program } from "../runtime";
+import { createRuntimeProgram } from "../runtime-program";
+import { runDevApplication } from "./application";
 import { loadRuntimeDataSnapshot } from "./runtime-data";
 
-vi.mock("../../dev/application", () => ({
+vi.mock("../dev/application", () => ({
   startDevApplication: vi.fn(),
 }));
 
-vi.mock("../../build", async (importOriginal) => ({
-  ...(await importOriginal<typeof import("../../build")>()),
+vi.mock("../build", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("../build")>()),
   buildDevTopology: vi.fn(),
 }));
 
-vi.mock("../../runtime-program", () => ({
+vi.mock("../runtime-program", () => ({
   createRuntimeProgram: vi.fn(),
 }));
 
-vi.mock("../../project", () => ({
+vi.mock("../project", () => ({
   loadProject: vi.fn(),
   scanRuntimeDataSources: vi.fn(),
 }));
 
-vi.mock("../../local-runtime", async (importOriginal) => ({
-  ...(await importOriginal<typeof import("../../local-runtime")>()),
+vi.mock("../local-runtime", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("../local-runtime")>()),
   createLocalRuntime: vi.fn(),
 }));
 
-vi.mock("../../google-apps-script-runtime", () => ({
+vi.mock("../google-apps-script-runtime", () => ({
   createGoogleAppsScriptUserRuntime: vi.fn(),
 }));
 

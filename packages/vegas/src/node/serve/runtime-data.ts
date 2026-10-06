@@ -1,10 +1,10 @@
-import { loadModule } from "../../module";
+import { loadModule } from "../module";
 import {
   createRuntimeDataSnapshot,
   type RuntimeDataSnapshot,
   type RuntimeDataSnapshotInput,
   validateRuntimeDataModule,
-} from "../../runtime-data";
+} from "../runtime-data";
 
 export async function loadRuntimeDataSnapshot(
   projectRoot: string,
