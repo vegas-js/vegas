@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 
-import { loadModule } from "../module";
+import { loadModule } from "../infrastructure/module";
 
 const CONFIG_FILE_NAMES = ["vegas.config.ts", "vegas.config.js", "vegas.config.json"] as const;
 

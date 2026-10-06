@@ -1,4 +1,4 @@
-import { loadModule } from "../module";
+import { loadModule } from "../infrastructure/module";
 import {
   createRuntimeDataSnapshot,
   type RuntimeDataSnapshot,
