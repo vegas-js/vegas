@@ -1,4 +1,9 @@
-import { ArtifactStore, buildDevTopology, replaceDevBuildArtifacts } from "../build";
+import {
+  ArtifactStore,
+  buildDevTopology,
+  createRuntimeProgram,
+  replaceDevBuildArtifacts,
+} from "../build";
 import { createGoogleAppsScriptUserRuntime } from "../google-apps-script-runtime";
 import {
   createInvocationScope,
@@ -10,7 +15,6 @@ import {
 } from "../local-runtime";
 import { loadProject, scanRuntimeDataSources, type ResolvedProject } from "../project";
 import type { RuntimeBackend } from "../runtime";
-import { createRuntimeProgram } from "../runtime-program";
 import { loadRuntimeDataSnapshot } from "./runtime-data";
 import { startDevApplication } from "./server";
 import { LocalSpreadsheetUrlResolver } from "./webapp/local-spreadsheet/local-spreadsheet-url";

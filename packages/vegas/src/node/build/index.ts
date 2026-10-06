@@ -21,3 +21,4 @@ export {
   isWebApp,
 } from "./vite";
 export { createBuildPlan } from "./plan";
+export { buildRuntimeProgram, createRuntimeProgram } from "./runtime-program";

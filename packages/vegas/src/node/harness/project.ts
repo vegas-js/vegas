@@ -1,6 +1,6 @@
+import { buildRuntimeProgram } from "../build";
 import { loadProject, type ResolvedProject } from "../project";
 import type { Program } from "../runtime";
-import { buildRuntimeProgram } from "../runtime-program";
 
 export interface HarnessProject {
   readonly project: ResolvedProject;

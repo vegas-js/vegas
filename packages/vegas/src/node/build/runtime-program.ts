@@ -1,11 +1,8 @@
-import {
-  ArtifactStore,
-  buildDevTopology,
-  replaceDevBuildArtifacts,
-  type DevBuildArtifacts,
-} from "./build";
-import type { ResolvedProject } from "./project";
-import type { Program } from "./runtime";
+import type { ResolvedProject } from "../project";
+import type { Program } from "../runtime";
+import { ArtifactStore } from "./artifact";
+import { replaceDevBuildArtifacts, type DevBuildArtifacts } from "./dev-artifacts";
+import { buildDevTopology } from "./dev-topology";
 
 type RuntimeProgramBuilder = (
   project: ResolvedProject,

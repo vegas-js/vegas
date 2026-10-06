@@ -3,7 +3,7 @@ import path from "node:path";
 import type { ViteBuilder } from "vite";
 import { describe, expect, test, vi } from "vitest";
 
-import { buildDevTopology } from "../build";
+import { buildDevTopology, createRuntimeProgram } from "../build";
 import { createGoogleAppsScriptUserRuntime } from "../google-apps-script-runtime";
 import {
   createLocalRuntime,
@@ -13,7 +13,6 @@ import {
 } from "../local-runtime";
 import { loadProject, scanRuntimeDataSources, type ResolvedProject } from "../project";
 import { InMemoryPropertiesStore, InMemorySpreadsheetStore, type Program } from "../runtime";
-import { createRuntimeProgram } from "../runtime-program";
 import { runDevApplication } from "./application";
 import { loadRuntimeDataSnapshot } from "./runtime-data";
 import { startDevApplication } from "./server";
@@ -25,9 +24,6 @@ vi.mock("./server", () => ({
 vi.mock("../build", async (importOriginal) => ({
   ...(await importOriginal<typeof import("../build")>()),
   buildDevTopology: vi.fn(),
-}));
-
-vi.mock("../runtime-program", () => ({
   createRuntimeProgram: vi.fn(),
 }));
 
