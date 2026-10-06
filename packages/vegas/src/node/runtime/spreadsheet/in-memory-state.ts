@@ -46,6 +46,29 @@ export type SpreadsheetState = {
   nextSheetId: number;
 };
 
+function cloneSheetState(state: SheetState): SheetState {
+  return {
+    reference: { ...state.reference },
+    metadata: { ...state.metadata },
+    hiddenColumns: new Set(state.hiddenColumns),
+    hiddenRows: new Set(state.hiddenRows),
+    grid: state.grid.clone(),
+  };
+}
+
+export function cloneSpreadsheetState(state: SpreadsheetState): SpreadsheetState {
+  return {
+    reference: { ...state.reference },
+    metadata: { ...state.metadata },
+    locale: state.locale,
+    timeZone: state.timeZone,
+    ownership: state.ownership,
+    url: state.url,
+    sheets: new Map([...state.sheets].map(([sheetId, sheet]) => [sheetId, cloneSheetState(sheet)])),
+    nextSheetId: state.nextSheetId,
+  };
+}
+
 export function createSheetState(spreadsheetId: string, seed: InMemorySheetSeed): SheetState {
   assertInteger(seed.id, "Spreadsheet sheet id");
 

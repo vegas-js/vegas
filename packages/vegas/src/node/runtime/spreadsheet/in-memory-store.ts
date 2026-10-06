@@ -5,6 +5,7 @@ import {
   remapMovedDimensionPositions,
 } from "./in-memory-dimension";
 import {
+  cloneSpreadsheetState,
   createFixtureSpreadsheetState,
   createRuntimeSpreadsheetState,
   createSheetState,
@@ -162,27 +163,7 @@ export class InMemorySpreadsheetStore implements SpreadsheetStore {
     const clone = new InMemorySpreadsheetStore();
 
     for (const [id, state] of this.#spreadsheets) {
-      clone.#spreadsheets.set(id, {
-        reference: cloneSpreadsheetReference(state.reference),
-        metadata: { ...state.metadata },
-        locale: state.locale,
-        timeZone: state.timeZone,
-        ownership: state.ownership,
-        url: state.url,
-        sheets: new Map(
-          [...state.sheets].map(([sheetId, sheet]) => [
-            sheetId,
-            {
-              reference: cloneSheetReference(sheet.reference),
-              metadata: { ...sheet.metadata },
-              hiddenColumns: new Set(sheet.hiddenColumns),
-              hiddenRows: new Set(sheet.hiddenRows),
-              grid: sheet.grid.clone(),
-            },
-          ]),
-        ),
-        nextSheetId: state.nextSheetId,
-      });
+      clone.#spreadsheets.set(id, cloneSpreadsheetState(state));
     }
 
     for (const [url, id] of this.#spreadsheetIdsByUrl) {

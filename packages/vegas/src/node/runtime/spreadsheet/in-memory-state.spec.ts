@@ -1,6 +1,10 @@
 import { describe, expect, test } from "vitest";
 
-import { createFixtureSpreadsheetState, createRuntimeSpreadsheetState } from "./in-memory-state";
+import {
+  cloneSpreadsheetState,
+  createFixtureSpreadsheetState,
+  createRuntimeSpreadsheetState,
+} from "./in-memory-state";
 
 describe("in-memory Spreadsheet state", () => {
   test("create fixture state with deterministic local defaults", () => {
@@ -68,6 +72,49 @@ describe("in-memory Spreadsheet state", () => {
       maxRows: 3,
       maxColumns: 4,
     });
+  });
+
+  test("clone mutable Spreadsheet state without sharing nested state", () => {
+    const state = createFixtureSpreadsheetState({
+      id: "spreadsheet-a",
+      name: "Budget",
+      sheets: [{ id: 7, name: "Summary", maxRows: 2, maxColumns: 2, values: [["before"]] }],
+    });
+    const sheet = state.sheets.get(7);
+
+    if (sheet === undefined) {
+      throw new Error("expected seeded Sheet state");
+    }
+
+    const clone = cloneSpreadsheetState(state);
+    const clonedSheet = clone.sheets.get(7);
+
+    if (clonedSheet === undefined) {
+      throw new Error("expected cloned Sheet state");
+    }
+
+    expect(clone).not.toBe(state);
+    expect(clone.reference).not.toBe(state.reference);
+    expect(clone.metadata).not.toBe(state.metadata);
+    expect(clone.sheets).not.toBe(state.sheets);
+    expect(clone.ownership).toBe("fixture");
+    expect(clone.nextSheetId).toBe(state.nextSheetId);
+    expect(clonedSheet).not.toBe(sheet);
+    expect(clonedSheet.reference).not.toBe(sheet.reference);
+    expect(clonedSheet.metadata).not.toBe(sheet.metadata);
+    expect(clonedSheet.hiddenColumns).not.toBe(sheet.hiddenColumns);
+    expect(clonedSheet.hiddenRows).not.toBe(sheet.hiddenRows);
+    expect(clonedSheet.grid).not.toBe(sheet.grid);
+
+    sheet.grid.setValues({ row: 1, column: 1, numRows: 1, numColumns: 1 }, [["original"]]);
+    clonedSheet.grid.setValues({ row: 1, column: 1, numRows: 1, numColumns: 1 }, [["clone"]]);
+
+    expect(sheet.grid.getValues({ row: 1, column: 1, numRows: 1, numColumns: 1 })).toStrictEqual([
+      ["original"],
+    ]);
+    expect(
+      clonedSheet.grid.getValues({ row: 1, column: 1, numRows: 1, numColumns: 1 }),
+    ).toStrictEqual([["clone"]]);
   });
 
   test("reject duplicate fixture Sheet ids and names", () => {
