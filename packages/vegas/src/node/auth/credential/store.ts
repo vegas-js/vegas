@@ -1,4 +1,4 @@
-import type { AppsScriptCredential } from "./credential";
+import type { AppsScriptCredential } from "./index";
 
 export interface AppsScriptCredentialStore {
   load(profile: string): Promise<AppsScriptCredential | undefined>;

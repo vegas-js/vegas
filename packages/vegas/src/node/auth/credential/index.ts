@@ -1,4 +1,4 @@
-import { requireAppsScriptAuthProfile } from "./auth-profile";
+import { requireAppsScriptAuthProfile } from "../auth-profile";
 
 export interface AppsScriptCredential {
   readonly clientId: string;

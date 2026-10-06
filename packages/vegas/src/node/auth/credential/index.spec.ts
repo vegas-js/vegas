@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import { createAppsScriptCredentialFile, parseAppsScriptCredentialFile } from "./credential";
+import { createAppsScriptCredentialFile, parseAppsScriptCredentialFile } from "./index";
 
 describe("Apps Script credential file", () => {
   test("create version 1 credential file", () => {

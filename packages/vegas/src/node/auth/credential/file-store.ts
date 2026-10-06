@@ -2,14 +2,14 @@ import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 
-import { requireAppsScriptAuthProfile } from "./auth-profile";
+import { requireAppsScriptAuthProfile } from "../auth-profile";
 import {
   createAppsScriptCredentialFile,
   parseAppsScriptCredentialFile,
   type AppsScriptCredential,
   type AppsScriptCredentialFile,
-} from "./credential";
-import type { AppsScriptCredentialStore } from "./credential-store";
+} from "./index";
+import type { AppsScriptCredentialStore } from "./store";
 
 function isMissingFile(error: unknown): boolean {
   return (error as NodeJS.ErrnoException).code === "ENOENT";

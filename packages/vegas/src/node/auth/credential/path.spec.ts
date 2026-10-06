@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import { resolveAppsScriptCredentialPath } from "./credential-path";
+import { resolveAppsScriptCredentialPath } from "./path";
 
 describe("resolveAppsScriptCredentialPath", () => {
   test("resolve Linux credential path from XDG_CONFIG_HOME", () => {

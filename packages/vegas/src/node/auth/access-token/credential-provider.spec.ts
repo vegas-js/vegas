@@ -1,7 +1,7 @@
 import { describe, expect, test, vi } from "vitest";
 
 import type { AppsScriptCredential } from "../credential";
-import type { AppsScriptCredentialStore } from "../credential-store";
+import type { AppsScriptCredentialStore } from "../credential/store";
 import { AppsScriptAuthPrerequisiteError } from "../error";
 import { createAppsScriptCredentialAccessTokenProvider } from "./credential-provider";
 import type { AppsScriptAccessTokenRefresher, AppsScriptRefreshedAccessToken } from "./index";

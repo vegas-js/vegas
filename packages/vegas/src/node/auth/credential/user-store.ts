@@ -1,8 +1,8 @@
 import os from "node:os";
 
-import { resolveAppsScriptCredentialPath } from "./credential-path";
-import type { AppsScriptCredentialStore } from "./credential-store";
-import { createAppsScriptFileCredentialStore } from "./file-credential-store";
+import { createAppsScriptFileCredentialStore } from "./file-store";
+import { resolveAppsScriptCredentialPath } from "./path";
+import type { AppsScriptCredentialStore } from "./store";
 
 interface CreateAppsScriptUserCredentialStoreOptions {
   readonly platform?: NodeJS.Platform;

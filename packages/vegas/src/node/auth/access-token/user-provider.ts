@@ -1,5 +1,5 @@
 import type { GoogleHttpRequestLifetimeOptions } from "../../google/http-request";
-import { createAppsScriptUserCredentialStore } from "../user-credential-store";
+import { createAppsScriptUserCredentialStore } from "../credential/user-store";
 import { createAppsScriptCredentialAccessTokenProvider } from "./credential-provider";
 import { createGoogleAppsScriptAccessTokenRefresher } from "./google-refresher";
 import type { AppsScriptAccessTokenProvider } from "./index";

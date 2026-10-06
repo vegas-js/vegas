@@ -4,7 +4,7 @@ import path from "node:path";
 
 import { afterEach, describe, expect, test, vi } from "vitest";
 
-import { createAppsScriptUserCredentialStore } from "./user-credential-store";
+import { createAppsScriptUserCredentialStore } from "./credential/user-store";
 import { loginGoogleAppsScriptUser } from "./user-login";
 
 const now = 1_000_000;

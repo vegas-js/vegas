@@ -1,10 +1,10 @@
 import type { GoogleHttpRequestLifetimeOptions } from "../google/http-request";
+import { createAppsScriptUserCredentialStore } from "./credential/user-store";
 import { createGoogleOAuthAuthorizationUrlOpener } from "./google-oauth/browser";
 import {
   loginGoogleAppsScript,
   type GoogleOAuthAuthorizationUrlOpener,
 } from "./google-oauth/login";
-import { createAppsScriptUserCredentialStore } from "./user-credential-store";
 
 interface LoginGoogleAppsScriptUserOptions extends GoogleHttpRequestLifetimeOptions {
   readonly clientFilePath: string;

@@ -3,7 +3,7 @@ import fs from "node:fs";
 
 import type { GoogleHttpRequestLifetimeOptions } from "../../google/http-request";
 import { DEFAULT_APPS_SCRIPT_AUTH_PROFILE, requireAppsScriptAuthProfile } from "../auth-profile";
-import type { AppsScriptCredentialStore } from "../credential-store";
+import type { AppsScriptCredentialStore } from "../credential/store";
 import { AppsScriptAuthPrerequisiteError } from "../error";
 import { createGoogleOAuthAuthorizationUrl, createGoogleOAuthCodeChallenge } from "./authorization";
 import { parseGoogleOAuthDesktopClient } from "./client";

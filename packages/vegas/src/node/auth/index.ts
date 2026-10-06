@@ -17,13 +17,13 @@ export type { AppsScriptCredential, AppsScriptCredentialFile } from "./credentia
 
 export { createAppsScriptCredentialAccessTokenProvider } from "./access-token/credential-provider";
 
-export { resolveAppsScriptCredentialPath } from "./credential-path";
+export { resolveAppsScriptCredentialPath } from "./credential/path";
 
-export type { AppsScriptCredentialStore } from "./credential-store";
+export type { AppsScriptCredentialStore } from "./credential/store";
 
 export { AppsScriptAuthPrerequisiteError } from "./error";
 
-export { createAppsScriptFileCredentialStore } from "./file-credential-store";
+export { createAppsScriptFileCredentialStore } from "./credential/file-store";
 
 export { createGoogleAppsScriptAccessTokenRefresher } from "./access-token/google-refresher";
 
@@ -55,6 +55,6 @@ export type { GoogleOAuthAuthorizationCodeTokens } from "./google-oauth/token-ex
 
 export { createAppsScriptUserAccessTokenProvider } from "./access-token/user-provider";
 
-export { createAppsScriptUserCredentialStore } from "./user-credential-store";
+export { createAppsScriptUserCredentialStore } from "./credential/user-store";
 
 export { loginGoogleAppsScriptUser } from "./user-login";

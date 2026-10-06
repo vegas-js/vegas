@@ -4,8 +4,8 @@ import path from "node:path";
 
 import { afterEach, describe, expect, test, vi } from "vitest";
 
+import { createAppsScriptFileCredentialStore } from "../credential/file-store";
 import { AppsScriptAuthPrerequisiteError } from "../error";
-import { createAppsScriptFileCredentialStore } from "../file-credential-store";
 import { createGoogleOAuthCodeChallenge } from "./authorization";
 import { loginGoogleAppsScript } from "./login";
 

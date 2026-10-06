@@ -4,7 +4,7 @@ import path from "node:path";
 
 import { afterEach, describe, expect, test } from "vitest";
 
-import { createAppsScriptFileCredentialStore } from "./file-credential-store";
+import { createAppsScriptFileCredentialStore } from "./file-store";
 
 const tempDirs: string[] = [];
 
