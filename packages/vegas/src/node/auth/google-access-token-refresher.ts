@@ -14,7 +14,7 @@ import {
   GOOGLE_OAUTH_TOKEN_URL,
   parseGoogleOAuthAccessToken,
   parseGoogleOAuthTokenResponse,
-} from "./google-oauth-token-response";
+} from "./google-oauth/token-response";
 
 interface CreateGoogleAppsScriptAccessTokenRefresherOptions extends GoogleHttpRequestLifetimeOptions {
   readonly fetch?: typeof globalThis.fetch;

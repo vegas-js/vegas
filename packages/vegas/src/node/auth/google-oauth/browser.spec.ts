@@ -3,7 +3,7 @@ import { describe, expect, test, vi } from "vitest";
 import {
   createGoogleOAuthAuthorizationUrlOpener,
   createGoogleOAuthBrowserCommand,
-} from "./google-oauth-browser";
+} from "./browser";
 
 const authorizationUrl =
   "https://accounts.google.com/o/oauth2/v2/auth?client_id=client&state=value";

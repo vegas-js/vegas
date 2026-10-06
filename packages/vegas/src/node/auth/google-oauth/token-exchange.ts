@@ -1,16 +1,16 @@
-import { AppsScriptRemoteServiceError } from "../google/apps-script-remote-service-error";
-import { formatGoogleHttpError } from "../google/error-response";
+import { AppsScriptRemoteServiceError } from "../../google/apps-script-remote-service-error";
+import { formatGoogleHttpError } from "../../google/error-response";
 import {
   createGoogleHttpRequestSignal,
   type GoogleHttpRequestLifetimeOptions,
-} from "../google/http-request";
-import { APPS_SCRIPT_PROJECTS_OAUTH_SCOPE } from "./google-oauth-authorization";
-import type { GoogleOAuthDesktopClient } from "./google-oauth-client";
+} from "../../google/http-request";
+import { APPS_SCRIPT_PROJECTS_OAUTH_SCOPE } from "./authorization";
+import type { GoogleOAuthDesktopClient } from "./client";
 import {
   GOOGLE_OAUTH_TOKEN_URL,
   parseGoogleOAuthAccessToken,
   parseGoogleOAuthTokenResponse,
-} from "./google-oauth-token-response";
+} from "./token-response";
 
 export interface GoogleOAuthAuthorizationCodeTokens {
   readonly accessToken: string;

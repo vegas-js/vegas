@@ -4,7 +4,7 @@ import {
   APPS_SCRIPT_PROJECTS_OAUTH_SCOPE,
   createGoogleOAuthAuthorizationUrl,
   createGoogleOAuthCodeChallenge,
-} from "./google-oauth-authorization";
+} from "./authorization";
 
 describe("createGoogleOAuthCodeChallenge", () => {
   test("create S256 code challenge", () => {

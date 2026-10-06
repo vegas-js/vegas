@@ -1,4 +1,4 @@
-import type { AppsScriptRefreshedAccessToken } from "./access-token";
+import type { AppsScriptRefreshedAccessToken } from "../access-token";
 
 export const GOOGLE_OAUTH_TOKEN_URL = "https://oauth2.googleapis.com/token";
 

@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, test, vi } from "vitest";
 
-import { AppsScriptRemoteServiceError } from "../google/apps-script-remote-service-error";
-import { startGoogleOAuthLoopbackListener } from "./google-oauth-loopback";
+import { AppsScriptRemoteServiceError } from "../../google/apps-script-remote-service-error";
+import { startGoogleOAuthLoopbackListener } from "./loopback";
 
 afterEach(() => {
   vi.useRealTimers();

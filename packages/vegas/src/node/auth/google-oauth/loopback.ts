@@ -1,7 +1,7 @@
 import http from "node:http";
 import type { AddressInfo } from "node:net";
 
-import { AppsScriptRemoteServiceError } from "../google/apps-script-remote-service-error";
+import { AppsScriptRemoteServiceError } from "../../google/apps-script-remote-service-error";
 
 export interface GoogleOAuthLoopbackCallback {
   readonly code: string;

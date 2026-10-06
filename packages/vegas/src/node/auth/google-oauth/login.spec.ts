@@ -4,10 +4,10 @@ import path from "node:path";
 
 import { afterEach, describe, expect, test, vi } from "vitest";
 
-import { AppsScriptAuthPrerequisiteError } from "./error";
-import { createAppsScriptFileCredentialStore } from "./file-credential-store";
-import { createGoogleOAuthCodeChallenge } from "./google-oauth-authorization";
-import { loginGoogleAppsScript } from "./google-oauth-login";
+import { AppsScriptAuthPrerequisiteError } from "../error";
+import { createAppsScriptFileCredentialStore } from "../file-credential-store";
+import { createGoogleOAuthCodeChallenge } from "./authorization";
+import { loginGoogleAppsScript } from "./login";
 
 const now = 1_000_000;
 

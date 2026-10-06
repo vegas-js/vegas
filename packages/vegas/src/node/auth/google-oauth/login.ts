@@ -1,17 +1,14 @@
 import crypto from "node:crypto";
 import fs from "node:fs";
 
-import type { GoogleHttpRequestLifetimeOptions } from "../google/http-request";
-import { DEFAULT_APPS_SCRIPT_AUTH_PROFILE, requireAppsScriptAuthProfile } from "./auth-profile";
-import type { AppsScriptCredentialStore } from "./credential-store";
-import { AppsScriptAuthPrerequisiteError } from "./error";
-import {
-  createGoogleOAuthAuthorizationUrl,
-  createGoogleOAuthCodeChallenge,
-} from "./google-oauth-authorization";
-import { parseGoogleOAuthDesktopClient } from "./google-oauth-client";
-import { startGoogleOAuthLoopbackListener } from "./google-oauth-loopback";
-import { exchangeGoogleOAuthAuthorizationCode } from "./google-oauth-token-exchange";
+import type { GoogleHttpRequestLifetimeOptions } from "../../google/http-request";
+import { DEFAULT_APPS_SCRIPT_AUTH_PROFILE, requireAppsScriptAuthProfile } from "../auth-profile";
+import type { AppsScriptCredentialStore } from "../credential-store";
+import { AppsScriptAuthPrerequisiteError } from "../error";
+import { createGoogleOAuthAuthorizationUrl, createGoogleOAuthCodeChallenge } from "./authorization";
+import { parseGoogleOAuthDesktopClient } from "./client";
+import { startGoogleOAuthLoopbackListener } from "./loopback";
+import { exchangeGoogleOAuthAuthorizationCode } from "./token-exchange";
 
 export type GoogleOAuthAuthorizationUrlOpener = (url: string) => Promise<void>;
 

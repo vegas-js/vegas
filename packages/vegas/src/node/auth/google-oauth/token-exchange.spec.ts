@@ -1,8 +1,8 @@
 import { describe, expect, test, vi } from "vitest";
 
-import { AppsScriptRemoteServiceError } from "../google/apps-script-remote-service-error";
-import { APPS_SCRIPT_PROJECTS_OAUTH_SCOPE } from "./google-oauth-authorization";
-import { exchangeGoogleOAuthAuthorizationCode } from "./google-oauth-token-exchange";
+import { AppsScriptRemoteServiceError } from "../../google/apps-script-remote-service-error";
+import { APPS_SCRIPT_PROJECTS_OAUTH_SCOPE } from "./authorization";
+import { exchangeGoogleOAuthAuthorizationCode } from "./token-exchange";
 
 const now = 1_000_000;
 

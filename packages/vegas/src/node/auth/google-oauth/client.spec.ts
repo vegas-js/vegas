@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 
-import { AppsScriptAuthPrerequisiteError } from "../auth/error";
-import { parseGoogleOAuthDesktopClient } from "./google-oauth-client";
+import { AppsScriptAuthPrerequisiteError } from "../error";
+import { parseGoogleOAuthDesktopClient } from "./client";
 
 describe("parseGoogleOAuthDesktopClient", () => {
   test("parse installed OAuth client", () => {

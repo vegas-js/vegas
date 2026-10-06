@@ -31,27 +31,27 @@ export {
   APPS_SCRIPT_PROJECTS_OAUTH_SCOPE,
   createGoogleOAuthAuthorizationUrl,
   createGoogleOAuthCodeChallenge,
-} from "./google-oauth-authorization";
+} from "./google-oauth/authorization";
 
 export {
   createGoogleOAuthAuthorizationUrlOpener,
   createGoogleOAuthBrowserCommand,
-} from "./google-oauth-browser";
+} from "./google-oauth/browser";
 
-export { parseGoogleOAuthDesktopClient } from "./google-oauth-client";
-export type { GoogleOAuthDesktopClient } from "./google-oauth-client";
+export { parseGoogleOAuthDesktopClient } from "./google-oauth/client";
+export type { GoogleOAuthDesktopClient } from "./google-oauth/client";
 
-export { loginGoogleAppsScript } from "./google-oauth-login";
-export type { GoogleOAuthAuthorizationUrlOpener } from "./google-oauth-login";
+export { loginGoogleAppsScript } from "./google-oauth/login";
+export type { GoogleOAuthAuthorizationUrlOpener } from "./google-oauth/login";
 
-export { startGoogleOAuthLoopbackListener } from "./google-oauth-loopback";
+export { startGoogleOAuthLoopbackListener } from "./google-oauth/loopback";
 export type {
   GoogleOAuthLoopbackCallback,
   GoogleOAuthLoopbackListener,
-} from "./google-oauth-loopback";
+} from "./google-oauth/loopback";
 
-export { exchangeGoogleOAuthAuthorizationCode } from "./google-oauth-token-exchange";
-export type { GoogleOAuthAuthorizationCodeTokens } from "./google-oauth-token-exchange";
+export { exchangeGoogleOAuthAuthorizationCode } from "./google-oauth/token-exchange";
+export type { GoogleOAuthAuthorizationCodeTokens } from "./google-oauth/token-exchange";
 
 export { createAppsScriptUserAccessTokenProvider } from "./user-access-token-provider";
 

@@ -1,9 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import {
-  parseGoogleOAuthAccessToken,
-  parseGoogleOAuthTokenResponse,
-} from "./google-oauth-token-response";
+import { parseGoogleOAuthAccessToken, parseGoogleOAuthTokenResponse } from "./token-response";
 
 describe("Google OAuth token response", () => {
   test("parse common access token fields", () => {

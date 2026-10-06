@@ -1,6 +1,6 @@
 import childProcess from "node:child_process";
 
-import type { GoogleOAuthAuthorizationUrlOpener } from "./google-oauth-login";
+import type { GoogleOAuthAuthorizationUrlOpener } from "./login";
 
 interface GoogleOAuthBrowserCommand {
   readonly command: string;
