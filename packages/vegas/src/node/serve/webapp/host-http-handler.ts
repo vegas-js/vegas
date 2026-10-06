@@ -6,7 +6,7 @@ import {
   type InvocationContext,
   type RuntimeBackend,
   type TextOutputSnapshot,
-} from "../runtime";
+} from "../../runtime";
 import type { WebAppBuildBarrier } from "./build-barrier";
 import { createContentResponsePath } from "./content-response-http-handler";
 import type { ContentResponseRegistry } from "./content-response-registry";

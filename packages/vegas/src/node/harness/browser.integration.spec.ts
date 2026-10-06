@@ -7,7 +7,7 @@ import { describe, expect, test, vi } from "vitest";
 import { LocalRuntimeSession, type LocalRuntime } from "../local-runtime";
 import type { ResolvedProject } from "../project";
 import { InMemoryPropertiesStore, InMemorySpreadsheetStore, type Program } from "../runtime";
-import { startEphemeralWebAppApplication } from "../webapp/server-application";
+import { startEphemeralWebAppApplication } from "../serve/webapp/server-application";
 import { createBrowserHarnessWithDependencies, type BrowserHarnessOptions } from "./browser";
 import type { LocalRuntimeHarness, LocalRuntimeHarnessOptions } from "./local-runtime";
 

@@ -1,6 +1,6 @@
 import { describe, expect, test, vi } from "vitest";
 
-import type { ContentMimeType, TextOutputSnapshot } from "../runtime";
+import type { ContentMimeType, TextOutputSnapshot } from "../../runtime";
 import {
   createContentResponseHttpHandler,
   createContentResponsePath,

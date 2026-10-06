@@ -1,6 +1,6 @@
 import crypto from "node:crypto";
 
-import type { TextOutputSnapshot } from "../runtime";
+import type { TextOutputSnapshot } from "../../runtime";
 
 interface ContentResponse {
   readonly expiresAt: number;

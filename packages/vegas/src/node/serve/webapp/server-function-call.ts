@@ -1,5 +1,8 @@
-import type { ServerFunctionCallRequest, ServerFunctionCallResponse } from "../../webapp/protocol";
-import type { RuntimeBackend } from "../runtime";
+import type {
+  ServerFunctionCallRequest,
+  ServerFunctionCallResponse,
+} from "../../../webapp/protocol";
+import type { RuntimeBackend } from "../../runtime";
 
 export async function executeServerFunctionCall(
   runtime: RuntimeBackend,

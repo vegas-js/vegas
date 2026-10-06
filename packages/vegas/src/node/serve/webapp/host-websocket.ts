@@ -1,7 +1,7 @@
 import type { ViteDevServer } from "vite";
 
-import type { ServerFunctionCallRequest } from "../../webapp/protocol";
-import type { RuntimeBackend } from "../runtime";
+import type { ServerFunctionCallRequest } from "../../../webapp/protocol";
+import type { RuntimeBackend } from "../../runtime";
 import type { WebAppBuildBarrier } from "./build-barrier";
 import { executeServerFunctionCall } from "./server-function-call";
 import type { WebAppSessionRegistry } from "./session-registry";

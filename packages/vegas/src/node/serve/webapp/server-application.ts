@@ -1,4 +1,4 @@
-import type { RuntimeBackend, SpreadsheetStore } from "../runtime";
+import type { RuntimeBackend, SpreadsheetStore } from "../../runtime";
 import { createIdleWebAppBuildBarrier } from "./build-barrier";
 import { createContentResponseHttpHandler } from "./content-response-http-handler";
 import { ContentResponseRegistry } from "./content-response-registry";
