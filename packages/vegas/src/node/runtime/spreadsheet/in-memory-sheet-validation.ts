@@ -1,7 +1,6 @@
-// Apps Script documents integer counts and zero-to-unfreeze semantics, but not invalid-count
-
 import { assertInteger, assertPositiveInteger } from "./validation";
 
+// Apps Script documents integer counts and zero-to-unfreeze semantics, but not invalid-count
 // behavior. Vegas constrains local frozen counts to the current Sheet grid bounds.
 export function assertFrozenCount(value: number, maximum: number, label: string): void {
   assertInteger(value, label);
