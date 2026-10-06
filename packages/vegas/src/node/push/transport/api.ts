@@ -1,10 +1,10 @@
 import type { AppsScriptAccessTokenProvider } from "../../auth";
-import { AppsScriptRemoteServiceError } from "../../google/apps-script-remote-service-error";
-import { formatGoogleHttpError } from "../../google/error-response";
+import { AppsScriptRemoteServiceError } from "../../infrastructure/google/apps-script-remote-service-error";
+import { formatGoogleHttpError } from "../../infrastructure/google/error-response";
 import {
   createGoogleHttpRequestSignal,
   type GoogleHttpRequestLifetimeOptions,
-} from "../../google/http-request";
+} from "../../infrastructure/google/http-request";
 import type { AppsScriptPushRequest } from "../request";
 import type { AppsScriptPushTransport } from "./index";
 import { createAppsScriptUpdateContentHttpRequest } from "./update-content";

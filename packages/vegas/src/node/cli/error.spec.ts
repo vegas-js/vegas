@@ -2,7 +2,7 @@ import { cac } from "cac";
 import { describe, expect, test } from "vitest";
 
 import { AppsScriptAuthPrerequisiteError } from "../auth";
-import { AppsScriptRemoteServiceError } from "../google/apps-script-remote-service-error";
+import { AppsScriptRemoteServiceError } from "../infrastructure/google/apps-script-remote-service-error";
 import { ConfigValidationError } from "../project/validate-config";
 import { AppsScriptPushPrerequisiteError } from "../push/error";
 import { CliUsageError, formatCliError } from "./error";

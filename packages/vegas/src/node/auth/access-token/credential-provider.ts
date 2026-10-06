@@ -1,4 +1,4 @@
-import { AppsScriptRemoteServiceError } from "../../google/apps-script-remote-service-error";
+import { AppsScriptRemoteServiceError } from "../../infrastructure/google/apps-script-remote-service-error";
 import { DEFAULT_APPS_SCRIPT_AUTH_PROFILE, requireAppsScriptAuthProfile } from "../auth-profile";
 import type { AppsScriptCredential } from "../credential";
 import type { AppsScriptCredentialStore } from "../credential/store";
