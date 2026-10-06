@@ -2,9 +2,9 @@ import { stripVTControlCharacters } from "node:util";
 
 import type { ViteDevServer } from "vite";
 
-import type { ResolvedProject } from "../project";
-import type { BuildCoordinator } from "./build-coordinator";
-import type { DevBuildManager } from "./build-manager";
+import type { ResolvedProject } from "../../project";
+import type { BuildCoordinator } from "./coordinator";
+import type { DevBuildManager } from "./manager";
 import { classifyProjectFile } from "./project-file";
 
 interface BuildWatcherOptions {

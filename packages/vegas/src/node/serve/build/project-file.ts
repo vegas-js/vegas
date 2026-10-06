@@ -1,6 +1,6 @@
 import path from "node:path";
 
-import type { ResolvedProject } from "../project";
+import type { ResolvedProject } from "../../project";
 
 export type ProjectBuildScope = "client" | "server";
 export type ProjectFileScope = ProjectBuildScope | "runtime-data";

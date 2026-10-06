@@ -6,7 +6,7 @@ import { describe, expect, test, vi } from "vitest";
 import { ArtifactStore } from "../build";
 import type { ResolvedProject } from "../project";
 import { InMemorySpreadsheetStore } from "../runtime";
-import { startDevApplication } from "./application";
+import { startDevApplication } from "./server";
 
 const project = {
   root: path.resolve("project"),

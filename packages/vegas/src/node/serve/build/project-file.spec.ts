@@ -2,7 +2,7 @@ import path from "node:path";
 
 import { describe, expect, test } from "vitest";
 
-import type { ResolvedProject } from "../project";
+import type { ResolvedProject } from "../../project";
 import { classifyProjectFile } from "./project-file";
 
 function createProject(

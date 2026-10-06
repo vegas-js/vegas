@@ -7,8 +7,8 @@ import {
   buildDevArtifacts,
   buildDevTopology,
   replaceDevBuildArtifacts,
-} from "../build";
-import type { ResolvedProject } from "../project";
+} from "../../build";
+import type { ResolvedProject } from "../../project";
 import type { ProjectBuildScope } from "./project-file";
 
 interface DevBuildManagerOptions {

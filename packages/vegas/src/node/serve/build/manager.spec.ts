@@ -3,9 +3,9 @@ import path from "node:path";
 import type { ViteBuilder } from "vite";
 import { describe, expect, test, vi } from "vitest";
 
-import { ArtifactStore, type BuildArtifact } from "../build";
-import type { ResolvedProject } from "../project";
-import { DevBuildManager } from "./build-manager";
+import { ArtifactStore, type BuildArtifact } from "../../build";
+import type { ResolvedProject } from "../../project";
+import { DevBuildManager } from "./manager";
 
 const fsRoot = path.parse(process.cwd()).root;
 const root = path.join(fsRoot, "home", "user", "project");

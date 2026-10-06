@@ -4,7 +4,6 @@ import type { ViteBuilder } from "vite";
 import { describe, expect, test, vi } from "vitest";
 
 import { buildDevTopology } from "../build";
-import { startDevApplication } from "../dev/application";
 import { createGoogleAppsScriptUserRuntime } from "../google-apps-script-runtime";
 import {
   createLocalRuntime,
@@ -17,8 +16,9 @@ import { InMemoryPropertiesStore, InMemorySpreadsheetStore, type Program } from 
 import { createRuntimeProgram } from "../runtime-program";
 import { runDevApplication } from "./application";
 import { loadRuntimeDataSnapshot } from "./runtime-data";
+import { startDevApplication } from "./server";
 
-vi.mock("../dev/application", () => ({
+vi.mock("./server", () => ({
   startDevApplication: vi.fn(),
 }));
 

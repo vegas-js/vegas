@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import { BuildCoordinator } from "./build-coordinator";
+import { BuildCoordinator } from "./coordinator";
 
 describe("BuildCoordinator", () => {
   test("resolve immediately when idle", async () => {

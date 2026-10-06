@@ -17,9 +17,9 @@ import { getListeningPort } from "../webapp/server-port";
 import { WebAppSessionRegistry } from "../webapp/session-registry";
 import { createUserContentHttpHandler } from "../webapp/user-content-http-handler";
 import { createUserContentServerConfig } from "../webapp/user-content-server";
-import { BuildCoordinator } from "./build-coordinator";
-import { DevBuildManager } from "./build-manager";
-import { registerBuildWatchers } from "./build-watcher";
+import { BuildCoordinator } from "./build/coordinator";
+import { DevBuildManager } from "./build/manager";
+import { registerBuildWatchers } from "./build/watcher";
 
 interface DevApplicationOptions {
   readonly project: ResolvedProject;

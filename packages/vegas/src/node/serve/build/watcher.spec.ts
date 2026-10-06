@@ -3,9 +3,9 @@ import path from "node:path";
 import type { ViteDevServer } from "vite";
 import { describe, expect, test, vi } from "vitest";
 
-import type { ResolvedProject } from "../project";
-import { BuildCoordinator } from "./build-coordinator";
-import { registerBuildWatchers } from "./build-watcher";
+import type { ResolvedProject } from "../../project";
+import { BuildCoordinator } from "./coordinator";
+import { registerBuildWatchers } from "./watcher";
 
 type WatchEvent = "change" | "add" | "unlink";
 type WatchHandler = (filePath: string) => Promise<void> | void;
