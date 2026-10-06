@@ -1,4 +1,4 @@
-import type { AppsScriptCredential } from "./credential";
+import type { AppsScriptCredential } from "../credential";
 
 export const APPS_SCRIPT_ACCESS_TOKEN_EXPIRY_SKEW_MS = 60_000;
 

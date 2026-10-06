@@ -1,13 +1,10 @@
 import { describe, expect, test, vi } from "vitest";
 
-import type {
-  AppsScriptAccessTokenRefresher,
-  AppsScriptRefreshedAccessToken,
-} from "./access-token";
-import type { AppsScriptCredential } from "./credential";
-import { createAppsScriptCredentialAccessTokenProvider } from "./credential-access-token-provider";
-import type { AppsScriptCredentialStore } from "./credential-store";
-import { AppsScriptAuthPrerequisiteError } from "./error";
+import type { AppsScriptCredential } from "../credential";
+import type { AppsScriptCredentialStore } from "../credential-store";
+import { AppsScriptAuthPrerequisiteError } from "../error";
+import { createAppsScriptCredentialAccessTokenProvider } from "./credential-provider";
+import type { AppsScriptAccessTokenRefresher, AppsScriptRefreshedAccessToken } from "./index";
 
 const now = 1_000_000;
 

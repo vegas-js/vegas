@@ -1,16 +1,16 @@
 import { describe, expect, test, vi } from "vitest";
 
-import { AppsScriptRemoteServiceError } from "../google/apps-script-remote-service-error";
+import { AppsScriptRemoteServiceError } from "../../google/apps-script-remote-service-error";
+import type { AppsScriptCredential } from "../credential";
+import type { AppsScriptCredentialStore } from "../credential-store";
+import { createAppsScriptCredentialAccessTokenProvider } from "./credential-provider";
+import { createGoogleAppsScriptAccessTokenRefresher } from "./google-refresher";
 import {
   APPS_SCRIPT_ACCESS_TOKEN_EXPIRY_SKEW_MS,
   getUsableAppsScriptAccessToken,
   type AppsScriptAccessTokenRefresher,
   type AppsScriptRefreshedAccessToken,
-} from "./access-token";
-import type { AppsScriptCredential } from "./credential";
-import { createAppsScriptCredentialAccessTokenProvider } from "./credential-access-token-provider";
-import type { AppsScriptCredentialStore } from "./credential-store";
-import { createGoogleAppsScriptAccessTokenRefresher } from "./google-access-token-refresher";
+} from "./index";
 
 const now = 1_000_000;
 

@@ -1,20 +1,20 @@
-import { AppsScriptRemoteServiceError } from "../google/apps-script-remote-service-error";
-import { formatGoogleHttpError } from "../google/error-response";
+import { AppsScriptRemoteServiceError } from "../../google/apps-script-remote-service-error";
+import { formatGoogleHttpError } from "../../google/error-response";
 import {
   createGoogleHttpRequestSignal,
   type GoogleHttpRequestLifetimeOptions,
-} from "../google/http-request";
-import type {
-  AppsScriptAccessTokenRefresher,
-  AppsScriptAccessTokenRefreshRequest,
-  AppsScriptRefreshedAccessToken,
-} from "./access-token";
-import type { AppsScriptCredential } from "./credential";
+} from "../../google/http-request";
+import type { AppsScriptCredential } from "../credential";
 import {
   GOOGLE_OAUTH_TOKEN_URL,
   parseGoogleOAuthAccessToken,
   parseGoogleOAuthTokenResponse,
-} from "./google-oauth/token-response";
+} from "../google-oauth/token-response";
+import type {
+  AppsScriptAccessTokenRefresher,
+  AppsScriptAccessTokenRefreshRequest,
+  AppsScriptRefreshedAccessToken,
+} from "./index";
 
 interface CreateGoogleAppsScriptAccessTokenRefresherOptions extends GoogleHttpRequestLifetimeOptions {
   readonly fetch?: typeof globalThis.fetch;

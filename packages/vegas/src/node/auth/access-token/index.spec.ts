@@ -1,10 +1,7 @@
 import { describe, expect, test } from "vitest";
 
-import {
-  APPS_SCRIPT_ACCESS_TOKEN_EXPIRY_SKEW_MS,
-  getUsableAppsScriptAccessToken,
-} from "./access-token";
-import type { AppsScriptCredential } from "./credential";
+import type { AppsScriptCredential } from "../credential";
+import { APPS_SCRIPT_ACCESS_TOKEN_EXPIRY_SKEW_MS, getUsableAppsScriptAccessToken } from "./index";
 
 const now = 1_000_000;
 

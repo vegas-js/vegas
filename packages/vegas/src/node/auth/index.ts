@@ -15,7 +15,7 @@ export { DEFAULT_APPS_SCRIPT_AUTH_PROFILE, requireAppsScriptAuthProfile } from "
 export { createAppsScriptCredentialFile, parseAppsScriptCredentialFile } from "./credential";
 export type { AppsScriptCredential, AppsScriptCredentialFile } from "./credential";
 
-export { createAppsScriptCredentialAccessTokenProvider } from "./credential-access-token-provider";
+export { createAppsScriptCredentialAccessTokenProvider } from "./access-token/credential-provider";
 
 export { resolveAppsScriptCredentialPath } from "./credential-path";
 
@@ -25,7 +25,7 @@ export { AppsScriptAuthPrerequisiteError } from "./error";
 
 export { createAppsScriptFileCredentialStore } from "./file-credential-store";
 
-export { createGoogleAppsScriptAccessTokenRefresher } from "./google-access-token-refresher";
+export { createGoogleAppsScriptAccessTokenRefresher } from "./access-token/google-refresher";
 
 export {
   APPS_SCRIPT_PROJECTS_OAUTH_SCOPE,
@@ -53,7 +53,7 @@ export type {
 export { exchangeGoogleOAuthAuthorizationCode } from "./google-oauth/token-exchange";
 export type { GoogleOAuthAuthorizationCodeTokens } from "./google-oauth/token-exchange";
 
-export { createAppsScriptUserAccessTokenProvider } from "./user-access-token-provider";
+export { createAppsScriptUserAccessTokenProvider } from "./access-token/user-provider";
 
 export { createAppsScriptUserCredentialStore } from "./user-credential-store";
 
