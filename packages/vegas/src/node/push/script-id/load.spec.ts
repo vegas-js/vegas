@@ -4,7 +4,7 @@ import path from "node:path";
 
 import { afterEach, describe, expect, test, vi } from "vitest";
 
-import { loadAppsScriptScriptId } from "./load-script-id";
+import { loadAppsScriptScriptId } from "./load";
 
 const originalScriptId = process.env.VEGAS_SCRIPT_ID;
 

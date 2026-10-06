@@ -3,13 +3,13 @@ export { createAppsScriptApiPushTransport } from "./api-transport";
 export { createAppsScriptProjectContent } from "./content";
 export type { AppsScriptProjectContent, AppsScriptProjectFile } from "./content";
 
-export { readClaspScriptId } from "./clasp-compatibility";
+export { readClaspScriptId } from "./script-id/clasp";
 
 export { pushAppsScriptProject } from "./direct-push";
 
 export { loadAppsScriptPushRequest } from "./load-request";
 
-export { loadAppsScriptScriptId } from "./load-script-id";
+export { loadAppsScriptScriptId } from "./script-id/load";
 
 export { readBuildArtifacts } from "./read-output";
 

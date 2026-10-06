@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 
-import { AppsScriptPushPrerequisiteError } from "./error";
-import { resolveAppsScriptScriptId } from "./script-id";
+import { AppsScriptPushPrerequisiteError } from "../error";
+import { resolveAppsScriptScriptId } from "./index";
 
 describe("resolveAppsScriptScriptId", () => {
   test("prefer environment script id", () => {

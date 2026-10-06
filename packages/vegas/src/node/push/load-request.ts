@@ -1,7 +1,7 @@
 import { createAppsScriptProjectContent } from "./content";
-import { loadAppsScriptScriptId } from "./load-script-id";
 import { readBuildArtifacts } from "./read-output";
 import { createAppsScriptPushRequest, type AppsScriptPushRequest } from "./request";
+import { loadAppsScriptScriptId } from "./script-id/load";
 
 interface LoadAppsScriptPushRequestOptions {
   readonly projectRoot: string;

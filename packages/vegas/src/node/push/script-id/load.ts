@@ -1,5 +1,5 @@
-import { readClaspScriptId } from "./clasp-compatibility";
-import { resolveAppsScriptScriptId } from "./script-id";
+import { readClaspScriptId } from "./clasp";
+import { resolveAppsScriptScriptId } from "./index";
 
 interface LoadAppsScriptScriptIdOptions {
   readonly projectRoot: string;

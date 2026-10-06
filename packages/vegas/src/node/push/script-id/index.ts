@@ -1,4 +1,4 @@
-import { AppsScriptPushPrerequisiteError } from "./error";
+import { AppsScriptPushPrerequisiteError } from "../error";
 
 interface AppsScriptScriptIdSources {
   readonly environmentScriptId?: string;

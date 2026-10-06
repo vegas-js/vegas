@@ -4,7 +4,7 @@ import path from "node:path";
 
 import { describe, expect, test } from "vitest";
 
-import { parseClaspProjectConfig, readClaspScriptId } from "./clasp-compatibility";
+import { parseClaspProjectConfig, readClaspScriptId } from "./clasp";
 
 describe("parseClaspProjectConfig", () => {
   test("parse JSON5 project config", () => {
