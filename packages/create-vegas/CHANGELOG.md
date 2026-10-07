@@ -14,6 +14,7 @@
 - Extracted project scaffolding into an explicit execution flow with safer special-file finalization.
 - Improved top-level CLI failure handling and diagnostics.
 - Updated generated project layouts to match the current Vegas SPA conventions.
+- Updated generated projects to depend on `@vegasjs/vegas` ^0.2.0.
 
 ## 0.1.8 - 2026-06-30
 

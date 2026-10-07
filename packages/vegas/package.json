@@ -1,6 +1,6 @@
 {
   "name": "@vegasjs/vegas",
-  "version": "0.1.9",
+  "version": "0.2.0",
   "description": "Vite-powered development and build tool for Google Apps Script projects",
   "keywords": [
     "build-tool",
