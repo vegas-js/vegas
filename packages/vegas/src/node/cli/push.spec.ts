@@ -1,45 +1,16 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
-import { loadProject, type ResolvedProject } from "../project";
-import { pushAppsScriptProject } from "../push";
+import { runPushApplication } from "../push";
 import { runPush } from "./push";
 
-vi.mock("../project", () => ({
-  loadProject: vi.fn(),
-}));
-
 vi.mock("../push", () => ({
-  pushAppsScriptProject: vi.fn(),
+  runPushApplication: vi.fn(),
 }));
 
-const loadProjectMock = vi.mocked(loadProject);
-
-const pushAppsScriptProjectMock = vi.mocked(pushAppsScriptProject);
-
-const project: ResolvedProject = {
-  root: "/project",
-  configFile: null,
-  clientDir: "/project/src/client",
-  serverDir: "/project/src/server",
-  runtimeDataDir: "/project/runtime",
-  outputDir: "/project/dist",
-  appType: "spa",
-  plugins: [],
-  devServer: { open: false },
-  appsScript: {
-    scriptId: "script-id",
-    serverFunctions: {
-      backend: "local",
-    },
-    manifest: {},
-  },
-};
+const runPushApplicationMock = vi.mocked(runPushApplication);
 
 beforeEach(() => {
-  loadProjectMock.mockReset();
-  pushAppsScriptProjectMock.mockReset();
-
-  loadProjectMock.mockResolvedValue(project);
+  runPushApplicationMock.mockReset();
 });
 
 describe("runPush", () => {
@@ -50,13 +21,19 @@ describe("runPush", () => {
       profile: "work",
     });
 
-    expect(pushAppsScriptProjectMock).toHaveBeenCalledWith({
-      projectRoot: "/project",
-      outputDir: "/project/dist",
-      projectScriptId: "script-id",
+    expect(runPushApplicationMock).toHaveBeenCalledWith("/project", {
       profile: "work",
     });
-
     expect(consoleMock).toHaveBeenCalledWith("✓ Pushed project to Apps Script.");
+  });
+
+  test("reject empty auth profile before starting the push application", async () => {
+    await expect(
+      runPush("/project", {
+        profile: "   ",
+      }),
+    ).rejects.toThrow("Apps Script auth profile must not be empty.");
+
+    expect(runPushApplicationMock).not.toHaveBeenCalled();
   });
 });

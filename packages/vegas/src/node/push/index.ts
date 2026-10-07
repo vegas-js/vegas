@@ -1,3 +1,5 @@
+export { runPushApplication } from "./application";
+
 export { createAppsScriptApiPushTransport } from "./transport/api";
 
 export { createAppsScriptProjectContent } from "./content";
