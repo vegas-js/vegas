@@ -3,8 +3,8 @@ import { describe, expect, test } from "vitest";
 
 import { AppsScriptAuthPrerequisiteError } from "../auth";
 import { AppsScriptRemoteServiceError } from "../infrastructure/google/apps-script-remote-service-error";
-import { ConfigValidationError } from "../project/validate-config";
-import { AppsScriptPushPrerequisiteError } from "../push/error";
+import { ConfigValidationError } from "../project";
+import { AppsScriptPushPrerequisiteError } from "../push";
 import { CliUsageError, formatCliError } from "./error";
 
 describe("formatCliError", () => {

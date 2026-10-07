@@ -9,6 +9,8 @@ export { readClaspScriptId } from "./script-id/clasp";
 
 export { pushAppsScriptProject } from "./direct-push";
 
+export { AppsScriptPushPrerequisiteError } from "./error";
+
 export { loadAppsScriptPushRequest } from "./load-request";
 
 export { loadAppsScriptScriptId } from "./script-id/load";
