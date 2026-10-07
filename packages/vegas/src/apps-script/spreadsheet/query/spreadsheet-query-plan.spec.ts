@@ -1,5 +1,6 @@
 import { describe, expect, expectTypeOf, test } from "vitest";
 
+import { createSpreadsheetColumn } from "../spreadsheet-schema";
 import {
   spreadsheetAnd,
   spreadsheetEq,
@@ -11,7 +12,6 @@ import {
   type SpreadsheetOrderBy,
   type SpreadsheetQueryPlan,
 } from "./spreadsheet-query-plan";
-import { createSpreadsheetColumn } from "./spreadsheet-schema";
 
 interface UserRow {
   readonly id: number;

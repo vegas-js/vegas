@@ -1,5 +1,6 @@
 import { describe, expect, expectTypeOf, test } from "vitest";
 
+import { createSpreadsheetColumn } from "../spreadsheet-schema";
 import {
   spreadsheetAnd,
   spreadsheetEq,
@@ -19,7 +20,6 @@ import {
   type SpreadsheetOrExpression,
   type SpreadsheetQueryExpression,
 } from "./spreadsheet-query-ir";
-import { createSpreadsheetColumn } from "./spreadsheet-schema";
 
 interface UserRow {
   readonly id: number;

@@ -1,4 +1,4 @@
-import type { SpreadsheetColumn } from "./spreadsheet-schema";
+import type { SpreadsheetColumn } from "../spreadsheet-schema";
 
 export type SpreadsheetComparableValue = number | string | boolean | Date;
 

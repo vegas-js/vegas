@@ -1,15 +1,18 @@
 import { describe, expect, expectTypeOf, test, vi } from "vitest";
 
-import { createSpreadsheetQuery } from "./spreadsheet-query";
+import { createSpreadsheetQuery } from "./query/spreadsheet-query";
 import {
   createSpreadsheetQueryFields,
   type SpreadsheetComparableQueryField,
-} from "./spreadsheet-query-fields";
-import { createSpreadsheetRepository, type SpreadsheetRepository } from "./spreadsheet-repository";
+} from "./query/spreadsheet-query-fields";
+import {
+  createSpreadsheetRepository,
+  type SpreadsheetRepository,
+} from "./repository/spreadsheet-repository";
 import { createSpreadsheetRowCodec } from "./spreadsheet-row-codec";
 import { createSpreadsheetColumn, createSpreadsheetSchema } from "./spreadsheet-schema";
-import { createSpreadsheetStorageCodec } from "./spreadsheet-storage-codec";
 import { createSpreadsheetTable, type SpreadsheetTable } from "./spreadsheet-table";
+import { createSpreadsheetStorageCodec } from "./storage/spreadsheet-storage-codec";
 
 interface UserRow {
   readonly id: number;

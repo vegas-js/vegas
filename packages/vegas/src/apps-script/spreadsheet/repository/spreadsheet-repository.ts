@@ -1,5 +1,5 @@
-import { spreadsheetEq } from "./spreadsheet-query-ir";
-import type { SpreadsheetColumn } from "./spreadsheet-schema";
+import { spreadsheetEq } from "../query/spreadsheet-query-ir";
+import type { SpreadsheetColumn } from "../spreadsheet-schema";
 import {
   tryFindSpreadsheetTableIndicesByMaterializedColumn,
   tryHasSpreadsheetTableSchemaColumn,
@@ -7,7 +7,7 @@ import {
   tryUpdateSpreadsheetTableAtKnownIndex,
   type SpreadsheetTable,
   type SpreadsheetTableEntry,
-} from "./spreadsheet-table";
+} from "../spreadsheet-table";
 
 export class SpreadsheetRepositoryKeyConflictError extends Error {
   constructor() {

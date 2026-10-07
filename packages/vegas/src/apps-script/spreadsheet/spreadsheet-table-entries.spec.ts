@@ -1,7 +1,7 @@
 import { describe, expect, expectTypeOf, test, vi } from "vitest";
 
-import { spreadsheetEq } from "./spreadsheet-query-ir";
-import { createSpreadsheetQueryPlan, spreadsheetOrderBy } from "./spreadsheet-query-plan";
+import { spreadsheetEq } from "./query/spreadsheet-query-ir";
+import { createSpreadsheetQueryPlan, spreadsheetOrderBy } from "./query/spreadsheet-query-plan";
 import { createSpreadsheetRowCodec } from "./spreadsheet-row-codec";
 import { createSpreadsheetColumn } from "./spreadsheet-schema";
 import { createSpreadsheetTable, type SpreadsheetTableEntry } from "./spreadsheet-table";

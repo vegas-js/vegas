@@ -1,4 +1,4 @@
-import type { SpreadsheetSchema, SpreadsheetSchemaColumnSource } from "./spreadsheet-schema";
+import type { SpreadsheetSchema, SpreadsheetSchemaColumnSource } from "../spreadsheet-schema";
 import {
   createSpreadsheetStorageLayout,
   type SpreadsheetStorageLayout,

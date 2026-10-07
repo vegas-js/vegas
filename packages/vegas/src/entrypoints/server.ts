@@ -14,14 +14,14 @@ export {
   type SpreadsheetRepository,
   type SpreadsheetRepositoryMutationGuard,
   type SpreadsheetRepositoryOptions,
-} from "../apps-script/spreadsheet/spreadsheet-repository";
+} from "../apps-script/spreadsheet/repository/spreadsheet-repository";
 export {
   createSpreadsheetRepositoryLockGuard,
   createSpreadsheetRepositoryScriptLockGuard,
   type SpreadsheetRepositoryLock,
   type SpreadsheetRepositoryLockGuardOptions,
   type SpreadsheetRepositoryScriptLockGuardOptions,
-} from "../apps-script/spreadsheet/spreadsheet-repository-lock-guard";
+} from "../apps-script/spreadsheet/repository/spreadsheet-repository-lock-guard";
 export {
   createSpreadsheetColumn,
   createSpreadsheetSchema,
@@ -50,18 +50,18 @@ export {
   type SpreadsheetNotEqualExpression,
   type SpreadsheetOrExpression,
   type SpreadsheetQueryExpression,
-} from "../apps-script/spreadsheet/spreadsheet-query-ir";
+} from "../apps-script/spreadsheet/query/spreadsheet-query-ir";
 export {
   createSpreadsheetStorageLayout,
   type SpreadsheetStorageLayout,
   type SpreadsheetStorageLayoutOptions,
   type SpreadsheetStorageLocation,
   type SpreadsheetStorageMode,
-} from "../apps-script/spreadsheet/spreadsheet-storage-layout";
+} from "../apps-script/spreadsheet/storage/spreadsheet-storage-layout";
 export {
   createSpreadsheetStorageCodec,
   type SpreadsheetStorageCodec,
-} from "../apps-script/spreadsheet/spreadsheet-storage-codec";
+} from "../apps-script/spreadsheet/storage/spreadsheet-storage-codec";
 export {
   createSpreadsheetQueryPlan,
   spreadsheetOrderBy,
@@ -70,14 +70,14 @@ export {
   type SpreadsheetQueryPlanOptions,
   type SpreadsheetQueryPlanSource,
   type SpreadsheetSortDirection,
-} from "../apps-script/spreadsheet/spreadsheet-query-plan";
+} from "../apps-script/spreadsheet/query/spreadsheet-query-plan";
 export {
   createSpreadsheetQuery,
   type SpreadsheetQuery,
-} from "../apps-script/spreadsheet/spreadsheet-query";
+} from "../apps-script/spreadsheet/query/spreadsheet-query";
 export {
   createSpreadsheetQueryFields,
   type SpreadsheetComparableQueryField,
   type SpreadsheetQueryField,
   type SpreadsheetQueryFields,
-} from "../apps-script/spreadsheet/spreadsheet-query-fields";
+} from "../apps-script/spreadsheet/query/spreadsheet-query-fields";

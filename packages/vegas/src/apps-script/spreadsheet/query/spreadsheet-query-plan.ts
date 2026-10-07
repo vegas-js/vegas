@@ -1,5 +1,5 @@
+import type { SpreadsheetColumn } from "../spreadsheet-schema";
 import type { SpreadsheetQueryExpression } from "./spreadsheet-query-ir";
-import type { SpreadsheetColumn } from "./spreadsheet-schema";
 
 export type SpreadsheetSortDirection = "asc" | "desc";
 

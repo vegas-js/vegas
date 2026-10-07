@@ -1,6 +1,6 @@
+import type { SpreadsheetStorageLocation } from "../storage/spreadsheet-storage-layout";
 import { matchesSpreadsheetComparison } from "./spreadsheet-query-comparison";
 import type { SpreadsheetQueryExpression } from "./spreadsheet-query-ir";
-import type { SpreadsheetStorageLocation } from "./spreadsheet-storage-layout";
 
 export type SpreadsheetQueryPushdownResult = "match" | "miss" | "unknown";
 

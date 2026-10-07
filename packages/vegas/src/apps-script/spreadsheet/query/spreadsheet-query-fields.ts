@@ -1,3 +1,4 @@
+import type { SpreadsheetColumn, SpreadsheetSchema } from "../spreadsheet-schema";
 import type {
   SpreadsheetComparableValue,
   SpreadsheetEqualExpression,
@@ -8,7 +9,6 @@ import type {
   SpreadsheetNotEqualExpression,
 } from "./spreadsheet-query-ir";
 import type { SpreadsheetOrderBy } from "./spreadsheet-query-plan";
-import type { SpreadsheetColumn, SpreadsheetSchema } from "./spreadsheet-schema";
 
 export interface SpreadsheetQueryField<Value> {
   eq(value: Value): SpreadsheetEqualExpression<Value>;

@@ -1,7 +1,7 @@
 import { describe, expect, expectTypeOf, test } from "vitest";
 
-import { createSpreadsheetRowCodec } from "./spreadsheet-row-codec";
-import { createSpreadsheetColumn, createSpreadsheetSchema } from "./spreadsheet-schema";
+import { createSpreadsheetRowCodec } from "../spreadsheet-row-codec";
+import { createSpreadsheetColumn, createSpreadsheetSchema } from "../spreadsheet-schema";
 import {
   createSpreadsheetStorageCodec,
   type SpreadsheetStorageCodec,
