@@ -4,7 +4,7 @@ import {
   type InvocationScope,
 } from "../runtime";
 import type { RuntimeDataSnapshot } from "../runtime-data/model";
-import { applyPropertiesRuntimeData } from "../runtime-data/properties";
+import { applyPropertiesRuntimeData } from "./properties-fixture";
 import { LocalRuntimeSession } from "./session";
 
 // Google does not define local fixture initialization or reset semantics. Vegas builds session-owned

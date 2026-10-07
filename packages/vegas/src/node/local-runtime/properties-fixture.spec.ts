@@ -5,7 +5,7 @@ import {
   resolvePropertiesNamespace,
   type InvocationScope,
 } from "../runtime";
-import { applyPropertiesRuntimeData } from "./properties";
+import { applyPropertiesRuntimeData } from "./properties-fixture";
 
 describe("applyPropertiesRuntimeData", () => {
   test("replace runtime property data in each available namespace", async () => {

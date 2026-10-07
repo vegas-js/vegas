@@ -1,5 +1,5 @@
 import { resolvePropertiesNamespace, type InvocationScope, type PropertiesStore } from "../runtime";
-import type { RuntimeDataProperties } from "./model";
+import type { RuntimeDataProperties } from "../runtime-data/model";
 
 export async function applyPropertiesRuntimeData(
   store: PropertiesStore,
