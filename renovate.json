@@ -15,6 +15,12 @@
       "dependencyDashboardApproval": true
     },
     {
+      "description": "Filter npm updates by the supported Node.js range",
+      "matchManagers": ["npm"],
+      "matchDepTypes": ["dependencies", "devDependencies"],
+      "constraintsFiltering": "strict"
+    },
+    {
       "description": "Keep create-vegas template dependencies aligned manually with Vite templates",
       "matchManagers": ["npm"],
       "matchFileNames": ["packages/create-vegas/template-*/package.json"],
