@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.2.0 - 2026-10-08
+
 ### Added
 
 - Added native Google Apps Script authentication and push workflows using the Apps Script API.
