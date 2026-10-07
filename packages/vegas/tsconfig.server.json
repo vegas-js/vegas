@@ -6,6 +6,6 @@
   "include": [
     "src/entrypoints/server.ts",
     "src/entrypoints/server.spec.ts",
-    "src/server/spreadsheet"
+    "src/apps-script/spreadsheet"
   ]
 }
