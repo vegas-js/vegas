@@ -1,4 +1,4 @@
-import { HtmlDocument } from "../../../html-document";
+import { HtmlDocument } from "../../../infrastructure/html/document";
 import { serializeInlineScriptValue } from "../shared/inline-script";
 
 const USER_CONTENT_IFRAME_ALLOW =

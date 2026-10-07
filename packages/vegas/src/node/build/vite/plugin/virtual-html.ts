@@ -1,6 +1,6 @@
 import type { Plugin, Rolldown } from "vite";
 
-import { HtmlDocument } from "../../../html-document";
+import { HtmlDocument } from "../../../infrastructure/html/document";
 import type { BuildPlan } from "../../plan";
 import { CLIENT_MODULE_ENVIRONMENT_PATTERN, getClientModuleEnvironmentIndex } from "../environment";
 

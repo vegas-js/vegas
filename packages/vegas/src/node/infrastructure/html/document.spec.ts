@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import { HtmlDocument } from "./html-document";
+import { HtmlDocument } from "./document";
 
 describe("HtmlDocument", () => {
   test("create empty html document", () => {

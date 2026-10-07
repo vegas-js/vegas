@@ -1,4 +1,4 @@
-import { HtmlDocument } from "../../../html-document";
+import { HtmlDocument } from "../../../infrastructure/html/document";
 import type { HtmlOutputSnapshot } from "../../../runtime";
 import { createHostBridgeScript } from "./host-bridge-script";
 
