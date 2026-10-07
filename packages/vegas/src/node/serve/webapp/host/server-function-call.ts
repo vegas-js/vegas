@@ -1,7 +1,7 @@
 import type {
   ServerFunctionCallRequest,
   ServerFunctionCallResponse,
-} from "../../../../webapp/protocol";
+} from "../../../../webapp/server-function-protocol";
 import type { RuntimeBackend } from "../../../runtime";
 
 export async function executeServerFunctionCall(
