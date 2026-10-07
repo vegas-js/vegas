@@ -1,4 +1,4 @@
-import type { SpreadsheetRepositoryMutationGuard } from "./spreadsheet-repository";
+import type { SpreadsheetRepositoryMutationGuard } from "./repository";
 
 const DEFAULT_SPREADSHEET_REPOSITORY_LOCK_TIMEOUT_MILLISECONDS = 30_000;
 

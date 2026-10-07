@@ -2,7 +2,7 @@ import type {
   SpreadsheetColumn,
   SpreadsheetSchema,
   SpreadsheetSchemaColumnSource,
-} from "../spreadsheet-schema";
+} from "../schema";
 
 export type SpreadsheetStorageMode = "columns" | "packed" | "indexed-packed";
 

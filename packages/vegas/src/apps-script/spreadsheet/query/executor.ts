@@ -1,5 +1,5 @@
-import { matchesSpreadsheetComparison } from "./spreadsheet-query-comparison";
-import type { SpreadsheetQueryExpression } from "./spreadsheet-query-ir";
+import { matchesSpreadsheetComparison } from "./comparison";
+import type { SpreadsheetQueryExpression } from "./expression";
 
 export function matchesSpreadsheetQuery(
   values: readonly unknown[],

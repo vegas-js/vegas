@@ -1,4 +1,4 @@
-import type { SpreadsheetRowCodec } from "./spreadsheet-row-codec";
+import type { SpreadsheetRowCodec } from "./row-codec";
 
 export interface SpreadsheetColumn<Row, Value> {
   readonly name: string;

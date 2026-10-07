@@ -1,12 +1,9 @@
 import { describe, expect, test, vi } from "vitest";
 
-import { createSpreadsheetRowCodec } from "../spreadsheet-row-codec";
-import { createSpreadsheetColumn } from "../spreadsheet-schema";
-import { createSpreadsheetTable } from "../spreadsheet-table";
-import {
-  createSpreadsheetRepository,
-  SpreadsheetRepositoryKeyConflictError,
-} from "./spreadsheet-repository";
+import { createSpreadsheetRowCodec } from "../row-codec";
+import { createSpreadsheetColumn } from "../schema";
+import { createSpreadsheetTable } from "../table";
+import { createSpreadsheetRepository, SpreadsheetRepositoryKeyConflictError } from "./repository";
 
 interface UserRow {
   readonly id: number;

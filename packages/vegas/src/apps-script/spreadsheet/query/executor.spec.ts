@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 
-import { matchesSpreadsheetQuery } from "./spreadsheet-query-executor";
-import type { SpreadsheetQueryExpression } from "./spreadsheet-query-ir";
+import { matchesSpreadsheetQuery } from "./executor";
+import type { SpreadsheetQueryExpression } from "./expression";
 
 describe("matchesSpreadsheetQuery", () => {
   test("match equality expressions by raw column index", () => {

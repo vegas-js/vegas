@@ -1,6 +1,6 @@
-import type { SpreadsheetColumn } from "../spreadsheet-schema";
-import type { SpreadsheetQueryField } from "./spreadsheet-query-fields";
-import { spreadsheetAnd, type SpreadsheetQueryExpression } from "./spreadsheet-query-ir";
+import type { SpreadsheetColumn } from "../schema";
+import { spreadsheetAnd, type SpreadsheetQueryExpression } from "./expression";
+import type { SpreadsheetQueryField } from "./fields";
 import {
   createSpreadsheetQueryPlan,
   spreadsheetOrderBy,
@@ -8,7 +8,7 @@ import {
   type SpreadsheetQueryPlan,
   type SpreadsheetQueryPlanSource,
   type SpreadsheetSortDirection,
-} from "./spreadsheet-query-plan";
+} from "./plan";
 
 type SpreadsheetQuerySelector<Fields> = [Fields] extends [undefined]
   ? never

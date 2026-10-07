@@ -1,13 +1,13 @@
 import { describe, expect, expectTypeOf, test, vi } from "vitest";
 
-import { createSpreadsheetColumn } from "../spreadsheet-schema";
-import type { SpreadsheetTable } from "../spreadsheet-table";
+import { createSpreadsheetColumn } from "../schema";
+import type { SpreadsheetTable } from "../table";
 import {
   createSpreadsheetRepository,
   SpreadsheetRepositoryKeyConflictError,
   type SpreadsheetRepository,
   type SpreadsheetRepositoryMutationGuard,
-} from "./spreadsheet-repository";
+} from "./repository";
 
 interface UserRow {
   readonly id: number;

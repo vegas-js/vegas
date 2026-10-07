@@ -1,9 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import {
-  compareSpreadsheetQueryValues,
-  matchesSpreadsheetComparison,
-} from "./spreadsheet-query-comparison";
+import { compareSpreadsheetQueryValues, matchesSpreadsheetComparison } from "./comparison";
 
 describe("spreadsheet query comparison", () => {
   test("treat numeric signed zero as equal for ordering", () => {

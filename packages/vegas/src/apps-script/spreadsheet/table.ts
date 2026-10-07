@@ -1,19 +1,15 @@
-import { compareSpreadsheetQueryValues } from "./query/spreadsheet-query-comparison";
-import { matchesSpreadsheetQuery } from "./query/spreadsheet-query-executor";
-import type { SpreadsheetQueryExpression } from "./query/spreadsheet-query-ir";
+import { compareSpreadsheetQueryValues } from "./query/comparison";
+import { matchesSpreadsheetQuery } from "./query/executor";
+import type { SpreadsheetQueryExpression } from "./query/expression";
 import type {
   SpreadsheetOrderBy,
   SpreadsheetQueryPlan,
   SpreadsheetQueryPlanSource,
-} from "./query/spreadsheet-query-plan";
-import { evaluateSpreadsheetQueryPushdown } from "./query/spreadsheet-query-pushdown";
-import type { SpreadsheetRowCodec } from "./spreadsheet-row-codec";
-import type {
-  SpreadsheetColumn,
-  SpreadsheetSchema,
-  SpreadsheetSchemaColumnSource,
-} from "./spreadsheet-schema";
-import type { SpreadsheetStorageCodec } from "./storage/spreadsheet-storage-codec";
+} from "./query/plan";
+import { evaluateSpreadsheetQueryPushdown } from "./query/pushdown";
+import type { SpreadsheetRowCodec } from "./row-codec";
+import type { SpreadsheetColumn, SpreadsheetSchema, SpreadsheetSchemaColumnSource } from "./schema";
+import type { SpreadsheetStorageCodec } from "./storage/codec";
 
 export interface SpreadsheetTableOptions {
   readonly startRow?: number;

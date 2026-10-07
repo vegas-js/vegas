@@ -1,4 +1,4 @@
-import type { SpreadsheetComparisonKind } from "./spreadsheet-query-ir";
+import type { SpreadsheetComparisonKind } from "./expression";
 
 export function compareSpreadsheetQueryValues(
   left: unknown,

@@ -1,8 +1,8 @@
 import { describe, expect, test } from "vitest";
 
-import type { SpreadsheetStorageLocation } from "../storage/spreadsheet-storage-layout";
-import type { SpreadsheetQueryExpression } from "./spreadsheet-query-ir";
-import { evaluateSpreadsheetQueryPushdown } from "./spreadsheet-query-pushdown";
+import type { SpreadsheetStorageLocation } from "../storage/layout";
+import type { SpreadsheetQueryExpression } from "./expression";
+import { evaluateSpreadsheetQueryPushdown } from "./pushdown";
 
 function locate(logicalIndex: number): SpreadsheetStorageLocation {
   if (logicalIndex === 0) {

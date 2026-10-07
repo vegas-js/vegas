@@ -1,10 +1,10 @@
-import type { SpreadsheetSchema, SpreadsheetSchemaColumnSource } from "../spreadsheet-schema";
+import type { SpreadsheetSchema, SpreadsheetSchemaColumnSource } from "../schema";
 import {
   createSpreadsheetStorageLayout,
   type SpreadsheetStorageLayout,
   type SpreadsheetStorageLayoutOptions,
   type SpreadsheetStorageLocation,
-} from "./spreadsheet-storage-layout";
+} from "./layout";
 
 export interface SpreadsheetStorageCodec {
   readonly logicalWidth: number;
