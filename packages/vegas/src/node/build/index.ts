@@ -1,3 +1,4 @@
+export { runBuildApplication, type BuildApplicationResult } from "./application";
 export {
   type BuildArtifact,
   ArtifactStore,
