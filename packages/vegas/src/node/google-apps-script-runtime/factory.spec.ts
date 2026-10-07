@@ -2,7 +2,7 @@ import { describe, expect, expectTypeOf, test, vi } from "vitest";
 
 import { createAppsScriptUserAccessTokenProvider } from "../auth";
 import type { RuntimeBackend } from "../runtime";
-import { createGoogleAppsScriptRuntime } from "../runtime/node";
+import { createGoogleAppsScriptRuntime } from "./backend";
 import { createGoogleAppsScriptUserRuntime } from "./factory";
 
 const env: NodeJS.ProcessEnv = {

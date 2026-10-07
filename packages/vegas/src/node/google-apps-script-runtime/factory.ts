@@ -1,6 +1,6 @@
 import { createAppsScriptUserAccessTokenProvider } from "../auth";
 import type { RuntimeBackend } from "../runtime";
-import { createGoogleAppsScriptRuntime } from "../runtime/node";
+import { createGoogleAppsScriptRuntime } from "./backend";
 
 interface GoogleAppsScriptUserRuntimeOptions {
   readonly scriptId: string;

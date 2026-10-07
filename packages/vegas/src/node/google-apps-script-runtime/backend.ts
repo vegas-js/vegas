@@ -1,6 +1,6 @@
-import type { RuntimeBackend, RuntimeExecutionRequest } from "../executor";
-import { restoreRuntimeError } from "../runtime-error";
-import { RuntimeInfrastructureError } from "../runtime-infrastructure-error";
+import type { RuntimeBackend, RuntimeExecutionRequest } from "../runtime/executor";
+import { restoreRuntimeError } from "../runtime/runtime-error";
+import { RuntimeInfrastructureError } from "../runtime/runtime-infrastructure-error";
 
 export const DEFAULT_GOOGLE_APPS_SCRIPT_REQUEST_TIMEOUT_MS = 380_000;
 export const GOOGLE_APPS_SCRIPT_ACCESS_TOKEN_MINIMUM_VALIDITY_MS = 6 * 60 * 1_000;

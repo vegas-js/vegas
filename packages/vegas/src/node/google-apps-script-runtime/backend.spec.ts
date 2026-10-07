@@ -1,11 +1,11 @@
 import { afterEach, describe, expect, expectTypeOf, test, vi } from "vitest";
 
-import { RuntimeInfrastructureError, type RuntimeBackend } from "../index";
+import { RuntimeInfrastructureError, type RuntimeBackend } from "../runtime";
 import {
   createGoogleAppsScriptRuntime,
   DEFAULT_GOOGLE_APPS_SCRIPT_REQUEST_TIMEOUT_MS,
   GOOGLE_APPS_SCRIPT_ACCESS_TOKEN_MINIMUM_VALIDITY_MS,
-} from "./google-apps-script-runtime";
+} from "./backend";
 
 interface RecordedFetchRequest {
   readonly input: Parameters<typeof globalThis.fetch>[0];
