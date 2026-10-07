@@ -6,83 +6,48 @@
     "security:minimumReleaseAgeNpm",
     ":configMigration"
   ],
-  "enabledManagers": [
-    "npm",
-    "github-actions"
-  ],
+  "enabledManagers": ["npm", "github-actions"],
   "packageRules": [
     {
       "description": "Require maintainer approval for compatibility floor changes",
-      "matchManagers": [
-        "npm"
-      ],
-      "matchDepTypes": [
-        "peerDependencies",
-        "engines"
-      ],
+      "matchManagers": ["npm"],
+      "matchDepTypes": ["peerDependencies", "engines"],
       "dependencyDashboardApproval": true
     },
     {
       "description": "Keep create-vegas template dependencies aligned manually with Vite templates",
-      "matchManagers": [
-        "npm"
-      ],
-      "matchFileNames": [
-        "packages/create-vegas/template-*/package.json"
-      ],
+      "matchManagers": ["npm"],
+      "matchFileNames": ["packages/create-vegas/template-*/package.json"],
       "enabled": false
     },
     {
       "description": "Require maintainer approval for Node type declaration major updates",
-      "matchManagers": [
-        "npm"
-      ],
-      "matchPackageNames": [
-        "@types/node"
-      ],
-      "matchUpdateTypes": [
-        "major"
-      ],
+      "matchManagers": ["npm"],
+      "matchPackageNames": ["@types/node"],
+      "matchUpdateTypes": ["major"],
       "dependencyDashboardApproval": true
     },
     {
       "description": "Keep CI Node version changes as explicit maintainer decisions",
-      "matchManagers": [
-        "github-actions"
-      ],
-      "matchPackageNames": [
-        "node"
-      ],
+      "matchManagers": ["github-actions"],
+      "matchPackageNames": ["node"],
       "dependencyDashboardApproval": true
     },
     {
       "description": "Group Vitest updates",
-      "matchManagers": [
-        "npm"
-      ],
-      "matchPackageNames": [
-        "vitest",
-        "@vitest/coverage-v8"
-      ],
+      "matchManagers": ["npm"],
+      "matchPackageNames": ["vitest", "@vitest/coverage-v8"],
       "groupName": "Vitest"
     },
     {
       "description": "Group Oxc tooling updates",
-      "matchManagers": [
-        "npm"
-      ],
-      "matchPackageNames": [
-        "oxfmt",
-        "oxlint",
-        "oxlint-tsgolint"
-      ],
+      "matchManagers": ["npm"],
+      "matchPackageNames": ["oxfmt", "oxlint", "oxlint-tsgolint"],
       "groupName": "Oxc tooling"
     },
     {
       "description": "Group GitHub Actions updates",
-      "matchManagers": [
-        "github-actions"
-      ],
+      "matchManagers": ["github-actions"],
       "groupName": "GitHub Actions"
     }
   ]
