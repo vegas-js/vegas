@@ -17,7 +17,7 @@
     "coverage": "vitest run --coverage",
     "build": "tsdown --config-loader native --workspace --publint --fail-on-warn",
     "license:check": "git diff --exit-code -- packages/vegas/LICENSE.md packages/create-vegas/LICENSE.md",
-    "check": "pnpm docs:api-coverage:check && pnpm lint && pnpm test && pnpm build && pnpm license:check",
+    "check": "pnpm docs:build && pnpm lint && pnpm test && pnpm build && pnpm license:check",
     "release:smoke": "node scripts/release-smoke.js",
     "release:check": "pnpm check && pnpm release:smoke",
     "docs:api-coverage": "node scripts/generate-runtime-api-coverage.js",
