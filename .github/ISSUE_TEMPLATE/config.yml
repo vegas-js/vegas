@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Documentation
+    url: https://vegasjs.dev/
+    about: Check the Vegas documentation before opening an issue.
+  - name: Security vulnerability
+    url: https://github.com/vegas-js/vegas/security/policy
+    about: Review the security policy and report vulnerabilities privately.

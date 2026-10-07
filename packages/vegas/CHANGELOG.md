@@ -21,6 +21,7 @@
 - Renamed Local Runtime source data configuration from `gasMockDir` to `runtimeDataDir`, with `runtime/` as the default directory.
 - Updated documentation and project metadata to reflect the current SPA, script-only, Local Runtime, Vitest, and Playwright capabilities.
 - Hardened production output cleanup with explicit opt-in for output directories outside the project root and preservation of existing output when builds fail.
+- Upgraded Vite and development tooling dependencies.
 
 ## 0.1.9 - 2026-06-30
 

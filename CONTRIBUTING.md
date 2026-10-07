@@ -16,7 +16,7 @@ Vegas is still experimental and may make breaking changes while its architecture
 The repository currently requires:
 
 - Node.js 22.18.0 or newer.
-- pnpm 12.3.4.
+- pnpm 12.9.1.
 
 Install dependencies from the repository root:
 
