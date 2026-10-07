@@ -43,7 +43,7 @@
     "@types/validate-npm-package-name": "^4.0.2",
     "cac": "^7.0.0",
     "cross-spawn": "^7.0.6",
-    "validate-npm-package-name": "^7.0.2"
+    "validate-npm-package-name": "^8.0.0"
   },
   "engines": {
     "node": ">=22.18.0"
