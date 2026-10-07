@@ -7,9 +7,9 @@ import { CreateVegasUsageError } from "../error";
 import { inspectScaffoldDirectory } from "../scaffold/directory";
 import { collectCreateProjectInput } from "./input";
 
-vi.mock("@clack/prompts", () => ({
+vi.mock("@clack/prompts", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@clack/prompts")>()),
   confirm: vi.fn(),
-  isCancel: vi.fn(),
   select: vi.fn(),
   text: vi.fn(),
 }));
@@ -18,9 +18,8 @@ vi.mock("../scaffold/directory", () => ({
   inspectScaffoldDirectory: vi.fn(),
 }));
 
-const CANCEL = Symbol("cancel");
+const CANCEL = prompts.CANCEL_SYMBOL as Awaited<ReturnType<typeof prompts.text>>;
 const confirmMock = vi.mocked(prompts.confirm);
-const isCancelMock = vi.mocked(prompts.isCancel);
 const selectMock = vi.mocked(prompts.select);
 const textMock = vi.mocked(prompts.text);
 const inspectScaffoldDirectoryMock = vi.mocked(inspectScaffoldDirectory);
@@ -40,12 +39,10 @@ const templateOptions = [
 
 beforeEach(() => {
   confirmMock.mockReset();
-  isCancelMock.mockReset();
   selectMock.mockReset();
   textMock.mockReset();
   inspectScaffoldDirectoryMock.mockReset();
 
-  isCancelMock.mockImplementation((value): value is symbol => value === CANCEL);
   inspectScaffoldDirectoryMock.mockReturnValue("missing");
 });
 
