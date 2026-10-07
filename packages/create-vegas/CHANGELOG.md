@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.2.0 - 2026-10-08
+
 ### Added
 
 - Added safer scaffold target handling for missing, empty, non-empty, and invalid destination directories.
