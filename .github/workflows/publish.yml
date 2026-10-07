@@ -31,7 +31,6 @@ jobs:
           node-version: "22.18.0"
           registry-url: https://registry.npmjs.org
       - run: pnpm install --frozen-lockfile
-      - run: pnpm exec playwright install --with-deps --only-shell chromium
       - name: Resolve release target
         shell: bash
         run: |
