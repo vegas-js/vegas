@@ -1,0 +1,1137 @@
+import { spawnSync } from "node:child_process";
+import fs from "node:fs";
+import { createRequire } from "node:module";
+import path from "node:path";
+
+const ROOT = path.resolve(import.meta.dirname, "..");
+const VEGAS_ROOT = path.join(ROOT, "packages", "vegas");
+const RUNTIME_ROOT = path.join(VEGAS_ROOT, "src", "node", "runtime");
+const RUNTIME_GLOBALS_PATH = path.join(RUNTIME_ROOT, "runtime-globals.ts");
+const OUTPUT_PATH = path.join(ROOT, "docs", "guide", "runtime-api-coverage.md");
+const SUPPLEMENT_PATH = path.join(ROOT, "scripts", "runtime-api-supplement.json");
+const STATUS_PATH = path.join(ROOT, "scripts", "runtime-api-status.json");
+const PNPM = process.platform === "win32" ? "pnpm.cmd" : "pnpm";
+const STANDALONE_GLOBAL_ENUMS = new Set(["MimeType"]);
+
+export const API_SURFACES = {
+  DriveApp: [
+    ["DriveApp", "drive/app.ts", "DriveApp"],
+    ["File", "drive/file.ts", "DriveFile"],
+    ["Folder", "drive/folder.ts", "DriveFolder"],
+    ["FileIterator", "drive/file-iterator.ts", "DriveFileIterator"],
+    ["FolderIterator", "drive/folder-iterator.ts", "DriveFolderIterator"],
+  ],
+  SpreadsheetApp: [
+    ["SpreadsheetApp", "spreadsheet/app.ts", "SpreadsheetApp"],
+    ["Spreadsheet", "spreadsheet/spreadsheet.ts", "Spreadsheet"],
+    ["Sheet", "spreadsheet/sheet.ts", "Sheet"],
+    ["Range", "spreadsheet/range.ts", "Range"],
+  ],
+  Maps: [["Maps", "maps/maps.ts", "Maps"]],
+  UrlFetchApp: [
+    ["UrlFetchApp", "url-fetch/app.ts", "UrlFetchApp"],
+    ["HTTPResponse", "url-fetch/http-response.ts", "HTTPResponse"],
+  ],
+  Utilities: [["Utilities", "utilities/utilities.ts", "Utilities"]],
+  ContentService: [
+    ["ContentService", "content/service.ts", "ContentService"],
+    ["TextOutput", "content/text-output.ts", "TextOutput"],
+  ],
+  HtmlService: [
+    ["HtmlService", "html/service.ts", "HtmlService"],
+    ["HtmlOutput", "html/output.ts", "HtmlOutput"],
+    ["HtmlOutputMetaTag", "html/output.ts", "HtmlOutputMetaTag"],
+    ["HtmlTemplate", "html/template.ts", "HtmlTemplate"],
+  ],
+  Logger: [["Logger", "logging/logger.ts", "Logger"]],
+  Session: [
+    ["Session", "session/session.ts", "Session"],
+    ["User", "session/user.ts", "User"],
+  ],
+  console: [["Console", "logging/console.ts", "AppsScriptConsole"]],
+  CacheService: [
+    ["CacheService", "cache/service.ts", "CacheService"],
+    ["Cache", "cache/cache.ts", "Cache"],
+  ],
+  LockService: [
+    ["LockService", "lock/service.ts", "LockService"],
+    ["Lock", "lock/lock.ts", "Lock"],
+  ],
+  PropertiesService: [
+    ["PropertiesService", "properties/service.ts", "PropertiesService"],
+    ["Properties", "properties/properties.ts", "Properties"],
+  ],
+};
+
+export const SHARED_API_SURFACES = [
+  {
+    name: "Blob",
+    declarationPath: "google-apps-script.base.d.ts",
+    interfaceNames: ["Blob", "BlobSource"],
+    relativePath: "blob/blob.ts",
+    className: "RuntimeBlob",
+  },
+];
+
+function escapeRegExp(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+export function extractRuntimeGlobals(source) {
+  const start = source.indexOf("  return {");
+  const end = source.indexOf("\n  };", start);
+
+  if (start < 0 || end < 0) {
+    throw new Error("Could not locate createRuntimeGlobals return object.");
+  }
+
+  const globals = [];
+  const lines = source.slice(start, end).split(/\r?\n/).slice(1);
+
+  for (const line of lines) {
+    const match = /^    ([A-Za-z_$][\w$]*):\s*(.+)$/.exec(line);
+
+    if (!match) {
+      continue;
+    }
+
+    const expression = match[2].replace(/,\s*(?:\/\/.*)?$/, "").trim();
+
+    globals.push({
+      name: match[1],
+      implemented: expression !== "undefined",
+    });
+  }
+
+  return globals;
+}
+
+export function extractInterfaceMethodNames(source, interfaceName) {
+  const lines = source.split(/\r?\n/);
+  const startPattern = new RegExp(
+    `^(\\s*)interface\\s+${escapeRegExp(interfaceName)}(?:\\s+extends\\s+[^\\{]+)?\\s*\\{\\s*$`,
+  );
+  let startIndex = -1;
+  let indent = "";
+
+  for (let index = 0; index < lines.length; index += 1) {
+    const match = startPattern.exec(lines[index]);
+
+    if (match) {
+      startIndex = index;
+      indent = match[1];
+      break;
+    }
+  }
+
+  if (startIndex < 0) {
+    const nonInterfacePattern = new RegExp(
+      `^\\s*(?:enum|type|class)\\s+${escapeRegExp(interfaceName)}\\b`,
+      "m",
+    );
+
+    return nonInterfacePattern.test(source) ? [] : null;
+  }
+
+  const closingPattern = new RegExp(`^${escapeRegExp(indent)}\\}\\s*$`);
+  const methods = [];
+  const seen = new Set();
+
+  for (let index = startIndex + 1; index < lines.length; index += 1) {
+    const line = lines[index];
+
+    if (closingPattern.test(line)) {
+      return methods;
+    }
+
+    const method = /^\s*(?:\/\*\*.*\*\/\s*)?([A-Za-z_$][\w$]*)\s*(?:<[^>]+>)?\s*\(/.exec(line);
+
+    if (method && !seen.has(method[1])) {
+      seen.add(method[1]);
+      methods.push(method[1]);
+    }
+  }
+
+  throw new Error(`Could not find closing brace for interface ${interfaceName}.`);
+}
+
+export function extractInterfaceEnumPropertyNames(source, interfaceName) {
+  const enumNames = new Set(
+    [...source.matchAll(/^\s*enum\s+([A-Za-z_$][\w$]*)\s*\{/gm)].map((match) => match[1]),
+  );
+  const lines = source.split(/\r?\n/);
+  const startPattern = new RegExp(
+    `^(\\s*)interface\\s+${escapeRegExp(interfaceName)}(?:\\s+extends\\s+[^\\{]+)?\\s*\\{\\s*$`,
+  );
+  let startIndex = -1;
+  let indent = "";
+
+  for (let index = 0; index < lines.length; index += 1) {
+    const match = startPattern.exec(lines[index]);
+
+    if (match) {
+      startIndex = index;
+      indent = match[1];
+      break;
+    }
+  }
+
+  if (startIndex < 0) {
+    return null;
+  }
+
+  const closingPattern = new RegExp(`^${escapeRegExp(indent)}\\}\\s*$`);
+  const properties = [];
+  const seen = new Set();
+
+  for (let index = startIndex + 1; index < lines.length; index += 1) {
+    const line = lines[index];
+
+    if (closingPattern.test(line)) {
+      return properties;
+    }
+
+    const property = /^\s*([A-Za-z_$][\w$]*)\s*:\s*typeof\s+([A-Za-z_$][\w$]*)\s*;/.exec(line);
+
+    if (!property || !enumNames.has(property[2]) || seen.has(property[1])) {
+      continue;
+    }
+
+    seen.add(property[1]);
+    properties.push(property[1]);
+  }
+
+  throw new Error(`Could not find closing brace for interface ${interfaceName}.`);
+}
+
+export function hasEnumDeclaration(source, enumName) {
+  return new RegExp(`^\\s*enum\\s+${escapeRegExp(enumName)}\\b`, "m").test(source);
+}
+
+export function isStandaloneGlobalEnum(name, declaration) {
+  const interfaceName = extractInterfaceName(declaration.typeReference);
+
+  if (interfaceName === null) {
+    return false;
+  }
+
+  return hasEnumDeclaration(declaration.source, interfaceName) || STANDALONE_GLOBAL_ENUMS.has(name);
+}
+
+export function extractClassMethodNames(source, className) {
+  const lines = source.split(/\r?\n/);
+  const startPattern = new RegExp(`^export class ${escapeRegExp(className)}\\b.*\\{\\s*$`);
+  const startIndex = lines.findIndex((line) => startPattern.test(line));
+
+  if (startIndex < 0) {
+    throw new Error(`Could not find Runtime class ${className}.`);
+  }
+
+  const methods = [];
+  const seen = new Set();
+
+  for (let index = startIndex + 1; index < lines.length; index += 1) {
+    const line = lines[index];
+
+    if (/^}\s*$/.test(line)) {
+      return methods;
+    }
+
+    const method = /^  (?:async\s+)?([A-Za-z_$][\w$]*)\s*(?:<[^>]+>)?\s*\(/.exec(line);
+
+    if (!method || method[1] === "constructor" || seen.has(method[1])) {
+      continue;
+    }
+
+    seen.add(method[1]);
+    methods.push(method[1]);
+  }
+
+  throw new Error(`Could not find closing brace for Runtime class ${className}.`);
+}
+
+export function extractClassPropertyNames(source, className) {
+  const lines = source.split(/\r?\n/);
+  const startPattern = new RegExp(`^export class ${escapeRegExp(className)}\\b.*\\{\\s*$`);
+  const startIndex = lines.findIndex((line) => startPattern.test(line));
+
+  if (startIndex < 0) {
+    throw new Error(`Could not find Runtime class ${className}.`);
+  }
+
+  const properties = [];
+  const seen = new Set();
+
+  for (let index = startIndex + 1; index < lines.length; index += 1) {
+    const line = lines[index];
+
+    if (/^}\s*$/.test(line)) {
+      return properties;
+    }
+
+    const property = /^  (?:readonly\s+)?([A-Za-z_$][\w$]*)\s*=/.exec(line);
+
+    if (!property || seen.has(property[1])) {
+      continue;
+    }
+
+    seen.add(property[1]);
+    properties.push(property[1]);
+  }
+
+  throw new Error(`Could not find closing brace for Runtime class ${className}.`);
+}
+
+function loadTypeSources(typeRoot) {
+  const sources = new Map();
+  const pending = ["index.d.ts"];
+
+  while (pending.length > 0) {
+    const relativePath = pending.shift();
+
+    if (sources.has(relativePath)) {
+      continue;
+    }
+
+    const absolutePath = path.join(typeRoot, relativePath);
+    const source = fs.readFileSync(absolutePath, "utf8");
+    sources.set(relativePath, source);
+
+    for (const match of source.matchAll(/<reference path="([^"]+)"/g)) {
+      const referenced = path.normalize(path.join(path.dirname(relativePath), match[1]));
+
+      if (!referenced.startsWith("..")) {
+        pending.push(referenced);
+      }
+    }
+  }
+
+  return sources;
+}
+
+function collectGlobalDeclarations(typeSources) {
+  const globals = new Map();
+
+  for (const [relativePath, source] of typeSources) {
+    for (const match of source.matchAll(/^declare var\s+([A-Za-z_$][\w$]*)\s*:\s*([^;]+);/gm)) {
+      globals.set(match[1], {
+        typeReference: match[2].trim(),
+        source,
+        relativePath,
+      });
+    }
+  }
+
+  return globals;
+}
+
+export function extractInterfaceName(typeReference) {
+  const candidates = typeReference
+    .split("|")
+    .map((candidate) => candidate.trim())
+    .filter((candidate) => candidate !== "undefined" && candidate !== "null");
+
+  if (candidates.length !== 1) {
+    return null;
+  }
+
+  return candidates[0]
+    .replace(/^typeof\s+/, "")
+    .split(".")
+    .at(-1);
+}
+
+function formatMissing(methods, prefix = "") {
+  if (methods.length === 0) {
+    return "—";
+  }
+
+  return methods.map((method) => `\`${prefix}${method}()\``).join("<br>");
+}
+
+export function validateRuntimeApiSupplement(supplement) {
+  if (supplement.schemaVersion !== 1 || typeof supplement.globals !== "object") {
+    throw new Error("Invalid Runtime API supplement schema.");
+  }
+
+  for (const [name, entry] of Object.entries(supplement.globals)) {
+    if (entry.mode !== "augment" && entry.mode !== "complete") {
+      throw new Error(`Invalid Runtime API supplement mode for ${name}.`);
+    }
+
+    if (
+      !Array.isArray(entry.methods) ||
+      entry.methods.some((method) => typeof method !== "string")
+    ) {
+      throw new Error(`Invalid Runtime API supplement methods for ${name}.`);
+    }
+
+    if (new Set(entry.methods).size !== entry.methods.length) {
+      throw new Error(`Duplicate Runtime API supplement methods for ${name}.`);
+    }
+
+    const source = new URL(entry.source);
+
+    if (source.protocol !== "https:" || source.hostname !== "developers.google.com") {
+      throw new Error(`Runtime API supplement source for ${name} must use Google official docs.`);
+    }
+  }
+}
+
+const RUNTIME_API_BEHAVIORS = new Set(["implemented", "local-emulation", "no-op", "fail-closed"]);
+
+function isRecord(value) {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function isMethodName(value) {
+  return typeof value === "string" && /^[A-Za-z_$][\w$]*$/.test(value);
+}
+
+function validateRuntimeApiBehavior(value, label) {
+  if (typeof value !== "string" || !RUNTIME_API_BEHAVIORS.has(value)) {
+    throw new Error(`Invalid Runtime API behavior for ${label}.`);
+  }
+}
+
+export function validateRuntimeApiStatus(status) {
+  if (!isRecord(status) || status.schemaVersion !== 1 || !isRecord(status.surfaces)) {
+    throw new Error("Invalid Runtime API status schema.");
+  }
+
+  const rootFields = new Set(["schemaVersion", "surfaces"]);
+
+  for (const field of Object.keys(status)) {
+    if (!rootFields.has(field)) {
+      throw new Error(`Unknown Runtime API status field: ${field}.`);
+    }
+  }
+
+  for (const [surfaceName, surface] of Object.entries(status.surfaces)) {
+    if (surfaceName.length === 0 || !isRecord(surface)) {
+      throw new Error(`Invalid Runtime API status surface: ${surfaceName}.`);
+    }
+
+    const surfaceFields = new Set([
+      "auditedMethods",
+      "defaultBehavior",
+      "behaviorOverrides",
+      "contractTestedMethods",
+    ]);
+
+    for (const field of Object.keys(surface)) {
+      if (!surfaceFields.has(field)) {
+        throw new Error(`Unknown Runtime API status field for ${surfaceName}: ${field}.`);
+      }
+    }
+
+    if (
+      !Array.isArray(surface.auditedMethods) ||
+      surface.auditedMethods.some((methodName) => !isMethodName(methodName))
+    ) {
+      throw new Error(`Invalid Runtime API audited methods for ${surfaceName}.`);
+    }
+
+    if (new Set(surface.auditedMethods).size !== surface.auditedMethods.length) {
+      throw new Error(`Duplicate Runtime API audited methods for ${surfaceName}.`);
+    }
+
+    const auditedMethods = new Set(surface.auditedMethods);
+
+    if (surface.defaultBehavior !== undefined) {
+      validateRuntimeApiBehavior(surface.defaultBehavior, `${surfaceName}.defaultBehavior`);
+    }
+
+    const behaviorOverrides = surface.behaviorOverrides ?? {};
+
+    if (!isRecord(behaviorOverrides)) {
+      throw new Error(`Invalid Runtime API behavior overrides for ${surfaceName}.`);
+    }
+
+    for (const [methodName, behavior] of Object.entries(behaviorOverrides)) {
+      if (!isMethodName(methodName)) {
+        throw new Error(`Invalid Runtime API method name for ${surfaceName}: ${methodName}.`);
+      }
+
+      if (!auditedMethods.has(methodName)) {
+        throw new Error(
+          `Runtime API behavior override for ${surfaceName}.${methodName} is not audited.`,
+        );
+      }
+
+      validateRuntimeApiBehavior(behavior, `${surfaceName}.${methodName}`);
+    }
+
+    const contractTestedMethods = surface.contractTestedMethods ?? [];
+
+    if (
+      !Array.isArray(contractTestedMethods) ||
+      contractTestedMethods.some((methodName) => !isMethodName(methodName))
+    ) {
+      throw new Error(`Invalid Runtime API contract-tested methods for ${surfaceName}.`);
+    }
+
+    if (new Set(contractTestedMethods).size !== contractTestedMethods.length) {
+      throw new Error(`Duplicate Runtime API contract-tested methods for ${surfaceName}.`);
+    }
+
+    for (const methodName of contractTestedMethods) {
+      if (!auditedMethods.has(methodName)) {
+        throw new Error(
+          `Runtime API contract-tested method for ${surfaceName}.${methodName} is not audited.`,
+        );
+      }
+    }
+
+    for (const methodName of surface.auditedMethods) {
+      if (resolveRuntimeApiMethodStatus(surface, methodName).behavior === null) {
+        throw new Error(`Runtime API behavior is not classified for ${surfaceName}.${methodName}.`);
+      }
+    }
+  }
+}
+
+export function resolveRuntimeApiMethodStatus(surface, methodName) {
+  if (!surface?.auditedMethods?.includes(methodName)) {
+    return {
+      behavior: null,
+      contractTested: false,
+    };
+  }
+
+  return {
+    behavior: surface?.behaviorOverrides?.[methodName] ?? surface?.defaultBehavior ?? null,
+    contractTested: surface?.contractTestedMethods?.includes(methodName) ?? false,
+  };
+}
+
+export function buildRuntimeApiStatusRows(status) {
+  return Object.entries(status.surfaces).map(([name, surface]) => {
+    const behaviors = new Map();
+
+    for (const methodName of surface.auditedMethods) {
+      const { behavior } = resolveRuntimeApiMethodStatus(surface, methodName);
+      behaviors.set(behavior, (behaviors.get(behavior) ?? 0) + 1);
+    }
+
+    return {
+      name,
+      audited: surface.auditedMethods.length,
+      behavior: [...RUNTIME_API_BEHAVIORS]
+        .filter((behavior) => behaviors.has(behavior))
+        .map((behavior) => `\`${behavior}\`: ${behaviors.get(behavior)}`)
+        .join("<br>"),
+      contractTested: surface.contractTestedMethods?.length ?? 0,
+    };
+  });
+}
+
+export function runtimeApiSurfaceName(globalName, interfaceName) {
+  return globalName.toLowerCase() === interfaceName.toLowerCase()
+    ? globalName
+    : `${globalName}.${interfaceName}`;
+}
+
+export function validateRuntimeApiStatusAgainstInventory(status, inventory) {
+  for (const [surfaceName, surface] of Object.entries(status.surfaces)) {
+    const runtimeMethods = inventory[surfaceName];
+
+    if (!runtimeMethods) {
+      throw new Error(`Unknown Runtime API status surface: ${surfaceName}.`);
+    }
+
+    const runtimeMethodSet = new Set(runtimeMethods);
+
+    for (const methodName of surface.auditedMethods) {
+      if (!runtimeMethodSet.has(methodName)) {
+        throw new Error(
+          `Runtime API status method ${surfaceName}.${methodName} is not implemented by the Runtime.`,
+        );
+      }
+    }
+
+    const auditedMethods = new Set(surface.auditedMethods);
+    const unauditedMethods = runtimeMethods.filter((methodName) => !auditedMethods.has(methodName));
+
+    if (unauditedMethods.length > 0) {
+      throw new Error(
+        `Runtime API status for ${surfaceName} is missing implemented methods: ${unauditedMethods.join(", ")}.`,
+      );
+    }
+  }
+
+  for (const surfaceName of Object.keys(inventory)) {
+    if (!(surfaceName in status.surfaces)) {
+      throw new Error(`Runtime API status is missing modeled surface: ${surfaceName}.`);
+    }
+  }
+}
+
+function loadRuntimeApiSurfaceInventory() {
+  const inventory = {};
+
+  for (const [globalName, surfaces] of Object.entries(API_SURFACES)) {
+    for (const [interfaceName, relativePath, className] of surfaces) {
+      const source = fs.readFileSync(path.join(RUNTIME_ROOT, relativePath), "utf8");
+      inventory[runtimeApiSurfaceName(globalName, interfaceName)] = extractClassMethodNames(
+        source,
+        className,
+      );
+    }
+  }
+
+  for (const { name, relativePath, className } of SHARED_API_SURFACES) {
+    const source = fs.readFileSync(path.join(RUNTIME_ROOT, relativePath), "utf8");
+    inventory[name] = extractClassMethodNames(source, className);
+  }
+
+  return inventory;
+}
+
+export function mergeMethodSurface(methods, supplementalMethods = []) {
+  return [...new Set([...methods, ...supplementalMethods])];
+}
+
+export function mergeInterfaceMethodSurfaces(source, interfaceNames) {
+  const methods = [];
+
+  for (const interfaceName of interfaceNames) {
+    const interfaceMethods = extractInterfaceMethodNames(source, interfaceName);
+
+    if (interfaceMethods === null) {
+      throw new Error(`Could not resolve Runtime API interface ${interfaceName}.`);
+    }
+
+    methods.push(...interfaceMethods);
+  }
+
+  return [...new Set(methods)];
+}
+
+function resolveMethodSurface(globalName, declaration, supplement) {
+  const entry = supplement.globals[globalName];
+
+  if (!declaration) {
+    return entry?.mode === "complete" ? [...entry.methods] : null;
+  }
+
+  if (entry?.mode === "complete") {
+    throw new Error(
+      `Runtime API supplement for ${globalName} is complete, but @types now declares the Global Object.`,
+    );
+  }
+
+  const interfaceName = extractInterfaceName(declaration.typeReference);
+
+  if (interfaceName === null) {
+    return null;
+  }
+
+  const methods = extractInterfaceMethodNames(declaration.source, interfaceName);
+
+  if (methods === null) {
+    return null;
+  }
+
+  return mergeMethodSurface(methods, entry?.methods);
+}
+
+function formatNames(names) {
+  if (names.length === 0) {
+    return "—";
+  }
+
+  return names.map((name) => `\`${name}\``).join("<br>");
+}
+
+function percentage(implemented, total) {
+  if (total === 0) {
+    return "—";
+  }
+
+  return `${((implemented / total) * 100).toFixed(1)}%`;
+}
+
+function buildRow(global, declaration, runtimeMethods, supplement) {
+  const officialMethods = resolveMethodSurface(global.name, declaration, supplement);
+
+  if (officialMethods === null && !declaration) {
+    return {
+      name: global.name,
+      implemented: null,
+      total: null,
+      percentage: "—",
+      missing: "Not declared by installed `@types/google-apps-script`",
+    };
+  }
+
+  if (officialMethods === null) {
+    return {
+      name: global.name,
+      implemented: null,
+      total: null,
+      percentage: "—",
+      missing: `Could not resolve \`${declaration.typeReference.replaceAll("|", "\\|")}\` as a method interface`,
+    };
+  }
+
+  const runtimeSet = new Set(runtimeMethods);
+  const implementedMethods = officialMethods.filter((method) => runtimeSet.has(method));
+  const missingMethods = officialMethods.filter((method) => !runtimeSet.has(method));
+
+  return {
+    name: global.name,
+    implemented: implementedMethods.length,
+    total: officialMethods.length,
+    percentage: percentage(implementedMethods.length, officialMethods.length),
+    missing: formatMissing(missingMethods),
+  };
+}
+
+function loadRuntimeMethods(global) {
+  if (!global.implemented) {
+    return [];
+  }
+
+  const surfaces = API_SURFACES[global.name];
+
+  if (!surfaces) {
+    throw new Error(
+      `Runtime global ${global.name} is implemented but has no API_SURFACES mapping. ` +
+        "Add the implementation class so coverage can be measured.",
+    );
+  }
+
+  const [, relativePath, className] = surfaces[0];
+  const source = fs.readFileSync(path.join(RUNTIME_ROOT, relativePath), "utf8");
+  return extractClassMethodNames(source, className);
+}
+
+function loadRuntimeProperties(global) {
+  if (!global.implemented) {
+    return [];
+  }
+
+  const surfaces = API_SURFACES[global.name];
+
+  if (!surfaces) {
+    throw new Error(
+      `Runtime global ${global.name} is implemented but has no API_SURFACES mapping. ` +
+        "Add the implementation class so coverage can be measured.",
+    );
+  }
+
+  const [, relativePath, className] = surfaces[0];
+  const source = fs.readFileSync(path.join(RUNTIME_ROOT, relativePath), "utf8");
+  return extractClassPropertyNames(source, className);
+}
+
+function buildDetailSections(runtimeGlobals, declarations, supplement) {
+  const sections = [];
+
+  for (const global of runtimeGlobals) {
+    if (!global.implemented) {
+      continue;
+    }
+
+    const surfaces = API_SURFACES[global.name];
+    const declaration = declarations.get(global.name);
+
+    if (!surfaces || !declaration) {
+      continue;
+    }
+
+    const rows = [];
+
+    for (const [index, [interfaceName, relativePath, className]] of surfaces.entries()) {
+      const declaredMethods = extractInterfaceMethodNames(declaration.source, interfaceName);
+
+      if (declaredMethods === null) {
+        continue;
+      }
+
+      const officialMethods =
+        index === 0
+          ? mergeMethodSurface(declaredMethods, supplement.globals[global.name]?.methods)
+          : declaredMethods;
+      const runtimeSource = fs.readFileSync(path.join(RUNTIME_ROOT, relativePath), "utf8");
+      const runtimeMethods = new Set(extractClassMethodNames(runtimeSource, className));
+      const implemented = officialMethods.filter((method) => runtimeMethods.has(method));
+      const missing = officialMethods.filter((method) => !runtimeMethods.has(method));
+
+      rows.push({
+        interfaceName,
+        implemented: implemented.length,
+        total: officialMethods.length,
+        percentage: percentage(implemented.length, officialMethods.length),
+        missing: formatMissing(missing),
+      });
+    }
+
+    if (rows.length > 0) {
+      sections.push({ name: global.name, rows });
+    }
+  }
+
+  return sections;
+}
+
+function buildSharedDetailSections(typeSources) {
+  const rows = [];
+
+  for (const {
+    name,
+    declarationPath,
+    interfaceNames,
+    relativePath,
+    className,
+  } of SHARED_API_SURFACES) {
+    const declarationSource = typeSources.get(declarationPath);
+
+    if (declarationSource === undefined) {
+      throw new Error(`Could not load Runtime API declaration source ${declarationPath}.`);
+    }
+
+    const officialMethods = mergeInterfaceMethodSurfaces(declarationSource, interfaceNames);
+    const runtimeSource = fs.readFileSync(path.join(RUNTIME_ROOT, relativePath), "utf8");
+    const runtimeMethods = new Set(extractClassMethodNames(runtimeSource, className));
+    const implemented = officialMethods.filter((method) => runtimeMethods.has(method));
+    const missing = officialMethods.filter((method) => !runtimeMethods.has(method));
+
+    rows.push({
+      interfaceName: name,
+      implemented: implemented.length,
+      total: officialMethods.length,
+      percentage: percentage(implemented.length, officialMethods.length),
+      missing: formatMissing(missing),
+    });
+  }
+
+  return rows.length === 0 ? [] : [{ name: "Shared", rows }];
+}
+
+function buildEnumRows(runtimeGlobals, declarations) {
+  const rows = [];
+
+  for (const global of runtimeGlobals) {
+    const declaration = declarations.get(global.name);
+
+    if (!declaration) {
+      continue;
+    }
+
+    const interfaceName = extractInterfaceName(declaration.typeReference);
+
+    if (interfaceName === null || hasEnumDeclaration(declaration.source, interfaceName)) {
+      continue;
+    }
+
+    const officialProperties = extractInterfaceEnumPropertyNames(declaration.source, interfaceName);
+
+    if (!officialProperties || officialProperties.length === 0) {
+      continue;
+    }
+
+    const runtimeProperties = new Set(loadRuntimeProperties(global));
+    const implemented = officialProperties.filter((property) => runtimeProperties.has(property));
+    const missing = officialProperties.filter((property) => !runtimeProperties.has(property));
+
+    rows.push({
+      name: global.name,
+      implemented: implemented.length,
+      total: officialProperties.length,
+      percentage: percentage(implemented.length, officialProperties.length),
+      missing: formatNames(missing),
+    });
+  }
+
+  return rows;
+}
+
+function buildStandaloneEnumRows(runtimeGlobals, declarations) {
+  const rows = [];
+
+  for (const global of runtimeGlobals) {
+    const declaration = declarations.get(global.name);
+
+    if (!declaration) {
+      continue;
+    }
+
+    if (!isStandaloneGlobalEnum(global.name, declaration)) {
+      continue;
+    }
+
+    rows.push({
+      name: global.name,
+      implemented: global.implemented ? 1 : 0,
+      total: 1,
+      percentage: global.implemented ? "100.0%" : "0.0%",
+    });
+  }
+
+  return rows;
+}
+
+export function renderCoverageMarkdown({
+  version,
+  runtimeGlobals,
+  declarations,
+  supplement,
+  status,
+  typeSources = null,
+}) {
+  const statusRows = buildRuntimeApiStatusRows(status);
+  const standaloneEnums = buildStandaloneEnumRows(runtimeGlobals, declarations);
+  const standaloneEnumNames = new Set(standaloneEnums.map(({ name }) => name));
+  const rows = runtimeGlobals
+    .filter(
+      (global) =>
+        (declarations.has(global.name) || supplement.globals[global.name]?.mode === "complete") &&
+        !standaloneEnumNames.has(global.name),
+    )
+    .map((global) =>
+      buildRow(global, declarations.get(global.name), loadRuntimeMethods(global), supplement),
+    );
+  const methodRows = rows.filter((row) => row.total > 0);
+  const nestedRows = rows.filter((row) => row.total === 0);
+  const untrackedGlobals = runtimeGlobals.filter(
+    (global) =>
+      !declarations.has(global.name) && supplement.globals[global.name]?.mode !== "complete",
+  );
+  const supplementedGlobals = Object.entries(supplement.globals);
+  const implemented = methodRows.reduce((sum, row) => sum + row.implemented, 0);
+  const total = methodRows.reduce((sum, row) => sum + row.total, 0);
+  const enumRows = [
+    ...buildEnumRows(runtimeGlobals, declarations),
+    ...standaloneEnums.map((row) => ({
+      ...row,
+      missing: row.implemented === row.total ? "—" : formatNames([row.name]),
+    })),
+  ];
+  const implementedEnums = enumRows.reduce((sum, row) => sum + row.implemented, 0);
+  const totalEnums = enumRows.reduce((sum, row) => sum + row.total, 0);
+  const details = [
+    ...buildDetailSections(runtimeGlobals, declarations, supplement),
+    ...(typeSources === null ? [] : buildSharedDetailSections(typeSources)),
+  ];
+  const lines = [
+    "<!-- Generated by `pnpm docs:api-coverage`. Do not edit manually. -->",
+    "",
+    "# Runtime API coverage",
+    "",
+    "This generated page reports structural API coverage and audited Runtime behavior. For the behavior model, limitations, and verification policy, start with [Local Runtime](./local-runtime).",
+    "",
+    "::: details Coverage measurement rules",
+    "",
+    "",
+    `- Google API declarations: \`@types/google-apps-script@${version}\``,
+    "- Global implementation inventory: `packages/vegas/src/node/runtime/runtime-globals.ts`",
+    "- Supplemental API declarations: `scripts/runtime-api-supplement.json`, sourced from Google official documentation.",
+    "- Runtime behavior inventory: `scripts/runtime-api-status.json`; behavior classification is separate from structural method coverage.",
+    "- Coverage unit: unique method names (overloads count once); properties and enum values are not counted.",
+    "- Enum surface coverage combines enum properties exposed on Global Objects and standalone Global enums; each enum surface counts once and enum members are not counted individually.",
+    "- Global Objects absent from the installed `@types/google-apps-script` are excluded from numeric coverage and listed as untracked.",
+    "- Declared Global Objects with no direct methods are excluded from method coverage until nested collection/resource APIs are measured recursively.",
+    "- Deprecated methods remain in the denominator while they are present in the installed type declarations.",
+    "- The global summary measures methods declared directly on each Global Object interface.",
+    "- Modeled Runtime objects are shown separately below when Vegas has an explicit implementation mapping, including shared returned types such as `Blob`.",
+    "",
+    ":::",
+    "",
+    "## Audited Runtime behavior",
+    "",
+    "Structural coverage records whether a Runtime method exists; it does not imply Google Apps Script behavioral fidelity. Every explicitly mapped Runtime surface is required to appear in `scripts/runtime-api-status.json`, and CI rejects missing surfaces or methods.",
+    "",
+    "`implemented` follows the documented public contract with no known local-only semantic difference. `local-emulation` substitutes a local model for Apps Script state or services. `no-op` intentionally performs no side effect. `fail-closed` rejects behavior Vegas cannot faithfully reproduce. Contract-tested status is tracked independently and requires an explicit automated test grounded in a public contract. Vegas does not use the production Google Apps Script runtime as a behavioral oracle.",
+    "",
+    "| Runtime surface | Audited methods | Behavior classification | Contract-tested |",
+    "| --- | ---: | --- | ---: |",
+    ...statusRows.map(
+      (row) =>
+        `| \`${row.name}\` | ${row.audited} | ${row.behavior} | ${row.contractTested} / ${row.audited} |`,
+    ),
+    "",
+    "## Global Object methods",
+    "",
+    `Measured Global Object method coverage: **${implemented} / ${total} (${percentage(implemented, total)})**`,
+    "",
+    "::: details Show detailed Global Object method coverage",
+    "",
+    "| API (Global Object) | Coverage | Coverage (%) | Unimplemented API (methods) |",
+    "| --- | ---: | ---: | --- |",
+  ];
+
+  for (const row of methodRows) {
+    lines.push(
+      `| \`${row.name}\` | ${row.implemented} / ${row.total} | ${row.percentage} | ${row.missing} |`,
+    );
+  }
+
+  lines.push("", ":::");
+
+  lines.push(
+    "",
+    "## Enums",
+    "",
+    `Measured enum surface coverage: **${implementedEnums} / ${totalEnums} (${percentage(implementedEnums, totalEnums)})**`,
+    "",
+    "::: details Show detailed enum coverage",
+    "",
+    "| API | Coverage | Coverage (%) | Unimplemented enum surfaces |",
+    "| --- | ---: | ---: | --- |",
+  );
+
+  for (const row of enumRows) {
+    lines.push(
+      `| \`${row.name}\` | ${row.implemented} / ${row.total} | ${row.percentage} | ${row.missing} |`,
+    );
+  }
+
+  lines.push("", ":::");
+
+  lines.push(
+    "",
+    "## Supplemental API declarations",
+    "",
+    "These checked-in declarations cover API surface confirmed in Google official documentation but missing from the installed `@types/google-apps-script`. `augment` entries add missing members to an existing type surface. `complete` entries may be used only after the full Global Object surface has been audited.",
+    "",
+    "| API (Global Object) | Mode | Supplemental methods | Source |",
+    "| --- | --- | --- | --- |",
+  );
+
+  for (const [name, entry] of supplementedGlobals) {
+    lines.push(
+      `| \`${name}\` | \`${entry.mode}\` | ${formatMissing(entry.methods)} | <${entry.source}> |`,
+    );
+  }
+
+  lines.push(
+    "",
+    "## Declared nested APIs not yet measured",
+    "",
+    "These Global Objects are declared by the installed type package but expose no direct methods. Advanced services commonly expose nested collection/resource objects instead. They are excluded from the headline method coverage until recursive API measurement is added.",
+    "",
+    "| API (Global Object) | Vegas status |",
+    "| --- | --- |",
+  );
+
+  for (const row of nestedRows) {
+    const global = runtimeGlobals.find(({ name }) => name === row.name);
+    lines.push(`| \`${row.name}\` | ${global?.implemented ? "Implemented" : "Not implemented"} |`);
+  }
+
+  lines.push(
+    "",
+    "## Untracked by installed @types",
+    "",
+    "These Global Objects exist in the Vegas Runtime inventory but are not declared by the installed `@types/google-apps-script`, and do not yet have a `complete` supplemental surface. They are excluded from numeric coverage. The coverage generator remains deterministic and does not fetch live documentation during CI.",
+    "",
+    "| API (Global Object) | Vegas status |",
+    "| --- | --- |",
+  );
+
+  for (const global of untrackedGlobals) {
+    lines.push(
+      `| \`${global.name}\` | ${global.implemented ? "Implemented" : "Not implemented"} |`,
+    );
+  }
+
+  lines.push("", "## Modeled Runtime objects", "");
+  lines.push(
+    "These tables cover returned object types that already have a Vegas Runtime class. They are intentionally separate from the Global Object summary so the meaning of the headline coverage remains stable.",
+    "",
+  );
+
+  for (const section of details) {
+    lines.push(`::: details ${section.name}`, "");
+    lines.push("| Object type | Coverage | Coverage (%) | Unimplemented API (methods) |");
+    lines.push("| --- | ---: | ---: | --- |");
+
+    for (const row of section.rows) {
+      lines.push(
+        `| \`${row.interfaceName}\` | ${row.implemented} / ${row.total} | ${row.percentage} | ${row.missing} |`,
+      );
+    }
+
+    lines.push("", ":::", "");
+  }
+
+  return `${lines.join("\n")}\n`;
+}
+
+function resolveTypesRoot() {
+  const requireFromVegas = createRequire(path.join(VEGAS_ROOT, "package.json"));
+  return path.dirname(requireFromVegas.resolve("@types/google-apps-script/package.json"));
+}
+
+function formatGeneratedMarkdown(source) {
+  const result = spawnSync(PNPM, ["exec", "oxfmt", "--stdin-filepath", OUTPUT_PATH], {
+    cwd: ROOT,
+    input: source,
+    encoding: "utf8",
+  });
+
+  if (result.error) {
+    throw result.error;
+  }
+
+  if (result.status !== 0) {
+    throw new Error(
+      ["Failed to format Runtime API coverage documentation.", result.stdout, result.stderr]
+        .filter(Boolean)
+        .join("\n"),
+    );
+  }
+
+  return result.stdout;
+}
+
+function generate() {
+  const typesRoot = resolveTypesRoot();
+  const packageJson = JSON.parse(fs.readFileSync(path.join(typesRoot, "package.json"), "utf8"));
+  const typeSources = loadTypeSources(typesRoot);
+  const declarations = collectGlobalDeclarations(typeSources);
+  const runtimeGlobals = extractRuntimeGlobals(fs.readFileSync(RUNTIME_GLOBALS_PATH, "utf8"));
+  const supplement = JSON.parse(fs.readFileSync(SUPPLEMENT_PATH, "utf8"));
+  const status = JSON.parse(fs.readFileSync(STATUS_PATH, "utf8"));
+
+  validateRuntimeApiSupplement(supplement);
+  validateRuntimeApiStatus(status);
+  validateRuntimeApiStatusAgainstInventory(status, loadRuntimeApiSurfaceInventory());
+
+  const markdown = renderCoverageMarkdown({
+    version: packageJson.version,
+    runtimeGlobals,
+    declarations,
+    supplement,
+    status,
+    typeSources,
+  });
+
+  return formatGeneratedMarkdown(markdown);
+}
+
+function main() {
+  const generated = generate();
+  const check = process.argv.includes("--check");
+
+  if (check) {
+    if (!fs.existsSync(OUTPUT_PATH) || fs.readFileSync(OUTPUT_PATH, "utf8") !== generated) {
+      console.error("Runtime API coverage documentation is stale.");
+      console.error("Run `pnpm docs:api-coverage` and commit the generated Markdown.");
+      process.exitCode = 1;
+      return;
+    }
+
+    console.log("Runtime API coverage documentation is up to date.");
+    return;
+  }
+
+  fs.writeFileSync(OUTPUT_PATH, generated);
+  console.log(`Generated ${path.relative(ROOT, OUTPUT_PATH)}`);
+}
+
+if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(import.meta.filename)) {
+  main();
+}

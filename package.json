@@ -11,26 +11,36 @@
   "type": "module",
   "scripts": {
     "preinstall": "npx only-allow pnpm",
-    "lint": "oxlint",
     "format": "oxfmt",
+    "lint": "oxlint",
     "test": "vitest run",
     "coverage": "vitest run --coverage",
-    "build": "tsdown --config-loader unrun --workspace",
-    "docs:dev": "pnpm --filter ./docs dev",
-    "docs:build": "pnpm --filter ./docs build",
+    "build": "tsdown --config-loader native --workspace --publint --fail-on-warn",
+    "license:check": "git diff --exit-code -- packages/vegas/LICENSE.md packages/create-vegas/LICENSE.md",
+    "check": "pnpm docs:api-coverage:check && pnpm lint && pnpm test && pnpm build && pnpm license:check",
+    "release:smoke": "node scripts/release-smoke.js",
+    "release:check": "pnpm check && pnpm release:smoke",
+    "docs:api-coverage": "node scripts/generate-runtime-api-coverage.js",
+    "docs:api-coverage:check": "node scripts/generate-runtime-api-coverage.js --check",
+    "docs:dev": "pnpm docs:api-coverage && pnpm --filter ./docs dev",
+    "docs:build": "pnpm docs:api-coverage:check && pnpm --filter ./docs build",
     "docs:preview": "pnpm --filter ./docs preview"
   },
   "devDependencies": {
+    "@arethetypeswrong/core": "^0.18.5",
+    "@playwright/test": "^1.63.0",
+    "@types/node": "^22.12.0",
     "@vegasjs/vegas": "workspace:*",
-    "@vitest/coverage-v8": "^4.1.9",
-    "oxfmt": "^0.57.0",
-    "oxlint": "^1.72.0",
-    "oxlint-tsgolint": "^0.23.0",
-    "tsdown": "^0.22.3",
-    "vitest": "^4.1.9"
+    "@vitest/coverage-v8": "^5.0.0",
+    "oxfmt": "^0.67.0",
+    "oxlint": "^1.82.0",
+    "oxlint-tsgolint": "^7.0.2001",
+    "publint": "^0.3.24",
+    "tsdown": "^0.23.0",
+    "vitest": "^5.0.0"
   },
   "engines": {
     "node": ">=22.18.0"
   },
-  "packageManager": "pnpm@10.33.0"
+  "packageManager": "pnpm@12.3.4"
 }

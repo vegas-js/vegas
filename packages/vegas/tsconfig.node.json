@@ -1,31 +1,15 @@
 {
   "compilerOptions": {
-    "target": "es2023",
-    "module": "esnext",
-    "types": [
-      "@platformatic/vfs",
-      "google-apps-script",
-      "memfs",
-      "node",
-      "parse5",
-      "vite",
-      "vitest",
-      "tsdown"
-    ],
-    "skipLibCheck": true,
-
-    /* Bundler mode */
-    "moduleResolution": "bundler",
-
-    /* Linting */
-    "strict": true
+    "types": ["google-apps-script", "node", "parse5", "vite", "vitest"]
   },
   "include": [
-    "src/shared",
-    "src/lib",
-    "src/node/cli",
-    "src/node/worker",
-    "tsdown.config.ts",
-    "rolldownLicensePlugin.ts"
+    "src/config",
+    "src/entrypoints/config.spec.ts",
+    "src/entrypoints/config.ts",
+    "src/entrypoints/playwright.spec.ts",
+    "src/entrypoints/playwright.ts",
+    "src/entrypoints/vitest.spec.ts",
+    "src/entrypoints/vitest.ts",
+    "src/node"
   ]
 }

@@ -6,15 +6,17 @@ outline: deep
 
 ## Overview
 
-Vegas (Vite + GAS) is an integrated build tool aimed at providing a faster, more streamlined development environment for modern web projects on the GAS platform. Vegas consists of two main parts:
+Vegas (Vite + GAS) is a development and build tool that brings a dedicated modern project workflow to the Google Apps Script platform.
 
-- A development server with a local GAS compatible runtime, powered by [Vite](https://vite.dev), a powerful tool with hot module replacement (HMR).
+- A development server with a local Apps Script-oriented runtime for supported APIs, powered by [Vite](https://vite.dev).
 
-- A build command that bundles frontend and server code, powered by [Vite](https://vite.dev), further enhanced with the introduction of Rust.
+- A production build pipeline that produces Apps Script-specific bundles from frontend and server code.
 
-Vegas provides a zero-config experience, achieving optimal build results without any configuration in most cases. See the Feature Guide for details.
+- Native Apps Script authentication and push commands for sending build artifacts directly to an Apps Script project.
 
-It features a Vite plugin pass-through function, enabling framework support and integration with other tools with the Vite experience.
+Vegas provides defaults for common project layouts, so many projects can start without custom configuration. See [Configuring Vegas](../config/) for available options.
+
+Vite plugins can be supplied through Vegas configuration, allowing framework integrations and other Vite plugins to participate in the client build.
 
 The reasoning behind the project is explained in detail in the [Why Vegas](./why) section.
 
@@ -34,18 +36,18 @@ $ pnpm create vegas
 
 Then follow the prompts.
 
-## `index.html` and Project Root
+## SPA Entry Points
 
-You may have noticed that index.html is not located in the root of the Vegas project. This is intentional. Vegas automatically detects entry points like `main.ts` or `main.tsx`.
+Vegas does not require Vite's conventional project-root `index.html`. SPA entries live under the configured client directory, which defaults to `src/client`.
 
-There are two main reasons why we didn't follow Vite's configuration.
+Vegas supports two entry styles:
 
-First, when building an SPA on the GAS platform, there's almost no point in editing raw HTML.
-Web apps (not just SPAs) running on the GAS platform run in an iframe sandbox, so header settings and the like are meaningless. Also, using an SPA framework is much more efficient than manually writing HTML files with SPA in mind.
+- Module entries named `main.ts`, `main.tsx`, `main.js`, or `main.jsx`. Vegas generates the corresponding HTML artifact.
+- Physical `.html` entries inside the client directory. Vegas keeps their relative HTML paths as build entries.
 
-The second reason is the realization of a single project/multiple frontends.
+This allows both generated-host and HTML-first projects while keeping client entry points separate from Apps Script server sources. Nested entries can also represent multiple frontends in one Apps Script project.
 
-Existing SPA tool configurations typically have one frontend per GAS project. However, this doesn't address the need to manage separate frontends (e.g., admin and user dashboards) within a single codebase. Vegas is designed to easily address this need.
+See [Project Structure](./project-structure) for the default layouts and entry-point rules.
 
 ## Command Line Interface
 
@@ -56,10 +58,45 @@ In a project where Vegas is installed, you can use the vegas binary in your npm 
 ```json [package.json]
 {
   "scripts": {
-    "dev": "vegas", // start dev server, aliases: `vegas dev`, `vegas serve`
-    "build": "vegas build" // build for production
+    "dev": "vegas",
+    "build": "vegas build",
+    "preview": "vegas preview",
+    "login": "vegas auth login",
+    "push": "vegas push"
   }
 }
 ```
 
 :::
+
+See [Command Line Interface](./cli) for the available commands, aliases, root argument, and authentication options.
+
+## Pushing to Apps Script
+
+Set the Apps Script project ID in `vegas.config.ts`:
+
+```typescript
+import { defineConfig } from "@vegasjs/vegas";
+
+export default defineConfig({
+  appsScript: {
+    scriptId: "your-script-id",
+    manifest: {},
+  },
+});
+```
+
+Authenticate once with a Google Desktop OAuth client JSON file:
+
+```bash
+npm run login -- ./client-secret.json
+```
+
+Then build and push the project:
+
+```bash
+npm run build
+npm run push
+```
+
+`vegas push` uploads the authoritative contents of the production build output to the configured Apps Script project.

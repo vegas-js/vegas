@@ -1,0 +1,60 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["eslint", "import", "jsdoc", "node", "oxc", "promise", "typescript", "unicorn"],
+  "ignorePatterns": ["packages/create-vegas/template-*", "packages/vegas/*.d.ts"],
+  "overrides": [
+    {
+      "files": ["packages/vegas/src/node/runtime/**/*.ts"],
+      "excludeFiles": [
+        "packages/vegas/src/node/runtime/**/*.spec.ts",
+        "packages/vegas/src/node/runtime/node/**"
+      ],
+      "rules": {
+        "import/no-relative-parent-imports": "error",
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "regex": "^[^.]",
+                "message": "Runtime core must not import packages, Node builtins, or other bare modules."
+              },
+              {
+                "group": ["./node", "./node/*"],
+                "message": "Runtime core must not depend on Node runtime adapters."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": ["packages/vegas/src/node/runtime/*/runtime-boundary.ts"],
+      "rules": {
+        "import/no-relative-parent-imports": "off"
+      }
+    },
+    {
+      "files": ["packages/vegas/src/node/runtime/node/**/*.ts"],
+      "excludeFiles": ["packages/vegas/src/node/runtime/node/**/*.spec.ts"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "regex": "^\\.\\./\\.\\./",
+                "message": "Runtime Node adapters must not depend on higher-level Node layers."
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "options": {
+    "denyWarnings": true,
+    "typeAware": true,
+    "typeCheck": true
+  }
+}

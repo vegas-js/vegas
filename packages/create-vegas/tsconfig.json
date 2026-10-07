@@ -1,15 +1,9 @@
 {
   "compilerOptions": {
-    "target": "es2023",
-    "module": "esnext",
     "types": ["node"],
-    "skipLibCheck": true,
 
-    /* Bundler mode */
-    "moduleResolution": "bundler",
-
-    /* Linting */
-    "strict": true
+    "noEmit": true,
+    "allowImportingTsExtensions": true
   },
   "include": ["src", "tsdown.config.ts"]
 }

@@ -1,6 +1,6 @@
 import { defineConfig } from "tsdown";
 
-import rolldownLicensePlugin from "../vegas/rolldownLicensePlugin";
+import rolldownLicensePlugin from "../../tooling/rolldown-license-plugin.ts";
 
 export default defineConfig({
   entry: { "create-vegas": "./src" },
@@ -18,12 +18,10 @@ export default defineConfig({
       "shebang-command",
       "shebang-regex",
       "sisteransi",
+      "validate-npm-package-name",
       "which",
     ],
   },
-  outputOptions: {
-    entryFileNames: "[name].js",
-  },
-  dts: false,
+  fixedExtension: false,
   plugins: [rolldownLicensePlugin(import.meta.dirname, ["LICENSE-TEMPLATES"])],
 });

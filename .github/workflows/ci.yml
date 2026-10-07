@@ -1,4 +1,4 @@
-name: CI
+name: ci
 on:
   push:
     branches:
@@ -10,14 +10,15 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: pnpm/setup@v2
         with:
-          node-version: ">=22.14.0"
-          cache: pnpm
-      - run: pnpm install
-      - run: pnpm lint
-      - run: pnpm build
-      - run: pnpm test
+          runtime: "node@22.18.0"
+          cache: true
+      - run: pnpm exec playwright install --with-deps --only-shell chromium firefox webkit
+      - run: pnpm release:check
+        env:
+          VEGAS_PLAYWRIGHT_BROWSER_MATRIX: "1"

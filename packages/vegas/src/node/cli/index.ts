@@ -2,7 +2,9 @@
 import { cac } from "cac";
 
 import pkg from "../../../package.json";
+import { runAuth } from "./auth-login";
 import { runBuild } from "./build";
+import { formatCliError } from "./error";
 import { runPreview } from "./preview";
 import { runPush } from "./push";
 import { runServe } from "./serve";
@@ -19,8 +21,34 @@ cli.command("preview [root]").action(runPreview);
 // build
 cli.command("build [root]").action(runBuild);
 
+// auth
+cli
+  .command("auth <action> [client-file]")
+  .option("--profile <profile>", "Use an Apps Script authentication profile")
+  .option("--scope <scope>", "Request an additional Google OAuth scope", {
+    type: [String],
+  })
+  .action(runAuth);
+
 // push
-cli.command("push").action(runPush);
+cli
+  .command("push [root]")
+  .option("--profile <profile>", "Use an Apps Script authentication profile")
+  .action(runPush);
 
 cli.help();
-cli.parse();
+
+try {
+  cli.parse(process.argv, { run: false });
+
+  await cli.runMatchedCommand();
+} catch (error) {
+  const message = formatCliError(error);
+
+  if (message === undefined) {
+    throw error;
+  }
+
+  console.error(message);
+  process.exitCode = 1;
+}

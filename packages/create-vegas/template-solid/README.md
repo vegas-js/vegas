@@ -1,24 +1,27 @@
-## Usage
+# Vegas + Solid + TypeScript
+
+A minimal Solid and Google Apps Script project created with `create-vegas`.
+
+## Getting Started
 
 ```bash
-$ npm install # or pnpm install or yarn install
+npm install
+npm run dev
 ```
 
-### Learn more on the [Solid Website](https://solidjs.com) and come chat with us on our [Discord](https://discord.com/invite/solidjs)
+Start editing `src/client/App.tsx`. The Apps Script server entry is `src/server/Code.ts`.
 
-## Available Scripts
+Set `appsScript.scriptId` in `vegas.config.ts` before pushing to Apps Script.
 
-In the project directory, you can run:
+## Scripts
 
-### `npm run dev`
+- `npm run dev` — start the local development server
+- `npm run build` — type-check and build the project
+- `npm run preview` — preview the production build locally
+- `npm run login -- <oauth-client-json>` — authenticate with Google for Apps Script
+- `npm run push` — build and push the project to Apps Script
 
-Runs the app in the development mode.<br>
-Open [http://localhost:5173](http://localhost:5173) to view it in the browser.
+## Documentation
 
-### `npm run build`
-
-Builds the app for production to the `dist` folder.<br>
-It correctly bundles Solid in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.<br>
-Your app is ready to be deployed!
+- [Vegas](https://vegasjs.dev/)
+- [Solid](https://docs.solidjs.com/)

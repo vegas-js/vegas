@@ -1,7 +1,7 @@
 {
   "name": "@vegasjs/vegas",
   "version": "0.1.9",
-  "description": "The SPA build tool for GAS platform",
+  "description": "Vite-powered development and build tool for Google Apps Script projects",
   "keywords": [
     "build-tool",
     "dev-server",
@@ -33,12 +33,24 @@
   "type": "module",
   "exports": {
     ".": {
-      "types": "./server.d.ts",
-      "import": "./dist/lib.js"
+      "types": "./dist/config.d.ts",
+      "import": "./dist/config.js"
     },
     "./client": {
       "types": "./client.d.ts",
-      "import": "./dist/lib.js"
+      "import": "./dist/client.js"
+    },
+    "./playwright": {
+      "types": "./dist/playwright.d.ts",
+      "import": "./dist/playwright.js"
+    },
+    "./server": {
+      "types": "./server.d.ts",
+      "import": "./dist/server.js"
+    },
+    "./vitest": {
+      "types": "./dist/vitest.d.ts",
+      "import": "./dist/vitest.js"
     }
   },
   "publishConfig": {
@@ -46,15 +58,26 @@
     "provenance": true
   },
   "dependencies": {
-    "@types/google-apps-script": "^2.0.11",
-    "vite": "^8.1.0"
+    "@types/google-apps-script": "^2.0.13",
+    "vite": "^8.3.0"
   },
   "devDependencies": {
-    "@platformatic/vfs": "^0.4.0",
-    "@types/node": "^24.12.4",
     "cac": "^7.0.0",
-    "memfs": "^4.57.8",
-    "parse5": "^8.0.1"
+    "json5": "^2.2.3",
+    "parse5": "^8.0.1",
+    "zod": "^4.6.5"
+  },
+  "peerDependencies": {
+    "@playwright/test": "^1.63.0",
+    "vitest": "^5.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@playwright/test": {
+      "optional": true
+    },
+    "vitest": {
+      "optional": true
+    }
   },
   "engines": {
     "node": ">=22.18.0"

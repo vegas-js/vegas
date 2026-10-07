@@ -1,6 +1,10 @@
-import { defineConfig } from '@vegasjs/vegas/client'
+import { defineConfig } from '@vegasjs/vegas'
 import vue from '@vitejs/plugin-vue'
 
 export default defineConfig({
+  appsScript: {
+    scriptId: '',
+    manifest: {},
+  },
   plugins: [vue()],
 })

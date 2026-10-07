@@ -13,14 +13,18 @@ GAS development is often hindered by the latency between writing code and seeing
 - **Rapid Iteration:**
   By fostering a fast feedback loop, developers can maintain focus on logic rather than infrastructure overhead.
 
-## High-Fidelity Emulation: Testable GAS
+## Local Runtime: Faster Development Feedback
 
-Relying on production-only testing is both risky and time-consuming. Vegas serves as a precise emulator that mirrors the execution environment of GAS locally.
+Relying exclusively on remote execution makes iteration slower. Vegas therefore provides a local runtime that lets supported Apps Script behavior participate in the development and preview feedback loop.
 
-- **Predictable Execution:**
-  Complex interactions with services like Spreadsheet and Drive APIs can be verified without touching live data.
-- **Reliable Deployments:**
-  This approach ensures that code which functions correctly in the local emulator remains stable when deployed to Google's servers.
+- **Contract-First Behavior:**
+  Runtime behavior is implemented from public contracts such as Google Apps Script documentation, public standards, and documented upstream specifications.
+- **Explicit Behavior Categories:**
+  Audited methods distinguish documented implementations, local emulation, intentional no-ops, and fail-closed behavior instead of presenting all structurally available methods as equivalent.
+- **No Behavioral Oracle:**
+  Vegas does not probe the production Google Apps Script runtime to discover undocumented behavior for the Local Runtime.
+
+See [Local Runtime](./local-runtime) for the complete runtime and verification model.
 
 ## Architectural Scalability: Multi-Frontend Strategy
 
@@ -33,11 +37,13 @@ Managing multiple user interfaces within a single GAS project traditionally intr
 - **Payload Optimization:**
   Building distinct SPAs for different roles prevents bundle size bloat, ensuring users download only the code necessary for their specific environment.
 
-## Respect for the Ecosystem: Coexistence with clasp
+## Integrated Apps Script Workflow
 
-Vegas is designed to enhance, not replace, the tools developers already trust. Project management and deployment remain the responsibility of established solutions.
+Vegas is designed to cover the full development path from local development through production push while keeping each responsibility explicit.
 
-- **Separation of Concerns:**
-  Vegas focuses exclusively on perfecting the local development and build phases.
-- **Seamless Integration:**
-  Build outputs are optimized for a smooth transition to deployment tools like clasp, fitting into your existing workflow without disruption.
+- **Local Development and Build:**
+  Vegas provides the development server, local Apps Script-oriented runtime for supported APIs, and production build pipeline.
+- **Native Apps Script Push:**
+  Production build output can be pushed directly to an Apps Script project with `vegas push`.
+- **Migration Compatibility:**
+  Existing projects can continue using a script ID from `.clasp.json` while migrating to the Vegas-native `appsScript.scriptId` configuration.

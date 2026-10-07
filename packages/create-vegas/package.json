@@ -23,6 +23,8 @@
     "create-vegas": "dist/create-vegas.js"
   },
   "files": [
+    "template-apps-script-scriptlet",
+    "template-lit",
     "template-preact",
     "template-react",
     "template-solid",
@@ -36,11 +38,12 @@
     "provenance": true
   },
   "devDependencies": {
-    "@clack/prompts": "1.6.0",
+    "@clack/prompts": "1.8.0",
     "@types/cross-spawn": "^6.0.6",
-    "@types/node": "^24.12.4",
+    "@types/validate-npm-package-name": "^4.0.2",
     "cac": "^7.0.0",
-    "cross-spawn": "^7.0.6"
+    "cross-spawn": "^7.0.6",
+    "validate-npm-package-name": "^7.0.2"
   },
   "engines": {
     "node": ">=22.18.0"

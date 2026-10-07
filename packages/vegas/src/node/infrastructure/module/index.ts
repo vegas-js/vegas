@@ -1,0 +1,1 @@
+export { loadModule } from "./load";

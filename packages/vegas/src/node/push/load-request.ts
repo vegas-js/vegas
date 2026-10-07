@@ -1,0 +1,25 @@
+import { createAppsScriptProjectContent } from "./content";
+import { readBuildArtifacts } from "./read-output";
+import { createAppsScriptPushRequest, type AppsScriptPushRequest } from "./request";
+import { loadAppsScriptScriptId } from "./script-id/load";
+
+interface LoadAppsScriptPushRequestOptions {
+  readonly projectRoot: string;
+  readonly outputDir: string;
+  readonly projectScriptId?: string;
+  readonly env?: NodeJS.ProcessEnv;
+}
+
+export async function loadAppsScriptPushRequest(
+  options: LoadAppsScriptPushRequestOptions,
+): Promise<AppsScriptPushRequest> {
+  const artifacts = await readBuildArtifacts(options.outputDir);
+  const content = createAppsScriptProjectContent(artifacts);
+  const scriptId = await loadAppsScriptScriptId({
+    projectRoot: options.projectRoot,
+    projectScriptId: options.projectScriptId,
+    env: options.env,
+  });
+
+  return createAppsScriptPushRequest(scriptId, content);
+}

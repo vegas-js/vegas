@@ -10,14 +10,15 @@ Standard build tools are designed for the open web, not the unique constraints o
 
 Vegas was built to bridge this gap by providing a specialized pipeline that respects GAS architecture while delivering a 2026-standard development experience.
 
-## Comparison: Why Vegas is the Right Choice
+## Capability Comparison
 
-| Feature           | Legacy (clasp only)      | Standard Vite Plugins   | Vegas                            |
-| :---------------- | :----------------------- | :---------------------- | -------------------------------- |
-| Feedback Loop     | 🐌 Slow (Push & Refresh) | 💨 Fast (Web HMR only)  | ⚡️ Instant (Full-Bundle Refresh) |
-| Execution State   | Online Only              | Potentially Unstable    | Always Clean & Reliable          |
-| Frontend Strategy | Monolithic SPA           | Complex Config Required | Native Multi-Entry Support       |
-| Bundle Size       | Bloated                  | Variable                | Optimized per Entry              |
+| Capability                           | clasp alone | Vite alone        | Vegas                   |
+| :----------------------------------- | :---------- | :---------------- | :---------------------- |
+| Local frontend dev server            | No          | Yes               | Yes                     |
+| Local Apps Script-oriented runtime   | No          | No                | Yes, for supported APIs |
+| Apps Script project push             | Yes         | No                | Yes                     |
+| Apps Script-oriented build           | No          | General web build | Yes                     |
+| Automatic SPA client entry discovery | No          | No by default     | Yes                     |
 
 ## Core Advantages
 
@@ -28,9 +29,9 @@ While standard HMR (Hot Module Replacement) is great for the web, it can introdu
 - **Clean-State Execution:**
   Upon saving, Vegas performs a lightning-fast re-bundle of your entire server-side logic and restarts the local runtime context.
 - **No Orphaned State:**
-  By avoiding partial module updates, you are guaranteed to test code that is a 1:1 representation of what will actually run on Google’s servers.
-- **Powered by Rust:**
-  Leveraging the speed of Vite (Rust-based), this full refresh happens in milliseconds, providing the speed of Full-Bundle Refresh with the reliability of a fresh start.
+  By avoiding partial module updates, Vegas lets each refresh run against a newly started local runtime context instead of preserving stale server-side module state.
+- **Powered by Vite:**
+  Vegas uses Vite for fast rebuilds, keeping Full-Bundle Refresh responsive while restarting the local runtime context for each refresh.
 
 2. Native Multi-Frontend Support
 
@@ -43,11 +44,8 @@ Building a professional GAS application usually means managing multiple roles (e
 - **Optimized Payload:**
   By separating frontends at the build level, Vegas ensures that users only download the code they need, preventing the bundle-size bloat common in single-SPA GAS projects.
 
-3. High-Fidelity Local Runtime
+3. Local Apps Script Runtime
 
-Vegas doesn't just build your code; it emulates the GAS environment.
+Vegas also provides a local runtime for development and preview workflows. It models selected Apps Script APIs so supported server-side behavior can participate in the local feedback loop without pretending to be the Google production runtime.
 
-- **Synchronous Simulation:**
-  Vegas respects the synchronous nature of GAS APIs.
-- **In-Memory Services:**
-  Vegas provides a high-precision local implementation for APIs used in GAS, enabling comprehensive testing without hitting Google's rate limits or touching production data.
+Support and behavior vary by service and method. See [Local Runtime](./local-runtime) for the runtime model and verification policy, and [Runtime API coverage](./runtime-api-coverage) for the generated implementation inventory.

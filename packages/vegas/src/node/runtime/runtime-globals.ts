@@ -1,0 +1,145 @@
+import { MIME_TYPE } from "./base-mime-type";
+import { createBlobConverter } from "./blob/blob-converter";
+import { createCacheService } from "./cache/service";
+import { createContentService } from "./content/service";
+import { createDriveApp } from "./drive/object-hydrator";
+import type { HostBridge } from "./host-bridge";
+import { createHtmlService } from "./html/service";
+import type { HtmlTemplateEvaluator } from "./html/template";
+import type { InvocationContext, InvocationEnvironment } from "./invocation";
+import { createLockService } from "./lock/service";
+import { createConsole } from "./logging/console";
+import { createLogger } from "./logging/logger";
+import type { LoggingTarget } from "./logging/target";
+import { createMaps } from "./maps/maps";
+import { createPropertiesService } from "./properties/service";
+import { createSession } from "./session/session";
+import { createSpreadsheetApp } from "./spreadsheet/object-hydrator";
+import { createUrlFetchApp } from "./url-fetch/app";
+import type { Utilities } from "./utilities/utilities";
+
+export interface RuntimeGlobalsOptions {
+  readonly hostBridge: HostBridge;
+  readonly context?: InvocationContext;
+  readonly environment: InvocationEnvironment;
+  readonly htmlFiles: Readonly<Record<string, string>>;
+  readonly htmlTemplateEvaluator?: HtmlTemplateEvaluator;
+  readonly loggingTarget: LoggingTarget;
+  readonly utilities: Utilities;
+}
+
+export function createRuntimeGlobals(options: RuntimeGlobalsOptions) {
+  const {
+    hostBridge,
+    context,
+    environment,
+    htmlFiles,
+    htmlTemplateEvaluator,
+    loggingTarget,
+    utilities,
+  } = options;
+  const blobConverter = createBlobConverter(hostBridge);
+
+  return {
+    /* Admin Console */
+    AdminDirectory: undefined, // Advanced services. Low priority.
+    AdminLicenseManager: undefined, // Advanced services. Low priority.
+    AdminGroupsMigration: undefined, // Advanced services. Low priority.
+    AdminGroupsSettings: undefined, // Advanced services. Low priority.
+    AdminReseller: undefined, // Advanced services. Low priority.
+    AdminReports: undefined, // Advanced services. Low priority.
+    /* Calendar */
+    CalendarApp: undefined,
+    /* Chat */
+    Chat: undefined, // Advanced services. Low priority.
+    /* Docs */
+    DocumentApp: undefined,
+    /* Drive */
+    DriveApp: createDriveApp(hostBridge),
+    /* Forms */
+    FormApp: undefined,
+    /* Gmail */
+    GmailApp: undefined,
+    /* Sheets */
+    SpreadsheetApp: createSpreadsheetApp(hostBridge),
+    /* Slides */
+    SlidesApp: undefined,
+    /* Workspace */
+    WorkspaceEvents: undefined, // Advanced services. Low priority.
+    /* Classroom */
+    Classroom: undefined,
+    /* Groups */
+    GroupsApp: undefined,
+    CloudIdentityGroups: undefined, // Advanced services. Low priority.
+    /* People */
+    People: undefined, // Advanced services. Low priority.
+    /* Tasks */
+    Tasks: undefined, // Advanced services. Low priority.
+    /* ---------------------------------------- */
+    /* Google Analytics */
+    AnalyticsData: undefined, // Advanced services. Low priority.
+    AnalyticsAdmin: undefined, // Advanced services. Low priority.
+    /* Google Maps */
+    Maps: createMaps(),
+    /* Google Translate */
+    LanguageApp: undefined,
+    /* Vertex AI */
+    VertexAI: undefined, // Advanced services. Low priority.
+    /* Youtube */
+    YouTube: undefined, // Advanced services. Low priority.
+    YouTubeAnalytics: undefined, // Advanced services. Low priority.
+    YouTubeContentId: undefined, // Advanced services. Low priority.
+    /* AdSense */
+    Adsense: undefined, // Advanced services. Low priority.
+    /* Display & Video 360 */
+    DisplayVideo: undefined, // Advanced services. Low priority.
+    /* DoubleClick Bid Manager */
+    DoubleClickBidManager: undefined, // Advanced services. Low priority.
+    /* DoubleClick Campaigns */
+    DoubleClickCampaigns: undefined, // Advanced services. Low priority.
+    /* Shopping Content */
+    MerchantApiProducts: undefined, // Advanced services. Low priority.
+    ShoppingContent: undefined, // Advanced services. Low priority.
+    /* Google Data Studio */
+    DataStudioApp: undefined,
+    /* Google Tag Manager */
+    TagManager: undefined, // Advanced services. Low priority.
+    /* ---------------------------------------- */
+    /* BigQuery */
+    BigQuery: undefined, // Advanced services. Low priority.
+    /* JDBC */
+    Jdbc: undefined,
+    /* URL Fetch */
+    UrlFetchApp: createUrlFetchApp(hostBridge),
+    /* Optimization */
+    LinearOptimizationService: undefined,
+    /* Utilities */
+    Utilities: utilities,
+    /* XML */
+    XmlService: undefined,
+    /* Charts */
+    Charts: undefined,
+    /* Content */
+    ContentService: createContentService(),
+    /* HTML */
+    HtmlService: createHtmlService(htmlFiles, context, htmlTemplateEvaluator, blobConverter),
+    /* Mail */
+    MailApp: undefined,
+    /* Base */
+    Browser: undefined,
+    Logger: createLogger(loggingTarget),
+    MimeType: MIME_TYPE,
+    Session: createSession(environment),
+    console: createConsole(loggingTarget),
+    /* Cache */
+    CacheService: createCacheService(hostBridge),
+    /* Lock */
+    LockService: createLockService(hostBridge),
+    /* Properties */
+    PropertiesService: createPropertiesService(hostBridge),
+    // ScriptProperties is Deprecated.
+    // UserProperties is Deprecated.
+    /* Script */
+    ScriptApp: undefined,
+  };
+}

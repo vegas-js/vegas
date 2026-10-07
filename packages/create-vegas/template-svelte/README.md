@@ -1,34 +1,28 @@
-# Svelte + TS + Vegas
+# Vegas + Svelte + TypeScript
 
-This template should help get you started developing with Svelte and TypeScript in Vegas.
+A minimal Svelte and Google Apps Script project created with `create-vegas`.
 
-## Recommended IDE Setup
+## Getting Started
 
-[VS Code](https://code.visualstudio.com/) + [Svelte](https://marketplace.visualstudio.com/items?itemName=svelte.svelte-vscode).
+```bash
+npm install
+npm run dev
+```
 
-## Need an official Svelte framework?
+Start editing `src/client/App.svelte`. The Apps Script server entry is `src/server/Code.ts`.
 
-Check out [SvelteKit](https://github.com/sveltejs/kit#readme), which is also powered by Vite. Deploy anywhere with its serverless-first approach and adapt to various platforms, with out of the box support for TypeScript, SCSS, and Less, and easily-added support for mdsvex, GraphQL, PostCSS, Tailwind CSS, and more.
+Set `appsScript.scriptId` in `vegas.config.ts` before pushing to Apps Script.
 
-## Technical considerations
+## Scripts
 
-**Why use this over SvelteKit?**
+- `npm run dev` — start the local development server
+- `npm run build` — build the project
+- `npm run check` — type-check the Svelte, server, and Vegas config sources
+- `npm run preview` — preview the production build locally
+- `npm run login -- <oauth-client-json>` — authenticate with Google for Apps Script
+- `npm run push` — build and push the project to Apps Script
 
-- It brings its own routing solution which might not be preferable for some users.
-- It is first and foremost a framework that just happens to use Vite under the hood, not a Vite app.
+## Documentation
 
-This template contains as little as possible to get started with Vegas + TypeScript + Svelte, while taking into account the developer experience with regards to fast FBR and intellisense. It demonstrates capabilities on par with the other `create-vegas` templates and is a good starting point for beginners dipping their toes into a Vegas + Svelte project.
-
-Should you later need the extended capabilities and extensibility provided by SvelteKit, the template has been structured similarly to SvelteKit so that it is easy to migrate.
-
-**Why `global.d.ts` instead of `compilerOptions.types` inside `jsconfig.json` or `tsconfig.json`?**
-
-Setting `compilerOptions.types` shuts out all other types not explicitly listed in the configuration. Using triple-slash references keeps the default TypeScript setting of accepting type information from the entire workspace, while also adding `svelte` and `@vegasjs/vegas` type information.
-
-**Why include `.vscode/extensions.json`?**
-
-Other templates indirectly recommend extensions via the README, but this file allows VS Code to prompt the user to install the recommended extension upon opening the project.
-
-**Why enable `allowJs` in the TS template?**
-
-While `allowJs: false` would indeed prevent the use of `.js` files in the project, it does not prevent the use of JavaScript syntax in `.svelte` files. In addition, it would force `checkJs: false`, bringing the worst of both worlds: not being able to guarantee the entire codebase is TypeScript, and also having worse typechecking for the existing JavaScript. In addition, there are valid use cases in which a mixed codebase may be relevant.
+- [Vegas](https://vegasjs.dev/)
+- [Svelte](https://svelte.dev/docs/svelte/overview)

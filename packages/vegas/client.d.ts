@@ -1,4 +1,4 @@
 /// <reference types="vite/client" />
-/// <reference types="./types/importMeta" />
-/// <reference types="./types/google" />
-export * from "./dist/lib";
+/// <reference path="./types/import-meta.d.ts" />
+/// <reference path="./types/google.d.ts" />
+export * from "./dist/client.js";

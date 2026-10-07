@@ -1,0 +1,101 @@
+import type { Plugin, Rolldown } from "vite";
+
+import { HtmlDocument } from "../../../infrastructure/html/document";
+import type { BuildPlan } from "../../plan";
+import { CLIENT_MODULE_ENVIRONMENT_PATTERN, getClientModuleEnvironmentIndex } from "../environment";
+
+function escapeInlineScript(code: string): string {
+  return code.replace(/<\/script/gi, "<\\/script");
+}
+
+function escapeInlineStyle(code: string): string {
+  return code.replace(/<\/style/gi, "<\\/style");
+}
+
+function readCssAsset(asset: Rolldown.OutputAsset): string {
+  if (!asset.fileName.toLowerCase().endsWith(".css")) {
+    throw new Error(`Unsupported client asset: ${asset.fileName}`);
+  }
+
+  if (typeof asset.source === "string") {
+    return asset.source;
+  }
+
+  try {
+    return new TextDecoder("utf-8", { fatal: true }).decode(asset.source);
+  } catch {
+    throw new Error(`Client CSS asset must be UTF-8: ${asset.fileName}`);
+  }
+}
+
+export function virtualHtml(entries: BuildPlan["clientModuleTargets"]): Plugin {
+  return {
+    name: "vite-plugin-virtual-html",
+    enforce: "post",
+
+    applyToEnvironment(environment) {
+      return CLIENT_MODULE_ENVIRONMENT_PATTERN.test(environment.name);
+    },
+
+    generateBundle(_outputOptions, bundle) {
+      const entryIndex = getClientModuleEnvironmentIndex(this.environment.name);
+
+      if (entryIndex === undefined) {
+        return;
+      }
+
+      const entry = entries[entryIndex];
+
+      if (!entry) {
+        throw new Error(`Client entry not found for environment: ${this.environment.name}`);
+      }
+
+      const styles: string[] = [];
+      const chunks: {
+        originalFileName: string;
+        code: string;
+      }[] = [];
+
+      for (const output of Object.values(bundle)) {
+        if (output.type === "chunk") {
+          chunks.push({
+            originalFileName: output.facadeModuleId ?? "",
+            code: output.code,
+          });
+        } else {
+          styles.push(readCssAsset(output));
+        }
+      }
+
+      if (chunks.length !== 1) {
+        throw new Error(
+          `Client environment "${this.environment.name}" must produce exactly one JavaScript chunk; received ${chunks.length}.`,
+        );
+      }
+
+      for (const key of Object.keys(bundle)) {
+        delete bundle[key];
+      }
+
+      const [chunk] = chunks;
+      const html = new HtmlDocument();
+
+      for (const style of styles) {
+        html.appendToHead("style", { text: escapeInlineStyle(style) });
+      }
+
+      html.appendToBody("div", { attributes: { id: "root" } });
+      html.appendToBody("script", {
+        text: escapeInlineScript(chunk.code),
+        attributes: { type: "module" },
+      });
+
+      this.emitFile({
+        originalFileName: chunk.originalFileName,
+        fileName: entry.htmlPath,
+        type: "asset",
+        source: html.toString(),
+      });
+    },
+  };
+}

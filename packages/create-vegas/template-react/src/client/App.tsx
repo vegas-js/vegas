@@ -14,12 +14,12 @@ function App() {
         <div className="hero">
           <img src={heroImg} className="base" width="170" height="179" alt="" />
           <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={vegasLogo} className="vegas" alt="Vegas" />
+          <img src={vegasLogo} className="vegas" alt="Vegas logo" />
         </div>
         <div>
           <h1>Get started</h1>
           <p>
-            Edit <code>src/App.tsx</code> and save to test fast <code>FBR</code>
+            Edit <code>src/client/App.tsx</code> and save to test fast <code>FBR</code>
           </p>
         </div>
         <button
@@ -39,13 +39,13 @@ function App() {
           <ul>
             <li>
               <a href="https://vegasjs.dev/" target="_blank">
-                <img className="logo" src={vegasLogo} alt="" />
+                <img src={vegasLogo} className="logo" alt="" />
                 Explore Vegas
               </a>
             </li>
             <li>
               <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
+                <img src={reactLogo} className="button-icon" alt="" />
                 Learn more
               </a>
             </li>
