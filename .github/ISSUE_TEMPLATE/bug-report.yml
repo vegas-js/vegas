@@ -1,0 +1,91 @@
+name: Bug report
+description: Report a reproducible problem with Vegas or create-vegas
+title: "[Bug]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a problem. Please provide enough information to reproduce it.
+
+        For security vulnerabilities, do not open a public issue. Follow the repository security policy instead.
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      description: Which part of Vegas is affected?
+      options:
+        - Build
+        - Dev server or preview
+        - Local Runtime
+        - Authentication or push
+        - Vitest integration
+        - Playwright integration
+        - create-vegas
+        - Documentation
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    id: vegas-version
+    attributes:
+      label: Vegas version
+      placeholder: "0.2.0"
+    validations:
+      required: true
+
+  - type: input
+    id: node-version
+    attributes:
+      label: Node.js version
+      placeholder: "22.18.0"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: package-manager
+    attributes:
+      label: Package manager
+      options:
+        - pnpm
+        - npm
+        - yarn
+        - bun
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction
+      description: Provide the smallest reproduction you can, including relevant configuration and commands.
+      placeholder: |
+        1. Create a project with ...
+        2. Run ...
+        3. Observe ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      description: What happened?
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: What did you expect to happen?
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional context
+      description: Include relevant logs, operating system details, or other context. Remove secrets and credentials before posting.

@@ -1,0 +1,54 @@
+name: Feature request
+description: Propose an improvement to Vegas or create-vegas
+title: "[Feature]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for proposing an improvement. Please describe the problem first so the use case is clear.
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      description: Which part of Vegas would this affect?
+      options:
+        - Build
+        - Dev server or preview
+        - Local Runtime
+        - Authentication or push
+        - Vitest integration
+        - Playwright integration
+        - create-vegas
+        - Documentation
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What problem or limitation are you trying to solve?
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: Describe the behavior or API you would like Vegas to provide.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Describe workarounds or alternative designs you have considered.
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional context
+      description: Add examples, links, screenshots, or other relevant information.
