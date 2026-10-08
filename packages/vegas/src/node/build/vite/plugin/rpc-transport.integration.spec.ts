@@ -3,10 +3,14 @@ import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
+import worker from "node:worker_threads";
 
 import { createBuilder, type Rolldown } from "vite";
 import { describe, expect, test } from "vitest";
 
+import type { AppsScriptWorkerResponse } from "../../../runtime/node/apps-script-worker-protocol";
+import { handleAppsScriptWorkerInvocation } from "../../../worker/invocation";
+import { createWorkerRuntimeContext, evaluateWorkerProgram } from "../../../worker/runtime-context";
 import { exportBridge } from "./exportbridge";
 
 const internalRpcEntrypoint = fileURLToPath(
@@ -59,6 +63,81 @@ async function buildRpcDispatcher(source: string): Promise<string> {
 }
 
 describe("registered RPC transport boundary", () => {
+  test("executes bundled RPC in the Local Runtime worker VM and invocation handler", async () => {
+    const code = await buildRpcDispatcher(`
+      export const rpc = {
+        format(name: string) { return "Hello, " + name; },
+        greet(name: string) { return this.format(name); },
+        hidden_() { return "private"; },
+        dateResult() { return new Date(); },
+      };
+      export function legacy(name: string) { return "Legacy: " + name; }
+    `);
+
+    // Exercise the same VM and invocation handler as the real worker without
+    // requiring worker.js, which exists only in the built package.
+    const { port1, port2 } = new worker.MessageChannel();
+    try {
+      const program = { source: code, htmlFiles: {} };
+      const context = createWorkerRuntimeContext({
+        program,
+        environment: {
+          activeUserEmail: "",
+          activeUserLocale: "en",
+          effectiveUserEmail: "",
+          scriptTimeZone: "UTC",
+          temporaryActiveUserKey: "",
+        },
+        port: port1,
+        sharedArray: new Int32Array(new SharedArrayBuffer(4)),
+      });
+      evaluateWorkerProgram(context, program.source);
+
+      const invoke = async (functionName: string, args: readonly unknown[]) => {
+        const messages: AppsScriptWorkerResponse[] = [];
+        await handleAppsScriptWorkerInvocation(
+          {
+            postMessage(message) {
+              messages.push(message);
+            },
+            close() {},
+          },
+          context,
+          { type: "invoke", functionName, args },
+        );
+        const response = messages[0];
+        if (response === undefined) {
+          throw new Error("Expected an Apps Script worker response.");
+        }
+        return response;
+      };
+
+      await expect(invoke("vegasRpcCall", ["greet", "Vegas"])).resolves.toMatchObject({
+        type: "result",
+        ok: true,
+        value: "Hello, Vegas",
+      });
+      await expect(invoke("legacy", ["Vegas"])).resolves.toMatchObject({
+        type: "result",
+        ok: true,
+        value: "Legacy: Vegas",
+      });
+      await expect(invoke("vegasRpcCall", ["hidden_"])).resolves.toMatchObject({
+        type: "result",
+        ok: false,
+        error: { message: "Unknown or private RPC handler: hidden_" },
+      });
+      await expect(invoke("vegasRpcCall", ["dateResult"])).resolves.toMatchObject({
+        type: "result",
+        ok: false,
+        error: { message: "Unsupported RPC transport value at return" },
+      });
+    } finally {
+      port1.close();
+      port2.close();
+    }
+  });
+
   test("validates arguments and results in the generated GAS dispatcher", async () => {
     const code = await buildRpcDispatcher(`
       export const rpc = {
