@@ -11,10 +11,10 @@ function hasRpcExport(source: string, filePath: string): boolean {
     // A star re-export can supply `rpc` from another module.
     // Only generate the GAS global dispatcher when the final chunk exports it.
     if (node.type === "ExportAllDeclaration") {
-      return true;
+      return node.exportKind !== "type";
     }
 
-    if (node.type !== "ExportNamedDeclaration") {
+    if (node.type !== "ExportNamedDeclaration" || node.exportKind === "type") {
       return false;
     }
 
@@ -34,7 +34,9 @@ function hasRpcExport(source: string, filePath: string): boolean {
         )) ||
       node.specifiers.some(
         (specifier) =>
-          specifier.exported.type === "Identifier" && specifier.exported.name === "rpc",
+          specifier.exportKind !== "type" &&
+          specifier.exported.type === "Identifier" &&
+          specifier.exported.name === "rpc",
       )
     );
   });
@@ -43,13 +45,14 @@ function hasRpcExport(source: string, filePath: string): boolean {
 function hasExplicitInternalExport(source: string, filePath: string): boolean {
   const { program } = parseSync(filePath, source);
   return program.body.some((node) => {
-    if (node.type !== "ExportNamedDeclaration") {
+    if (node.type !== "ExportNamedDeclaration" || node.exportKind === "type") {
       return false;
     }
 
     if (
       node.specifiers.some(
         (specifier) =>
+          specifier.exportKind !== "type" &&
           specifier.exported.type === "Identifier" &&
           specifier.exported.name === INTERNAL_RPC_DISPATCH,
       )

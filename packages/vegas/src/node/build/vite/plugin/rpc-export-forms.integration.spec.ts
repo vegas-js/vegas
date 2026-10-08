@@ -101,6 +101,48 @@ describe("registered RPC export forms", () => {
     expect(code).not.toContain("function __vegasInternalRpcDispatch(...args)");
   });
 
+  test.each([
+    [
+      "type-only named re-export",
+      'export type { rpc } from "./handlers"; export function legacy(name: string) { return "Hello, " + name; }',
+      "export interface rpc { greet(name: string): string }",
+    ],
+    [
+      "type-only specifier",
+      'export { type rpc } from "./handlers"; export function legacy(name: string) { return "Hello, " + name; }',
+      "export interface rpc { greet(name: string): string }",
+    ],
+    [
+      "type-only star re-export",
+      'export type * from "./handlers"; export function legacy(name: string) { return "Hello, " + name; }',
+      "export interface rpc { greet(name: string): string }",
+    ],
+    [
+      "mixed type and value re-exports",
+      'export { type rpc, legacy } from "./handlers";',
+      'export type rpc = { greet(name: string): string }; export function legacy(name: string) { return "Hello, " + name; }',
+    ],
+  ] as const)("does not inject RPC dispatcher for %s", async (_description, entry, helper) => {
+    const code = await buildServer(entry, helper);
+    const context = vm.createContext({});
+    new vm.Script(code).runInContext(context);
+
+    expect(vm.runInContext('legacy("Vegas")', context)).toBe("Hello, Vegas");
+    expect(code).not.toContain("function vegasRpcCall(");
+    expect(code).not.toContain("__vegasInternalRpcDispatch");
+  });
+
+  test("ignores a type-only export with the reserved internal dispatcher name", async () => {
+    const code = await buildServer(
+      'export const rpc = { greet() { return "Hello, Vegas"; } }; export type { __vegasInternalRpcDispatch } from "./handlers";',
+      "export type __vegasInternalRpcDispatch = string;",
+    );
+    const context = vm.createContext({});
+    new vm.Script(code).runInContext(context);
+
+    expect(vm.runInContext('vegasRpcCall("greet")', context)).toBe("Hello, Vegas");
+  });
+
   test("transforms the entry but not an imported Code.ts module", async () => {
     const code = await buildServer(
       'export * from "./feature/Code";',
