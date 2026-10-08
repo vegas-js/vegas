@@ -109,6 +109,36 @@ entrypointからは次を公開しています。
 import { createServerFunctionClient, type ServerFunctionClient } from "@vegasjs/vegas/client";
 ```
 
+### `createRpcClient<T>()`
+
+登録型 RPC は各メソッドを名前付き export する代わりに、GAS の単一エントリポイント `vegasRpcCall` を利用します。公開契約は server 実装から独立させます。
+
+```typescript
+// src/server/Code.ts
+import { defineServerFunctions } from "@vegasjs/vegas/server";
+
+import type { ServerRpc } from "../contracts/rpc";
+
+export const rpc = defineServerFunctions<ServerRpc>({
+  greet(name) {
+    Logger.log(name);
+    return `Hello, ${name}`;
+  },
+});
+```
+
+```typescript
+// src/client/main.ts
+import { createRpcClient } from "@vegasjs/vegas/client";
+
+import type { ServerRpc } from "../contracts/rpc";
+
+const server = createRpcClient<ServerRpc>();
+const result = await server.greet("Vegas");
+```
+
+server エントリは `rpc` という名前でオブジェクトを export する必要があります。Vegas は Local Runtime と Google Apps Script の両方で、そのメソッドを単一ディスパッチャー経由で実行します。従来の名前付き export と `createServerFunctionClient()` は引き続き利用できます。この方式では `rpc` がハンドラ名、`vegasRpcCall` が GAS のディスパッチャー名として予約されるため、`rpc` と同時に `vegasRpcCall` 関数を export しないでください。
+
 ## `@vegasjs/vegas/server`
 
 server entrypointには Vegas の型付き Spreadsheet data layerが含まれています。使い方、storage semantics、query、repositoryの挙動については [Spreadsheet Data](./spreadsheet-data) を参照してください。

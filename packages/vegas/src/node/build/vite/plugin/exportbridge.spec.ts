@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import vm from "node:vm";
 
 import { createBuilder, type Rolldown } from "vite";
 import { describe, expect, test } from "vitest";
@@ -99,6 +100,74 @@ describe("exportBridge", () => {
       }
 
       expect(entry.code).toContain("function greet(...args) { return GASApp.greet(...args); };");
+    } finally {
+      fs.rmSync(tempDirPath, { recursive: true, force: true });
+    }
+  });
+
+  test("dispatches registered RPC handlers through one GAS global", async () => {
+    const tempDirPath = fs.mkdtempSync(path.join(os.tmpdir(), "vegas-"));
+
+    try {
+      const sourcePath = path.join(tempDirPath, "Code.ts");
+      fs.writeFileSync(
+        sourcePath,
+        `
+          export function doGet() { return "web app"; }
+          export const rpc = {
+            greet(name: string) { return \`Hello, \${name}\`; },
+            hidden_() { return "private"; },
+          };
+        `,
+      );
+
+      const result = await buildServer(tempDirPath, sourcePath);
+      const buildResults = (Array.isArray(result) ? result : [result]) as Rolldown.RolldownOutput[];
+      const entry = buildResults
+        .flatMap((buildResult) => buildResult.output)
+        .find((output) => output.type === "chunk" && output.isEntry);
+
+      expect(entry?.type).toBe("chunk");
+      if (!entry || entry.type !== "chunk") {
+        throw new Error("Expected server entry chunk");
+      }
+
+      expect(entry.code).toContain("function vegasRpcCall(name, ...args)");
+      expect(entry.code).toContain("function doGet(...args)");
+
+      const context = vm.createContext({});
+      new vm.Script(entry.code).runInContext(context);
+      const invoke = vm.runInContext("vegasRpcCall", context) as (
+        name: string,
+        ...args: unknown[]
+      ) => unknown;
+
+      expect(invoke("greet", "Vegas")).toBe("Hello, Vegas");
+      expect(() => invoke("hidden_")).toThrow("Unknown or private RPC handler");
+      expect(() => invoke("constructor")).toThrow("Unknown or private RPC handler");
+      expect(() => invoke("__proto__")).toThrow("Unknown or private RPC handler");
+      expect(() => invoke("missing")).toThrow("Unknown or private RPC handler");
+    } finally {
+      fs.rmSync(tempDirPath, { recursive: true, force: true });
+    }
+  });
+
+  test("rejects a global name collision with the RPC dispatcher", async () => {
+    const tempDirPath = fs.mkdtempSync(path.join(os.tmpdir(), "vegas-"));
+
+    try {
+      const sourcePath = path.join(tempDirPath, "Code.ts");
+      fs.writeFileSync(
+        sourcePath,
+        `
+          export const rpc = { greet() { return "ok"; } };
+          export function vegasRpcCall() { return "collision"; }
+        `,
+      );
+
+      await expect(buildServer(tempDirPath, sourcePath)).rejects.toThrow(
+        'Server export "vegasRpcCall" conflicts with the RPC dispatcher.',
+      );
     } finally {
       fs.rmSync(tempDirPath, { recursive: true, force: true });
     }

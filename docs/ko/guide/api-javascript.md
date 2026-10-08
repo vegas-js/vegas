@@ -109,6 +109,36 @@ entry point는 다음을 export합니다.
 import { createServerFunctionClient, type ServerFunctionClient } from "@vegasjs/vegas/client";
 ```
 
+### `createRpcClient<T>()`
+
+등록형 RPC는 각 메서드를 개별 이름으로 export하는 대신 하나의 GAS 진입점인 `vegasRpcCall`을 사용합니다. 공개 계약은 server 구현과 분리합니다.
+
+```typescript
+// src/server/Code.ts
+import { defineServerFunctions } from "@vegasjs/vegas/server";
+
+import type { ServerRpc } from "../contracts/rpc";
+
+export const rpc = defineServerFunctions<ServerRpc>({
+  greet(name) {
+    Logger.log(name);
+    return `Hello, ${name}`;
+  },
+});
+```
+
+```typescript
+// src/client/main.ts
+import { createRpcClient } from "@vegasjs/vegas/client";
+
+import type { ServerRpc } from "../contracts/rpc";
+
+const server = createRpcClient<ServerRpc>();
+const result = await server.greet("Vegas");
+```
+
+server 엔트리는 `rpc`라는 이름으로 객체를 export해야 합니다. Vegas는 Local Runtime과 Google Apps Script 양쪽에서 디스패처를 통해 해당 메서드를 실행합니다. 기존 named export와 `createServerFunctionClient()`도 계속 지원됩니다. 이 방식에서는 `rpc`가 핸들러 export 이름이며 `vegasRpcCall`이 GAS 디스패처 이름이므로, `rpc`와 함께 `vegasRpcCall` 함수를 export하지 마세요.
+
 ## `@vegasjs/vegas/server`
 
 server entry point에는 Vegas의 typed Spreadsheet data layer가 포함되어 있습니다. 사용법, storage semantics, query, repository 동작은 [Spreadsheet Data](./spreadsheet-data)를 참고하세요.

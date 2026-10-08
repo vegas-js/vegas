@@ -31,6 +31,28 @@ export function exportBridge(): Plugin {
               `function ${functionName}(...args) { return ${outputOptions.name ?? "globalThis"}.${functionName}(...args); };`,
             );
           });
+          if (output.exports.includes("rpc")) {
+            if (output.exports.includes("vegasRpcCall")) {
+              throw new Error('Server export "vegasRpcCall" conflicts with the RPC dispatcher.');
+            }
+
+            // GAS requires a statically declared global function. A single dispatcher
+            // lets registered handlers be defined without generating one wrapper per RPC.
+            const root = outputOptions.name ?? "globalThis";
+            bridgeCodes.push(
+              "function vegasRpcCall(name, ...args) {",
+              `  const handlers = ${root}.rpc;`,
+              '  if (typeof name !== "string" || name.endsWith("_") ||',
+              '      handlers === null || typeof handlers !== "object" ||',
+              "      !Object.prototype.hasOwnProperty.call(handlers, name) ||",
+              '      typeof handlers[name] !== "function") {',
+              '    throw new Error("Unknown or private RPC handler: " + String(name));',
+              "  }",
+              "  return handlers[name](...args);",
+              "}",
+            );
+          }
+
           if (bridgeCodes.length > 1) {
             output.code += bridgeCodes.join("\n");
           }

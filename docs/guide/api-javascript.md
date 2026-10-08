@@ -109,6 +109,36 @@ The entry point exports:
 import { createServerFunctionClient, type ServerFunctionClient } from "@vegasjs/vegas/client";
 ```
 
+### `createRpcClient<T>()`
+
+Registered RPC handlers use one GAS entry point, `vegasRpcCall`, instead of requiring a named export for every method. Keep the contract independent of server implementation:
+
+```typescript
+// src/server/Code.ts
+import { defineServerFunctions } from "@vegasjs/vegas/server";
+
+import type { ServerRpc } from "../contracts/rpc";
+
+export const rpc = defineServerFunctions<ServerRpc>({
+  greet(name) {
+    Logger.log(name);
+    return `Hello, ${name}`;
+  },
+});
+```
+
+```typescript
+// src/client/main.ts
+import { createRpcClient } from "@vegasjs/vegas/client";
+
+import type { ServerRpc } from "../contracts/rpc";
+
+const server = createRpcClient<ServerRpc>();
+const result = await server.greet("Vegas");
+```
+
+The server entry must export an object named `rpc`. Vegas exposes its methods through the dispatcher in both local and Google Apps Script execution. Existing named exports and `createServerFunctionClient()` continue to work separately. The names `vegasRpcCall` (global dispatcher) and `rpc` (handler export) have special meaning when using this mode; do not export a function named `vegasRpcCall` alongside `rpc`.
+
 ## `@vegasjs/vegas/server`
 
 The server entry point contains Vegas's typed Spreadsheet data layer. See [Spreadsheet Data](./spreadsheet-data) for usage, storage semantics, querying, and repository behavior.

@@ -18,15 +18,35 @@ export type ServerFunctionClient<T extends object> = {
     : never;
 };
 
+/**
+ * Invoke top-level named server exports through google.script.run.
+ */
 export function createServerFunctionClient<T extends object>(): ServerFunctionClient<T> {
+  return createClient<T>(false);
+}
+
+/**
+ * Invoke handlers registered by the server's named `rpc` export.
+ *
+ * All calls use the single GAS global `vegasRpcCall`. The server must export
+ * `rpc = defineServerFunctions<Contract>(...)` from its Code entry module.
+ */
+export function createRpcClient<T extends object>(): ServerFunctionClient<T> {
+  return createClient<T>(true);
+}
+
+function createClient<T extends object>(registered: boolean): ServerFunctionClient<T> {
   const handler: ProxyHandler<object> = {
     get(_, property) {
       return (...args: unknown[]) =>
         new Promise((resolve, reject) => {
+          const functionName = registered ? "vegasRpcCall" : property;
+          const parameters = registered ? [property, ...args] : args;
+
           google.script.run
             .withSuccessHandler(resolve)
             .withFailureHandler(reject)
-            [property](...args);
+            [functionName](...parameters);
         });
     },
   };

@@ -15,6 +15,10 @@ import { virtualHtml } from "./plugin/virtual-html";
 export function createBuilderConfig(plan: BuildPlan): InlineConfig {
   const environments: Record<string, EnvironmentOptions> = {
     [SERVER_ENVIRONMENT_NAME]: {
+      resolve: {
+        // Apps Script has no module loader: bundle dependencies in the server environment.
+        noExternal: true,
+      },
       build: {
         lib: {
           formats: ["iife"],

@@ -3,6 +3,7 @@ import { spawnSync } from "node:child_process";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import vm from "node:vm";
 
 const ROOT = path.resolve(import.meta.dirname, "..");
 const VEGAS_ROOT = path.join(ROOT, "packages", "vegas");
@@ -187,6 +188,13 @@ function smokeVanillaConsumer(tarballPath, tempRoot) {
           return \`Hello, \${name}\`;
         },
       });
+
+      export const rpc = defineServerFunctions<ServerRpc>({
+        greet(name) {
+          Logger.log(name);
+          return \`Hello, \${name}\`;
+        },
+      });
     `,
   );
 
@@ -205,6 +213,7 @@ function smokeVanillaConsumer(tarballPath, tempRoot) {
     clientSmokePath,
     `
       import {
+        createRpcClient,
         createServerFunctionClient,
         type ServerFunctionClient,
       } from "@vegasjs/vegas/client";
@@ -220,6 +229,10 @@ function smokeVanillaConsumer(tarballPath, tempRoot) {
 
       const greeting: Promise<string> = client.greet("Vegas");
       void greeting;
+
+      const registeredRpc = createRpcClient<ServerRpc>();
+      const rpcGreeting: Promise<string> = registeredRpc.greet("Vegas");
+      void rpcGreeting;
 
       const endpoint: string = import.meta.env.ENDPOINT_URL;
       void endpoint;
@@ -288,6 +301,15 @@ function smokeVanillaConsumer(tarballPath, tempRoot) {
     fs.readFileSync(path.join(consumerRoot, "dist", "Code.js"), "utf8"),
     /function greet\(\.\.\.args\)/,
     "Expected RPC handler to be exposed as a GAS global function",
+  );
+
+  const code = fs.readFileSync(path.join(consumerRoot, "dist", "Code.js"), "utf8");
+  const context = vm.createContext({ Logger: { log: () => undefined } });
+  new vm.Script(code).runInContext(context);
+  assert.equal(vm.runInContext('vegasRpcCall("greet", "Vegas")', context), "Hello, Vegas");
+  assert.throws(
+    () => vm.runInContext('vegasRpcCall("constructor")', context),
+    /Unknown or private RPC handler/,
   );
 
   console.log("Vanilla packed-package consumer smoke passed");
