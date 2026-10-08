@@ -1,12 +1,17 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 
 import { createBuilder, type Rolldown } from "vite";
 import { describe, expect, test } from "vitest";
 
 import { exportBridge } from "./exportbridge";
+
+const serverEntrypoint = fileURLToPath(
+  new URL("../../../../entrypoints/server.ts", import.meta.url),
+);
 
 async function buildRpcDispatcher(source: string): Promise<string> {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "vegas-rpc-transport-"));
@@ -18,7 +23,17 @@ async function buildRpcDispatcher(source: string): Promise<string> {
     const builder = await createBuilder({
       root,
       configFile: false,
-      plugins: [exportBridge()],
+      plugins: [
+        {
+          name: "test-resolve-vegas-server",
+          resolveId(id) {
+            if (id === "@vegasjs/vegas/server") {
+              return serverEntrypoint;
+            }
+          },
+        },
+        exportBridge(),
+      ],
       environments: {
         server: {
           build: {

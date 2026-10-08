@@ -1,8 +1,30 @@
+import path from "node:path";
 import vm from "node:vm";
 
-import type { Plugin } from "vite";
+import { parseSync, type Plugin } from "vite";
 
-import { assertRpcTransportValue } from "../../../../apps-script/rpc-transport-value";
+const INTERNAL_RPC_DISPATCH = "__vegasInternalRpcDispatch";
+
+function hasRpcExport(source: string, filePath: string): boolean {
+  const { program } = parseSync(filePath, source);
+  return program.body.some((node) => {
+    if (node.type !== "ExportNamedDeclaration") {
+      return false;
+    }
+
+    const declaration = node.declaration;
+    return (
+      (declaration?.type === "VariableDeclaration" &&
+        declaration.declarations.some(
+          (variable) => variable.id.type === "Identifier" && variable.id.name === "rpc",
+        )) ||
+      node.specifiers.some(
+        (specifier) =>
+          specifier.exported.type === "Identifier" && specifier.exported.name === "rpc",
+      )
+    );
+  });
+}
 
 function requireBridgeExportName(name: string): string {
   try {
@@ -22,13 +44,24 @@ export function exportBridge(): Plugin {
       return environment.name === "server";
     },
 
+    transform(source, id) {
+      const fileName = path.basename(id.replace(/[?#].*$/, ""));
+      if ((fileName !== "Code.ts" && fileName !== "Code.js") || !hasRpcExport(source, id)) {
+        return;
+      }
+
+      // Let Vite bundle the internal dispatcher and its shared validator into
+      // the GAS IIFE. Never serialize executable functions with toString().
+      return `${source}\nexport { ${INTERNAL_RPC_DISPATCH} } from "@vegasjs/vegas/server";\n`;
+    },
+
     generateBundle(outputOptions, bundle) {
       Object.values(bundle).forEach((output) => {
         if (output.type === "chunk" && output.isEntry) {
           const bridgeCodes: string[] = ["\n/* Function bridge for GAS Client */"];
           output.exports.forEach((exportName) => {
             // The registry is an object, not a callable top-level GAS function.
-            if (exportName === "rpc") {
+            if (exportName === "rpc" || exportName === INTERNAL_RPC_DISPATCH) {
               return;
             }
 
@@ -43,30 +76,16 @@ export function exportBridge(): Plugin {
               throw new Error('Server export "vegasRpcCall" conflicts with the RPC dispatcher.');
             }
 
-            // GAS requires a statically declared global function. A single dispatcher
-            // lets registered handlers be defined without generating one wrapper per RPC.
+            if (!output.exports.includes(INTERNAL_RPC_DISPATCH)) {
+              throw new Error("Registered RPC entry must export rpc from Code.ts or Code.js.");
+            }
+
+            // Only the public dispatcher becomes a GAS global. Its implementation
+            // and validator are ordinary dependencies bundled inside GASApp.
             const root = outputOptions.name ?? "globalThis";
             bridgeCodes.push(
               "function vegasRpcCall(name, ...args) {",
-              `  const handlers = ${root}.rpc;`,
-              '  const descriptor = typeof name === "string" && handlers !== null &&',
-              '    typeof handlers === "object"',
-              "    ? Object.getOwnPropertyDescriptor(handlers, name) : undefined;",
-              '  if (typeof name !== "string" || name.endsWith("_") || name === "then" ||',
-              '      !descriptor || !("value" in descriptor) ||',
-              '      typeof descriptor.value !== "function") {',
-              '    throw new Error("Unknown or private RPC handler: " + String(name));',
-              "  }",
-              // Embed the same self-contained validation function used by the client.
-              // Its compiled representation has no imports or free variables, so
-              // the GAS server IIFE remains independent of a module loader.
-              `  const assertRpcTransportValue = (${assertRpcTransportValue.toString()});`,
-              "  for (let index = 0; index < args.length; index++) {",
-              '    assertRpcTransportValue(args[index], "arguments[" + index + "]");',
-              "  }",
-              "  const result = descriptor.value(...args);",
-              '  assertRpcTransportValue(result, "return", true);',
-              "  return result;",
+              `  return ${root}.${INTERNAL_RPC_DISPATCH}(${root}.rpc, name, ...args);`,
               "}",
             );
           }

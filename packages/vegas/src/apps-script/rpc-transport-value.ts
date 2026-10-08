@@ -2,9 +2,9 @@
  * Validate the conservative transport subset shared by registered RPC clients
  * and the generated GAS dispatcher. This does not serialize or clone values.
  *
- * Keep this function self-contained: the GAS bridge embeds its compiled
- * JavaScript representation during the build, without importing a module at
- * runtime. It must not depend on any variables outside its function body.
+ * Vite bundles this module into the GAS server IIFE through the internal RPC
+ * dispatcher. No module loader or function source serialization is required
+ * at runtime.
  *
  * Only the root of a void return is allowed to be undefined. Nested values
  * and RPC arguments must never contain undefined.

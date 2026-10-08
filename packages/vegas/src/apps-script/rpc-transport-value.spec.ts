@@ -77,20 +77,4 @@ describe("RPC transport runtime validator", () => {
     );
     expect(inspected).toBe(0);
   });
-
-  test("runs as a self-contained function in a GAS-style VM", () => {
-    const context = vm.createContext({});
-    const embedded = new vm.Script(`(${assertRpcTransportValue.toString()})`).runInContext(
-      context,
-    ) as typeof assertRpcTransportValue;
-
-    expect(() => embedded({ items: ["Vegas", 1, null] }, "arguments[0]")).not.toThrow();
-    expect(() => embedded(new Date(), "arguments[0]")).toThrow(
-      "Unsupported RPC transport value at arguments[0]",
-    );
-    expect(() => embedded(undefined, "return", true)).not.toThrow();
-    expect(() => embedded([undefined], "return", true)).toThrow(
-      'Unsupported RPC transport value at return["0"]',
-    );
-  });
 });

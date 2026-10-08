@@ -65,7 +65,12 @@ describe("createBuilderConfig", () => {
       );
       fs.writeFileSync(
         path.join(packageDir, "server.js"),
-        "export function defineServerFunctions(handlers) { return handlers; }\n",
+        [
+          "export function defineServerFunctions(handlers) { return handlers; }",
+          "export function __vegasInternalRpcDispatch(handlers, name, ...args) {",
+          "  return handlers[name](...args);",
+          "}",
+        ].join("\n"),
       );
 
       const entryPath = path.join(projectRoot, "Code.ts");

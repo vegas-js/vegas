@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 
 import { createBuilder, type Rolldown } from "vite";
@@ -8,11 +9,25 @@ import { describe, expect, test } from "vitest";
 
 import { exportBridge } from "./exportbridge";
 
+const serverEntrypoint = fileURLToPath(
+  new URL("../../../../entrypoints/server.ts", import.meta.url),
+);
+
 async function buildServer(root: string, sourcePath: string) {
   const builder = await createBuilder({
     root,
     configFile: false,
-    plugins: [exportBridge()],
+    plugins: [
+      {
+        name: "test-resolve-vegas-server",
+        resolveId(source) {
+          if (source === "@vegasjs/vegas/server") {
+            return serverEntrypoint;
+          }
+        },
+      },
+      exportBridge(),
+    ],
     environments: {
       server: {
         build: {
