@@ -482,6 +482,8 @@ function smokeVegasPackage() {
       "dist/config.d.ts",
       "dist/client.js",
       "dist/client.d.ts",
+      "dist/internal-rpc.js",
+      "dist/internal-rpc.d.ts",
       "dist/playwright.js",
       "dist/playwright.d.ts",
       "dist/vitest.js",
@@ -524,6 +526,11 @@ function smokeVegasPackage() {
       import: "./dist/server.js",
     });
 
+    assert.deepEqual(packageJson.exports["./__internal/rpc"], {
+      types: "./dist/internal-rpc.d.ts",
+      import: "./dist/internal-rpc.js",
+    });
+
     assert.deepEqual(packageJson.exports["./vitest"], {
       types: "./dist/vitest.d.ts",
       import: "./dist/vitest.js",
@@ -553,6 +560,7 @@ function smokeVegasPackage() {
         import * as client from "@vegasjs/vegas/client";
         import * as playwright from "@vegasjs/vegas/playwright";
         import * as server from "@vegasjs/vegas/server";
+        import * as internalRpc from "@vegasjs/vegas/__internal/rpc";
 
         assert.equal(typeof vegas.defineConfig, "function");
         assert.equal(typeof playwright.createBrowserTest, "function");
@@ -567,6 +575,8 @@ function smokeVegasPackage() {
         );
 
         assert.equal(typeof server.createSpreadsheetRowCodec, "function");
+        assert.equal("__vegasInternalRpcDispatch" in server, false);
+        assert.equal(typeof internalRpc.__vegasInternalRpcDispatch, "function");
 
         const rowCodec = server.createSpreadsheetRowCodec(
           2,

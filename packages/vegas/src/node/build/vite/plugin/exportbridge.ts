@@ -113,9 +113,10 @@ export function exportBridge(isServerEntry: (id: string) => boolean = () => true
         throw new Error(`Server export "${INTERNAL_RPC_DISPATCH}" is reserved for Vegas RPC.`);
       }
 
+      // Resolve the private build entry, not the public server API.
       // Let Vite bundle the internal dispatcher and its shared validator into
       // the GAS IIFE. Never serialize executable functions with toString().
-      return `${source}\nexport { ${INTERNAL_RPC_DISPATCH} } from "@vegasjs/vegas/server";\n`;
+      return `${source}\nexport { ${INTERNAL_RPC_DISPATCH} } from "@vegasjs/vegas/__internal/rpc";\n`;
     },
 
     generateBundle(outputOptions, bundle) {

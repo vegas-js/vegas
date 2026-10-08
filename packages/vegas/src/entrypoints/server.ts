@@ -85,5 +85,3 @@ export {
   defineServerFunctions,
   type ServerFunctionHandlers,
 } from "../apps-script/server-functions";
-// Used only by Vegas's generated GAS bridge; not a user-facing RPC handler.
-export { __vegasInternalRpcDispatch } from "../apps-script/rpc-dispatcher";

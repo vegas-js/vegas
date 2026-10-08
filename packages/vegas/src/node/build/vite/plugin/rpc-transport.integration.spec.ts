@@ -9,8 +9,8 @@ import { describe, expect, test } from "vitest";
 
 import { exportBridge } from "./exportbridge";
 
-const serverEntrypoint = fileURLToPath(
-  new URL("../../../../entrypoints/server.ts", import.meta.url),
+const internalRpcEntrypoint = fileURLToPath(
+  new URL("../../../../apps-script/rpc-dispatcher.ts", import.meta.url),
 );
 
 async function buildRpcDispatcher(source: string): Promise<string> {
@@ -27,8 +27,8 @@ async function buildRpcDispatcher(source: string): Promise<string> {
         {
           name: "test-resolve-vegas-server",
           resolveId(id) {
-            if (id === "@vegasjs/vegas/server") {
-              return serverEntrypoint;
+            if (id === "@vegasjs/vegas/__internal/rpc") {
+              return internalRpcEntrypoint;
             }
           },
         },

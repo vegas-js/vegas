@@ -60,13 +60,19 @@ describe("createBuilderConfig", () => {
         JSON.stringify({
           name: "@vegasjs/vegas",
           type: "module",
-          exports: { "./server": "./server.js" },
+          exports: {
+            "./server": "./server.js",
+            "./__internal/rpc": "./internal-rpc.js",
+          },
         }),
       );
       fs.writeFileSync(
         path.join(packageDir, "server.js"),
+        "export function defineServerFunctions(handlers) { return handlers; }\n",
+      );
+      fs.writeFileSync(
+        path.join(packageDir, "internal-rpc.js"),
         [
-          "export function defineServerFunctions(handlers) { return handlers; }",
           "export function __vegasInternalRpcDispatch(handlers, name, ...args) {",
           "  return handlers[name](...args);",
           "}",
