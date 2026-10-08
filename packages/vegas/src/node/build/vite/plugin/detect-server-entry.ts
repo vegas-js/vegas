@@ -142,7 +142,10 @@ function collectClientHtmlModuleReferences(filePath: string): ClientModuleRefere
   return references;
 }
 
-export function detectServerEntry(plan: BuildPlan): Plugin {
+export function detectServerEntry(
+  plan: BuildPlan,
+  onServerEntry?: (filePath: string) => void,
+): Plugin {
   const clientSourcesById = new Map(
     plan.clientSources.map((source) => [normalizeResolvedFileId(source), source]),
   );
@@ -238,6 +241,7 @@ export function detectServerEntry(plan: BuildPlan): Plugin {
         const serverEntry = serverEntries.values().next().value;
 
         if (serverEntry) {
+          onServerEntry?.(serverEntry);
           return serverEntry;
         }
 
@@ -248,6 +252,7 @@ export function detectServerEntry(plan: BuildPlan): Plugin {
 
         const fallbackEntry = fallbackEntries[0];
         if (fallbackEntry) {
+          onServerEntry?.(fallbackEntry);
           return fallbackEntry;
         }
 

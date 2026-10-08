@@ -13,14 +13,20 @@ const serverEntrypoint = fileURLToPath(
   new URL("../../../../entrypoints/server.ts", import.meta.url),
 );
 
-async function buildServer(entrySource: string, helperSource?: string): Promise<string> {
+async function buildServer(
+  entrySource: string,
+  helperSource?: string,
+  helperFileName = "handlers.ts",
+): Promise<string> {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "vegas-rpc-export-forms-"));
 
   try {
     const entry = path.join(root, "Code.ts");
     fs.writeFileSync(entry, entrySource);
     if (helperSource !== undefined) {
-      fs.writeFileSync(path.join(root, "handlers.ts"), helperSource);
+      const helperPath = path.join(root, helperFileName);
+      fs.mkdirSync(path.dirname(helperPath), { recursive: true });
+      fs.writeFileSync(helperPath, helperSource);
     }
 
     const builder = await createBuilder({
@@ -35,7 +41,7 @@ async function buildServer(entrySource: string, helperSource?: string): Promise<
             }
           },
         },
-        exportBridge(),
+        exportBridge((filePath) => filePath === entry),
       ],
       environments: {
         server: {
@@ -93,6 +99,26 @@ describe("registered RPC export forms", () => {
     expect(vm.runInContext('vegasRpcCall("greet", "Vegas")', context)).toBe("Hello, Vegas");
     expect(code).not.toContain("function rpc(...args)");
     expect(code).not.toContain("function __vegasInternalRpcDispatch(...args)");
+  });
+
+  test("transforms the entry but not an imported Code.ts module", async () => {
+    const code = await buildServer(
+      'export * from "./feature/Code";',
+      'export const rpc = { greet(name: string) { return "Hello, " + name; } };',
+      "feature/Code.ts",
+    );
+    const context = vm.createContext({});
+    new vm.Script(code).runInContext(context);
+    expect(vm.runInContext('vegasRpcCall("greet", "Vegas")', context)).toBe("Hello, Vegas");
+  });
+
+  test("rejects a user-defined internal RPC dispatcher export", async () => {
+    await expect(
+      buildServer(`
+        export const rpc = { greet() { return "ok"; } };
+        export function __vegasInternalRpcDispatch() { return "conflict"; }
+      `),
+    ).rejects.toThrow('Server export "__vegasInternalRpcDispatch" is reserved for Vegas RPC.');
   });
 
   test("preserves named exports when a star re-export does not expose rpc", async () => {
