@@ -3,8 +3,10 @@
  *
  * Supported: null, strings, numbers, booleans, arrays and plain data records.
  * Unsupported: undefined (except a void return), functions, Date, class APIs,
- * symbols, any/unknown and recursively defined object shapes.
+ * symbols, any/unknown, broad object types and recursive object shapes.
  *
+ * The broad `object` and `{}` types are rejected: their values can be Date,
+ * class instances, or other records that the runtime guard rejects.
  * This is type checking only: cyclic runtime values, non-plain instances and
  * non-finite numbers still require handling at the transport boundary.
  * Apps Script also accepts a DOM form element in a special argument position;
@@ -25,7 +27,7 @@ type IsRpcTransportMember<Value, Seen> = Value extends RpcPrimitive
       : Value extends object
         ? [Extract<keyof Value, symbol>] extends [never]
           ? [keyof Value] extends [never]
-            ? true
+            ? false
             : false extends {
                   [Key in keyof Value]-?: IsRpcTransportValue<Value[Key], Seen | Value>;
                 }[keyof Value]

@@ -9,6 +9,7 @@ describe("registered RPC transport contracts", () => {
     expectTypeOf<
       IsRpcTransportValue<readonly { name: string; scores: number[] }[]>
     >().toEqualTypeOf<true>();
+    expectTypeOf<IsRpcTransportValue<Record<string, string>>>().toEqualTypeOf<true>();
     expectTypeOf<IsRpcTransportFunction<() => void>>().toEqualTypeOf<true>();
     expectTypeOf<
       IsRpcTransportFunction<(name: string, values: number[]) => { ok: boolean }>
@@ -16,6 +17,12 @@ describe("registered RPC transport contracts", () => {
   });
 
   test("rejects values that cannot cross google.script.run", () => {
+    // Broad structural types can hold unsupported values such as Date.
+    expectTypeOf<IsRpcTransportValue<object>>().toEqualTypeOf<false>();
+    expectTypeOf<IsRpcTransportValue<{}>>().toEqualTypeOf<false>();
+    expectTypeOf<IsRpcTransportValue<readonly object[]>>().toEqualTypeOf<false>();
+    expectTypeOf<IsRpcTransportValue<{ payload: {} }>>().toEqualTypeOf<false>();
+    expectTypeOf<IsRpcTransportFunction<(payload: object) => string>>().toEqualTypeOf<false>();
     expectTypeOf<IsRpcTransportValue<Date>>().toEqualTypeOf<false>();
     expectTypeOf<IsRpcTransportValue<{ created: Date }>>().toEqualTypeOf<false>();
     expectTypeOf<IsRpcTransportValue<{ callback: () => void }>>().toEqualTypeOf<false>();
