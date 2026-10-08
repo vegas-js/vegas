@@ -139,7 +139,9 @@ const result = await server.greet("Vegas");
 
 server 엔트리는 `rpc`라는 이름으로 객체를 export해야 합니다. Vegas는 Local Runtime과 Google Apps Script 양쪽에서 디스패처를 통해 해당 메서드를 실행합니다. 기존 named export와 `createServerFunctionClient()`도 계속 지원됩니다. 이 방식에서는 `rpc`가 핸들러 export 이름이며 `vegasRpcCall`이 GAS 디스패처 이름이므로, `rpc`와 함께 `vegasRpcCall` 함수를 export하지 마세요.
 
-등록형 RPC 계약은 `google.script.run` 전송 형식의 보수적인 부분집합(문자열, 숫자, 불리언, `null`, 배열, 데이터 객체)을 사용해 정적으로 검사됩니다. `Date`, 콜백, `Promise` 결과, 선택적 `undefined` 필드 및 재귀 객체 타입은 거부되지만 `void` 반환값은 허용됩니다. 이 검사는 타입 수준에서만 수행되므로 런타임 값의 순환 참조나 Google의 전송 제한 전체를 검증하지 않습니다. 날짜는 문자열로 변환하세요.
+등록형 RPC 계약은 `google.script.run`으로 전달 가능한 값의 보수적인 부분집합(문자열, 숫자, 불리언, `null`, 배열, 일반 데이터 객체)에 대해 정적으로 검사됩니다. TypeScript는 `Date`, 콜백, `Promise` 반환값, 선택적 `undefined` 프로퍼티, 지나치게 넓은 `object` / `{}` 타입, 재귀 객체 타입을 거부합니다. `void` 반환값은 허용됩니다. 정적 타입 검사만으로는 숫자가 유한한지 또는 객체에 순환 참조가 없는지 증명할 수 없습니다.
+
+Vegas는 등록형 RPC 값도 런타임에 검증합니다. `createRpcClient()`는 `google.script.run`을 호출하기 전에 인수를 검증하고, 생성된 `vegasRpcCall` 디스패처는 전달받은 인수와 핸들러 반환값을 검증합니다. `Date`, 함수, 심벌, 접근자, 순환 참조, 유한하지 않은 숫자, 희소 배열, 열거 불가능한 데이터 프로퍼티, 사용자 정의 프로토타입을 가진 객체 등은 거부됩니다. `void` 형식의 핸들러에서는 최상위 `undefined` 반환값을 허용합니다. 이 검증은 값을 직렬화하지 않으며 Google이 허용된 모든 값을 받아들인다고 보장하지도 않습니다. 기존 `createServerFunctionClient()`에는 이 추가 인수 검증이 적용되지 않습니다. 날짜는 문자열로 변환해 전달하세요.
 
 ## `@vegasjs/vegas/server`
 
