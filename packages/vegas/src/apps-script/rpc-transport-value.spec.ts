@@ -42,6 +42,26 @@ describe("RPC transport runtime validator", () => {
     expect(accessed).toBe(false);
   });
 
+  test("rejects values that would lose data in the RPC transport", () => {
+    const sparse: number[] = [];
+    sparse.length = 2;
+    sparse[1] = 42;
+    const extra = Object.assign([1], { label: "lost" });
+    const hidden = Object.defineProperty({ name: "Vegas" }, "secret", { value: 1 });
+
+    for (const invalid of [Number.NaN, Infinity, -Infinity, sparse, extra, hidden]) {
+      expect(() => assertRpcTransportValue(invalid, "arguments[0]")).toThrow(
+        "Unsupported RPC transport value at arguments[0]",
+      );
+    }
+
+    expect(() => assertRpcTransportValue({ score: Infinity }, "return", true)).toThrow(
+      'Unsupported RPC transport value at return["score"]',
+    );
+    expect(() => assertRpcTransportValue([0, 1, 2], "arguments[0]")).not.toThrow();
+    expect(() => assertRpcTransportValue({ score: -0 }, "arguments[0]")).not.toThrow();
+  });
+
   test("accepts plain records across realms and with null prototypes", () => {
     const foreignRecord = vm.runInNewContext('({ name: "Vegas", scores: [1, 2] })') as unknown;
     const emptyPrototype = Object.assign(Object.create(null) as Record<string, unknown>, {

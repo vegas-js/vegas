@@ -7,7 +7,8 @@
  * at runtime.
  *
  * Only the root of a void return is allowed to be undefined. Nested values
- * and RPC arguments must never contain undefined.
+ * and RPC arguments must never contain undefined. Reject lossy values such as
+ * non-finite numbers, sparse arrays and properties omitted during transfer.
  */
 export function assertRpcTransportValue(
   value: unknown,
@@ -25,7 +26,7 @@ export function assertRpcTransportValue(
       current === null ||
       typeof current === "string" ||
       typeof current === "boolean" ||
-      typeof current === "number"
+      (typeof current === "number" && Number.isFinite(current))
     ) {
       return;
     }
@@ -50,17 +51,41 @@ export function assertRpcTransportValue(
 
     active.add(current);
     try {
+      const arrayLength = Array.isArray(current) ? current.length : undefined;
+      let elementCount = 0;
       for (const key of Reflect.ownKeys(current)) {
         if (typeof key !== "string") {
           throw new TypeError(`Unsupported RPC transport value at ${location}`);
         }
 
+        // Array length is the sole non-enumerable transport property allowed.
+        if (arrayLength !== undefined && key === "length") {
+          continue;
+        }
+
         const descriptor = Object.getOwnPropertyDescriptor(current, key);
-        if (!descriptor || !("value" in descriptor)) {
+        if (!descriptor || !("value" in descriptor) || !descriptor.enumerable) {
           throw new TypeError(`Unsupported RPC transport value at ${location}`);
         }
 
+        if (arrayLength !== undefined) {
+          const index = Number(key);
+          if (
+            !Number.isInteger(index) ||
+            index < 0 ||
+            index >= arrayLength ||
+            String(index) !== key
+          ) {
+            throw new TypeError(`Unsupported RPC transport value at ${location}`);
+          }
+          elementCount++;
+        }
+
         visit(descriptor.value, `${location}[${JSON.stringify(key)}]`);
+      }
+      // A sparse array cannot be represented without filling its holes.
+      if (arrayLength !== undefined && elementCount !== arrayLength) {
+        throw new TypeError(`Unsupported RPC transport value at ${location}`);
       }
     } finally {
       active.delete(current);

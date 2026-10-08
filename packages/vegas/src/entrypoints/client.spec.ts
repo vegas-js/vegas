@@ -119,7 +119,19 @@ describe("createServerFunctionClient", () => {
     const getter = vi.fn(() => "unsafe");
     const accessor = Object.defineProperty({}, "secret", { get: getter });
 
-    for (const invalid of [new Date(), () => "callback", [undefined], cyclic, accessor]) {
+    const sparse: number[] = [];
+    sparse.length = 2;
+
+    for (const invalid of [
+      new Date(),
+      () => "callback",
+      [undefined],
+      cyclic,
+      accessor,
+      Number.NaN,
+      Number.POSITIVE_INFINITY,
+      sparse,
+    ]) {
       await expect(rpc.echo(invalid)).rejects.toThrow(/RPC transport value/);
     }
 
