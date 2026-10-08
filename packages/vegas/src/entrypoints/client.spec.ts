@@ -1,9 +1,31 @@
-import { afterEach, describe, expect, test, vi } from "vitest";
+import { afterEach, describe, expect, expectTypeOf, test, vi } from "vitest";
 
-import { createRpcClient, createServerFunctionClient } from "./client";
+import {
+  createRpcClient,
+  createServerFunctionClient,
+  type RpcClient,
+  type ServerFunctionClient,
+} from "./client";
 
 afterEach(() => {
   vi.unstubAllGlobals();
+});
+
+test("exposes RpcClient as the preferred type without changing legacy client types", () => {
+  interface Contract {
+    greet(name: string): string;
+    hidden_(): void;
+    label: string;
+  }
+
+  const rpc = createRpcClient<Contract>();
+  const legacy = createServerFunctionClient<Contract>();
+
+  expectTypeOf(rpc).toEqualTypeOf<RpcClient<Contract>>();
+  expectTypeOf(legacy).toEqualTypeOf<ServerFunctionClient<Contract>>();
+  expectTypeOf<ServerFunctionClient<Contract>>().toEqualTypeOf<RpcClient<Contract>>();
+  expectTypeOf(rpc.greet).toEqualTypeOf<(name: string) => Promise<string>>();
+  expectTypeOf(legacy.greet).toEqualTypeOf<(name: string) => Promise<string>>();
 });
 
 describe("createServerFunctionClient", () => {

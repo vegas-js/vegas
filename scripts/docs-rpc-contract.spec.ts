@@ -45,6 +45,9 @@ describe("registered RPC documentation", () => {
     expect(section).toContain(document.legacy);
     expect(section).toContain("createRpcClient()");
     expect(section).toContain("vegasRpcCall");
+    expect(section).toContain("type RpcClient");
+    expect(section).toContain("RpcClient<ServerRpc>");
+    expect(section).toContain("ServerFunctionClient<T>");
     expect(section).toContain("createServerFunctionClient()");
   });
 

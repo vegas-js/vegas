@@ -215,6 +215,7 @@ function smokeVanillaConsumer(tarballPath, tempRoot) {
       import {
         createRpcClient,
         createServerFunctionClient,
+        type RpcClient,
         type ServerFunctionClient,
       } from "@vegasjs/vegas/client";
       import type { ServerRpc } from "../contracts/rpc.js";
@@ -230,7 +231,7 @@ function smokeVanillaConsumer(tarballPath, tempRoot) {
       const greeting: Promise<string> = client.greet("Vegas");
       void greeting;
 
-      const registeredRpc = createRpcClient<ServerRpc>();
+      const registeredRpc: RpcClient<ServerRpc> = createRpcClient<ServerRpc>();
       const rpcGreeting: Promise<string> = registeredRpc.greet("Vegas");
       void rpcGreeting;
 

@@ -14,11 +14,15 @@ type ServerFunctionKey<T extends object> = {
     : never;
 }[keyof T];
 
-export type ServerFunctionClient<T extends object> = {
+/** Promise-based client interface for methods of a registered RPC contract. */
+export type RpcClient<T extends object> = {
   [K in ServerFunctionKey<T>]: T[K] extends (...args: infer Args) => infer Result
     ? (...args: Args) => Promise<Awaited<Result>>
     : never;
 };
+
+/** @deprecated Use `RpcClient<T>` for registered RPC clients. */
+export type ServerFunctionClient<T extends object> = RpcClient<T>;
 
 /**
  * Invoke top-level named server exports through google.script.run.
@@ -36,11 +40,11 @@ export function createServerFunctionClient<T extends object>(): ServerFunctionCl
  * All calls use the single GAS global `vegasRpcCall`. The server must export
  * `rpc = defineServerFunctions<Contract>(...)` from its Code entry module.
  */
-export function createRpcClient<T extends object>(): ServerFunctionClient<T> {
+export function createRpcClient<T extends object>(): RpcClient<T> {
   return createClient<T>(true);
 }
 
-function createClient<T extends object>(registered: boolean): ServerFunctionClient<T> {
+function createClient<T extends object>(registered: boolean): RpcClient<T> {
   const handler: ProxyHandler<object> = {
     get(_, property) {
       // RPC proxies must not become thenables or respond to symbol probes.
@@ -67,5 +71,5 @@ function createClient<T extends object>(registered: boolean): ServerFunctionClie
     },
   };
 
-  return new Proxy({}, handler) as ServerFunctionClient<T>;
+  return new Proxy({}, handler) as RpcClient<T>;
 }

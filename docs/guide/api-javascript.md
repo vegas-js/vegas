@@ -113,6 +113,8 @@ import { createServerFunctionClient, type ServerFunctionClient } from "@vegasjs/
 
 ### `createRpcClient<T>()`
 
+`RpcClient<T>` is the preferred client type returned by `createRpcClient<T>()`. `ServerFunctionClient<T>` remains available as a deprecated compatibility alias.
+
 Registered RPC handlers use one GAS entry point, `vegasRpcCall`, instead of requiring a named export for every method. Keep the contract independent of server implementation:
 
 ```typescript
@@ -131,11 +133,11 @@ export const rpc = defineServerFunctions<ServerRpc>({
 
 ```typescript
 // src/client/main.ts
-import { createRpcClient } from "@vegasjs/vegas/client";
+import { createRpcClient, type RpcClient } from "@vegasjs/vegas/client";
 
 import type { ServerRpc } from "../contracts/rpc";
 
-const server = createRpcClient<ServerRpc>();
+const server: RpcClient<ServerRpc> = createRpcClient<ServerRpc>();
 const result = await server.greet("Vegas");
 ```
 

@@ -113,6 +113,8 @@ import { createServerFunctionClient, type ServerFunctionClient } from "@vegasjs/
 
 ### `createRpcClient<T>()`
 
+`createRpcClient<T>()`의 반환 타입으로 `RpcClient<T>`를 사용합니다. `ServerFunctionClient<T>`는 더 이상 권장되지 않는 호환성 별칭으로 유지됩니다.
+
 등록형 RPC는 각 메서드를 개별 이름으로 export하는 대신 하나의 GAS 진입점인 `vegasRpcCall`을 사용합니다. 공개 계약은 server 구현과 분리합니다.
 
 ```typescript
@@ -131,11 +133,11 @@ export const rpc = defineServerFunctions<ServerRpc>({
 
 ```typescript
 // src/client/main.ts
-import { createRpcClient } from "@vegasjs/vegas/client";
+import { createRpcClient, type RpcClient } from "@vegasjs/vegas/client";
 
 import type { ServerRpc } from "../contracts/rpc";
 
-const server = createRpcClient<ServerRpc>();
+const server: RpcClient<ServerRpc> = createRpcClient<ServerRpc>();
 const result = await server.greet("Vegas");
 ```
 
