@@ -60,15 +60,44 @@ function createServerFunctionClient<T extends object>(): ServerFunctionClient<T>
 
 `createServerFunctionClient<T>()` creates a typed Promise-based client over `google.script.run`.
 
+Define the callable RPC contract independently of the server implementation:
+
 ```typescript
+// src/contracts/rpc.ts
+export interface ServerRpc {
+  greet(name: string): string;
+}
+```
+
+Implement that contract on the server, using named exports for the GAS bridge:
+
+```typescript
+// src/server/Code.ts
+import { defineServerFunctions } from "@vegasjs/vegas/server";
+
+import type { ServerRpc } from "../contracts/rpc";
+
+export const { greet } = defineServerFunctions<ServerRpc>({
+  greet(name) {
+    Logger.log(name);
+    return `Hello, ${name}`;
+  },
+});
+```
+
+Reference only the shared contract from the client:
+
+```typescript
+// src/client/main.ts
 import { createServerFunctionClient } from "@vegasjs/vegas/client";
 
-import type * as serverFunctions from "../server/Code";
+import type { ServerRpc } from "../contracts/rpc";
 
-const server = createServerFunctionClient<typeof serverFunctions>();
-
-const result = await server.myFunction("value");
+const server = createServerFunctionClient<ServerRpc>();
+const result = await server.greet("Vegas");
 ```
+
+This works without a Vegas dev server, generated type files, or TypeScript Project References. Do not import `../server/Code` even with `import type`: TypeScript otherwise checks server implementation files using the client compiler settings. The exported server functions must remain top-level named exports; `defineServerFunctions()` only checks types and preserves the supplied object.
 
 `ServerFunctionClient<T>` keeps string-keyed functions from `T`, excludes function names ending in `_`, preserves each function's argument tuple, and converts its result to `Promise<Awaited<Result>>`.
 

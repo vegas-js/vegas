@@ -60,15 +60,44 @@ function createServerFunctionClient<T extends object>(): ServerFunctionClient<T>
 
 `createServerFunctionClient<T>()` は `google.script.run` 上に型付きのPromise-based clientを作成します。
 
+まず、server 実装から独立した RPC 契約を定義します。
+
 ```typescript
+// src/contracts/rpc.ts
+export interface ServerRpc {
+  greet(name: string): string;
+}
+```
+
+server では契約に沿った関数を実装し、GAS Bridge 用に名前付き export します。
+
+```typescript
+// src/server/Code.ts
+import { defineServerFunctions } from "@vegasjs/vegas/server";
+
+import type { ServerRpc } from "../contracts/rpc";
+
+export const { greet } = defineServerFunctions<ServerRpc>({
+  greet(name) {
+    Logger.log(name);
+    return `Hello, ${name}`;
+  },
+});
+```
+
+client は共通の型契約だけを参照します。
+
+```typescript
+// src/client/main.ts
 import { createServerFunctionClient } from "@vegasjs/vegas/client";
 
-import type * as serverFunctions from "../server/Code";
+import type { ServerRpc } from "../contracts/rpc";
 
-const server = createServerFunctionClient<typeof serverFunctions>();
-
-const result = await server.myFunction("value");
+const server = createServerFunctionClient<ServerRpc>();
+const result = await server.greet("Vegas");
 ```
+
+この方法は Vegas の起動、型ファイルの自動生成、TypeScript Project References を必要としません。`../server/Code` を `import type` で参照すると、client のコンパイラ設定で server 実装も型検査されるため避けてください。`defineServerFunctions()` は型検査とオブジェクトの返却のみを行い、GAS に公開する関数は名前付き export が必要です。
 
 `ServerFunctionClient<T>` は `T` のstring-keyed functionを対象にし、名前が `_` で終わるfunctionを除外し、各functionのargument tupleを維持したまま、resultを `Promise<Awaited<Result>>` に変換します。
 

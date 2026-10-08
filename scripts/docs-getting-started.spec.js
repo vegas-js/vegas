@@ -34,13 +34,7 @@ describe("getting started documentation", () => {
   });
 
   it.each(templates)("documents shared npm scripts for %s", (template) => {
-    const filename = join(
-      root,
-      "packages",
-      "create-vegas",
-      `template-${template}`,
-      "package.json",
-    );
+    const filename = join(root, "packages", "create-vegas", `template-${template}`, "package.json");
     const pkg = JSON.parse(readFileSync(filename, "utf8"));
 
     for (const scriptName of documentedScripts) {

@@ -70,6 +70,40 @@ describe("exportBridge", () => {
     }
   });
 
+  test("exposes destructured handler exports as GAS globals", async () => {
+    const tempDirPath = fs.mkdtempSync(path.join(os.tmpdir(), "vegas-"));
+
+    try {
+      const sourcePath = path.join(tempDirPath, "Code.ts");
+      fs.writeFileSync(
+        sourcePath,
+        `
+          const handlers = {
+            greet(name: string) {
+              return name;
+            },
+          };
+          export const { greet } = handlers;
+        `,
+      );
+
+      const result = await buildServer(tempDirPath, sourcePath);
+      const buildResults = (Array.isArray(result) ? result : [result]) as Rolldown.RolldownOutput[];
+      const entry = buildResults
+        .flatMap((buildResult) => buildResult.output)
+        .find((output) => output.type === "chunk" && output.isEntry);
+
+      expect(entry?.type).toBe("chunk");
+      if (!entry || entry.type !== "chunk") {
+        throw new Error("Expected server entry chunk");
+      }
+
+      expect(entry.code).toContain("function greet(...args) { return GASApp.greet(...args); };");
+    } finally {
+      fs.rmSync(tempDirPath, { recursive: true, force: true });
+    }
+  });
+
   test("reject server export that cannot become a global function declaration", async () => {
     const tempDirPath = fs.mkdtempSync(path.join(os.tmpdir(), "vegas-"));
 
