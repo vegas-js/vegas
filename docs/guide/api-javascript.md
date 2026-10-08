@@ -139,6 +139,8 @@ const result = await server.greet("Vegas");
 
 The server entry must export an object named `rpc`. Vegas exposes its methods through the dispatcher in both local and Google Apps Script execution. Existing named exports and `createServerFunctionClient()` continue to work separately. The names `vegasRpcCall` (global dispatcher) and `rpc` (handler export) have special meaning when using this mode; do not export a function named `vegasRpcCall` alongside `rpc`.
 
+Registered RPC contracts are checked against a conservative `google.script.run` transport subset: strings, numbers, booleans, `null`, arrays, and data objects. `Date`, callbacks, Promise results, optional `undefined` fields, and recursive object types are rejected by TypeScript. Return type `void` is permitted. This check is static only: it cannot guarantee that runtime values are plain objects, acyclic, or otherwise accepted by Google's transport. Convert dates to strings before returning them.
+
 ## `@vegasjs/vegas/server`
 
 The server entry point contains Vegas's typed Spreadsheet data layer. See [Spreadsheet Data](./spreadsheet-data) for usage, storage semantics, querying, and repository behavior.

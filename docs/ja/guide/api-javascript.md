@@ -139,6 +139,8 @@ const result = await server.greet("Vegas");
 
 server エントリは `rpc` という名前でオブジェクトを export する必要があります。Vegas は Local Runtime と Google Apps Script の両方で、そのメソッドを単一ディスパッチャー経由で実行します。従来の名前付き export と `createServerFunctionClient()` は引き続き利用できます。この方式では `rpc` がハンドラ名、`vegasRpcCall` が GAS のディスパッチャー名として予約されるため、`rpc` と同時に `vegasRpcCall` 関数を export しないでください。
 
+登録型 RPC の契約は `google.script.run` で受け渡し可能な型の保守的な部分集合（文字列、数値、真偽値、`null`、配列、データオブジェクト）で静的に検査されます。`Date`、コールバック、`Promise` を返す関数、`undefined` を含む省略可能なプロパティ、再帰的なオブジェクト型は拒否されます。戻り値の `void` は利用できます。これは型検査のみであり、実行時の値が循環参照を含まないことや Google の通信制約を完全に満たすことまでは保証しません。日時は文字列に変換してください。
+
 ## `@vegasjs/vegas/server`
 
 server entrypointには Vegas の型付き Spreadsheet data layerが含まれています。使い方、storage semantics、query、repositoryの挙動については [Spreadsheet Data](./spreadsheet-data) を参照してください。

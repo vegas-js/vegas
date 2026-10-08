@@ -1,18 +1,23 @@
+import type { IsRpcTransportFunction } from "./rpc-transport";
+
 /**
  * Handlers exposed to an Apps Script HTML Service client.
  *
  * Function names ending in an underscore are private in google.script.run.
  * Non-function members cannot be registered as handlers.
  *
- * Registration also validates handler names and values at runtime. It does
- * not validate whether parameters or results can cross the GAS transport.
+ * Registration validates handler names and values at runtime. The type
+ * system checks declared argument and return types against a conservative
+ * GAS transport subset, but not actual runtime values or cycles.
  */
 export type ServerFunctionHandlers<Contract extends object> = {
   [Name in keyof Contract]: Name extends string
     ? Name extends `${string}_` | "then"
       ? never
       : Contract[Name] extends (...args: never[]) => unknown
-        ? Contract[Name]
+        ? IsRpcTransportFunction<Contract[Name]> extends true
+          ? Contract[Name]
+          : never
         : never
     : never;
 };
