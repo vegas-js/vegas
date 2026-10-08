@@ -316,6 +316,15 @@ function smokeVanillaConsumer(tarballPath, tempRoot) {
     () => vm.runInContext('vegasRpcCall("constructor")', context),
     /Unknown or private RPC handler/,
   );
+  // A packed Vegas release must embed the same transport validator as its client.
+  assert.throws(
+    () => vm.runInContext('vegasRpcCall("greet", new Date())', context),
+    /Unsupported RPC transport value at arguments\[0\]/,
+  );
+  assert.throws(
+    () => vm.runInContext('vegasRpcCall("greet", new (class CustomRecord {})())', context),
+    /Unsupported RPC transport value at arguments\[0\]/,
+  );
 
   console.log("Vanilla packed-package consumer smoke passed");
 }

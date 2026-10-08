@@ -42,6 +42,42 @@ describe("RPC transport runtime validator", () => {
     expect(accessed).toBe(false);
   });
 
+  test("accepts plain records across realms and with null prototypes", () => {
+    const foreignRecord = vm.runInNewContext('({ name: "Vegas", scores: [1, 2] })') as unknown;
+    const emptyPrototype = Object.assign(Object.create(null) as Record<string, unknown>, {
+      name: "Vegas",
+    });
+
+    expect(() => assertRpcTransportValue(foreignRecord, "arguments[0]")).not.toThrow();
+    expect(() => assertRpcTransportValue(emptyPrototype, "arguments[0]")).not.toThrow();
+  });
+
+  test("rejects custom prototypes without evaluating Symbol.toStringTag getters", () => {
+    let inspected = 0;
+    class TaggedRecord {
+      get [Symbol.toStringTag]() {
+        inspected++;
+        return "Object";
+      }
+    }
+
+    const tagged = new TaggedRecord();
+    const ownTag = Object.defineProperty({}, Symbol.toStringTag, {
+      get() {
+        inspected++;
+        return "Object";
+      },
+    });
+
+    expect(() => assertRpcTransportValue(tagged, "arguments[0]")).toThrow(
+      "Unsupported RPC transport value at arguments[0]",
+    );
+    expect(() => assertRpcTransportValue(ownTag, "arguments[0]")).toThrow(
+      "Unsupported RPC transport value at arguments[0]",
+    );
+    expect(inspected).toBe(0);
+  });
+
   test("runs as a self-contained function in a GAS-style VM", () => {
     const context = vm.createContext({});
     const embedded = new vm.Script(`(${assertRpcTransportValue.toString()})`).runInContext(

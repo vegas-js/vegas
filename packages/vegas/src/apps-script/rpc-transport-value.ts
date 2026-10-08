@@ -30,11 +30,18 @@ export function assertRpcTransportValue(
       return;
     }
 
-    if (
-      typeof current !== "object" ||
-      (!Array.isArray(current) && Object.prototype.toString.call(current) !== "[object Object]")
-    ) {
+    if (typeof current !== "object") {
       throw new TypeError(`Unsupported RPC transport value at ${location}`);
+    }
+
+    // Object.prototype.toString() can execute a Symbol.toStringTag getter.
+    // Checking prototype depth instead accepts cross-realm plain records and
+    // null-prototype records, without treating class instances as data records.
+    if (!Array.isArray(current)) {
+      const prototype = Object.getPrototypeOf(current) as object | null;
+      if (prototype !== null && Object.getPrototypeOf(prototype) !== null) {
+        throw new TypeError(`Unsupported RPC transport value at ${location}`);
+      }
     }
 
     if (active.has(current)) {
