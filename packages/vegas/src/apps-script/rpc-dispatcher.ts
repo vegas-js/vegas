@@ -30,7 +30,8 @@ export function __vegasInternalRpcDispatch(
     assertRpcTransportValue(args[index], `arguments[${index}]`);
   }
 
-  const result: unknown = Reflect.apply(candidate, descriptor, args);
+  // Use the registered object as the receiver for handler methods.
+  const result: unknown = Reflect.apply(candidate, handlers, args);
   assertRpcTransportValue(result, "return", true);
   return result;
 }

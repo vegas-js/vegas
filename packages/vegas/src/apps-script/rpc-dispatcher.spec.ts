@@ -14,6 +14,19 @@ describe("registered RPC dispatcher", () => {
     expect(__vegasInternalRpcDispatch(handlers, "noResult")).toBeUndefined();
   });
 
+  test("binds the handler registry as the method receiver", () => {
+    const handlers = {
+      format(name: string) {
+        return `Hello, ${name}`;
+      },
+      greet(name: string) {
+        return this.format(name);
+      },
+    };
+
+    expect(__vegasInternalRpcDispatch(handlers, "greet", "Vegas")).toBe("Hello, Vegas");
+  });
+
   test("rejects private, inherited and accessor handlers", () => {
     const getter = vi.fn(() => () => "unsafe");
     const handlers = Object.defineProperty({ greet: () => "ok" }, "unsafe", { get: getter });

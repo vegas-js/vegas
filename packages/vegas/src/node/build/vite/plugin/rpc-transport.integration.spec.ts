@@ -105,6 +105,18 @@ describe("registered RPC transport boundary", () => {
     expect(() => invoke("cyclicResult")).toThrow("Cyclic RPC transport value at return");
   });
 
+  test("preserves the registered handler receiver in the GAS IIFE", async () => {
+    const code = await buildRpcDispatcher(`
+      export const rpc = {
+        format(name: string) { return "Hello, " + name; },
+        greet(name: string) { return this.format(name); },
+      };
+    `);
+    const context = vm.createContext({});
+    new vm.Script(code).runInContext(context);
+    expect(vm.runInContext('vegasRpcCall("greet", "Vegas")', context)).toBe("Hello, Vegas");
+  });
+
   test("does not execute accessor properties or reserved handlers", async () => {
     const code = await buildRpcDispatcher(`
       export const rpc = Object.defineProperty({ echo(value: unknown) { return value; } }, "unsafe", {
