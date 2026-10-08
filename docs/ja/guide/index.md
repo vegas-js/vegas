@@ -34,7 +34,15 @@ $ pnpm create vegas
 
 :::
 
-表示される質問に沿って進めてください。
+表示される質問に沿って進めてください。`create-vegas` では依存関係のインストールと開発サーバーの起動を選択できます。これらを省略した場合は、生成されたプロジェクトディレクトリに移動して次を実行します（`vegas-project` は実際のディレクトリ名に置き換えてください）。
+
+```sh
+cd vegas-project
+npm install
+npm run dev
+```
+
+Vegas には Node.js 22.18.0 以降が必要です。上記は npm の例です。別のパッケージマネージャーを選んだ場合は、対応するコマンドを使用してください。
 
 ## SPA エントリポイント
 
@@ -51,23 +59,15 @@ Vegas は 2 種類のエントリ形式をサポートします。
 
 ## コマンドラインインターフェース
 
-Vegas をインストールしたプロジェクトでは、npm scripts から `vegas` バイナリを使用するか、`npx vegas` で直接実行できます。`create-vegas` で作成したプロジェクトには、既定で次の npm scripts が含まれます。
+生成されたプロジェクトでは、プロジェクトディレクトリで用意されたスクリプトを実行します。
 
-::: code-group
-
-```json [package.json]
-{
-  "scripts": {
-    "dev": "vegas",
-    "build": "vegas build",
-    "preview": "vegas preview",
-    "login": "vegas auth login",
-    "push": "vegas push"
-  }
-}
+```sh
+npm run dev
+npm run build
+npm run preview
 ```
 
-:::
+`create-vegas` のすべてのテンプレートに `dev`、`build`、`preview`、`login`、`push` スクリプトがありますが、実装はテンプレートによって異なります。`vegas build` の前に型チェックを実行するテンプレートもあります。`vegas` コマンドはプロジェクトの `@vegasjs/vegas` 依存関係から提供されます。
 
 利用できるコマンド、エイリアス、root 引数、認証オプションについては [コマンドラインインターフェース](./cli) を参照してください。
 

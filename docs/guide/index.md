@@ -34,7 +34,15 @@ $ pnpm create vegas
 
 :::
 
-Then follow the prompts.
+Then follow the prompts. `create-vegas` can install dependencies and start the development server during setup. If you skip those steps, enter the generated project directory (replace `vegas-project` with its actual name) and run:
+
+```sh
+cd vegas-project
+npm install
+npm run dev
+```
+
+Vegas requires Node.js 22.18.0 or newer. The commands above use npm; use your selected package manager if different.
 
 ## SPA Entry Points
 
@@ -51,23 +59,15 @@ See [Project Structure](./project-structure) for the default layouts and entry-p
 
 ## Command Line Interface
 
-In a project where Vegas is installed, you can use the vegas binary in your npm scripts, or run it directly with npx vegas. Here are the default npm scripts in a scaffolded Vegas project:
+In a scaffolded project, run the provided scripts from the project directory:
 
-::: code-group
-
-```json [package.json]
-{
-  "scripts": {
-    "dev": "vegas",
-    "build": "vegas build",
-    "preview": "vegas preview",
-    "login": "vegas auth login",
-    "push": "vegas push"
-  }
-}
+```sh
+npm run dev
+npm run build
+npm run preview
 ```
 
-:::
+All `create-vegas` templates include `dev`, `build`, `preview`, `login`, and `push` scripts, but their implementations vary by template. Some templates run type checks before `vegas build`. The `vegas` executable is provided by the `@vegasjs/vegas` project dependency.
 
 See [Command Line Interface](./cli) for the available commands, aliases, root argument, and authentication options.
 
