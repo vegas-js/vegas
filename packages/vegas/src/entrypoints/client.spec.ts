@@ -90,4 +90,40 @@ describe("createServerFunctionClient", () => {
     await expect(rpc.fail()).rejects.toThrow("rpc failure");
     expect(calls).toStrictEqual([["greet", "Vegas"], ["fail"]]);
   });
+
+  test("validates registered RPC arguments before calling google.script.run", async () => {
+    let successHandler: (value: unknown) => void = () => undefined;
+    const calls: unknown[][] = [];
+    const run = {
+      withSuccessHandler(handler: (value: unknown) => void) {
+        successHandler = handler;
+        return run;
+      },
+      withFailureHandler() {
+        return run;
+      },
+      vegasRpcCall(name: string, value: unknown) {
+        calls.push([name, value]);
+        successHandler(value);
+      },
+    };
+    vi.stubGlobal("google", { script: { run } });
+
+    const rpc = createRpcClient<{ echo(value: unknown): unknown }>();
+    const data = { items: ["Vegas", 1, null] };
+    await expect(rpc.echo(data)).resolves.toBe(data);
+    expect(calls).toStrictEqual([["echo", data]]);
+
+    const cyclic: Record<string, unknown> = {};
+    cyclic.self = cyclic;
+    const getter = vi.fn(() => "unsafe");
+    const accessor = Object.defineProperty({}, "secret", { get: getter });
+
+    for (const invalid of [new Date(), () => "callback", [undefined], cyclic, accessor]) {
+      await expect(rpc.echo(invalid)).rejects.toThrow(/RPC transport value/);
+    }
+
+    expect(getter).not.toHaveBeenCalled();
+    expect(calls).toStrictEqual([["echo", data]]);
+  });
 });
