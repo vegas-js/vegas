@@ -22,20 +22,30 @@ This project is in the experimental stage and will undergo frequent breaking cha
 
 ## Quick Start
 
-Development
+Vegas requires Node.js 22.18.0 or newer.
+
+Create a project and select a template and package manager when prompted:
 
 ```sh
-npx vegas         # start development server
-npx vegas dev     # alternative development command
-npx vegas serve   # further alternative
+npm create vegas@latest
 ```
 
-Production
+The project generator can install dependencies and start the development server. If you skip those steps, enter the generated project directory (replace `vegas-project` with its actual name) and run:
 
 ```sh
-npx vegas preview # locally preview production build
-npx vegas build   # build for production
+cd vegas-project
+npm install
+npm run dev
 ```
+
+Use the generated project scripts to build and preview:
+
+```sh
+npm run build
+npm run preview
+```
+
+For Apps Script authentication, push, and configuration, see the [Getting Started guide](https://vegasjs.dev/guide/).
 
 ## Project Structure
 

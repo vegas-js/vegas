@@ -34,7 +34,15 @@ $ pnpm create vegas
 
 :::
 
-표시되는 안내에 따라 진행하세요.
+표시되는 안내에 따라 진행하세요. `create-vegas`에서는 의존성 설치와 개발 서버 시작 여부를 선택할 수 있습니다. 이 단계를 건너뛰었다면 생성된 프로젝트 디렉터리에서 다음 명령을 실행하세요(`vegas-project`는 실제 디렉터리 이름으로 바꾸세요).
+
+```sh
+cd vegas-project
+npm install
+npm run dev
+```
+
+Vegas에는 Node.js 22.18.0 이상이 필요합니다. 위 명령은 npm 예시이며, 다른 패키지 관리자를 선택했다면 해당 명령을 사용하세요.
 
 ## SPA 엔트리 포인트
 
@@ -51,23 +59,15 @@ Vegas는 두 가지 엔트리 형식을 지원합니다.
 
 ## 명령줄 인터페이스
 
-Vegas가 설치된 프로젝트에서는 npm scripts에서 `vegas` 바이너리를 사용하거나 `npx vegas`로 직접 실행할 수 있습니다. `create-vegas`로 생성한 프로젝트에는 기본적으로 다음 npm scripts가 포함됩니다.
+생성된 프로젝트에서는 프로젝트 디렉터리에서 제공된 스크립트를 실행하세요.
 
-::: code-group
-
-```json [package.json]
-{
-  "scripts": {
-    "dev": "vegas",
-    "build": "vegas build",
-    "preview": "vegas preview",
-    "login": "vegas auth login",
-    "push": "vegas push"
-  }
-}
+```sh
+npm run dev
+npm run build
+npm run preview
 ```
 
-:::
+모든 `create-vegas` 템플릿에는 `dev`, `build`, `preview`, `login`, `push` 스크립트가 있지만 실제 구현은 템플릿마다 다릅니다. 일부 템플릿은 `vegas build` 전에 타입 검사를 실행합니다. `vegas` 실행 파일은 프로젝트의 `@vegasjs/vegas` 의존성에서 제공됩니다.
 
 사용할 수 있는 명령, 별칭, root 인수, 인증 옵션은 [명령줄 인터페이스](./cli)를 참고하세요.
 
