@@ -52,7 +52,9 @@ import type {
 
 ## `@vegasjs/vegas/client`
 
-### `createServerFunctionClient<T>()`
+새 프로젝트에서는 서버가 export하는 `rpc` 레지스트리와 `createRpcClient<T>()` 사용을 권장합니다. `createServerFunctionClient<T>()`는 더 이상 권장되지 않지만 기존 이름 지정 함수 클라이언트와의 호환성을 위해 유지됩니다.
+
+### `createServerFunctionClient<T>()` (deprecated)
 
 ```typescript
 function createServerFunctionClient<T extends object>(): ServerFunctionClient<T>;

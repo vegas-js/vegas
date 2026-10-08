@@ -52,7 +52,9 @@ See [Configuring Vegas](../config/) for the configuration model and [Shared Opti
 
 ## `@vegasjs/vegas/client`
 
-### `createServerFunctionClient<T>()`
+For new projects, use `createRpcClient<T>()` with an `rpc` registry exported by the server. `createServerFunctionClient<T>()` is deprecated and remains available for existing named-function clients.
+
+### `createServerFunctionClient<T>()` (deprecated)
 
 ```typescript
 function createServerFunctionClient<T extends object>(): ServerFunctionClient<T>;
