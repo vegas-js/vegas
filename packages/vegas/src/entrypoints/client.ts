@@ -1,5 +1,7 @@
 /// <reference types="../../types/google" />
 
+import { assertRpcTransportValue } from "../apps-script/rpc-transport-value";
+
 type ServerFunction = (...args: never[]) => unknown;
 
 type ServerFunctionKey<T extends object> = {
@@ -35,52 +37,6 @@ export function createRpcClient<T extends object>(): ServerFunctionClient<T> {
   return createClient<T>(true);
 }
 
-/**
- * Reject unsupported values before dispatching a registered RPC call.
- *
- * This intentionally follows the conservative GAS transport subset checked
- * by the generated dispatcher. It does not serialize or clone arguments.
- */
-function assertRpcArgument(value: unknown, path: string, active: WeakSet<object>): void {
-  if (
-    value === null ||
-    typeof value === "string" ||
-    typeof value === "boolean" ||
-    typeof value === "number"
-  ) {
-    return;
-  }
-
-  if (
-    typeof value !== "object" ||
-    (!Array.isArray(value) && Object.prototype.toString.call(value) !== "[object Object]")
-  ) {
-    throw new TypeError(`Unsupported RPC transport value at ${path}`);
-  }
-
-  if (active.has(value)) {
-    throw new TypeError(`Cyclic RPC transport value at ${path}`);
-  }
-
-  active.add(value);
-  try {
-    for (const key of Reflect.ownKeys(value)) {
-      if (typeof key !== "string") {
-        throw new TypeError(`Unsupported RPC transport value at ${path}`);
-      }
-
-      const descriptor = Object.getOwnPropertyDescriptor(value, key);
-      if (!descriptor || !("value" in descriptor)) {
-        throw new TypeError(`Unsupported RPC transport value at ${path}`);
-      }
-
-      assertRpcArgument(descriptor.value, `${path}[${JSON.stringify(key)}]`, active);
-    }
-  } finally {
-    active.delete(value);
-  }
-}
-
 function createClient<T extends object>(registered: boolean): ServerFunctionClient<T> {
   const handler: ProxyHandler<object> = {
     get(_, property) {
@@ -93,7 +49,7 @@ function createClient<T extends object>(registered: boolean): ServerFunctionClie
         new Promise((resolve, reject) => {
           if (registered) {
             for (let index = 0; index < args.length; index++) {
-              assertRpcArgument(args[index], `arguments[${index}]`, new WeakSet());
+              assertRpcTransportValue(args[index], `arguments[${index}]`);
             }
           }
 

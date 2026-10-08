@@ -2,6 +2,8 @@ import vm from "node:vm";
 
 import type { Plugin } from "vite";
 
+import { assertRpcTransportValue } from "../../../../apps-script/rpc-transport-value";
+
 function requireBridgeExportName(name: string): string {
   try {
     new vm.Script(`function ${name}() {}`);
@@ -55,44 +57,15 @@ export function exportBridge(): Plugin {
               '      typeof descriptor.value !== "function") {',
               '    throw new Error("Unknown or private RPC handler: " + String(name));',
               "  }",
-              // This is a Vegas-specific, intentionally conservative runtime guard.
-              // It rejects values the declared RPC contract cannot safely describe;
-              // it does not emulate google.script.run serialization or copy inputs.
-              "  function assertTransportValue(value, path, active) {",
-              '    if (value === null || typeof value === "string" ||',
-              '        typeof value === "boolean" || typeof value === "number") return;',
-              '    if (value === undefined && path === "return") return;',
-              '    if (typeof value !== "object") {',
-              '      throw new TypeError("Unsupported RPC transport value at " + path);',
-              "    }",
-              "    if (!Array.isArray(value) &&",
-              '        Object.prototype.toString.call(value) !== "[object Object]") {',
-              '      throw new TypeError("Unsupported RPC transport value at " + path);',
-              "    }",
-              "    if (active.has(value)) {",
-              '      throw new TypeError("Cyclic RPC transport value at " + path);',
-              "    }",
-              "    active.add(value);",
-              "    try {",
-              "      for (const key of Reflect.ownKeys(value)) {",
-              '        if (typeof key !== "string") {',
-              '          throw new TypeError("Unsupported RPC transport value at " + path);',
-              "        }",
-              "        const property = Object.getOwnPropertyDescriptor(value, key);",
-              '        if (!property || !("value" in property)) {',
-              '          throw new TypeError("Unsupported RPC transport value at " + path);',
-              "        }",
-              '        assertTransportValue(property.value, path + "[" + JSON.stringify(key) + "]", active);',
-              "      }",
-              "    } finally {",
-              "      active.delete(value);",
-              "    }",
-              "  }",
+              // Embed the same self-contained validation function used by the client.
+              // Its compiled representation has no imports or free variables, so
+              // the GAS server IIFE remains independent of a module loader.
+              `  const assertRpcTransportValue = (${assertRpcTransportValue.toString()});`,
               "  for (let index = 0; index < args.length; index++) {",
-              '    assertTransportValue(args[index], "arguments[" + index + "]", new WeakSet());',
+              '    assertRpcTransportValue(args[index], "arguments[" + index + "]");',
               "  }",
               "  const result = descriptor.value(...args);",
-              '  assertTransportValue(result, "return", new WeakSet());',
+              '  assertRpcTransportValue(result, "return", true);',
               "  return result;",
               "}",
             );
