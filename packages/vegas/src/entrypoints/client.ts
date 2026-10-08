@@ -4,7 +4,7 @@ type ServerFunction = (...args: never[]) => unknown;
 
 type ServerFunctionKey<T extends object> = {
   [K in keyof T]: K extends string
-    ? K extends `${string}_`
+    ? K extends `${string}_` | "then"
       ? never
       : T[K] extends ServerFunction
         ? K
@@ -38,6 +38,11 @@ export function createRpcClient<T extends object>(): ServerFunctionClient<T> {
 function createClient<T extends object>(registered: boolean): ServerFunctionClient<T> {
   const handler: ProxyHandler<object> = {
     get(_, property) {
+      // RPC proxies must not become thenables or respond to symbol probes.
+      if (typeof property !== "string" || property === "then") {
+        return undefined;
+      }
+
       return (...args: unknown[]) =>
         new Promise((resolve, reject) => {
           const functionName = registered ? "vegasRpcCall" : property;

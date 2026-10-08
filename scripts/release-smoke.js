@@ -304,6 +304,11 @@ function smokeVanillaConsumer(tarballPath, tempRoot) {
   );
 
   const code = fs.readFileSync(path.join(consumerRoot, "dist", "Code.js"), "utf8");
+  assert.doesNotMatch(
+    code,
+    /function rpc\(\.\.\.args\)/,
+    "RPC registry must not be exposed as a GAS global function",
+  );
   const context = vm.createContext({ Logger: { log: () => undefined } });
   new vm.Script(code).runInContext(context);
   assert.equal(vm.runInContext('vegasRpcCall("greet", "Vegas")', context), "Hello, Vegas");

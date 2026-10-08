@@ -97,7 +97,7 @@ const server = createServerFunctionClient<ServerRpc>();
 const result = await server.greet("Vegas");
 ```
 
-この方法は Vegas の起動、型ファイルの自動生成、TypeScript Project References を必要としません。`../server/Code` を `import type` で参照すると、client のコンパイラ設定で server 実装も型検査されるため避けてください。`defineServerFunctions()` は型検査とオブジェクトの返却のみを行い、GAS に公開する関数は名前付き export が必要です。
+この方法は Vegas の起動、型ファイルの自動生成、TypeScript Project References を必要としません。`../server/Code` を `import type` で参照すると、client のコンパイラ設定で server 実装も型検査されるため避けてください。`defineServerFunctions()` は型チェックに加えて登録時に関数名と実装を検証し、元のオブジェクトを返します。従来方式では GAS に公開する関数の名前付き export が必要です。
 
 `ServerFunctionClient<T>` は `T` のstring-keyed functionを対象にし、名前が `_` で終わるfunctionを除外し、各functionのargument tupleを維持したまま、resultを `Promise<Awaited<Result>>` に変換します。
 

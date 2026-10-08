@@ -27,6 +27,41 @@ describe("defineServerFunctions", () => {
     expectTypeOf(defined.add).toEqualTypeOf<(a: number, b: number) => number>();
   });
 
+  test("rejects malformed runtime registrations", () => {
+    const register = (handlers: object) =>
+      defineServerFunctions<{ greet(): string }>(
+        handlers as ServerFunctionHandlers<{ greet(): string }>,
+      );
+
+    expect(() => register({ greet: "not a function" })).toThrow("Invalid RPC handler: greet");
+    expect(() =>
+      register({
+        greet() {
+          return "ok";
+        },
+        secret_() {
+          return "hidden";
+        },
+      }),
+    ).toThrow("Invalid RPC handler: secret_");
+    const reservedName = ["th", "en"].join("");
+    const reservedHandler = Object.defineProperty({ greet: () => "ok" }, reservedName, {
+      value: () => "bad",
+    });
+    expect(() => register(reservedHandler)).toThrow("Invalid RPC handler: then");
+    expect(() => register([])).toThrow("RPC handlers must be an object.");
+
+    const accessor = Object.defineProperty({}, "greet", { get: () => () => "ok" });
+    expect(() => register(accessor)).toThrow("Invalid RPC handler: greet");
+    const symbol = {
+      greet() {
+        return "ok";
+      },
+      [Symbol.toStringTag]: "rpc",
+    };
+    expect(() => register(symbol)).toThrow("Invalid RPC handler: Symbol(Symbol.toStringTag)");
+  });
+
   test("rejects private names and non-function members at the type boundary", () => {
     type InvalidRpc = {
       greet(name: string): string;
@@ -38,6 +73,9 @@ describe("defineServerFunctions", () => {
       greet(name: string): string;
       secret_: never;
       version: never;
+    }>();
+    expectTypeOf<ServerFunctionHandlers<{ then(): string }>>().toEqualTypeOf<{
+      then: never;
     }>();
   });
 });

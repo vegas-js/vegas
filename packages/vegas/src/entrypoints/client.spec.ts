@@ -46,6 +46,16 @@ describe("createServerFunctionClient", () => {
     await expect(client.fail()).rejects.toThrow("server failure");
   });
 
+  test("does not expose a thenable RPC proxy or symbol properties", async () => {
+    const rpc = createRpcClient<{ greet(name: string): string; then(): string }>();
+    const legacy = createServerFunctionClient<{ greet(name: string): string }>();
+
+    expect(Reflect.get(rpc, "then")).toBeUndefined();
+    expect(Reflect.get(rpc, Symbol.toStringTag)).toBeUndefined();
+    expect(Reflect.get(legacy, "then")).toBeUndefined();
+    await expect(Promise.resolve(rpc)).resolves.toBe(rpc);
+  });
+
   test("dispatches registered RPC calls without exposing server implementation types", async () => {
     let successHandler: (value: unknown) => void = () => undefined;
     let failureHandler: (reason?: unknown) => void = () => undefined;

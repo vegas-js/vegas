@@ -97,7 +97,7 @@ const server = createServerFunctionClient<ServerRpc>();
 const result = await server.greet("Vegas");
 ```
 
-This works without a Vegas dev server, generated type files, or TypeScript Project References. Do not import `../server/Code` even with `import type`: TypeScript otherwise checks server implementation files using the client compiler settings. The exported server functions must remain top-level named exports; `defineServerFunctions()` only checks types and preserves the supplied object.
+This works without a Vegas dev server, generated type files, or TypeScript Project References. Do not import `../server/Code` even with `import type`: TypeScript otherwise checks server implementation files using the client compiler settings. Legacy server functions must remain top-level named exports. `defineServerFunctions()` validates handler names and callable values at registration, and returns the original object.
 
 `ServerFunctionClient<T>` keeps string-keyed functions from `T`, excludes function names ending in `_`, preserves each function's argument tuple, and converts its result to `Promise<Awaited<Result>>`.
 

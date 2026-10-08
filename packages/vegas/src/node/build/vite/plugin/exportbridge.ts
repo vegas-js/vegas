@@ -25,6 +25,11 @@ export function exportBridge(): Plugin {
         if (output.type === "chunk" && output.isEntry) {
           const bridgeCodes: string[] = ["\n/* Function bridge for GAS Client */"];
           output.exports.forEach((exportName) => {
+            // The registry is an object, not a callable top-level GAS function.
+            if (exportName === "rpc") {
+              return;
+            }
+
             const functionName = requireBridgeExportName(exportName);
 
             bridgeCodes.push(

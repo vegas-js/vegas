@@ -134,6 +134,7 @@ describe("exportBridge", () => {
 
       expect(entry.code).toContain("function vegasRpcCall(name, ...args)");
       expect(entry.code).toContain("function doGet(...args)");
+      expect(entry.code).not.toContain("function rpc(...args)");
 
       const context = vm.createContext({});
       new vm.Script(entry.code).runInContext(context);
