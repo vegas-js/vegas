@@ -12,7 +12,7 @@ hero:
   actions:
     - theme: brand
       text: はじめる
-      link: /ja/guide
+      link: /ja/guide/
     - theme: alt
       text: GitHub で見る
       link: https://github.com/vegas-js/vegas

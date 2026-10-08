@@ -11,33 +11,33 @@ export default defineConfig({
       lang: "en",
       themeConfig: {
         nav: [
-          { text: "Guide", link: "/guide" },
+          { text: "Guide", link: "/guide/" },
           {
             text: "Runtime",
             items: [
-              { text: "Runtime Architecture", link: "/guide/runtime-architecture/" },
-              { text: "Local Runtime", link: "/guide/local-runtime/" },
+              { text: "Runtime Architecture", link: "/guide/runtime-architecture" },
+              { text: "Local Runtime", link: "/guide/local-runtime" },
               {
                 text: "Google Apps Script Runtime",
-                link: "/guide/google-apps-script-runtime/",
+                link: "/guide/google-apps-script-runtime",
               },
             ],
           },
           {
             text: "Testing",
             items: [
-              { text: "Vitest", link: "/guide/vitest/" },
-              { text: "Playwright", link: "/guide/playwright/" },
+              { text: "Vitest", link: "/guide/vitest" },
+              { text: "Playwright", link: "/guide/playwright" },
             ],
           },
           {
             text: "Reference",
             items: [
-              { text: "JavaScript API", link: "/guide/api-javascript/" },
-              { text: "Runtime API coverage", link: "/guide/runtime-api-coverage/" },
+              { text: "JavaScript API", link: "/guide/api-javascript" },
+              { text: "Runtime API coverage", link: "/guide/runtime-api-coverage" },
             ],
           },
-          { text: "Config", link: "/config" },
+          { text: "Config", link: "/config/" },
         ],
 
         sidebar: {
@@ -46,45 +46,45 @@ export default defineConfig({
               text: "Introduction",
               items: [
                 { text: "Getting Started", link: "/guide/" },
-                { text: "Command Line Interface", link: "/guide/cli/" },
-                { text: "Project Structure", link: "/guide/project-structure/" },
-                { text: "Development and Build", link: "/guide/development-and-build/" },
+                { text: "Command Line Interface", link: "/guide/cli" },
+                { text: "Project Structure", link: "/guide/project-structure" },
+                { text: "Development and Build", link: "/guide/development-and-build" },
               ],
             },
             {
               text: "Runtime",
               items: [
-                { text: "Runtime Architecture", link: "/guide/runtime-architecture/" },
-                { text: "Local Runtime", link: "/guide/local-runtime/" },
+                { text: "Runtime Architecture", link: "/guide/runtime-architecture" },
+                { text: "Local Runtime", link: "/guide/local-runtime" },
                 {
                   text: "Google Apps Script Runtime",
-                  link: "/guide/google-apps-script-runtime/",
+                  link: "/guide/google-apps-script-runtime",
                 },
               ],
             },
             {
               text: "Testing",
               items: [
-                { text: "Vitest", link: "/guide/vitest/" },
-                { text: "Playwright", link: "/guide/playwright/" },
+                { text: "Vitest", link: "/guide/vitest" },
+                { text: "Playwright", link: "/guide/playwright" },
               ],
             },
             {
               text: "Data",
-              items: [{ text: "Spreadsheet Data", link: "/guide/spreadsheet-data/" }],
+              items: [{ text: "Spreadsheet Data", link: "/guide/spreadsheet-data" }],
             },
             {
               text: "Reference",
               items: [
-                { text: "JavaScript API", link: "/guide/api-javascript/" },
-                { text: "Runtime API coverage", link: "/guide/runtime-api-coverage/" },
+                { text: "JavaScript API", link: "/guide/api-javascript" },
+                { text: "Runtime API coverage", link: "/guide/runtime-api-coverage" },
               ],
             },
             {
               text: "About",
               items: [
-                { text: "Why Vegas", link: "/guide/why/" },
-                { text: "Philosophy", link: "/guide/philosophy/" },
+                { text: "Why Vegas", link: "/guide/why" },
+                { text: "Philosophy", link: "/guide/philosophy" },
               ],
             },
           ],
@@ -93,7 +93,7 @@ export default defineConfig({
               text: "Config",
               items: [
                 { text: "Configuring Vegas", link: "/config/" },
-                { text: "Shared Options", link: "/config/shared-options/" },
+                { text: "Shared Options", link: "/config/shared-options" },
               ],
             },
           ],
@@ -111,33 +111,33 @@ export default defineConfig({
       description: "Google Apps Script に特化した Vite ベースの開発・ビルドツール",
       themeConfig: {
         nav: [
-          { text: "ガイド", link: "/ja/guide" },
+          { text: "ガイド", link: "/ja/guide/" },
           {
             text: "Runtime",
             items: [
-              { text: "Runtime アーキテクチャ", link: "/ja/guide/runtime-architecture/" },
-              { text: "Local Runtime", link: "/ja/guide/local-runtime/" },
+              { text: "Runtime アーキテクチャ", link: "/ja/guide/runtime-architecture" },
+              { text: "Local Runtime", link: "/ja/guide/local-runtime" },
               {
                 text: "Google Apps Script Runtime",
-                link: "/ja/guide/google-apps-script-runtime/",
+                link: "/ja/guide/google-apps-script-runtime",
               },
             ],
           },
           {
             text: "テスト",
             items: [
-              { text: "Vitest", link: "/ja/guide/vitest/" },
-              { text: "Playwright", link: "/ja/guide/playwright/" },
+              { text: "Vitest", link: "/ja/guide/vitest" },
+              { text: "Playwright", link: "/ja/guide/playwright" },
             ],
           },
           {
             text: "リファレンス",
             items: [
-              { text: "JavaScript API", link: "/ja/guide/api-javascript/" },
-              { text: "Runtime API coverage", link: "/ja/guide/runtime-api-coverage/" },
+              { text: "JavaScript API", link: "/ja/guide/api-javascript" },
+              { text: "Runtime API coverage", link: "/ja/guide/runtime-api-coverage" },
             ],
           },
-          { text: "設定", link: "/ja/config" },
+          { text: "設定", link: "/ja/config/" },
         ],
 
         sidebar: {
@@ -146,45 +146,45 @@ export default defineConfig({
               text: "はじめに",
               items: [
                 { text: "はじめに", link: "/ja/guide/" },
-                { text: "コマンドラインインターフェース", link: "/ja/guide/cli/" },
-                { text: "プロジェクト構成", link: "/ja/guide/project-structure/" },
-                { text: "開発とビルド", link: "/ja/guide/development-and-build/" },
+                { text: "コマンドラインインターフェース", link: "/ja/guide/cli" },
+                { text: "プロジェクト構成", link: "/ja/guide/project-structure" },
+                { text: "開発とビルド", link: "/ja/guide/development-and-build" },
               ],
             },
             {
               text: "Runtime",
               items: [
-                { text: "Runtime アーキテクチャ", link: "/ja/guide/runtime-architecture/" },
-                { text: "Local Runtime", link: "/ja/guide/local-runtime/" },
+                { text: "Runtime アーキテクチャ", link: "/ja/guide/runtime-architecture" },
+                { text: "Local Runtime", link: "/ja/guide/local-runtime" },
                 {
                   text: "Google Apps Script Runtime",
-                  link: "/ja/guide/google-apps-script-runtime/",
+                  link: "/ja/guide/google-apps-script-runtime",
                 },
               ],
             },
             {
               text: "テスト",
               items: [
-                { text: "Vitest", link: "/ja/guide/vitest/" },
-                { text: "Playwright", link: "/ja/guide/playwright/" },
+                { text: "Vitest", link: "/ja/guide/vitest" },
+                { text: "Playwright", link: "/ja/guide/playwright" },
               ],
             },
             {
               text: "データ",
-              items: [{ text: "Spreadsheet Data", link: "/ja/guide/spreadsheet-data/" }],
+              items: [{ text: "Spreadsheet Data", link: "/ja/guide/spreadsheet-data" }],
             },
             {
               text: "リファレンス",
               items: [
-                { text: "JavaScript API", link: "/ja/guide/api-javascript/" },
-                { text: "Runtime API coverage", link: "/ja/guide/runtime-api-coverage/" },
+                { text: "JavaScript API", link: "/ja/guide/api-javascript" },
+                { text: "Runtime API coverage", link: "/ja/guide/runtime-api-coverage" },
               ],
             },
             {
               text: "Vegas について",
               items: [
-                { text: "Why Vegas", link: "/ja/guide/why/" },
-                { text: "プロジェクトの思想", link: "/ja/guide/philosophy/" },
+                { text: "Why Vegas", link: "/ja/guide/why" },
+                { text: "プロジェクトの思想", link: "/ja/guide/philosophy" },
               ],
             },
           ],
@@ -193,7 +193,7 @@ export default defineConfig({
               text: "設定",
               items: [
                 { text: "Vegas の設定", link: "/ja/config/" },
-                { text: "共有オプション", link: "/ja/config/shared-options/" },
+                { text: "共有オプション", link: "/ja/config/shared-options" },
               ],
             },
           ],
@@ -227,33 +227,33 @@ export default defineConfig({
       description: "Google Apps Script에 특화된 Vite 기반 개발 및 빌드 도구",
       themeConfig: {
         nav: [
-          { text: "가이드", link: "/ko/guide" },
+          { text: "가이드", link: "/ko/guide/" },
           {
             text: "Runtime",
             items: [
-              { text: "Runtime 아키텍처", link: "/ko/guide/runtime-architecture/" },
-              { text: "Local Runtime", link: "/ko/guide/local-runtime/" },
+              { text: "Runtime 아키텍처", link: "/ko/guide/runtime-architecture" },
+              { text: "Local Runtime", link: "/ko/guide/local-runtime" },
               {
                 text: "Google Apps Script Runtime",
-                link: "/ko/guide/google-apps-script-runtime/",
+                link: "/ko/guide/google-apps-script-runtime",
               },
             ],
           },
           {
             text: "테스트",
             items: [
-              { text: "Vitest", link: "/ko/guide/vitest/" },
-              { text: "Playwright", link: "/ko/guide/playwright/" },
+              { text: "Vitest", link: "/ko/guide/vitest" },
+              { text: "Playwright", link: "/ko/guide/playwright" },
             ],
           },
           {
             text: "레퍼런스",
             items: [
-              { text: "JavaScript API", link: "/ko/guide/api-javascript/" },
-              { text: "Runtime API coverage", link: "/ko/guide/runtime-api-coverage/" },
+              { text: "JavaScript API", link: "/ko/guide/api-javascript" },
+              { text: "Runtime API coverage", link: "/ko/guide/runtime-api-coverage" },
             ],
           },
-          { text: "설정", link: "/ko/config" },
+          { text: "설정", link: "/ko/config/" },
         ],
 
         sidebar: {
@@ -262,45 +262,45 @@ export default defineConfig({
               text: "시작하기",
               items: [
                 { text: "시작하기", link: "/ko/guide/" },
-                { text: "명령줄 인터페이스", link: "/ko/guide/cli/" },
-                { text: "프로젝트 구조", link: "/ko/guide/project-structure/" },
-                { text: "개발과 빌드", link: "/ko/guide/development-and-build/" },
+                { text: "명령줄 인터페이스", link: "/ko/guide/cli" },
+                { text: "프로젝트 구조", link: "/ko/guide/project-structure" },
+                { text: "개발과 빌드", link: "/ko/guide/development-and-build" },
               ],
             },
             {
               text: "Runtime",
               items: [
-                { text: "Runtime 아키텍처", link: "/ko/guide/runtime-architecture/" },
-                { text: "Local Runtime", link: "/ko/guide/local-runtime/" },
+                { text: "Runtime 아키텍처", link: "/ko/guide/runtime-architecture" },
+                { text: "Local Runtime", link: "/ko/guide/local-runtime" },
                 {
                   text: "Google Apps Script Runtime",
-                  link: "/ko/guide/google-apps-script-runtime/",
+                  link: "/ko/guide/google-apps-script-runtime",
                 },
               ],
             },
             {
               text: "테스트",
               items: [
-                { text: "Vitest", link: "/ko/guide/vitest/" },
-                { text: "Playwright", link: "/ko/guide/playwright/" },
+                { text: "Vitest", link: "/ko/guide/vitest" },
+                { text: "Playwright", link: "/ko/guide/playwright" },
               ],
             },
             {
               text: "데이터",
-              items: [{ text: "Spreadsheet Data", link: "/ko/guide/spreadsheet-data/" }],
+              items: [{ text: "Spreadsheet Data", link: "/ko/guide/spreadsheet-data" }],
             },
             {
               text: "레퍼런스",
               items: [
-                { text: "JavaScript API", link: "/ko/guide/api-javascript/" },
-                { text: "Runtime API coverage", link: "/ko/guide/runtime-api-coverage/" },
+                { text: "JavaScript API", link: "/ko/guide/api-javascript" },
+                { text: "Runtime API coverage", link: "/ko/guide/runtime-api-coverage" },
               ],
             },
             {
               text: "Vegas 소개",
               items: [
-                { text: "Why Vegas", link: "/ko/guide/why/" },
-                { text: "프로젝트 철학", link: "/ko/guide/philosophy/" },
+                { text: "Why Vegas", link: "/ko/guide/why" },
+                { text: "프로젝트 철학", link: "/ko/guide/philosophy" },
               ],
             },
           ],
@@ -309,7 +309,7 @@ export default defineConfig({
               text: "설정",
               items: [
                 { text: "Vegas 설정", link: "/ko/config/" },
-                { text: "공통 옵션", link: "/ko/config/shared-options/" },
+                { text: "공통 옵션", link: "/ko/config/shared-options" },
               ],
             },
           ],

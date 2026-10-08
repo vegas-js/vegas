@@ -12,7 +12,7 @@ hero:
   actions:
     - theme: brand
       text: 시작하기
-      link: /ko/guide
+      link: /ko/guide/
     - theme: alt
       text: GitHub에서 보기
       link: https://github.com/vegas-js/vegas
