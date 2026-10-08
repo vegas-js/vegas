@@ -1,3 +1,5 @@
+import path from "node:path";
+
 import type { EnvironmentOptions, InlineConfig } from "vite";
 
 import type { BuildPlan } from "../plan";
@@ -13,8 +15,13 @@ import { spreadsheetQueryTransform } from "./plugin/spreadsheet-query-transform"
 import { virtualHtml } from "./plugin/virtual-html";
 
 export function createBuilderConfig(plan: BuildPlan): InlineConfig {
+  let selectedServerEntry: string | undefined;
   const environments: Record<string, EnvironmentOptions> = {
     [SERVER_ENVIRONMENT_NAME]: {
+      resolve: {
+        // Apps Script has no module loader: bundle dependencies in the server environment.
+        noExternal: true,
+      },
       build: {
         lib: {
           formats: ["iife"],
@@ -69,8 +76,14 @@ export function createBuilderConfig(plan: BuildPlan): InlineConfig {
       virtualHtml(plan.clientModuleTargets),
       inlineHtmlEntry(plan.clientHtmlTargets),
       spreadsheetQueryTransform(),
-      detectServerEntry(plan),
-      exportBridge(),
+      detectServerEntry(plan, (filePath) => {
+        selectedServerEntry = filePath;
+      }),
+      exportBridge(
+        (filePath) =>
+          selectedServerEntry !== undefined &&
+          path.normalize(filePath) === path.normalize(selectedServerEntry),
+      ),
     ],
     environments,
     build: {

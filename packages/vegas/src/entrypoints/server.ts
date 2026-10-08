@@ -81,3 +81,7 @@ export {
   type SpreadsheetQueryField,
   type SpreadsheetQueryFields,
 } from "../apps-script/spreadsheet/query/fields";
+export {
+  defineServerFunctions,
+  type ServerFunctionHandlers,
+} from "../apps-script/server-functions";

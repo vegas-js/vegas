@@ -48,6 +48,10 @@
       "types": "./server.d.ts",
       "import": "./dist/server.js"
     },
+    "./__internal/rpc": {
+      "types": "./dist/internal-rpc.d.ts",
+      "import": "./dist/internal-rpc.js"
+    },
     "./vitest": {
       "types": "./dist/vitest.d.ts",
       "import": "./dist/vitest.js"

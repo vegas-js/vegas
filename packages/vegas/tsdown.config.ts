@@ -49,6 +49,7 @@ export default defineConfig([
   {
     entry: {
       server: "./src/entrypoints/server",
+      "internal-rpc": "./src/apps-script/rpc-dispatcher",
     },
     tsconfig: "./tsconfig.server.json",
     fixedExtension: false,

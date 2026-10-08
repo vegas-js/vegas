@@ -60,15 +60,44 @@ function createServerFunctionClient<T extends object>(): ServerFunctionClient<T>
 
 `createServerFunctionClient<T>()` creates a typed Promise-based client over `google.script.run`.
 
+Define the callable RPC contract independently of the server implementation:
+
 ```typescript
+// src/contracts/rpc.ts
+export interface ServerRpc {
+  greet(name: string): string;
+}
+```
+
+Implement that contract on the server, using named exports for the GAS bridge:
+
+```typescript
+// src/server/Code.ts
+import { defineServerFunctions } from "@vegasjs/vegas/server";
+
+import type { ServerRpc } from "../contracts/rpc";
+
+export const { greet } = defineServerFunctions<ServerRpc>({
+  greet(name) {
+    Logger.log(name);
+    return `Hello, ${name}`;
+  },
+});
+```
+
+Reference only the shared contract from the client:
+
+```typescript
+// src/client/main.ts
 import { createServerFunctionClient } from "@vegasjs/vegas/client";
 
-import type * as serverFunctions from "../server/Code";
+import type { ServerRpc } from "../contracts/rpc";
 
-const server = createServerFunctionClient<typeof serverFunctions>();
-
-const result = await server.myFunction("value");
+const server = createServerFunctionClient<ServerRpc>();
+const result = await server.greet("Vegas");
 ```
+
+This works without a Vegas dev server, generated type files, or TypeScript Project References. Do not import `../server/Code` even with `import type`: TypeScript otherwise checks server implementation files using the client compiler settings. Legacy server functions must remain top-level named exports. `defineServerFunctions()` validates handler names and callable values at registration, and returns the original object.
 
 `ServerFunctionClient<T>` keeps string-keyed functions from `T`, excludes function names ending in `_`, preserves each function's argument tuple, and converts its result to `Promise<Awaited<Result>>`.
 
@@ -79,6 +108,40 @@ The entry point exports:
 ```typescript
 import { createServerFunctionClient, type ServerFunctionClient } from "@vegasjs/vegas/client";
 ```
+
+### `createRpcClient<T>()`
+
+Registered RPC handlers use one GAS entry point, `vegasRpcCall`, instead of requiring a named export for every method. Keep the contract independent of server implementation:
+
+```typescript
+// src/server/Code.ts
+import { defineServerFunctions } from "@vegasjs/vegas/server";
+
+import type { ServerRpc } from "../contracts/rpc";
+
+export const rpc = defineServerFunctions<ServerRpc>({
+  greet(name) {
+    Logger.log(name);
+    return `Hello, ${name}`;
+  },
+});
+```
+
+```typescript
+// src/client/main.ts
+import { createRpcClient } from "@vegasjs/vegas/client";
+
+import type { ServerRpc } from "../contracts/rpc";
+
+const server = createRpcClient<ServerRpc>();
+const result = await server.greet("Vegas");
+```
+
+The server entry must export an object named `rpc`. Vegas exposes its methods through the dispatcher in both local and Google Apps Script execution. Existing named exports and `createServerFunctionClient()` continue to work separately. The names `vegasRpcCall` (global dispatcher) and `rpc` (handler export) have special meaning when using this mode; do not export a function named `vegasRpcCall` alongside `rpc`.
+
+Registered RPC contracts are checked statically against a conservative `google.script.run` transport subset: strings, numbers, booleans, `null`, arrays, and plain data records. TypeScript rejects `Date`, callbacks, `Promise` results, optional `undefined` fields, broad `object` / `{}` types, and recursive object types. A `void` return is allowed. Static typing cannot establish that a number is finite or that an object has no cyclic references.
+
+Vegas also validates registered RPC values at runtime. `createRpcClient()` checks arguments before calling `google.script.run`, and the generated `vegasRpcCall` dispatcher checks incoming arguments and handler return values. Unsupported values include `Date`, functions, symbols, accessors, cyclic references, non-finite numbers, sparse arrays, non-enumerable data properties, and objects with custom prototypes. A root `undefined` result is allowed for void-style handlers. These checks do not serialize values or guarantee that Google accepts every permitted value. The legacy `createServerFunctionClient()` does not perform this additional argument validation. Convert dates to strings before transferring them.
 
 ## `@vegasjs/vegas/server`
 

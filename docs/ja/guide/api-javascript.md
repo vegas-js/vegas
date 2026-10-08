@@ -60,15 +60,44 @@ function createServerFunctionClient<T extends object>(): ServerFunctionClient<T>
 
 `createServerFunctionClient<T>()` は `google.script.run` 上に型付きのPromise-based clientを作成します。
 
+まず、server 実装から独立した RPC 契約を定義します。
+
 ```typescript
+// src/contracts/rpc.ts
+export interface ServerRpc {
+  greet(name: string): string;
+}
+```
+
+server では契約に沿った関数を実装し、GAS Bridge 用に名前付き export します。
+
+```typescript
+// src/server/Code.ts
+import { defineServerFunctions } from "@vegasjs/vegas/server";
+
+import type { ServerRpc } from "../contracts/rpc";
+
+export const { greet } = defineServerFunctions<ServerRpc>({
+  greet(name) {
+    Logger.log(name);
+    return `Hello, ${name}`;
+  },
+});
+```
+
+client は共通の型契約だけを参照します。
+
+```typescript
+// src/client/main.ts
 import { createServerFunctionClient } from "@vegasjs/vegas/client";
 
-import type * as serverFunctions from "../server/Code";
+import type { ServerRpc } from "../contracts/rpc";
 
-const server = createServerFunctionClient<typeof serverFunctions>();
-
-const result = await server.myFunction("value");
+const server = createServerFunctionClient<ServerRpc>();
+const result = await server.greet("Vegas");
 ```
+
+この方法は Vegas の起動、型ファイルの自動生成、TypeScript Project References を必要としません。`../server/Code` を `import type` で参照すると、client のコンパイラ設定で server 実装も型検査されるため避けてください。`defineServerFunctions()` は型チェックに加えて登録時に関数名と実装を検証し、元のオブジェクトを返します。従来方式では GAS に公開する関数の名前付き export が必要です。
 
 `ServerFunctionClient<T>` は `T` のstring-keyed functionを対象にし、名前が `_` で終わるfunctionを除外し、各functionのargument tupleを維持したまま、resultを `Promise<Awaited<Result>>` に変換します。
 
@@ -79,6 +108,40 @@ entrypointからは次を公開しています。
 ```typescript
 import { createServerFunctionClient, type ServerFunctionClient } from "@vegasjs/vegas/client";
 ```
+
+### `createRpcClient<T>()`
+
+登録型 RPC は各メソッドを名前付き export する代わりに、GAS の単一エントリポイント `vegasRpcCall` を利用します。公開契約は server 実装から独立させます。
+
+```typescript
+// src/server/Code.ts
+import { defineServerFunctions } from "@vegasjs/vegas/server";
+
+import type { ServerRpc } from "../contracts/rpc";
+
+export const rpc = defineServerFunctions<ServerRpc>({
+  greet(name) {
+    Logger.log(name);
+    return `Hello, ${name}`;
+  },
+});
+```
+
+```typescript
+// src/client/main.ts
+import { createRpcClient } from "@vegasjs/vegas/client";
+
+import type { ServerRpc } from "../contracts/rpc";
+
+const server = createRpcClient<ServerRpc>();
+const result = await server.greet("Vegas");
+```
+
+server エントリは `rpc` という名前でオブジェクトを export する必要があります。Vegas は Local Runtime と Google Apps Script の両方で、そのメソッドを単一ディスパッチャー経由で実行します。従来の名前付き export と `createServerFunctionClient()` は引き続き利用できます。この方式では `rpc` がハンドラ名、`vegasRpcCall` が GAS のディスパッチャー名として予約されるため、`rpc` と同時に `vegasRpcCall` 関数を export しないでください。
+
+登録型 RPC の契約は、`google.script.run` で受け渡し可能な値の保守的な部分集合（文字列、数値、真偽値、`null`、配列、通常のデータオブジェクト）に対して静的に検査されます。TypeScript は `Date`、コールバック、`Promise` の戻り値、省略可能な `undefined` プロパティ、広すぎる `object` / `{}` 型、再帰的なオブジェクト型を拒否します。`void` の戻り値は許可されます。ただし型検査だけでは、数値が有限であることやオブジェクトに循環参照がないことまでは証明できません。
+
+Vegas は登録型 RPC の値も実行時に検証します。`createRpcClient()` は `google.script.run` の呼び出し前に引数を検証し、生成された `vegasRpcCall` ディスパッチャーは受信した引数とハンドラの戻り値を検証します。`Date`、関数、シンボル、アクセサー、循環参照、非有限数、欠損要素のある配列、列挙不能なデータプロパティ、独自プロトタイプを持つオブジェクトなどは拒否されます。`void` 相当のハンドラでは、戻り値のルートに限り `undefined` を許可します。これらの検証は値のシリアライズを行わず、許可されたすべての値を Google が受け付けることも保証しません。従来の `createServerFunctionClient()` は、この追加の引数検証を実行しません。日時は文字列に変換して受け渡してください。
 
 ## `@vegasjs/vegas/server`
 

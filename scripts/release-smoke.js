@@ -3,6 +3,7 @@ import { spawnSync } from "node:child_process";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import vm from "node:vm";
 
 const ROOT = path.resolve(import.meta.dirname, "..");
 const VEGAS_ROOT = path.join(ROOT, "packages", "vegas");
@@ -162,27 +163,76 @@ function smokeVanillaConsumer(tarballPath, tempRoot) {
     ),
   );
 
+  const contractDirectory = path.join(consumerRoot, "src", "contracts");
+  fs.mkdirSync(contractDirectory, { recursive: true });
+  const contractPath = path.join(contractDirectory, "rpc.ts");
+  fs.writeFileSync(
+    contractPath,
+    `
+      export interface ServerRpc {
+        greet(name: string): string;
+      }
+    `,
+  );
+
+  const serverCodePath = path.join(consumerRoot, "src", "server", "Code.ts");
+  fs.appendFileSync(
+    serverCodePath,
+    `
+      import { defineServerFunctions } from "@vegasjs/vegas/server";
+      import type { ServerRpc } from "../contracts/rpc.js";
+
+      export const { greet } = defineServerFunctions<ServerRpc>({
+        greet(name) {
+          Logger.log(name);
+          return \`Hello, \${name}\`;
+        },
+      });
+
+      export const rpc = defineServerFunctions<ServerRpc>({
+        greet(name) {
+          Logger.log(name);
+          return \`Hello, \${name}\`;
+        },
+      });
+    `,
+  );
+
+  const boundaryPath = path.join(consumerRoot, "src", "client", "rpc-boundary.ts");
+  fs.writeFileSync(
+    boundaryPath,
+    `
+      // @ts-expect-error GAS globals must not be available in the client project.
+      void HtmlService;
+    `,
+  );
+
   const clientSmokePath = path.join(consumerRoot, "src", "client", "release-smoke.ts");
 
   fs.writeFileSync(
     clientSmokePath,
     `
       import {
+        createRpcClient,
         createServerFunctionClient,
         type ServerFunctionClient,
       } from "@vegasjs/vegas/client";
+      import type { ServerRpc } from "../contracts/rpc.js";
 
-      interface ServerApi {
-        greet(name: string): string;
+      type ServerApi = ServerRpc & {
         hidden_(): string;
         value: string;
-      }
+      };
 
       const client: ServerFunctionClient<ServerApi> =
         createServerFunctionClient<ServerApi>();
 
       const greeting: Promise<string> = client.greet("Vegas");
       void greeting;
+
+      const registeredRpc = createRpcClient<ServerRpc>();
+      const rpcGreeting: Promise<string> = registeredRpc.greet("Vegas");
+      void rpcGreeting;
 
       const endpoint: string = import.meta.env.ENDPOINT_URL;
       void endpoint;
@@ -233,6 +283,7 @@ function smokeVanillaConsumer(tarballPath, tempRoot) {
   });
 
   fs.rmSync(clientSmokePath);
+  fs.rmSync(boundaryPath);
   fs.rmSync(serverSmokePath);
   fs.rmSync(path.join(consumerRoot, "config-surface-smoke.ts"));
   fs.rmSync(path.join(consumerRoot, "tsconfig.release-smoke.json"));
@@ -245,6 +296,35 @@ function smokeVanillaConsumer(tarballPath, tempRoot) {
   for (const file of ["dist/Code.js", "dist/index.html", "dist/appsscript.json"]) {
     assertFile(consumerRoot, file);
   }
+
+  assert.match(
+    fs.readFileSync(path.join(consumerRoot, "dist", "Code.js"), "utf8"),
+    /function greet\(\.\.\.args\)/,
+    "Expected RPC handler to be exposed as a GAS global function",
+  );
+
+  const code = fs.readFileSync(path.join(consumerRoot, "dist", "Code.js"), "utf8");
+  assert.doesNotMatch(
+    code,
+    /function rpc\(\.\.\.args\)/,
+    "RPC registry must not be exposed as a GAS global function",
+  );
+  const context = vm.createContext({ Logger: { log: () => undefined } });
+  new vm.Script(code).runInContext(context);
+  assert.equal(vm.runInContext('vegasRpcCall("greet", "Vegas")', context), "Hello, Vegas");
+  assert.throws(
+    () => vm.runInContext('vegasRpcCall("constructor")', context),
+    /Unknown or private RPC handler/,
+  );
+  // A packed Vegas release must embed the same transport validator as its client.
+  assert.throws(
+    () => vm.runInContext('vegasRpcCall("greet", new Date())', context),
+    /Unsupported RPC transport value at arguments\[0\]/,
+  );
+  assert.throws(
+    () => vm.runInContext('vegasRpcCall("greet", new (class CustomRecord {})())', context),
+    /Unsupported RPC transport value at arguments\[0\]/,
+  );
 
   console.log("Vanilla packed-package consumer smoke passed");
 }
@@ -402,6 +482,8 @@ function smokeVegasPackage() {
       "dist/config.d.ts",
       "dist/client.js",
       "dist/client.d.ts",
+      "dist/internal-rpc.js",
+      "dist/internal-rpc.d.ts",
       "dist/playwright.js",
       "dist/playwright.d.ts",
       "dist/vitest.js",
@@ -444,6 +526,11 @@ function smokeVegasPackage() {
       import: "./dist/server.js",
     });
 
+    assert.deepEqual(packageJson.exports["./__internal/rpc"], {
+      types: "./dist/internal-rpc.d.ts",
+      import: "./dist/internal-rpc.js",
+    });
+
     assert.deepEqual(packageJson.exports["./vitest"], {
       types: "./dist/vitest.d.ts",
       import: "./dist/vitest.js",
@@ -473,6 +560,7 @@ function smokeVegasPackage() {
         import * as client from "@vegasjs/vegas/client";
         import * as playwright from "@vegasjs/vegas/playwright";
         import * as server from "@vegasjs/vegas/server";
+        import * as internalRpc from "@vegasjs/vegas/__internal/rpc";
 
         assert.equal(typeof vegas.defineConfig, "function");
         assert.equal(typeof playwright.createBrowserTest, "function");
@@ -487,6 +575,8 @@ function smokeVegasPackage() {
         );
 
         assert.equal(typeof server.createSpreadsheetRowCodec, "function");
+        assert.equal("__vegasInternalRpcDispatch" in server, false);
+        assert.equal(typeof internalRpc.__vegasInternalRpcDispatch, "function");
 
         const rowCodec = server.createSpreadsheetRowCodec(
           2,
