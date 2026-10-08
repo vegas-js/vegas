@@ -35,12 +35,22 @@ export function assertRpcTransportValue(
       throw new TypeError(`Unsupported RPC transport value at ${location}`);
     }
 
-    // Object.prototype.toString() can execute a Symbol.toStringTag getter.
-    // Checking prototype depth instead accepts cross-realm plain records and
-    // null-prototype records, without treating class instances as data records.
-    if (!Array.isArray(current)) {
-      const prototype = Object.getPrototypeOf(current) as object | null;
-      if (prototype !== null && Object.getPrototypeOf(prototype) !== null) {
+    // Do not inspect Symbol.toStringTag: it can invoke user-defined getters.
+    // Accept native array/object prototypes across realms, plus null-prototype
+    // records. Custom prototypes can contain inherited data lost in transit.
+    const isArray = Array.isArray(current);
+    const prototype = Object.getPrototypeOf(current) as object | null;
+    if (prototype === null) {
+      if (isArray) {
+        throw new TypeError(`Unsupported RPC transport value at ${location}`);
+      }
+    } else {
+      const constructor: unknown = Object.getOwnPropertyDescriptor(prototype, "constructor")?.value;
+      if (
+        (isArray ? !Array.isArray(prototype) : Object.getPrototypeOf(prototype) !== null) ||
+        typeof constructor !== "function" ||
+        constructor.prototype !== prototype
+      ) {
         throw new TypeError(`Unsupported RPC transport value at ${location}`);
       }
     }

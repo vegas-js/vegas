@@ -72,6 +72,35 @@ describe("RPC transport runtime validator", () => {
     expect(() => assertRpcTransportValue(emptyPrototype, "arguments[0]")).not.toThrow();
   });
 
+  test("rejects inherited state and Array subclasses without losing cross-realm arrays", () => {
+    const customPrototype = Object.assign(Object.create(null) as Record<string, unknown>, {
+      inherited: "lost",
+    });
+    const inheritedRecord = Object.assign(
+      Object.create(customPrototype) as Record<string, unknown>,
+      {
+        name: "Vegas",
+      },
+    );
+    class ExtendedArray extends Array<number> {
+      get inherited(): string {
+        return "lost";
+      }
+    }
+    const extendedArray = new ExtendedArray();
+    extendedArray.push(1, 2);
+
+    expect(() => assertRpcTransportValue(inheritedRecord, "arguments[0]")).toThrow(
+      "Unsupported RPC transport value at arguments[0]",
+    );
+    expect(() => assertRpcTransportValue(extendedArray, "return", true)).toThrow(
+      "Unsupported RPC transport value at return",
+    );
+
+    const foreignArray = vm.runInNewContext("[1, 2]") as unknown;
+    expect(() => assertRpcTransportValue(foreignArray, "arguments[0]")).not.toThrow();
+  });
+
   test("rejects custom prototypes without evaluating Symbol.toStringTag getters", () => {
     let inspected = 0;
     class TaggedRecord {

@@ -105,6 +105,39 @@ describe("registered RPC transport boundary", () => {
     expect(() => invoke("cyclicResult")).toThrow("Cyclic RPC transport value at return");
   });
 
+  test("rejects custom prototype values in the generated GAS dispatcher", async () => {
+    const code = await buildRpcDispatcher(`
+      export const rpc = { echo(value: unknown) { return value; } };
+    `);
+    const context = vm.createContext({});
+    new vm.Script(code).runInContext(context);
+    const invoke = vm.runInContext("vegasRpcCall", context) as (
+      name: string,
+      ...args: unknown[]
+    ) => unknown;
+
+    const customPrototype = Object.assign(Object.create(null) as Record<string, unknown>, {
+      inherited: "lost",
+    });
+    const inherited = Object.assign(Object.create(customPrototype) as Record<string, unknown>, {
+      name: "Vegas",
+    });
+    class ExtendedArray extends Array<number> {
+      get inherited(): string {
+        return "lost";
+      }
+    }
+    const extended = new ExtendedArray();
+    extended.push(1, 2);
+
+    expect(() => invoke("echo", inherited)).toThrow(
+      "Unsupported RPC transport value at arguments[0]",
+    );
+    expect(() => invoke("echo", extended)).toThrow(
+      "Unsupported RPC transport value at arguments[0]",
+    );
+  });
+
   test("preserves the registered handler receiver in the GAS IIFE", async () => {
     const code = await buildRpcDispatcher(`
       export const rpc = {
