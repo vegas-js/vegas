@@ -8,6 +8,12 @@ const INTERNAL_RPC_DISPATCH = "__vegasInternalRpcDispatch";
 function hasRpcExport(source: string, filePath: string): boolean {
   const { program } = parseSync(filePath, source);
   return program.body.some((node) => {
+    // A star re-export can supply `rpc` from another module.
+    // Only generate the GAS global dispatcher when the final chunk exports it.
+    if (node.type === "ExportAllDeclaration") {
+      return true;
+    }
+
     if (node.type !== "ExportNamedDeclaration") {
       return false;
     }
@@ -16,7 +22,15 @@ function hasRpcExport(source: string, filePath: string): boolean {
     return (
       (declaration?.type === "VariableDeclaration" &&
         declaration.declarations.some(
-          (variable) => variable.id.type === "Identifier" && variable.id.name === "rpc",
+          (variable) =>
+            (variable.id.type === "Identifier" && variable.id.name === "rpc") ||
+            (variable.id.type === "ObjectPattern" &&
+              variable.id.properties.some(
+                (property) =>
+                  property.type === "Property" &&
+                  property.value.type === "Identifier" &&
+                  property.value.name === "rpc",
+              )),
         )) ||
       node.specifiers.some(
         (specifier) =>
