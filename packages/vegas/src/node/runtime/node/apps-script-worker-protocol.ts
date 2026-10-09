@@ -37,15 +37,22 @@ export function isAppsScriptWorkerRequest(value: unknown): value is AppsScriptWo
 }
 
 export function isAppsScriptWorkerResponse(value: unknown): value is AppsScriptWorkerResponse {
-  if (!isRecord(value) || value.type !== "result" || typeof value.ok !== "boolean") {
+  if (
+    !isRecord(value) ||
+    getOwnDataValue(value, "type") !== "result" ||
+    typeof getOwnDataValue(value, "ok") !== "boolean"
+  ) {
     return false;
   }
 
-  if (value.ok) {
-    return Object.hasOwn(value, "value");
+  if (getOwnDataValue(value, "ok") === true) {
+    // An undefined result is valid, but it must be an explicit data field.
+    const result = Object.getOwnPropertyDescriptor(value, "value");
+    return result !== undefined && "value" in result;
   }
 
-  return isRuntimeErrorSnapshot(value.error);
+  const error = Object.getOwnPropertyDescriptor(value, "error");
+  return error !== undefined && "value" in error && isRuntimeErrorSnapshot(error.value);
 }
 
 export function serializeAppsScriptWorkerError(error: unknown): AppsScriptWorkerError {

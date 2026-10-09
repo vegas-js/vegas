@@ -19,27 +19,44 @@ export interface RuntimeErrorSnapshot {
 }
 
 export function isRuntimeErrorSnapshot(value: unknown): value is RuntimeErrorSnapshot {
+  if (!isRecord(value)) {
+    return false;
+  }
+
+  // Serialized errors must contain own data fields, never inherited values or
+  // accessors. This validator must not run code supplied by an invalid payload.
+  const name = Object.getOwnPropertyDescriptor(value, "name");
+  const message = Object.getOwnPropertyDescriptor(value, "message");
+  const stack = Object.getOwnPropertyDescriptor(value, "stack");
+  const infrastructureKind = Object.getOwnPropertyDescriptor(value, "infrastructureKind");
+  const unsupportedOperation = Object.getOwnPropertyDescriptor(value, "unsupportedOperation");
   if (
-    !isRecord(value) ||
-    typeof value.name !== "string" ||
-    typeof value.message !== "string" ||
-    (value.stack !== undefined && typeof value.stack !== "string")
+    !name ||
+    !("value" in name) ||
+    typeof name.value !== "string" ||
+    !message ||
+    !("value" in message) ||
+    typeof message.value !== "string" ||
+    (stack !== undefined &&
+      (!("value" in stack) || (stack.value !== undefined && typeof stack.value !== "string"))) ||
+    (infrastructureKind !== undefined && !("value" in infrastructureKind)) ||
+    (unsupportedOperation !== undefined && !("value" in unsupportedOperation))
   ) {
     return false;
   }
 
-  if (value.infrastructureKind !== undefined) {
+  if (infrastructureKind?.value !== undefined) {
     return (
-      value.unsupportedOperation === undefined &&
-      value.name === "RuntimeInfrastructureError" &&
-      isRuntimeInfrastructureErrorKind(value.infrastructureKind)
+      unsupportedOperation?.value === undefined &&
+      name.value === "RuntimeInfrastructureError" &&
+      isRuntimeInfrastructureErrorKind(infrastructureKind.value)
     );
   }
 
-  if (value.unsupportedOperation !== undefined) {
+  if (unsupportedOperation?.value !== undefined) {
     return (
-      value.name === "UnsupportedRuntimeOperationError" &&
-      isUnsupportedRuntimeOperationSnapshot(value.unsupportedOperation)
+      name.value === "UnsupportedRuntimeOperationError" &&
+      isUnsupportedRuntimeOperationSnapshot(unsupportedOperation.value)
     );
   }
 
@@ -138,7 +155,11 @@ function getRuntimeErrorMessage(error: Record<string, unknown>): string {
 function isUnsupportedRuntimeOperationSnapshot(
   value: unknown,
 ): value is UnsupportedRuntimeOperationSnapshot {
-  return isRecord(value) && typeof value.operation === "string" && typeof value.reason === "string";
+  return (
+    isRecord(value) &&
+    typeof Object.getOwnPropertyDescriptor(value, "operation")?.value === "string" &&
+    typeof Object.getOwnPropertyDescriptor(value, "reason")?.value === "string"
+  );
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

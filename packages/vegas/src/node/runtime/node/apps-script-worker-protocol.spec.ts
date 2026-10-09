@@ -87,6 +87,54 @@ describe("Apps Script worker protocol", () => {
     ).toBe(false);
   });
 
+  test("reject inherited response fields and accessors without invoking getters", () => {
+    const validSuccess = { type: "result", ok: true, value: undefined };
+    const validFailure = { type: "result", ok: false, error: { name: "Error", message: "failed" } };
+    expect(isAppsScriptWorkerResponse(validSuccess)).toBe(true);
+    expect(isAppsScriptWorkerResponse(validFailure)).toBe(true);
+
+    for (const field of ["type", "ok", "value"] as const) {
+      const getter = vi.fn(() => "unsafe");
+      const response = Object.defineProperty({ ...validSuccess }, field, { get: getter });
+      expect(isAppsScriptWorkerResponse(response)).toBe(false);
+      expect(getter).not.toHaveBeenCalled();
+    }
+
+    const failureGetter = vi.fn(() => validFailure.error);
+    const failure = Object.defineProperty({ ...validFailure }, "error", {
+      get: failureGetter,
+    });
+    expect(isAppsScriptWorkerResponse(failure)).toBe(false);
+    expect(failureGetter).not.toHaveBeenCalled();
+
+    const inherited = Object.assign(Object.create({ type: "result" }) as Record<string, unknown>, {
+      ok: true,
+      value: undefined,
+    });
+    expect(isAppsScriptWorkerResponse(inherited)).toBe(false);
+
+    const inheritedResult = Object.assign(
+      Object.create({ value: "inherited" }) as Record<string, unknown>,
+      { type: "result", ok: true },
+    );
+    expect(isAppsScriptWorkerResponse(inheritedResult)).toBe(false);
+
+    const nullPrototype = Object.assign(
+      Object.create(null) as Record<string, unknown>,
+      validSuccess,
+    );
+    expect(isAppsScriptWorkerResponse(nullPrototype)).toBe(true);
+  });
+
+  test("reject error responses containing inherited or accessor snapshot fields", () => {
+    const getter = vi.fn(() => "unsafe");
+    const error = Object.defineProperty({ name: "Error", message: "failed" }, "message", {
+      get: getter,
+    });
+    expect(isAppsScriptWorkerResponse({ type: "result", ok: false, error })).toBe(false);
+    expect(getter).not.toHaveBeenCalled();
+  });
+
   test("serialize Error-like values across VM realms", () => {
     expect(
       serializeAppsScriptWorkerError({

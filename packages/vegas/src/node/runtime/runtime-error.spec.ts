@@ -1,4 +1,4 @@
-import { describe, expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 
 import {
   isRuntimeErrorSnapshot,
@@ -43,6 +43,51 @@ describe("Runtime error transport", () => {
         },
       }),
     ).toBe(false);
+  });
+
+  test("reject inherited and accessor error fields without invoking getters", () => {
+    const inherited = Object.assign(Object.create({ name: "Error" }) as Record<string, unknown>, {
+      message: "failed",
+    });
+    expect(isRuntimeErrorSnapshot(inherited)).toBe(false);
+
+    const validNullPrototype = Object.assign(Object.create(null) as Record<string, unknown>, {
+      name: "Error",
+      message: "failed",
+    });
+    expect(isRuntimeErrorSnapshot(validNullPrototype)).toBe(true);
+
+    for (const field of [
+      "name",
+      "message",
+      "stack",
+      "infrastructureKind",
+      "unsupportedOperation",
+    ] as const) {
+      const getter = vi.fn(() => "unsafe");
+      const error = Object.defineProperty({ name: "Error", message: "failed" }, field, {
+        get: getter,
+      });
+      expect(isRuntimeErrorSnapshot(error)).toBe(false);
+      expect(getter).not.toHaveBeenCalled();
+    }
+
+    for (const field of ["operation", "reason"] as const) {
+      const getter = vi.fn(() => "unsafe");
+      const unsupportedOperation = Object.defineProperty(
+        { operation: "Example.operation()", reason: "not modeled." },
+        field,
+        { get: getter },
+      );
+      expect(
+        isRuntimeErrorSnapshot({
+          name: "UnsupportedRuntimeOperationError",
+          message: "failed",
+          unsupportedOperation,
+        }),
+      ).toBe(false);
+      expect(getter).not.toHaveBeenCalled();
+    }
   });
 
   test("serialize Error-like values across VM realms", () => {
