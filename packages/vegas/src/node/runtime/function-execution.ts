@@ -5,7 +5,9 @@ export async function executeRuntimeFunction(
   functionName: string,
   args: readonly unknown[],
 ): Promise<unknown> {
-  const target = globals[functionName];
+  // Only execute directly defined global functions. Resolving inherited names
+  // or accessor properties could execute unintended code during lookup.
+  const target: unknown = Object.getOwnPropertyDescriptor(globals, functionName)?.value;
 
   if (typeof target !== "function") {
     throw new Error(`${functionName} is not a function`);
