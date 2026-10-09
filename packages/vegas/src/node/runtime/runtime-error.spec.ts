@@ -120,6 +120,108 @@ describe("Runtime error transport", () => {
     });
   });
 
+  test("serialize native errors without requiring own name properties", () => {
+    const error = new TypeError("invalid");
+    const snapshot = serializeRuntimeError(error);
+
+    expect(snapshot).toMatchObject({ name: "TypeError", message: "invalid" });
+    expect(snapshot.stack).toEqual(expect.any(String));
+    expect(isRuntimeErrorSnapshot(snapshot)).toBe(true);
+  });
+
+  test("never invokes accessors on thrown errors or error-like values", () => {
+    const getter = vi.fn(() => {
+      throw new Error("unexpected getter call");
+    });
+    const error = new TypeError("invalid");
+    Object.defineProperty(error, "name", { get: getter });
+    Object.defineProperty(error, "stack", { get: getter });
+
+    expect(serializeRuntimeError(error)).toStrictEqual({
+      name: "Error",
+      message: "invalid",
+    });
+
+    const thrown = Object.defineProperty({ name: "CustomError" }, "message", {
+      enumerable: true,
+      get: getter,
+    });
+    expect(serializeRuntimeError(thrown)).toStrictEqual({
+      name: "CustomError",
+      message: "Unknown error.",
+    });
+    expect(getter).not.toHaveBeenCalled();
+  });
+
+  test("does not format a native stack when an error name getter is overridden", () => {
+    const getter = vi.fn(() => "unsafe");
+    const error = new TypeError("invalid");
+    Object.defineProperty(error, "name", { get: getter });
+
+    expect(serializeRuntimeError(error)).toMatchObject({
+      name: "Error",
+      message: "invalid",
+    });
+    expect(getter).not.toHaveBeenCalled();
+  });
+
+  test("does not invoke a customized stack formatter", () => {
+    const original = Object.getOwnPropertyDescriptor(Error, "prepareStackTrace");
+    const formatter = vi.fn(() => "unsafe");
+    try {
+      Object.defineProperty(Error, "prepareStackTrace", {
+        configurable: true,
+        writable: true,
+        value: formatter,
+      });
+      const snapshot = serializeRuntimeError(new TypeError("invalid"));
+      expect(snapshot).toMatchObject({ name: "TypeError", message: "invalid" });
+      expect(formatter).not.toHaveBeenCalled();
+    } finally {
+      if (original === undefined) {
+        Reflect.deleteProperty(Error, "prepareStackTrace");
+      } else {
+        Object.defineProperty(Error, "prepareStackTrace", original);
+      }
+    }
+  });
+
+  test("preserves data-only JSON fallbacks without evaluating nested getters or toJSON", () => {
+    expect(serializeRuntimeError({ code: "E_FAILED", detail: { ids: [1, 2] } })).toStrictEqual({
+      name: "Error",
+      message: '{"code":"E_FAILED","detail":{"ids":[1,2]}}',
+    });
+
+    const getter = vi.fn(() => "unsafe");
+    const nested = Object.defineProperty({}, "secret", { enumerable: true, get: getter });
+    expect(serializeRuntimeError({ nested })).toStrictEqual({
+      name: "Error",
+      message: "Unknown error.",
+    });
+
+    const toJSON = vi.fn(() => "unsafe");
+    expect(serializeRuntimeError({ code: "E_FAILED", toJSON })).toStrictEqual({
+      name: "Error",
+      message: '{"code":"E_FAILED"}',
+    });
+    expect(getter).not.toHaveBeenCalled();
+    expect(toJSON).not.toHaveBeenCalled();
+  });
+
+  test("does not execute overridden infrastructure metadata getters", () => {
+    const getter = vi.fn(() => {
+      throw new Error("unexpected getter call");
+    });
+    const error = new RuntimeInfrastructureError("backend", "failed");
+    Object.defineProperty(error, "kind", { get: getter });
+    expect(serializeRuntimeError(error)).toMatchObject({
+      name: "RuntimeInfrastructureError",
+      message: "failed",
+    });
+    expect(serializeRuntimeError(error).infrastructureKind).toBeUndefined();
+    expect(getter).not.toHaveBeenCalled();
+  });
+
   test.each([
     ["EvalError", EvalError],
     ["RangeError", RangeError],

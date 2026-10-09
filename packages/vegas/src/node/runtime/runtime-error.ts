@@ -5,6 +5,12 @@ import {
 } from "./runtime-infrastructure-error";
 import { UnsupportedRuntimeOperationError } from "./unsupported-runtime-operation-error";
 
+// In V8, native Error stacks are lazy accessors rather than data properties.
+// Compare against the realm's original accessor: never call an arbitrary getter.
+const nativeStackDescriptor = Object.getOwnPropertyDescriptor(new Error(), "stack");
+// Node may install its own ErrorPrepareStackTrace; retain that trusted baseline.
+const nativeStackFormatter = Object.getOwnPropertyDescriptor(Error, "prepareStackTrace");
+
 interface UnsupportedRuntimeOperationSnapshot {
   readonly operation: string;
   readonly reason: string;
@@ -65,20 +71,30 @@ export function isRuntimeErrorSnapshot(value: unknown): value is RuntimeErrorSna
 
 export function serializeRuntimeError(error: unknown): RuntimeErrorSnapshot {
   if (isRecord(error)) {
-    const name = typeof error.name === "string" && error.name.length > 0 ? error.name : "Error";
+    // An application may throw an arbitrary object, including one with accessors.
+    // Serializing the failure must never evaluate those accessors in the worker.
+    const originalName = readDataProperty(error, "name");
+    const name =
+      typeof originalName === "string" && originalName.length > 0 ? originalName : "Error";
+    const stack = readSafeErrorStack(error);
+    const infrastructureKind =
+      error instanceof RuntimeInfrastructureError ? readDataProperty(error, "kind") : undefined;
+    const operation =
+      error instanceof UnsupportedRuntimeOperationError
+        ? readDataProperty(error, "operation")
+        : undefined;
+    const reason =
+      error instanceof UnsupportedRuntimeOperationError
+        ? readDataProperty(error, "reason")
+        : undefined;
 
     return {
       name,
       message: getRuntimeErrorMessage(error),
-      ...(typeof error.stack === "string" ? { stack: error.stack } : {}),
-      ...(error instanceof RuntimeInfrastructureError ? { infrastructureKind: error.kind } : {}),
-      ...(error instanceof UnsupportedRuntimeOperationError
-        ? {
-            unsupportedOperation: {
-              operation: error.operation,
-              reason: error.reason,
-            },
-          }
+      ...(typeof stack === "string" ? { stack } : {}),
+      ...(isRuntimeInfrastructureErrorKind(infrastructureKind) ? { infrastructureKind } : {}),
+      ...(typeof operation === "string" && typeof reason === "string"
+        ? { unsupportedOperation: { operation, reason } }
         : {}),
     };
   }
@@ -141,14 +157,118 @@ function createRuntimeError(name: string, message: string): Error {
 }
 
 function getRuntimeErrorMessage(error: Record<string, unknown>): string {
-  if (typeof error.message === "string") {
-    return error.message;
+  const message = readDataProperty(error, "message");
+  if (typeof message === "string") {
+    return message;
   }
 
   try {
-    return JSON.stringify(error) ?? "Unknown error.";
+    // JSON.stringify() itself calls getters and toJSON(). Snapshot only own,
+    // enumerable data fields before using JSON as a fallback error message.
+    return JSON.stringify(copyJsonData(error, new WeakSet<object>())) ?? "Unknown error.";
   } catch {
     return "Unknown error.";
+  }
+}
+
+function readDataProperty(value: object, key: string): unknown {
+  let current: object | null = value;
+  while (current !== null) {
+    const descriptor = Object.getOwnPropertyDescriptor(current, key);
+    if (descriptor !== undefined) {
+      return "value" in descriptor ? descriptor.value : undefined;
+    }
+    current = Object.getPrototypeOf(current) as object | null;
+  }
+  return undefined;
+}
+
+function readSafeErrorStack(error: Record<string, unknown>): unknown {
+  const descriptor = Object.getOwnPropertyDescriptor(error, "stack");
+  if (descriptor === undefined || "value" in descriptor) {
+    return readDataProperty(error, "stack");
+  }
+
+  // V8 lazily computes the stack via an accessor shared by native Errors in
+  // this realm. Do not run user-supplied accessors, even on Error instances.
+  if (
+    nativeStackDescriptor?.get === undefined ||
+    descriptor.get !== nativeStackDescriptor.get ||
+    !(error instanceof Error) ||
+    hasUnsafeErrorFormattingField(error, "name") ||
+    hasUnsafeErrorFormattingField(error, "message") ||
+    hasCustomStackFormatter()
+  ) {
+    return undefined;
+  }
+
+  try {
+    return nativeStackDescriptor.get.call(error);
+  } catch {
+    return undefined;
+  }
+}
+
+function hasUnsafeErrorFormattingField(value: object, key: string): boolean {
+  let current: object | null = value;
+  while (current !== null) {
+    const descriptor = Object.getOwnPropertyDescriptor(current, key);
+    if (descriptor !== undefined) {
+      return (
+        !("value" in descriptor) ||
+        (descriptor.value !== undefined && typeof descriptor.value !== "string")
+      );
+    }
+    current = Object.getPrototypeOf(current) as object | null;
+  }
+  return false;
+}
+
+function hasCustomStackFormatter(): boolean {
+  const current = Object.getOwnPropertyDescriptor(Error, "prepareStackTrace");
+  if (nativeStackFormatter === undefined) {
+    return current !== undefined;
+  }
+  return (
+    current === undefined ||
+    !("value" in current) ||
+    !("value" in nativeStackFormatter) ||
+    current.value !== nativeStackFormatter.value
+  );
+}
+
+function copyJsonData(value: unknown, active: WeakSet<object>): unknown {
+  // Never carry executable toJSON functions into the JSON fallback.
+  if (typeof value === "function") {
+    return undefined;
+  }
+  if (!isRecord(value)) {
+    return value;
+  }
+  if (active.has(value)) {
+    throw new TypeError("Cyclic error value.");
+  }
+
+  active.add(value);
+  try {
+    const copy: object = Array.isArray(value)
+      ? Array.from<unknown>({ length: value.length })
+      : (Object.create(null) as Record<string, unknown>);
+    for (const key of Object.keys(value)) {
+      const descriptor = Object.getOwnPropertyDescriptor(value, key);
+      if (descriptor === undefined || !("value" in descriptor)) {
+        throw new TypeError("Accessor in error value.");
+      }
+      Object.defineProperty(copy, key, {
+        configurable: true,
+        enumerable: true,
+        writable: true,
+        value: copyJsonData(descriptor.value, active),
+      });
+    }
+    return copy;
+  } finally {
+    active.delete(value);
   }
 }
 
