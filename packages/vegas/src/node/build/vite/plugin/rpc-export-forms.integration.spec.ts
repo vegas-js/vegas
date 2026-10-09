@@ -163,6 +163,47 @@ describe("registered RPC export forms", () => {
     ).rejects.toThrow('Server export "__vegasInternalRpcDispatch" is reserved for Vegas RPC.');
   });
 
+  test("rejects an indirect internal dispatcher export from a star re-export", async () => {
+    await expect(
+      buildServer(
+        'export * from "./handlers";',
+        `
+          export const rpc = { greet() { return "ok"; } };
+          export function __vegasInternalRpcDispatch() { return "user-defined"; }
+        `,
+      ),
+    ).rejects.toThrow('Server export "__vegasInternalRpcDispatch" is reserved for Vegas RPC.');
+  });
+
+  test("rejects an indirect public dispatcher collision from a star re-export", async () => {
+    await expect(
+      buildServer(
+        'export * from "./handlers";',
+        `
+          export const rpc = { greet() { return "ok"; } };
+          export function vegasRpcCall() { return "user-defined"; }
+        `,
+      ),
+    ).rejects.toThrow('Server export "vegasRpcCall" conflicts with the RPC dispatcher.');
+  });
+
+  test("preserves nonreserved value exports alongside a star re-exported RPC registry", async () => {
+    const code = await buildServer(
+      'export * from "./handlers";',
+      `
+        export const rpc = { greet(name: string) { return "Hello, " + name; } };
+        export function legacy() { return "legacy"; }
+      `,
+    );
+    const context = vm.createContext({});
+    new vm.Script(code).runInContext(context);
+
+    expect(vm.runInContext('vegasRpcCall("greet", "Vegas")', context)).toBe("Hello, Vegas");
+    expect(vm.runInContext("legacy()", context)).toBe("legacy");
+    expect(code).not.toContain("function __vegasInternalRpcDispatch(...args)");
+    expect(code).not.toContain("function __vegasInjectedRpcDispatch(...args)");
+  });
+
   test("preserves named exports when a star re-export does not expose rpc", async () => {
     const code = await buildServer(
       'export * from "./handlers";',

@@ -4,6 +4,9 @@ import vm from "node:vm";
 import { parseSync, type Plugin } from "vite";
 
 const INTERNAL_RPC_DISPATCH = "__vegasInternalRpcDispatch";
+// A separate export name keeps user-defined reserved exports visible when they
+// arrive through `export *`, so the final bundle can reject collisions.
+const INJECTED_RPC_DISPATCH = "__vegasInjectedRpcDispatch";
 
 function hasRpcExport(source: string, filePath: string): boolean {
   const { program } = parseSync(filePath, source);
@@ -119,7 +122,7 @@ export function exportBridge(isServerEntry: (id: string) => boolean = () => true
       // Resolve the private build entry, not the public server API.
       // Let Vite bundle the internal dispatcher and its shared validator into
       // the GAS IIFE. Never serialize executable functions with toString().
-      return `${source}\nexport { ${INTERNAL_RPC_DISPATCH} } from "@vegasjs/vegas/__internal/rpc";\n`;
+      return `${source}\nexport { ${INTERNAL_RPC_DISPATCH} as ${INJECTED_RPC_DISPATCH} } from "@vegasjs/vegas/__internal/rpc";\n`;
     },
 
     generateBundle(outputOptions, bundle) {
@@ -128,7 +131,11 @@ export function exportBridge(isServerEntry: (id: string) => boolean = () => true
           const bridgeCodes: string[] = ["\n/* Function bridge for GAS Client */"];
           output.exports.forEach((exportName) => {
             // The registry is an object, not a callable top-level GAS function.
-            if (exportName === "rpc" || exportName === INTERNAL_RPC_DISPATCH) {
+            if (
+              exportName === "rpc" ||
+              exportName === INTERNAL_RPC_DISPATCH ||
+              exportName === INJECTED_RPC_DISPATCH
+            ) {
               return;
             }
 
@@ -139,11 +146,17 @@ export function exportBridge(isServerEntry: (id: string) => boolean = () => true
             );
           });
           if (output.exports.includes("rpc")) {
+            if (output.exports.includes(INTERNAL_RPC_DISPATCH)) {
+              throw new Error(
+                `Server export "${INTERNAL_RPC_DISPATCH}" is reserved for Vegas RPC.`,
+              );
+            }
+
             if (output.exports.includes("vegasRpcCall")) {
               throw new Error('Server export "vegasRpcCall" conflicts with the RPC dispatcher.');
             }
 
-            if (!output.exports.includes(INTERNAL_RPC_DISPATCH)) {
+            if (!output.exports.includes(INJECTED_RPC_DISPATCH)) {
               throw new Error("Registered RPC entry must export rpc from Code.ts or Code.js.");
             }
 
@@ -152,7 +165,7 @@ export function exportBridge(isServerEntry: (id: string) => boolean = () => true
             const root = outputOptions.name ?? "globalThis";
             bridgeCodes.push(
               "function vegasRpcCall(name, ...args) {",
-              `  return ${root}.${INTERNAL_RPC_DISPATCH}(${root}.rpc, name, ...args);`,
+              `  return ${root}.${INJECTED_RPC_DISPATCH}(${root}.rpc, name, ...args);`,
               "}",
             );
           }
