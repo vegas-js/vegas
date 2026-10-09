@@ -147,6 +147,8 @@ server エントリは `rpc` という名前でオブジェクトを export す�
 
 Vegas は登録型 RPC の値も実行時に検証します。`createRpcClient()` は `google.script.run` の呼び出し前に引数を検証し、生成された `vegasRpcCall` ディスパッチャーは受信した引数とハンドラの戻り値を検証します。`Date`、関数、シンボル、アクセサー、循環参照、非有限数、欠損要素のある配列、列挙不能なデータプロパティ、独自プロトタイプを持つオブジェクトなどは拒否されます。`void` 相当のハンドラでは、戻り値のルートに限り `undefined` を許可します。これらの検証は値のシリアライズを行わず、許可されたすべての値を Google が受け付けることも保証しません。従来の `createServerFunctionClient()` は、この追加の引数検証を実行しません。日時は文字列に変換して受け渡してください。
 
+末尾が `_` のハンドラ名と `then`、`constructor`、`prototype`、`__proto__` は予約名です。登録処理・クライアント Proxy・GAS ディスパッチャーのいずれでも使用できません。
+
 ## `@vegasjs/vegas/server`
 
 server entrypointには Vegas の型付き Spreadsheet data layerが含まれています。使い方、storage semantics、query、repositoryの挙動については [Spreadsheet Data](./spreadsheet-data) を参照してください。

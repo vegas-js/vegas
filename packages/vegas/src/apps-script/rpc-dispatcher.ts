@@ -1,3 +1,4 @@
+import { isPublicRpcHandlerName } from "./rpc-handler-name";
 import { assertRpcTransportValue } from "./rpc-transport-value";
 
 /**
@@ -10,15 +11,13 @@ export function __vegasInternalRpcDispatch(
   ...args: unknown[]
 ): unknown {
   const descriptor =
-    typeof name === "string" && handlers !== null && typeof handlers === "object"
+    isPublicRpcHandlerName(name) && handlers !== null && typeof handlers === "object"
       ? Object.getOwnPropertyDescriptor(handlers, name)
       : undefined;
   const candidate: unknown = descriptor?.value;
 
   if (
-    typeof name !== "string" ||
-    name.endsWith("_") ||
-    name === "then" ||
+    !isPublicRpcHandlerName(name) ||
     !descriptor ||
     !("value" in descriptor) ||
     typeof candidate !== "function"

@@ -1,3 +1,4 @@
+import { isPublicRpcHandlerName, type ReservedRpcHandlerName } from "./rpc-handler-name";
 import type { IsRpcTransportFunction } from "./rpc-transport";
 
 /**
@@ -12,7 +13,7 @@ import type { IsRpcTransportFunction } from "./rpc-transport";
  */
 export type ServerFunctionHandlers<Contract extends object> = {
   [Name in keyof Contract]: Name extends string
-    ? Name extends `${string}_` | "then"
+    ? Name extends `${string}_` | ReservedRpcHandlerName
       ? never
       : Contract[Name] extends (...args: never[]) => unknown
         ? IsRpcTransportFunction<Contract[Name]> extends true
@@ -39,9 +40,7 @@ export function defineServerFunctions<Contract extends object>(
   for (const name of Reflect.ownKeys(handlers)) {
     const descriptor = Object.getOwnPropertyDescriptor(handlers, name);
     if (
-      typeof name !== "string" ||
-      name.endsWith("_") ||
-      name === "then" ||
+      !isPublicRpcHandlerName(name) ||
       descriptor === undefined ||
       !("value" in descriptor) ||
       typeof descriptor.value !== "function"

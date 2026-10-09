@@ -147,6 +147,8 @@ server 엔트리는 `rpc`라는 이름으로 객체를 export해야 합니다. V
 
 Vegas는 등록형 RPC 값도 런타임에 검증합니다. `createRpcClient()`는 `google.script.run`을 호출하기 전에 인수를 검증하고, 생성된 `vegasRpcCall` 디스패처는 전달받은 인수와 핸들러 반환값을 검증합니다. `Date`, 함수, 심벌, 접근자, 순환 참조, 유한하지 않은 숫자, 희소 배열, 열거 불가능한 데이터 프로퍼티, 사용자 정의 프로토타입을 가진 객체 등은 거부됩니다. `void` 형식의 핸들러에서는 최상위 `undefined` 반환값을 허용합니다. 이 검증은 값을 직렬화하지 않으며 Google이 허용된 모든 값을 받아들인다고 보장하지도 않습니다. 기존 `createServerFunctionClient()`에는 이 추가 인수 검증이 적용되지 않습니다. 날짜는 문자열로 변환해 전달하세요.
 
+이름이 `_`로 끝나는 핸들러와 `then`, `constructor`, `prototype`, `__proto__`는 예약되어 있습니다. 등록, 클라이언트 Proxy, GAS 디스패처에서 사용할 수 없습니다.
+
 ## `@vegasjs/vegas/server`
 
 server entry point에는 Vegas의 typed Spreadsheet data layer가 포함되어 있습니다. 사용법, storage semantics, query, repository 동작은 [Spreadsheet Data](./spreadsheet-data)를 참고하세요.

@@ -147,6 +147,8 @@ Registered RPC contracts are checked statically against a conservative `google.s
 
 Vegas also validates registered RPC values at runtime. `createRpcClient()` checks arguments before calling `google.script.run`, and the generated `vegasRpcCall` dispatcher checks incoming arguments and handler return values. Unsupported values include `Date`, functions, symbols, accessors, cyclic references, non-finite numbers, sparse arrays, non-enumerable data properties, and objects with custom prototypes. A root `undefined` result is allowed for void-style handlers. These checks do not serialize values or guarantee that Google accepts every permitted value. The legacy `createServerFunctionClient()` does not perform this additional argument validation. Convert dates to strings before transferring them.
 
+Handler names ending in `_` and the names `then`, `constructor`, `prototype`, and `__proto__` are reserved. Registration, the client proxy, and the GAS dispatcher reject these names.
+
 ## `@vegasjs/vegas/server`
 
 The server entry point contains Vegas's typed Spreadsheet data layer. See [Spreadsheet Data](./spreadsheet-data) for usage, storage semantics, querying, and repository behavior.

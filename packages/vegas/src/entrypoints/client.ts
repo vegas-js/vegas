@@ -1,12 +1,16 @@
 /// <reference types="../../types/google" />
 
+import {
+  isPublicRpcHandlerName,
+  type ReservedRpcHandlerName,
+} from "../apps-script/rpc-handler-name";
 import { assertRpcTransportValue } from "../apps-script/rpc-transport-value";
 
 type ServerFunction = (...args: never[]) => unknown;
 
 type ServerFunctionKey<T extends object> = {
   [K in keyof T]: K extends string
-    ? K extends `${string}_` | "then"
+    ? K extends `${string}_` | ReservedRpcHandlerName
       ? never
       : T[K] extends ServerFunction
         ? K
@@ -47,8 +51,8 @@ export function createRpcClient<T extends object>(): RpcClient<T> {
 function createClient<T extends object>(registered: boolean): RpcClient<T> {
   const handler: ProxyHandler<object> = {
     get(_, property) {
-      // RPC proxies must not become thenables or respond to symbol probes.
-      if (typeof property !== "string" || property === "then") {
+      // Ignore reserved names and avoid thenables or accidental proxy introspection calls.
+      if (!isPublicRpcHandlerName(property)) {
         return undefined;
       }
 

@@ -28,6 +28,23 @@ test("exposes RpcClient as the preferred type without changing legacy client typ
   expectTypeOf(legacy.greet).toEqualTypeOf<(name: string) => Promise<string>>();
 });
 
+test("does not expose reserved RPC names through the client proxy", () => {
+  type Contract = {
+    greet(name: string): string;
+    constructor: () => string;
+    prototype(): string;
+    __proto__(): string;
+    then(): string;
+  };
+  const rpc = createRpcClient<Contract>();
+
+  expectTypeOf(rpc).toEqualTypeOf<{ greet(name: string): Promise<string> }>();
+  for (const name of ["then", "constructor", "prototype", "__proto__", "private_"]) {
+    expect(Reflect.get(rpc, name)).toBeUndefined();
+  }
+  expect(typeof rpc.greet).toBe("function");
+});
+
 describe("createServerFunctionClient", () => {
   test("calls server functions through google.script.run", async () => {
     let successHandler: (value: unknown) => void = () => undefined;
