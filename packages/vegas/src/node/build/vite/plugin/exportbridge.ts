@@ -8,13 +8,26 @@ const INTERNAL_RPC_DISPATCH = "__vegasInternalRpcDispatch";
 // arrive through `export *`, so the final bundle can reject collisions.
 const INJECTED_RPC_DISPATCH = "__vegasInjectedRpcDispatch";
 
+function matchesExportName(
+  exported: { readonly type: string; readonly name?: string; readonly value?: unknown },
+  name: string,
+): boolean {
+  return (
+    (exported.type === "Identifier" && exported.name === name) ||
+    (exported.type === "Literal" && exported.value === name)
+  );
+}
+
 function hasRpcExport(source: string, filePath: string): boolean {
   const { program } = parseSync(filePath, source);
   return program.body.some((node) => {
-    // A star re-export can supply `rpc` from another module.
-    // Only generate the GAS global dispatcher when the final chunk exports it.
+    // A bare star re-export can supply `rpc` from another module.
+    // A namespace re-export only supplies its declared export name.
     if (node.type === "ExportAllDeclaration") {
-      return node.exportKind !== "type";
+      return (
+        node.exportKind !== "type" &&
+        (node.exported == null || matchesExportName(node.exported, "rpc"))
+      );
     }
 
     if (node.type !== "ExportNamedDeclaration" || node.exportKind === "type") {
@@ -37,17 +50,60 @@ function hasRpcExport(source: string, filePath: string): boolean {
         )) ||
       node.specifiers.some(
         (specifier) =>
-          specifier.exportKind !== "type" &&
-          specifier.exported.type === "Identifier" &&
-          specifier.exported.name === "rpc",
+          specifier.exportKind !== "type" && matchesExportName(specifier.exported, "rpc"),
       )
     );
   });
 }
 
+/**
+ * `export * as rpc` creates a module namespace, whose functions may be
+ * exposed by getters. Snapshot its exports into own data properties rather
+ * than weakening the registered RPC dispatcher's accessor validation.
+ */
+function normalizeRpcNamespaceExports(source: string, filePath: string): string {
+  const { program } = parseSync(filePath, source);
+  let normalized = source;
+
+  // Replace backwards so original AST offsets remain valid.
+  for (let index = program.body.length - 1; index >= 0; index--) {
+    const node = program.body[index];
+    if (node?.type !== "ExportAllDeclaration" || node.exportKind === "type" || !node.exported) {
+      continue;
+    }
+
+    const exportedName =
+      node.exported.type === "Identifier" ? node.exported.name : node.exported.value;
+    if (exportedName !== "rpc") {
+      continue;
+    }
+
+    let binding = `__vegasRpcNamespace${index}`;
+    while (source.includes(binding)) {
+      binding += "_";
+    }
+    const specifier = source.slice(node.source.start, node.source.end);
+    const replacement = [
+      `import * as ${binding} from ${specifier};`,
+      `export const rpc = { ...${binding} };`,
+    ].join("\n");
+    normalized = normalized.slice(0, node.start) + replacement + normalized.slice(node.end);
+  }
+
+  return normalized;
+}
+
 function hasExplicitInternalExport(source: string, filePath: string): boolean {
   const { program } = parseSync(filePath, source);
   return program.body.some((node) => {
+    if (node.type === "ExportAllDeclaration") {
+      return (
+        node.exportKind !== "type" &&
+        node.exported != null &&
+        matchesExportName(node.exported, INTERNAL_RPC_DISPATCH)
+      );
+    }
+
     if (node.type !== "ExportNamedDeclaration" || node.exportKind === "type") {
       return false;
     }
@@ -56,8 +112,7 @@ function hasExplicitInternalExport(source: string, filePath: string): boolean {
       node.specifiers.some(
         (specifier) =>
           specifier.exportKind !== "type" &&
-          specifier.exported.type === "Identifier" &&
-          specifier.exported.name === INTERNAL_RPC_DISPATCH,
+          matchesExportName(specifier.exported, INTERNAL_RPC_DISPATCH),
       )
     ) {
       return true;
@@ -122,7 +177,8 @@ export function exportBridge(isServerEntry: (id: string) => boolean = () => true
       // Resolve the private build entry, not the public server API.
       // Let Vite bundle the internal dispatcher and its shared validator into
       // the GAS IIFE. Never serialize executable functions with toString().
-      return `${source}\nexport { ${INTERNAL_RPC_DISPATCH} as ${INJECTED_RPC_DISPATCH} } from "@vegasjs/vegas/__internal/rpc";\n`;
+      const normalizedSource = normalizeRpcNamespaceExports(source, id);
+      return `${normalizedSource}\nexport { ${INTERNAL_RPC_DISPATCH} as ${INJECTED_RPC_DISPATCH} } from "@vegasjs/vegas/__internal/rpc";\n`;
     },
 
     generateBundle(outputOptions, bundle) {

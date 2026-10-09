@@ -132,6 +132,52 @@ describe("registered RPC export forms", () => {
     expect(code).not.toContain("__vegasInternalRpcDispatch");
   });
 
+  test.each([
+    ["namespace value re-export", 'export * as helpers from "./handlers";'],
+    ["quoted namespace value re-export", 'export * as "helpers" from "./handlers";'],
+  ] as const)("does not inject the dispatcher for %s", async (_description, entry) => {
+    const code = await buildServer(
+      `${entry} export function legacy() { return "legacy"; }`,
+      'export function greet(name: string) { return "Hello, " + name; }',
+    );
+    const context = vm.createContext({});
+    new vm.Script(code).runInContext(context);
+
+    expect(vm.runInContext("legacy()", context)).toBe("legacy");
+    expect(code).not.toContain("function vegasRpcCall(");
+    expect(code).not.toContain("__vegasInjectedRpcDispatch");
+  });
+
+  test.each([
+    ["namespace RPC export", 'export * as rpc from "./handlers";'],
+    ["quoted namespace RPC export", 'export * as "rpc" from "./handlers";'],
+    ["quoted named RPC export", 'export { handlers as "rpc" } from "./handlers";'],
+  ] as const)("dispatches RPC through %s", async (_description, entry) => {
+    const code = await buildServer(
+      entry,
+      'export function greet(name: string) { return "Hello, " + name; } export const handlers = { greet };',
+    );
+    const context = vm.createContext({});
+    new vm.Script(code).runInContext(context);
+
+    expect(vm.runInContext('vegasRpcCall("greet", "Vegas")', context)).toBe("Hello, Vegas");
+  });
+
+  test.each([
+    [
+      "quoted named re-export",
+      'export { custom as "__vegasInternalRpcDispatch" } from "./handlers";',
+    ],
+    ["namespace re-export", 'export * as __vegasInternalRpcDispatch from "./handlers";'],
+  ] as const)("rejects reserved internal export through %s", async (_description, entry) => {
+    await expect(
+      buildServer(
+        `export const rpc = { greet() { return "ok"; } }; ${entry}`,
+        'export function custom() { return "unsafe"; }',
+      ),
+    ).rejects.toThrow('Server export "__vegasInternalRpcDispatch" is reserved for Vegas RPC.');
+  });
+
   test("ignores a type-only export with the reserved internal dispatcher name", async () => {
     const code = await buildServer(
       'export const rpc = { greet() { return "Hello, Vegas"; } }; export type { __vegasInternalRpcDispatch } from "./handlers";',
