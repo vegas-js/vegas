@@ -120,6 +120,29 @@ describe("Runtime error transport", () => {
     });
   });
 
+  test("does not coerce thrown functions through user-defined conversion hooks", () => {
+    const getter = vi.fn(() => {
+      throw new Error("unexpected coercion getter");
+    });
+    const functionValue = Object.defineProperty(() => "ignored", Symbol.toPrimitive, {
+      get: getter,
+    });
+
+    expect(serializeRuntimeError(functionValue)).toStrictEqual({
+      name: "Error",
+      message: "Unknown error.",
+    });
+    expect(getter).not.toHaveBeenCalled();
+
+    const toString = vi.fn(() => "unsafe");
+    const customFunction = Object.assign(() => "ignored", { toString });
+    expect(serializeRuntimeError(customFunction)).toStrictEqual({
+      name: "Error",
+      message: "Unknown error.",
+    });
+    expect(toString).not.toHaveBeenCalled();
+  });
+
   test("serialize native errors without requiring own name properties", () => {
     const error = new TypeError("invalid");
     const snapshot = serializeRuntimeError(error);

@@ -99,6 +99,12 @@ export function serializeRuntimeError(error: unknown): RuntimeErrorSnapshot {
     };
   }
 
+  // A thrown function can override toString or Symbol.toPrimitive. Do not
+  // execute those hooks while reporting a failure from user code.
+  if (typeof error === "function") {
+    return { name: "Error", message: "Unknown error." };
+  }
+
   return {
     name: "Error",
     message: String(error),
