@@ -36,8 +36,38 @@ function serializeHostError(error: unknown): HostError {
 
   return {
     ...serialized,
-    type: error instanceof Error ? error.constructor.name || serialized.name : "Error",
+    type: getHostErrorType(error, serialized.name),
   };
+}
+
+/** Preserve native/custom Error class names without reading instance accessors. */
+function getHostErrorType(error: unknown, fallback: string): string {
+  try {
+    if (!(error instanceof Error)) {
+      return "Error";
+    }
+
+    // Ignore an instance's `constructor` property: it may be a getter supplied
+    // by the thrown object. Constructor metadata belongs to its prototype.
+    let prototype = Object.getPrototypeOf(error) as object | null;
+    while (prototype !== null) {
+      const descriptor = Object.getOwnPropertyDescriptor(prototype, "constructor");
+      if (descriptor !== undefined) {
+        if (!("value" in descriptor) || typeof descriptor.value !== "function") {
+          return fallback;
+        }
+
+        const name = Object.getOwnPropertyDescriptor(descriptor.value, "name")?.value;
+        return typeof name === "string" && name.length > 0 ? name : fallback;
+      }
+      prototype = Object.getPrototypeOf(prototype) as object | null;
+    }
+  } catch {
+    // Reflection on a revoked Proxy or an unexpected prototype must not prevent
+    // the host from replying with the already-serialized error.
+  }
+
+  return fallback;
 }
 
 export async function handleHostRequestMessage(
