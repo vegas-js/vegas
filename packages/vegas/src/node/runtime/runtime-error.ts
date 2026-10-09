@@ -25,6 +25,15 @@ export interface RuntimeErrorSnapshot {
 }
 
 export function isRuntimeErrorSnapshot(value: unknown): value is RuntimeErrorSnapshot {
+  try {
+    return isRuntimeErrorSnapshotValue(value);
+  } catch {
+    // A revoked Proxy or a throwing reflection trap is not a valid snapshot.
+    return false;
+  }
+}
+
+function isRuntimeErrorSnapshotValue(value: unknown): value is RuntimeErrorSnapshot {
   if (!isRecord(value)) {
     return false;
   }
@@ -70,6 +79,16 @@ export function isRuntimeErrorSnapshot(value: unknown): value is RuntimeErrorSna
 }
 
 export function serializeRuntimeError(error: unknown): RuntimeErrorSnapshot {
+  try {
+    return serializeRuntimeErrorValue(error);
+  } catch {
+    // Errors can themselves be revoked Proxies or objects with throwing traps.
+    // Reporting an application failure must not fail a second time.
+    return { name: "Error", message: "Unknown error." };
+  }
+}
+
+function serializeRuntimeErrorValue(error: unknown): RuntimeErrorSnapshot {
   if (isRecord(error)) {
     // An application may throw an arbitrary object, including one with accessors.
     // Serializing the failure must never evaluate those accessors in the worker.

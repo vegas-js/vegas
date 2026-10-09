@@ -90,6 +90,58 @@ describe("Runtime error transport", () => {
     }
   });
 
+  test("rejects error snapshots with throwing reflection traps", () => {
+    const descriptorTrap = vi.fn((): never => {
+      throw new Error("unexpected reflection");
+    });
+    const hostile = new Proxy({}, { getOwnPropertyDescriptor: descriptorTrap });
+    expect(isRuntimeErrorSnapshot(hostile)).toBe(false);
+    expect(descriptorTrap).toHaveBeenCalledOnce();
+
+    const revocable = Proxy.revocable({ name: "Error", message: "failed" }, {});
+    revocable.revoke();
+    expect(isRuntimeErrorSnapshot(revocable.proxy)).toBe(false);
+
+    const nested = new Proxy({}, { getOwnPropertyDescriptor: descriptorTrap });
+    expect(
+      isRuntimeErrorSnapshot({
+        name: "UnsupportedRuntimeOperationError",
+        message: "failed",
+        unsupportedOperation: nested,
+      }),
+    ).toBe(false);
+  });
+
+  test("serializes thrown Proxies with failing traps as fallback errors", () => {
+    const descriptorTrap = vi.fn((): never => {
+      throw new Error("unexpected reflection");
+    });
+    const hostile = new Proxy({}, { getOwnPropertyDescriptor: descriptorTrap });
+    expect(serializeRuntimeError(hostile)).toStrictEqual({
+      name: "Error",
+      message: "Unknown error.",
+    });
+    expect(descriptorTrap).toHaveBeenCalledOnce();
+
+    const revocable = Proxy.revocable({}, {});
+    revocable.revoke();
+    expect(serializeRuntimeError(revocable.proxy)).toStrictEqual({
+      name: "Error",
+      message: "Unknown error.",
+    });
+
+    // Prototype inspection performed for Vegas-specific Error types can also throw.
+    const prototypeTrap = vi.fn((): never => {
+      throw new Error("unexpected prototype inspection");
+    });
+    const customPrototype = new Proxy({}, { getPrototypeOf: prototypeTrap });
+    expect(serializeRuntimeError(customPrototype)).toStrictEqual({
+      name: "Error",
+      message: "Unknown error.",
+    });
+    expect(prototypeTrap).toHaveBeenCalled();
+  });
+
   test("serialize Error-like values across VM realms", () => {
     expect(
       serializeRuntimeError({
