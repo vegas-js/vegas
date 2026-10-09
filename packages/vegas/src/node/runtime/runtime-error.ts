@@ -92,8 +92,15 @@ export function serializeRuntimeError(error: unknown): RuntimeErrorSnapshot {
       name,
       message: getRuntimeErrorMessage(error),
       ...(typeof stack === "string" ? { stack } : {}),
-      ...(isRuntimeInfrastructureErrorKind(infrastructureKind) ? { infrastructureKind } : {}),
-      ...(typeof operation === "string" && typeof reason === "string"
+      // Metadata is meaningful only with its matching error name. A user may
+      // override the name of a Vegas error without changing its class.
+      ...(name === "RuntimeInfrastructureError" &&
+      isRuntimeInfrastructureErrorKind(infrastructureKind)
+        ? { infrastructureKind }
+        : {}),
+      ...(name === "UnsupportedRuntimeOperationError" &&
+      typeof operation === "string" &&
+      typeof reason === "string"
         ? { unsupportedOperation: { operation, reason } }
         : {}),
     };

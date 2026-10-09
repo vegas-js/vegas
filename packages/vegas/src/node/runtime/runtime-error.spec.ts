@@ -231,6 +231,46 @@ describe("Runtime error transport", () => {
     expect(toJSON).not.toHaveBeenCalled();
   });
 
+  test("does not attach Vegas error metadata when its name is overridden", () => {
+    const infrastructure = new RuntimeInfrastructureError("backend", "failed");
+    infrastructure.name = "CustomInfrastructureError";
+    const infrastructureSnapshot = serializeRuntimeError(infrastructure);
+
+    expect(infrastructureSnapshot).toMatchObject({
+      name: "CustomInfrastructureError",
+      message: "failed",
+    });
+    expect(infrastructureSnapshot).not.toHaveProperty("infrastructureKind");
+    expect(isRuntimeErrorSnapshot(infrastructureSnapshot)).toBe(true);
+    expect(restoreRuntimeError(infrastructureSnapshot)).toMatchObject({
+      name: "CustomInfrastructureError",
+      message: "failed",
+    });
+
+    const unsupported = new UnsupportedRuntimeOperationError("Example.operation()", "not modeled.");
+    unsupported.name = "CustomUnsupportedError";
+    const unsupportedSnapshot = serializeRuntimeError(unsupported);
+
+    expect(unsupportedSnapshot).toMatchObject({
+      name: "CustomUnsupportedError",
+      message: unsupported.message,
+    });
+    expect(unsupportedSnapshot).not.toHaveProperty("unsupportedOperation");
+    expect(isRuntimeErrorSnapshot(unsupportedSnapshot)).toBe(true);
+  });
+
+  test("does not attach inconsistent metadata when an error name is an accessor", () => {
+    const getter = vi.fn(() => "unexpected");
+    const error = new RuntimeInfrastructureError("backend", "failed");
+    Object.defineProperty(error, "name", { get: getter });
+
+    const snapshot = serializeRuntimeError(error);
+    expect(snapshot).toMatchObject({ name: "Error", message: "failed" });
+    expect(snapshot).not.toHaveProperty("infrastructureKind");
+    expect(isRuntimeErrorSnapshot(snapshot)).toBe(true);
+    expect(getter).not.toHaveBeenCalled();
+  });
+
   test("does not execute overridden infrastructure metadata getters", () => {
     const getter = vi.fn(() => {
       throw new Error("unexpected getter call");
