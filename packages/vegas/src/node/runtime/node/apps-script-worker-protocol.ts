@@ -28,9 +28,11 @@ export type AppsScriptWorkerResponse =
 export function isAppsScriptWorkerRequest(value: unknown): value is AppsScriptWorkerRequest {
   return (
     isRecord(value) &&
-    value.type === "invoke" &&
-    typeof value.functionName === "string" &&
-    Array.isArray(value.args)
+    // Messages must supply their own data fields. Do not invoke inherited
+    // members or getters while validating an unexpected worker payload.
+    getOwnDataValue(value, "type") === "invoke" &&
+    typeof getOwnDataValue(value, "functionName") === "string" &&
+    Array.isArray(getOwnDataValue(value, "args"))
   );
 }
 
@@ -56,4 +58,9 @@ export function restoreAppsScriptWorkerError(error: AppsScriptWorkerError): Erro
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
+}
+
+function getOwnDataValue(record: Record<string, unknown>, key: string): unknown {
+  const descriptor = Object.getOwnPropertyDescriptor(record, key);
+  return descriptor && "value" in descriptor ? descriptor.value : undefined;
 }

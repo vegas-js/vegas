@@ -1,4 +1,4 @@
-import { describe, expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 
 import {
   isAppsScriptWorkerRequest,
@@ -30,6 +30,31 @@ describe("Apps Script worker protocol", () => {
         args: [],
       }),
     ).toBe(false);
+  });
+
+  test("reject inherited request fields and accessors without invoking getters", () => {
+    const inherited = Object.create({ type: "invoke" }) as Record<string, unknown>;
+    inherited.functionName = "main";
+    inherited.args = [];
+    expect(isAppsScriptWorkerRequest(inherited)).toBe(false);
+
+    const nullPrototype = Object.assign(Object.create(null) as Record<string, unknown>, {
+      type: "invoke",
+      functionName: "main",
+      args: [],
+    });
+    expect(isAppsScriptWorkerRequest(nullPrototype)).toBe(true);
+
+    for (const field of ["type", "functionName", "args"] as const) {
+      const getter = vi.fn(() => "unsafe");
+      const message = Object.defineProperty(
+        { type: "invoke", functionName: "main", args: [] },
+        field,
+        { get: getter },
+      );
+      expect(isAppsScriptWorkerRequest(message)).toBe(false);
+      expect(getter).not.toHaveBeenCalled();
+    }
   });
 
   test("validate successful and failed results", () => {

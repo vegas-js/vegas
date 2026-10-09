@@ -1,4 +1,4 @@
-import { describe, expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 
 import type { AppsScriptWorkerResponse } from "../runtime/node/apps-script-worker-protocol";
 import { handleAppsScriptWorkerInvocation, postAppsScriptWorkerError } from "./invocation";
@@ -86,6 +86,26 @@ describe("handleAppsScriptWorkerInvocation", () => {
         name: "Error",
         message: "Invalid Apps Script worker invocation request.",
       },
+    });
+    expect(port.closeCount).toBe(1);
+  });
+
+  test("reject accessor-based function names without invoking the getter", async () => {
+    const port = new TestPort();
+    const getter = vi.fn(() => "main");
+    const main = vi.fn(() => "unsafe");
+    const message = Object.defineProperty({ type: "invoke", args: [] }, "functionName", {
+      get: getter,
+    });
+
+    await handleAppsScriptWorkerInvocation(port, { main }, message);
+
+    expect(getter).not.toHaveBeenCalled();
+    expect(main).not.toHaveBeenCalled();
+    expect(port.messages[0]).toMatchObject({
+      type: "result",
+      ok: false,
+      error: { message: "Invalid Apps Script worker invocation request." },
     });
     expect(port.closeCount).toBe(1);
   });
