@@ -1,6 +1,6 @@
 import type { HostCallDispatcher } from "../host-dispatcher";
 import {
-  isHostRequestEnvelope,
+  parseHostRequestEnvelope,
   type HostError,
   type HostRequestMessage,
   type HostResponseMessage,
@@ -76,12 +76,12 @@ export async function handleHostRequestMessage(
   dispatcher: HostCallDispatcher,
   value: unknown,
 ): Promise<boolean> {
-  if (!isHostRequestEnvelope(value)) {
+  // WorkerHostBridge is the typed producer; only the transport envelope is
+  // validated here. Use the parsed id/call rather than rereading the message.
+  const request = parseHostRequestEnvelope(value) as HostRequestMessage | undefined;
+  if (request === undefined) {
     return false;
   }
-
-  // WorkerHostBridge is the typed producer; only the transport envelope is validated here.
-  const request = value as HostRequestMessage;
 
   try {
     const response = await createHostResponse(dispatcher, request);

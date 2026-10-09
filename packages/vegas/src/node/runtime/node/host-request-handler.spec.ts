@@ -2,7 +2,7 @@ import { describe, expect, test, vi } from "vitest";
 
 import type { HostCallDispatcher } from "../host-dispatcher";
 import type { HostRequestMessage } from "../host-protocol";
-import { createHostResponse } from "./host-request-handler";
+import { createHostResponse, handleHostRequestMessage } from "./host-request-handler";
 
 const request = {
   id: 1,
@@ -87,5 +87,48 @@ describe("createHostResponse", () => {
         message: "out of range",
       },
     });
+  });
+});
+
+describe("handleHostRequestMessage", () => {
+  test("dispatches using the snapshotted request envelope without reading getters", async () => {
+    const read = vi.fn(() => {
+      throw new Error("unexpected property access");
+    });
+    const proxiedRequest = new Proxy(request, { get: read });
+    const dispatch = vi.fn(async () => "ok" as never);
+    const dispatcher = { dispatch } satisfies HostCallDispatcher;
+    const messages: unknown[] = [];
+    const port = { postMessage: (value: unknown) => messages.push(value) };
+    const sharedArray = new Int32Array(new SharedArrayBuffer(4));
+    Atomics.store(sharedArray, 0, 1);
+
+    await expect(
+      handleHostRequestMessage(port, sharedArray, dispatcher, proxiedRequest),
+    ).resolves.toBe(true);
+
+    expect(read).not.toHaveBeenCalled();
+    expect(dispatch).toHaveBeenCalledWith(request.call);
+    expect(messages).toStrictEqual([{ id: 1, ok: true, value: "ok" }]);
+    expect(Atomics.load(sharedArray, 0)).toBe(0);
+  });
+
+  test("does not dispatch malformed request envelopes", async () => {
+    const dispatch = vi.fn(async () => "unexpected" as never);
+    const dispatcher = { dispatch } satisfies HostCallDispatcher;
+    const messages: unknown[] = [];
+    const port = { postMessage: (value: unknown) => messages.push(value) };
+    const sharedArray = new Int32Array(new SharedArrayBuffer(4));
+
+    const invalid = Object.defineProperty({ id: 1, call: request.call }, "id", {
+      get() {
+        throw new Error("invalid getter");
+      },
+    });
+    await expect(handleHostRequestMessage(port, sharedArray, dispatcher, invalid)).resolves.toBe(
+      false,
+    );
+    expect(dispatch).not.toHaveBeenCalled();
+    expect(messages).toHaveLength(0);
   });
 });
