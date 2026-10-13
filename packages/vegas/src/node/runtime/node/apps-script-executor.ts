@@ -121,8 +121,20 @@ export function runAppsScriptWorkerSession(
       });
     };
 
-    const failExitedWorker = (): void => {
-      if (settled || workerExitCode === undefined || !workerPortClosed || pendingMessageCount > 0) {
+    const failWithoutResult = (): void => {
+      if (settled || !workerPortClosed || pendingMessageCount > 0) {
+        return;
+      }
+
+      // The response channel may close while the worker is still running.
+      // Stop it immediately rather than waiting for an exit event or timeout.
+      if (workerExitCode === undefined) {
+        terminate(
+          new RuntimeInfrastructureError(
+            "backend",
+            "Apps Script worker channel closed before returning a result.",
+          ),
+        );
         return;
       }
 
@@ -169,12 +181,12 @@ export function runAppsScriptWorkerSession(
 
     gasWorker.on("exit", (exitCode) => {
       workerExitCode = exitCode;
-      failExitedWorker();
+      failWithoutResult();
     });
 
     port.on("close", () => {
       workerPortClosed = true;
-      failExitedWorker();
+      failWithoutResult();
     });
 
     // Deserialization failures do not produce a result message. Stop the worker
@@ -201,7 +213,7 @@ export function runAppsScriptWorkerSession(
         .catch(terminate)
         .finally(() => {
           pendingMessageCount -= 1;
-          failExitedWorker();
+          failWithoutResult();
         });
     });
 

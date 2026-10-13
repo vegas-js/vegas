@@ -166,6 +166,47 @@ describe("runAppsScriptWorkerSession", () => {
     expect(gasWorker.terminateCount).toBe(0);
   });
 
+  test("stop a worker when its response channel closes without a result", async () => {
+    const gasWorker = new TestWorker();
+    const port = new TestPort();
+    const result = runAppsScriptWorkerSession(
+      gasWorker,
+      port,
+      new Int32Array(new SharedArrayBuffer(4)),
+      createDispatcher(),
+      invocation,
+    );
+
+    port.disconnect();
+
+    await expect(result).rejects.toBeInstanceOf(RuntimeInfrastructureError);
+    await expect(result).rejects.toMatchObject({
+      kind: "backend",
+      message: "Apps Script worker channel closed before returning a result.",
+    });
+    expect(gasWorker.terminateCount).toBe(1);
+    expect(port.closeCount).toBe(1);
+  });
+
+  test("finish a queued worker result before handling channel closure", async () => {
+    const gasWorker = new TestWorker();
+    const port = new TestPort();
+    const result = runAppsScriptWorkerSession(
+      gasWorker,
+      port,
+      new Int32Array(new SharedArrayBuffer(4)),
+      createDispatcher(),
+      invocation,
+    );
+
+    port.receive({ type: "result", ok: true, value: "done" });
+    port.disconnect();
+
+    await expect(result).resolves.toBe("done");
+    expect(gasWorker.terminateCount).toBe(0);
+    expect(port.closeCount).toBe(1);
+  });
+
   test("reject an exit when the worker channel closes without a result", async () => {
     const gasWorker = new TestWorker();
     const port = new TestPort();
