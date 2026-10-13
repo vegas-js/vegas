@@ -79,6 +79,32 @@ describe("NodeUrlFetchCapability", () => {
     expect(requestSignal?.aborted).toBe(true);
   });
 
+  test("do not dispatch already-aborted fetch and fetchAll requests", async () => {
+    vi.useFakeTimers();
+    try {
+      const send = vi.fn(async () => new Response("unexpected"));
+      const capability = new NodeUrlFetchCapability(send);
+      const controller = new AbortController();
+      const reason = new Error("execution already cancelled");
+      controller.abort(reason);
+
+      await expect(
+        capability.fetch({ url: "https://example.com/a" }, controller.signal),
+      ).rejects.toBe(reason);
+      await expect(
+        capability.fetchAll(
+          [{ url: "https://example.com/a" }, { url: "https://example.com/b" }],
+          controller.signal,
+        ),
+      ).rejects.toBe(reason);
+
+      expect(send).not.toHaveBeenCalled();
+      expect(vi.getTimerCount()).toBe(0);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   test("keep large UrlFetch timeouts pending and dispose the timer on success", async () => {
     vi.useFakeTimers();
     try {

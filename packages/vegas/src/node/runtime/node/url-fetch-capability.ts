@@ -208,6 +208,10 @@ export class NodeUrlFetchCapability implements UrlFetchCapability {
   }
 
   async fetch(request: UrlFetchRequestValue, signal?: AbortSignal): Promise<UrlFetchResponseValue> {
+    // A cancelled invocation must not start an HTTP operation, even when a
+    // custom FetchFunction does not implement AbortSignal handling itself.
+    signal?.throwIfAborted();
+
     // Validate/build first so a failed request cannot leave a timeout running.
     const init = createRequestInit(request);
     const timeout = createRequestTimeout(
