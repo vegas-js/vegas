@@ -219,6 +219,39 @@ export class NodeUrlFetchCapability implements UrlFetchCapability {
 
     // Validate/build first so a failed request cannot leave a timeout running.
     const init = createRequestInit(request);
+    return this.#fetchPrepared(request, init, signal);
+  }
+
+  async fetchAll(
+    requests: readonly UrlFetchRequestValue[],
+    signal?: AbortSignal,
+  ): Promise<readonly UrlFetchResponseValue[]> {
+    signal?.throwIfAborted();
+
+    // Vegas local emulation: reject invalid batches before any HTTP request starts.
+    // Google does not document dispatch atomicity for invalid fetchAll() entries.
+    const prepared = requests.map((request) => ({ request, init: createRequestInit(request) }));
+    const pending = prepared.map(({ request, init }) => this.#fetchPrepared(request, init, signal));
+
+    try {
+      return await Promise.all(pending);
+    } catch (error) {
+      // Keep the first failure but allow every started request to settle before
+      // ending the invocation. Otherwise a sibling request can keep running
+      // after the worker has returned its failed fetchAll() result.
+      await Promise.allSettled(pending);
+      throw error;
+    }
+  }
+
+  async #fetchPrepared(
+    request: UrlFetchRequestValue,
+    init: RequestInit,
+    signal?: AbortSignal,
+  ): Promise<UrlFetchResponseValue> {
+    // Check again immediately before dispatch, even with custom fetch implementations.
+    signal?.throwIfAborted();
+
     const timeout = createRequestTimeout(
       (request.timeoutSeconds ?? DEFAULT_TIMEOUT_SECONDS) * 1_000,
     );
@@ -238,23 +271,6 @@ export class NodeUrlFetchCapability implements UrlFetchCapability {
       return await serializeResponse(response);
     } finally {
       timeout.dispose();
-    }
-  }
-
-  async fetchAll(
-    requests: readonly UrlFetchRequestValue[],
-    signal?: AbortSignal,
-  ): Promise<readonly UrlFetchResponseValue[]> {
-    const pending = requests.map((request) => this.fetch(request, signal));
-
-    try {
-      return await Promise.all(pending);
-    } catch (error) {
-      // Keep the first failure but allow every started request to settle before
-      // ending the invocation. Otherwise a sibling request can keep running
-      // after the worker has returned its failed fetchAll() result.
-      await Promise.allSettled(pending);
-      throw error;
     }
   }
 }

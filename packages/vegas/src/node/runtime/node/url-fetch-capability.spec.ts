@@ -410,6 +410,35 @@ describe("NodeUrlFetchCapability", () => {
     expect(settled).toHaveBeenCalledOnce();
   });
 
+  test("reject invalid fetchAll batches before dispatching any request", async () => {
+    const send = vi.fn(async () => new Response(null));
+    const capability = new NodeUrlFetchCapability(send);
+    const valid = { url: "https://example.com/valid" } as const;
+    const invalidMethod = {
+      url: "https://example.com/invalid-method",
+      payload: { kind: "text", value: "unexpected body" },
+    } as const satisfies UrlFetchRequestValue;
+    const invalidHeaders = {
+      url: "https://example.com/invalid-header",
+      headers: { "invalid header name": "value" },
+    } as const satisfies UrlFetchRequestValue;
+
+    // A valid request at either position must not dispatch if another entry is invalid.
+    await expect(capability.fetchAll([valid, invalidMethod])).rejects.toThrow(
+      "UrlFetch GET requests cannot include a payload.",
+    );
+    await expect(capability.fetchAll([invalidMethod, valid])).rejects.toThrow(TypeError);
+    await expect(capability.fetchAll([valid, invalidHeaders])).rejects.toThrow(TypeError);
+    await expect(
+      capability.fetchAll([
+        valid,
+        { url: "https://example.com/invalid-timeout", timeoutSeconds: 0 },
+      ]),
+    ).rejects.toThrow("UrlFetch timeoutSeconds must be a positive integer.");
+
+    expect(send).not.toHaveBeenCalled();
+  });
+
   test("preserve fetchAll result order", async () => {
     const capability = new NodeUrlFetchCapability(async (url) => {
       const suffix = url.endsWith("/a") ? "A" : "B";
