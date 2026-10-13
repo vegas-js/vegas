@@ -192,6 +192,23 @@ describe("UrlFetchApp", () => {
     expect(bridge.calls).toStrictEqual([]);
   });
 
+  test("reject oversized URLs before sending fetch, fetchAll, or getRequest", () => {
+    const bridge = new RecordingHostBridge();
+    const urlFetch = createUrlFetchApp(bridge);
+    const prefix = "https://example.com/";
+    const maximum = prefix + "a".repeat(2_082 - prefix.length);
+    const oversized = `${maximum}a`;
+
+    expect(urlFetch.getRequest(maximum).url).toBe(maximum);
+    expect(() => urlFetch.getRequest(oversized)).toThrow(
+      "UrlFetch URL must not exceed 2082 characters.",
+    );
+    expect(() => urlFetch.getRequest(oversized, { method: "post" })).toThrow(RangeError);
+    expect(() => urlFetch.fetch(oversized)).toThrow(RangeError);
+    expect(() => urlFetch.fetchAll([maximum, { url: oversized }])).toThrow(RangeError);
+    expect(bridge.calls).toStrictEqual([]);
+  });
+
   test("preview effective Content-Type from headers and Blob MIME type", () => {
     const bridge = new RecordingHostBridge();
     const urlFetch = createUrlFetchApp(bridge);

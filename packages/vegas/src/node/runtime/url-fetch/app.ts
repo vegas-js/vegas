@@ -1,6 +1,7 @@
 import { hydrateHttpResponse, type HTTPResponse } from "./http-response";
 import {
   normalizeUrlFetchRequest,
+  validateUrlFetchUrl,
   type UrlFetchFormFieldInput,
   type UrlFetchPayloadInput,
   type UrlFetchRequestInput,
@@ -58,6 +59,8 @@ export class UrlFetchApp {
   getRequest(url: string): UrlFetchRequestPreview;
   getRequest(url: string, params: UrlFetchRequestOptionsInput): UrlFetchRequestPreview;
   getRequest(url: string, params: UrlFetchRequestOptionsInput = {}): UrlFetchRequestPreview {
+    validateUrlFetchUrl(url);
+
     return {
       url,
       method: params.method ?? "get",

@@ -14,6 +14,19 @@ describe("normalizeUrlFetchRequest", () => {
     });
   });
 
+  test("reject URLs beyond the documented 2082-character limit", () => {
+    const prefix = "https://example.com/";
+    const maximum = prefix + "a".repeat(2_082 - prefix.length);
+    const oversized = `${maximum}a`;
+
+    expect(normalizeUrlFetchRequest(maximum).url).toBe(maximum);
+    expect(normalizeUrlFetchRequest({ url: maximum }).url).toBe(maximum);
+    expect(() => normalizeUrlFetchRequest(oversized)).toThrow(
+      "UrlFetch URL must not exceed 2082 characters.",
+    );
+    expect(() => normalizeUrlFetchRequest({ url: oversized, method: "post" })).toThrow(RangeError);
+  });
+
   test("copy documented request options into the transport value", () => {
     const headers = {
       Authorization: "Bearer token",
