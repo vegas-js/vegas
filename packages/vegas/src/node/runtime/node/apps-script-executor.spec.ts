@@ -542,6 +542,47 @@ describe("runAppsScriptWorkerSession", () => {
 });
 
 describe("createNodeAppsScriptExecutor", () => {
+  test("avoid starting a worker when the invocation is already aborted", async () => {
+    const controller = new AbortController();
+    const reason = new Error("already cancelled");
+    controller.abort(reason);
+    const close = vi.spyOn(worker.MessagePort.prototype, "close");
+
+    try {
+      const executor = createNodeAppsScriptExecutor({
+        cacheStore: new InMemoryCacheStore(),
+        driveIteratorStore: new InMemoryDriveIteratorStore(),
+        driveStore: new InMemoryDriveStore(),
+        lockStore: new InMemoryLockStore(),
+        propertiesStore: new InMemoryPropertiesStore(),
+        spreadsheetStore: new InMemorySpreadsheetStore(),
+      });
+      const request: ExecutionRequest = {
+        program: {
+          source: "function main() {}",
+          // Construction would otherwise fail while cloning this entry.
+          htmlFiles: { invalid: (() => undefined) as unknown as string },
+        },
+        environment: {
+          activeUserEmail: "",
+          activeUserLocale: "en",
+          effectiveUserEmail: "",
+          scriptTimeZone: "UTC",
+          temporaryActiveUserKey: "",
+        },
+        scope: { scriptKey: "script", userKey: "user" },
+        functionName: "main",
+        args: [],
+        signal: controller.signal,
+      };
+
+      await expect(executor.execute(request)).rejects.toBe(reason);
+      expect(close).not.toHaveBeenCalled();
+    } finally {
+      close.mockRestore();
+    }
+  });
+
   test("close both message ports when worker construction fails", async () => {
     const close = vi.spyOn(worker.MessagePort.prototype, "close");
     try {

@@ -258,6 +258,11 @@ function runAppsScriptWorker(
   request: Parameters<AppsScriptWorkerRunner>[1],
   executionTimeoutMs: number,
 ): Promise<unknown> {
+  // Avoid starting a worker or evaluating its program after cancellation.
+  if (request.signal?.aborted) {
+    return Promise.reject(request.signal.reason ?? new Error("Apps Script execution aborted."));
+  }
+
   const sharedBuffer = new SharedArrayBuffer(4);
   const sharedArray = new Int32Array(sharedBuffer);
   const { port1, port2 } = new worker.MessageChannel();
