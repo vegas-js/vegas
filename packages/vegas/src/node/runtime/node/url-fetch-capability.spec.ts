@@ -1,4 +1,4 @@
-import { describe, expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 
 import { UnsupportedRuntimeOperationError } from "../unsupported-runtime-operation-error";
 import type { UrlFetchRequestValue } from "../url-fetch/value";
@@ -77,6 +77,72 @@ describe("NodeUrlFetchCapability", () => {
 
     await expect(pending).rejects.toBe(reason);
     expect(requestSignal?.aborted).toBe(true);
+  });
+
+  test("keep large UrlFetch timeouts pending and dispose the timer on success", async () => {
+    vi.useFakeTimers();
+    try {
+      let requestSignal: AbortSignal | undefined;
+      let respond: (response: Response) => void = () => {
+        throw new Error("Fetch was not started.");
+      };
+      const capability = new NodeUrlFetchCapability(async (_url, init) => {
+        requestSignal = init.signal ?? undefined;
+        return new Promise<Response>((resolve) => {
+          respond = resolve;
+        });
+      });
+
+      const pending = capability.fetch({
+        url: "https://example.com/long",
+        timeoutSeconds: 2_147_484,
+      });
+
+      await vi.advanceTimersByTimeAsync(10);
+      expect(requestSignal).toBeInstanceOf(AbortSignal);
+      expect(requestSignal?.aborted).toBe(false);
+
+      respond(new Response("ok"));
+      await expect(pending).resolves.toMatchObject({ statusCode: 200 });
+      expect(vi.getTimerCount()).toBe(0);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  test("abort timed-out fetches and clear their timers", async () => {
+    vi.useFakeTimers();
+    try {
+      const capability = new NodeUrlFetchCapability(
+        async (_url, init) =>
+          new Promise<Response>((_resolve, reject) => {
+            init.signal?.addEventListener("abort", () => reject(init.signal?.reason), {
+              once: true,
+            });
+          }),
+      );
+
+      const pending = capability.fetch({ url: "https://example.com/slow", timeoutSeconds: 1 });
+      const rejection = expect(pending).rejects.toMatchObject({ name: "TimeoutError" });
+      await vi.advanceTimersByTimeAsync(1_000);
+      await rejection;
+      expect(vi.getTimerCount()).toBe(0);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  test("reject durations beyond the local safe range without starting fetch", async () => {
+    const fetch = vi.fn(async () => new Response());
+    const capability = new NodeUrlFetchCapability(fetch);
+
+    await expect(
+      capability.fetch({
+        url: "https://example.com/long",
+        timeoutSeconds: Math.floor(Number.MAX_SAFE_INTEGER / 1_000) + 1,
+      }),
+    ).rejects.toThrow("UrlFetch timeoutSeconds exceeds the local safe duration limit.");
+    expect(fetch).not.toHaveBeenCalled();
   });
 
   test("map text payload, content type, redirect mode, and muted HTTP failures", async () => {

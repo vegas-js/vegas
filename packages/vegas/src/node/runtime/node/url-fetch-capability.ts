@@ -11,6 +11,9 @@ import type {
 type FetchFunction = (url: string, init: RequestInit) => Promise<Response>;
 
 const DEFAULT_TIMEOUT_SECONDS = 360;
+const MAX_NODE_TIMER_DELAY_MS = 2_147_483_647;
+// Vegas local limit: keep seconds-to-milliseconds conversion exact.
+const MAX_SAFE_TIMEOUT_SECONDS = Math.floor(Number.MAX_SAFE_INTEGER / 1_000);
 
 function toSignedByte(value: number): number {
   return value > 0x7f ? value - 0x100 : value;
@@ -43,6 +46,10 @@ function validateRequest(request: UrlFetchRequestValue): void {
     (!Number.isInteger(request.timeoutSeconds) || request.timeoutSeconds <= 0)
   ) {
     throw new RangeError("UrlFetch timeoutSeconds must be a positive integer.");
+  }
+
+  if (request.timeoutSeconds !== undefined && request.timeoutSeconds > MAX_SAFE_TIMEOUT_SECONDS) {
+    throw new RangeError("UrlFetch timeoutSeconds exceeds the local safe duration limit.");
   }
 
   if ((request.method ?? "get") === "get" && request.payload !== undefined) {
@@ -104,7 +111,37 @@ function createBody(payload: UrlFetchPayloadValue | undefined): BodyInit | undef
   }
 }
 
-function createRequestInit(request: UrlFetchRequestValue, signal?: AbortSignal): RequestInit {
+/** Keep timeout timers within Node.js bounds and dispose of them when fetch completes. */
+function createRequestTimeout(timeoutMs: number): { signal: AbortSignal; dispose(): void } {
+  const controller = new AbortController();
+  let timer: ReturnType<typeof setTimeout> | undefined;
+
+  const schedule = (remainingMs: number): void => {
+    const delay = Math.min(remainingMs, MAX_NODE_TIMER_DELAY_MS);
+    timer = setTimeout(() => {
+      if (remainingMs > delay) {
+        schedule(remainingMs - delay);
+        return;
+      }
+
+      controller.abort(
+        new DOMException("The operation was aborted due to timeout", "TimeoutError"),
+      );
+    }, delay);
+  };
+
+  schedule(timeoutMs);
+  return {
+    signal: controller.signal,
+    dispose: () => {
+      if (timer !== undefined) {
+        clearTimeout(timer);
+      }
+    },
+  };
+}
+
+function createRequestInit(request: UrlFetchRequestValue): RequestInit {
   validateRequest(request);
 
   const headers = new Headers(request.headers);
@@ -128,16 +165,11 @@ function createRequestInit(request: UrlFetchRequestValue, signal?: AbortSignal):
     headers.set("content-type", "application/x-www-form-urlencoded");
   }
 
-  const timeoutSignal = AbortSignal.timeout(
-    (request.timeoutSeconds ?? DEFAULT_TIMEOUT_SECONDS) * 1_000,
-  );
-
   return {
     method: request.method ?? "get",
     headers,
     body: createBody(request.payload),
     redirect: request.followRedirects === false ? "manual" : "follow",
-    signal: signal === undefined ? timeoutSignal : AbortSignal.any([signal, timeoutSignal]),
   };
 }
 
@@ -176,13 +208,25 @@ export class NodeUrlFetchCapability implements UrlFetchCapability {
   }
 
   async fetch(request: UrlFetchRequestValue, signal?: AbortSignal): Promise<UrlFetchResponseValue> {
-    const response = await this.#fetch(request.url, createRequestInit(request, signal));
+    // Validate/build first so a failed request cannot leave a timeout running.
+    const init = createRequestInit(request);
+    const timeout = createRequestTimeout(
+      (request.timeoutSeconds ?? DEFAULT_TIMEOUT_SECONDS) * 1_000,
+    );
+    try {
+      const response = await this.#fetch(request.url, {
+        ...init,
+        signal: signal === undefined ? timeout.signal : AbortSignal.any([signal, timeout.signal]),
+      });
 
-    if (response.status >= 400 && request.muteHttpExceptions !== true) {
-      throw new Error(`UrlFetch request failed with HTTP status ${response.status}.`);
+      if (response.status >= 400 && request.muteHttpExceptions !== true) {
+        throw new Error(`UrlFetch request failed with HTTP status ${response.status}.`);
+      }
+
+      return await serializeResponse(response);
+    } finally {
+      timeout.dispose();
     }
-
-    return serializeResponse(response);
   }
 
   async fetchAll(
