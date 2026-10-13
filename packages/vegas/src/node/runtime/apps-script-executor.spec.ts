@@ -1,4 +1,4 @@
-import { describe, expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 
 import {
   createAppsScriptExecutor,
@@ -243,6 +243,42 @@ describe("createAppsScriptExecutor", () => {
         0,
       ),
     ).resolves.toBe(true);
+  });
+
+  test("release the lock session if a host handler cannot initialize", async () => {
+    const lockStore = new InMemoryLockStore();
+    const lockSession = lockStore.createSession();
+    const releaseAll = vi.spyOn(lockSession, "releaseAll");
+    vi.spyOn(lockStore, "createSession").mockReturnValue(lockSession);
+    const driveIteratorStore = new InMemoryDriveIteratorStore();
+    vi.spyOn(driveIteratorStore, "createSession").mockImplementation(() => {
+      throw new Error("drive iterator initialization failed");
+    });
+    const runWorker = vi.fn(async () => "not called");
+    const executor = createAppsScriptExecutor({
+      blobConversionCapability,
+      cacheStore: new InMemoryCacheStore(),
+      driveIteratorStore,
+      driveStore: new InMemoryDriveStore(),
+      lockStore,
+      propertiesStore: new InMemoryPropertiesStore(),
+      spreadsheetStore: new InMemorySpreadsheetStore(),
+      urlFetchCapability,
+      runWorker,
+    });
+
+    await expect(
+      executor.execute({
+        program: { source: "", htmlFiles: {} },
+        functionName: "main",
+        args: [],
+        environment,
+        scope,
+      }),
+    ).rejects.toThrow("drive iterator initialization failed");
+
+    expect(releaseAll).toHaveBeenCalledOnce();
+    expect(runWorker).not.toHaveBeenCalled();
   });
 
   test("release invocation locks when the worker runner throws synchronously", async () => {
