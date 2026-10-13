@@ -15,6 +15,9 @@ const DEFAULT_TIMEOUT_SECONDS = 360;
 const MAX_NODE_TIMER_DELAY_MS = 2_147_483_647;
 // Vegas local limit: keep seconds-to-milliseconds conversion exact.
 const MAX_SAFE_TIMEOUT_SECONDS = Math.floor(Number.MAX_SAFE_INTEGER / 1_000);
+// Google limits URL Fetch responses to 50 MB per call. Vegas uses a 50 MiB
+// local byte limit because the documented quota does not specify the unit base.
+const MAX_URL_FETCH_RESPONSE_BYTES = 50 * 1024 * 1024;
 
 function toSignedByte(value: number): number {
   return value > 0x7f ? value - 0x100 : value;
@@ -226,6 +229,12 @@ async function readResponseContent(response: Response, signal: AbortSignal): Pro
 
       if (done) {
         return content;
+      }
+
+      // Check before materializing signed bytes to avoid unbounded local memory use.
+      if (content.length + value.byteLength > MAX_URL_FETCH_RESPONSE_BYTES) {
+        void reader.cancel().catch(() => undefined);
+        throw new RangeError("UrlFetch response exceeds the local 50 MB size limit.");
       }
 
       for (const byte of value) {

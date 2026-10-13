@@ -89,6 +89,26 @@ describe("NodeUrlFetchCapability", () => {
     });
   });
 
+  test("reject oversized response bodies and cancel their streams", async () => {
+    const cancel = vi.fn();
+    const response = new Response(
+      new ReadableStream<Uint8Array>({
+        start(controller) {
+          controller.enqueue(new Uint8Array(50 * 1024 * 1024 + 1));
+        },
+        cancel,
+      }),
+      { headers: { "content-length": "1" } },
+    );
+    const capability = new NodeUrlFetchCapability(async () => response);
+
+    await expect(capability.fetch({ url: "https://example.com/oversized" })).rejects.toThrow(
+      "UrlFetch response exceeds the local 50 MB size limit.",
+    );
+    expect(cancel).toHaveBeenCalledOnce();
+    expect(response.body?.locked).toBe(false);
+  });
+
   test("preserve special JavaScript property names in response headers", async () => {
     const headers = new Headers([
       ["__proto__", "prototype-header"],
