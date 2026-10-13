@@ -173,6 +173,17 @@ function createRequestInit(request: UrlFetchRequestValue): RequestInit {
     headers.set("content-type", "application/x-www-form-urlencoded");
   }
 
+  // GAS documents this as the default request content type. Node's fetch
+  // otherwise supplies text/plain for string bodies and no type for byte bodies.
+  // Keep multipart forms untouched so fetch can generate the boundary.
+  if (
+    request.payload !== undefined &&
+    request.payload.kind !== "form" &&
+    !headers.has("content-type")
+  ) {
+    headers.set("content-type", "application/x-www-form-urlencoded");
+  }
+
   return {
     method: request.method ?? "get",
     headers,

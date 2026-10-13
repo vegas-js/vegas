@@ -295,6 +295,55 @@ describe("NodeUrlFetchCapability", () => {
     expect(new Headers(calls[0]?.headers).get("content-type")).toBe("application/json");
   });
 
+  test("use the documented default Content-Type for text and byte bodies", async () => {
+    const sent: Headers[] = [];
+    const capability = new NodeUrlFetchCapability(async (_url, init) => {
+      sent.push(new Headers(init.headers));
+      return new Response(null);
+    });
+
+    await capability.fetch({
+      url: "https://example.com/text",
+      method: "post",
+      payload: { kind: "text", value: "hello" },
+    });
+    await capability.fetch({
+      url: "https://example.com/bytes",
+      method: "post",
+      payload: { kind: "bytes", value: [65, 66] },
+    });
+    await capability.fetch({
+      url: "https://example.com/blob",
+      method: "post",
+      payload: {
+        kind: "blob",
+        value: { bytes: [67], contentType: null, name: null, googleType: false },
+      },
+    });
+    await capability.fetch({
+      url: "https://example.com/explicit",
+      method: "post",
+      contentType: "application/json",
+      payload: { kind: "text", value: "{}" },
+    });
+    await capability.fetch({
+      url: "https://example.com/header",
+      method: "post",
+      headers: { "Content-Type": "text/custom" },
+      payload: { kind: "text", value: "hello" },
+    });
+    await capability.fetch({ url: "https://example.com/no-body" });
+
+    expect(sent.map((headers) => headers.get("content-type"))).toStrictEqual([
+      "application/x-www-form-urlencoded",
+      "application/x-www-form-urlencoded",
+      "application/x-www-form-urlencoded",
+      "application/json",
+      "text/custom",
+      null,
+    ]);
+  });
+
   test("encode string form payloads as application/x-www-form-urlencoded", async () => {
     const calls: RequestInit[] = [];
     const capability = new NodeUrlFetchCapability(async (_url, init) => {
