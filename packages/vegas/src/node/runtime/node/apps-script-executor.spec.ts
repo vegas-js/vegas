@@ -235,6 +235,48 @@ describe("runAppsScriptWorkerSession", () => {
     expect(port.closeCount).toBe(1);
   });
 
+  test("terminate on a worker message deserialization failure", async () => {
+    const gasWorker = new TestWorker();
+    const port = new TestPort();
+    const result = runAppsScriptWorkerSession(
+      gasWorker,
+      port,
+      new Int32Array(new SharedArrayBuffer(4)),
+      createDispatcher(),
+      invocation,
+    );
+    const cause = new Error("deserialization failed");
+
+    port.emit("messageerror", cause);
+
+    await expect(result).rejects.toMatchObject({
+      kind: "serialization",
+      message: "Apps Script worker message could not be deserialized.",
+      cause,
+    });
+    expect(port.closeCount).toBe(1);
+    expect(gasWorker.terminateCount).toBe(1);
+  });
+
+  test("ignore message deserialization failures after a completed result", async () => {
+    const gasWorker = new TestWorker();
+    const port = new TestPort();
+    const result = runAppsScriptWorkerSession(
+      gasWorker,
+      port,
+      new Int32Array(new SharedArrayBuffer(4)),
+      createDispatcher(),
+      invocation,
+    );
+
+    port.receive({ type: "result", ok: true, value: "done" });
+    await expect(result).resolves.toBe("done");
+    port.emit("messageerror", new Error("late error"));
+
+    expect(port.closeCount).toBe(1);
+    expect(gasWorker.terminateCount).toBe(0);
+  });
+
   test("terminate a worker when a host response cannot be delivered", async () => {
     const gasWorker = new TestWorker();
     const port = new TestPort();

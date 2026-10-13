@@ -34,6 +34,7 @@ interface AppsScriptWorkerProcess {
 interface AppsScriptWorkerPort {
   on(event: "message", listener: (data: unknown) => void): unknown;
   on(event: "close", listener: () => void): unknown;
+  on(event: "messageerror", listener: (error: Error) => void): unknown;
   postMessage(value: unknown): void;
   close(): void;
 }
@@ -178,6 +179,18 @@ export function runAppsScriptWorkerSession(
     port.on("close", () => {
       workerPortClosed = true;
       failExitedWorker();
+    });
+
+    // Deserialization failures do not produce a result message. Stop the worker
+    // rather than letting the execution linger until its timeout.
+    port.on("messageerror", (error) => {
+      terminate(
+        new RuntimeInfrastructureError(
+          "serialization",
+          "Apps Script worker message could not be deserialized.",
+          { cause: error },
+        ),
+      );
     });
 
     port.on("message", (data) => {
