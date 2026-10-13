@@ -8,6 +8,39 @@ const SCRIPT_LOCK = {
 } as const satisfies LockNamespace;
 
 describe("InMemoryLockStore", () => {
+  test("prevent released sessions from reacquiring or modifying locks", async () => {
+    const store = new InMemoryLockStore();
+    const released = store.createSession();
+    const other = store.createSession();
+
+    await expect(released.acquire(SCRIPT_LOCK, 0)).resolves.toBe(true);
+    await released.releaseAll();
+    await released.releaseAll();
+
+    await expect(released.acquire(SCRIPT_LOCK, 0)).resolves.toBe(false);
+    await expect(released.has(SCRIPT_LOCK)).resolves.toBe(false);
+    await expect(other.acquire(SCRIPT_LOCK, 0)).resolves.toBe(true);
+
+    await released.release(SCRIPT_LOCK);
+    await expect(other.has(SCRIPT_LOCK)).resolves.toBe(true);
+  });
+
+  test("cancel pending waits when releasing a session and forbid reuse", async () => {
+    const store = new InMemoryLockStore();
+    const owner = store.createSession();
+    const released = store.createSession();
+
+    await owner.acquire(SCRIPT_LOCK, 0);
+    const waiting = released.acquire(SCRIPT_LOCK, 1_000);
+
+    await released.releaseAll();
+    await expect(waiting).resolves.toBe(false);
+
+    await owner.release(SCRIPT_LOCK);
+    await expect(released.acquire(SCRIPT_LOCK, 0)).resolves.toBe(false);
+    await expect(store.createSession().acquire(SCRIPT_LOCK, 0)).resolves.toBe(true);
+  });
+
   test("track lock ownership per invocation session", async () => {
     const store = new InMemoryLockStore();
     const first = store.createSession();

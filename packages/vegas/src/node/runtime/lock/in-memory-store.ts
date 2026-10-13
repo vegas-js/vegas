@@ -36,16 +36,24 @@ export class InMemoryLockStore implements LockStore {
   createSession(): LockStoreSession {
     this.#nextSessionId += 1;
     const sessionId = this.#nextSessionId;
+    let released = false;
 
     return {
-      acquire: (namespace, timeoutInMillis) => this.#acquire(sessionId, namespace, timeoutInMillis),
-      has: (namespace) => Promise.resolve(this.#has(sessionId, namespace)),
+      acquire: (namespace, timeoutInMillis) =>
+        released ? Promise.resolve(false) : this.#acquire(sessionId, namespace, timeoutInMillis),
+      has: (namespace) => Promise.resolve(!released && this.#has(sessionId, namespace)),
       release: (namespace) => {
-        this.#release(sessionId, namespace);
+        if (!released) {
+          this.#release(sessionId, namespace);
+        }
         return Promise.resolve();
       },
       releaseAll: () => {
-        this.#releaseAll(sessionId);
+        if (!released) {
+          // An invocation must not acquire new locks after its final cleanup.
+          released = true;
+          this.#releaseAll(sessionId);
+        }
         return Promise.resolve();
       },
     };
