@@ -97,6 +97,31 @@ describe("InMemoryLockStore", () => {
     }
   });
 
+  test("keep oversized lock waits pending until release", async () => {
+    vi.useFakeTimers();
+
+    try {
+      const store = new InMemoryLockStore();
+      const first = store.createSession();
+      const second = store.createSession();
+
+      await first.acquire(SCRIPT_LOCK, 0);
+      const waiting = second.acquire(SCRIPT_LOCK, 2_147_483_648);
+      const finished = vi.fn();
+      void waiting.then(finished);
+
+      await vi.advanceTimersByTimeAsync(10);
+      expect(finished).not.toHaveBeenCalled();
+      await expect(second.has(SCRIPT_LOCK)).resolves.toBe(false);
+
+      await first.release(SCRIPT_LOCK);
+      await expect(waiting).resolves.toBe(true);
+      expect(finished).toHaveBeenCalledWith(true);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   test("release every lock owned by one invocation session", async () => {
     const store = new InMemoryLockStore();
     const first = store.createSession();

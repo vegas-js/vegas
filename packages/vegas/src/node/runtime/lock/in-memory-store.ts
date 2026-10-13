@@ -1,5 +1,8 @@
 import type { LockNamespace, LockStore, LockStoreSession } from "./store";
 
+// Node.js timers clamp larger delays to 1 ms. Schedule long waits in chunks.
+const MAX_NODE_TIMER_DELAY_MS = 2_147_483_647;
+
 type LockWaiter = {
   readonly sessionId: number;
   readonly resolve: (acquired: boolean) => void;
@@ -73,9 +76,17 @@ export class InMemoryLockStore implements LockStore {
       };
 
       state.waiters.push(waiter);
-      waiter.timer = setTimeout(() => {
-        this.#timeOut(key, state, waiter);
-      }, timeoutInMillis);
+      const scheduleTimeout = (remainingMs: number): void => {
+        const delay = Math.min(remainingMs, MAX_NODE_TIMER_DELAY_MS);
+        waiter.timer = setTimeout(() => {
+          if (remainingMs > delay) {
+            scheduleTimeout(remainingMs - delay);
+            return;
+          }
+          this.#timeOut(key, state, waiter);
+        }, delay);
+      };
+      scheduleTimeout(timeoutInMillis);
     });
   }
 
