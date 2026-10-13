@@ -12,6 +12,7 @@ const documents = [
     runtime: "also validates registered RPC values at runtime",
     limitation: "do not serialize values or guarantee",
     legacy: "does not perform this additional argument validation",
+    removed: "removed in v0.3.0",
     preferred: "For new projects, use `createRpcClient<T>()`",
   },
   {
@@ -19,6 +20,7 @@ const documents = [
     runtime: "登録型 RPC の値も実行時に検証",
     limitation: "シリアライズを行わず",
     legacy: "追加の引数検証を実行しません",
+    removed: "v0.3.0 で削除",
     preferred:
       "新規プロジェクトでは、server が export する `rpc` レジストリと `createRpcClient<T>()` の利用を推奨します",
   },
@@ -27,6 +29,7 @@ const documents = [
     runtime: "등록형 RPC 값도 런타임에 검증",
     limitation: "값을 직렬화하지 않으며",
     legacy: "추가 인수 검증이 적용되지 않습니다",
+    removed: "v0.3.0에서 제거",
     preferred:
       "새 프로젝트에서는 서버가 export하는 `rpc` 레지스트리와 `createRpcClient<T>()` 사용을 권장합니다",
   },
@@ -47,7 +50,7 @@ describe("registered RPC documentation", () => {
     expect(section).toContain("vegasRpcCall");
     expect(section).toContain("type RpcClient");
     expect(section).toContain("RpcClient<ServerRpc>");
-    expect(section).toContain("ServerFunctionClient<T>");
+    expect(section).toContain(document.removed);
     expect(section).toContain("createServerFunctionClient()");
   });
 
@@ -63,6 +66,7 @@ describe("registered RPC documentation", () => {
       expect(clientSection).toContain(document.preferred);
       expect(clientSection).toContain("### `createServerFunctionClient<T>()` (deprecated)");
       expect(clientSection).toContain("### `createRpcClient<T>()`");
+      expect(clientSection).not.toContain("type ServerFunctionClient");
       expect(clientSection?.indexOf(document.preferred)).toBeLessThan(
         clientSection?.indexOf("### `createServerFunctionClient<T>()`"),
       );

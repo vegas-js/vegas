@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Removed
+
+- Removed the deprecated `ServerFunctionClient<T>` type alias in preparation for v0.3.0. Use `RpcClient<T>` instead; the deprecated `createServerFunctionClient()` function remains available and returns `RpcClient<T>`.
+
 ## 0.2.0 - 2026-10-08
 
 ### Added

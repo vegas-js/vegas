@@ -57,7 +57,7 @@ For new projects, use `createRpcClient<T>()` with an `rpc` registry exported by 
 ### `createServerFunctionClient<T>()` (deprecated)
 
 ```typescript
-function createServerFunctionClient<T extends object>(): ServerFunctionClient<T>;
+function createServerFunctionClient<T extends object>(): RpcClient<T>;
 ```
 
 `createServerFunctionClient<T>()` creates a typed Promise-based client over `google.script.run`.
@@ -101,19 +101,19 @@ const result = await server.greet("Vegas");
 
 This works without a Vegas dev server, generated type files, or TypeScript Project References. Do not import `../server/Code` even with `import type`: TypeScript otherwise checks server implementation files using the client compiler settings. Legacy server functions must remain top-level named exports. `defineServerFunctions()` validates handler names and callable values at registration, and returns the original object.
 
-`ServerFunctionClient<T>` keeps string-keyed functions from `T`, excludes function names ending in `_`, preserves each function's argument tuple, and converts its result to `Promise<Awaited<Result>>`.
+`RpcClient<T>` keeps string-keyed functions from `T`, excludes function names ending in `_`, preserves each function's argument tuple, and converts its result to `Promise<Awaited<Result>>`.
 
 The client resolves from `google.script.run.withSuccessHandler()` and rejects from `withFailureHandler()`.
 
 The entry point exports:
 
 ```typescript
-import { createServerFunctionClient, type ServerFunctionClient } from "@vegasjs/vegas/client";
+import { createServerFunctionClient, type RpcClient } from "@vegasjs/vegas/client";
 ```
 
 ### `createRpcClient<T>()`
 
-`RpcClient<T>` is the preferred client type returned by `createRpcClient<T>()`. `ServerFunctionClient<T>` remains available as a deprecated compatibility alias.
+`RpcClient<T>` is the public client type returned by both factories. The deprecated `ServerFunctionClient<T>` type alias was removed in v0.3.0; use `RpcClient<T>` instead.
 
 Registered RPC handlers use one GAS entry point, `vegasRpcCall`, instead of requiring a named export for every method. Keep the contract independent of server implementation:
 

@@ -57,7 +57,7 @@ import type {
 ### `createServerFunctionClient<T>()` (deprecated)
 
 ```typescript
-function createServerFunctionClient<T extends object>(): ServerFunctionClient<T>;
+function createServerFunctionClient<T extends object>(): RpcClient<T>;
 ```
 
 `createServerFunctionClient<T>()`는 `google.script.run` 위에 typed Promise-based client를 만듭니다.
@@ -101,19 +101,19 @@ const result = await server.greet("Vegas");
 
 이 방식은 Vegas 실행, 타입 파일 생성, TypeScript Project References가 필요하지 않습니다. `../server/Code`를 `import type`으로 참조해도 client 설정으로 server 구현을 검사하므로 피해야 합니다. `defineServerFunctions()`는 타입 검사와 함께 등록 시 핸들러 이름과 함수 값을 검증한 뒤 원래 객체를 반환합니다. 기존 방식의 GAS 함수 공개에는 이름 있는 export가 필요합니다.
 
-`ServerFunctionClient<T>`는 `T`의 string-keyed function을 대상으로 하며, 이름이 `_`로 끝나는 function을 제외하고, 각 function의 argument tuple을 유지하면서 result를 `Promise<Awaited<Result>>`로 변환합니다.
+`RpcClient<T>`는 `T`의 string-keyed function을 대상으로 하며, 이름이 `_`로 끝나는 function을 제외하고, 각 function의 argument tuple을 유지하면서 result를 `Promise<Awaited<Result>>`로 변환합니다.
 
 client는 `google.script.run.withSuccessHandler()`에서 resolve하고 `withFailureHandler()`에서 reject합니다.
 
 entry point는 다음을 export합니다.
 
 ```typescript
-import { createServerFunctionClient, type ServerFunctionClient } from "@vegasjs/vegas/client";
+import { createServerFunctionClient, type RpcClient } from "@vegasjs/vegas/client";
 ```
 
 ### `createRpcClient<T>()`
 
-`createRpcClient<T>()`의 반환 타입으로 `RpcClient<T>`를 사용합니다. `ServerFunctionClient<T>`는 더 이상 권장되지 않는 호환성 별칭으로 유지됩니다.
+두 클라이언트 팩토리의 반환 타입은 `RpcClient<T>`입니다. 더 이상 권장되지 않던 `ServerFunctionClient<T>` 타입 별칭은 v0.3.0에서 제거되었습니다. 대신 `RpcClient<T>`를 사용하세요.
 
 등록형 RPC는 각 메서드를 개별 이름으로 export하는 대신 하나의 GAS 진입점인 `vegasRpcCall`을 사용합니다. 공개 계약은 server 구현과 분리합니다.
 

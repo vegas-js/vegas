@@ -216,7 +216,6 @@ function smokeVanillaConsumer(tarballPath, tempRoot) {
         createRpcClient,
         createServerFunctionClient,
         type RpcClient,
-        type ServerFunctionClient,
       } from "@vegasjs/vegas/client";
       import type { ServerRpc } from "../contracts/rpc.js";
 
@@ -225,8 +224,12 @@ function smokeVanillaConsumer(tarballPath, tempRoot) {
         value: string;
       };
 
-      const client: ServerFunctionClient<ServerApi> =
+      const client: RpcClient<ServerApi> =
         createServerFunctionClient<ServerApi>();
+
+      // @ts-expect-error The ServerFunctionClient type export was removed in v0.3.0.
+      type RemovedAlias = import("@vegasjs/vegas/client").ServerFunctionClient<ServerApi>;
+      void (null as unknown as RemovedAlias);
 
       const greeting: Promise<string> = client.greet("Vegas");
       void greeting;
@@ -498,6 +501,16 @@ function smokeVegasPackage() {
 
     const packageJson = JSON.parse(
       fs.readFileSync(path.join(installedRoot, "package.json"), "utf8"),
+    );
+
+    const clientDeclarations = fs.readFileSync(
+      path.join(installedRoot, "dist/client.d.ts"),
+      "utf8",
+    );
+    assert.doesNotMatch(
+      clientDeclarations,
+      /\bServerFunctionClient\b/,
+      "The removed ServerFunctionClient type must not be published",
     );
 
     assert.equal(packageJson.license, "MIT");

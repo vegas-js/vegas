@@ -25,16 +25,13 @@ export type RpcClient<T extends object> = {
     : never;
 };
 
-/** @deprecated Use `RpcClient<T>` for registered RPC clients. */
-export type ServerFunctionClient<T extends object> = RpcClient<T>;
-
 /**
  * Invoke top-level named server exports through google.script.run.
  *
  * @deprecated Use `createRpcClient()` and export `rpc` from the server entry.
  * This legacy wrapper is retained for existing named-function clients.
  */
-export function createServerFunctionClient<T extends object>(): ServerFunctionClient<T> {
+export function createServerFunctionClient<T extends object>(): RpcClient<T> {
   return createClient<T>(false);
 }
 

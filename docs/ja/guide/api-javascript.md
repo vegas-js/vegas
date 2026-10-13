@@ -57,7 +57,7 @@ import type {
 ### `createServerFunctionClient<T>()` (deprecated)
 
 ```typescript
-function createServerFunctionClient<T extends object>(): ServerFunctionClient<T>;
+function createServerFunctionClient<T extends object>(): RpcClient<T>;
 ```
 
 `createServerFunctionClient<T>()` は `google.script.run` 上に型付きのPromise-based clientを作成します。
@@ -101,19 +101,19 @@ const result = await server.greet("Vegas");
 
 この方法は Vegas の起動、型ファイルの自動生成、TypeScript Project References を必要としません。`../server/Code` を `import type` で参照すると、client のコンパイラ設定で server 実装も型検査されるため避けてください。`defineServerFunctions()` は型チェックに加えて登録時に関数名と実装を検証し、元のオブジェクトを返します。従来方式では GAS に公開する関数の名前付き export が必要です。
 
-`ServerFunctionClient<T>` は `T` のstring-keyed functionを対象にし、名前が `_` で終わるfunctionを除外し、各functionのargument tupleを維持したまま、resultを `Promise<Awaited<Result>>` に変換します。
+`RpcClient<T>` は `T` のstring-keyed functionを対象にし、名前が `_` で終わるfunctionを除外し、各functionのargument tupleを維持したまま、resultを `Promise<Awaited<Result>>` に変換します。
 
 clientは `google.script.run.withSuccessHandler()` からresolveし、`withFailureHandler()` からrejectします。
 
 entrypointからは次を公開しています。
 
 ```typescript
-import { createServerFunctionClient, type ServerFunctionClient } from "@vegasjs/vegas/client";
+import { createServerFunctionClient, type RpcClient } from "@vegasjs/vegas/client";
 ```
 
 ### `createRpcClient<T>()`
 
-`createRpcClient<T>()` の戻り値には `RpcClient<T>` を使用します。`ServerFunctionClient<T>` は非推奨の互換エイリアスとして引き続き利用できます。
+両方のクライアントファクトリの戻り値には `RpcClient<T>` を使用します。非推奨の型エイリアス `ServerFunctionClient<T>` は v0.3.0 で削除されました。代わりに `RpcClient<T>` を使用してください。
 
 登録型 RPC は各メソッドを名前付き export する代わりに、GAS の単一エントリポイント `vegasRpcCall` を利用します。公開契約は server 実装から独立させます。
 
