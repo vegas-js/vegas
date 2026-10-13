@@ -221,6 +221,30 @@ describe("UrlFetchApp", () => {
     expect(bridge.calls).toStrictEqual([]);
   });
 
+  test("match Node header normalization in getRequest previews", () => {
+    const bridge = new RecordingHostBridge();
+    const urlFetch = createUrlFetchApp(bridge);
+    const headers = {
+      "Content-Type": "application/json",
+      "content-type": "application/problem+json",
+    };
+    const request = urlFetch.getRequest("https://example.com/api", {
+      method: "post",
+      contentType: "text/plain",
+      headers,
+    });
+
+    expect(request.contentType).toBe("application/json, application/problem+json");
+    expect(request.contentType).toBe(new Headers(headers).get("content-type"));
+    expect(request.headers).toStrictEqual(headers);
+    expect(
+      urlFetch.getRequest("https://example.com/api", {
+        headers: { "CONTENT-TYPE": " application/custom " },
+      }).contentType,
+    ).toBe("application/custom");
+    expect(bridge.calls).toStrictEqual([]);
+  });
+
   test("preserve explicit getRequest values without exposing mutable inputs", () => {
     const bridge = new RecordingHostBridge();
     const urlFetch = createUrlFetchApp(bridge);

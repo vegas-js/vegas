@@ -71,12 +71,13 @@ export class UrlFetchApp {
 function resolvePreviewContentType(params: UrlFetchRequestOptionsInput): string {
   // Vegas local preview follows the Node transport's Content-Type precedence.
   // Google does not document getRequest() precedence for headers and Blob MIME types.
-  const header = Object.entries(params.headers ?? {}).find(
-    ([name]) => name.toLowerCase() === "content-type",
-  );
+  // Match the Node transport, which parses header names case-insensitively
+  // and merges duplicate names before sending the request.
+  const header =
+    params.headers === undefined ? null : new Headers(params.headers).get("content-type");
 
-  if (header !== undefined) {
-    return header[1];
+  if (header !== null) {
+    return header;
   }
 
   if (params.contentType !== undefined) {
