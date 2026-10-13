@@ -362,6 +362,25 @@ describe("runAppsScriptWorkerSession", () => {
     expect(port.posted).toHaveLength(0);
     expect(gasWorker.terminateCount).toBe(0);
   });
+
+  test("reject execution timeouts that overflow Node.js timers", () => {
+    const gasWorker = new TestWorker();
+    const port = new TestPort();
+
+    expect(() =>
+      runAppsScriptWorkerSession(
+        gasWorker,
+        port,
+        new Int32Array(new SharedArrayBuffer(4)),
+        createDispatcher(),
+        invocation,
+        { executionTimeoutMs: 2_147_483_648 },
+      ),
+    ).toThrow("Apps Script execution timeout must not exceed 2147483647 ms.");
+
+    expect(port.posted).toHaveLength(0);
+    expect(gasWorker.terminateCount).toBe(0);
+  });
 });
 
 describe("createNodeAppsScriptExecutor", () => {
@@ -392,5 +411,19 @@ describe("createNodeAppsScriptExecutor", () => {
         executionTimeoutMs: 0,
       }),
     ).toThrow("Apps Script execution timeout must be a positive integer.");
+  });
+
+  test("reject configured timeouts that exceed Node.js timer limits", () => {
+    expect(() =>
+      createNodeAppsScriptExecutor({
+        cacheStore: new InMemoryCacheStore(),
+        driveIteratorStore: new InMemoryDriveIteratorStore(),
+        driveStore: new InMemoryDriveStore(),
+        lockStore: new InMemoryLockStore(),
+        propertiesStore: new InMemoryPropertiesStore(),
+        spreadsheetStore: new InMemorySpreadsheetStore(),
+        executionTimeoutMs: 2_147_483_648,
+      }),
+    ).toThrow("Apps Script execution timeout must not exceed 2147483647 ms.");
   });
 });

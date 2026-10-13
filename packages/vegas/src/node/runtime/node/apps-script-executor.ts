@@ -22,6 +22,8 @@ import { handleHostRequestMessage } from "./host-request-handler";
 import { NodeUrlFetchCapability } from "./url-fetch-capability";
 
 export const DEFAULT_APPS_SCRIPT_EXECUTION_TIMEOUT_MS = 6 * 60 * 1_000;
+// Node.js timers clamp longer delays to 1 ms. Validate before scheduling.
+const MAX_NODE_TIMER_DELAY_MS = 2_147_483_647;
 
 interface AppsScriptWorkerProcess {
   on(event: "error", listener: (error: Error) => void): unknown;
@@ -44,6 +46,11 @@ interface AppsScriptWorkerSessionOptions {
 function requireExecutionTimeout(timeoutMs: number): number {
   if (!Number.isInteger(timeoutMs) || timeoutMs <= 0) {
     throw new RangeError("Apps Script execution timeout must be a positive integer.");
+  }
+  if (timeoutMs > MAX_NODE_TIMER_DELAY_MS) {
+    throw new RangeError(
+      `Apps Script execution timeout must not exceed ${MAX_NODE_TIMER_DELAY_MS} ms.`,
+    );
   }
 
   return timeoutMs;
