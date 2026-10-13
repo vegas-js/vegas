@@ -281,6 +281,11 @@ export class NodeUrlFetchCapability implements UrlFetchCapability {
       // Bound the local result even then; non-cooperative underlying I/O may continue.
       return await this.#raceAbort(requestSignal, async () => {
         const response = await this.#fetch(request.url, { ...init, signal: requestSignal });
+        if (requestSignal.aborted) {
+          // A non-cooperative transport may resolve after the caller has timed out.
+          // Dispose of its unread body before rejecting the late response.
+          void response.body?.cancel().catch(() => undefined);
+        }
         requestSignal.throwIfAborted();
 
         if (response.status >= 400 && request.muteHttpExceptions !== true) {

@@ -462,6 +462,31 @@ describe("NodeUrlFetchCapability", () => {
     }
   });
 
+  test("cancel response bodies returned after an invocation was aborted", async () => {
+    let finishFetch: (response: Response) => void = () => {
+      throw new Error("Fetch was not started.");
+    };
+    const capability = new NodeUrlFetchCapability(
+      async () =>
+        new Promise<Response>((resolve) => {
+          finishFetch = resolve;
+        }),
+    );
+    const controller = new AbortController();
+    const reason = new Error("invocation cancelled");
+    const pending = capability.fetch({ url: "https://example.com/late" }, controller.signal);
+
+    controller.abort(reason);
+    await expect(pending).rejects.toBe(reason);
+
+    const cancel = vi.fn();
+    finishFetch(new Response(new ReadableStream<Uint8Array>({ cancel })));
+
+    // Let the late transport result finish its asynchronous cleanup.
+    await new Promise<void>((resolve) => setImmediate(resolve));
+    expect(cancel).toHaveBeenCalledOnce();
+  });
+
   test("enforce timeouts while a custom response body remains unreadable", async () => {
     vi.useFakeTimers();
 
