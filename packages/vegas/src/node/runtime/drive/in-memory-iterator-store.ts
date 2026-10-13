@@ -20,7 +20,6 @@ export class InMemoryDriveIteratorStore implements DriveIteratorStore {
   readonly #now: () => number;
   readonly #continuations = new Map<string, StoredContinuation>();
   #nextSessionId = 0;
-  #nextTokenId = 0;
 
   constructor(now: () => number = Date.now) {
     this.#now = now;
@@ -40,8 +39,10 @@ export class InMemoryDriveIteratorStore implements DriveIteratorStore {
   #saveContinuation(namespace: DriveNamespace, state: DriveIteratorContinuationState): string {
     const nowMs = this.#now();
     this.#discardExpiredContinuations(nowMs);
-    this.#nextTokenId += 1;
-    const token = `drive-continuation:${this.#nextTokenId}`;
+    // Vegas local emulation: Google does not specify a continuation token format.
+    // Use unpredictable tokens so recreating this store cannot revive an old
+    // token as an unrelated iterator belonging to the same Drive user.
+    const token = `drive-continuation:${crypto.randomUUID()}`;
 
     this.#continuations.set(token, {
       namespace: { ...namespace },

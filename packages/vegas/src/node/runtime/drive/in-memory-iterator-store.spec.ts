@@ -97,6 +97,31 @@ describe("InMemoryDriveIteratorStore", () => {
     });
   });
 
+  test("do not reuse continuation tokens across store lifetimes", async () => {
+    const beforeRestart = new InMemoryDriveIteratorStore();
+    const original = beforeRestart.createSession(USER_A);
+    const oldToken = await original.getContinuationToken(await original.createFileIterator(FILES));
+
+    // The previous numeric sequence restarted with each new store. A stale
+    // token must never resolve to an unrelated iterator after recreation.
+    const afterRestart = new InMemoryDriveIteratorStore();
+    const replacement = afterRestart.createSession(USER_A);
+    const replacementFiles = [
+      { service: "drive", kind: "file", id: "replacement" },
+    ] as const satisfies readonly DriveFileReference[];
+    const currentToken = await replacement.getContinuationToken(
+      await replacement.createFileIterator(replacementFiles),
+    );
+
+    expect(currentToken).not.toBe(oldToken);
+    await expect(replacement.continueFileIterator(oldToken)).rejects.toThrow(
+      `Unknown Drive continuation token: ${oldToken}`,
+    );
+
+    const resumed = await replacement.continueFileIterator(currentToken);
+    await expect(replacement.nextFile(resumed)).resolves.toStrictEqual(replacementFiles[0]);
+  });
+
   test("bind continuation tokens to the Drive user namespace", async () => {
     const store = new InMemoryDriveIteratorStore();
     const firstSession = store.createSession(USER_A);
