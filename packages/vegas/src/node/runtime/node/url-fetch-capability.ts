@@ -1,5 +1,6 @@
 import { UnsupportedRuntimeOperationError } from "../unsupported-runtime-operation-error";
 import type { UrlFetchCapability } from "../url-fetch/capability";
+import { validateUrlFetchUrl } from "../url-fetch/request";
 import type {
   UrlFetchFormFieldValue,
   UrlFetchPayloadValue,
@@ -20,6 +21,10 @@ function toSignedByte(value: number): number {
 }
 
 function validateRequest(request: UrlFetchRequestValue): void {
+  // A direct host call bypasses UrlFetchApp's request normalization. Apply the
+  // same documented URL limit before dispatch, including fetchAll preflight.
+  validateUrlFetchUrl(request.url);
+
   if (request.validateHttpsCertificates === false) {
     throw new UnsupportedRuntimeOperationError(
       "UrlFetchApp.fetch()/fetchAll()",

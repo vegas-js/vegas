@@ -43,6 +43,27 @@ describe("NodeUrlFetchCapability", () => {
     expect(headers.get("accept")).toBe("application/octet-stream");
   });
 
+  test("enforce URL length limits for direct host fetch and fetchAll", async () => {
+    const send = vi.fn(async () => new Response(null));
+    const capability = new NodeUrlFetchCapability(send);
+    const prefix = "https://example.com/";
+    const maximum = prefix + "a".repeat(2_082 - prefix.length);
+    const oversized = `${maximum}a`;
+
+    await expect(capability.fetch({ url: oversized })).rejects.toThrow(
+      "UrlFetch URL must not exceed 2082 characters.",
+    );
+    await expect(capability.fetchAll([{ url: maximum }, { url: oversized }])).rejects.toThrow(
+      RangeError,
+    );
+    expect(send).not.toHaveBeenCalled();
+
+    await expect(capability.fetch({ url: maximum })).resolves.toMatchObject({
+      statusCode: 200,
+    });
+    expect(send).toHaveBeenCalledOnce();
+  });
+
   test("serialize streamed response chunks and empty response bodies", async () => {
     const capability = new NodeUrlFetchCapability(async (url) => {
       if (url.endsWith("/empty")) {
