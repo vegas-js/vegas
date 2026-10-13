@@ -89,6 +89,43 @@ describe("InMemoryPropertiesStore values", () => {
     });
   });
 
+  test("preserve special property keys across local writes and reads", async () => {
+    const store = new InMemoryPropertiesStore();
+
+    await store.set(scriptProperties, "__proto__", "prototype-value");
+    await store.setAll(
+      scriptProperties,
+      Object.fromEntries([
+        ["constructor", "constructor-value"],
+        ["toString", "method-value"],
+      ]),
+    );
+
+    const properties = await store.getAll(scriptProperties);
+    expect(properties).toStrictEqual(
+      Object.fromEntries([
+        ["__proto__", "prototype-value"],
+        ["constructor", "constructor-value"],
+        ["toString", "method-value"],
+      ]),
+    );
+    expect(Object.getPrototypeOf(properties)).toBe(Object.prototype);
+    expect(Object.getOwnPropertyDescriptor(properties, "__proto__")?.value).toBe("prototype-value");
+
+    await store.replaceAll(
+      scriptProperties,
+      Object.fromEntries([["__proto__", "replacement-value"]]),
+    );
+    const replacement = await store.getAll(scriptProperties);
+    expect(Object.keys(replacement)).toStrictEqual(["__proto__"]);
+    expect(Object.getOwnPropertyDescriptor(replacement, "__proto__")?.value).toBe(
+      "replacement-value",
+    );
+    await expect(store.clone().get(scriptProperties, "__proto__")).resolves.toBe(
+      "replacement-value",
+    );
+  });
+
   test("clone all namespaces without sharing mutations", async () => {
     const store = new InMemoryPropertiesStore();
     const documentProperties: PropertiesNamespace = {
