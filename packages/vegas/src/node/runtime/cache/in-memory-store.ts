@@ -73,17 +73,18 @@ export class InMemoryCacheStore implements CacheStore {
     keys: readonly string[],
   ): Promise<Record<string, string>> {
     const nowMs = this.#now();
-    const values: Record<string, string> = {};
+    const entries: [string, string][] = [];
 
     for (const key of keys) {
       const value = this.#getUnexpiredValue(namespace, key, nowMs);
 
       if (value !== undefined) {
-        values[key] = value;
+        entries.push([key, value]);
       }
     }
 
-    return values;
+    // Preserve keys such as "__proto__" as own data properties.
+    return Object.fromEntries(entries);
   }
 
   async put(

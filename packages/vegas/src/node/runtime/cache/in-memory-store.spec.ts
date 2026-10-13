@@ -97,6 +97,30 @@ describe("InMemoryCacheStore values", () => {
     );
   });
 
+  test("return special JavaScript property names as own cache entries", async () => {
+    const store = new InMemoryCacheStore(() => 1_000);
+    await store.put(SCRIPT_CACHE, "__proto__", "prototype", 10_000);
+    await store.put(SCRIPT_CACHE, "constructor", "constructor-value", 10_000);
+    await store.put(SCRIPT_CACHE, "toString", "method-value", 10_000);
+
+    const values = await store.getAll(SCRIPT_CACHE, [
+      "__proto__",
+      "constructor",
+      "toString",
+      "missing",
+    ]);
+
+    expect(values).toStrictEqual(
+      Object.fromEntries([
+        ["__proto__", "prototype"],
+        ["constructor", "constructor-value"],
+        ["toString", "method-value"],
+      ]),
+    );
+    expect(Object.getPrototypeOf(values)).toBe(Object.prototype);
+    expect(Object.getOwnPropertyDescriptor(values, "__proto__")?.value).toBe("prototype");
+  });
+
   test("expire cache entries at their absolute expiration boundary", async () => {
     let nowMs = 1_000;
     const store = new InMemoryCacheStore(() => nowMs);
