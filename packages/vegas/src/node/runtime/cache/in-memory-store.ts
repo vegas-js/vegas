@@ -83,7 +83,9 @@ export class InMemoryCacheStore implements CacheStore {
       }
     }
 
-    // Preserve keys such as "__proto__" as own data properties.
+    // Vegas local emulation: the Apps Script Cache.getAll() reference does not
+    // define behavior for special JavaScript keys such as "__proto__". Keep
+    // these keys as own data properties; Google runtime parity is unverified.
     return Object.fromEntries(entries);
   }
 
