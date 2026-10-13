@@ -155,6 +155,26 @@ describe("InMemoryLockStore", () => {
     }
   });
 
+  test("reject invalid lock wait durations without changing lock ownership", async () => {
+    const store = new InMemoryLockStore();
+    const owner = store.createSession();
+    const contender = store.createSession();
+
+    await expect(owner.acquire(SCRIPT_LOCK, 0)).resolves.toBe(true);
+
+    for (const timeout of [NaN, Infinity, -Infinity, -1, 0.5, Number.MAX_SAFE_INTEGER + 1]) {
+      await expect(contender.acquire(SCRIPT_LOCK, timeout)).rejects.toThrow(
+        "Lock timeout must be a non-negative safe integer.",
+      );
+      await expect(owner.has(SCRIPT_LOCK)).resolves.toBe(true);
+      await expect(contender.has(SCRIPT_LOCK)).resolves.toBe(false);
+    }
+
+    await owner.release(SCRIPT_LOCK);
+    await expect(contender.acquire(SCRIPT_LOCK, Infinity)).rejects.toThrow(RangeError);
+    await expect(contender.acquire(SCRIPT_LOCK, 0)).resolves.toBe(true);
+  });
+
   test("release every lock owned by one invocation session", async () => {
     const store = new InMemoryLockStore();
     const first = store.createSession();

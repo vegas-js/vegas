@@ -60,6 +60,12 @@ export class InMemoryLockStore implements LockStore {
   }
 
   #acquire(sessionId: number, namespace: LockNamespace, timeoutInMillis: number): Promise<boolean> {
+    // Vegas local emulation rejects non-integer or unsafe delays instead of
+    // passing them to Node.js timers, which would truncate or clamp them.
+    if (!Number.isSafeInteger(timeoutInMillis) || timeoutInMillis < 0) {
+      return Promise.reject(new RangeError("Lock timeout must be a non-negative safe integer."));
+    }
+
     const key = createNamespaceKey(namespace);
     const state = this.#getOrCreateState(key);
 
