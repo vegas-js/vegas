@@ -380,6 +380,56 @@ describe("NodeUrlFetchCapability", () => {
     expect(send).toHaveBeenCalledOnce();
   });
 
+  test("enforce the local 8 KB size limit for normalized request headers", async () => {
+    const send = vi.fn(async () => new Response(null));
+    const capability = new NodeUrlFetchCapability(send);
+    const name = "x-size";
+    // The local accounting includes the colon, space, and CRLF for each header.
+    const maximumValue = "x".repeat(8 * 1024 - name.length - 4);
+    const headers = { [name]: maximumValue };
+
+    await expect(
+      capability.fetch({ url: "https://example.com/within-limit", headers }),
+    ).resolves.toMatchObject({ statusCode: 200 });
+    expect(send).toHaveBeenCalledOnce();
+
+    const tooLarge = { [name]: `${maximumValue}x` };
+    await expect(
+      capability.fetch({ url: "https://example.com/too-large", headers: tooLarge }),
+    ).rejects.toThrow("UrlFetch request headers exceed the local 8 KB size limit.");
+    await expect(
+      capability.fetchAll([
+        { url: "https://example.com/valid" },
+        { url: "https://example.com/too-large", headers: tooLarge },
+      ]),
+    ).rejects.toThrow(RangeError);
+
+    // Multiple smaller headers and multibyte values count toward the byte limit.
+    await expect(
+      capability.fetch({
+        url: "https://example.com/combined",
+        headers: { "x-first": "a".repeat(4_100), "x-second": "b".repeat(4_100) },
+      }),
+    ).rejects.toThrow(RangeError);
+    await expect(
+      capability.fetch({
+        url: "https://example.com/utf8",
+        headers: { [name]: "é".repeat(8 * 1024 - name.length - 4) },
+      }),
+    ).rejects.toThrow(RangeError);
+
+    // Automatically inserted Content-Type is also included before preflight ends.
+    await expect(
+      capability.fetch({
+        url: "https://example.com/auto-type",
+        method: "post",
+        headers,
+        payload: { kind: "text", value: "hello" },
+      }),
+    ).rejects.toThrow(RangeError);
+    expect(send).toHaveBeenCalledOnce();
+  });
+
   test("encode string form payloads as application/x-www-form-urlencoded", async () => {
     const calls: RequestInit[] = [];
     const capability = new NodeUrlFetchCapability(async (_url, init) => {

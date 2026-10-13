@@ -20,6 +20,9 @@ const MAX_SAFE_TIMEOUT_SECONDS = Math.floor(Number.MAX_SAFE_INTEGER / 1_000);
 const MAX_URL_FETCH_RESPONSE_BYTES = 50 * 1024 * 1024;
 // Google documents a maximum of 100 request headers per URL Fetch call.
 const MAX_URL_FETCH_REQUEST_HEADERS = 100;
+// Vegas interprets the documented 8 KB header quota as 8 KiB of serialized
+// UTF-8 header lines. Google does not document the precise byte accounting.
+const MAX_URL_FETCH_REQUEST_HEADER_BYTES = 8 * 1024;
 
 function toSignedByte(value: number): number {
   return value > 0x7f ? value - 0x100 : value;
@@ -189,12 +192,18 @@ function createRequestInit(request: UrlFetchRequestValue): RequestInit {
   // Vegas counts normalized header names that it constructs before dispatch.
   // Native fetch may add transport headers; Google's counting rules are not documented.
   let headerCount = 0;
-  headers.forEach(() => {
+  let headerBytes = 0;
+  headers.forEach((value, name) => {
     headerCount += 1;
+    // Count `name: value\r\n` after Headers has normalized names and values.
+    headerBytes += Buffer.byteLength(name, "utf8") + Buffer.byteLength(value, "utf8") + 4;
   });
 
   if (headerCount > MAX_URL_FETCH_REQUEST_HEADERS) {
     throw new RangeError("UrlFetch request must not exceed 100 headers.");
+  }
+  if (headerBytes > MAX_URL_FETCH_REQUEST_HEADER_BYTES) {
+    throw new RangeError("UrlFetch request headers exceed the local 8 KB size limit.");
   }
 
   return {
