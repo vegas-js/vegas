@@ -13,7 +13,7 @@ import { RuntimeInfrastructureError } from "../runtime-infrastructure-error";
 import type { SpreadsheetStore } from "../spreadsheet/store";
 import type { SpreadsheetUrlCapability } from "../spreadsheet/url-capability";
 import {
-  isAppsScriptWorkerResponse,
+  parseAppsScriptWorkerResponse,
   restoreAppsScriptWorkerError,
   type AppsScriptWorkerRequest,
 } from "./apps-script-worker-protocol";
@@ -142,7 +142,8 @@ export function runAppsScriptWorkerSession(
         return;
       }
 
-      if (!isAppsScriptWorkerResponse(data)) {
+      const response = parseAppsScriptWorkerResponse(data);
+      if (response === undefined) {
         // A fatal protocol violation leaves the worker without a usable channel.
         terminate(
           new RuntimeInfrastructureError("protocol", "Unexpected Apps Script worker message."),
@@ -150,14 +151,14 @@ export function runAppsScriptWorkerSession(
         return;
       }
 
-      if (data.ok) {
+      if (response.ok) {
         settle(() => {
-          resolve(data.value);
+          resolve(response.value);
         });
         return;
       }
 
-      fail(restoreAppsScriptWorkerError(data.error));
+      fail(restoreAppsScriptWorkerError(response.error));
     };
 
     gasWorker.on("error", (error) => {

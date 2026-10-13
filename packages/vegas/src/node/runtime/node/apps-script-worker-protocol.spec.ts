@@ -3,6 +3,7 @@ import { describe, expect, test, vi } from "vitest";
 import {
   isAppsScriptWorkerRequest,
   isAppsScriptWorkerResponse,
+  parseAppsScriptWorkerResponse,
   restoreAppsScriptWorkerError,
   serializeAppsScriptWorkerError,
 } from "./apps-script-worker-protocol";
@@ -133,6 +134,51 @@ describe("Apps Script worker protocol", () => {
     });
     expect(isAppsScriptWorkerResponse({ type: "result", ok: false, error })).toBe(false);
     expect(getter).not.toHaveBeenCalled();
+  });
+
+  test("snapshot result fields before reading them again", () => {
+    let okReads = 0;
+    const getter = vi.fn(() => {
+      throw new Error("unexpected direct property read");
+    });
+    const response = new Proxy(
+      { type: "result", ok: true, value: "first" },
+      {
+        get: getter,
+        getOwnPropertyDescriptor(target, key) {
+          if (key === "ok") {
+            okReads += 1;
+            return { configurable: true, enumerable: true, writable: true, value: okReads === 1 };
+          }
+          return Reflect.getOwnPropertyDescriptor(target, key);
+        },
+      },
+    );
+
+    expect(parseAppsScriptWorkerResponse(response)).toStrictEqual({
+      type: "result",
+      ok: true,
+      value: "first",
+    });
+    expect(okReads).toBe(1);
+    expect(getter).not.toHaveBeenCalled();
+  });
+
+  test("snapshot nested error metadata and reject revoked proxies", () => {
+    const error = {
+      name: "RuntimeInfrastructureError",
+      message: "failed",
+      infrastructureKind: "protocol",
+    };
+    const parsed = parseAppsScriptWorkerResponse({ type: "result", ok: false, error });
+    expect(parsed).toStrictEqual({ type: "result", ok: false, error });
+    error.message = "changed";
+    expect(parsed).toMatchObject({ error: { message: "failed" } });
+
+    const { proxy, revoke } = Proxy.revocable({ type: "result", ok: true, value: 1 }, {});
+    revoke();
+    expect(parseAppsScriptWorkerResponse(proxy)).toBeUndefined();
+    expect(isAppsScriptWorkerResponse(proxy)).toBe(false);
   });
 
   test("serialize Error-like values across VM realms", () => {

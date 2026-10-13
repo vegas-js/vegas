@@ -213,6 +213,28 @@ describe("runAppsScriptWorkerSession", () => {
     expect(gasWorker.terminateCount).toBe(1);
   });
 
+  test("consume worker result descriptors without direct property reads", async () => {
+    const gasWorker = new TestWorker();
+    const port = new TestPort();
+    const result = runAppsScriptWorkerSession(
+      gasWorker,
+      port,
+      new Int32Array(new SharedArrayBuffer(4)),
+      createDispatcher(),
+      invocation,
+    );
+    const getter = vi.fn(() => {
+      throw new Error("unexpected worker response getter");
+    });
+    const response = new Proxy({ type: "result", ok: true, value: "safe" }, { get: getter });
+    port.receive(response);
+
+    await expect(result).resolves.toBe("safe");
+    expect(getter).not.toHaveBeenCalled();
+    expect(gasWorker.terminateCount).toBe(0);
+    expect(port.closeCount).toBe(1);
+  });
+
   test("terminate a worker when a host response cannot be delivered", async () => {
     const gasWorker = new TestWorker();
     const port = new TestPort();

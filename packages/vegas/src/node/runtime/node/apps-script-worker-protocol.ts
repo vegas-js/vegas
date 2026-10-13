@@ -52,23 +52,72 @@ export function isAppsScriptWorkerRequest(value: unknown): value is AppsScriptWo
   return parseAppsScriptWorkerRequest(value) !== undefined;
 }
 
+/** Snapshot the result envelope and error before the host consumes either. */
+export function parseAppsScriptWorkerResponse(
+  value: unknown,
+): AppsScriptWorkerResponse | undefined {
+  if (!isRecord(value)) {
+    return undefined;
+  }
+
+  try {
+    const type = getOwnDataValue(value, "type");
+    const ok = getOwnDataValue(value, "ok");
+    if (type !== "result" || typeof ok !== "boolean") {
+      return undefined;
+    }
+
+    if (ok) {
+      // An undefined result is valid, but it must be an explicit data field.
+      const result = Object.getOwnPropertyDescriptor(value, "value");
+      return result !== undefined && "value" in result
+        ? { type: "result", ok: true, value: result.value }
+        : undefined;
+    }
+
+    const error = snapshotAppsScriptWorkerError(getOwnDataValue(value, "error"));
+    return error === undefined ? undefined : { type: "result", ok: false, error };
+  } catch {
+    // Reject revoked proxies and throwing reflection traps as protocol errors.
+    return undefined;
+  }
+}
+
 export function isAppsScriptWorkerResponse(value: unknown): value is AppsScriptWorkerResponse {
-  if (
-    !isRecord(value) ||
-    getOwnDataValue(value, "type") !== "result" ||
-    typeof getOwnDataValue(value, "ok") !== "boolean"
-  ) {
-    return false;
+  return parseAppsScriptWorkerResponse(value) !== undefined;
+}
+
+function snapshotAppsScriptWorkerError(value: unknown): RuntimeErrorSnapshot | undefined {
+  if (!isRuntimeErrorSnapshot(value)) {
+    return undefined;
   }
 
-  if (getOwnDataValue(value, "ok") === true) {
-    // An undefined result is valid, but it must be an explicit data field.
-    const result = Object.getOwnPropertyDescriptor(value, "value");
-    return result !== undefined && "value" in result;
+  const name = getOwnDataValue(value, "name");
+  const message = getOwnDataValue(value, "message");
+  const stack = getOwnDataValue(value, "stack");
+  const infrastructureKind = getOwnDataValue(value, "infrastructureKind");
+  const unsupported = getOwnDataValue(value, "unsupportedOperation");
+  let unsupportedOperation: unknown;
+  if (unsupported !== undefined) {
+    if (!isRecord(unsupported)) {
+      return undefined;
+    }
+    unsupportedOperation = {
+      operation: getOwnDataValue(unsupported, "operation"),
+      reason: getOwnDataValue(unsupported, "reason"),
+    };
   }
 
-  const error = Object.getOwnPropertyDescriptor(value, "error");
-  return error !== undefined && "value" in error && isRuntimeErrorSnapshot(error.value);
+  // A Proxy may change descriptors between validation and copying. Revalidate
+  // the independent snapshot so the restorer never observes untrusted getters.
+  const snapshot = {
+    name,
+    message,
+    ...(stack !== undefined ? { stack } : {}),
+    ...(infrastructureKind !== undefined ? { infrastructureKind } : {}),
+    ...(unsupportedOperation !== undefined ? { unsupportedOperation } : {}),
+  };
+  return isRuntimeErrorSnapshot(snapshot) ? snapshot : undefined;
 }
 
 export function serializeAppsScriptWorkerError(error: unknown): AppsScriptWorkerError {
@@ -83,7 +132,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
 }
 
-function getOwnDataValue(record: Record<string, unknown>, key: string): unknown {
+function getOwnDataValue(record: object, key: string): unknown {
   const descriptor = Object.getOwnPropertyDescriptor(record, key);
   return descriptor && "value" in descriptor ? descriptor.value : undefined;
 }
