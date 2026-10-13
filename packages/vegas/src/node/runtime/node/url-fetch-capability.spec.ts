@@ -334,6 +334,28 @@ describe("NodeUrlFetchCapability", () => {
     ).rejects.toThrow("UrlFetch request failed with HTTP status 500.");
   });
 
+  test("cancel unread response bodies when an HTTP request fails", async () => {
+    const cancel = vi.fn();
+    const response = new Response(new ReadableStream<Uint8Array>({ cancel }), { status: 503 });
+    const capability = new NodeUrlFetchCapability(async () => response);
+
+    await expect(capability.fetch({ url: "https://example.com/unavailable" })).rejects.toThrow(
+      "UrlFetch request failed with HTTP status 503.",
+    );
+    expect(cancel).toHaveBeenCalledOnce();
+  });
+
+  test("preserve HTTP errors when cancelling response bodies fails", async () => {
+    const cancel = vi.fn(() => Promise.reject(new Error("body cancellation failed")));
+    const response = new Response(new ReadableStream<Uint8Array>({ cancel }), { status: 502 });
+    const capability = new NodeUrlFetchCapability(async () => response);
+
+    await expect(capability.fetch({ url: "https://example.com/unavailable" })).rejects.toThrow(
+      "UrlFetch request failed with HTTP status 502.",
+    );
+    expect(cancel).toHaveBeenCalledOnce();
+  });
+
   test("preserve fetchAll result order", async () => {
     const capability = new NodeUrlFetchCapability(async (url) => {
       const suffix = url.endsWith("/a") ? "A" : "B";

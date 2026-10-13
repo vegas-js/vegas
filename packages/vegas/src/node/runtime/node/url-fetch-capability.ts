@@ -224,6 +224,9 @@ export class NodeUrlFetchCapability implements UrlFetchCapability {
       });
 
       if (response.status >= 400 && request.muteHttpExceptions !== true) {
+        // The error response is not consumed. Cancel its body to release the
+        // underlying connection without replacing the original HTTP error.
+        void response.body?.cancel().catch(() => undefined);
         throw new Error(`UrlFetch request failed with HTTP status ${response.status}.`);
       }
 
