@@ -110,8 +110,12 @@ export function runAppsScriptWorkerSession(
       port.close();
 
       // Report a timeout or cancellation without waiting for worker shutdown.
-      // Keep the original failure even if termination itself rejects.
-      void gasWorker.terminate().catch(() => undefined);
+      // Keep the original failure if termination rejects or throws synchronously.
+      try {
+        void gasWorker.terminate().catch(() => undefined);
+      } catch {
+        // Termination itself failed; the original error remains authoritative.
+      }
       reject(error);
     };
 

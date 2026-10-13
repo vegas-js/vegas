@@ -380,6 +380,30 @@ describe("runAppsScriptWorkerSession", () => {
     await expect(result).rejects.not.toBeInstanceOf(RuntimeInfrastructureError);
   });
 
+  test("preserve cancellation when worker termination throws synchronously", async () => {
+    const gasWorker = new TestWorker();
+    const port = new TestPort();
+    const controller = new AbortController();
+    const terminate = vi.spyOn(gasWorker, "terminate").mockImplementation(() => {
+      throw new Error("termination threw");
+    });
+    const result = runAppsScriptWorkerSession(
+      gasWorker,
+      port,
+      new Int32Array(new SharedArrayBuffer(4)),
+      createDispatcher(),
+      invocation,
+      { signal: controller.signal },
+    );
+    const reason = new Error("execution cancelled");
+
+    controller.abort(reason);
+
+    await expect(result).rejects.toBe(reason);
+    expect(terminate).toHaveBeenCalledOnce();
+    expect(port.closeCount).toBe(1);
+  });
+
   test("reject cancellation even when worker termination never settles", async () => {
     const gasWorker = new TestWorker();
     const port = new TestPort();
