@@ -14,12 +14,16 @@ import type { DriveFileReference, DriveFolderReference } from "./reference";
 import { MIME_TYPE, type BlobValue } from "./runtime-boundary";
 import type { DriveFileMetadata, DriveNamespace, DriveShortcutTarget, DriveStore } from "./store";
 
+// Vegas local emulation: resource IDs must not alias unrelated files or folders
+// when a virtual Drive store is recreated. This does not model Google Drive's
+// undocumented resource ID format.
+function createLocalDriveResourceId(kind: "root" | "file" | "folder"): string {
+  return `drive-${kind}:${crypto.randomUUID()}`;
+}
+
 export class InMemoryDriveStore implements DriveStore {
   readonly #drives = new Map<string, DriveState>();
   readonly #now: () => number;
-  #nextRootId = 0;
-  #nextFileId = 0;
-  #nextFolderId = 0;
 
   constructor(now: () => number = Date.now) {
     this.#now = now;
@@ -34,11 +38,10 @@ export class InMemoryDriveStore implements DriveStore {
     const parentState = this.#getFolderState(drive, parent.id, parent.resourceKey);
     const now = this.#now();
 
-    this.#nextFileId += 1;
     const reference: DriveFileReference = {
       service: "drive",
       kind: "file",
-      id: `drive-file:${this.#nextFileId}`,
+      id: createLocalDriveResourceId("file"),
     };
     drive.files.set(reference.id, {
       reference,
@@ -78,11 +81,10 @@ export class InMemoryDriveStore implements DriveStore {
         : [this.#getFolderState(drive, destination.id, destination.resourceKey).reference.id];
     const now = this.#now();
 
-    this.#nextFileId += 1;
     const reference: DriveFileReference = {
       service: "drive",
       kind: "file",
-      id: `drive-file:${this.#nextFileId}`,
+      id: createLocalDriveResourceId("file"),
     };
 
     // Google Drive copy uses patch semantics. Vegas mirrors that for state modeled by the
@@ -120,11 +122,10 @@ export class InMemoryDriveStore implements DriveStore {
     const parentState = this.#getFolderState(drive, parent.id, parent.resourceKey);
     const now = this.#now();
 
-    this.#nextFolderId += 1;
     const reference: DriveFolderReference = {
       service: "drive",
       kind: "folder",
-      id: `drive-folder:${this.#nextFolderId}`,
+      id: createLocalDriveResourceId("folder"),
     };
     drive.folders.set(reference.id, {
       reference,
@@ -153,11 +154,10 @@ export class InMemoryDriveStore implements DriveStore {
     const { name, target } = this.#resolveShortcutTarget(drive, targetId, targetResourceKey);
     const now = this.#now();
 
-    this.#nextFileId += 1;
     const reference: DriveFileReference = {
       service: "drive",
       kind: "file",
-      id: `drive-file:${this.#nextFileId}`,
+      id: createLocalDriveResourceId("file"),
     };
     drive.files.set(reference.id, {
       reference,
@@ -687,8 +687,7 @@ export class InMemoryDriveStore implements DriveStore {
       return existing;
     }
 
-    this.#nextRootId += 1;
-    const created = createDriveState(`drive-root:${this.#nextRootId}`, this.#now());
+    const created = createDriveState(createLocalDriveResourceId("root"), this.#now());
     this.#drives.set(namespaceKey, created);
     return created;
   }
