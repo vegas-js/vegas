@@ -43,6 +43,31 @@ describe("NodeUrlFetchCapability", () => {
     expect(headers.get("accept")).toBe("application/octet-stream");
   });
 
+  test("serialize streamed response chunks and empty response bodies", async () => {
+    const capability = new NodeUrlFetchCapability(async (url) => {
+      if (url.endsWith("/empty")) {
+        return new Response(null);
+      }
+
+      return new Response(
+        new ReadableStream<Uint8Array>({
+          start(controller) {
+            controller.enqueue(Uint8Array.from([0, 127]));
+            controller.enqueue(Uint8Array.from([128, 255]));
+            controller.close();
+          },
+        }),
+      );
+    });
+
+    await expect(capability.fetch({ url: "https://example.com/chunks" })).resolves.toMatchObject({
+      content: [0, 127, -128, -1],
+    });
+    await expect(capability.fetch({ url: "https://example.com/empty" })).resolves.toMatchObject({
+      content: [],
+    });
+  });
+
   test("preserve special JavaScript property names in response headers", async () => {
     const headers = new Headers([
       ["__proto__", "prototype-header"],
@@ -487,15 +512,38 @@ describe("NodeUrlFetchCapability", () => {
     expect(cancel).toHaveBeenCalledOnce();
   });
 
+  test("cancel response bodies when an invocation aborts during reading", async () => {
+    const cancel = vi.fn();
+    const response = new Response(
+      new ReadableStream<Uint8Array>({
+        pull: () => new Promise<void>(() => undefined),
+        cancel,
+      }),
+    );
+    const capability = new NodeUrlFetchCapability(async () => response);
+    const controller = new AbortController();
+    const reason = new Error("invocation cancelled during response reading");
+    const pending = capability.fetch({ url: "https://example.com/slow-body" }, controller.signal);
+
+    await new Promise<void>((resolve) => setImmediate(resolve));
+    expect(response.body?.locked).toBe(true);
+
+    controller.abort(reason);
+    await expect(pending).rejects.toBe(reason);
+    expect(cancel).toHaveBeenCalledOnce();
+  });
+
   test("enforce timeouts while a custom response body remains unreadable", async () => {
     vi.useFakeTimers();
 
     try {
+      const cancel = vi.fn();
       const capability = new NodeUrlFetchCapability(
         async () =>
           new Response(
             new ReadableStream<Uint8Array>({
               pull: () => new Promise<void>(() => undefined),
+              cancel,
             }),
           ),
       );
@@ -508,6 +556,7 @@ describe("NodeUrlFetchCapability", () => {
 
       await vi.advanceTimersByTimeAsync(1_000);
       await rejection;
+      expect(cancel).toHaveBeenCalledOnce();
       expect(vi.getTimerCount()).toBe(0);
     } finally {
       vi.useRealTimers();

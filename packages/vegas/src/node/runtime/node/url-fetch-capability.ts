@@ -195,13 +195,52 @@ function readHeaders(headers: Headers): Record<string, UrlFetchResponseHeaderVal
   return values;
 }
 
-async function serializeResponse(response: Response): Promise<UrlFetchResponseValue> {
-  const content = new Uint8Array(await response.arrayBuffer());
+async function readResponseContent(response: Response, signal: AbortSignal): Promise<number[]> {
+  if (response.body === null) {
+    return [];
+  }
 
+  const reader = response.body.getReader();
+  // Vegas local emulation: a response body can ignore the request AbortSignal.
+  // Cancel through its reader while it owns the stream lock.
+  const cancel = (): void => {
+    void reader.cancel(signal.reason).catch(() => undefined);
+  };
+  signal.addEventListener("abort", cancel, { once: true });
+
+  try {
+    if (signal.aborted) {
+      cancel();
+    }
+    signal.throwIfAborted();
+
+    const content: number[] = [];
+    while (true) {
+      const { done, value } = await reader.read();
+      signal.throwIfAborted();
+
+      if (done) {
+        return content;
+      }
+
+      for (const byte of value) {
+        content.push(toSignedByte(byte));
+      }
+    }
+  } finally {
+    signal.removeEventListener("abort", cancel);
+    reader.releaseLock();
+  }
+}
+
+async function serializeResponse(
+  response: Response,
+  signal: AbortSignal,
+): Promise<UrlFetchResponseValue> {
   return {
     statusCode: response.status,
     headers: readHeaders(response.headers),
-    content: Array.from(content, toSignedByte),
+    content: await readResponseContent(response, signal),
   };
 }
 
@@ -295,7 +334,7 @@ export class NodeUrlFetchCapability implements UrlFetchCapability {
           throw new Error(`UrlFetch request failed with HTTP status ${response.status}.`);
         }
 
-        return await serializeResponse(response);
+        return await serializeResponse(response, requestSignal);
       });
     } finally {
       timeout.dispose();
