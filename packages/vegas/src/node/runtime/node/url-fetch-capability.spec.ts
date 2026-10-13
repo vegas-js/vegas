@@ -439,6 +439,83 @@ describe("NodeUrlFetchCapability", () => {
     expect(send).not.toHaveBeenCalled();
   });
 
+  test("enforce timeouts when a custom fetch ignores AbortSignal", async () => {
+    vi.useFakeTimers();
+
+    try {
+      let requestSignal: AbortSignal | undefined;
+      const capability = new NodeUrlFetchCapability(async (_url, init) => {
+        requestSignal = init.signal ?? undefined;
+        // This transport never settles, even after its signal is aborted.
+        return new Promise<Response>(() => undefined);
+      });
+
+      const pending = capability.fetch({ url: "https://example.com/stuck", timeoutSeconds: 1 });
+      const rejection = expect(pending).rejects.toMatchObject({ name: "TimeoutError" });
+
+      await vi.advanceTimersByTimeAsync(1_000);
+      await rejection;
+      expect(requestSignal?.aborted).toBe(true);
+      expect(vi.getTimerCount()).toBe(0);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  test("enforce timeouts while a custom response body remains unreadable", async () => {
+    vi.useFakeTimers();
+
+    try {
+      const capability = new NodeUrlFetchCapability(
+        async () =>
+          new Response(
+            new ReadableStream<Uint8Array>({
+              pull: () => new Promise<void>(() => undefined),
+            }),
+          ),
+      );
+
+      const pending = capability.fetch({
+        url: "https://example.com/stuck-body",
+        timeoutSeconds: 1,
+      });
+      const rejection = expect(pending).rejects.toMatchObject({ name: "TimeoutError" });
+
+      await vi.advanceTimersByTimeAsync(1_000);
+      await rejection;
+      expect(vi.getTimerCount()).toBe(0);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  test("finish fetchAll after a non-cooperative sibling times out", async () => {
+    vi.useFakeTimers();
+
+    try {
+      const error = new Error("first request failed");
+      const dispatch = vi.fn(async (url: string) => {
+        if (url.endsWith("/failure")) {
+          throw error;
+        }
+        return new Promise<Response>(() => undefined);
+      });
+      const capability = new NodeUrlFetchCapability(dispatch);
+      const pending = capability.fetchAll([
+        { url: "https://example.com/failure" },
+        { url: "https://example.com/slow", timeoutSeconds: 1 },
+      ]);
+      const rejection = expect(pending).rejects.toBe(error);
+
+      await vi.advanceTimersByTimeAsync(1_000);
+      await rejection;
+      expect(dispatch).toHaveBeenCalledTimes(2);
+      expect(vi.getTimerCount()).toBe(0);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   test("preserve fetchAll result order", async () => {
     const capability = new NodeUrlFetchCapability(async (url) => {
       const suffix = url.endsWith("/a") ? "A" : "B";

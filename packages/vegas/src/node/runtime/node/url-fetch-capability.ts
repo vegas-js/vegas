@@ -212,6 +212,24 @@ export class NodeUrlFetchCapability implements UrlFetchCapability {
     this.#fetch = fetchFunction;
   }
 
+  async #raceAbort<T>(signal: AbortSignal, operation: () => Promise<T>): Promise<T> {
+    signal.throwIfAborted();
+
+    let onAbort: (() => void) | undefined;
+    const aborted = new Promise<never>((_, reject) => {
+      onAbort = () => reject(signal.reason);
+      signal.addEventListener("abort", onAbort, { once: true });
+    });
+
+    try {
+      return await Promise.race([operation(), aborted]);
+    } finally {
+      if (onAbort !== undefined) {
+        signal.removeEventListener("abort", onAbort);
+      }
+    }
+  }
+
   async fetch(request: UrlFetchRequestValue, signal?: AbortSignal): Promise<UrlFetchResponseValue> {
     // A cancelled invocation must not start an HTTP operation, even when a
     // custom FetchFunction does not implement AbortSignal handling itself.
@@ -255,20 +273,25 @@ export class NodeUrlFetchCapability implements UrlFetchCapability {
     const timeout = createRequestTimeout(
       (request.timeoutSeconds ?? DEFAULT_TIMEOUT_SECONDS) * 1_000,
     );
+    const requestSignal =
+      signal === undefined ? timeout.signal : AbortSignal.any([signal, timeout.signal]);
+
     try {
-      const response = await this.#fetch(request.url, {
-        ...init,
-        signal: signal === undefined ? timeout.signal : AbortSignal.any([signal, timeout.signal]),
+      // A custom FetchFunction or response body may ignore AbortSignal.
+      // Bound the local result even then; non-cooperative underlying I/O may continue.
+      return await this.#raceAbort(requestSignal, async () => {
+        const response = await this.#fetch(request.url, { ...init, signal: requestSignal });
+        requestSignal.throwIfAborted();
+
+        if (response.status >= 400 && request.muteHttpExceptions !== true) {
+          // The error response is not consumed. Cancel its body to release the
+          // underlying connection without replacing the original HTTP error.
+          void response.body?.cancel().catch(() => undefined);
+          throw new Error(`UrlFetch request failed with HTTP status ${response.status}.`);
+        }
+
+        return await serializeResponse(response);
       });
-
-      if (response.status >= 400 && request.muteHttpExceptions !== true) {
-        // The error response is not consumed. Cancel its body to release the
-        // underlying connection without replacing the original HTTP error.
-        void response.body?.cancel().catch(() => undefined);
-        throw new Error(`UrlFetch request failed with HTTP status ${response.status}.`);
-      }
-
-      return await serializeResponse(response);
     } finally {
       timeout.dispose();
     }
