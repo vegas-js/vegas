@@ -454,11 +454,15 @@ export class InMemoryDriveStore implements DriveStore {
     folder: DriveFolderReference,
     trashed: boolean,
   ): Promise<void> {
-    const state = this.#getFolderState(
-      this.#getOrCreateDrive(namespace),
-      folder.id,
-      folder.resourceKey,
-    );
+    const drive = this.#getOrCreateDrive(namespace);
+    const state = this.#getFolderState(drive, folder.id, folder.resourceKey);
+
+    // Vegas local emulation: the virtual Drive root must remain available.
+    // The Apps Script Folder.setTrashed() reference does not specify root behavior.
+    if (trashed && state.reference.id === drive.root.reference.id) {
+      throw new Error("Cannot trash the local Drive root folder.");
+    }
+
     state.trashed = trashed;
     state.timestamps.lastUpdatedAtMillis = this.#now();
   }
