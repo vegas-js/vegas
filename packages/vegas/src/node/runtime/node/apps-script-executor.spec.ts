@@ -210,7 +210,43 @@ describe("runAppsScriptWorkerSession", () => {
       message: "Unexpected Apps Script worker message.",
     });
     expect(port.closeCount).toBe(1);
-    expect(gasWorker.terminateCount).toBe(0);
+    expect(gasWorker.terminateCount).toBe(1);
+  });
+
+  test("terminate a worker when a host response cannot be delivered", async () => {
+    const gasWorker = new TestWorker();
+    const port = new TestPort();
+    vi.spyOn(port, "postMessage").mockImplementation((value) => {
+      if (port.posted.length > 0) {
+        throw new Error("host response channel failed");
+      }
+      port.posted.push(value);
+    });
+
+    const result = runAppsScriptWorkerSession(
+      gasWorker,
+      port,
+      new Int32Array(new SharedArrayBuffer(4)),
+      createDispatcher(),
+      invocation,
+    );
+
+    port.receive({
+      id: 1,
+      call: {
+        service: "properties",
+        operation: "get",
+        namespace: "script",
+        key: "environment",
+      },
+    });
+
+    await expect(result).rejects.toMatchObject({
+      kind: "serialization",
+      message: "Host response 1 could not be serialized.",
+    });
+    expect(port.closeCount).toBe(1);
+    expect(gasWorker.terminateCount).toBe(1);
   });
 
   test("keep executed code errors outside the infrastructure error model", async () => {

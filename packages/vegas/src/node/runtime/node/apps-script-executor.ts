@@ -136,7 +136,10 @@ export function runAppsScriptWorkerSession(
       }
 
       if (!isAppsScriptWorkerResponse(data)) {
-        fail(new RuntimeInfrastructureError("protocol", "Unexpected Apps Script worker message."));
+        // A fatal protocol violation leaves the worker without a usable channel.
+        terminate(
+          new RuntimeInfrastructureError("protocol", "Unexpected Apps Script worker message."),
+        );
         return;
       }
 
@@ -176,8 +179,9 @@ export function runAppsScriptWorkerSession(
 
       pendingMessageCount += 1;
 
+      // A failed host response can leave the worker blocked in Atomics.wait().
       void handleMessage(data)
-        .catch(fail)
+        .catch(terminate)
         .finally(() => {
           pendingMessageCount -= 1;
           failExitedWorker();
