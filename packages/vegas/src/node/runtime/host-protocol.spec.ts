@@ -102,6 +102,63 @@ describe("isHostRequestEnvelope", () => {
     }
   });
 
+  test("snapshot call fields before the request can be mutated", () => {
+    const call = {
+      service: "properties",
+      operation: "get",
+      namespace: "script",
+      key: "environment",
+    };
+    const snapshot = parseHostRequestEnvelope({ id: 1, call });
+
+    expect(snapshot?.call).not.toBe(call);
+    call.service = "drive";
+    call.operation = "delete";
+    call.key = "changed";
+
+    expect(snapshot).toStrictEqual({
+      id: 1,
+      call: {
+        service: "properties",
+        operation: "get",
+        namespace: "script",
+        key: "environment",
+      },
+    });
+  });
+
+  test("does not read dynamic Proxy properties after validating the call", () => {
+    let serviceDescriptors = 0;
+    const call = new Proxy(
+      { service: "properties", operation: "get", key: "environment" },
+      {
+        get() {
+          throw new Error("unexpected property read");
+        },
+        getOwnPropertyDescriptor(target, property) {
+          if (property === "service") {
+            serviceDescriptors += 1;
+            return {
+              configurable: true,
+              enumerable: true,
+              writable: true,
+              value: serviceDescriptors === 1 ? "properties" : "drive",
+            };
+          }
+          return Reflect.getOwnPropertyDescriptor(target, property);
+        },
+      },
+    );
+
+    const snapshot = parseHostRequestEnvelope({ id: 1, call });
+    expect(snapshot?.call).toStrictEqual({
+      service: "properties",
+      operation: "get",
+      key: "environment",
+    });
+    expect(serviceDescriptors).toBeGreaterThan(1);
+  });
+
   test("reject revoked proxies and throwing descriptor traps", () => {
     const { proxy, revoke } = Proxy.revocable(
       { id: 1, call: { service: "properties", operation: "get" } },
