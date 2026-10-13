@@ -356,6 +356,37 @@ describe("NodeUrlFetchCapability", () => {
     expect(cancel).toHaveBeenCalledOnce();
   });
 
+  test("wait for in-flight fetchAll requests before reporting a sibling failure", async () => {
+    const error = new Error("first fetch failed");
+    let finishSecond: (response: Response) => void = () => {
+      throw new Error("Second fetch was not started.");
+    };
+    const capability = new NodeUrlFetchCapability(async (url) => {
+      if (url.endsWith("/failure")) {
+        throw error;
+      }
+
+      return new Promise<Response>((resolve) => {
+        finishSecond = resolve;
+      });
+    });
+    const settled = vi.fn();
+    const pending = capability.fetchAll([
+      { url: "https://example.com/failure" },
+      { url: "https://example.com/slow" },
+    ]);
+    void pending.then(settled, settled);
+
+    // The first fetch rejects immediately, but the batch must not finish
+    // while the second request is still active.
+    await new Promise<void>((resolve) => setImmediate(resolve));
+    expect(settled).not.toHaveBeenCalled();
+
+    finishSecond(new Response("ok"));
+    await expect(pending).rejects.toBe(error);
+    expect(settled).toHaveBeenCalledOnce();
+  });
+
   test("preserve fetchAll result order", async () => {
     const capability = new NodeUrlFetchCapability(async (url) => {
       const suffix = url.endsWith("/a") ? "A" : "B";

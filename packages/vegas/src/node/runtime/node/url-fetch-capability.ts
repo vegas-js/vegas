@@ -240,6 +240,16 @@ export class NodeUrlFetchCapability implements UrlFetchCapability {
     requests: readonly UrlFetchRequestValue[],
     signal?: AbortSignal,
   ): Promise<readonly UrlFetchResponseValue[]> {
-    return Promise.all(requests.map((request) => this.fetch(request, signal)));
+    const pending = requests.map((request) => this.fetch(request, signal));
+
+    try {
+      return await Promise.all(pending);
+    } catch (error) {
+      // Keep the first failure but allow every started request to settle before
+      // ending the invocation. Otherwise a sibling request can keep running
+      // after the worker has returned its failed fetchAll() result.
+      await Promise.allSettled(pending);
+      throw error;
+    }
   }
 }
