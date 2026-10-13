@@ -261,17 +261,25 @@ function runAppsScriptWorker(
   const sharedBuffer = new SharedArrayBuffer(4);
   const sharedArray = new Int32Array(sharedBuffer);
   const { port1, port2 } = new worker.MessageChannel();
-  const gasWorker = new worker.Worker(path.join(import.meta.dirname, "worker.js"), {
-    env: { ...process.env, FORCE_COLOR: "1" },
-    transferList: [port2],
-    workerData: {
-      program: request.program,
-      environment: request.environment,
-      context: request.context,
-      sharedArray,
-      port: port2,
-    },
-  });
+  let gasWorker: worker.Worker;
+  try {
+    gasWorker = new worker.Worker(path.join(import.meta.dirname, "worker.js"), {
+      env: { ...process.env, FORCE_COLOR: "1" },
+      transferList: [port2],
+      workerData: {
+        program: request.program,
+        environment: request.environment,
+        context: request.context,
+        sharedArray,
+        port: port2,
+      },
+    });
+  } catch (error) {
+    // The ports are ours until ownership of port2 is transferred to a worker.
+    port1.close();
+    port2.close();
+    throw error;
+  }
   const invocation: AppsScriptWorkerRequest = {
     type: "invoke",
     functionName: request.functionName,

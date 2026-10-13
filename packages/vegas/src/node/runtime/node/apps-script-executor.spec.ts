@@ -1,4 +1,5 @@
 import { EventEmitter } from "node:events";
+import worker from "node:worker_threads";
 
 import { afterEach, describe, expect, expectTypeOf, test, vi } from "vitest";
 
@@ -12,6 +13,7 @@ import {
   InMemorySpreadsheetStore,
   PropertiesHostHandler,
   RuntimeInfrastructureError,
+  type ExecutionRequest,
   type Executor,
 } from "../index";
 import {
@@ -540,6 +542,42 @@ describe("runAppsScriptWorkerSession", () => {
 });
 
 describe("createNodeAppsScriptExecutor", () => {
+  test("close both message ports when worker construction fails", async () => {
+    const close = vi.spyOn(worker.MessagePort.prototype, "close");
+    try {
+      const executor = createNodeAppsScriptExecutor({
+        cacheStore: new InMemoryCacheStore(),
+        driveIteratorStore: new InMemoryDriveIteratorStore(),
+        driveStore: new InMemoryDriveStore(),
+        lockStore: new InMemoryLockStore(),
+        propertiesStore: new InMemoryPropertiesStore(),
+        spreadsheetStore: new InMemorySpreadsheetStore(),
+      });
+      const request: ExecutionRequest = {
+        program: {
+          source: "function main() {}",
+          // A non-cloneable HTML entry exercises synchronous Worker construction failure.
+          htmlFiles: { invalid: (() => undefined) as unknown as string },
+        },
+        environment: {
+          activeUserEmail: "",
+          activeUserLocale: "en",
+          effectiveUserEmail: "",
+          scriptTimeZone: "UTC",
+          temporaryActiveUserKey: "",
+        },
+        scope: { scriptKey: "script", userKey: "user" },
+        functionName: "main",
+        args: [],
+      };
+
+      await expect(executor.execute(request)).rejects.toMatchObject({ name: "DataCloneError" });
+      expect(close).toHaveBeenCalledTimes(2);
+    } finally {
+      close.mockRestore();
+    }
+  });
+
   test("compose an Executor from named store dependencies", () => {
     const executor = createNodeAppsScriptExecutor({
       cacheStore: new InMemoryCacheStore(),
