@@ -18,6 +18,8 @@ const MAX_SAFE_TIMEOUT_SECONDS = Math.floor(Number.MAX_SAFE_INTEGER / 1_000);
 // Google limits URL Fetch responses to 50 MB per call. Vegas uses a 50 MiB
 // local byte limit because the documented quota does not specify the unit base.
 const MAX_URL_FETCH_RESPONSE_BYTES = 50 * 1024 * 1024;
+// Google documents a maximum of 100 request headers per URL Fetch call.
+const MAX_URL_FETCH_REQUEST_HEADERS = 100;
 
 function toSignedByte(value: number): number {
   return value > 0x7f ? value - 0x100 : value;
@@ -182,6 +184,17 @@ function createRequestInit(request: UrlFetchRequestValue): RequestInit {
     !headers.has("content-type")
   ) {
     headers.set("content-type", "application/x-www-form-urlencoded");
+  }
+
+  // Vegas counts normalized header names that it constructs before dispatch.
+  // Native fetch may add transport headers; Google's counting rules are not documented.
+  let headerCount = 0;
+  headers.forEach(() => {
+    headerCount += 1;
+  });
+
+  if (headerCount > MAX_URL_FETCH_REQUEST_HEADERS) {
+    throw new RangeError("UrlFetch request must not exceed 100 headers.");
   }
 
   return {

@@ -344,6 +344,42 @@ describe("NodeUrlFetchCapability", () => {
     ]);
   });
 
+  test("enforce the 100-header limit before dispatching UrlFetch requests", async () => {
+    const send = vi.fn(async () => new Response(null));
+    const capability = new NodeUrlFetchCapability(send);
+    const headers = Object.fromEntries(
+      Array.from({ length: 100 }, (_, index) => [`x-vegas-${index}`, "value"]),
+    );
+    const oversized = { ...headers, "x-vegas-extra": "value" };
+
+    await expect(
+      capability.fetch({ url: "https://example.com/headers", headers }),
+    ).resolves.toMatchObject({ statusCode: 200 });
+    expect(send).toHaveBeenCalledOnce();
+
+    await expect(
+      capability.fetch({ url: "https://example.com/too-many", headers: oversized }),
+    ).rejects.toThrow("UrlFetch request must not exceed 100 headers.");
+    await expect(
+      capability.fetchAll([
+        { url: "https://example.com/valid" },
+        { url: "https://example.com/too-many", headers: oversized },
+      ]),
+    ).rejects.toThrow(RangeError);
+    expect(send).toHaveBeenCalledOnce();
+
+    // The automatically added Content-Type also counts toward the local limit.
+    await expect(
+      capability.fetch({
+        url: "https://example.com/post",
+        method: "post",
+        headers,
+        payload: { kind: "text", value: "hello" },
+      }),
+    ).rejects.toThrow("UrlFetch request must not exceed 100 headers.");
+    expect(send).toHaveBeenCalledOnce();
+  });
+
   test("encode string form payloads as application/x-www-form-urlencoded", async () => {
     const calls: RequestInit[] = [];
     const capability = new NodeUrlFetchCapability(async (_url, init) => {
