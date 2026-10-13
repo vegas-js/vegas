@@ -1,6 +1,6 @@
 import { executeRuntimeFunction, RuntimeInfrastructureError } from "../runtime";
 import {
-  isAppsScriptWorkerRequest,
+  parseAppsScriptWorkerRequest,
   serializeAppsScriptWorkerError,
   type AppsScriptWorkerResponse,
 } from "../runtime/node/apps-script-worker-protocol";
@@ -25,7 +25,8 @@ export async function handleAppsScriptWorkerInvocation(
 ): Promise<void> {
   let response: AppsScriptWorkerResponse;
 
-  if (!isAppsScriptWorkerRequest(data)) {
+  const invocation = parseAppsScriptWorkerRequest(data);
+  if (invocation === undefined) {
     response = {
       type: "result",
       ok: false,
@@ -38,7 +39,11 @@ export async function handleAppsScriptWorkerInvocation(
       response = {
         type: "result",
         ok: true,
-        value: await executeRuntimeFunction(scriptContext, data.functionName, data.args),
+        value: await executeRuntimeFunction(
+          scriptContext,
+          invocation.functionName,
+          invocation.args,
+        ),
       };
     } catch (error) {
       response = {

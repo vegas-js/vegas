@@ -25,15 +25,31 @@ export type AppsScriptWorkerResponse =
       readonly error: AppsScriptWorkerError;
     };
 
+/** Validate and snapshot the worker request before executing user code. */
+export function parseAppsScriptWorkerRequest(value: unknown): AppsScriptWorkerRequest | undefined {
+  if (!isRecord(value)) {
+    return undefined;
+  }
+
+  try {
+    // Read each transport field once, without following prototypes or accessors.
+    const type = getOwnDataValue(value, "type");
+    const functionName = getOwnDataValue(value, "functionName");
+    const args = getOwnDataValue(value, "args");
+    if (type !== "invoke" || typeof functionName !== "string" || !Array.isArray(args)) {
+      return undefined;
+    }
+
+    // The worker boundary owns the cloned argument values; snapshot the envelope.
+    return { type: "invoke", functionName, args };
+  } catch {
+    // Revoked proxies and throwing reflection traps are invalid requests.
+    return undefined;
+  }
+}
+
 export function isAppsScriptWorkerRequest(value: unknown): value is AppsScriptWorkerRequest {
-  return (
-    isRecord(value) &&
-    // Messages must supply their own data fields. Do not invoke inherited
-    // members or getters while validating an unexpected worker payload.
-    getOwnDataValue(value, "type") === "invoke" &&
-    typeof getOwnDataValue(value, "functionName") === "string" &&
-    Array.isArray(getOwnDataValue(value, "args"))
-  );
+  return parseAppsScriptWorkerRequest(value) !== undefined;
 }
 
 export function isAppsScriptWorkerResponse(value: unknown): value is AppsScriptWorkerResponse {

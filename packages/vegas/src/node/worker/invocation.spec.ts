@@ -110,6 +110,53 @@ describe("handleAppsScriptWorkerInvocation", () => {
     expect(port.closeCount).toBe(1);
   });
 
+  test("uses validated request fields instead of rereading the original proxy", async () => {
+    const port = new TestPort();
+    const directRead = vi.fn(() => {
+      throw new Error("Unexpected request property access.");
+    });
+    const request = new Proxy(
+      { type: "invoke", functionName: "main", args: ["Vegas"] },
+      {
+        get(target, property, receiver) {
+          if (property === "functionName" || property === "args") {
+            return directRead();
+          }
+          return Reflect.get(target, property, receiver);
+        },
+      },
+    );
+
+    await handleAppsScriptWorkerInvocation(
+      port,
+      {
+        main(name: string) {
+          return `Hello ${name}`;
+        },
+      },
+      request,
+    );
+
+    expect(directRead).not.toHaveBeenCalled();
+    expect(port.messages).toStrictEqual([{ type: "result", ok: true, value: "Hello Vegas" }]);
+    expect(port.closeCount).toBe(1);
+  });
+
+  test("rejects a revoked request proxy and closes the response port", async () => {
+    const port = new TestPort();
+    const request = Proxy.revocable({ type: "invoke", functionName: "main", args: [] }, {});
+    request.revoke();
+
+    await handleAppsScriptWorkerInvocation(port, { main: () => "unsafe" }, request.proxy);
+
+    expect(port.messages[0]).toMatchObject({
+      type: "result",
+      ok: false,
+      error: { message: "Invalid Apps Script worker invocation request." },
+    });
+    expect(port.closeCount).toBe(1);
+  });
+
   test("post program initialization errors through the worker protocol", () => {
     const port = new TestPort();
 
