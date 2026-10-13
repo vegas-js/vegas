@@ -337,6 +337,57 @@ describe("runAppsScriptWorkerSession", () => {
     await expect(result).rejects.not.toBeInstanceOf(RuntimeInfrastructureError);
   });
 
+  test("reject cancellation even when worker termination never settles", async () => {
+    const gasWorker = new TestWorker();
+    const port = new TestPort();
+    const controller = new AbortController();
+    const terminate = vi
+      .spyOn(gasWorker, "terminate")
+      .mockImplementation(() => new Promise<number>(() => undefined));
+    const result = runAppsScriptWorkerSession(
+      gasWorker,
+      port,
+      new Int32Array(new SharedArrayBuffer(4)),
+      createDispatcher(),
+      invocation,
+      { signal: controller.signal },
+    );
+    const reason = new Error("execution cancelled");
+
+    controller.abort(reason);
+
+    await expect(result).rejects.toBe(reason);
+    expect(terminate).toHaveBeenCalledOnce();
+    expect(port.closeCount).toBe(1);
+  });
+
+  test("keep the timeout error when worker termination rejects", async () => {
+    vi.useFakeTimers();
+
+    const gasWorker = new TestWorker();
+    const port = new TestPort();
+    const terminate = vi
+      .spyOn(gasWorker, "terminate")
+      .mockRejectedValue(new Error("termination failed"));
+    const result = runAppsScriptWorkerSession(
+      gasWorker,
+      port,
+      new Int32Array(new SharedArrayBuffer(4)),
+      createDispatcher(),
+      invocation,
+      { executionTimeoutMs: 100 },
+    );
+    const rejection = expect(result).rejects.toMatchObject({
+      kind: "timeout",
+      message: "Apps Script execution timed out after 100 ms.",
+    });
+
+    await vi.advanceTimersByTimeAsync(100);
+    await rejection;
+    expect(terminate).toHaveBeenCalledOnce();
+    expect(port.closeCount).toBe(1);
+  });
+
   test("terminate an execution when its signal is aborted", async () => {
     const gasWorker = new TestWorker();
     const port = new TestPort();

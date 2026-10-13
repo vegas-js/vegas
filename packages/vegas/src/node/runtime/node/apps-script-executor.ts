@@ -109,14 +109,10 @@ export function runAppsScriptWorkerSession(
       clearExecutionLifecycle();
       port.close();
 
-      void gasWorker.terminate().then(
-        () => {
-          reject(error);
-        },
-        () => {
-          reject(error);
-        },
-      );
+      // Report a timeout or cancellation without waiting for worker shutdown.
+      // Keep the original failure even if termination itself rejects.
+      void gasWorker.terminate().catch(() => undefined);
+      reject(error);
     };
 
     const fail = (error: unknown): void => {
