@@ -6,15 +6,25 @@ import {
 import type { DriveIteratorSession, DriveIteratorStore } from "./iterator-store";
 import type { DriveNamespace } from "./store";
 
+// Google describes continuation tokens as generally valid for one week.
+// Vegas local emulation uses exactly seven days; Google expiry timing is not guaranteed.
+const LOCAL_CONTINUATION_TTL_MS = 7 * 24 * 60 * 60 * 1_000;
+
 type StoredContinuation = {
   readonly namespace: DriveNamespace;
   readonly state: DriveIteratorContinuationState;
+  readonly expiresAtMs: number;
 };
 
 export class InMemoryDriveIteratorStore implements DriveIteratorStore {
+  readonly #now: () => number;
   readonly #continuations = new Map<string, StoredContinuation>();
   #nextSessionId = 0;
   #nextTokenId = 0;
+
+  constructor(now: () => number = Date.now) {
+    this.#now = now;
+  }
 
   createSession(namespace: DriveNamespace): DriveIteratorSession {
     this.#nextSessionId += 1;
@@ -28,17 +38,21 @@ export class InMemoryDriveIteratorStore implements DriveIteratorStore {
   }
 
   #saveContinuation(namespace: DriveNamespace, state: DriveIteratorContinuationState): string {
+    const nowMs = this.#now();
+    this.#discardExpiredContinuations(nowMs);
     this.#nextTokenId += 1;
     const token = `drive-continuation:${this.#nextTokenId}`;
 
     this.#continuations.set(token, {
       namespace: { ...namespace },
       state: cloneDriveIteratorContinuationState(state),
+      expiresAtMs: nowMs + LOCAL_CONTINUATION_TTL_MS,
     });
     return token;
   }
 
   #loadContinuation(namespace: DriveNamespace, token: string): DriveIteratorContinuationState {
+    this.#discardExpiredContinuations(this.#now());
     const continuation = this.#continuations.get(token);
 
     if (!continuation) {
@@ -50,5 +64,13 @@ export class InMemoryDriveIteratorStore implements DriveIteratorStore {
     }
 
     return cloneDriveIteratorContinuationState(continuation.state);
+  }
+
+  #discardExpiredContinuations(nowMs: number): void {
+    for (const [token, continuation] of this.#continuations) {
+      if (continuation.expiresAtMs <= nowMs) {
+        this.#continuations.delete(token);
+      }
+    }
   }
 }
