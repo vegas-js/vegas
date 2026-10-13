@@ -61,11 +61,33 @@ export class UrlFetchApp {
     return {
       url,
       method: params.method ?? "get",
-      contentType: params.contentType ?? resolveDefaultContentType(params.payload),
+      contentType: resolvePreviewContentType(params),
       payload: params.payload === undefined ? undefined : clonePayload(params.payload),
       headers: params.headers === undefined ? {} : { ...params.headers },
     };
   }
+}
+
+function resolvePreviewContentType(params: UrlFetchRequestOptionsInput): string {
+  // Vegas local preview follows the Node transport's Content-Type precedence.
+  // Google does not document getRequest() precedence for headers and Blob MIME types.
+  const header = Object.entries(params.headers ?? {}).find(
+    ([name]) => name.toLowerCase() === "content-type",
+  );
+
+  if (header !== undefined) {
+    return header[1];
+  }
+
+  if (params.contentType !== undefined) {
+    return params.contentType;
+  }
+
+  if (params.payload instanceof RuntimeBlob) {
+    return params.payload.getContentType() ?? resolveDefaultContentType(params.payload);
+  }
+
+  return resolveDefaultContentType(params.payload);
 }
 
 function resolveDefaultContentType(payload: UrlFetchPayloadInput | undefined): string {

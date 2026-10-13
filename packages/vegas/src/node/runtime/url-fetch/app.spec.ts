@@ -192,6 +192,35 @@ describe("UrlFetchApp", () => {
     expect(bridge.calls).toStrictEqual([]);
   });
 
+  test("preview effective Content-Type from headers and Blob MIME type", () => {
+    const bridge = new RecordingHostBridge();
+    const urlFetch = createUrlFetchApp(bridge);
+    const url = "https://example.com/upload";
+    const blob = createBlob("Vegas", "text/plain", "vegas.txt");
+
+    // An explicit HTTP header takes precedence over the contentType option.
+    expect(
+      urlFetch.getRequest(url, {
+        method: "post",
+        contentType: "application/json",
+        headers: { "Content-Type": "application/custom" },
+      }).contentType,
+    ).toBe("application/custom");
+
+    // Without a header or option, the transport sends the Blob MIME type.
+    expect(urlFetch.getRequest(url, { method: "post", payload: blob }).contentType).toBe(
+      "text/plain",
+    );
+    expect(
+      urlFetch.getRequest(url, {
+        method: "post",
+        headers: { "cOnTeNt-TyPe": "application/override" },
+        payload: blob,
+      }).contentType,
+    ).toBe("application/override");
+    expect(bridge.calls).toStrictEqual([]);
+  });
+
   test("preserve explicit getRequest values without exposing mutable inputs", () => {
     const bridge = new RecordingHostBridge();
     const urlFetch = createUrlFetchApp(bridge);
