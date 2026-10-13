@@ -43,6 +43,29 @@ describe("NodeUrlFetchCapability", () => {
     expect(headers.get("accept")).toBe("application/octet-stream");
   });
 
+  test("preserve special JavaScript property names in response headers", async () => {
+    const headers = new Headers([
+      ["__proto__", "prototype-header"],
+      ["constructor", "constructor-header"],
+      ["toString", "method-header"],
+    ]);
+    const capability = new NodeUrlFetchCapability(async () => new Response(null, { headers }));
+
+    const response = await capability.fetch({ url: "https://example.com/headers" });
+
+    expect(response.headers).toStrictEqual(
+      Object.fromEntries([
+        ["__proto__", "prototype-header"],
+        ["constructor", "constructor-header"],
+        ["tostring", "method-header"],
+      ]),
+    );
+    expect(Object.getPrototypeOf(response.headers)).toBe(Object.prototype);
+    expect(Object.getOwnPropertyDescriptor(response.headers, "__proto__")?.value).toBe(
+      "prototype-header",
+    );
+  });
+
   test("abort an in-flight fetch when the invocation is cancelled", async () => {
     let requestSignal: AbortSignal | undefined;
     const capability = new NodeUrlFetchCapability(

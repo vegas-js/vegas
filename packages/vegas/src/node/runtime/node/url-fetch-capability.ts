@@ -174,11 +174,16 @@ function createRequestInit(request: UrlFetchRequestValue): RequestInit {
 }
 
 function readHeaders(headers: Headers): Record<string, UrlFetchResponseHeaderValue> {
-  const values: Record<string, UrlFetchResponseHeaderValue> = {};
+  const entries: [string, string][] = [];
 
   headers.forEach((value, name) => {
-    values[name] = value;
+    entries.push([name, value]);
   });
+
+  // Vegas local emulation: HTTPResponse.getAllHeaders() does not define how
+  // special JavaScript property names such as "__proto__" are represented.
+  // Preserve these names as own data properties; Google parity is unverified.
+  const values: Record<string, UrlFetchResponseHeaderValue> = Object.fromEntries(entries);
 
   const cookies = headers.getSetCookie();
   if (cookies.length > 1) {
