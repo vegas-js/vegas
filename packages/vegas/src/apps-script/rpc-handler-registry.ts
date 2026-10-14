@@ -5,6 +5,28 @@
  *
  * Recognize object literals from other realms, such as the Local Runtime VM.
  */
+// Weak keys preserve the registry's lifetime without changing the original
+// object. Capture both names and functions so a post-registration mutation
+// cannot publish an unreviewed handler through the RPC dispatcher.
+const registeredHandlers = new WeakMap<object, ReadonlyMap<string, unknown>>();
+
+export function rememberRpcHandlerRegistry(
+  handlers: object,
+  methods: ReadonlyMap<string, unknown>,
+): void {
+  registeredHandlers.set(handlers, new Map(methods));
+}
+
+/** Unregistered plain registries retain the dispatcher-only compatibility path. */
+export function isRegisteredRpcHandler(
+  handlers: object,
+  name: string,
+  candidate: unknown,
+): boolean {
+  const methods = registeredHandlers.get(handlers);
+  return methods === undefined || (methods.has(name) && methods.get(name) === candidate);
+}
+
 export function isPlainRpcHandlerRegistry(value: unknown): value is object {
   if (value === null || typeof value !== "object" || Array.isArray(value)) {
     return false;
