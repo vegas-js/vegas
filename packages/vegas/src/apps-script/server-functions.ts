@@ -27,7 +27,7 @@ export type ServerFunctionHandlers<Contract extends object> = {
  * Type-check the server implementation against a client-independent RPC contract.
  *
  * The returned object is unchanged. Export the registry as `rpc` to use
- * `createRpcClient`, or export its members for the legacy named-function bridge.
+ * `createRpcClient`. Other top-level named exports remain GAS global functions.
  */
 export function defineServerFunctions<Contract extends object>(
   handlers: ServerFunctionHandlers<Contract>,

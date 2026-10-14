@@ -72,6 +72,54 @@ async function buildServer(
 describe("registered RPC export forms", () => {
   test.each([
     [
+      "array destructuring",
+      'export const [rpc] = [{ greet(name: string) { return "Hello, " + name; } }];',
+    ],
+    [
+      "nested object destructuring",
+      'export const { outer: { rpc } } = { outer: { rpc: { greet(name: string) { return "Hello, " + name; } } } };',
+    ],
+    [
+      "defaulted binding",
+      'export const { rpc = { greet(name: string) { return "Hello, " + name; } } } = {};',
+    ],
+    [
+      "rest binding",
+      'export const { unused, ...rpc } = { unused: 1, greet(name: string) { return "Hello, " + name; } };',
+    ],
+  ] as const)("dispatches RPC through %s", async (_description, entry) => {
+    const code = await buildServer(entry);
+    const context = vm.createContext({});
+    new vm.Script(code).runInContext(context);
+
+    expect(vm.runInContext('vegasRpcCall("greet", "Vegas")', context)).toBe("Hello, Vegas");
+    expect(code).not.toContain("function rpc(...args)");
+  });
+
+  test("does not treat a destructured property key as an RPC binding", async () => {
+    const code = await buildServer(
+      'export const { rpc: handlers } = { rpc: { greet() { return "ok"; } } }; export function legacy() { return "legacy"; }',
+    );
+    const context = vm.createContext({});
+    new vm.Script(code).runInContext(context);
+
+    expect(vm.runInContext("legacy()", context)).toBe("legacy");
+    expect(code).not.toContain("function vegasRpcCall(");
+  });
+
+  test("rejects a nested binding of the reserved internal dispatcher name", async () => {
+    await expect(
+      buildServer(
+        `export const rpc = { greet() { return "ok"; } };
+         export const { nested: { __vegasInternalRpcDispatch } } = {
+           nested: { __vegasInternalRpcDispatch: () => "unsafe" },
+         };`,
+      ),
+    ).rejects.toThrow('Server export "__vegasInternalRpcDispatch" is reserved for Vegas RPC.');
+  });
+
+  test.each([
+    [
       "destructured declaration",
       'export const { rpc } = { rpc: { greet(name: string) { return "Hello, " + name; } } };',
       undefined,

@@ -18,6 +18,42 @@ function matchesExportName(
   );
 }
 
+/**
+ * Check the bindings introduced by an exported variable declaration, not its
+ * object property keys. Nested, defaulted, rest and array patterns can all
+ * introduce the public `rpc` binding.
+ */
+function bindsName(pattern: unknown, name: string): boolean {
+  if (pattern === null || typeof pattern !== "object" || !("type" in pattern)) {
+    return false;
+  }
+
+  switch (pattern.type) {
+    case "Identifier":
+      return "name" in pattern && pattern.name === name;
+    case "AssignmentPattern":
+      return "left" in pattern && bindsName(pattern.left, name);
+    case "RestElement":
+      return "argument" in pattern && bindsName(pattern.argument, name);
+    case "Property":
+      return "value" in pattern && bindsName(pattern.value, name);
+    case "ObjectPattern":
+      return (
+        "properties" in pattern &&
+        Array.isArray(pattern.properties) &&
+        pattern.properties.some((property: unknown) => bindsName(property, name))
+      );
+    case "ArrayPattern":
+      return (
+        "elements" in pattern &&
+        Array.isArray(pattern.elements) &&
+        pattern.elements.some((element: unknown) => bindsName(element, name))
+      );
+    default:
+      return false;
+  }
+}
+
 function hasRpcExport(source: string, filePath: string): boolean {
   const { program } = parseSync(filePath, source);
   return program.body.some((node) => {
@@ -37,17 +73,7 @@ function hasRpcExport(source: string, filePath: string): boolean {
     const declaration = node.declaration;
     return (
       (declaration?.type === "VariableDeclaration" &&
-        declaration.declarations.some(
-          (variable) =>
-            (variable.id.type === "Identifier" && variable.id.name === "rpc") ||
-            (variable.id.type === "ObjectPattern" &&
-              variable.id.properties.some(
-                (property) =>
-                  property.type === "Property" &&
-                  property.value.type === "Identifier" &&
-                  property.value.name === "rpc",
-              )),
-        )) ||
+        declaration.declarations.some((variable) => bindsName(variable.id, "rpc"))) ||
       node.specifiers.some(
         (specifier) =>
           specifier.exportKind !== "type" && matchesExportName(specifier.exported, "rpc"),
@@ -120,16 +146,8 @@ function hasExplicitInternalExport(source: string, filePath: string): boolean {
 
     const declaration = node.declaration;
     if (declaration?.type === "VariableDeclaration") {
-      return declaration.declarations.some(
-        (variable) =>
-          (variable.id.type === "Identifier" && variable.id.name === INTERNAL_RPC_DISPATCH) ||
-          (variable.id.type === "ObjectPattern" &&
-            variable.id.properties.some(
-              (property) =>
-                property.type === "Property" &&
-                property.value.type === "Identifier" &&
-                property.value.name === INTERNAL_RPC_DISPATCH,
-            )),
+      return declaration.declarations.some((variable) =>
+        bindsName(variable.id, INTERNAL_RPC_DISPATCH),
       );
     }
 
