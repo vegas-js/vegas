@@ -730,6 +730,8 @@ function smokeVegasPackage() {
         <html>
           <body>
             <p id="result">pending</p>
+            <p id="rpc-result">pending</p>
+            <p id="rpc-validation">pending</p>
             <button id="mutate" type="button">Mutate Runtime state</button>
             <script>
               const renderResult = (value) => {
@@ -757,14 +759,52 @@ function smokeVegasPackage() {
                 serverRun().setPrefix("Changed");
               });
             </script>
+            <script type="module" src="./rpc-smoke.ts"></script>
           </body>
         </html>
+      `,
+    );
+
+    // Exercise the actual packed @vegasjs/vegas/client implementation in the browser,
+    // not only the untyped google.script.run bridge used above.
+    fs.writeFileSync(
+      path.join(browserClientRoot, "rpc-smoke.ts"),
+      `
+        import { createRpcClient, type RpcClient } from "@vegasjs/vegas/client";
+
+        interface BrowserRpc {
+          greet(name: string): string;
+        }
+
+        const rpc: RpcClient<BrowserRpc> = createRpcClient<BrowserRpc>();
+        const result = document.getElementById("rpc-result");
+        if (!result) {
+          throw new Error("Missing RPC result element");
+        }
+
+        void rpc.greet("browser").then(
+          (value) => { result.textContent = value; },
+          (error: unknown) => { result.textContent = "error: " + String(error); },
+        );
+
+        const validation = document.getElementById("rpc-validation");
+        if (!validation) {
+          throw new Error("Missing RPC validation element");
+        }
+        // Bypass the static type boundary to test the published runtime guard.
+        const uncheckedGreet = rpc.greet as (name: unknown) => Promise<string>;
+        void uncheckedGreet(new Date()).then(
+          () => { validation.textContent = "unexpected success"; },
+          (error: unknown) => { validation.textContent = String(error); },
+        );
       `,
     );
 
     fs.writeFileSync(
       path.join(browserServerRoot, "Code.ts"),
       `
+        import { defineServerFunctions } from "@vegasjs/vegas/server";
+
         export function doGet(event) {
           if (event.parameter.format === "json") {
             return ContentService.createTextOutput('{"ok":true}').setMimeType(
@@ -789,6 +829,15 @@ function smokeVegasPackage() {
           PropertiesService.getScriptProperties().setProperty("prefix", prefix);
           return prefix + " browser";
         }
+
+        export const rpc = defineServerFunctions<{
+          greet(name: string): string;
+        }>({
+          greet(name) {
+            return PropertiesService.getScriptProperties().getProperty("prefix")
+              + " registered " + name;
+          },
+        });
       `,
     );
 
@@ -844,6 +893,10 @@ function smokeVegasPackage() {
 
         test("executes the packed browser bridge and Local Runtime", async ({ vegas }) => {
           await expect(vegas.app.locator("#result")).toHaveText("Vegas browser");
+          await expect(vegas.app.locator("#rpc-result")).toHaveText("Vegas registered browser");
+          await expect(vegas.app.locator("#rpc-validation")).toContainText(
+            "Unsupported RPC transport value at arguments[0]",
+          );
 
           await vegas.app
             .getByRole("button", { name: "Mutate Runtime state" })
@@ -854,6 +907,7 @@ function smokeVegasPackage() {
 
         test("starts the next browser test with fresh Runtime state", async ({ vegas }) => {
           await expect(vegas.app.locator("#result")).toHaveText("Vegas browser");
+          await expect(vegas.app.locator("#rpc-result")).toHaveText("Vegas registered browser");
         });
 
         test("serves packed ContentService GET output through a one-time redirect", async ({
