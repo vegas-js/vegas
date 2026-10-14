@@ -75,7 +75,6 @@ export class InMemoryDriveIteratorSession implements DriveIteratorSession {
   ) => DriveIteratorContinuationState;
   readonly #fileIterators = new Map<string, IteratorState<DriveFileReference>>();
   readonly #folderIterators = new Map<string, IteratorState<DriveFolderReference>>();
-  #nextHandleId = 0;
 
   constructor(
     sessionId: number,
@@ -194,8 +193,10 @@ export class InMemoryDriveIteratorSession implements DriveIteratorSession {
   }
 
   #createHandle(kind: "file" | "folder"): string {
-    this.#nextHandleId += 1;
-    return `drive-${kind}-iterator:${this.#sessionId}:${this.#nextHandleId}`;
+    // Vegas local transport: iterator handles are invocation-private, unlike
+    // Google continuation tokens. Avoid aliasing old handles when session IDs
+    // restart with a recreated iterator store.
+    return `drive-${kind}-iterator:${this.#sessionId}:${crypto.randomUUID()}`;
   }
 
   #getFileState(iterator: DriveFileIteratorReference): IteratorState<DriveFileReference> {

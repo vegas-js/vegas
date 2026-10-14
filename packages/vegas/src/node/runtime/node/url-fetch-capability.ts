@@ -1,5 +1,6 @@
 import { UnsupportedRuntimeOperationError } from "../unsupported-runtime-operation-error";
 import type { UrlFetchCapability } from "../url-fetch/capability";
+import { validateUrlFetchUrl } from "../url-fetch/request";
 import type {
   UrlFetchFormFieldValue,
   UrlFetchPayloadValue,
@@ -11,12 +12,27 @@ import type {
 type FetchFunction = (url: string, init: RequestInit) => Promise<Response>;
 
 const DEFAULT_TIMEOUT_SECONDS = 360;
+const MAX_NODE_TIMER_DELAY_MS = 2_147_483_647;
+// Vegas local limit: keep seconds-to-milliseconds conversion exact.
+const MAX_SAFE_TIMEOUT_SECONDS = Math.floor(Number.MAX_SAFE_INTEGER / 1_000);
+// Google limits URL Fetch responses to 50 MB per call. Vegas uses a 50 MiB
+// local byte limit because the documented quota does not specify the unit base.
+const MAX_URL_FETCH_RESPONSE_BYTES = 50 * 1024 * 1024;
+// Google documents a maximum of 100 request headers per URL Fetch call.
+const MAX_URL_FETCH_REQUEST_HEADERS = 100;
+// Vegas interprets the documented 8 KB header quota as 8 KiB of serialized
+// UTF-8 header lines. Google does not document the precise byte accounting.
+const MAX_URL_FETCH_REQUEST_HEADER_BYTES = 8 * 1024;
 
 function toSignedByte(value: number): number {
   return value > 0x7f ? value - 0x100 : value;
 }
 
 function validateRequest(request: UrlFetchRequestValue): void {
+  // A direct host call bypasses UrlFetchApp's request normalization. Apply the
+  // same documented URL limit before dispatch, including fetchAll preflight.
+  validateUrlFetchUrl(request.url);
+
   if (request.validateHttpsCertificates === false) {
     throw new UnsupportedRuntimeOperationError(
       "UrlFetchApp.fetch()/fetchAll()",
@@ -43,6 +59,10 @@ function validateRequest(request: UrlFetchRequestValue): void {
     (!Number.isInteger(request.timeoutSeconds) || request.timeoutSeconds <= 0)
   ) {
     throw new RangeError("UrlFetch timeoutSeconds must be a positive integer.");
+  }
+
+  if (request.timeoutSeconds !== undefined && request.timeoutSeconds > MAX_SAFE_TIMEOUT_SECONDS) {
+    throw new RangeError("UrlFetch timeoutSeconds exceeds the local safe duration limit.");
   }
 
   if ((request.method ?? "get") === "get" && request.payload !== undefined) {
@@ -104,7 +124,37 @@ function createBody(payload: UrlFetchPayloadValue | undefined): BodyInit | undef
   }
 }
 
-function createRequestInit(request: UrlFetchRequestValue, signal?: AbortSignal): RequestInit {
+/** Keep timeout timers within Node.js bounds and dispose of them when fetch completes. */
+function createRequestTimeout(timeoutMs: number): { signal: AbortSignal; dispose(): void } {
+  const controller = new AbortController();
+  let timer: ReturnType<typeof setTimeout> | undefined;
+
+  const schedule = (remainingMs: number): void => {
+    const delay = Math.min(remainingMs, MAX_NODE_TIMER_DELAY_MS);
+    timer = setTimeout(() => {
+      if (remainingMs > delay) {
+        schedule(remainingMs - delay);
+        return;
+      }
+
+      controller.abort(
+        new DOMException("The operation was aborted due to timeout", "TimeoutError"),
+      );
+    }, delay);
+  };
+
+  schedule(timeoutMs);
+  return {
+    signal: controller.signal,
+    dispose: () => {
+      if (timer !== undefined) {
+        clearTimeout(timer);
+      }
+    },
+  };
+}
+
+function createRequestInit(request: UrlFetchRequestValue): RequestInit {
   validateRequest(request);
 
   const headers = new Headers(request.headers);
@@ -128,25 +178,53 @@ function createRequestInit(request: UrlFetchRequestValue, signal?: AbortSignal):
     headers.set("content-type", "application/x-www-form-urlencoded");
   }
 
-  const timeoutSignal = AbortSignal.timeout(
-    (request.timeoutSeconds ?? DEFAULT_TIMEOUT_SECONDS) * 1_000,
-  );
+  // GAS documents this as the default request content type. Node's fetch
+  // otherwise supplies text/plain for string bodies and no type for byte bodies.
+  // Keep multipart forms untouched so fetch can generate the boundary.
+  if (
+    request.payload !== undefined &&
+    request.payload.kind !== "form" &&
+    !headers.has("content-type")
+  ) {
+    headers.set("content-type", "application/x-www-form-urlencoded");
+  }
+
+  // Vegas counts normalized header names that it constructs before dispatch.
+  // Native fetch may add transport headers; Google's counting rules are not documented.
+  let headerCount = 0;
+  let headerBytes = 0;
+  headers.forEach((value, name) => {
+    headerCount += 1;
+    // Count `name: value\r\n` after Headers has normalized names and values.
+    headerBytes += Buffer.byteLength(name, "utf8") + Buffer.byteLength(value, "utf8") + 4;
+  });
+
+  if (headerCount > MAX_URL_FETCH_REQUEST_HEADERS) {
+    throw new RangeError("UrlFetch request must not exceed 100 headers.");
+  }
+  if (headerBytes > MAX_URL_FETCH_REQUEST_HEADER_BYTES) {
+    throw new RangeError("UrlFetch request headers exceed the local 8 KB size limit.");
+  }
 
   return {
     method: request.method ?? "get",
     headers,
     body: createBody(request.payload),
     redirect: request.followRedirects === false ? "manual" : "follow",
-    signal: signal === undefined ? timeoutSignal : AbortSignal.any([signal, timeoutSignal]),
   };
 }
 
 function readHeaders(headers: Headers): Record<string, UrlFetchResponseHeaderValue> {
-  const values: Record<string, UrlFetchResponseHeaderValue> = {};
+  const entries: [string, string][] = [];
 
   headers.forEach((value, name) => {
-    values[name] = value;
+    entries.push([name, value]);
   });
+
+  // Vegas local emulation: HTTPResponse.getAllHeaders() does not define how
+  // special JavaScript property names such as "__proto__" are represented.
+  // Preserve these names as own data properties; Google parity is unverified.
+  const values: Record<string, UrlFetchResponseHeaderValue> = Object.fromEntries(entries);
 
   const cookies = headers.getSetCookie();
   if (cookies.length > 1) {
@@ -158,13 +236,58 @@ function readHeaders(headers: Headers): Record<string, UrlFetchResponseHeaderVal
   return values;
 }
 
-async function serializeResponse(response: Response): Promise<UrlFetchResponseValue> {
-  const content = new Uint8Array(await response.arrayBuffer());
+async function readResponseContent(response: Response, signal: AbortSignal): Promise<number[]> {
+  if (response.body === null) {
+    return [];
+  }
 
+  const reader = response.body.getReader();
+  // Vegas local emulation: a response body can ignore the request AbortSignal.
+  // Cancel through its reader while it owns the stream lock.
+  const cancel = (): void => {
+    void reader.cancel(signal.reason).catch(() => undefined);
+  };
+  signal.addEventListener("abort", cancel, { once: true });
+
+  try {
+    if (signal.aborted) {
+      cancel();
+    }
+    signal.throwIfAborted();
+
+    const content: number[] = [];
+    while (true) {
+      const { done, value } = await reader.read();
+      signal.throwIfAborted();
+
+      if (done) {
+        return content;
+      }
+
+      // Check before materializing signed bytes to avoid unbounded local memory use.
+      if (content.length + value.byteLength > MAX_URL_FETCH_RESPONSE_BYTES) {
+        void reader.cancel().catch(() => undefined);
+        throw new RangeError("UrlFetch response exceeds the local 50 MB size limit.");
+      }
+
+      for (const byte of value) {
+        content.push(toSignedByte(byte));
+      }
+    }
+  } finally {
+    signal.removeEventListener("abort", cancel);
+    reader.releaseLock();
+  }
+}
+
+async function serializeResponse(
+  response: Response,
+  signal: AbortSignal,
+): Promise<UrlFetchResponseValue> {
   return {
     statusCode: response.status,
     headers: readHeaders(response.headers),
-    content: Array.from(content, toSignedByte),
+    content: await readResponseContent(response, signal),
   };
 }
 
@@ -175,20 +298,93 @@ export class NodeUrlFetchCapability implements UrlFetchCapability {
     this.#fetch = fetchFunction;
   }
 
-  async fetch(request: UrlFetchRequestValue, signal?: AbortSignal): Promise<UrlFetchResponseValue> {
-    const response = await this.#fetch(request.url, createRequestInit(request, signal));
+  async #raceAbort<T>(signal: AbortSignal, operation: () => Promise<T>): Promise<T> {
+    signal.throwIfAborted();
 
-    if (response.status >= 400 && request.muteHttpExceptions !== true) {
-      throw new Error(`UrlFetch request failed with HTTP status ${response.status}.`);
+    let onAbort: (() => void) | undefined;
+    const aborted = new Promise<never>((_, reject) => {
+      onAbort = () => reject(signal.reason);
+      signal.addEventListener("abort", onAbort, { once: true });
+    });
+
+    try {
+      return await Promise.race([operation(), aborted]);
+    } finally {
+      if (onAbort !== undefined) {
+        signal.removeEventListener("abort", onAbort);
+      }
     }
+  }
 
-    return serializeResponse(response);
+  async fetch(request: UrlFetchRequestValue, signal?: AbortSignal): Promise<UrlFetchResponseValue> {
+    // A cancelled invocation must not start an HTTP operation, even when a
+    // custom FetchFunction does not implement AbortSignal handling itself.
+    signal?.throwIfAborted();
+
+    // Validate/build first so a failed request cannot leave a timeout running.
+    const init = createRequestInit(request);
+    return this.#fetchPrepared(request, init, signal);
   }
 
   async fetchAll(
     requests: readonly UrlFetchRequestValue[],
     signal?: AbortSignal,
   ): Promise<readonly UrlFetchResponseValue[]> {
-    return Promise.all(requests.map((request) => this.fetch(request, signal)));
+    signal?.throwIfAborted();
+
+    // Vegas local emulation: reject invalid batches before any HTTP request starts.
+    // Google does not document dispatch atomicity for invalid fetchAll() entries.
+    const prepared = requests.map((request) => ({ request, init: createRequestInit(request) }));
+    const pending = prepared.map(({ request, init }) => this.#fetchPrepared(request, init, signal));
+
+    try {
+      return await Promise.all(pending);
+    } catch (error) {
+      // Keep the first failure but allow every started request to settle before
+      // ending the invocation. Otherwise a sibling request can keep running
+      // after the worker has returned its failed fetchAll() result.
+      await Promise.allSettled(pending);
+      throw error;
+    }
+  }
+
+  async #fetchPrepared(
+    request: UrlFetchRequestValue,
+    init: RequestInit,
+    signal?: AbortSignal,
+  ): Promise<UrlFetchResponseValue> {
+    // Check again immediately before dispatch, even with custom fetch implementations.
+    signal?.throwIfAborted();
+
+    const timeout = createRequestTimeout(
+      (request.timeoutSeconds ?? DEFAULT_TIMEOUT_SECONDS) * 1_000,
+    );
+    const requestSignal =
+      signal === undefined ? timeout.signal : AbortSignal.any([signal, timeout.signal]);
+
+    try {
+      // A custom FetchFunction or response body may ignore AbortSignal.
+      // Bound the local result even then; non-cooperative underlying I/O may continue.
+      return await this.#raceAbort(requestSignal, async () => {
+        const response = await this.#fetch(request.url, { ...init, signal: requestSignal });
+        if (requestSignal.aborted) {
+          // A non-cooperative transport may resolve after the caller has timed out.
+          // Dispose of its unread body before rejecting the late response.
+          void response.body?.cancel().catch(() => undefined);
+        }
+        requestSignal.throwIfAborted();
+
+        if (response.status >= 400 && request.muteHttpExceptions !== true) {
+          // The error response is not consumed. Cancel its body to release the
+          // underlying connection without replacing the original HTTP error.
+          void response.body?.cancel().catch(() => undefined);
+          throw new Error(`UrlFetch request failed with HTTP status ${response.status}.`);
+        }
+
+        return await serializeResponse(response, requestSignal);
+      });
+    } finally {
+      timeout.dispose();
+    }
   }
 }

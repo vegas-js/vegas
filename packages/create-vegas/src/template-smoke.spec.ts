@@ -8,6 +8,11 @@ import { scaffoldProject } from "./scaffold/project";
 import { templates } from "./templates";
 
 const CREATE_VEGAS_ROOT = path.resolve(import.meta.dirname, "..");
+const VEGAS_VERSION = (
+  JSON.parse(
+    fs.readFileSync(path.join(CREATE_VEGAS_ROOT, "..", "vegas", "package.json"), "utf8"),
+  ) as { version: string }
+).version;
 
 const templateCases = [
   ["template-vanilla", "src/client/index.html", 'id="counter"', "tsc -b && vegas build"],
@@ -96,6 +101,10 @@ describe("create-vegas templates", () => {
       expect(readme).toContain("`npm run build`");
       expect(readme).toContain("`npm run preview`");
       expect(readme).toContain("`npm run push`");
+      expect(readme).toContain("## Typed Server Calls (Optional)");
+      expect(readme).toContain("defineServerFunctions<Contract>()");
+      expect(readme).toContain("createRpcClient<Contract>()");
+      expect(readme).not.toContain("createServerFunctionClient");
     },
   );
 
@@ -176,6 +185,7 @@ describe("create-vegas templates", () => {
         name?: string;
         private?: boolean;
         type?: string;
+        devDependencies?: Record<string, string>;
         scripts?: {
           dev?: string;
           build?: string;
@@ -189,6 +199,7 @@ describe("create-vegas templates", () => {
       expect(packageJson.name).toBe("smoke-project");
       expect(packageJson.private).toBe(true);
       expect(packageJson.type).toBe("module");
+      expect(packageJson.devDependencies?.["@vegasjs/vegas"]).toBe(`^${VEGAS_VERSION}`);
       expect(packageJson.scripts?.dev).toBe("vegas");
       expect(packageJson.scripts?.build).toBe(buildScript);
       expect(packageJson.scripts?.preview).toBe("vegas preview");

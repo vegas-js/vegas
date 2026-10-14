@@ -198,6 +198,34 @@ describe("Drive trash state", () => {
     await expect(store.listFiles(USER)).resolves.toStrictEqual([]);
   });
 
+  test("keep the local Drive root out of the trash", async () => {
+    const store = new InMemoryDriveStore();
+    const root = await store.getRootFolder(USER);
+    const folder = await store.createFolder(USER, root, "child");
+    const file = await store.createFile(USER, folder, {
+      bytes: [65],
+      contentType: "text/plain",
+      name: "a.txt",
+      googleType: false,
+    });
+
+    await expect(store.setFolderTrashed(USER, root, true)).rejects.toThrow(
+      "Cannot trash the local Drive root folder.",
+    );
+    await expect(store.isFolderTrashed(USER, root)).resolves.toBe(false);
+    await expect(store.isFolderTrashed(USER, folder)).resolves.toBe(false);
+    await expect(store.isFileTrashed(USER, file)).resolves.toBe(false);
+    await expect(store.listFolders(USER)).resolves.toStrictEqual([folder]);
+    await expect(store.listFiles(USER)).resolves.toStrictEqual([file]);
+    await expect(store.listTrashedFolders(USER)).resolves.toStrictEqual([]);
+    await expect(store.listTrashedFiles(USER)).resolves.toStrictEqual([]);
+
+    await store.setFolderTrashed(USER, root, false);
+    await store.setFolderTrashed(USER, folder, true);
+    await expect(store.isFileTrashed(USER, file)).resolves.toBe(true);
+    await expect(store.listTrashedFolders(USER)).resolves.toStrictEqual([folder]);
+  });
+
   test("route trashed collections through LocalDriveHostHandler iterators", async () => {
     const store = new InMemoryDriveStore();
     const root = await store.getRootFolder(USER);

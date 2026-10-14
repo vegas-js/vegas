@@ -1,8 +1,9 @@
-import { describe, expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 
 import {
   isAppsScriptWorkerRequest,
   isAppsScriptWorkerResponse,
+  parseAppsScriptWorkerResponse,
   restoreAppsScriptWorkerError,
   serializeAppsScriptWorkerError,
 } from "./apps-script-worker-protocol";
@@ -30,6 +31,31 @@ describe("Apps Script worker protocol", () => {
         args: [],
       }),
     ).toBe(false);
+  });
+
+  test("reject inherited request fields and accessors without invoking getters", () => {
+    const inherited = Object.create({ type: "invoke" }) as Record<string, unknown>;
+    inherited.functionName = "main";
+    inherited.args = [];
+    expect(isAppsScriptWorkerRequest(inherited)).toBe(false);
+
+    const nullPrototype = Object.assign(Object.create(null) as Record<string, unknown>, {
+      type: "invoke",
+      functionName: "main",
+      args: [],
+    });
+    expect(isAppsScriptWorkerRequest(nullPrototype)).toBe(true);
+
+    for (const field of ["type", "functionName", "args"] as const) {
+      const getter = vi.fn(() => "unsafe");
+      const message = Object.defineProperty(
+        { type: "invoke", functionName: "main", args: [] },
+        field,
+        { get: getter },
+      );
+      expect(isAppsScriptWorkerRequest(message)).toBe(false);
+      expect(getter).not.toHaveBeenCalled();
+    }
   });
 
   test("validate successful and failed results", () => {
@@ -60,6 +86,99 @@ describe("Apps Script worker protocol", () => {
         },
       }),
     ).toBe(false);
+  });
+
+  test("reject inherited response fields and accessors without invoking getters", () => {
+    const validSuccess = { type: "result", ok: true, value: undefined };
+    const validFailure = { type: "result", ok: false, error: { name: "Error", message: "failed" } };
+    expect(isAppsScriptWorkerResponse(validSuccess)).toBe(true);
+    expect(isAppsScriptWorkerResponse(validFailure)).toBe(true);
+
+    for (const field of ["type", "ok", "value"] as const) {
+      const getter = vi.fn(() => "unsafe");
+      const response = Object.defineProperty({ ...validSuccess }, field, { get: getter });
+      expect(isAppsScriptWorkerResponse(response)).toBe(false);
+      expect(getter).not.toHaveBeenCalled();
+    }
+
+    const failureGetter = vi.fn(() => validFailure.error);
+    const failure = Object.defineProperty({ ...validFailure }, "error", {
+      get: failureGetter,
+    });
+    expect(isAppsScriptWorkerResponse(failure)).toBe(false);
+    expect(failureGetter).not.toHaveBeenCalled();
+
+    const inherited = Object.assign(Object.create({ type: "result" }) as Record<string, unknown>, {
+      ok: true,
+      value: undefined,
+    });
+    expect(isAppsScriptWorkerResponse(inherited)).toBe(false);
+
+    const inheritedResult = Object.assign(
+      Object.create({ value: "inherited" }) as Record<string, unknown>,
+      { type: "result", ok: true },
+    );
+    expect(isAppsScriptWorkerResponse(inheritedResult)).toBe(false);
+
+    const nullPrototype = Object.assign(
+      Object.create(null) as Record<string, unknown>,
+      validSuccess,
+    );
+    expect(isAppsScriptWorkerResponse(nullPrototype)).toBe(true);
+  });
+
+  test("reject error responses containing inherited or accessor snapshot fields", () => {
+    const getter = vi.fn(() => "unsafe");
+    const error = Object.defineProperty({ name: "Error", message: "failed" }, "message", {
+      get: getter,
+    });
+    expect(isAppsScriptWorkerResponse({ type: "result", ok: false, error })).toBe(false);
+    expect(getter).not.toHaveBeenCalled();
+  });
+
+  test("snapshot result fields before reading them again", () => {
+    let okReads = 0;
+    const getter = vi.fn(() => {
+      throw new Error("unexpected direct property read");
+    });
+    const response = new Proxy(
+      { type: "result", ok: true, value: "first" },
+      {
+        get: getter,
+        getOwnPropertyDescriptor(target, key) {
+          if (key === "ok") {
+            okReads += 1;
+            return { configurable: true, enumerable: true, writable: true, value: okReads === 1 };
+          }
+          return Reflect.getOwnPropertyDescriptor(target, key);
+        },
+      },
+    );
+
+    expect(parseAppsScriptWorkerResponse(response)).toStrictEqual({
+      type: "result",
+      ok: true,
+      value: "first",
+    });
+    expect(okReads).toBe(1);
+    expect(getter).not.toHaveBeenCalled();
+  });
+
+  test("snapshot nested error metadata and reject revoked proxies", () => {
+    const error = {
+      name: "RuntimeInfrastructureError",
+      message: "failed",
+      infrastructureKind: "protocol",
+    };
+    const parsed = parseAppsScriptWorkerResponse({ type: "result", ok: false, error });
+    expect(parsed).toStrictEqual({ type: "result", ok: false, error });
+    error.message = "changed";
+    expect(parsed).toMatchObject({ error: { message: "failed" } });
+
+    const { proxy, revoke } = Proxy.revocable({ type: "result", ok: true, value: 1 }, {});
+    revoke();
+    expect(parseAppsScriptWorkerResponse(proxy)).toBeUndefined();
+    expect(isAppsScriptWorkerResponse(proxy)).toBe(false);
   });
 
   test("serialize Error-like values across VM realms", () => {

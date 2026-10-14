@@ -44,24 +44,24 @@ export function createAppsScriptExecutor(options: AppsScriptExecutorOptions): Ex
     async execute(request) {
       const driveNamespace = resolveDriveNamespace(request.scope);
       const lockSession = options.lockStore.createSession();
-      const dispatcher = new HostDispatcher({
-        blob,
-        cache: new CacheHostHandler(options.cacheStore, request.scope),
-        drive: new LocalDriveHostHandler(
-          options.driveStore,
-          driveNamespace,
-          options.driveIteratorStore.createSession(driveNamespace),
-        ),
-        lock: new LockHostHandler(lockSession, request.scope),
-        properties: new PropertiesHostHandler(options.propertiesStore, request.scope),
-        spreadsheet: new SpreadsheetHostHandler(
-          options.spreadsheetStore,
-          options.spreadsheetUrlCapability,
-        ),
-        urlFetch: new UrlFetchHostHandler(options.urlFetchCapability, request.signal),
-      });
-
       try {
+        const dispatcher = new HostDispatcher({
+          blob,
+          cache: new CacheHostHandler(options.cacheStore, request.scope),
+          drive: new LocalDriveHostHandler(
+            options.driveStore,
+            driveNamespace,
+            options.driveIteratorStore.createSession(driveNamespace),
+          ),
+          lock: new LockHostHandler(lockSession, request.scope),
+          properties: new PropertiesHostHandler(options.propertiesStore, request.scope),
+          spreadsheet: new SpreadsheetHostHandler(
+            options.spreadsheetStore,
+            options.spreadsheetUrlCapability,
+          ),
+          urlFetch: new UrlFetchHostHandler(options.urlFetchCapability, request.signal),
+        });
+
         return await options.runWorker(dispatcher, request);
       } finally {
         await lockSession.releaseAll();

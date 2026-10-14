@@ -1,5 +1,8 @@
-import { describe, expect, expectTypeOf, test } from "vitest";
+import vm from "node:vm";
 
+import { describe, expect, expectTypeOf, test, vi } from "vitest";
+
+import { __vegasInternalRpcDispatch } from "./rpc-dispatcher";
 import { defineServerFunctions, type ServerFunctionHandlers } from "./server-functions";
 
 interface ServerRpc {
@@ -60,6 +63,113 @@ describe("defineServerFunctions", () => {
       [Symbol.toStringTag]: "rpc",
     };
     expect(() => register(symbol)).toThrow("Invalid RPC handler: Symbol(Symbol.toStringTag)");
+  });
+
+  test("rejects registries with inherited or class-prototype methods", () => {
+    const register = (handlers: object) =>
+      defineServerFunctions<{ greet(): string }>(
+        handlers as ServerFunctionHandlers<{ greet(): string }>,
+      );
+
+    class InheritedHandlers {
+      greet() {
+        return "Hello";
+      }
+    }
+    class OwnHandlers {
+      greet = () => "Hello";
+    }
+
+    for (const invalid of [new InheritedHandlers(), new OwnHandlers(), new Date()]) {
+      expect(() => register(invalid)).toThrow("RPC handlers must be a plain object.");
+    }
+
+    const inherited = Object.create({ greet: () => "Hello" }) as object;
+    expect(() => register(inherited)).toThrow("RPC handlers must be a plain object.");
+  });
+
+  test("does not expose added or replaced registered handlers", () => {
+    const original = vi.fn(() => "original");
+    const replacement = vi.fn(() => "replacement");
+    const added = vi.fn(() => "added");
+    const handlers: { greet(): string; added?: () => string } = { greet: original };
+
+    expect(defineServerFunctions<{ greet(): string }>(handlers)).toBe(handlers);
+    expect(__vegasInternalRpcDispatch(handlers, "greet")).toBe("original");
+
+    handlers.greet = replacement;
+    handlers.added = added;
+    expect(() => __vegasInternalRpcDispatch(handlers, "greet")).toThrow(
+      "Unknown or private RPC handler: greet",
+    );
+    expect(() => __vegasInternalRpcDispatch(handlers, "added")).toThrow(
+      "Unknown or private RPC handler: added",
+    );
+    expect(replacement).not.toHaveBeenCalled();
+    expect(added).not.toHaveBeenCalled();
+
+    handlers.greet = original;
+    expect(__vegasInternalRpcDispatch(handlers, "greet")).toBe("original");
+
+    // Re-registering the same object deliberately replaces its approved set.
+    defineServerFunctions<{ greet(): string; added(): string }>(
+      handlers as { greet(): string; added(): string },
+    );
+    expect(__vegasInternalRpcDispatch(handlers, "added")).toBe("added");
+  });
+
+  test("isolates registration snapshots for separate program registries", () => {
+    // A fresh Local Runtime program creates a new registry object. Its
+    // snapshot must not inherit changes from a previous program instance.
+    const previous = defineServerFunctions<{ greet(): string }>({ greet: () => "old" });
+    const current = defineServerFunctions<{ greet(): string }>({ greet: () => "new" });
+
+    previous.greet = () => "changed";
+    expect(() => __vegasInternalRpcDispatch(previous, "greet")).toThrow(
+      "Unknown or private RPC handler: greet",
+    );
+    expect(__vegasInternalRpcDispatch(current, "greet")).toBe("new");
+
+    // An invalid re-registration must not overwrite the last valid snapshot.
+    Object.defineProperty(current, "unsupported_", { value: () => "unsafe", configurable: true });
+    expect(() => defineServerFunctions<{ greet(): string }>(current)).toThrow(
+      "Invalid RPC handler: unsupported_",
+    );
+    expect(__vegasInternalRpcDispatch(current, "greet")).toBe("new");
+  });
+
+  test("rejects a registered method turned into an accessor without executing it", () => {
+    const getter = vi.fn(() => () => "unsafe");
+    const handlers = defineServerFunctions<{ greet(): string }>({ greet: () => "ok" });
+    Object.defineProperty(handlers, "greet", { configurable: true, get: getter });
+
+    expect(() => __vegasInternalRpcDispatch(handlers, "greet")).toThrow(
+      "Unknown or private RPC handler: greet",
+    );
+    expect(getter).not.toHaveBeenCalled();
+  });
+
+  test("still dispatches a plain registry without defineServerFunctions", () => {
+    const handlers = { greet: () => "original" };
+    expect(__vegasInternalRpcDispatch(handlers, "greet")).toBe("original");
+    handlers.greet = () => "replacement";
+    expect(__vegasInternalRpcDispatch(handlers, "greet")).toBe("replacement");
+  });
+
+  test("accepts a null-prototype handler registry without copying it", () => {
+    const handlers = Object.assign(Object.create(null) as object, {
+      greet: () => "Hello",
+    });
+    expect(defineServerFunctions<{ greet(): string }>(handlers)).toBe(handlers);
+    expect(__vegasInternalRpcDispatch(handlers, "greet")).toBe("Hello");
+  });
+
+  test("accepts an object literal created in a different JavaScript realm", () => {
+    const handlers = vm.runInNewContext('({ greet() { return "Hello"; } })') as {
+      greet(): string;
+    };
+    expect(defineServerFunctions<{ greet(): string }>(handlers)).toBe(handlers);
+    expect(__vegasInternalRpcDispatch(handlers, "greet")).toBe("Hello");
   });
 
   test("rejects private names and non-function members at the type boundary", () => {

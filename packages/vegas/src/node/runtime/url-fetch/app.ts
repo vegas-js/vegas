@@ -1,6 +1,7 @@
 import { hydrateHttpResponse, type HTTPResponse } from "./http-response";
 import {
   normalizeUrlFetchRequest,
+  validateUrlFetchUrl,
   type UrlFetchFormFieldInput,
   type UrlFetchPayloadInput,
   type UrlFetchRequestInput,
@@ -58,14 +59,39 @@ export class UrlFetchApp {
   getRequest(url: string): UrlFetchRequestPreview;
   getRequest(url: string, params: UrlFetchRequestOptionsInput): UrlFetchRequestPreview;
   getRequest(url: string, params: UrlFetchRequestOptionsInput = {}): UrlFetchRequestPreview {
+    validateUrlFetchUrl(url);
+
     return {
       url,
       method: params.method ?? "get",
-      contentType: params.contentType ?? resolveDefaultContentType(params.payload),
+      contentType: resolvePreviewContentType(params),
       payload: params.payload === undefined ? undefined : clonePayload(params.payload),
       headers: params.headers === undefined ? {} : { ...params.headers },
     };
   }
+}
+
+function resolvePreviewContentType(params: UrlFetchRequestOptionsInput): string {
+  // Vegas local preview follows the Node transport's Content-Type precedence.
+  // Google does not document getRequest() precedence for headers and Blob MIME types.
+  // Match the Node transport, which parses header names case-insensitively
+  // and merges duplicate names before sending the request.
+  const header =
+    params.headers === undefined ? null : new Headers(params.headers).get("content-type");
+
+  if (header !== null) {
+    return header;
+  }
+
+  if (params.contentType !== undefined) {
+    return params.contentType;
+  }
+
+  if (params.payload instanceof RuntimeBlob) {
+    return params.payload.getContentType() ?? resolveDefaultContentType(params.payload);
+  }
+
+  return resolveDefaultContentType(params.payload);
 }
 
 function resolveDefaultContentType(payload: UrlFetchPayloadInput | undefined): string {

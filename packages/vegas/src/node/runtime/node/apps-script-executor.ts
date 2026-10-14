@@ -13,7 +13,7 @@ import { RuntimeInfrastructureError } from "../runtime-infrastructure-error";
 import type { SpreadsheetStore } from "../spreadsheet/store";
 import type { SpreadsheetUrlCapability } from "../spreadsheet/url-capability";
 import {
-  isAppsScriptWorkerResponse,
+  parseAppsScriptWorkerResponse,
   restoreAppsScriptWorkerError,
   type AppsScriptWorkerRequest,
 } from "./apps-script-worker-protocol";
@@ -22,6 +22,8 @@ import { handleHostRequestMessage } from "./host-request-handler";
 import { NodeUrlFetchCapability } from "./url-fetch-capability";
 
 export const DEFAULT_APPS_SCRIPT_EXECUTION_TIMEOUT_MS = 6 * 60 * 1_000;
+// Node.js timers clamp longer delays to 1 ms. Validate before scheduling.
+const MAX_NODE_TIMER_DELAY_MS = 2_147_483_647;
 
 interface AppsScriptWorkerProcess {
   on(event: "error", listener: (error: Error) => void): unknown;
@@ -32,6 +34,7 @@ interface AppsScriptWorkerProcess {
 interface AppsScriptWorkerPort {
   on(event: "message", listener: (data: unknown) => void): unknown;
   on(event: "close", listener: () => void): unknown;
+  on(event: "messageerror", listener: (error: Error) => void): unknown;
   postMessage(value: unknown): void;
   close(): void;
 }
@@ -44,6 +47,11 @@ interface AppsScriptWorkerSessionOptions {
 function requireExecutionTimeout(timeoutMs: number): number {
   if (!Number.isInteger(timeoutMs) || timeoutMs <= 0) {
     throw new RangeError("Apps Script execution timeout must be a positive integer.");
+  }
+  if (timeoutMs > MAX_NODE_TIMER_DELAY_MS) {
+    throw new RangeError(
+      `Apps Script execution timeout must not exceed ${MAX_NODE_TIMER_DELAY_MS} ms.`,
+    );
   }
 
   return timeoutMs;
@@ -101,14 +109,14 @@ export function runAppsScriptWorkerSession(
       clearExecutionLifecycle();
       port.close();
 
-      void gasWorker.terminate().then(
-        () => {
-          reject(error);
-        },
-        () => {
-          reject(error);
-        },
-      );
+      // Report a timeout or cancellation without waiting for worker shutdown.
+      // Keep the original failure if termination rejects or throws synchronously.
+      try {
+        void gasWorker.terminate().catch(() => undefined);
+      } catch {
+        // Termination itself failed; the original error remains authoritative.
+      }
+      reject(error);
     };
 
     const fail = (error: unknown): void => {
@@ -117,8 +125,20 @@ export function runAppsScriptWorkerSession(
       });
     };
 
-    const failExitedWorker = (): void => {
-      if (settled || workerExitCode === undefined || !workerPortClosed || pendingMessageCount > 0) {
+    const failWithoutResult = (): void => {
+      if (settled || !workerPortClosed || pendingMessageCount > 0) {
+        return;
+      }
+
+      // The response channel may close while the worker is still running.
+      // Stop it immediately rather than waiting for an exit event or timeout.
+      if (workerExitCode === undefined) {
+        terminate(
+          new RuntimeInfrastructureError(
+            "backend",
+            "Apps Script worker channel closed before returning a result.",
+          ),
+        );
         return;
       }
 
@@ -135,19 +155,23 @@ export function runAppsScriptWorkerSession(
         return;
       }
 
-      if (!isAppsScriptWorkerResponse(data)) {
-        fail(new RuntimeInfrastructureError("protocol", "Unexpected Apps Script worker message."));
+      const response = parseAppsScriptWorkerResponse(data);
+      if (response === undefined) {
+        // A fatal protocol violation leaves the worker without a usable channel.
+        terminate(
+          new RuntimeInfrastructureError("protocol", "Unexpected Apps Script worker message."),
+        );
         return;
       }
 
-      if (data.ok) {
+      if (response.ok) {
         settle(() => {
-          resolve(data.value);
+          resolve(response.value);
         });
         return;
       }
 
-      fail(restoreAppsScriptWorkerError(data.error));
+      fail(restoreAppsScriptWorkerError(response.error));
     };
 
     gasWorker.on("error", (error) => {
@@ -161,12 +185,24 @@ export function runAppsScriptWorkerSession(
 
     gasWorker.on("exit", (exitCode) => {
       workerExitCode = exitCode;
-      failExitedWorker();
+      failWithoutResult();
     });
 
     port.on("close", () => {
       workerPortClosed = true;
-      failExitedWorker();
+      failWithoutResult();
+    });
+
+    // Deserialization failures do not produce a result message. Stop the worker
+    // rather than letting the execution linger until its timeout.
+    port.on("messageerror", (error) => {
+      terminate(
+        new RuntimeInfrastructureError(
+          "serialization",
+          "Apps Script worker message could not be deserialized.",
+          { cause: error },
+        ),
+      );
     });
 
     port.on("message", (data) => {
@@ -176,11 +212,12 @@ export function runAppsScriptWorkerSession(
 
       pendingMessageCount += 1;
 
+      // A failed host response can leave the worker blocked in Atomics.wait().
       void handleMessage(data)
-        .catch(fail)
+        .catch(terminate)
         .finally(() => {
           pendingMessageCount -= 1;
-          failExitedWorker();
+          failWithoutResult();
         });
     });
 
@@ -225,20 +262,33 @@ function runAppsScriptWorker(
   request: Parameters<AppsScriptWorkerRunner>[1],
   executionTimeoutMs: number,
 ): Promise<unknown> {
+  // Avoid starting a worker or evaluating its program after cancellation.
+  if (request.signal?.aborted) {
+    return Promise.reject(request.signal.reason ?? new Error("Apps Script execution aborted."));
+  }
+
   const sharedBuffer = new SharedArrayBuffer(4);
   const sharedArray = new Int32Array(sharedBuffer);
   const { port1, port2 } = new worker.MessageChannel();
-  const gasWorker = new worker.Worker(path.join(import.meta.dirname, "worker.js"), {
-    env: { ...process.env, FORCE_COLOR: "1" },
-    transferList: [port2],
-    workerData: {
-      program: request.program,
-      environment: request.environment,
-      context: request.context,
-      sharedArray,
-      port: port2,
-    },
-  });
+  let gasWorker: worker.Worker;
+  try {
+    gasWorker = new worker.Worker(path.join(import.meta.dirname, "worker.js"), {
+      env: { ...process.env, FORCE_COLOR: "1" },
+      transferList: [port2],
+      workerData: {
+        program: request.program,
+        environment: request.environment,
+        context: request.context,
+        sharedArray,
+        port: port2,
+      },
+    });
+  } catch (error) {
+    // The ports are ours until ownership of port2 is transferred to a worker.
+    port1.close();
+    port2.close();
+    throw error;
+  }
   const invocation: AppsScriptWorkerRequest = {
     type: "invoke",
     functionName: request.functionName,

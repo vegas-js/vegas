@@ -51,6 +51,9 @@ export class InMemoryPropertiesStore implements PropertiesStore {
   }
 
   async getAll(namespace: PropertiesNamespace): Promise<Record<string, string>> {
+    // Vegas local emulation: the Apps Script Properties.getProperties() reference
+    // does not define behavior for special JavaScript keys such as "__proto__".
+    // Keep them as own data properties; Google runtime parity is unverified.
     return Object.fromEntries(this.#getStore(namespace) ?? []);
   }
 

@@ -4,7 +4,10 @@ import type { HostBridge } from "../host-bridge";
 import type { HostCall, HostCallResult } from "../host-call";
 import type { HostError, HostRequestMessage, HostResponseMessage } from "../host-protocol";
 import { isRuntimeErrorSnapshot, restoreRuntimeError } from "../runtime-error";
-import { RuntimeInfrastructureError } from "../runtime-infrastructure-error";
+import {
+  isRuntimeInfrastructureErrorKind,
+  RuntimeInfrastructureError,
+} from "../runtime-infrastructure-error";
 
 class WorkerHostBridge implements HostBridge {
   readonly #port: worker.MessagePort;
@@ -56,41 +59,108 @@ export function readHostResponse<C extends HostCall>(
   request: HostRequestMessage<C>,
   response: unknown,
 ): HostCallResult<C> {
-  if (!isHostResponseMessage(response)) {
+  const parsed = parseHostResponseMessage(response);
+  if (parsed === undefined) {
     throw new RuntimeInfrastructureError(
       "protocol",
       `Host response ${request.id} is missing or invalid.`,
     );
   }
 
-  if (response.id !== request.id) {
+  if (parsed.id !== request.id) {
     throw new RuntimeInfrastructureError(
       "protocol",
-      `Host response id ${response.id} does not match request ${request.id}.`,
+      `Host response id ${parsed.id} does not match request ${request.id}.`,
     );
   }
 
-  if (!response.ok) {
-    throwHostError(response.error);
+  if (!parsed.ok) {
+    throwHostError(parsed.error);
   }
 
-  return response.value as HostCallResult<C>;
+  return parsed.value as HostCallResult<C>;
 }
 
-function isHostResponseMessage(value: unknown): value is HostResponseMessage {
-  if (!isRecord(value) || typeof value.id !== "number" || typeof value.ok !== "boolean") {
-    return false;
+/** Snapshot own data fields so validation never executes accessors or inherited members. */
+function parseHostResponseMessage(value: unknown): HostResponseMessage | undefined {
+  if (!isRecord(value)) {
+    return undefined;
   }
 
-  if (value.ok) {
-    return "value" in value;
-  }
+  try {
+    const id = getOwnDataValue(value, "id");
+    const ok = getOwnDataValue(value, "ok");
+    if (typeof id !== "number" || !Number.isSafeInteger(id) || id <= 0 || typeof ok !== "boolean") {
+      return undefined;
+    }
 
-  return isHostError(value.error);
+    if (ok) {
+      const result = getOwnDataDescriptor(value, "value");
+      return result === undefined ? undefined : { id, ok: true, value: result.value };
+    }
+
+    const error = parseHostError(getOwnDataValue(value, "error"));
+    return error === undefined ? undefined : { id, ok: false, error };
+  } catch {
+    // A revoked Proxy or a throwing reflection trap is an invalid message.
+    return undefined;
+  }
 }
 
-function isHostError(value: unknown): value is HostError {
-  return isRecord(value) && typeof value.type === "string" && isRuntimeErrorSnapshot(value);
+function parseHostError(value: unknown): HostError | undefined {
+  if (!isRecord(value) || !isRuntimeErrorSnapshot(value)) {
+    return undefined;
+  }
+
+  const type = getOwnDataValue(value, "type");
+  const name = getOwnDataValue(value, "name");
+  const message = getOwnDataValue(value, "message");
+  const stack = getOwnDataValue(value, "stack");
+  const kind = getOwnDataValue(value, "infrastructureKind");
+  const unsupported = getOwnDataValue(value, "unsupportedOperation");
+
+  if (
+    typeof type !== "string" ||
+    typeof name !== "string" ||
+    typeof message !== "string" ||
+    (kind !== undefined && !isRuntimeInfrastructureErrorKind(kind))
+  ) {
+    return undefined;
+  }
+
+  let unsupportedOperation: HostError["unsupportedOperation"];
+  if (unsupported !== undefined) {
+    if (!isRecord(unsupported)) {
+      return undefined;
+    }
+    const operation = getOwnDataValue(unsupported, "operation");
+    const reason = getOwnDataValue(unsupported, "reason");
+    if (typeof operation !== "string" || typeof reason !== "string") {
+      return undefined;
+    }
+    unsupportedOperation = { operation, reason };
+  }
+
+  const error: HostError = {
+    type,
+    name,
+    message,
+    ...(typeof stack === "string" ? { stack } : {}),
+    ...(kind !== undefined ? { infrastructureKind: kind } : {}),
+    ...(unsupportedOperation !== undefined ? { unsupportedOperation } : {}),
+  };
+
+  // Reflection traps can change values between reads. Validate the snapshot as well.
+  return isRuntimeErrorSnapshot(error) ? error : undefined;
+}
+
+function getOwnDataDescriptor(record: object, key: string): PropertyDescriptor | undefined {
+  const descriptor = Object.getOwnPropertyDescriptor(record, key);
+  return descriptor !== undefined && "value" in descriptor ? descriptor : undefined;
+}
+
+function getOwnDataValue(record: object, key: string): unknown {
+  return getOwnDataDescriptor(record, key)?.value;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

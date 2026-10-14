@@ -1,6 +1,6 @@
 import type { HostCallDispatcher } from "../host-dispatcher";
 import {
-  isHostRequestEnvelope,
+  parseHostRequestEnvelope,
   type HostError,
   type HostRequestMessage,
   type HostResponseMessage,
@@ -36,8 +36,38 @@ function serializeHostError(error: unknown): HostError {
 
   return {
     ...serialized,
-    type: error instanceof Error ? error.constructor.name || serialized.name : "Error",
+    type: getHostErrorType(error, serialized.name),
   };
+}
+
+/** Preserve native/custom Error class names without reading instance accessors. */
+function getHostErrorType(error: unknown, fallback: string): string {
+  try {
+    if (!(error instanceof Error)) {
+      return "Error";
+    }
+
+    // Ignore an instance's `constructor` property: it may be a getter supplied
+    // by the thrown object. Constructor metadata belongs to its prototype.
+    let prototype = Object.getPrototypeOf(error) as object | null;
+    while (prototype !== null) {
+      const descriptor = Object.getOwnPropertyDescriptor(prototype, "constructor");
+      if (descriptor !== undefined) {
+        if (!("value" in descriptor) || typeof descriptor.value !== "function") {
+          return fallback;
+        }
+
+        const name = Object.getOwnPropertyDescriptor(descriptor.value, "name")?.value;
+        return typeof name === "string" && name.length > 0 ? name : fallback;
+      }
+      prototype = Object.getPrototypeOf(prototype) as object | null;
+    }
+  } catch {
+    // Reflection on a revoked Proxy or an unexpected prototype must not prevent
+    // the host from replying with the already-serialized error.
+  }
+
+  return fallback;
 }
 
 export async function handleHostRequestMessage(
@@ -46,12 +76,12 @@ export async function handleHostRequestMessage(
   dispatcher: HostCallDispatcher,
   value: unknown,
 ): Promise<boolean> {
-  if (!isHostRequestEnvelope(value)) {
+  // WorkerHostBridge is the typed producer; only the transport envelope is
+  // validated here. Use the parsed id/call rather than rereading the message.
+  const request = parseHostRequestEnvelope(value) as HostRequestMessage | undefined;
+  if (request === undefined) {
     return false;
   }
-
-  // WorkerHostBridge is the typed producer; only the transport envelope is validated here.
-  const request = value as HostRequestMessage;
 
   try {
     const response = await createHostResponse(dispatcher, request);

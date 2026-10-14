@@ -65,6 +65,29 @@ describe("InMemoryDriveIteratorSession", () => {
     );
   });
 
+  test("reject old iterator handles when session IDs are reused", async () => {
+    const beforeRestart = createSession(1);
+    const staleFile = await beforeRestart.createFileIterator(FILES);
+    const staleFolder = await beforeRestart.createFolderIterator(FOLDERS);
+
+    // A new iterator store starts its session IDs at one again. Its handles
+    // must not accidentally resolve state from a preceding store lifetime.
+    const afterRestart = createSession(1);
+    const currentFile = await afterRestart.createFileIterator([FILES[1]]);
+    const currentFolder = await afterRestart.createFolderIterator([FOLDERS[1]]);
+
+    expect(currentFile.handle).not.toBe(staleFile.handle);
+    expect(currentFolder.handle).not.toBe(staleFolder.handle);
+    await expect(afterRestart.hasNext(staleFile)).rejects.toThrow(
+      "Unknown Drive file iterator handle",
+    );
+    await expect(afterRestart.nextFolder(staleFolder)).rejects.toThrow(
+      "Unknown Drive folder iterator handle",
+    );
+    await expect(afterRestart.nextFile(currentFile)).resolves.toStrictEqual(FILES[1]);
+    await expect(afterRestart.nextFolder(currentFolder)).resolves.toStrictEqual(FOLDERS[1]);
+  });
+
   test("keep file and folder continuation tokens type-safe", async () => {
     const continuation = {
       kind: "file",

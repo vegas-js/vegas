@@ -29,6 +29,11 @@ export function createServerFunctionRun(
     {},
     {
       get(_, property) {
+        // Introspection must not become a server invocation or make the runner thenable.
+        if (typeof property !== "string" || property === "then") {
+          return undefined;
+        }
+
         if (property === "withSuccessHandler") {
           return (handler: ServerFunctionHandler) =>
             createServerFunctionRun(dispatch, {
@@ -55,7 +60,7 @@ export function createServerFunctionRun(
 
         return (...args: unknown[]) => {
           dispatch({
-            functionName: String(property),
+            functionName: property,
             args,
             handlers,
           });

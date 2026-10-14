@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+## 0.3.0 - 2026-10-14
+
+### Changed
+
+- Updated all eight starter templates to target `@vegasjs/vegas` ^0.3.0 and document optional registered RPC setup.
+
 ## 0.2.0 - 2026-10-08
 
 ### Added

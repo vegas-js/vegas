@@ -38,6 +38,18 @@ describe("registered RPC dispatcher", () => {
     expect(getter).not.toHaveBeenCalled();
   });
 
+  test("rejects custom-prototype registries before invoking an own handler", () => {
+    const invoke = vi.fn(() => "unsafe");
+    class HandlerRegistry {
+      greet = invoke;
+    }
+
+    expect(() => __vegasInternalRpcDispatch(new HandlerRegistry(), "greet")).toThrow(
+      "Unknown or private RPC handler: greet",
+    );
+    expect(invoke).not.toHaveBeenCalled();
+  });
+
   test("validates arguments before invoking handlers and validates results", () => {
     const echo = vi.fn((value: unknown) => value);
     const handlers = { echo, dateResult: () => new Date() };

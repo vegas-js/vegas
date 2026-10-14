@@ -1,3 +1,5 @@
+import { isPublicRpcHandlerName, type ReservedRpcHandlerName } from "./rpc-handler-name";
+import { isPlainRpcHandlerRegistry, rememberRpcHandlerRegistry } from "./rpc-handler-registry";
 import type { IsRpcTransportFunction } from "./rpc-transport";
 
 /**
@@ -12,7 +14,7 @@ import type { IsRpcTransportFunction } from "./rpc-transport";
  */
 export type ServerFunctionHandlers<Contract extends object> = {
   [Name in keyof Contract]: Name extends string
-    ? Name extends `${string}_` | "then"
+    ? Name extends `${string}_` | ReservedRpcHandlerName
       ? never
       : Contract[Name] extends (...args: never[]) => unknown
         ? IsRpcTransportFunction<Contract[Name]> extends true
@@ -26,7 +28,10 @@ export type ServerFunctionHandlers<Contract extends object> = {
  * Type-check the server implementation against a client-independent RPC contract.
  *
  * The returned object is unchanged. Export the registry as `rpc` to use
- * `createRpcClient`, or export its members for the legacy named-function bridge.
+ * `createRpcClient`. Use a plain object or null-prototype record for handlers.
+ * A registration snapshots allowed handler names and function references,
+ * without freezing the original object. Changes require re-registration before
+ * they become available through RPC. Other named exports remain GAS globals.
  */
 export function defineServerFunctions<Contract extends object>(
   handlers: ServerFunctionHandlers<Contract>,
@@ -36,19 +41,24 @@ export function defineServerFunctions<Contract extends object>(
     throw new TypeError("RPC handlers must be an object.");
   }
 
+  if (!isPlainRpcHandlerRegistry(handlers)) {
+    throw new TypeError("RPC handlers must be a plain object.");
+  }
+
+  const methods = new Map<string, unknown>();
   for (const name of Reflect.ownKeys(handlers)) {
     const descriptor = Object.getOwnPropertyDescriptor(handlers, name);
     if (
-      typeof name !== "string" ||
-      name.endsWith("_") ||
-      name === "then" ||
+      !isPublicRpcHandlerName(name) ||
       descriptor === undefined ||
       !("value" in descriptor) ||
       typeof descriptor.value !== "function"
     ) {
       throw new TypeError(`Invalid RPC handler: ${String(name)}`);
     }
+    methods.set(name, descriptor.value);
   }
 
+  rememberRpcHandlerRegistry(handlers, methods);
   return handlers;
 }

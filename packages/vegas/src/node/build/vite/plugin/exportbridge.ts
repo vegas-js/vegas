@@ -4,54 +4,141 @@ import vm from "node:vm";
 import { parseSync, type Plugin } from "vite";
 
 const INTERNAL_RPC_DISPATCH = "__vegasInternalRpcDispatch";
+// A separate export name keeps user-defined reserved exports visible when they
+// arrive through `export *`, so the final bundle can reject collisions.
+const INJECTED_RPC_DISPATCH = "__vegasInjectedRpcDispatch";
+
+function matchesExportName(
+  exported: { readonly type: string; readonly name?: string; readonly value?: unknown },
+  name: string,
+): boolean {
+  return (
+    (exported.type === "Identifier" && exported.name === name) ||
+    (exported.type === "Literal" && exported.value === name)
+  );
+}
+
+/**
+ * Check the bindings introduced by an exported variable declaration, not its
+ * object property keys. Nested, defaulted, rest and array patterns can all
+ * introduce the public `rpc` binding.
+ */
+function bindsName(pattern: unknown, name: string): boolean {
+  if (pattern === null || typeof pattern !== "object" || !("type" in pattern)) {
+    return false;
+  }
+
+  switch (pattern.type) {
+    case "Identifier":
+      return "name" in pattern && pattern.name === name;
+    case "AssignmentPattern":
+      return "left" in pattern && bindsName(pattern.left, name);
+    case "RestElement":
+      return "argument" in pattern && bindsName(pattern.argument, name);
+    case "Property":
+      return "value" in pattern && bindsName(pattern.value, name);
+    case "ObjectPattern":
+      return (
+        "properties" in pattern &&
+        Array.isArray(pattern.properties) &&
+        pattern.properties.some((property: unknown) => bindsName(property, name))
+      );
+    case "ArrayPattern":
+      return (
+        "elements" in pattern &&
+        Array.isArray(pattern.elements) &&
+        pattern.elements.some((element: unknown) => bindsName(element, name))
+      );
+    default:
+      return false;
+  }
+}
 
 function hasRpcExport(source: string, filePath: string): boolean {
   const { program } = parseSync(filePath, source);
   return program.body.some((node) => {
-    // A star re-export can supply `rpc` from another module.
-    // Only generate the GAS global dispatcher when the final chunk exports it.
+    // A bare star re-export can supply `rpc` from another module.
+    // A namespace re-export only supplies its declared export name.
     if (node.type === "ExportAllDeclaration") {
-      return true;
+      return (
+        node.exportKind !== "type" &&
+        (node.exported == null || matchesExportName(node.exported, "rpc"))
+      );
     }
 
-    if (node.type !== "ExportNamedDeclaration") {
+    if (node.type !== "ExportNamedDeclaration" || node.exportKind === "type") {
       return false;
     }
 
     const declaration = node.declaration;
     return (
       (declaration?.type === "VariableDeclaration" &&
-        declaration.declarations.some(
-          (variable) =>
-            (variable.id.type === "Identifier" && variable.id.name === "rpc") ||
-            (variable.id.type === "ObjectPattern" &&
-              variable.id.properties.some(
-                (property) =>
-                  property.type === "Property" &&
-                  property.value.type === "Identifier" &&
-                  property.value.name === "rpc",
-              )),
-        )) ||
+        declaration.declarations.some((variable) => bindsName(variable.id, "rpc"))) ||
       node.specifiers.some(
         (specifier) =>
-          specifier.exported.type === "Identifier" && specifier.exported.name === "rpc",
+          specifier.exportKind !== "type" && matchesExportName(specifier.exported, "rpc"),
       )
     );
   });
 }
 
+/**
+ * `export * as rpc` creates a module namespace, whose functions may be
+ * exposed by getters. Snapshot its exports into own data properties rather
+ * than weakening the registered RPC dispatcher's accessor validation.
+ */
+function normalizeRpcNamespaceExports(source: string, filePath: string): string {
+  const { program } = parseSync(filePath, source);
+  let normalized = source;
+
+  // Replace backwards so original AST offsets remain valid.
+  for (let index = program.body.length - 1; index >= 0; index--) {
+    const node = program.body[index];
+    if (node?.type !== "ExportAllDeclaration" || node.exportKind === "type" || !node.exported) {
+      continue;
+    }
+
+    const exportedName =
+      node.exported.type === "Identifier" ? node.exported.name : node.exported.value;
+    if (exportedName !== "rpc") {
+      continue;
+    }
+
+    let binding = `__vegasRpcNamespace${index}`;
+    while (source.includes(binding)) {
+      binding += "_";
+    }
+    const specifier = source.slice(node.source.start, node.source.end);
+    const replacement = [
+      `import * as ${binding} from ${specifier};`,
+      `export const rpc = { ...${binding} };`,
+    ].join("\n");
+    normalized = normalized.slice(0, node.start) + replacement + normalized.slice(node.end);
+  }
+
+  return normalized;
+}
+
 function hasExplicitInternalExport(source: string, filePath: string): boolean {
   const { program } = parseSync(filePath, source);
   return program.body.some((node) => {
-    if (node.type !== "ExportNamedDeclaration") {
+    if (node.type === "ExportAllDeclaration") {
+      return (
+        node.exportKind !== "type" &&
+        node.exported != null &&
+        matchesExportName(node.exported, INTERNAL_RPC_DISPATCH)
+      );
+    }
+
+    if (node.type !== "ExportNamedDeclaration" || node.exportKind === "type") {
       return false;
     }
 
     if (
       node.specifiers.some(
         (specifier) =>
-          specifier.exported.type === "Identifier" &&
-          specifier.exported.name === INTERNAL_RPC_DISPATCH,
+          specifier.exportKind !== "type" &&
+          matchesExportName(specifier.exported, INTERNAL_RPC_DISPATCH),
       )
     ) {
       return true;
@@ -59,16 +146,8 @@ function hasExplicitInternalExport(source: string, filePath: string): boolean {
 
     const declaration = node.declaration;
     if (declaration?.type === "VariableDeclaration") {
-      return declaration.declarations.some(
-        (variable) =>
-          (variable.id.type === "Identifier" && variable.id.name === INTERNAL_RPC_DISPATCH) ||
-          (variable.id.type === "ObjectPattern" &&
-            variable.id.properties.some(
-              (property) =>
-                property.type === "Property" &&
-                property.value.type === "Identifier" &&
-                property.value.name === INTERNAL_RPC_DISPATCH,
-            )),
+      return declaration.declarations.some((variable) =>
+        bindsName(variable.id, INTERNAL_RPC_DISPATCH),
       );
     }
 
@@ -116,7 +195,8 @@ export function exportBridge(isServerEntry: (id: string) => boolean = () => true
       // Resolve the private build entry, not the public server API.
       // Let Vite bundle the internal dispatcher and its shared validator into
       // the GAS IIFE. Never serialize executable functions with toString().
-      return `${source}\nexport { ${INTERNAL_RPC_DISPATCH} } from "@vegasjs/vegas/__internal/rpc";\n`;
+      const normalizedSource = normalizeRpcNamespaceExports(source, id);
+      return `${normalizedSource}\nexport { ${INTERNAL_RPC_DISPATCH} as ${INJECTED_RPC_DISPATCH} } from "@vegasjs/vegas/__internal/rpc";\n`;
     },
 
     generateBundle(outputOptions, bundle) {
@@ -125,7 +205,11 @@ export function exportBridge(isServerEntry: (id: string) => boolean = () => true
           const bridgeCodes: string[] = ["\n/* Function bridge for GAS Client */"];
           output.exports.forEach((exportName) => {
             // The registry is an object, not a callable top-level GAS function.
-            if (exportName === "rpc" || exportName === INTERNAL_RPC_DISPATCH) {
+            if (
+              exportName === "rpc" ||
+              exportName === INTERNAL_RPC_DISPATCH ||
+              exportName === INJECTED_RPC_DISPATCH
+            ) {
               return;
             }
 
@@ -136,11 +220,17 @@ export function exportBridge(isServerEntry: (id: string) => boolean = () => true
             );
           });
           if (output.exports.includes("rpc")) {
+            if (output.exports.includes(INTERNAL_RPC_DISPATCH)) {
+              throw new Error(
+                `Server export "${INTERNAL_RPC_DISPATCH}" is reserved for Vegas RPC.`,
+              );
+            }
+
             if (output.exports.includes("vegasRpcCall")) {
               throw new Error('Server export "vegasRpcCall" conflicts with the RPC dispatcher.');
             }
 
-            if (!output.exports.includes(INTERNAL_RPC_DISPATCH)) {
+            if (!output.exports.includes(INJECTED_RPC_DISPATCH)) {
               throw new Error("Registered RPC entry must export rpc from Code.ts or Code.js.");
             }
 
@@ -149,7 +239,7 @@ export function exportBridge(isServerEntry: (id: string) => boolean = () => true
             const root = outputOptions.name ?? "globalThis";
             bridgeCodes.push(
               "function vegasRpcCall(name, ...args) {",
-              `  return ${root}.${INTERNAL_RPC_DISPATCH}(${root}.rpc, name, ...args);`,
+              `  return ${root}.${INJECTED_RPC_DISPATCH}(${root}.rpc, name, ...args);`,
               "}",
             );
           }

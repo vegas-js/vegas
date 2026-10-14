@@ -1,3 +1,5 @@
+import { isPublicRpcHandlerName } from "./rpc-handler-name";
+import { isPlainRpcHandlerRegistry, isRegisteredRpcHandler } from "./rpc-handler-registry";
 import { assertRpcTransportValue } from "./rpc-transport-value";
 
 /**
@@ -9,19 +11,20 @@ export function __vegasInternalRpcDispatch(
   name: unknown,
   ...args: unknown[]
 ): unknown {
+  const registry = isPlainRpcHandlerRegistry(handlers) ? handlers : undefined;
   const descriptor =
-    typeof name === "string" && handlers !== null && typeof handlers === "object"
-      ? Object.getOwnPropertyDescriptor(handlers, name)
+    isPublicRpcHandlerName(name) && registry
+      ? Object.getOwnPropertyDescriptor(registry, name)
       : undefined;
   const candidate: unknown = descriptor?.value;
 
   if (
-    typeof name !== "string" ||
-    name.endsWith("_") ||
-    name === "then" ||
+    !isPublicRpcHandlerName(name) ||
     !descriptor ||
     !("value" in descriptor) ||
-    typeof candidate !== "function"
+    typeof candidate !== "function" ||
+    registry === undefined ||
+    !isRegisteredRpcHandler(registry, name, candidate)
   ) {
     throw new Error(`Unknown or private RPC handler: ${String(name)}`);
   }

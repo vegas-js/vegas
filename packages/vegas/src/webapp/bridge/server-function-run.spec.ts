@@ -59,6 +59,28 @@ describe("createServerFunctionRun", () => {
     });
   });
 
+  test("ignores Promise and symbol probes without dispatching RPC", async () => {
+    const dispatch = vi.fn();
+    const baseRun = createServerFunctionRun(dispatch);
+    const configuredRun = baseRun.withSuccessHandler(vi.fn());
+
+    for (const run of [baseRun, configuredRun]) {
+      expect(Reflect.get(run, "then")).toBeUndefined();
+      expect(Reflect.get(run, Symbol.toStringTag)).toBeUndefined();
+      expect(Reflect.get(run, Symbol.iterator)).toBeUndefined();
+      await expect(Promise.resolve(run)).resolves.toBe(run);
+    }
+
+    expect(dispatch).not.toHaveBeenCalled();
+    invoke(configuredRun, "greet", "Vegas");
+    expect(dispatch).toHaveBeenCalledOnce();
+    expect(dispatch).toHaveBeenCalledWith({
+      functionName: "greet",
+      args: ["Vegas"],
+      handlers: { success: expect.any(Function) },
+    });
+  });
+
   test("preserve an explicit null failure handler", () => {
     const dispatch = vi.fn();
     const run = createServerFunctionRun(dispatch).withFailureHandler(null);

@@ -28,6 +28,16 @@ export type UrlFetchRequestInput =
       readonly url: string;
     });
 
+// Google documents a maximum UrlFetchApp URL length of 2,082 characters.
+// Vegas checks JavaScript string length; Google post-escaping length parity is unverified.
+const MAX_URL_FETCH_URL_LENGTH = 2_082;
+
+export function validateUrlFetchUrl(url: string): void {
+  if (url.length > MAX_URL_FETCH_URL_LENGTH) {
+    throw new RangeError("UrlFetch URL must not exceed 2082 characters.");
+  }
+}
+
 // https://developers.google.com/apps-script/reference/url-fetch/url-fetch-app
 export function normalizeUrlFetchRequest(
   request: UrlFetchRequestInput,
@@ -49,6 +59,8 @@ function createRequestValue(
   url: string,
   options: UrlFetchRequestOptionsInput = {},
 ): UrlFetchRequestValue {
+  validateUrlFetchUrl(url);
+
   return {
     url,
     ...(options.contentType === undefined ? {} : { contentType: options.contentType }),

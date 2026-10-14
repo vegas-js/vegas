@@ -210,7 +210,7 @@ describe("typed host transport", () => {
           value: {
             service: "drive",
             kind: "folder",
-            id: "drive-root:1",
+            id: expect.stringMatching(/^drive-root:[0-9a-f-]{36}$/),
           },
         },
         missingFileResponse: {

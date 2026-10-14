@@ -52,15 +52,19 @@ import type {
 
 ## `@vegasjs/vegas/client`
 
-### `createServerFunctionClient<T>()`
+서버에서 export하는 `rpc` 레지스트리와 `createRpcClient<T>()`를 사용하세요.
+
+### `createRpcClient<T>()`
 
 ```typescript
-function createServerFunctionClient<T extends object>(): ServerFunctionClient<T>;
+function createRpcClient<T extends object>(): RpcClient<T>;
 ```
 
-`createServerFunctionClient<T>()`는 `google.script.run` 위에 typed Promise-based client를 만듭니다.
+`RpcClient<T>`는 `createRpcClient<T>()`의 공개 반환 타입입니다. 기존 `createServerFunctionClient()` 함수와 `ServerFunctionClient<T>` 타입 별칭은 v0.3.0에서 제거되었습니다.
 
-먼저 server 구현과 독립적인 RPC 계약을 정의합니다.
+마이그레이션하려면 서버에서 `rpc`라는 이름으로 핸들러 레지스트리를 export하고 클라이언트의 `createServerFunctionClient<T>()`를 `createRpcClient<T>()`로 바꾸세요.
+
+등록형 RPC는 각 메서드를 개별 이름으로 export하는 대신 하나의 GAS 진입점인 `vegasRpcCall`을 사용합니다. 공개 계약은 server 구현과 분리합니다.
 
 ```typescript
 // src/contracts/rpc.ts
@@ -68,50 +72,6 @@ export interface ServerRpc {
   greet(name: string): string;
 }
 ```
-
-server에서는 계약을 만족하는 함수를 구현하고 GAS Bridge를 위해 이름 있는 export로 노출합니다.
-
-```typescript
-// src/server/Code.ts
-import { defineServerFunctions } from "@vegasjs/vegas/server";
-
-import type { ServerRpc } from "../contracts/rpc";
-
-export const { greet } = defineServerFunctions<ServerRpc>({
-  greet(name) {
-    Logger.log(name);
-    return `Hello, ${name}`;
-  },
-});
-```
-
-client는 공유 RPC 계약의 타입만 참조합니다.
-
-```typescript
-// src/client/main.ts
-import { createServerFunctionClient } from "@vegasjs/vegas/client";
-
-import type { ServerRpc } from "../contracts/rpc";
-
-const server = createServerFunctionClient<ServerRpc>();
-const result = await server.greet("Vegas");
-```
-
-이 방식은 Vegas 실행, 타입 파일 생성, TypeScript Project References가 필요하지 않습니다. `../server/Code`를 `import type`으로 참조해도 client 설정으로 server 구현을 검사하므로 피해야 합니다. `defineServerFunctions()`는 타입 검사와 함께 등록 시 핸들러 이름과 함수 값을 검증한 뒤 원래 객체를 반환합니다. 기존 방식의 GAS 함수 공개에는 이름 있는 export가 필요합니다.
-
-`ServerFunctionClient<T>`는 `T`의 string-keyed function을 대상으로 하며, 이름이 `_`로 끝나는 function을 제외하고, 각 function의 argument tuple을 유지하면서 result를 `Promise<Awaited<Result>>`로 변환합니다.
-
-client는 `google.script.run.withSuccessHandler()`에서 resolve하고 `withFailureHandler()`에서 reject합니다.
-
-entry point는 다음을 export합니다.
-
-```typescript
-import { createServerFunctionClient, type ServerFunctionClient } from "@vegasjs/vegas/client";
-```
-
-### `createRpcClient<T>()`
-
-등록형 RPC는 각 메서드를 개별 이름으로 export하는 대신 하나의 GAS 진입점인 `vegasRpcCall`을 사용합니다. 공개 계약은 server 구현과 분리합니다.
 
 ```typescript
 // src/server/Code.ts
@@ -129,19 +89,25 @@ export const rpc = defineServerFunctions<ServerRpc>({
 
 ```typescript
 // src/client/main.ts
-import { createRpcClient } from "@vegasjs/vegas/client";
+import { createRpcClient, type RpcClient } from "@vegasjs/vegas/client";
 
 import type { ServerRpc } from "../contracts/rpc";
 
-const server = createRpcClient<ServerRpc>();
+const server: RpcClient<ServerRpc> = createRpcClient<ServerRpc>();
 const result = await server.greet("Vegas");
 ```
 
-server 엔트리는 `rpc`라는 이름으로 객체를 export해야 합니다. Vegas는 Local Runtime과 Google Apps Script 양쪽에서 디스패처를 통해 해당 메서드를 실행합니다. 기존 named export와 `createServerFunctionClient()`도 계속 지원됩니다. 이 방식에서는 `rpc`가 핸들러 export 이름이며 `vegasRpcCall`이 GAS 디스패처 이름이므로, `rpc`와 함께 `vegasRpcCall` 함수를 export하지 마세요.
+server 엔트리는 `rpc`라는 이름으로 객체를 export해야 합니다. Vegas는 Local Runtime과 Google Apps Script 양쪽에서 디스패처를 통해 해당 메서드를 실행합니다. 최상위 named export는 Apps Script 자체에서 계속 사용할 수 있지만 Vegas 클라이언트는 등록형 `rpc` 디스패처를 사용합니다. 이 방식에서는 `rpc`가 핸들러 export 이름이며 `vegasRpcCall`이 GAS 디스패처 이름이므로, `rpc`와 함께 `vegasRpcCall` 함수를 export하지 마세요.
 
-등록형 RPC 계약은 `google.script.run`으로 전달 가능한 값의 보수적인 부분집합(문자열, 숫자, 불리언, `null`, 배열, 일반 데이터 객체)에 대해 정적으로 검사됩니다. TypeScript는 `Date`, 콜백, `Promise` 반환값, 선택적 `undefined` 프로퍼티, 지나치게 넓은 `object` / `{}` 타입, 재귀 객체 타입을 거부합니다. `void` 반환값은 허용됩니다. 정적 타입 검사만으로는 숫자가 유한한지 또는 객체에 순환 참조가 없는지 증명할 수 없습니다.
+RPC 레지스트리는 함수가 자체 프로퍼티로 존재하는 일반 객체 또는 `null` 프로토타입 객체여야 합니다. 클래스 인스턴스와 상속된 메서드는 지원하지 않습니다.
 
-Vegas는 등록형 RPC 값도 런타임에 검증합니다. `createRpcClient()`는 `google.script.run`을 호출하기 전에 인수를 검증하고, 생성된 `vegasRpcCall` 디스패처는 전달받은 인수와 핸들러 반환값을 검증합니다. `Date`, 함수, 심벌, 접근자, 순환 참조, 유한하지 않은 숫자, 희소 배열, 열거 불가능한 데이터 프로퍼티, 사용자 정의 프로토타입을 가진 객체 등은 거부됩니다. `void` 형식의 핸들러에서는 최상위 `undefined` 반환값을 허용합니다. 이 검증은 값을 직렬화하지 않으며 Google이 허용된 모든 값을 받아들인다고 보장하지도 않습니다. 기존 `createServerFunctionClient()`에는 이 추가 인수 검증이 적용되지 않습니다. 날짜는 문자열로 변환해 전달하세요.
+`defineServerFunctions()`는 등록 시점의 핸들러 이름과 함수 참조를 기록합니다. 원본 객체를 동결하지는 않지만 새 메서드를 추가하거나 교체해도 다시 등록하기 전에는 RPC를 통해 호출할 수 없습니다. 헬퍼 없이 `rpc`를 직접 export한 경우에는 호출 시점 검증만 적용됩니다.
+
+`defineServerFunctions()`와 `RpcClient<T>`는 등록형 RPC 계약이 `google.script.run`으로 전달 가능한 값의 보수적인 부분집합(문자열, 숫자, 불리언, `null`, 배열, 일반 데이터 객체)에 부합하는지 정적으로 검사합니다. 지원되지 않는 시그니처를 가진 메서드는 `RpcClient<T>`에서 제외됩니다. TypeScript는 `Date`, 콜백, `Promise` 반환값, 선택적 `undefined` 프로퍼티, 지나치게 넓은 `object` / `{}` 타입, 재귀 객체 타입을 거부합니다. `void` 반환값은 허용됩니다. 정적 타입 검사만으로는 숫자가 유한한지 또는 객체에 순환 참조가 없는지 증명할 수 없습니다.
+
+Vegas는 등록형 RPC 값도 런타임에 검증합니다. `createRpcClient()`는 `google.script.run`을 호출하기 전에 인수를 검증하고, 생성된 `vegasRpcCall` 디스패처는 전달받은 인수와 핸들러 반환값을 검증합니다. `Date`, 함수, 심벌, 접근자, 순환 참조, 유한하지 않은 숫자, 희소 배열, 열거 불가능한 데이터 프로퍼티, 사용자 정의 프로토타입을 가진 객체 등은 거부됩니다. `void` 형식의 핸들러에서는 최상위 `undefined` 반환값을 허용합니다. 이 검증은 값을 직렬화하지 않으며 Google이 허용된 모든 값을 받아들인다고 보장하지도 않습니다. 날짜는 문자열로 변환해 전달하세요.
+
+이름이 `_`로 끝나는 핸들러와 `then`, `constructor`, `prototype`, `__proto__`는 예약되어 있습니다. 등록, 클라이언트 Proxy, GAS 디스패처에서 사용할 수 없습니다.
 
 ## `@vegasjs/vegas/server`
 

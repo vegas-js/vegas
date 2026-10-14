@@ -1,31 +1,32 @@
 /// <reference types="../../types/google" />
 
+import {
+  isPublicRpcHandlerName,
+  type ReservedRpcHandlerName,
+} from "../apps-script/rpc-handler-name";
+import type { IsRpcTransportFunction } from "../apps-script/rpc-transport";
 import { assertRpcTransportValue } from "../apps-script/rpc-transport-value";
 
 type ServerFunction = (...args: never[]) => unknown;
 
 type ServerFunctionKey<T extends object> = {
   [K in keyof T]: K extends string
-    ? K extends `${string}_` | "then"
+    ? K extends `${string}_` | ReservedRpcHandlerName
       ? never
       : T[K] extends ServerFunction
-        ? K
+        ? IsRpcTransportFunction<T[K]> extends true
+          ? K
+          : never
         : never
     : never;
 }[keyof T];
 
-export type ServerFunctionClient<T extends object> = {
+/** Promise-based client interface for transport-safe methods of a registered RPC contract. */
+export type RpcClient<T extends object> = {
   [K in ServerFunctionKey<T>]: T[K] extends (...args: infer Args) => infer Result
     ? (...args: Args) => Promise<Awaited<Result>>
     : never;
 };
-
-/**
- * Invoke top-level named server exports through google.script.run.
- */
-export function createServerFunctionClient<T extends object>(): ServerFunctionClient<T> {
-  return createClient<T>(false);
-}
 
 /**
  * Invoke handlers registered by the server's named `rpc` export.
@@ -33,36 +34,27 @@ export function createServerFunctionClient<T extends object>(): ServerFunctionCl
  * All calls use the single GAS global `vegasRpcCall`. The server must export
  * `rpc = defineServerFunctions<Contract>(...)` from its Code entry module.
  */
-export function createRpcClient<T extends object>(): ServerFunctionClient<T> {
-  return createClient<T>(true);
-}
-
-function createClient<T extends object>(registered: boolean): ServerFunctionClient<T> {
+export function createRpcClient<T extends object>(): RpcClient<T> {
   const handler: ProxyHandler<object> = {
     get(_, property) {
-      // RPC proxies must not become thenables or respond to symbol probes.
-      if (typeof property !== "string" || property === "then") {
+      // Ignore reserved names and avoid thenables or accidental proxy introspection calls.
+      if (!isPublicRpcHandlerName(property)) {
         return undefined;
       }
 
       return (...args: unknown[]) =>
         new Promise((resolve, reject) => {
-          if (registered) {
-            for (let index = 0; index < args.length; index++) {
-              assertRpcTransportValue(args[index], `arguments[${index}]`);
-            }
+          for (let index = 0; index < args.length; index++) {
+            assertRpcTransportValue(args[index], `arguments[${index}]`);
           }
-
-          const functionName = registered ? "vegasRpcCall" : property;
-          const parameters = registered ? [property, ...args] : args;
 
           google.script.run
             .withSuccessHandler(resolve)
             .withFailureHandler(reject)
-            [functionName](...parameters);
+            .vegasRpcCall(property, ...args);
         });
     },
   };
 
-  return new Proxy({}, handler) as ServerFunctionClient<T>;
+  return new Proxy({}, handler) as RpcClient<T>;
 }

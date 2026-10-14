@@ -214,23 +214,26 @@ function smokeVanillaConsumer(tarballPath, tempRoot) {
     `
       import {
         createRpcClient,
-        createServerFunctionClient,
-        type ServerFunctionClient,
+        type RpcClient,
       } from "@vegasjs/vegas/client";
       import type { ServerRpc } from "../contracts/rpc.js";
 
       type ServerApi = ServerRpc & {
         hidden_(): string;
         value: string;
+        invalidDate(date: Date): string;
+        invalidPromise(): Promise<string>;
       };
 
-      const client: ServerFunctionClient<ServerApi> =
-        createServerFunctionClient<ServerApi>();
+      // @ts-expect-error Removed legacy client factory in v0.3.0.
+      type RemovedFactory = typeof import("@vegasjs/vegas/client").createServerFunctionClient;
+      void (null as unknown as RemovedFactory);
 
-      const greeting: Promise<string> = client.greet("Vegas");
-      void greeting;
+      // @ts-expect-error Removed legacy client type alias in v0.3.0.
+      type RemovedAlias = import("@vegasjs/vegas/client").ServerFunctionClient<ServerApi>;
+      void (null as unknown as RemovedAlias);
 
-      const registeredRpc = createRpcClient<ServerRpc>();
+      const registeredRpc: RpcClient<ServerApi> = createRpcClient<ServerApi>();
       const rpcGreeting: Promise<string> = registeredRpc.greet("Vegas");
       void rpcGreeting;
 
@@ -240,10 +243,16 @@ function smokeVanillaConsumer(tarballPath, tempRoot) {
       google.script.run.withSuccessHandler(() => {});
 
       // @ts-expect-error server functions ending in "_" are private
-      client.hidden_();
+      registeredRpc.hidden_();
 
       // @ts-expect-error non-functions are not exposed
-      client.value;
+      registeredRpc.value;
+
+      // @ts-expect-error Date cannot cross the registered RPC transport.
+      registeredRpc.invalidDate(new Date());
+
+      // @ts-expect-error Async server handlers cannot be registered.
+      registeredRpc.invalidPromise();
     `,
   );
 
@@ -310,7 +319,8 @@ function smokeVanillaConsumer(tarballPath, tempRoot) {
     "RPC registry must not be exposed as a GAS global function",
   );
   const context = vm.createContext({ Logger: { log: () => undefined } });
-  new vm.Script(code).runInContext(context);
+  const program = new vm.Script(code);
+  program.runInContext(context);
   assert.equal(vm.runInContext('vegasRpcCall("greet", "Vegas")', context), "Hello, Vegas");
   assert.throws(
     () => vm.runInContext('vegasRpcCall("constructor")', context),
@@ -324,6 +334,31 @@ function smokeVanillaConsumer(tarballPath, tempRoot) {
   assert.throws(
     () => vm.runInContext('vegasRpcCall("greet", new (class CustomRecord {})())', context),
     /Unsupported RPC transport value at arguments\[0\]/,
+  );
+
+  // Verify the packed public server entry and the private dispatcher share
+  // registration state inside the actual generated GAS IIFE.
+  vm.runInContext('GASApp.rpc.greet = () => "replaced"', context);
+  assert.throws(
+    () => vm.runInContext('vegasRpcCall("greet", "Vegas")', context),
+    /Unknown or private RPC handler: greet/,
+    "A replaced registered handler must not be callable in a packed consumer",
+  );
+  vm.runInContext('GASApp.rpc.added = () => "added"', context);
+  assert.throws(
+    () => vm.runInContext('vegasRpcCall("added")', context),
+    /Unknown or private RPC handler: added/,
+    "An added handler must not be callable without registration",
+  );
+
+  // Each Local Runtime reload evaluates a fresh program in a new VM. The
+  // previous program's registered handlers must not affect the new one.
+  const reloadedContext = vm.createContext({ Logger: { log: () => undefined } });
+  program.runInContext(reloadedContext);
+  assert.equal(
+    vm.runInContext('vegasRpcCall("greet", "Vegas")', reloadedContext),
+    "Hello, Vegas",
+    "A fresh VM must retain its own original RPC registration",
   );
 
   console.log("Vanilla packed-package consumer smoke passed");
@@ -499,6 +534,16 @@ function smokeVegasPackage() {
       fs.readFileSync(path.join(installedRoot, "package.json"), "utf8"),
     );
 
+    const clientDeclarations = fs.readFileSync(
+      path.join(installedRoot, "dist/client.d.ts"),
+      "utf8",
+    );
+    assert.doesNotMatch(
+      clientDeclarations,
+      /\b(ServerFunctionClient|createServerFunctionClient)\b/,
+      "Removed legacy client APIs must not be published",
+    );
+
     assert.equal(packageJson.license, "MIT");
 
     assertPackedLicense(installedRoot, [
@@ -569,14 +614,23 @@ function smokeVegasPackage() {
         const config = { appType: "script" };
         assert.equal(vegas.defineConfig(config), config);
 
-        assert.equal(
-          typeof client.createServerFunctionClient,
-          "function",
-        );
+        assert.equal(typeof client.createRpcClient, "function");
+        assert.equal("createServerFunctionClient" in client, false);
 
         assert.equal(typeof server.createSpreadsheetRowCodec, "function");
         assert.equal("__vegasInternalRpcDispatch" in server, false);
         assert.equal(typeof internalRpc.__vegasInternalRpcDispatch, "function");
+
+        // Both package entry points must observe the same registered snapshot.
+        const registry = server.defineServerFunctions({ greet: () => "original" });
+        assert.equal(internalRpc.__vegasInternalRpcDispatch(registry, "greet"), "original");
+        registry.greet = () => "replaced";
+        assert.throws(
+          () => internalRpc.__vegasInternalRpcDispatch(registry, "greet"),
+          /Unknown or private RPC handler: greet/,
+          "Packed package entry points must share their RPC registration snapshot",
+        );
+
 
         const rowCodec = server.createSpreadsheetRowCodec(
           2,
@@ -676,6 +730,8 @@ function smokeVegasPackage() {
         <html>
           <body>
             <p id="result">pending</p>
+            <p id="rpc-result">pending</p>
+            <p id="rpc-validation">pending</p>
             <button id="mutate" type="button">Mutate Runtime state</button>
             <script>
               const renderResult = (value) => {
@@ -703,14 +759,52 @@ function smokeVegasPackage() {
                 serverRun().setPrefix("Changed");
               });
             </script>
+            <script type="module" src="./rpc-smoke.ts"></script>
           </body>
         </html>
+      `,
+    );
+
+    // Exercise the actual packed @vegasjs/vegas/client implementation in the browser,
+    // not only the untyped google.script.run bridge used above.
+    fs.writeFileSync(
+      path.join(browserClientRoot, "rpc-smoke.ts"),
+      `
+        import { createRpcClient, type RpcClient } from "@vegasjs/vegas/client";
+
+        interface BrowserRpc {
+          greet(name: string): string;
+        }
+
+        const rpc: RpcClient<BrowserRpc> = createRpcClient<BrowserRpc>();
+        const result = document.getElementById("rpc-result");
+        if (!result) {
+          throw new Error("Missing RPC result element");
+        }
+
+        void rpc.greet("browser").then(
+          (value) => { result.textContent = value; },
+          (error: unknown) => { result.textContent = "error: " + String(error); },
+        );
+
+        const validation = document.getElementById("rpc-validation");
+        if (!validation) {
+          throw new Error("Missing RPC validation element");
+        }
+        // Bypass the static type boundary to test the published runtime guard.
+        const uncheckedGreet = rpc.greet as (name: unknown) => Promise<string>;
+        void uncheckedGreet(new Date()).then(
+          () => { validation.textContent = "unexpected success"; },
+          (error: unknown) => { validation.textContent = String(error); },
+        );
       `,
     );
 
     fs.writeFileSync(
       path.join(browserServerRoot, "Code.ts"),
       `
+        import { defineServerFunctions } from "@vegasjs/vegas/server";
+
         export function doGet(event) {
           if (event.parameter.format === "json") {
             return ContentService.createTextOutput('{"ok":true}').setMimeType(
@@ -735,6 +829,15 @@ function smokeVegasPackage() {
           PropertiesService.getScriptProperties().setProperty("prefix", prefix);
           return prefix + " browser";
         }
+
+        export const rpc = defineServerFunctions<{
+          greet(name: string): string;
+        }>({
+          greet(name) {
+            return PropertiesService.getScriptProperties().getProperty("prefix")
+              + " registered " + name;
+          },
+        });
       `,
     );
 
@@ -742,6 +845,16 @@ function smokeVegasPackage() {
       process.env.VEGAS_PLAYWRIGHT_BROWSER_MATRIX === "1"
         ? ["chromium", "firefox", "webkit"]
         : ["chromium"];
+
+    // The packed consumer resolves its own @playwright/test version. Install
+    // browser binaries for that version rather than relying on the workspace's
+    // potentially different Playwright installation.
+    run(
+      pnpm,
+      ["exec", "playwright", "install", "--with-deps", "--only-shell", ...playwrightBrowserNames],
+      { cwd: consumerRoot },
+    );
+
     const playwrightProjects = playwrightBrowserNames.map((browserName) => ({
       name: browserName,
       use: {
@@ -790,6 +903,10 @@ function smokeVegasPackage() {
 
         test("executes the packed browser bridge and Local Runtime", async ({ vegas }) => {
           await expect(vegas.app.locator("#result")).toHaveText("Vegas browser");
+          await expect(vegas.app.locator("#rpc-result")).toHaveText("Vegas registered browser");
+          await expect(vegas.app.locator("#rpc-validation")).toContainText(
+            "Unsupported RPC transport value at arguments[0]",
+          );
 
           await vegas.app
             .getByRole("button", { name: "Mutate Runtime state" })
@@ -800,6 +917,7 @@ function smokeVegasPackage() {
 
         test("starts the next browser test with fresh Runtime state", async ({ vegas }) => {
           await expect(vegas.app.locator("#result")).toHaveText("Vegas browser");
+          await expect(vegas.app.locator("#rpc-result")).toHaveText("Vegas registered browser");
         });
 
         test("serves packed ContentService GET output through a one-time redirect", async ({
