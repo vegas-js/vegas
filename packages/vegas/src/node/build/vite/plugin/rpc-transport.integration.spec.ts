@@ -229,6 +229,20 @@ describe("registered RPC transport boundary", () => {
     expect(vm.runInContext('vegasRpcCall("greet", "Vegas")', context)).toBe("Hello, Vegas");
   });
 
+  test("rejects custom-prototype RPC registries in the bundled GAS dispatcher", async () => {
+    const code = await buildRpcDispatcher(`
+      class HandlerRegistry {
+        greet = (name: string) => "Hello, " + name;
+      }
+      export const rpc = new HandlerRegistry();
+    `);
+    const context = vm.createContext({});
+    new vm.Script(code).runInContext(context);
+    expect(() => vm.runInContext('vegasRpcCall("greet", "Vegas")', context)).toThrow(
+      "Unknown or private RPC handler: greet",
+    );
+  });
+
   test("does not execute accessor properties or reserved handlers", async () => {
     const code = await buildRpcDispatcher(`
       export const rpc = Object.defineProperty({ echo(value: unknown) { return value; } }, "unsafe", {

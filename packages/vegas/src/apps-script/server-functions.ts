@@ -1,4 +1,5 @@
 import { isPublicRpcHandlerName, type ReservedRpcHandlerName } from "./rpc-handler-name";
+import { isPlainRpcHandlerRegistry } from "./rpc-handler-registry";
 import type { IsRpcTransportFunction } from "./rpc-transport";
 
 /**
@@ -27,7 +28,8 @@ export type ServerFunctionHandlers<Contract extends object> = {
  * Type-check the server implementation against a client-independent RPC contract.
  *
  * The returned object is unchanged. Export the registry as `rpc` to use
- * `createRpcClient`. Other top-level named exports remain GAS global functions.
+ * `createRpcClient`. Use a plain object or null-prototype record for handlers.
+ * Other top-level named exports remain GAS global functions.
  */
 export function defineServerFunctions<Contract extends object>(
   handlers: ServerFunctionHandlers<Contract>,
@@ -35,6 +37,10 @@ export function defineServerFunctions<Contract extends object>(
   const value: unknown = handlers;
   if (value === null || typeof value !== "object" || Array.isArray(value)) {
     throw new TypeError("RPC handlers must be an object.");
+  }
+
+  if (!isPlainRpcHandlerRegistry(handlers)) {
+    throw new TypeError("RPC handlers must be a plain object.");
   }
 
   for (const name of Reflect.ownKeys(handlers)) {

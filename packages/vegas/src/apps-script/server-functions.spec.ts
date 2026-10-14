@@ -1,5 +1,8 @@
+import vm from "node:vm";
+
 import { describe, expect, expectTypeOf, test } from "vitest";
 
+import { __vegasInternalRpcDispatch } from "./rpc-dispatcher";
 import { defineServerFunctions, type ServerFunctionHandlers } from "./server-functions";
 
 interface ServerRpc {
@@ -60,6 +63,45 @@ describe("defineServerFunctions", () => {
       [Symbol.toStringTag]: "rpc",
     };
     expect(() => register(symbol)).toThrow("Invalid RPC handler: Symbol(Symbol.toStringTag)");
+  });
+
+  test("rejects registries with inherited or class-prototype methods", () => {
+    const register = (handlers: object) =>
+      defineServerFunctions<{ greet(): string }>(
+        handlers as ServerFunctionHandlers<{ greet(): string }>,
+      );
+
+    class InheritedHandlers {
+      greet() {
+        return "Hello";
+      }
+    }
+    class OwnHandlers {
+      greet = () => "Hello";
+    }
+
+    for (const invalid of [new InheritedHandlers(), new OwnHandlers(), new Date()]) {
+      expect(() => register(invalid)).toThrow("RPC handlers must be a plain object.");
+    }
+
+    const inherited = Object.create({ greet: () => "Hello" }) as object;
+    expect(() => register(inherited)).toThrow("RPC handlers must be a plain object.");
+  });
+
+  test("accepts a null-prototype handler registry without copying it", () => {
+    const handlers = Object.assign(Object.create(null) as object, {
+      greet: () => "Hello",
+    });
+    expect(defineServerFunctions<{ greet(): string }>(handlers)).toBe(handlers);
+    expect(__vegasInternalRpcDispatch(handlers, "greet")).toBe("Hello");
+  });
+
+  test("accepts an object literal created in a different JavaScript realm", () => {
+    const handlers = vm.runInNewContext('({ greet() { return "Hello"; } })') as {
+      greet(): string;
+    };
+    expect(defineServerFunctions<{ greet(): string }>(handlers)).toBe(handlers);
+    expect(__vegasInternalRpcDispatch(handlers, "greet")).toBe("Hello");
   });
 
   test("rejects private names and non-function members at the type boundary", () => {
