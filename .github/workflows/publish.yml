@@ -92,6 +92,9 @@ jobs:
 
       - name: Verify release notes
         run: node scripts/release-notes.js "$RELEASE_CHANGELOG" "$RELEASE_VERSION" >/dev/null
+      - name: Verify published Vegas dependency for create-vegas
+        if: startsWith(github.ref_name, 'create-vegas@')
+        run: node scripts/verify-create-vegas-dependency.js
       - run: pnpm exec playwright install --with-deps --only-shell chromium
       - run: pnpm release:check
       - name: Publish package
