@@ -2,9 +2,17 @@
 
 ## Unreleased
 
+## 0.3.0 - 2026-10-14
+
 ### Added
 
 - Added typed registered RPC through `defineServerFunctions()`, `createRpcClient()`, and the `RpcClient<T>` contract, with shared transport validation and a single GAS dispatcher.
+
+### Changed
+
+- Hardened Local Runtime worker and host protocol validation, error serialization, and timeout and cancellation handling.
+- Strengthened local UrlFetch behavior for request limits, headers, response size, streams, and batch failures.
+- Improved local Drive continuation token and iterator lifetimes, lock cancellation behavior, and cache handling.
 
 ### Removed
 
