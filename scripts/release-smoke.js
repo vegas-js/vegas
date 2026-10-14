@@ -319,7 +319,8 @@ function smokeVanillaConsumer(tarballPath, tempRoot) {
     "RPC registry must not be exposed as a GAS global function",
   );
   const context = vm.createContext({ Logger: { log: () => undefined } });
-  new vm.Script(code).runInContext(context);
+  const program = new vm.Script(code);
+  program.runInContext(context);
   assert.equal(vm.runInContext('vegasRpcCall("greet", "Vegas")', context), "Hello, Vegas");
   assert.throws(
     () => vm.runInContext('vegasRpcCall("constructor")', context),
@@ -333,6 +334,31 @@ function smokeVanillaConsumer(tarballPath, tempRoot) {
   assert.throws(
     () => vm.runInContext('vegasRpcCall("greet", new (class CustomRecord {})())', context),
     /Unsupported RPC transport value at arguments\[0\]/,
+  );
+
+  // Verify the packed public server entry and the private dispatcher share
+  // registration state inside the actual generated GAS IIFE.
+  vm.runInContext('GASApp.rpc.greet = () => "replaced"', context);
+  assert.throws(
+    () => vm.runInContext('vegasRpcCall("greet", "Vegas")', context),
+    /Unknown or private RPC handler: greet/,
+    "A replaced registered handler must not be callable in a packed consumer",
+  );
+  vm.runInContext('GASApp.rpc.added = () => "added"', context);
+  assert.throws(
+    () => vm.runInContext('vegasRpcCall("added")', context),
+    /Unknown or private RPC handler: added/,
+    "An added handler must not be callable without registration",
+  );
+
+  // Each Local Runtime reload evaluates a fresh program in a new VM. The
+  // previous program's registered handlers must not affect the new one.
+  const reloadedContext = vm.createContext({ Logger: { log: () => undefined } });
+  program.runInContext(reloadedContext);
+  assert.equal(
+    vm.runInContext('vegasRpcCall("greet", "Vegas")', reloadedContext),
+    "Hello, Vegas",
+    "A fresh VM must retain its own original RPC registration",
   );
 
   console.log("Vanilla packed-package consumer smoke passed");
@@ -594,6 +620,17 @@ function smokeVegasPackage() {
         assert.equal(typeof server.createSpreadsheetRowCodec, "function");
         assert.equal("__vegasInternalRpcDispatch" in server, false);
         assert.equal(typeof internalRpc.__vegasInternalRpcDispatch, "function");
+
+        // Both package entry points must observe the same registered snapshot.
+        const registry = server.defineServerFunctions({ greet: () => "original" });
+        assert.equal(internalRpc.__vegasInternalRpcDispatch(registry, "greet"), "original");
+        registry.greet = () => "replaced";
+        assert.throws(
+          () => internalRpc.__vegasInternalRpcDispatch(registry, "greet"),
+          /Unknown or private RPC handler: greet/,
+          "Packed package entry points must share their RPC registration snapshot",
+        );
+
 
         const rowCodec = server.createSpreadsheetRowCodec(
           2,

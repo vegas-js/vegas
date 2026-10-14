@@ -118,6 +118,26 @@ describe("defineServerFunctions", () => {
     expect(__vegasInternalRpcDispatch(handlers, "added")).toBe("added");
   });
 
+  test("isolates registration snapshots for separate program registries", () => {
+    // A fresh Local Runtime program creates a new registry object. Its
+    // snapshot must not inherit changes from a previous program instance.
+    const previous = defineServerFunctions<{ greet(): string }>({ greet: () => "old" });
+    const current = defineServerFunctions<{ greet(): string }>({ greet: () => "new" });
+
+    previous.greet = () => "changed";
+    expect(() => __vegasInternalRpcDispatch(previous, "greet")).toThrow(
+      "Unknown or private RPC handler: greet",
+    );
+    expect(__vegasInternalRpcDispatch(current, "greet")).toBe("new");
+
+    // An invalid re-registration must not overwrite the last valid snapshot.
+    Object.defineProperty(current, "unsupported_", { value: () => "unsafe", configurable: true });
+    expect(() => defineServerFunctions<{ greet(): string }>(current)).toThrow(
+      "Invalid RPC handler: unsupported_",
+    );
+    expect(__vegasInternalRpcDispatch(current, "greet")).toBe("new");
+  });
+
   test("rejects a registered method turned into an accessor without executing it", () => {
     const getter = vi.fn(() => () => "unsafe");
     const handlers = defineServerFunctions<{ greet(): string }>({ greet: () => "ok" });
