@@ -214,7 +214,6 @@ function smokeVanillaConsumer(tarballPath, tempRoot) {
     `
       import {
         createRpcClient,
-        createServerFunctionClient,
         type RpcClient,
       } from "@vegasjs/vegas/client";
       import type { ServerRpc } from "../contracts/rpc.js";
@@ -224,17 +223,15 @@ function smokeVanillaConsumer(tarballPath, tempRoot) {
         value: string;
       };
 
-      const client: RpcClient<ServerApi> =
-        createServerFunctionClient<ServerApi>();
+      // @ts-expect-error Removed legacy client factory in v0.3.0.
+      type RemovedFactory = typeof import("@vegasjs/vegas/client").createServerFunctionClient;
+      void (null as unknown as RemovedFactory);
 
-      // @ts-expect-error The ServerFunctionClient type export was removed in v0.3.0.
+      // @ts-expect-error Removed legacy client type alias in v0.3.0.
       type RemovedAlias = import("@vegasjs/vegas/client").ServerFunctionClient<ServerApi>;
       void (null as unknown as RemovedAlias);
 
-      const greeting: Promise<string> = client.greet("Vegas");
-      void greeting;
-
-      const registeredRpc: RpcClient<ServerRpc> = createRpcClient<ServerRpc>();
+      const registeredRpc: RpcClient<ServerApi> = createRpcClient<ServerApi>();
       const rpcGreeting: Promise<string> = registeredRpc.greet("Vegas");
       void rpcGreeting;
 
@@ -244,10 +241,10 @@ function smokeVanillaConsumer(tarballPath, tempRoot) {
       google.script.run.withSuccessHandler(() => {});
 
       // @ts-expect-error server functions ending in "_" are private
-      client.hidden_();
+      registeredRpc.hidden_();
 
       // @ts-expect-error non-functions are not exposed
-      client.value;
+      registeredRpc.value;
     `,
   );
 
@@ -509,8 +506,8 @@ function smokeVegasPackage() {
     );
     assert.doesNotMatch(
       clientDeclarations,
-      /\bServerFunctionClient\b/,
-      "The removed ServerFunctionClient type must not be published",
+      /\b(ServerFunctionClient|createServerFunctionClient)\b/,
+      "Removed legacy client APIs must not be published",
     );
 
     assert.equal(packageJson.license, "MIT");
@@ -583,10 +580,8 @@ function smokeVegasPackage() {
         const config = { appType: "script" };
         assert.equal(vegas.defineConfig(config), config);
 
-        assert.equal(
-          typeof client.createServerFunctionClient,
-          "function",
-        );
+        assert.equal(typeof client.createRpcClient, "function");
+        assert.equal("createServerFunctionClient" in client, false);
 
         assert.equal(typeof server.createSpreadsheetRowCodec, "function");
         assert.equal("__vegasInternalRpcDispatch" in server, false);

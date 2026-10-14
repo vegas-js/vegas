@@ -26,26 +26,12 @@ export type RpcClient<T extends object> = {
 };
 
 /**
- * Invoke top-level named server exports through google.script.run.
- *
- * @deprecated Use `createRpcClient()` and export `rpc` from the server entry.
- * This legacy wrapper is retained for existing named-function clients.
- */
-export function createServerFunctionClient<T extends object>(): RpcClient<T> {
-  return createClient<T>(false);
-}
-
-/**
  * Invoke handlers registered by the server's named `rpc` export.
  *
  * All calls use the single GAS global `vegasRpcCall`. The server must export
  * `rpc = defineServerFunctions<Contract>(...)` from its Code entry module.
  */
 export function createRpcClient<T extends object>(): RpcClient<T> {
-  return createClient<T>(true);
-}
-
-function createClient<T extends object>(registered: boolean): RpcClient<T> {
   const handler: ProxyHandler<object> = {
     get(_, property) {
       // Ignore reserved names and avoid thenables or accidental proxy introspection calls.
@@ -55,19 +41,14 @@ function createClient<T extends object>(registered: boolean): RpcClient<T> {
 
       return (...args: unknown[]) =>
         new Promise((resolve, reject) => {
-          if (registered) {
-            for (let index = 0; index < args.length; index++) {
-              assertRpcTransportValue(args[index], `arguments[${index}]`);
-            }
+          for (let index = 0; index < args.length; index++) {
+            assertRpcTransportValue(args[index], `arguments[${index}]`);
           }
-
-          const functionName = registered ? "vegasRpcCall" : property;
-          const parameters = registered ? [property, ...args] : args;
 
           google.script.run
             .withSuccessHandler(resolve)
             .withFailureHandler(reject)
-            [functionName](...parameters);
+            .vegasRpcCall(property, ...args);
         });
     },
   };
