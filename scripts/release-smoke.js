@@ -845,6 +845,16 @@ function smokeVegasPackage() {
       process.env.VEGAS_PLAYWRIGHT_BROWSER_MATRIX === "1"
         ? ["chromium", "firefox", "webkit"]
         : ["chromium"];
+
+    // The packed consumer resolves its own @playwright/test version. Install
+    // browser binaries for that version rather than relying on the workspace's
+    // potentially different Playwright installation.
+    run(
+      pnpm,
+      ["exec", "playwright", "install", "--with-deps", "--only-shell", ...playwrightBrowserNames],
+      { cwd: consumerRoot },
+    );
+
     const playwrightProjects = playwrightBrowserNames.map((browserName) => ({
       name: browserName,
       use: {
