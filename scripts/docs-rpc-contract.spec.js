@@ -28,7 +28,7 @@ const documents = [
     removed: "v0.3.0에서 제거되었습니다",
     migration: "마이그레이션하려면 서버에서 `rpc`",
   },
-] as const;
+];
 
 describe("registered RPC documentation", () => {
   test.each(documents)("documents the actual transport boundary in $file", (document) => {
