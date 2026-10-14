@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Added
+
+- Added typed registered RPC through `defineServerFunctions()`, `createRpcClient()`, and the `RpcClient<T>` contract, with shared transport validation and a single GAS dispatcher.
+
 ### Removed
 
 - Removed the deprecated `ServerFunctionClient<T>` type alias and `createServerFunctionClient()` factory for v0.3.0. Migrate to `RpcClient<T>`, `createRpcClient<T>()`, and the server-side `rpc` registry.
