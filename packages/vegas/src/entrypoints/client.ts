@@ -4,6 +4,7 @@ import {
   isPublicRpcHandlerName,
   type ReservedRpcHandlerName,
 } from "../apps-script/rpc-handler-name";
+import type { IsRpcTransportFunction } from "../apps-script/rpc-transport";
 import { assertRpcTransportValue } from "../apps-script/rpc-transport-value";
 
 type ServerFunction = (...args: never[]) => unknown;
@@ -13,12 +14,14 @@ type ServerFunctionKey<T extends object> = {
     ? K extends `${string}_` | ReservedRpcHandlerName
       ? never
       : T[K] extends ServerFunction
-        ? K
+        ? IsRpcTransportFunction<T[K]> extends true
+          ? K
+          : never
         : never
     : never;
 }[keyof T];
 
-/** Promise-based client interface for methods of a registered RPC contract. */
+/** Promise-based client interface for transport-safe methods of a registered RPC contract. */
 export type RpcClient<T extends object> = {
   [K in ServerFunctionKey<T>]: T[K] extends (...args: infer Args) => infer Result
     ? (...args: Args) => Promise<Awaited<Result>>

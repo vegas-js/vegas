@@ -19,6 +19,23 @@ test("exposes RpcClient as the registered RPC factory return type", () => {
   expectTypeOf(rpc.greet).toEqualTypeOf<(name: string) => Promise<string>>();
 });
 
+test("excludes methods with unsupported transport signatures", () => {
+  interface Contract {
+    greet(name: string): string;
+    notify(): void;
+    invalidDate(date: Date): string;
+    invalidResult(): Promise<string>;
+    invalidUnknown(value: unknown): string;
+    invalidCallback(callback: () => void): string;
+    hidden_(): string;
+  }
+
+  expectTypeOf<RpcClient<Contract>>().toEqualTypeOf<{
+    greet(name: string): Promise<string>;
+    notify(): Promise<void>;
+  }>();
+});
+
 test("does not expose reserved RPC names through the client proxy", () => {
   type Contract = {
     greet(name: string): string;
@@ -98,8 +115,9 @@ describe("createRpcClient", () => {
     };
     vi.stubGlobal("google", { script: { run } });
 
-    const rpc = createRpcClient<{ echo(value: unknown): unknown }>();
-    const data = { items: ["Vegas", 1, null] };
+    type EchoPayload = { items: (string | number | null)[] };
+    const rpc = createRpcClient<{ echo(value: EchoPayload): EchoPayload }>();
+    const data: EchoPayload = { items: ["Vegas", 1, null] };
     await expect(rpc.echo(data)).resolves.toBe(data);
     expect(calls).toStrictEqual([["echo", data]]);
 
@@ -111,6 +129,8 @@ describe("createRpcClient", () => {
     const sparse: number[] = [];
     sparse.length = 2;
 
+    // Bypass the static contract deliberately to exercise the runtime boundary.
+    const uncheckedEcho = rpc.echo as (value: unknown) => Promise<unknown>;
     for (const invalid of [
       new Date(),
       () => "callback",
@@ -121,7 +141,7 @@ describe("createRpcClient", () => {
       Number.POSITIVE_INFINITY,
       sparse,
     ]) {
-      await expect(rpc.echo(invalid)).rejects.toThrow(/RPC transport value/);
+      await expect(uncheckedEcho(invalid)).rejects.toThrow(/RPC transport value/);
     }
 
     expect(getter).not.toHaveBeenCalled();

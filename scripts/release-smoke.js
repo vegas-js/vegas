@@ -221,6 +221,8 @@ function smokeVanillaConsumer(tarballPath, tempRoot) {
       type ServerApi = ServerRpc & {
         hidden_(): string;
         value: string;
+        invalidDate(date: Date): string;
+        invalidPromise(): Promise<string>;
       };
 
       // @ts-expect-error Removed legacy client factory in v0.3.0.
@@ -245,6 +247,12 @@ function smokeVanillaConsumer(tarballPath, tempRoot) {
 
       // @ts-expect-error non-functions are not exposed
       registeredRpc.value;
+
+      // @ts-expect-error Date cannot cross the registered RPC transport.
+      registeredRpc.invalidDate(new Date());
+
+      // @ts-expect-error Async server handlers cannot be registered.
+      registeredRpc.invalidPromise();
     `,
   );
 
