@@ -219,7 +219,7 @@ importers:
         version: 4.0.2
       cac:
         specifier: ^7.0.0
-        version: 7.0.1
+        version: 7.1.0
       cross-spawn:
         specifier: ^7.0.6
         version: 7.0.6
@@ -244,7 +244,7 @@ importers:
     devDependencies:
       cac:
         specifier: ^7.0.0
-        version: 7.0.1
+        version: 7.1.0
       json5:
         specifier: ^2.2.3
         version: 2.2.3
@@ -1168,8 +1168,8 @@ packages:
   birpc@2.9.0:
     resolution: {integrity: sha512-KrayHS5pBi69Xi9JmvoqrIgYGDkD6mcSe/i6YKi3w5kekCLzrX4+nawcXqrj2tIp50Kw/mT/s3p+GVK0A0sKxw==}
 
-  cac@7.0.1:
-    resolution: {integrity: sha512-86diuUyeeWM8CrqhpGCaDafrzjS1s++7sWy2AbAPoFNz/xKv7ID57CR4pZsMuGCh60PtsnEx4z68b+Vgt07VPw==}
+  cac@7.1.0:
+    resolution: {integrity: sha512-LMDU/U2yA4IPIY8KT0NsNPWEYZvAMkbgyspxJ6btJaYV+WMDOHAZCmB0lsTObiHaRS1V/ztKAl7+TSkTqXyeoA==}
     engines: {node: '>=20.19.0'}
 
   ccount@2.0.1:
@@ -2446,7 +2446,7 @@ snapshots:
 
   birpc@2.9.0: {}
 
-  cac@7.0.1: {}
+  cac@7.1.0: {}
 
   ccount@2.0.1: {}
 
@@ -2891,7 +2891,7 @@ snapshots:
 
   tsdown@0.23.0(@arethetypeswrong/core@0.18.5)(publint@0.3.25):
     dependencies:
-      cac: 7.0.1
+      cac: 7.1.0
       defu: 6.1.7
       empathic: 2.0.1
       hookable: 6.1.1
