@@ -6,7 +6,7 @@ This generated page reports structural API coverage and audited Runtime behavior
 
 ::: details Coverage measurement rules
 
-- Google API declarations: `@types/google-apps-script@2.0.13`
+- Google API declarations: `@types/google-apps-script@2.0.15`
 - Global implementation inventory: `packages/vegas/src/node/runtime/runtime-globals.ts`
 - Supplemental API declarations: `scripts/runtime-api-supplement.json`, sourced from Google official documentation.
 - Runtime behavior inventory: `scripts/runtime-api-status.json`; behavior classification is separate from structural method coverage.
