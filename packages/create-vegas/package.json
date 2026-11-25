@@ -38,7 +38,7 @@
     "provenance": true
   },
   "devDependencies": {
-    "@clack/prompts": "1.8.1",
+    "@clack/prompts": "1.9.0",
     "@types/cross-spawn": "^6.0.6",
     "@types/validate-npm-package-name": "^4.0.2",
     "cac": "^7.0.0",
